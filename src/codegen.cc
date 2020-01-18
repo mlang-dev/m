@@ -1,5 +1,5 @@
-#include "codegen.h"
 #include "util.h"
+#include "codegen.h"
 #include "llvm/Support/Host.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Transforms/Scalar.h"
@@ -15,7 +15,7 @@ llvm::Function* ErrorFun(const char * str) {
 }
 
 LLVMCodeGenerator::LLVMCodeGenerator(Parser* parser):_parser(parser){
-    _builder = new llvm::IRBuilder<>(llvm::getGlobalContext());
+    _builder = new llvm::IRBuilder<>(_context);
 }
 
 LLVMCodeGenerator::~LLVMCodeGenerator(){
@@ -29,17 +29,15 @@ llvm::Module* LLVMCodeGenerator::GetModuleForNewFunction() {
     
     // Otherwise create a new Module.
     std::string module_name = MakeUniqueName("mjit_module_");
-    llvm::Module *module = new llvm::Module(module_name, llvm::getGlobalContext());
+    llvm::Module *module = new llvm::Module(module_name, _context);
     _modules.push_back(module);
     _module = module;
     return module;
 }
 
-
-
 /*virtual*/void* LLVMCodeGenerator::generate(NumNode* node)
 {
-    return llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(node->_val));
+    return llvm::ConstantFP::get(_context, llvm::APFloat(node->_val));
 }
 
 /*virtual*/void* LLVMCodeGenerator::generate(IdentNode* node)
@@ -67,11 +65,10 @@ llvm::Module* LLVMCodeGenerator::GetModuleForNewFunction() {
             return _builder->CreateFDiv(lv, rv, "divtmp");
         case '<':
             lv = _builder->CreateFCmpULT(lv, rv, "cmptmp");
-            return _builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(llvm::getGlobalContext()), "booltmp");
+            return _builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(_context), "booltmp");
         default:
             return ErrorValue("unrecognized binary operator");
     }
-    
 }
 
 /*virtual*/void* LLVMCodeGenerator::generate(CallExpNode* node)
@@ -92,8 +89,8 @@ llvm::Module* LLVMCodeGenerator::GetModuleForNewFunction() {
 
 /*virtual*/void* LLVMCodeGenerator::generate(PrototypeNode* node)
 {
-    std::vector<llvm::Type*> doubles(node->_args.size(), llvm::Type::getDoubleTy(llvm::getGlobalContext()));
-    llvm::FunctionType* ft = llvm::FunctionType::get(llvm::Type::getDoubleTy(llvm::getGlobalContext()), doubles, false);
+    std::vector<llvm::Type*> doubles(node->_args.size(), llvm::Type::getDoubleTy(_context));
+    llvm::FunctionType* ft = llvm::FunctionType::get(llvm::Type::getDoubleTy(_context), doubles, false);
     llvm::Function* fun = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, MakeFunctionName(node->_name),
                                                  GetModuleForNewFunction());
     unsigned i = 0;
@@ -142,7 +139,7 @@ void LLVMCodeGenerator::_CreateArgumentAllocas(PrototypeNode* node, llvm::Functi
     if(node->_prototype->isBinaryOp())
         _parser->_op_precedence[node->_prototype->GetOpName()] = node->_prototype->_precedence;
     
-    llvm::BasicBlock *bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "entry", fun);
+    llvm::BasicBlock *bb = llvm::BasicBlock::Create(_context, "entry", fun);
     _builder->SetInsertPoint(bb);
 
     _CreateArgumentAllocas(node->_prototype, fun);
@@ -180,16 +177,16 @@ void *LLVMCodeGenerator::generate(ConditionNode* node) {
     
     // Convert condition to a bool by comparing equal to 0.0.
     cond_v = _builder->CreateFCmpONE(
-                                   cond_v, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(0.0)), "ifcond");
+                                   cond_v, llvm::ConstantFP::get(_context, llvm::APFloat(0.0)), "ifcond");
     
     llvm::Function *fun = _builder->GetInsertBlock()->getParent();
     
     // Create blocks for the then and else cases.  Insert the 'then' block at the
     // end of the function.
     llvm::BasicBlock *then_bb =
-    llvm::BasicBlock::Create(llvm::getGlobalContext(), "then", fun);
-    llvm::BasicBlock *else_bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "else");
-    llvm::BasicBlock *merge_bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "ifcont");
+    llvm::BasicBlock::Create(_context, "then", fun);
+    llvm::BasicBlock *else_bb = llvm::BasicBlock::Create(_context, "else");
+    llvm::BasicBlock *merge_bb = llvm::BasicBlock::Create(_context, "ifcont");
     
     _builder->CreateCondBr(cond_v, then_bb, else_bb);
     
@@ -220,7 +217,7 @@ void *LLVMCodeGenerator::generate(ConditionNode* node) {
     fun->getBasicBlockList().push_back(merge_bb);
     _builder->SetInsertPoint(merge_bb);
     llvm::PHINode *phi_node =
-    _builder->CreatePHI(llvm::Type::getDoubleTy(llvm::getGlobalContext()), 2, "iftmp");
+    _builder->CreatePHI(llvm::Type::getDoubleTy(_context), 2, "iftmp");
     
     phi_node->addIncoming(then_v, then_bb);
     phi_node->addIncoming(else_v, else_bb);
@@ -234,7 +231,7 @@ llvm::AllocaInst* LLVMCodeGenerator::_CreateEntryBlockAlloca(llvm::Function *fun
                                           const std::string &var_name) {
     llvm::IRBuilder<> builder(&fun->getEntryBlock(),
                      fun->getEntryBlock().begin());
-    return builder.CreateAlloca(llvm::Type::getDoubleTy(llvm::getGlobalContext()), 0,
+    return builder.CreateAlloca(llvm::Type::getDoubleTy(_context), 0,
                              var_name.c_str());
 }
 
@@ -260,7 +257,7 @@ void *LLVMCodeGenerator::generate(VarNode* node) {
             if (init_val == 0)
                 return 0;
         } else { // If not specified, use 0.0.
-            init_val = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(0.0));
+            init_val = llvm::ConstantFP::get(_context, llvm::APFloat(0.0));
         }
         
         llvm::AllocaInst *alloca = _CreateEntryBlockAlloca(fun, var_name);
@@ -328,7 +325,7 @@ void* LLVMCodeGenerator::generate(ForNode* node) {
     // Make the new basic block for the loop header, inserting after current
     // block.
     llvm::BasicBlock *loop_bb =
-    llvm::BasicBlock::Create(llvm::getGlobalContext(), "loop", fun);
+    llvm::BasicBlock::Create(_context, "loop", fun);
     
     // Insert an explicit fall through from the current block to the LoopBB.
     _builder->CreateBr(loop_bb);
@@ -355,7 +352,7 @@ void* LLVMCodeGenerator::generate(ForNode* node) {
             return 0;
     } else {
         // If not specified, use 1.0.
-        step_v = llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(1.0));
+        step_v = llvm::ConstantFP::get(_context, llvm::APFloat(1.0));
     }
     
     // Compute the end condition.
@@ -371,11 +368,11 @@ void* LLVMCodeGenerator::generate(ForNode* node) {
     
     // Convert condition to a bool by comparing equal to 0.0.
     end_cond = _builder->CreateFCmpONE(
-                                      end_cond, llvm::ConstantFP::get(llvm::getGlobalContext(), llvm::APFloat(0.0)), "loopcond");
+                                      end_cond, llvm::ConstantFP::get(_context, llvm::APFloat(0.0)), "loopcond");
     
     // Create the "after loop" block and insert it.
     llvm::BasicBlock *after_bb =
-    llvm::BasicBlock::Create(llvm::getGlobalContext(), "afterloop", fun);
+    llvm::BasicBlock::Create(_context, "afterloop", fun);
     
     // Insert the conditional branch into the end of LoopEndBB.
     _builder->CreateCondBr(end_cond, loop_bb, after_bb);
@@ -390,7 +387,7 @@ void* LLVMCodeGenerator::generate(ForNode* node) {
         _named_values.erase(node->_var_name);
     
     // for expr always returns 0.0.
-    return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(llvm::getGlobalContext()));
+    return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(_context));
 }
 
 llvm::Function *LLVMCodeGenerator::GetFunction(const std::string fun_name) {
@@ -429,7 +426,7 @@ void LLVMCodeGenerator::Dump() {
     ModuleVector::iterator end = _modules.end();
     ModuleVector::iterator it;
     for (it = begin; it != end; ++it){
-        (*it)->dump();
+        dump((*it));
     }
 }
 

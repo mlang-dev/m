@@ -12,6 +12,7 @@ class LLVMCodeGenerator : public CodeGenerator
 
     std::map<std::string, llvm::AllocaInst* > _named_values;
     llvm::IRBuilder<>* _builder;
+    llvm::LLVMContext _context;
     
     Parser* _parser;
     

@@ -5,7 +5,7 @@ extern "C" double putchard(double X) {
     return 10.01;
 }
 
-void Run(){
+void run(){
     Parser* parser = new Parser();
     LLVMCodeGenerator* code_generator = new LLVMCodeGenerator(parser);
     JIT* jit = new JIT(code_generator);
@@ -21,7 +21,7 @@ void Run(){
                 //fprintf(stderr, "parsing function...");
                 if (auto node = parser->ParseFunction()){
                     if(auto v = ((llvm::Function*)node->codegen(code_generator))){
-                        v->dump();
+                        dump(v);
                         fprintf(stderr, "Parsed a function definition\n");
                     }
                 }
@@ -29,7 +29,7 @@ void Run(){
             case TokenImport:
                 if (auto node= parser->ParseImport()){
                     if(auto v = ((llvm::Function*)node->codegen(code_generator))){
-                        v->dump();
+                        dump(v);
                         fprintf(stderr, "Parsed an import\n");
                     }
                 }

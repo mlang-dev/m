@@ -66,9 +66,9 @@ void *JIT::GetPointerToFunction(llvm::Function *fun) {
         
         // Set up the optimizer pipeline.  Start with registering info about how the
         // target lays out data structures.
-        _code_generator->_module->setDataLayout(*execution_engine->getDataLayout());
+        _code_generator->_module->setDataLayout(execution_engine->getDataLayout());
         // Provide basic AliasAnalysis support for GVN.
-        function_pass_manager->add(llvm::createBasicAliasAnalysisPass());
+        function_pass_manager->add(llvm::createCostModelAnalysisPass());
         // Promote allocas to registers.
         function_pass_manager->add(llvm::createPromoteMemoryToRegisterPass());
         // Do simple "peephole" optimizations and bit-twiddling optzns.
@@ -76,7 +76,7 @@ void *JIT::GetPointerToFunction(llvm::Function *fun) {
         // Reassociate expressions.
         function_pass_manager->add(llvm::createReassociatePass());
         // Eliminate Common SubExpressions.
-        function_pass_manager->add(llvm::createGVNPass());
+        function_pass_manager->add(llvm::createNewGVNPass());
         // Simplify the control flow graph (deleting unreachable blocks, etc).
         function_pass_manager->add(llvm::createCFGSimplificationPass());
         function_pass_manager->doInitialization();

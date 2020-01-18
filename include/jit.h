@@ -6,8 +6,12 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Support/TargetSelect.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Utils.h"
+#include "llvm/Target/TargetMachine.h"
 #include "codegen.h"
+#include "util.h"
 
 class JIT {
 public:
