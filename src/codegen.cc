@@ -41,7 +41,7 @@ llvm::Module* _get_module_for_new_function(code_generator* cg) {
     
     // Otherwise create a new Module.
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    std::string module_name = MakeUniqueName("mjit_module_");
+    std::string module_name = make_unique_name("mjit_module_");
     llvm::Module *module = new llvm::Module(module_name, *context);
     cg->modules.push_back(module);
     cg->module = module;
@@ -153,7 +153,7 @@ void* generate_prototype_node(code_generator* cg, prototype_node* node)
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     std::vector<llvm::Type*> doubles(node->args.size(), llvm::Type::getDoubleTy(*context));
     llvm::FunctionType* ft = llvm::FunctionType::get(llvm::Type::getDoubleTy(*context), doubles, false);
-    llvm::Function* fun = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, MakeFunctionName(node->name),
+    llvm::Function* fun = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, make_function_name(node->name),
                                                  _get_module_for_new_function(cg));
     unsigned i = 0;
     for(auto &arg : fun->args())

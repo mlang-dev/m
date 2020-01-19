@@ -4,16 +4,16 @@
 #include "llvm/Support/Debug.h"
 #include "llvm/IR/Function.h"
 
-std::string MakeUniqueName(const char* name){
+std::string make_unique_name(const char* name){
     static int i = 0;
     char s[16];
     std::string str = s;
     return str;
 }
 
-std::string MakeFunctionName(std::string name) {
+std::string make_function_name(std::string name) {
     if (!name.length())
-        return MakeUniqueName("anon_fun_");
+        return make_unique_name("anon_fun_");
     return name;
 }
 
