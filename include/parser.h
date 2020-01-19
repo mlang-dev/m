@@ -22,78 +22,78 @@ typedef struct exp_node {
 
 typedef struct num_node{
     exp_node base;
-    double _val;
+    double num_val;
 } num_node;
 
 typedef struct ident_node {
     exp_node base;
-    std::string _name;
+    std::string name;
 } ident_node;
 
 typedef struct var_node {
     exp_node base;
-    std::vector<std::pair<std::string, exp_node *> > _var_names;
-    exp_node *_body;
+    std::vector<std::pair<std::string, exp_node *> > var_names;
+    exp_node *body;
 }var_node;
 
 
 typedef struct unary_node{
     exp_node base;
-    char _op;
-    exp_node* _operand;
+    char op;
+    exp_node* operand;
 }unary_node;
 
 typedef struct binary_node{
     exp_node base;
-    char _op;
-    exp_node *_lhs, *_rhs;
+    char op;
+    exp_node *lhs, *rhs;
 }binary_node;
 
 typedef struct  condition_node{
     exp_node base;
-    exp_node *_condition, *_then, *_else;
+    exp_node *condition_node, *then_node, *else_node;
 }condition_node;
 
 typedef struct for_node{
     exp_node base;
-    std::string _var_name;
-    exp_node *_start, *_end, *_step, *_body;
+    std::string var_name;
+    exp_node *start, *end, *step, *body;
 }for_node;
 
 typedef struct call_node{
     exp_node base;
-    std::string _callee;
-    std::vector<exp_node*> _args;
+    std::string callee;
+    std::vector<exp_node*> args;
 }call_node;
 
 
 typedef struct prototype_node{
     exp_node base;
-    std::string _name;
-    std::vector<std::string> _args;
-    bool _is_operator;
-    unsigned _precedence;
+    std::string name;
+    std::vector<std::string> args;
+    bool is_operator;
+    unsigned precedence;
     
-    bool IsUnaryOp() const { return _is_operator && _args.size() == 1;}
-    bool isBinaryOp() const { return _is_operator && _args.size() == 2;}
+    bool IsUnaryOp() const { return is_operator && args.size() == 1;}
+    bool isBinaryOp() const { return is_operator && args.size() == 2;}
     
     char GetOpName() const {
         assert(IsUnaryOp() || isBinaryOp());
-        return _name[_name.size()-1];
+        return name[name.size()-1];
     }
 }prototype_node;
 
 
 typedef struct function_node{
     exp_node base;
-    prototype_node* _prototype;
-    exp_node* _body;
+    prototype_node* prototype;
+    exp_node* body;
 }function_node;
 
 typedef struct parser{
     std::map<char, int>* op_precedences;
-    token _curr_token;
-    int _curr_token_num;
+    token curr_token;
+    int curr_token_num;
 }parser;
 
 parser* create_parser();

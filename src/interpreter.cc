@@ -7,11 +7,11 @@ void run(){
     fprintf(stderr, "m> ");
     while(1){
         advance_to_next_token(parser);
-        if (parser->_curr_token.type == TOKEN_EOF){
+        if (parser->curr_token.type == TOKEN_EOF){
             fprintf(stderr, "eof done");
             break;
         }
-        switch(parser->_curr_token.type){
+        switch(parser->curr_token.type){
             case TOKEN_LET:{
                 //fprintf(stderr, "parsing function...");
                 if (auto node = parse_function(parser)){
@@ -32,7 +32,7 @@ void run(){
                 break;
             }
             case TOKEN_OP:{
-                if (parser->_curr_token.op_val == ';'||parser->_curr_token.op_val == '\r' || parser->_curr_token.op_val == '\n')
+                if (parser->curr_token.op_val == ';'||parser->curr_token.op_val == '\r' || parser->curr_token.op_val == '\n')
                     break;
             }
             default:{

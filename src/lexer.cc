@@ -7,7 +7,6 @@
 #include <cstdlib>
 #include "lexer.h"
 
-
 token& get_token(){
     static std::map<std::string, TokenType> tokens;
     static token token;
@@ -32,7 +31,6 @@ token& get_token(){
     }
     while (isspace(curr_char))
         curr_char = getchar();
-
     if (isalpha(curr_char)){
         ident_str = curr_char;
         while(isalnum((curr_char = getchar())))
@@ -42,8 +40,7 @@ token& get_token(){
         token.ident_str = &ident_str;
         return token;
     }
-    
-    if (isdigit(curr_char) || curr_char == '.'){
+    else if (isdigit(curr_char) || curr_char == '.'){
         std::string num_str;
         do{
             num_str += curr_char;
@@ -53,8 +50,7 @@ token& get_token(){
         token.type = TOKEN_NUM;
         return token;
     }
-
-    if (curr_char == '#' || curr_char == ';') {
+    else if (curr_char == '#' || curr_char == ';') {
         do
             curr_char = getchar();
         while(curr_char!=EOF && curr_char != '\n' && curr_char != '\r');
@@ -62,12 +58,10 @@ token& get_token(){
         if (curr_char!=EOF)
             return get_token();
     }
-  
-    if(curr_char == EOF){
+    else if(curr_char == EOF){
         token.type = TOKEN_EOF;
         return token;
     }
-
     token.op_val = curr_char;
     token.type  = TOKEN_OP;
     curr_char = getchar();
