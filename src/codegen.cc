@@ -11,7 +11,7 @@
     
 llvm::LLVMContext gContext;
 
-code_generator* create_code_generator(Parser* parser){
+code_generator* create_code_generator(parser* parser){
     code_generator* cg = (code_generator*)malloc(sizeof(code_generator));
     cg->parser = parser;
     cg->context = &gContext;
@@ -62,7 +62,7 @@ llvm::AllocaInst* _createEntryBlockAlloca(code_generator* cg, llvm::Function *fu
 
 /// CreateArgumentAllocas - Create an alloca for each argument and register the
 /// argument in the symbol table so that references to it will succeed.
-void _createArgumentAllocas(code_generator* cg, PrototypeNode* node, llvm::Function *fun) {
+void _createArgumentAllocas(code_generator* cg, prototype_node* node, llvm::Function *fun) {
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     llvm::Function::arg_iterator arg_it = fun->arg_begin();
     for (size_t i = 0, e = node->_args.size(); i != e; ++i, ++arg_it) {
@@ -90,13 +90,13 @@ void _createArgumentAllocas(code_generator* cg, PrototypeNode* node, llvm::Funct
     }
 }
 
-void* _generateNumNode(code_generator*cg, NumNode* node)
+void* _generateNumNode(code_generator*cg, num_node* node)
 {
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     return llvm::ConstantFP::get(*context, llvm::APFloat(node->_val));
 }
 
-void* _generateIdentNode(code_generator*cg, IdentNode* node)
+void* _generateIdentNode(code_generator*cg, ident_node* node)
 {
     llvm::Value *v = (llvm::Value *)cg->named_values[node->_name];
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
@@ -105,7 +105,7 @@ void* _generateIdentNode(code_generator*cg, IdentNode* node)
     return builder->CreateLoad(v, node->_name.c_str());
 }
 
-void* _generateBinaryNode(code_generator*cg, BinaryNode* node)
+void* _generateBinaryNode(code_generator*cg, binary_node* node)
 {
     llvm::Value* lv = (llvm::Value*)generate(cg, node->_lhs);
     llvm::Value* rv = (llvm::Value*)generate(cg, node->_rhs);
@@ -131,7 +131,7 @@ void* _generateBinaryNode(code_generator*cg, BinaryNode* node)
     }
 }
 
-void* _generateCallExpNode(code_generator*cg, CallExpNode* node)
+void* _generateCallExpNode(code_generator*cg, call_node* node)
 {
     llvm::Module* module = (llvm::Module*)cg->module;
     llvm::Function *callee = module->getFunction(node->_callee);
@@ -149,7 +149,7 @@ void* _generateCallExpNode(code_generator*cg, CallExpNode* node)
     return builder->CreateCall(callee, arg_values, "calltmp");
 }
 
-void* generate_prototype_node(code_generator* cg, PrototypeNode* node)
+void* generate_prototype_node(code_generator* cg, prototype_node* node)
 {
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     std::vector<llvm::Type*> doubles(node->_args.size(), llvm::Type::getDoubleTy(*context));
@@ -164,7 +164,7 @@ void* generate_prototype_node(code_generator* cg, PrototypeNode* node)
 
 
 
-void* generate_function_node(code_generator* cg, FunctionNode* node)
+void* generate_function_node(code_generator* cg, function_node* node)
 {
     cg->named_values.clear();
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
@@ -190,7 +190,7 @@ void* generate_function_node(code_generator* cg, FunctionNode* node)
     return 0;
 }
 
-void* _generateUnaryNode(code_generator* cg, UnaryNode* node){
+void* _generateUnaryNode(code_generator* cg, unary_node* node){
     llvm::Value *operand_v = (llvm::Value*)generate(cg, node->_operand);
     if (operand_v == 0)
         return 0;
@@ -205,7 +205,7 @@ void* _generateUnaryNode(code_generator* cg, UnaryNode* node){
     
 }
 
-void* _generateConditionNode(code_generator* cg, ConditionNode* node) {
+void* _generateConditionNode(code_generator* cg, condition_node* node) {
     //KSDbgInfo.emitLocation(this);
     
     llvm::Value *cond_v = (llvm::Value*)generate(cg, node->_condition);
@@ -266,7 +266,7 @@ void* _generateConditionNode(code_generator* cg, ConditionNode* node) {
 
 
 
-void* _generateVarNode(code_generator* cg, VarNode* node) {
+void* _generateVarNode(code_generator* cg, var_node* node) {
     std::vector<llvm::AllocaInst *> old_bindings;
     
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
@@ -276,7 +276,7 @@ void* _generateVarNode(code_generator* cg, VarNode* node) {
     // Register all variables and emit their initializer.
     for (size_t i = 0, e = node->_var_names.size(); i != e; ++i) {
         const std::string &var_name = node->_var_names[i].first;
-        ExpNode *init = node->_var_names[i].second;
+        exp_node *init = node->_var_names[i].second;
         
         // Emit the initializer before adding the variable to scope, this prevents
         // the initializer from referencing the variable itself, and permits stuff
@@ -318,7 +318,7 @@ void* _generateVarNode(code_generator* cg, VarNode* node) {
     return body_val;
 }
 
-void* _generateForNode(code_generator* cg, ForNode* node) {
+void* _generateForNode(code_generator* cg, for_node* node) {
     // Output this as:
     //   var = alloca double
     //   ...
@@ -425,28 +425,28 @@ void* _generateForNode(code_generator* cg, ForNode* node) {
 }
 
 
-void* generate(code_generator*cg, ExpNode* node){
+void* generate(code_generator*cg, exp_node* node){
     switch(node->type){
-        case NumberType:
-            return _generateNumNode(cg, (NumNode*)node);
-        case IdentType:
-            return _generateIdentNode(cg, (IdentNode*)node);
-        case BinaryType:
-            return _generateBinaryNode(cg, (BinaryNode*)node);
-        case CallType:
-            return _generateCallExpNode(cg, (CallExpNode*)node);
-        case PrototypeType:
-            return generate_prototype_node(cg, (PrototypeNode*)node);
-        case FunctionType:
-            return generate_function_node(cg, (FunctionNode*)node);
-        case ConditionType:
-            return _generateConditionNode(cg, (ConditionNode*)node);
-        case ForType:
-            return _generateForNode(cg, (ForNode*)node);
-        case UnaryType:
-            return _generateUnaryNode(cg, (UnaryNode*)node);
-        case VarType:
-            return _generateVarNode(cg, (VarNode*)node);
+        case NUMBER_NODE:
+            return _generateNumNode(cg, (num_node*)node);
+        case IDENT_NODE:
+            return _generateIdentNode(cg, (ident_node*)node);
+        case BINARY_NODE:
+            return _generateBinaryNode(cg, (binary_node*)node);
+        case CALL_NODE:
+            return _generateCallExpNode(cg, (call_node*)node);
+        case PROTOTYPE_NODE:
+            return generate_prototype_node(cg, (prototype_node*)node);
+        case FUNCTION_NODE:
+            return generate_function_node(cg, (function_node*)node);
+        case CONDITION_NODE:
+            return _generateConditionNode(cg, (condition_node*)node);
+        case FOR_NODE:
+            return _generateForNode(cg, (for_node*)node);
+        case UNARY_NODE:
+            return _generateUnaryNode(cg, (unary_node*)node);
+        case VAR_NODE:
+            return _generateVarNode(cg, (var_node*)node);
     }
 }
 

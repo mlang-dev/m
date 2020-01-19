@@ -1,18 +1,18 @@
 #include "jit.h"
 
 void run(){
-    Parser* parser = create_parser();
+    parser* parser = create_parser();
     code_generator* cg = create_code_generator(parser);
     JIT* jit = create_jit(cg);
     fprintf(stderr, "m> ");
     while(1){
         advance_to_next_token(parser);
-        if (parser->_curr_token.type == TokenEof){
+        if (parser->_curr_token.type == TOKEN_EOF){
             fprintf(stderr, "eof done");
             break;
         }
         switch(parser->_curr_token.type){
-            case TokenLet:{
+            case TOKEN_LET:{
                 //fprintf(stderr, "parsing function...");
                 if (auto node = parse_function(parser)){
                     if(auto v = generate_function_node(cg, node)){
@@ -22,7 +22,7 @@ void run(){
                 }
                 break;
             }
-            case TokenImport:{
+            case TOKEN_IMPORT:{
                 if (auto node= parse_import(parser)){
                     if(auto v = generate_prototype_node(cg, node)){
                         dump(v);
@@ -31,7 +31,7 @@ void run(){
                 }
                 break;
             }
-            case TokenOp:{
+            case TOKEN_OP:{
                 if (parser->_curr_token.op_val == ';'||parser->_curr_token.op_val == '\r' || parser->_curr_token.op_val == '\n')
                     break;
             }

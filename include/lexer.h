@@ -1,34 +1,34 @@
 #include <string>
 
 enum TokenType {
-    TokenEof = -1,
+    TOKEN_EOF = -1,
     //primary
-    TokenIdent = -2,
-    TokenNum = -3,
+    TOKEN_IDENT = -2,
+    TOKEN_NUM = -3,
     
     //command
-    TokenLet = -4,
-    TokenImport = -5,
+    TOKEN_LET = -4,
+    TOKEN_IMPORT = -5,
     
     //control
-    TokenIf = -6,
-    TokenThen = -7,
-    TokenElse = -8,
-    TokenFor = -9,
-    TokenIn = -10,
+    TOKEN_IF = -6,
+    TOKEN_THEN = -7,
+    TOKEN_ELSE = -8,
+    TOKEN_FOR = -9,
+    TOKEN_IN = -10,
     
     //operators
-    TokenUnary = -11,
-    TokenBinary = -12,
+    TOKEN_UNARY = -11,
+    TOKEN_BINARY = -12,
     
     //var
-    TokenVar = -13,
+    TOKEN_VAR = -13,
     
     //others
-    TokenOp = -14,
+    TOKEN_OP = -14,
 };
 
-struct Token{
+struct token{
     TokenType type;
     union{
         std::string* ident_str;
@@ -37,6 +37,6 @@ struct Token{
     };
 };
 
-Token& get_token();
+token& get_token();
 
 

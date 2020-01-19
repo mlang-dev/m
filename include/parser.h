@@ -4,71 +4,71 @@
 #include <cassert>
 
 enum NodeType{
-    NumberType = 1,
-    IdentType,
-    VarType,
-    UnaryType,
-    BinaryType,
-    ConditionType,
-    ForType,
-    CallType,
-    PrototypeType,
-    FunctionType
+    NUMBER_NODE = 1,
+    IDENT_NODE,
+    VAR_NODE,
+    UNARY_NODE,
+    BINARY_NODE,
+    CONDITION_NODE,
+    FOR_NODE,
+    CALL_NODE,
+    PROTOTYPE_NODE,
+    FUNCTION_NODE
 };
 
-typedef struct ExpNode {
+typedef struct exp_node {
     NodeType type;
-} ExpNode;
+} exp_node;
 
-typedef struct NumNode{
-    ExpNode base;
+typedef struct num_node{
+    exp_node base;
     double _val;
-} NumNode;
+} num_node;
 
-typedef struct IdentNode {
-    ExpNode base;
+typedef struct ident_node {
+    exp_node base;
     std::string _name;
-} IdentNode;
+} ident_node;
 
-typedef struct VarNode {
-    ExpNode base;
-    std::vector<std::pair<std::string, ExpNode *> > _var_names;
-    ExpNode *_body;
-}VarNode;
+typedef struct var_node {
+    exp_node base;
+    std::vector<std::pair<std::string, exp_node *> > _var_names;
+    exp_node *_body;
+}var_node;
 
 
-typedef struct UnaryNode{
-    ExpNode base;
+typedef struct unary_node{
+    exp_node base;
     char _op;
-    ExpNode* _operand;
-}UnaryNode;
+    exp_node* _operand;
+}unary_node;
 
-typedef struct BinaryNode{
-    ExpNode base;
+typedef struct binary_node{
+    exp_node base;
     char _op;
-    ExpNode *_lhs, *_rhs;
-}BinaryNode;
+    exp_node *_lhs, *_rhs;
+}binary_node;
 
-typedef struct  ConditionNode{
-    ExpNode base;
-    ExpNode *_condition, *_then, *_else;
-}ConditionNode;
+typedef struct  condition_node{
+    exp_node base;
+    exp_node *_condition, *_then, *_else;
+}condition_node;
 
-typedef struct ForNode{
-    ExpNode base;
+typedef struct for_node{
+    exp_node base;
     std::string _var_name;
-    ExpNode *_start, *_end, *_step, *_body;
-}ForNode;
+    exp_node *_start, *_end, *_step, *_body;
+}for_node;
 
-typedef struct CallExpNode{
-    ExpNode base;
+typedef struct call_node{
+    exp_node base;
     std::string _callee;
-    std::vector<ExpNode*> _args;
-}CallExpNode;
+    std::vector<exp_node*> _args;
+}call_node;
 
 
-typedef struct PrototypeNode{
-    ExpNode base;
+typedef struct prototype_node{
+    exp_node base;
     std::string _name;
     std::vector<std::string> _args;
     bool _is_operator;
@@ -81,26 +81,26 @@ typedef struct PrototypeNode{
         assert(IsUnaryOp() || isBinaryOp());
         return _name[_name.size()-1];
     }
-}PrototypeNode;
+}prototype_node;
 
 
-typedef struct FunctionNode{
-    ExpNode base;
-    PrototypeNode* _prototype;
-    ExpNode* _body;
-}FunctionNode;
+typedef struct function_node{
+    exp_node base;
+    prototype_node* _prototype;
+    exp_node* _body;
+}function_node;
 
-typedef struct Parser{
+typedef struct parser{
     std::map<char, int>* op_precedences;
-    Token _curr_token;
+    token _curr_token;
     int _curr_token_num;
-}Parser;
+}parser;
 
-Parser* create_parser();
-void destroy_parser(Parser* parser);
+parser* create_parser();
+void destroy_parser(parser* parser);
 
-int advance_to_next_token(Parser* parser);
-FunctionNode* parse_function(Parser* parser);
-FunctionNode* parse_exp_to_function(Parser* parser);
-PrototypeNode* parse_import(Parser* parser);
+int advance_to_next_token(parser* parser);
+function_node* parse_function(parser* parser);
+function_node* parse_exp_to_function(parser* parser);
+prototype_node* parse_import(parser* parser);
 
