@@ -2,11 +2,6 @@
 #include "util.h"
 
 typedef struct JIT {    
-public:
-    JIT(CodeGenerator* cg);
-    ~JIT();
-
-    
     CodeGenerator* cg;
     std::vector<void*>* engines;
 }JIT;
