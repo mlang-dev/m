@@ -1,40 +1,51 @@
 #include "parser.h"
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Verifier.h"
 
-class LLVMCodeGenerator : public CodeGenerator
-{
-    typedef std::vector<llvm::Module *> ModuleVector;
-    ModuleVector _modules;
+using namespace std;
 
-    std::map<std::string, llvm::AllocaInst* > _named_values;
-    llvm::IRBuilder<>* _builder;
-    llvm::LLVMContext _context;
+typedef struct CodeGenerator{
+    void* context;
+    void* builder;
+    Parser* parser;
+    map<std::string, void* > named_values; //llvm::AllocaInst*
+    vector<void *> modules;
+    void* module;
+}CodeGenerator;
+
+CodeGenerator* createCodeGenerator(void* context, void* builder, Parser* parser);
+
+void* generate(CodeGenerator* cg, ExpNode* node);
+
+// void* generateNumNode(CodeGenerator* cg, NumNode* node);
+// void* generateIdentNode(CodeGenerator* cg, IdentNode* node);
+// void* generateBinaryNode(CodeGenerator* cg, BinaryNode* node);
+// void* generateCallExpNode(CodeGenerator* cg, CallExpNode* node);
+void* generatePrototypeNode(CodeGenerator* cg, PrototypeNode* node);
+void* generateFunctionNode(CodeGenerator* cg, FunctionNode* node);
+// void* generateConditionNode(CodeGenerator* cg, ConditionNode* node);
+// void* generateForNode(CodeGenerator* cg, ForNode* node);
+// void* generateUnaryNode(CodeGenerator* cg, UnaryNode* node);
+// void* generateVarNode(CodeGenerator* cg, VarNode* node);
+
+// class LLVMCodeGenerator
+// {
+//     typedef std::vector<llvm::Module *> ModuleVector;
+//     ModuleVector _modules;
+
+//     std::map<std::string, llvm::AllocaInst* > _named_values;
+//     llvm::IRBuilder<>* _builder;
+//     llvm::LLVMContext _context;
     
-    Parser* _parser;
+//     Parser* _parser;
     
-    llvm::AllocaInst* _CreateEntryBlockAlloca(llvm::Function *fun, const std::string &var_name);
-    void _CreateArgumentAllocas(PrototypeNode* node, llvm::Function *fun);
-public:
-    llvm::Module* _module;
+//     llvm::AllocaInst* _CreateEntryBlockAlloca(llvm::Function *fun, const std::string &var_name);
+//     void _CreateArgumentAllocas(PrototypeNode* node, llvm::Function *fun);
+// public:
+//     llvm::Module* _module;
     
-    void* generate(NumNode* node);
-    void* generate(IdentNode* node);
-    void* generate(BinaryNode* node);
-    void* generate(CallExpNode* node);
-    void* generate(PrototypeNode* node);
-    void* generate(FunctionNode* node);
-    void* generate(ConditionNode* node);
-    void* generate(ForNode* node);
-    void* generate(UnaryNode* node);
-    void* generate(VarNode* node);
-    LLVMCodeGenerator(Parser* parser);
-    ~LLVMCodeGenerator();
-    llvm::Module *GetModuleForNewFunction();
-    void Dump();
-    llvm::Function *GetFunction(const std::string fun_name);
-};
+//     LLVMCodeGenerator(Parser* parser);
+//     ~LLVMCodeGenerator();
+//     llvm::Module *GetModuleForNewFunction();
+//     void Dump();
+//     llvm::Function *GetFunction(const std::string fun_name);
+// };
 

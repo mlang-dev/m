@@ -13,19 +13,19 @@
 #include "codegen.h"
 #include "util.h"
 
-class JIT {
+class JIT {    
 public:
-    JIT(LLVMCodeGenerator* code_generator);
+    JIT(CodeGenerator* cg);
     ~JIT();
-    
+
     llvm::Function *GetFunction(const std::string fun_name);
     void *GetPointerToFunction(llvm::Function *fun);
     void *GetSymbolAddress(const std::string &Name);
-    
+
 private:
     typedef std::vector<llvm::ExecutionEngine *> EngineVector;
     
-    LLVMCodeGenerator* _code_generator;
+    CodeGenerator* _cg;
     EngineVector _engines;
 };
 

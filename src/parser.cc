@@ -3,6 +3,95 @@
 #include "parser.h"
 
 
+FunctionNode* _createFunctionNode(PrototypeNode* prototype, ExpNode* body){
+    auto node = (FunctionNode*)malloc(sizeof(FunctionNode));
+    node->base.type = FunctionType;
+    node->_prototype = prototype;
+    node->_body = body;
+    return node;
+}
+
+IdentNode* _createIdentNode(std::string& name){
+    auto node = (IdentNode*)malloc(sizeof(IdentNode));
+    node->base.type = IdentType;
+    node->_name = name;
+    return node;
+}
+
+NumNode* _createNumNode(double val){
+    auto node = (NumNode*)malloc(sizeof(NumNode));
+    node->base.type = NumberType;
+    node->_val = val;
+    return node;
+}
+
+VarNode* _createVarNode(const std::vector<std::pair<std::string, ExpNode*>> &var_names,
+               ExpNode* body){
+    auto node = (VarNode*)malloc(sizeof(VarNode));
+    node->base.type = VarType;
+    node->_body = body;
+    node->_var_names = var_names;
+    return node;
+}
+
+
+CallExpNode* _createCallExpNode(const std::string &callee,
+                std::vector<ExpNode*> &args){
+    auto node = (CallExpNode*)malloc(sizeof(CallExpNode));
+    node->base.type = CallType;
+    node->_callee = callee;
+    node->_args = args;
+    return node;
+}
+
+PrototypeNode* _createPrototypeNode(const std::string &name, std::vector<std::string> &args,
+                  bool is_operator = false, unsigned precedence = 0){
+    auto node = (PrototypeNode*)malloc(sizeof(PrototypeNode));
+    node->base.type = PrototypeType;
+    node->_name = name;
+    node->_args = args;
+    node->_is_operator = is_operator;
+    node->_precedence = precedence;
+    return node;
+}
+
+ConditionNode* _createConditionNode(ExpNode* condition, ExpNode* then, ExpNode* _else){
+    auto node = (ConditionNode*)malloc(sizeof(ConditionNode));
+    node->base.type = ConditionType;
+    node->_condition = condition;
+    node->_then = then;
+    node->_else = _else;
+    return node;
+}
+
+UnaryNode* _createUnaryNode(char op, ExpNode* operand){
+    auto node = (UnaryNode*)malloc(sizeof(UnaryNode));
+    node->base.type = UnaryType;
+    node->_op = op;
+    node->_operand = operand;
+    return node;
+}
+
+BinaryNode* _createBinaryNode(char op, ExpNode* lhs, ExpNode* rhs){
+    auto node = (BinaryNode*)malloc(sizeof(BinaryNode));
+    node->base.type = BinaryType;
+    node->_op = op;
+    node->_lhs = lhs;
+    node->_rhs = rhs;
+    return node;
+}
+
+ForNode* _createForNode(const std::string &var_name, ExpNode* start, ExpNode* end, ExpNode* step, ExpNode* body){
+    auto node = (ForNode*)malloc(sizeof(ForNode));
+    node->base.type = ForType;
+    node->_var_name = var_name;
+    node->_start = start;
+    node->_end = end;
+    node->_step = step;
+    node->_body = body;
+    return node;
+}
+
 Parser::Parser(){
     _op_precedence['<'] = 10;
     _op_precedence['+'] = 20;
@@ -16,8 +105,8 @@ int Parser::AdvanceToNextToken(){
     //fprintf(stderr, "getting token...\n");
     _curr_token = GetToken();
     _curr_token_num = _curr_token.type == TokenOp?_curr_token.op_val : _curr_token.type;
+    //fprintf(stderr, "got token: %d, %d, %f\n", _curr_token.type, _curr_token.op_val, _curr_token.num_val);
     return _curr_token_num;
-    //fprintf(stderr, "got token: %d, %d, %f\n", curr_token.type, curr_token.op_val, curr_token.num_val);
 }
 
 int Parser::_GetOpPrecedence(){
@@ -41,9 +130,9 @@ PrototypeNode* ErrorPrototype(const char * str) {
 }
 
 ExpNode* Parser::_ParseNumber(){
-    auto result = new NumNode(_curr_token.num_val);
+    auto result = _createNumNode(_curr_token.num_val);
     AdvanceToNextToken();
-    return result;
+    return (ExpNode*)result;
 }
 
 
@@ -63,7 +152,7 @@ ExpNode* Parser::_ParseIdentExp(){
     AdvanceToNextToken(); //take identifier
     if (_curr_token_num!='(') {//pure variable
         //fprintf(stderr, "ident parsed. %s\n", id_name.c_str());
-        return new IdentNode(id_name);
+        return (ExpNode*)_createIdentNode(id_name);
     }
     AdvanceToNextToken();//take next
     std::vector<ExpNode*> args;
@@ -82,7 +171,7 @@ ExpNode* Parser::_ParseIdentExp(){
         }
     }
     AdvanceToNextToken();
-    return new CallExpNode(id_name, args);
+    return (ExpNode*)_createCallExpNode(id_name, args);
 }
 
 
@@ -131,7 +220,7 @@ ExpNode* Parser::_ParseVar() {
     if (body == 0)
         return 0;
     
-    return new VarNode(var_names, body);
+    return (ExpNode*)_createVarNode(var_names, body);
 }
 
 ExpNode* Parser::_ParseNode(){
@@ -173,8 +262,7 @@ ExpNode* Parser::_ParseBinaryExp(int exp_prec, ExpNode* lhs){
             if (!rhs)
                 return 0;
         }
-        
-        lhs = new BinaryNode(binary_op, lhs, rhs);
+        return (ExpNode*)_createBinaryNode(binary_op, lhs, rhs);
     }
 }
 
@@ -254,9 +342,9 @@ PrototypeNode* Parser::_ParsePrototype() {
     // Verify right number of names for operator.
     if (proto_type && arg_names.size() != proto_type)
         return ErrorPrototype("Invalid number of operands for operator");
-    
-    return new PrototypeNode(fun_name, arg_names, proto_type != 0, bin_prec);
+    return _createPrototypeNode(fun_name, arg_names, proto_type != 0, bin_prec);
 }
+
 
 FunctionNode* Parser::ParseFunction(){
     AdvanceToNextToken();
@@ -264,15 +352,15 @@ FunctionNode* Parser::ParseFunction(){
     if (!prototype)
         return 0;
     if (auto e = _ParseExp())
-        return new FunctionNode(prototype, e);
+        return _createFunctionNode(prototype, e);
     return 0;
 }
 
 FunctionNode* Parser::ParseExpToFunction(){
     if (auto e = _ParseExp()){
         auto args = std::vector<std::string>();
-        auto prototype = new PrototypeNode("main", args);
-        return new FunctionNode(prototype, e);
+        auto prototype = _createPrototypeNode("main", args);
+        return _createFunctionNode(prototype, e);
     }
     return 0;
 }
@@ -308,7 +396,7 @@ ExpNode* Parser::_ParseCondition() {
     if (!else_exp)
         return 0;
     
-    return new ConditionNode(cond, then, else_exp);
+    return (ExpNode*)_createConditionNode(cond, then, else_exp);
 }
 
 /// unary
@@ -324,7 +412,7 @@ ExpNode *Parser::_ParseUnary() {
     int opc = _curr_token.op_val;
     AdvanceToNextToken();
     if (ExpNode *operand = _ParseUnary())
-        return new UnaryNode(opc, operand);
+        return (ExpNode*)_createUnaryNode(opc, operand);
     return 0;
 }
 
@@ -370,7 +458,7 @@ ExpNode* Parser::_ParseFor() {
     if (body == 0)
         return 0;
     
-    return new ForNode(id_name, start, end, step, body);
+    return (ExpNode*)_createForNode(id_name, start, end, step, body);
 }
 
 ExpNode* Parser::_ParseIf() {
@@ -398,5 +486,5 @@ ExpNode* Parser::_ParseIf() {
     if (!else_exp)
         return 0;
     
-    return new ConditionNode(cond, then, else_exp);
+    return (ExpNode*)_createConditionNode(cond, then, else_exp);
 }

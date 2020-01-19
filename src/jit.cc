@@ -15,11 +15,11 @@ uint64_t MM::getSymbolAddress(const std::string &name) {
     return jit_addr;
 }
 
-JIT::JIT(LLVMCodeGenerator* code_generator){
+JIT::JIT(CodeGenerator* cg){
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
-    _code_generator = code_generator;
+    _cg = cg;
 }
 
 JIT::~JIT() {
@@ -49,10 +49,10 @@ void *JIT::GetPointerToFunction(llvm::Function *fun) {
     
     // If we didn't find the function, see if we can generate it.
     //fprintf(stderr, "didn't find the function, regenerating :%d... ", _code_generator->_module?1:0);
-    if (_code_generator->_module) {
+    if (_cg->module) {
         std::string ErrStr;
         llvm::ExecutionEngine *execution_engine =
-        llvm::EngineBuilder(std::unique_ptr<llvm::Module>(_code_generator->_module))
+        llvm::EngineBuilder(std::unique_ptr<llvm::Module>((llvm::Module*)_cg->module))
         .setErrorStr(&ErrStr)
         .setMCJITMemoryManager(std::unique_ptr<MM>(new MM(this)))
         .create();
@@ -61,12 +61,13 @@ void *JIT::GetPointerToFunction(llvm::Function *fun) {
             exit(1);
         }
         
+        llvm::Module* module = (llvm::Module*)_cg->module;
         // Create a function pass manager for this engine
-        auto *function_pass_manager = new llvm::legacy::FunctionPassManager(_code_generator->_module);
+        auto *function_pass_manager = new llvm::legacy::FunctionPassManager(module);
         
         // Set up the optimizer pipeline.  Start with registering info about how the
         // target lays out data structures.
-        _code_generator->_module->setDataLayout(execution_engine->getDataLayout());
+        module->setDataLayout(execution_engine->getDataLayout());
         // Provide basic AliasAnalysis support for GVN.
         function_pass_manager->add(llvm::createCostModelAnalysisPass());
         // Promote allocas to registers.
@@ -83,8 +84,8 @@ void *JIT::GetPointerToFunction(llvm::Function *fun) {
         
         // For each function in the module
         llvm::Module::iterator it;
-        llvm::Module::iterator end = _code_generator->_module->end();
-        for (it = _code_generator->_module->begin(); it != end; ++it) {
+        llvm::Module::iterator end = module->end();
+        for (it = module->begin(); it != end; ++it) {
             // Run the FPM on this function
             function_pass_manager->run(*it);
         }
@@ -92,7 +93,7 @@ void *JIT::GetPointerToFunction(llvm::Function *fun) {
         // We don't need this anymore
         delete function_pass_manager;
         
-        _code_generator->_module = NULL;
+        _cg->module = NULL;
         _engines.push_back(execution_engine);
         execution_engine->finalizeObject();
         return execution_engine->getPointerToFunction(fun);

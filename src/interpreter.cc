@@ -1,14 +1,17 @@
 #include "jit.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Verifier.h"
 
-extern "C" double putchard(double X) {
-    putchar((char)X);
-    return 10.01;
-}
 
 void run(){
+    llvm::LLVMContext context;
     Parser* parser = new Parser();
-    LLVMCodeGenerator* code_generator = new LLVMCodeGenerator(parser);
-    JIT* jit = new JIT(code_generator);
+    llvm::IRBuilder<>* builder = new llvm::IRBuilder<>(context);
+    CodeGenerator* cg = createCodeGenerator(&context, builder, parser);
+    JIT* jit = new JIT(cg);
     fprintf(stderr, "m> ");
     while(1){
         parser->AdvanceToNextToken();
@@ -17,29 +20,32 @@ void run(){
             break;
         }
         switch(parser->_curr_token.type){
-            case TokenLet:
+            case TokenLet:{
                 //fprintf(stderr, "parsing function...");
                 if (auto node = parser->ParseFunction()){
-                    if(auto v = ((llvm::Function*)node->codegen(code_generator))){
+                    if(auto v = ((llvm::Function*)generateFunctionNode(cg, node))){
                         dump(v);
                         fprintf(stderr, "Parsed a function definition\n");
                     }
                 }
                 break;
-            case TokenImport:
+            }
+            case TokenImport:{
                 if (auto node= parser->ParseImport()){
-                    if(auto v = ((llvm::Function*)node->codegen(code_generator))){
+                    if(auto v = ((llvm::Function*)generatePrototypeNode(cg, node))){
                         dump(v);
                         fprintf(stderr, "Parsed an import\n");
                     }
                 }
                 break;
-            case TokenOp:
+            }
+            case TokenOp:{
                 if (parser->_curr_token.op_val == ';'||parser->_curr_token.op_val == '\r' || parser->_curr_token.op_val == '\n')
                     break;
-            default:
+            }
+            default:{
                 if(auto node=parser->ParseExpToFunction()){
-                    if(auto p_fun = ((llvm::Function*)node->codegen(code_generator))){
+                    if(auto p_fun = ((llvm::Function*)generateFunctionNode(cg, node))){
                         void* ptr = jit->GetPointerToFunction(p_fun);
                         if(ptr){
                             double (*fun)() = (double (*)())(intptr_t)ptr;
@@ -49,11 +55,12 @@ void run(){
                     }
                 }
                 break;
+            }
         }
         fprintf(stderr, "m> ");
     }
-    code_generator->Dump();
     delete jit;
-    delete code_generator;
+    delete builder;
+    free(cg);
     delete parser;
 }
