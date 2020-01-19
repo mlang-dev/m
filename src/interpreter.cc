@@ -1,12 +1,12 @@
 #include "jit.h"
 
 void run(){
-    Parser* parser = createParser();
-    CodeGenerator* cg = createCodeGenerator(parser);
-    JIT* jit = createJIT(cg);
+    Parser* parser = create_parser();
+    code_generator* cg = create_code_generator(parser);
+    JIT* jit = create_jit(cg);
     fprintf(stderr, "m> ");
     while(1){
-        AdvanceToNextToken(parser);
+        advance_to_next_token(parser);
         if (parser->_curr_token.type == TokenEof){
             fprintf(stderr, "eof done");
             break;
@@ -14,8 +14,8 @@ void run(){
         switch(parser->_curr_token.type){
             case TokenLet:{
                 //fprintf(stderr, "parsing function...");
-                if (auto node = ParseFunction(parser)){
-                    if(auto v = generateFunctionNode(cg, node)){
+                if (auto node = parse_function(parser)){
+                    if(auto v = generate_function_node(cg, node)){
                         dump(v);
                         fprintf(stderr, "Parsed a function definition\n");
                     }
@@ -23,8 +23,8 @@ void run(){
                 break;
             }
             case TokenImport:{
-                if (auto node= ParseImport(parser)){
-                    if(auto v = generatePrototypeNode(cg, node)){
+                if (auto node= parse_import(parser)){
+                    if(auto v = generate_prototype_node(cg, node)){
                         dump(v);
                         fprintf(stderr, "Parsed an import\n");
                     }
@@ -36,9 +36,9 @@ void run(){
                     break;
             }
             default:{
-                if(auto node=ParseExpToFunction(parser)){
-                    if(auto p_fun = generateFunctionNode(cg, node)){
-                        void* ptr = GetPointerToFunction(jit, p_fun);
+                if(auto node=parse_exp_to_function(parser)){
+                    if(auto p_fun = generate_function_node(cg, node)){
+                        void* ptr = get_pointer_to_function(jit, p_fun);
                         if(ptr){
                             double (*fun)() = (double (*)())(intptr_t)ptr;
                             fprintf(stderr, "%f\n", fun());
@@ -51,7 +51,7 @@ void run(){
         }
         fprintf(stderr, "m> ");
     }
-    destroyJIT(jit);
-    destroyCodeGenerator(cg);
-    destroyParser(parser);
+    destroy_jit(jit);
+    destroy_code_generator(cg);
+    destroy_parser(parser);
 }

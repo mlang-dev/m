@@ -8,7 +8,7 @@
 #include "lexer.h"
 
 
-Token& GetToken(){
+Token& get_token(){
     static std::map<std::string, TokenType> tokens;
     static Token token;
     static int curr_char = ' ';
@@ -60,7 +60,7 @@ Token& GetToken(){
         while(curr_char!=EOF && curr_char != '\n' && curr_char != '\r');
 
         if (curr_char!=EOF)
-            return GetToken();
+            return get_token();
     }
   
     if(curr_char == EOF){

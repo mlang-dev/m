@@ -3,6 +3,21 @@
 #include "parser.h"
 
 
+int _GetOpPrecedence(Parser* parser);
+ExpNode* _ParseNumber(Parser* parser);
+ExpNode* _ParseParenExp(Parser* parser);
+ExpNode* _ParseIdentExp(Parser* parser);
+ExpNode* _ParseNode(Parser* parser);
+ExpNode* _ParseBinaryExp(Parser* parser, int exp_prec, ExpNode* lhs);
+ExpNode* _ParseExp(Parser* parser);
+ExpNode* _ParseCondition(Parser* parser);
+ExpNode* _ParseFor(Parser* parser);
+ExpNode* _ParseIf(Parser* parser);
+ExpNode* _ParseUnary(Parser* parser);
+ExpNode* _ParseVar(Parser* parser);
+PrototypeNode* _ParsePrototype(Parser* parser);
+
+
 FunctionNode* _createFunctionNode(PrototypeNode* prototype, ExpNode* body){
     auto node = (FunctionNode*)malloc(sizeof(FunctionNode));
     node->base.type = FunctionType;
@@ -100,19 +115,19 @@ std::map<char, int> OP_PRECEDENCES = {
     {'/', 30}
 };
 
-Parser* createParser(){
+Parser* create_parser(){
     auto parser = (Parser*)malloc(sizeof(Parser));
     parser->op_precedences=&OP_PRECEDENCES;
     return parser;
 }
 
-void destroyParser(Parser* parser){
+void destroy_parser(Parser* parser){
     free(parser);
 }
 
-int AdvanceToNextToken(Parser* parser){
+int advance_to_next_token(Parser* parser){
     //fprintf(stderr, "getting token...\n");
-    auto token = GetToken();
+    auto token = get_token();
     parser->_curr_token = token;
     parser->_curr_token_num = token.type == TokenOp?token.op_val : token.type;
     //fprintf(stderr, "got token: %d, %d, %f\n", _curr_token.type, _curr_token.op_val, _curr_token.num_val);
@@ -141,30 +156,30 @@ PrototypeNode* ErrorPrototype(const char * str) {
 
 ExpNode* _ParseNumber(Parser* parser){
     auto result = _createNumNode(parser->_curr_token.num_val);
-    AdvanceToNextToken(parser);
+    advance_to_next_token(parser);
     return (ExpNode*)result;
 }
 
 
 ExpNode* _ParseParenExp(Parser* parser){
-    AdvanceToNextToken(parser);
+    advance_to_next_token(parser);
     auto v = _ParseExp(parser);
     if(!v)
         return 0;
     if(parser->_curr_token.op_val!=')')
         return Error("expected ')'");
-    AdvanceToNextToken(parser);
+    advance_to_next_token(parser);
     return v;
 }
 
 ExpNode* _ParseIdentExp(Parser* parser){
     std::string id_name = *parser->_curr_token.ident_str;
-    AdvanceToNextToken(parser); //take identifier
+    advance_to_next_token(parser); //take identifier
     if (parser->_curr_token_num!='(') {//pure variable
         //fprintf(stderr, "ident parsed. %s\n", id_name.c_str());
         return (ExpNode*)_createIdentNode(id_name);
     }
-    AdvanceToNextToken(parser);//take next
+    advance_to_next_token(parser);//take next
     std::vector<ExpNode*> args;
     if (parser->_curr_token_num != ')'){
         while(1){
@@ -177,10 +192,10 @@ ExpNode* _ParseIdentExp(Parser* parser){
             
             if (parser->_curr_token_num != ',')
                 return Error("Expected ')' or ',' in argument list\n");
-            AdvanceToNextToken(parser);
+            advance_to_next_token(parser);
         }
     }
-    AdvanceToNextToken(parser);
+    advance_to_next_token(parser);
     return (ExpNode*)_createCallExpNode(id_name, args);
 }
 
@@ -188,7 +203,7 @@ ExpNode* _ParseIdentExp(Parser* parser){
 /// varexpr ::= 'var' identifier ('=' expression)?
 //                    (',' identifier ('=' expression)?)* 'in' expression
 ExpNode* _ParseVar(Parser* parser) {
-    AdvanceToNextToken(parser); // eat the var.
+    advance_to_next_token(parser); // eat the var.
     
     std::vector<std::pair<std::string, ExpNode *> > var_names;
     
@@ -198,12 +213,12 @@ ExpNode* _ParseVar(Parser* parser) {
     
     while (1) {
         std::string name = *parser->_curr_token.ident_str;
-        AdvanceToNextToken(parser); // eat identifier.
+        advance_to_next_token(parser); // eat identifier.
         
         // Read the optional initializer.
         ExpNode *init = 0;
         if (parser->_curr_token_num == '=') {
-            AdvanceToNextToken(parser); // eat the '='.
+            advance_to_next_token(parser); // eat the '='.
             
             init = _ParseExp(parser);
             if (init == 0)
@@ -215,7 +230,7 @@ ExpNode* _ParseVar(Parser* parser) {
         // End of var list, exit loop.
         if (parser->_curr_token_num != ',')
             break;
-        AdvanceToNextToken(parser); // eat the ','.
+        advance_to_next_token(parser); // eat the ','.
         
         if (parser->_curr_token.type != TokenIdent)
             return Error("expected identifier list after var");
@@ -224,7 +239,7 @@ ExpNode* _ParseVar(Parser* parser) {
     // At this point, we have to have 'in'.
     if (parser->_curr_token.type != TokenIn)
         return Error("expected 'in' keyword after 'var'");
-    AdvanceToNextToken(parser); // eat 'in'.
+    advance_to_next_token(parser); // eat 'in'.
     
     ExpNode *body = _ParseExp(parser);
     if (body == 0)
@@ -261,7 +276,7 @@ ExpNode* _ParseBinaryExp(Parser* parser, int exp_prec, ExpNode* lhs){
             return lhs;
         
         int binary_op = parser->_curr_token_num;
-        AdvanceToNextToken(parser);
+        advance_to_next_token(parser);
         auto rhs = _ParseUnary(parser); //_ParseNode
         if (!rhs)
             return 0;
@@ -302,32 +317,32 @@ PrototypeNode* _ParsePrototype(Parser* parser) {
         case TokenIdent:
             fun_name = *parser->_curr_token.ident_str;
             proto_type = 0;
-            AdvanceToNextToken(parser);
+            advance_to_next_token(parser);
             break;
         case TokenUnary:
-            token = AdvanceToNextToken(parser);
+            token = advance_to_next_token(parser);
             if (!isascii(token))
                 return ErrorPrototype("Expected unary operator");
             fun_name = "unary";
             fun_name += (char)token;
             proto_type = 1;
-            AdvanceToNextToken(parser);
+            advance_to_next_token(parser);
             break;
         case TokenBinary:
-            token = AdvanceToNextToken(parser);
+            token = advance_to_next_token(parser);
             if (!isascii(token))
                 return ErrorPrototype("Expected binary operator");
             fun_name = "binary";
             fun_name += (char)token;
             proto_type = 2;
-            AdvanceToNextToken(parser);
+            advance_to_next_token(parser);
             
             // Read the precedence if present.
             if (parser->_curr_token.type == TokenNum) {
                 if (parser->_curr_token.num_val < 1 || parser->_curr_token.num_val > 100)
                     return ErrorPrototype("Invalid precedecnce: must be 1..100");
                 bin_prec = (unsigned)parser->_curr_token.num_val;
-                AdvanceToNextToken(parser);
+                advance_to_next_token(parser);
             }
             break;
     }
@@ -339,7 +354,7 @@ PrototypeNode* _ParsePrototype(Parser* parser) {
     while (parser->_curr_token_num == TokenIdent){
         fprintf(stderr, "arg names: %s", (*parser->_curr_token.ident_str).c_str());
         arg_names.push_back(*parser->_curr_token.ident_str);
-        AdvanceToNextToken(parser);
+        advance_to_next_token(parser);
     }
     fprintf(stderr, "arg names: %d", parser->_curr_token_num);
     /*
@@ -347,7 +362,7 @@ PrototypeNode* _ParsePrototype(Parser* parser) {
         return ErrorPrototype("Expected ')' in prototype");
     */
     // success.
-    //AdvanceToNextToken(); // eat ')'.
+    //advance_to_next_token(); // eat ')'.
     
     // Verify right number of names for operator.
     if (proto_type && arg_names.size() != proto_type)
@@ -356,8 +371,8 @@ PrototypeNode* _ParsePrototype(Parser* parser) {
 }
 
 
-FunctionNode* ParseFunction(Parser* parser){
-    AdvanceToNextToken(parser);
+FunctionNode* parse_function(Parser* parser){
+    advance_to_next_token(parser);
     auto prototype = _ParsePrototype(parser);
     if (!prototype)
         return 0;
@@ -366,7 +381,7 @@ FunctionNode* ParseFunction(Parser* parser){
     return 0;
 }
 
-FunctionNode* ParseExpToFunction(Parser* parser){
+FunctionNode* parse_exp_to_function(Parser* parser){
     if (auto e = _ParseExp(parser)){
         auto args = std::vector<std::string>();
         auto prototype = _createPrototypeNode("main", args);
@@ -375,14 +390,14 @@ FunctionNode* ParseExpToFunction(Parser* parser){
     return 0;
 }
 
-PrototypeNode* ParseImport(Parser* parser){
-    AdvanceToNextToken(parser);
+PrototypeNode* parse_import(Parser* parser){
+    advance_to_next_token(parser);
     return _ParsePrototype(parser);
 }
 
 /// ifexpr ::= 'if' expression 'then' expression 'else' expression
 ExpNode* _ParseCondition(Parser* parser) {
-    AdvanceToNextToken(parser); // eat the if.
+    advance_to_next_token(parser); // eat the if.
     
     // condition.
     ExpNode *cond = _ParseExp(parser);
@@ -391,7 +406,7 @@ ExpNode* _ParseCondition(Parser* parser) {
     
     if (parser->_curr_token.type != TokenThen)
         return Error("expected then");
-    AdvanceToNextToken(parser); // eat the then
+    advance_to_next_token(parser); // eat the then
     
     ExpNode *then = _ParseExp(parser);
     if (!then)
@@ -400,7 +415,7 @@ ExpNode* _ParseCondition(Parser* parser) {
     if (parser->_curr_token.type != TokenElse)
         return Error("expected else");
     
-    AdvanceToNextToken(parser);
+    advance_to_next_token(parser);
     
     ExpNode *else_exp = _ParseExp(parser);
     if (!else_exp)
@@ -420,7 +435,7 @@ ExpNode *_ParseUnary(Parser* parser) {
     }
     // If this is a unary operator, read it.
     int opc = parser->_curr_token.op_val;
-    AdvanceToNextToken(parser);
+    advance_to_next_token(parser);
     if (ExpNode *operand = _ParseUnary(parser))
         return (ExpNode*)_createUnaryNode(opc, operand);
     return 0;
@@ -428,24 +443,24 @@ ExpNode *_ParseUnary(Parser* parser) {
 
 /// forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
 ExpNode* _ParseFor(Parser* parser) {
-    AdvanceToNextToken(parser); // eat the for.
+    advance_to_next_token(parser); // eat the for.
     
     if (parser->_curr_token.type != TokenIdent)
         return Error("expected identifier after for");
     
     std::string id_name = *parser->_curr_token.ident_str;
-    AdvanceToNextToken(parser); // eat identifier.
+    advance_to_next_token(parser); // eat identifier.
     
     if (parser->_curr_token.op_val != '=')
         return Error("expected '=' after for");
-    AdvanceToNextToken(parser); // eat '='.
+    advance_to_next_token(parser); // eat '='.
     
     ExpNode *start = _ParseExp(parser);
     if (start == 0)
         return 0;
     if (parser->_curr_token.op_val != ',')
         return Error("expected ',' after for start value");
-    AdvanceToNextToken(parser);
+    advance_to_next_token(parser);
     
     ExpNode *end = _ParseExp(parser);
     if (end == 0)
@@ -454,7 +469,7 @@ ExpNode* _ParseFor(Parser* parser) {
     // The step value is optional.
     ExpNode *step = 0;
     if (parser->_curr_token.op_val == ',') {
-        AdvanceToNextToken(parser);
+        advance_to_next_token(parser);
         step = _ParseExp(parser);
         if (step == 0)
             return 0;
@@ -462,7 +477,7 @@ ExpNode* _ParseFor(Parser* parser) {
     
     if (parser->_curr_token.type != TokenIn)
         return Error("expected 'in' after for");
-    AdvanceToNextToken(parser); // eat 'in'.
+    advance_to_next_token(parser); // eat 'in'.
     
     ExpNode* body = _ParseExp(parser);
     if (body == 0)
@@ -472,7 +487,7 @@ ExpNode* _ParseFor(Parser* parser) {
 }
 
 ExpNode* _ParseIf(Parser* parser) {
-    AdvanceToNextToken(parser); // eat the if.
+    advance_to_next_token(parser); // eat the if.
     
     // condition.
     ExpNode *cond = _ParseExp(parser);
@@ -481,7 +496,7 @@ ExpNode* _ParseIf(Parser* parser) {
     
     if (parser->_curr_token.type != TokenThen)
         return Error("expected then");
-    AdvanceToNextToken(parser); // eat the then
+    advance_to_next_token(parser); // eat the then
     
     ExpNode *then = _ParseExp(parser);
     if (then == 0)
@@ -490,7 +505,7 @@ ExpNode* _ParseIf(Parser* parser) {
     if (parser->_curr_token.type != TokenElse)
         return Error("expected else");
     
-    AdvanceToNextToken(parser);
+    advance_to_next_token(parser);
     
     ExpNode * else_exp = _ParseExp(parser);
     if (!else_exp)

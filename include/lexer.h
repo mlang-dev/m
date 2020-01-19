@@ -37,6 +37,6 @@ struct Token{
     };
 };
 
-Token& GetToken();
+Token& get_token();
 
 

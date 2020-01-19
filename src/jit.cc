@@ -15,6 +15,7 @@
 
 std::vector<void *> gEngines;
 
+void *_get_symbol_address(JIT* jit, const std::string& name);
 
 class MM : public llvm::SectionMemoryManager {
     MM(const MM &) = delete;
@@ -38,14 +39,14 @@ uint64_t MM::getSymbolAddress(const std::string &name) {
     if (fun_addr)
         return fun_addr;
     
-    uint64_t jit_addr = (uint64_t)GetSymbolAddress(_jit, name);
+    uint64_t jit_addr = (uint64_t)_get_symbol_address(_jit, name);
     if (!jit_addr)
         llvm::report_fatal_error("Program used extern function '" + name +
                            "' which could not be resolved!");
     return jit_addr;
 }
 
-JIT* createJIT(CodeGenerator* cg){
+JIT* create_jit(code_generator* cg){
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
@@ -55,7 +56,7 @@ JIT* createJIT(CodeGenerator* cg){
     return jit;
 }
 
-void destroyJIT(JIT* jit){
+void destroy_jit(JIT* jit){
     std::vector<void*>::iterator begin = (*jit->engines).begin();
     std::vector<void*>::iterator end = (*jit->engines).end();
     std::vector<void*>::iterator it;
@@ -66,7 +67,7 @@ void destroyJIT(JIT* jit){
     free(jit);
 }
 
-void* GetPointerToFunction(JIT* jit, void* fun) {
+void* get_pointer_to_function(JIT* jit, void* fun) {
     // See if an existing instance of MCJIT has this function.
     std::vector<void*>::iterator begin = (*jit->engines).begin();
     std::vector<void*>::iterator end = (*jit->engines).end();
@@ -137,7 +138,7 @@ void* GetPointerToFunction(JIT* jit, void* fun) {
     return 0;
 }
 
-void* GetSymbolAddress(JIT* jit, const std::string &name) {
+void* _get_symbol_address(JIT* jit, const std::string &name) {
     // Look for the symbol in each of our execution engines.
     std::vector<void*>::iterator begin = (*jit->engines).begin();
     std::vector<void*>::iterator end = (*jit->engines).end();

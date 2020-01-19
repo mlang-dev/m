@@ -96,25 +96,11 @@ typedef struct Parser{
     int _curr_token_num;
 }Parser;
 
-Parser* createParser();
-void destroyParser(Parser* parser);
+Parser* create_parser();
+void destroy_parser(Parser* parser);
 
-int _GetOpPrecedence(Parser* parser);
-ExpNode* _ParseNumber(Parser* parser);
-ExpNode* _ParseParenExp(Parser* parser);
-ExpNode* _ParseIdentExp(Parser* parser);
-ExpNode* _ParseNode(Parser* parser);
-ExpNode* _ParseBinaryExp(Parser* parser, int exp_prec, ExpNode* lhs);
-ExpNode* _ParseExp(Parser* parser);
-ExpNode* _ParseCondition(Parser* parser);
-ExpNode* _ParseFor(Parser* parser);
-ExpNode* _ParseIf(Parser* parser);
-ExpNode* _ParseUnary(Parser* parser);
-ExpNode* _ParseVar(Parser* parser);
-PrototypeNode* _ParsePrototype(Parser* parser);
-
-int AdvanceToNextToken(Parser* parser);
-FunctionNode* ParseFunction(Parser* parser);
-FunctionNode* ParseExpToFunction(Parser* parser);
-PrototypeNode* ParseImport(Parser* parser);
+int advance_to_next_token(Parser* parser);
+FunctionNode* parse_function(Parser* parser);
+FunctionNode* parse_exp_to_function(Parser* parser);
+PrototypeNode* parse_import(Parser* parser);
 

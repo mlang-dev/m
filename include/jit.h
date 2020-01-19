@@ -2,12 +2,10 @@
 #include "util.h"
 
 typedef struct JIT {    
-    CodeGenerator* cg;
+    code_generator* cg;
     std::vector<void*>* engines;
 }JIT;
 
-JIT* createJIT(CodeGenerator* cg);
-void destroyJIT(JIT* jit);
-void *GetFunction(JIT* jit, const std::string fun_name);
-void *GetPointerToFunction(JIT* jit, void* fun);
-void *GetSymbolAddress(JIT* jit, const std::string& name);
+JIT* create_jit(code_generator* cg);
+void destroy_jit(JIT* jit);
+void* get_pointer_to_function(JIT* jit, void* fun);
