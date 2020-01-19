@@ -90,31 +90,30 @@ typedef struct FunctionNode{
     ExpNode* _body;
 }FunctionNode;
 
-
-class Parser{
-    
-    int _GetOpPrecedence();
-    ExpNode* _ParseNumber();
-    ExpNode* _ParseParenExp();
-    ExpNode* _ParseIdentExp();
-    ExpNode* _ParseNode();
-    ExpNode* _ParseBinaryExp(int exp_prec, ExpNode* lhs);
-    ExpNode* _ParseExp();
-    ExpNode* _ParseCondition();
-    ExpNode* _ParseFor();
-    ExpNode* _ParseIf();
-    ExpNode* _ParseUnary();
-    ExpNode* _ParseVar();
-    PrototypeNode* _ParsePrototype();
-    
-public:
-    std::map<char, int> _op_precedence;
-    Parser();
+typedef struct Parser{
+    std::map<char, int>* op_precedences;
     Token _curr_token;
     int _curr_token_num;
-    int AdvanceToNextToken();
-    FunctionNode* ParseFunction();
-    FunctionNode* ParseExpToFunction();
-    PrototypeNode* ParseImport();
-};
+}Parser;
+
+Parser* createParser();
+
+int _GetOpPrecedence(Parser* parser);
+ExpNode* _ParseNumber(Parser* parser);
+ExpNode* _ParseParenExp(Parser* parser);
+ExpNode* _ParseIdentExp(Parser* parser);
+ExpNode* _ParseNode(Parser* parser);
+ExpNode* _ParseBinaryExp(Parser* parser, int exp_prec, ExpNode* lhs);
+ExpNode* _ParseExp(Parser* parser);
+ExpNode* _ParseCondition(Parser* parser);
+ExpNode* _ParseFor(Parser* parser);
+ExpNode* _ParseIf(Parser* parser);
+ExpNode* _ParseUnary(Parser* parser);
+ExpNode* _ParseVar(Parser* parser);
+PrototypeNode* _ParsePrototype(Parser* parser);
+
+int AdvanceToNextToken(Parser* parser);
+FunctionNode* ParseFunction(Parser* parser);
+FunctionNode* ParseExpToFunction(Parser* parser);
+PrototypeNode* ParseImport(Parser* parser);
 

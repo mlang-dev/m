@@ -165,7 +165,7 @@ void* generateFunctionNode(CodeGenerator* cg, FunctionNode* node)
     if(!fun)
         return 0;
     if(node->_prototype->isBinaryOp())
-        cg->parser->_op_precedence[node->_prototype->GetOpName()] = node->_prototype->_precedence;
+        (*cg->parser->op_precedences)[node->_prototype->GetOpName()] = node->_prototype->_precedence;
     
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", fun);
@@ -179,7 +179,7 @@ void* generateFunctionNode(CodeGenerator* cg, FunctionNode* node)
     }
     fun->eraseFromParent();
     if(node->_prototype->isBinaryOp())
-        cg->parser->_op_precedence.erase(node->_prototype->GetOpName());
+        cg->parser->op_precedences->erase(node->_prototype->GetOpName());
     return 0;
 }
 

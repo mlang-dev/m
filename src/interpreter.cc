@@ -8,13 +8,13 @@
 
 void run(){
     llvm::LLVMContext context;
-    Parser* parser = new Parser();
+    Parser* parser = createParser();
     llvm::IRBuilder<>* builder = new llvm::IRBuilder<>(context);
     CodeGenerator* cg = createCodeGenerator(&context, builder, parser);
     JIT* jit = new JIT(cg);
     fprintf(stderr, "m> ");
     while(1){
-        parser->AdvanceToNextToken();
+        AdvanceToNextToken(parser);
         if (parser->_curr_token.type == TokenEof){
             fprintf(stderr, "eof done");
             break;
@@ -22,7 +22,7 @@ void run(){
         switch(parser->_curr_token.type){
             case TokenLet:{
                 //fprintf(stderr, "parsing function...");
-                if (auto node = parser->ParseFunction()){
+                if (auto node = ParseFunction(parser)){
                     if(auto v = ((llvm::Function*)generateFunctionNode(cg, node))){
                         dump(v);
                         fprintf(stderr, "Parsed a function definition\n");
@@ -31,7 +31,7 @@ void run(){
                 break;
             }
             case TokenImport:{
-                if (auto node= parser->ParseImport()){
+                if (auto node= ParseImport(parser)){
                     if(auto v = ((llvm::Function*)generatePrototypeNode(cg, node))){
                         dump(v);
                         fprintf(stderr, "Parsed an import\n");
@@ -44,7 +44,7 @@ void run(){
                     break;
             }
             default:{
-                if(auto node=parser->ParseExpToFunction()){
+                if(auto node=ParseExpToFunction(parser)){
                     if(auto p_fun = ((llvm::Function*)generateFunctionNode(cg, node))){
                         void* ptr = jit->GetPointerToFunction(p_fun);
                         if(ptr){
@@ -62,5 +62,5 @@ void run(){
     delete jit;
     delete builder;
     free(cg);
-    delete parser;
+    free(parser);
 }

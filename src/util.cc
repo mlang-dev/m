@@ -2,6 +2,7 @@
 #include <string>
 #include <cstdio>
 #include "llvm/Support/Debug.h"
+#include "llvm/IR/Function.h"
 
 std::string MakeUniqueName(const char* name){
     static int i = 0;
@@ -16,11 +17,14 @@ std::string MakeFunctionName(std::string name) {
     return name;
 }
 
-void dump(llvm::Function *p){
-    //p->dump(); //this feature requires cmake to build llvm with -DLLVM_ENABLE_DUMP=ON
-    p->print(llvm::dbgs(), nullptr);
+void dump(void* p){
+    
 }
+// void dump(llvm::Function *p){
+//     //p->dump(); //this feature requires cmake to build llvm with -DLLVM_ENABLE_DUMP=ON
+//     p->print(llvm::dbgs(), nullptr);
+// }
 
-void dump(llvm::Module *p){
-    //p->print(llvm::dbgs(), nullptr);
-}
+// void dump(llvm::Module *p){
+//     //p->print(llvm::dbgs(), nullptr);
+// }
