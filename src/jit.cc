@@ -1,45 +1,81 @@
 #include "jit.h"
 #include "util.h"
+#include "llvm/Analysis/Passes.h"
+#include "llvm/ExecutionEngine/ExecutionEngine.h"
+#include "llvm/ExecutionEngine/MCJIT.h"
+#include "llvm/ExecutionEngine/SectionMemoryManager.h"
+#include "llvm/IR/DataLayout.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Utils.h"
+#include "llvm/Target/TargetMachine.h"
 
+std::vector<void *> gEngines;
+
+
+class MM : public llvm::SectionMemoryManager {
+    MM(const MM &) = delete;
+    void operator=(const MM &) = delete;
+    
+public:
+    MM(JIT *jit) : _jit(jit) {}
+    
+    /// This method returns the address of the specified symbol.
+    /// Our implementation will attempt to find symbols in other
+    /// modules associated with the MCJITHelper to cross link symbols
+    /// from one generated module to another.
+    uint64_t getSymbolAddress(const std::string &name) override;
+    
+private:
+    JIT *_jit;
+};
 
 uint64_t MM::getSymbolAddress(const std::string &name) {
     uint64_t fun_addr = SectionMemoryManager::getSymbolAddress(name);
     if (fun_addr)
         return fun_addr;
     
-    uint64_t jit_addr = (uint64_t)_jit->GetSymbolAddress(name);
+    uint64_t jit_addr = (uint64_t)GetSymbolAddress(_jit, name);
     if (!jit_addr)
         llvm::report_fatal_error("Program used extern function '" + name +
                            "' which could not be resolved!");
-    
     return jit_addr;
 }
 
-JIT::JIT(CodeGenerator* cg){
+JIT* createJIT(CodeGenerator* cg){
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
-    _cg = cg;
+    auto jit = (JIT*)malloc(sizeof(JIT));
+    jit->cg = cg;
+    jit->engines = &gEngines;
+    return jit;
 }
 
-JIT::~JIT() {
-    EngineVector::iterator begin = _engines.begin();
-    EngineVector::iterator end = _engines.end();
-    EngineVector::iterator it;
-    for (it = begin; it != end; ++it)
-        delete *it;
+void destroyJIT(JIT* jit){
+    std::vector<void*>::iterator begin = (*jit->engines).begin();
+    std::vector<void*>::iterator end = (*jit->engines).end();
+    std::vector<void*>::iterator it;
+    for (it = begin; it != end; ++it){
+        llvm::ExecutionEngine* ee = (llvm::ExecutionEngine*)*it;
+        delete ee;
+    }
+    free(jit);
 }
 
-void *JIT::GetPointerToFunction(llvm::Function *fun) {
+void* GetPointerToFunction(JIT* jit, void* fun) {
     // See if an existing instance of MCJIT has this function.
-    EngineVector::iterator begin = _engines.begin();
-    EngineVector::iterator end = _engines.end();
-    EngineVector::iterator it;
-    
+    std::vector<void*>::iterator begin = (*jit->engines).begin();
+    std::vector<void*>::iterator end = (*jit->engines).end();
+    std::vector<void*>::iterator it;
     //fprintf(stderr, "getting pointer to function %d...\n", (intptr_t)(void*)fun);
     for (it = begin; it != end; ++it) {
         //fprintf(stderr, "iterating 1..");
-        void *p_fun = (*it)->getPointerToFunction(fun);
+        llvm::ExecutionEngine* ee = (llvm::ExecutionEngine*)(*it);
+        void *p_fun = ee->getPointerToFunction((llvm::Function*)fun);
         //fprintf(stderr, "iterating 2:%d..", p_fun);
         if (p_fun){
             fprintf(stderr, "found the function. returning it");
@@ -49,19 +85,19 @@ void *JIT::GetPointerToFunction(llvm::Function *fun) {
     
     // If we didn't find the function, see if we can generate it.
     //fprintf(stderr, "didn't find the function, regenerating :%d... ", _code_generator->_module?1:0);
-    if (_cg->module) {
+    if (jit->cg->module) {
         std::string ErrStr;
         llvm::ExecutionEngine *execution_engine =
-        llvm::EngineBuilder(std::unique_ptr<llvm::Module>((llvm::Module*)_cg->module))
+        llvm::EngineBuilder(std::unique_ptr<llvm::Module>((llvm::Module*)jit->cg->module))
         .setErrorStr(&ErrStr)
-        .setMCJITMemoryManager(std::unique_ptr<MM>(new MM(this)))
+        .setMCJITMemoryManager(std::unique_ptr<MM>(new MM(jit)))
         .create();
         if (!execution_engine) {
             fprintf(stderr, "Could not create ExecutionEngine: %s\n", ErrStr.c_str());
             exit(1);
         }
         
-        llvm::Module* module = (llvm::Module*)_cg->module;
+        llvm::Module* module = (llvm::Module*)jit->cg->module;
         // Create a function pass manager for this engine
         auto *function_pass_manager = new llvm::legacy::FunctionPassManager(module);
         
@@ -93,21 +129,21 @@ void *JIT::GetPointerToFunction(llvm::Function *fun) {
         // We don't need this anymore
         delete function_pass_manager;
         
-        _cg->module = NULL;
-        _engines.push_back(execution_engine);
+        jit->cg->module = NULL;
+        (*jit->engines).push_back(execution_engine);
         execution_engine->finalizeObject();
-        return execution_engine->getPointerToFunction(fun);
+        return execution_engine->getPointerToFunction((llvm::Function*)fun);
     }
     return 0;
 }
 
-void *JIT::GetSymbolAddress(const std::string &name) {
+void* GetSymbolAddress(JIT* jit, const std::string &name) {
     // Look for the symbol in each of our execution engines.
-    EngineVector::iterator begin = _engines.begin();
-    EngineVector::iterator end = _engines.end();
-    EngineVector::iterator it;
+    std::vector<void*>::iterator begin = (*jit->engines).begin();
+    std::vector<void*>::iterator end = (*jit->engines).end();
+    std::vector<void*>::iterator it;
     for (it = begin; it != end; ++it) {
-        uint64_t fun_addr = (*it)->getFunctionAddress(name);
+        uint64_t fun_addr = ((llvm::ExecutionEngine*)(*it))->getFunctionAddress(name);
         if (fun_addr) {
             return (void *)fun_addr;
         }

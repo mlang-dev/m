@@ -11,7 +11,7 @@ void run(){
     Parser* parser = createParser();
     llvm::IRBuilder<>* builder = new llvm::IRBuilder<>(context);
     CodeGenerator* cg = createCodeGenerator(&context, builder, parser);
-    JIT* jit = new JIT(cg);
+    JIT* jit = createJIT(cg);
     fprintf(stderr, "m> ");
     while(1){
         AdvanceToNextToken(parser);
@@ -46,7 +46,7 @@ void run(){
             default:{
                 if(auto node=ParseExpToFunction(parser)){
                     if(auto p_fun = ((llvm::Function*)generateFunctionNode(cg, node))){
-                        void* ptr = jit->GetPointerToFunction(p_fun);
+                        void* ptr = GetPointerToFunction(jit, p_fun);
                         if(ptr){
                             double (*fun)() = (double (*)())(intptr_t)ptr;
                             fprintf(stderr, "%f\n", fun());
@@ -59,8 +59,8 @@ void run(){
         }
         fprintf(stderr, "m> ");
     }
-    delete jit;
-    delete builder;
+    destroyJIT(jit);
     free(cg);
     free(parser);
+    delete builder;
 }
