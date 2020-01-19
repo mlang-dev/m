@@ -8,13 +8,20 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
+    
+llvm::LLVMContext gContext;
 
-CodeGenerator* createCodeGenerator(void* context, void* builder, Parser* parser){
+CodeGenerator* createCodeGenerator(Parser* parser){
     CodeGenerator* cg = (CodeGenerator*)malloc(sizeof(CodeGenerator));
     cg->parser = parser;
-    cg->context = context;
-    cg->builder = builder;
+    cg->context = &gContext;
+    cg->builder = new llvm::IRBuilder<>(gContext);
     return cg;
+}
+
+void destroyCodeGenerator(CodeGenerator* cg){
+    delete (llvm::IRBuilder<>*)cg->builder;
+    free(cg);
 }
 
 llvm::Value* ErrorValue(const char* str){

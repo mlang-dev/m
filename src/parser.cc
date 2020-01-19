@@ -106,6 +106,10 @@ Parser* createParser(){
     return parser;
 }
 
+void destroyParser(Parser* parser){
+    free(parser);
+}
+
 int AdvanceToNextToken(Parser* parser){
     //fprintf(stderr, "getting token...\n");
     auto token = GetToken();

@@ -97,6 +97,7 @@ typedef struct Parser{
 }Parser;
 
 Parser* createParser();
+void destroyParser(Parser* parser);
 
 int _GetOpPrecedence(Parser* parser);
 ExpNode* _ParseNumber(Parser* parser);

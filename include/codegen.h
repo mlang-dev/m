@@ -11,7 +11,8 @@ typedef struct CodeGenerator{
     void* module;
 }CodeGenerator;
 
-CodeGenerator* createCodeGenerator(void* context, void* builder, Parser* parser);
+CodeGenerator* createCodeGenerator(Parser* parser);
+void destroyCodeGenerator(CodeGenerator* cg);
 
 void* generate(CodeGenerator* cg, ExpNode* node);
 
