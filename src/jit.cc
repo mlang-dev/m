@@ -13,7 +13,7 @@
 #include "llvm/Transforms/Utils.h"
 #include "llvm/Target/TargetMachine.h"
 
-std::vector<void *> gEngines;
+std::vector<void *> g_engines;
 
 void *_get_symbol_address(JIT* jit, const std::string& name);
 
@@ -52,7 +52,7 @@ JIT* create_jit(code_generator* cg){
     llvm::InitializeNativeTargetAsmParser();
     auto jit = (JIT*)malloc(sizeof(JIT));
     jit->cg = cg;
-    jit->engines = &gEngines;
+    jit->engines = &g_engines;
     return jit;
 }
 

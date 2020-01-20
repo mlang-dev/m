@@ -9,13 +9,13 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
 
-llvm::LLVMContext gContext;
+llvm::LLVMContext g_context;
 
 code_generator* create_code_generator(parser* parser){
     code_generator* cg = (code_generator*)malloc(sizeof(code_generator));
     cg->parser = parser;
-    cg->context = &gContext;
-    cg->builder = new llvm::IRBuilder<>(gContext);
+    cg->context = &g_context;
+    cg->builder = new llvm::IRBuilder<>(g_context);
     return cg;
 }
 

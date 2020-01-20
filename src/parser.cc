@@ -4,18 +4,18 @@
 
 
 int _get_op_precedence(parser* parser);
-exp_node* _ParseNumber(parser* parser);
-exp_node* _ParseParenExp(parser* parser);
-exp_node* _ParseIdentExp(parser* parser);
-exp_node* _ParseNode(parser* parser);
-exp_node* _ParseBinaryExp(parser* parser, int exp_prec, exp_node* lhs);
-exp_node* _ParseExp(parser* parser);
-exp_node* _ParseCondition(parser* parser);
-exp_node* _ParseFor(parser* parser);
-exp_node* _ParseIf(parser* parser);
-exp_node* _ParseUnary(parser* parser);
-exp_node* _ParseVar(parser* parser);
-prototype_node* _ParsePrototype(parser* parser);
+exp_node* _parse_number(parser* parser);
+exp_node* _parse_parent(parser* parser);
+exp_node* _parse_ident(parser* parser);
+exp_node* _parse_node(parser* parser);
+exp_node* _parse_binary(parser* parser, int exp_prec, exp_node* lhs);
+exp_node* _parse_exp(parser* parser);
+exp_node* _parse_condition(parser* parser);
+exp_node* _parse_for(parser* parser);
+exp_node* _parse_If(parser* parser);
+exp_node* _parse_unary(parser* parser);
+exp_node* _parse_var(parser* parser);
+prototype_node* _parse_prototype(parser* parser);
 
 
 function_node* _create_function_node(prototype_node* prototype, exp_node* body){
@@ -107,7 +107,7 @@ for_node* _create_for_node(const std::string &var_name, exp_node* start, exp_nod
     return node;
 }
 
-std::map<char, int> OP_PRECEDENCES = {
+std::map<char, int> g_op_precedences = {
     {'<', 10},
     {'+', 20},
     {'-', 20},
@@ -117,7 +117,7 @@ std::map<char, int> OP_PRECEDENCES = {
 
 parser* create_parser(){
     auto psr = (parser*)malloc(sizeof(parser));
-    psr->op_precedences=&OP_PRECEDENCES;
+    psr->op_precedences=&g_op_precedences;
     return psr;
 }
 
@@ -154,16 +154,16 @@ prototype_node* error_prototype(const char * str) {
     return 0;
 }
 
-exp_node* _ParseNumber(parser* parser){
+exp_node* _parse_number(parser* parser){
     auto result = _create_num_node(parser->curr_token.num_val);
     advance_to_next_token(parser);
     return (exp_node*)result;
 }
 
 
-exp_node* _ParseParenExp(parser* parser){
+exp_node* _parse_parent(parser* parser){
     advance_to_next_token(parser);
-    auto v = _ParseExp(parser);
+    auto v = _parse_exp(parser);
     if(!v)
         return 0;
     if(parser->curr_token.op_val!=')')
@@ -172,7 +172,7 @@ exp_node* _ParseParenExp(parser* parser){
     return v;
 }
 
-exp_node* _ParseIdentExp(parser* parser){
+exp_node* _parse_ident(parser* parser){
     std::string id_name = *parser->curr_token.ident_str;
     advance_to_next_token(parser); //take identifier
     if (parser->curr_token_num!='(') {//pure variable
@@ -183,7 +183,7 @@ exp_node* _ParseIdentExp(parser* parser){
     std::vector<exp_node*> args;
     if (parser->curr_token_num != ')'){
         while(1){
-            if(auto arg = _ParseExp(parser))
+            if(auto arg = _parse_exp(parser))
                 args.push_back(arg);
             else
                 return 0;
@@ -202,7 +202,7 @@ exp_node* _ParseIdentExp(parser* parser){
 
 /// varexpr ::= 'var' identifier ('=' expression)?
 //                    (',' identifier ('=' expression)?)* 'in' expression
-exp_node* _ParseVar(parser* parser) {
+exp_node* _parse_var(parser* parser) {
     advance_to_next_token(parser); // eat the var.
     
     std::vector<std::pair<std::string, exp_node *> > var_names;
@@ -220,7 +220,7 @@ exp_node* _ParseVar(parser* parser) {
         if (parser->curr_token_num == '=') {
             advance_to_next_token(parser); // eat the '='.
             
-            init = _ParseExp(parser);
+            init = _parse_exp(parser);
             if (init == 0)
                 return 0;
         }
@@ -241,26 +241,26 @@ exp_node* _ParseVar(parser* parser) {
         return error_log("expected 'in' keyword after 'var'");
     advance_to_next_token(parser); // eat 'in'.
     
-    exp_node *body = _ParseExp(parser);
+    exp_node *body = _parse_exp(parser);
     if (body == 0)
         return 0;
     
     return (exp_node*)_create_var_node(var_names, body);
 }
 
-exp_node* _ParseNode(parser* parser){
+exp_node* _parse_node(parser* parser){
     if(parser->curr_token.type == TOKEN_IDENT)
-        return _ParseIdentExp(parser);
+        return _parse_ident(parser);
     else if(parser->curr_token.type == TOKEN_NUM)
-        return _ParseNumber(parser);
+        return _parse_number(parser);
     else if(parser->curr_token.type == TOKEN_IF)
-        return _ParseIf(parser);
+        return _parse_If(parser);
     else if(parser->curr_token.type == TOKEN_FOR)
-        return _ParseFor(parser);
+        return _parse_for(parser);
     else if(parser->curr_token.type == TOKEN_VAR)
-        return _ParseVar(parser);
+        return _parse_var(parser);
     else if(parser->curr_token_num == '(')
-        return _ParseParenExp(parser);
+        return _parse_parent(parser);
     else{
         std::string error = "unknown token: " + std::to_string(parser->curr_token.type);
         if (parser->curr_token.type == TOKEN_OP)
@@ -269,7 +269,7 @@ exp_node* _ParseNode(parser* parser){
     }
  }
 
-exp_node* _ParseBinaryExp(parser* parser, int exp_prec, exp_node* lhs){
+exp_node* _parse_binary(parser* parser, int exp_prec, exp_node* lhs){
     while(1){
         int tok_prec = _get_op_precedence(parser);
         if (tok_prec < exp_prec)
@@ -277,13 +277,13 @@ exp_node* _ParseBinaryExp(parser* parser, int exp_prec, exp_node* lhs){
         
         int binary_op = parser->curr_token_num;
         advance_to_next_token(parser);
-        auto rhs = _ParseUnary(parser); //_ParseNode
+        auto rhs = _parse_unary(parser); //_parse_node
         if (!rhs)
             return 0;
         
         auto next_prec = _get_op_precedence(parser);
         if (tok_prec < next_prec){
-            rhs = _ParseBinaryExp(parser, tok_prec + 1, rhs);
+            rhs = _parse_binary(parser, tok_prec + 1, rhs);
             if (!rhs)
                 return 0;
         }
@@ -291,11 +291,11 @@ exp_node* _ParseBinaryExp(parser* parser, int exp_prec, exp_node* lhs){
     }
 }
 
-exp_node* _ParseExp(parser* parser){
-    auto lhs = _ParseUnary(parser); //_ParseNode
+exp_node* _parse_exp(parser* parser){
+    auto lhs = _parse_unary(parser); //_parse_node
     if (!lhs)
         return 0;
-    return _ParseBinaryExp(parser, 0, lhs);
+    return _parse_binary(parser, 0, lhs);
 }
 
 
@@ -303,7 +303,7 @@ exp_node* _ParseExp(parser* parser){
 ///   ::= id '(' id* ')'
 ///   ::= binary LETTER number? (id, id)
 ///   ::= unary LETTER (id)
-prototype_node* _ParsePrototype(parser* parser) {
+prototype_node* _parse_prototype(parser* parser) {
     std::string fun_name;
     
     //SourceLocation FnLoc = CurLoc;
@@ -373,16 +373,16 @@ prototype_node* _ParsePrototype(parser* parser) {
 
 function_node* parse_function(parser* parser){
     advance_to_next_token(parser);
-    auto prototype = _ParsePrototype(parser);
+    auto prototype = _parse_prototype(parser);
     if (!prototype)
         return 0;
-    if (auto e = _ParseExp(parser))
+    if (auto e = _parse_exp(parser))
         return _create_function_node(prototype, e);
     return 0;
 }
 
 function_node* parse_exp_to_function(parser* parser){
-    if (auto e = _ParseExp(parser)){
+    if (auto e = _parse_exp(parser)){
         auto args = std::vector<std::string>();
         auto prototype = _create_prototype_node("main", args);
         return _create_function_node(prototype, e);
@@ -392,15 +392,15 @@ function_node* parse_exp_to_function(parser* parser){
 
 prototype_node* parse_import(parser* parser){
     advance_to_next_token(parser);
-    return _ParsePrototype(parser);
+    return _parse_prototype(parser);
 }
 
 /// ifexpr ::= 'if' expression 'then' expression 'else' expression
-exp_node* _ParseCondition(parser* parser) {
+exp_node* _parse_condition(parser* parser) {
     advance_to_next_token(parser); // eat the if.
     
     // condition.
-    exp_node *cond = _ParseExp(parser);
+    exp_node *cond = _parse_exp(parser);
     if (!cond)
         return 0;
     
@@ -408,7 +408,7 @@ exp_node* _ParseCondition(parser* parser) {
         return error_log("expected then");
     advance_to_next_token(parser); // eat the then
     
-    exp_node *then = _ParseExp(parser);
+    exp_node *then = _parse_exp(parser);
     if (!then)
         return 0;
     
@@ -417,7 +417,7 @@ exp_node* _ParseCondition(parser* parser) {
     
     advance_to_next_token(parser);
     
-    exp_node *else_exp = _ParseExp(parser);
+    exp_node *else_exp = _parse_exp(parser);
     if (!else_exp)
         return 0;
     
@@ -427,22 +427,22 @@ exp_node* _ParseCondition(parser* parser) {
 /// unary
 ///   ::= primary
 ///   ::= '!' unary
-exp_node *_ParseUnary(parser* parser) {
+exp_node *_parse_unary(parser* parser) {
     // If the current token is not an operator, it must be a primary expr.
     if (!isascii(parser->curr_token_num) || parser->curr_token_num == '(' || parser->curr_token_num == ','){
         //fprintf(stderr, "parse unary:%d\n", curr_token_num);
-        return _ParseNode(parser);
+        return _parse_node(parser);
     }
     // If this is a unary operator, read it.
     int opc = parser->curr_token.op_val;
     advance_to_next_token(parser);
-    if (exp_node *operand = _ParseUnary(parser))
+    if (exp_node *operand = _parse_unary(parser))
         return (exp_node*)_create_unary_node(opc, operand);
     return 0;
 }
 
 /// forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
-exp_node* _ParseFor(parser* parser) {
+exp_node* _parse_for(parser* parser) {
     advance_to_next_token(parser); // eat the for.
     
     if (parser->curr_token.type != TOKEN_IDENT)
@@ -455,14 +455,14 @@ exp_node* _ParseFor(parser* parser) {
         return error_log("expected '=' after for");
     advance_to_next_token(parser); // eat '='.
     
-    exp_node *start = _ParseExp(parser);
+    exp_node *start = _parse_exp(parser);
     if (start == 0)
         return 0;
     if (parser->curr_token.op_val != ',')
         return error_log("expected ',' after for start value");
     advance_to_next_token(parser);
     
-    exp_node *end = _ParseExp(parser);
+    exp_node *end = _parse_exp(parser);
     if (end == 0)
         return 0;
     
@@ -470,7 +470,7 @@ exp_node* _ParseFor(parser* parser) {
     exp_node *step = 0;
     if (parser->curr_token.op_val == ',') {
         advance_to_next_token(parser);
-        step = _ParseExp(parser);
+        step = _parse_exp(parser);
         if (step == 0)
             return 0;
     }
@@ -479,18 +479,18 @@ exp_node* _ParseFor(parser* parser) {
         return error_log("expected 'in' after for");
     advance_to_next_token(parser); // eat 'in'.
     
-    exp_node* body = _ParseExp(parser);
+    exp_node* body = _parse_exp(parser);
     if (body == 0)
         return 0;
     
     return (exp_node*)_create_for_node(id_name, start, end, step, body);
 }
 
-exp_node* _ParseIf(parser* parser) {
+exp_node* _parse_If(parser* parser) {
     advance_to_next_token(parser); // eat the if.
     
     // condition.
-    exp_node *cond = _ParseExp(parser);
+    exp_node *cond = _parse_exp(parser);
     if (!cond)
         return 0;
     
@@ -498,7 +498,7 @@ exp_node* _ParseIf(parser* parser) {
         return error_log("expected then");
     advance_to_next_token(parser); // eat the then
     
-    exp_node *then = _ParseExp(parser);
+    exp_node *then = _parse_exp(parser);
     if (then == 0)
         return 0;
     
@@ -507,7 +507,7 @@ exp_node* _ParseIf(parser* parser) {
     
     advance_to_next_token(parser);
     
-    exp_node * else_exp = _ParseExp(parser);
+    exp_node * else_exp = _parse_exp(parser);
     if (!else_exp)
         return 0;
     
