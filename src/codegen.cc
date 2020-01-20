@@ -161,6 +161,19 @@ void* generate_prototype_node(code_generator* cg, prototype_node* node)
     return fun;
 }
 
+bool _is_unary_op(prototype_node* pnode){
+    return pnode->is_operator && pnode->args.size() == 1;
+}
+
+bool _is_binary_op(prototype_node* pnode){
+    return pnode->is_operator && pnode->args.size() == 2;
+}
+
+char _get_op_name(prototype_node* pnode){
+    assert(_is_unary_op(pnode) || _is_binary_op(pnode));
+    return pnode->name[pnode->name.size()-1];
+}
+
 void* generate_function_node(code_generator* cg, function_node* node)
 {
     cg->named_values.clear();
@@ -168,8 +181,8 @@ void* generate_function_node(code_generator* cg, function_node* node)
     auto fun = (llvm::Function*)generate_prototype_node(cg, node->prototype);
     if(!fun)
         return 0;
-    if(node->prototype->isBinaryOp())
-        (*cg->parser->op_precedences)[node->prototype->GetOpName()] = node->prototype->precedence;
+    if(_is_binary_op(node->prototype))
+        (*cg->parser->op_precedences)[_get_op_name(node->prototype)] = node->prototype->precedence;
     
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", fun);
@@ -182,8 +195,8 @@ void* generate_function_node(code_generator* cg, function_node* node)
         return fun;
     }
     fun->eraseFromParent();
-    if(node->prototype->isBinaryOp())
-        cg->parser->op_precedences->erase(node->prototype->GetOpName());
+    if(_is_binary_op(node->prototype))
+        cg->parser->op_precedences->erase(_get_op_name(node->prototype));
     return 0;
 }
 

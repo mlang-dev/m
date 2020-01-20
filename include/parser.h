@@ -73,14 +73,6 @@ typedef struct prototype_node{
     std::vector<std::string> args;
     bool is_operator;
     unsigned precedence;
-    
-    bool IsUnaryOp() const { return is_operator && args.size() == 1;}
-    bool isBinaryOp() const { return is_operator && args.size() == 2;}
-    
-    char GetOpName() const {
-        assert(IsUnaryOp() || isBinaryOp());
-        return name[name.size()-1];
-    }
 }prototype_node;
 
 
