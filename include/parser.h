@@ -73,6 +73,7 @@ typedef struct prototype_node{
     std::vector<std::string> args;
     bool is_operator;
     unsigned precedence;
+    bool is_a_value;
 }prototype_node;
 
 
@@ -92,7 +93,7 @@ parser* create_parser();
 void destroy_parser(parser* parser);
 
 int advance_to_next_token(parser* parser);
-function_node* parse_function(parser* parser);
-function_node* parse_exp_to_function(parser* parser);
-prototype_node* parse_import(parser* parser);
+exp_node* parse_function(parser* parser);
+exp_node* parse_exp_to_function(parser* parser);
+exp_node* parse_import(parser* parser);
 

@@ -50,7 +50,7 @@ JIT* create_jit(code_generator* cg){
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
-    auto jit = (JIT*)malloc(sizeof(JIT));
+    auto jit = new JIT();
     jit->cg = cg;
     jit->engines = &g_engines;
     return jit;
@@ -64,7 +64,7 @@ void destroy_jit(JIT* jit){
         llvm::ExecutionEngine* ee = (llvm::ExecutionEngine*)*it;
         delete ee;
     }
-    free(jit);
+    delete jit;
 }
 
 void* get_pointer_to_function(JIT* jit, void* fun) {

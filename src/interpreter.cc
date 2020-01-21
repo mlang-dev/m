@@ -15,18 +15,18 @@ void run(){
             case TOKEN_LET:{
                 //fprintf(stderr, "parsing function...");
                 if (auto node = parse_function(parser)){
-                    if(auto v = generate_function_node(cg, node)){
+                    if(auto v = generate_code(cg, node)){
                         dump(v);
-                        fprintf(stderr, "Parsed a function definition\n");
+                        //fprintf(stderr, "codegen a %d node.\n", node->type);
                     }
                 }
                 break;
             }
             case TOKEN_IMPORT:{
                 if (auto node= parse_import(parser)){
-                    if(auto v = generate_prototype_node(cg, node)){
+                    if(auto v = generate_code(cg, node)){
                         dump(v);
-                        fprintf(stderr, "Parsed an import\n");
+                        //fprintf(stderr, "Parsed an import\n");
                     }
                 }
                 break;
@@ -37,7 +37,7 @@ void run(){
             }
             default:{
                 if(auto node=parse_exp_to_function(parser)){
-                    if(auto p_fun = generate_function_node(cg, node)){
+                    if(auto p_fun = generate_code(cg, node)){
                         void* ptr = get_pointer_to_function(jit, p_fun);
                         if(ptr){
                             double (*fun)() = (double (*)())(intptr_t)ptr;

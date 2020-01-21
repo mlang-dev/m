@@ -35,6 +35,7 @@ token& get_token(){
         ident_str = curr_char;
         while(isalnum((curr_char = getchar())))
             ident_str += curr_char;
+        //fprintf(stderr, "token: %s", ident_str.c_str());
         auto token_type = tokens[ident_str];
         token.type = token_type != 0 ? token_type: TOKEN_IDENT;
         token.ident_str = &ident_str;
