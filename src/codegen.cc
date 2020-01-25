@@ -24,15 +24,6 @@ void destroy_code_generator(code_generator* cg){
     delete cg;
 }
 
-llvm::Value* error_value(const char* str){
-    fprintf(stderr, "Error: %s\n", str);
-    return 0;
-}
-
-llvm::Function* error_fun(const char * str) {
-    fprintf(stderr, "Error: %s\n", str);
-    return 0;
-}
 
 llvm::Module* _get_module_for_new_function(code_generator* cg) {
     // If we have a Module that hasn't been JITed, use that.
@@ -41,8 +32,7 @@ llvm::Module* _get_module_for_new_function(code_generator* cg) {
     
     // Otherwise create a new Module.
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    std::string module_name = make_unique_name("mjit_module_");
-    llvm::Module *module = new llvm::Module(module_name, *context);
+    llvm::Module *module = new llvm::Module(make_unique_name("mjit_module_"), *context);
     cg->modules.push_back(module);
     cg->module = module;
     return module;
@@ -97,8 +87,10 @@ void* _generate_num_node(code_generator*cg, num_node* node){
 void* _generate_ident_node(code_generator*cg, ident_node* node){
     llvm::Value *v = (llvm::Value *)cg->named_values[node->name];
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    if (!v)
-        return error_value("Unknown variable name");
+    if (!v){
+        log(ERROR, "Unknown variable name");
+        return 0;
+    }
     return builder->CreateLoad(v, node->name.c_str());
 }
 
@@ -123,7 +115,8 @@ void* _generate_binary_node(code_generator*cg, binary_node* node){
             return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context), "booltmp");
         }
         default:
-            return error_value("unrecognized binary operator");
+            log(ERROR, "unrecognized binary operator");
+            return 0;
     }
 }
 
@@ -131,9 +124,10 @@ void* _generate_call_node(code_generator*cg, call_node* node){
     llvm::Module* module = (llvm::Module*)cg->module;
     llvm::Function *callee = module->getFunction(node->callee);
     if(!callee)
-        return error_value("Unknown function referenced");
+        return log(ERROR, "Unknown function referenced");
     if(callee->arg_size() != node->args.size())
-        return error_value("Incorrect number of arguments passed");
+        return log(ERROR, "Incorrect number of arguments passed: callee (prototype generated in llvm): %lu, calling: %lu", callee->arg_size(), node->args.size());
+    
     std::vector<llvm::Value*> arg_values;
     for(unsigned long i = 0, e=node->args.size(); i!=e; ++i){
         arg_values.push_back((llvm::Value*)generate_code(cg, node->args[i]));
@@ -148,7 +142,7 @@ void* _generate_prototype_node(code_generator* cg, prototype_node* node){
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     std::vector<llvm::Type*> doubles(node->args.size(), llvm::Type::getDoubleTy(*context));
     llvm::FunctionType* ft = llvm::FunctionType::get(llvm::Type::getDoubleTy(*context), doubles, false);
-    llvm::Function* fun = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, make_function_name(node->name),
+    llvm::Function* fun = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, node->name,
                                                  _get_module_for_new_function(cg));
     unsigned i = 0;
     for(auto &arg : fun->args())
@@ -201,7 +195,7 @@ void* _generate_unary_node(code_generator* cg, unary_node* node){
     
     llvm::Function *fun = ((llvm::Module*)cg->module)->getFunction(std::string("unary") + node->op);
     if (fun == 0)
-        return error_value("Unknown unary operator");
+        return log(ERROR, "Unknown unary operator");
     
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     //KSDbgInfo.emitLocation(this);

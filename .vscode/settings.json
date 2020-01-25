@@ -78,6 +78,7 @@
         "bit": "cpp",
         "memory_resource": "cpp",
         "__errc": "cpp",
-        "__node_handle": "cpp"
+        "__node_handle": "cpp",
+        "*.inc": "cpp"
     }
 }

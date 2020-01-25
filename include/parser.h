@@ -20,15 +20,25 @@ typedef struct exp_node {
     NodeType type;
 } exp_node;
 
+typedef struct module{
+    std::vector<exp_node*> nodes;
+}module;
+
+typedef struct ast{
+    std::vector<exp_node*> builtins;
+    std::vector<module*> modules;
+    exp_node* entry;
+}ast;
+
 typedef struct num_node{
     exp_node base;
     double num_val;
-} num_node;
+}num_node;
 
 typedef struct ident_node {
     exp_node base;
     std::string name;
-} ident_node;
+}ident_node;
 
 typedef struct var_node {
     exp_node base;
@@ -66,7 +76,6 @@ typedef struct call_node{
     std::vector<exp_node*> args;
 }call_node;
 
-
 typedef struct prototype_node{
     exp_node base;
     std::string name;
@@ -75,7 +84,6 @@ typedef struct prototype_node{
     unsigned precedence;
     bool is_a_value;
 }prototype_node;
-
 
 typedef struct function_node{
     exp_node base;
@@ -87,13 +95,12 @@ typedef struct parser{
     std::map<char, int>* op_precedences;
     token curr_token;
     int curr_token_num;
+    ast* ast;
 }parser;
 
 parser* create_parser();
 void destroy_parser(parser* parser);
-
-int advance_to_next_token(parser* parser);
+int parse_next_token(parser* parser);
 exp_node* parse_function(parser* parser);
 exp_node* parse_exp_to_function(parser* parser);
 exp_node* parse_import(parser* parser);
-

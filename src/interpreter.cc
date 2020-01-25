@@ -4,11 +4,12 @@ void run(){
     parser* parser = create_parser();
     code_generator* cg = create_code_generator(parser);
     JIT* jit = create_jit(cg);
-    fprintf(stderr, "m> ");
-    while(1){
-        advance_to_next_token(parser);
+    while(true){
+        fprintf(stderr, "m> ");
+        parse_next_token(parser);
+        //fprintf(stderr, "got token: token type: %d\n", parser->curr_token.type);
         if (parser->curr_token.type == TOKEN_EOF){
-            fprintf(stderr, "eof done");
+            fprintf(stderr, "bye !\n");
             break;
         }
         switch(parser->curr_token.type){
@@ -32,10 +33,12 @@ void run(){
                 break;
             }
             case TOKEN_OP:{
-                if (parser->curr_token.op_val == ';'||parser->curr_token.op_val == '\r' || parser->curr_token.op_val == '\n')
+                if (parser->curr_token.op_val == ';'){
                     break;
+                }
             }
             default:{
+                //fprintf(stderr, "parsing exp to function: token type: %d, %f\n", parser->curr_token.type, parser->curr_token.num_val);
                 if(auto node=parse_exp_to_function(parser)){
                     if(auto p_fun = generate_code(cg, node)){
                         void* ptr = get_pointer_to_function(jit, p_fun);
@@ -49,7 +52,6 @@ void run(){
                 break;
             }
         }
-        fprintf(stderr, "m> ");
     }
     destroy_jit(jit);
     destroy_code_generator(cg);

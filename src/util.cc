@@ -8,14 +8,19 @@ std::string make_unique_name(const char* name){
     static int i = 0;
     char s[16];
     std::string str = s;
-    return str;
+    return str + name;
 }
 
-std::string make_function_name(std::string name) {
-    if (!name.length())
-        return make_unique_name("anon_fun_");
-    return name;
+void* log(LogLevel level, const char * string_format, ...) {
+    va_list args;
+    char format[512];
+    sprintf(format, "%s: %s", LogLevelString[level], string_format);
+    va_start(args, string_format);
+    fprintf(stderr, format, args );
+    va_end(args);
+    return 0;
 }
+
 
 void dump(void* p){
     

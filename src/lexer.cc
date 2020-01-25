@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstdlib>
 #include "lexer.h"
+#include "util.h"
 
 token& get_token(){
     static std::map<std::string, TokenType> tokens;
@@ -23,19 +24,18 @@ token& get_token(){
     tokens["binary"] = TOKEN_BINARY;
     tokens["unary"] = TOKEN_UNARY;
     tokens["var"] = TOKEN_VAR;
-    if (curr_char == '\n' || curr_char == '\r'){
-        token.type = TOKEN_OP;
-        token.op_val = curr_char;
-        curr_char = ' ';
-        return token;
-    }
-    while (isspace(curr_char))
+    //skip spaces
+    //log(DEBUG, "skiping space\n");
+    while (isspace(curr_char)){
+        //fprintf(stderr, "space char: %d.", curr_char);
         curr_char = getchar();
+    }
+    //log(DEBUG, "skiping space - done\n");
     if (isalpha(curr_char)){
         ident_str = curr_char;
         while(isalnum((curr_char = getchar())))
             ident_str += curr_char;
-        //fprintf(stderr, "token: %s", ident_str.c_str());
+        //fprintf(stderr, "id token: %s\n", ident_str.c_str());
         auto token_type = tokens[ident_str];
         token.type = token_type != 0 ? token_type: TOKEN_IDENT;
         token.ident_str = &ident_str;
@@ -48,14 +48,14 @@ token& get_token(){
             curr_char = getchar();
         }while(isdigit(curr_char)||curr_char == '.');
         token.num_val = strtod(num_str.c_str(), nullptr);
+        //fprintf(stderr, "num token: %f\n", token.num_val);
         token.type = TOKEN_NUM;
         return token;
     }
-    else if (curr_char == '#' || curr_char == ';') {
+    else if (curr_char == '#') {
         do
             curr_char = getchar();
         while(curr_char!=EOF && curr_char != '\n' && curr_char != '\r');
-
         if (curr_char!=EOF)
             return get_token();
     }
@@ -66,5 +66,6 @@ token& get_token(){
     token.op_val = curr_char;
     token.type  = TOKEN_OP;
     curr_char = getchar();
+    //fprintf(stderr, "op token: %c, %c\n", token.op_val, curr_char);
     return token;
 }
