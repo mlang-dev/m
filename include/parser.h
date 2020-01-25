@@ -27,7 +27,7 @@ typedef struct module{
 typedef struct ast{
     std::vector<exp_node*> builtins;
     std::vector<module*> modules;
-    exp_node* entry;
+    module* entry_module;
 }ast;
 
 typedef struct num_node{

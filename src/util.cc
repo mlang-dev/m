@@ -14,7 +14,7 @@ std::string make_unique_name(const char* name){
 void* log(LogLevel level, const char * string_format, ...) {
     va_list args;
     char format[512];
-    sprintf(format, "%s: %s", LogLevelString[level], string_format);
+    sprintf(format, "%s: %s\n", LogLevelString[level], string_format);
     va_start(args, string_format);
     fprintf(stderr, format, args );
     va_end(args);

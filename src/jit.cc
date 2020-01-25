@@ -94,7 +94,7 @@ void* get_pointer_to_function(JIT* jit, void* fun) {
         .setMCJITMemoryManager(std::unique_ptr<MM>(new MM(jit)))
         .create();
         if (!execution_engine) {
-            fprintf(stderr, "Could not create ExecutionEngine: %s\n", ErrStr.c_str());
+            log(ERROR, "Could not create ExecutionEngine: %s", ErrStr.c_str());
             exit(1);
         }
         

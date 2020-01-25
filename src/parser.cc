@@ -115,14 +115,23 @@ std::map<char, int> g_op_precedences = {
     {'/', 40}
 };
 
-parser* create_parser(){
+parser* create_parser(bool create_entry){
     auto psr = new parser();
     psr->op_precedences=&g_op_precedences;
     psr->ast = new ast();
+    if(create_entry){
+        psr->ast->entry_module = new module();
+        psr->ast->modules.push_back(psr->ast->entry_module);
+    }
     return psr;
 }
 
 void destroy_parser(parser* parser){
+    std::vector<module*>::iterator begin = parser->ast->modules.begin();
+    std::vector<module*>::iterator end = parser->ast->modules.end();
+    std::vector<module*>::iterator it;
+    for (it = begin; it != end; ++it){
+        delete *it;
     delete parser->ast;
     delete parser;
 }
@@ -182,7 +191,7 @@ exp_node* _parse_ident(parser* parser){
                 break;
             
             if (parser->curr_token_num != ',')
-                return (exp_node*)log(ERROR, "Expected ')' or ',' in argument list\n");
+                return (exp_node*)log(ERROR, "Expected ')' or ',' in argument list");
             parse_next_token(parser);
         }
     }
@@ -362,7 +371,7 @@ exp_node* parse_function(parser* parser){
             //not a function but a value
             std::vector<std::pair<std::string, exp_node *> > var_names;
             var_names.push_back(std::make_pair(prototype->name, exp));
-            log(INFO, "parse_function: converting to a value: %d!\n", exp->type);
+            log(INFO, "parse_function: converting to a value: %d!", exp->type);
             return (exp_node*)_create_var_node(var_names, exp);
         }
         else{        
