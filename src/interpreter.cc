@@ -1,9 +1,11 @@
 #include "jit.h"
 
 void run(){
-    parser* parser = create_parser();
+    parser* parser = create_parser(true);
     code_generator* cg = create_code_generator(parser);
     JIT* jit = create_jit(cg);
+    create_builtins(parser, cg->context);
+    generate_code(cg, parser->ast->builtins);
     while(true){
         fprintf(stderr, "m> ");
         parse_next_token(parser);
@@ -16,6 +18,7 @@ void run(){
             case TOKEN_LET:{
                 //fprintf(stderr, "parsing function...");
                 if (auto node = parse_function(parser)){
+                    parser->ast->entry_module->nodes.push_back(node);
                     if(auto v = generate_code(cg, node)){
                         dump(v);
                         //fprintf(stderr, "codegen a %d node.\n", node->type);
@@ -25,6 +28,7 @@ void run(){
             }
             case TOKEN_IMPORT:{
                 if (auto node= parse_import(parser)){
+                    parser->ast->entry_module->nodes.push_back(node);
                     if(auto v = generate_code(cg, node)){
                         dump(v);
                         //fprintf(stderr, "Parsed an import\n");
@@ -40,6 +44,7 @@ void run(){
             default:{
                 //fprintf(stderr, "parsing exp to function: token type: %d, %f\n", parser->curr_token.type, parser->curr_token.num_val);
                 if(auto node=parse_exp_to_function(parser)){
+                    parser->ast->entry_module->nodes.push_back(node);
                     if(auto p_fun = generate_code(cg, node)){
                         void* ptr = get_pointer_to_function(jit, p_fun);
                         if(ptr){

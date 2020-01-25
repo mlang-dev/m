@@ -2,6 +2,7 @@
 #include <memory>
 #include "parser.h"
 #include "util.h"
+#include "builtins.h"
 
 int _get_op_precedence(parser* parser);
 exp_node* _parse_number(parser* parser);
@@ -20,7 +21,7 @@ exp_node* _parse_prototype(parser* parser);
 
 function_node* _create_function_node(prototype_node* prototype, exp_node* body){
     auto node = new function_node();
-    node->base.type = FUNCTION_NODE;
+    node->base.type = NodeType::FUNCTION_NODE;
     node->prototype = prototype;
     node->body = body;
     return node;
@@ -28,14 +29,14 @@ function_node* _create_function_node(prototype_node* prototype, exp_node* body){
 
 ident_node* _create_ident_node(std::string& name){
     auto node = new ident_node();
-    node->base.type = IDENT_NODE;
+    node->base.type = NodeType::IDENT_NODE;
     node->name = name;
     return node;
 }
 
 num_node* _create_num_node(double val){
     auto node = new num_node();
-    node->base.type = NUMBER_NODE;
+    node->base.type = NodeType::NUMBER_NODE;
     node->num_val = val;
     return node;
 }
@@ -43,7 +44,7 @@ num_node* _create_num_node(double val){
 var_node* _create_var_node(const std::vector<std::pair<std::string, exp_node*>> &var_names,
                exp_node* body){
     auto node = new var_node();
-    node->base.type = VAR_NODE;
+    node->base.type = NodeType::VAR_NODE;
     node->body = body;
     node->var_names = var_names;
     return node;
@@ -52,16 +53,16 @@ var_node* _create_var_node(const std::vector<std::pair<std::string, exp_node*>> 
 call_node* _create_call_node(const std::string &callee,
                 std::vector<exp_node*> &args){
     auto node = new call_node();
-    node->base.type = CALL_NODE;
+    node->base.type = NodeType::CALL_NODE;
     node->callee = callee;
     node->args = args;
     return node;
 }
 
-prototype_node* _create_prototype_node(const std::string &name, std::vector<std::string> &args,
-                  bool is_operator = false, unsigned precedence = 0, bool is_a_value = false){
+prototype_node* create_prototype_node(const std::string &name, std::vector<std::string> &args,
+                  bool is_operator, unsigned precedence, bool is_a_value){
     auto node = new prototype_node();
-    node->base.type = PROTOTYPE_NODE;
+    node->base.type = NodeType::PROTOTYPE_NODE;
     node->name = name;
     node->args = args;
     node->is_operator = is_operator;
@@ -72,7 +73,7 @@ prototype_node* _create_prototype_node(const std::string &name, std::vector<std:
 
 condition_node* _create_condition_node(exp_node* condition, exp_node* then_node, exp_node* else_node){
     auto node = new condition_node();
-    node->base.type = CONDITION_NODE;
+    node->base.type = NodeType::CONDITION_NODE;
     node->condition_node = condition;
     node->then_node = then_node;
     node->else_node = else_node;
@@ -81,7 +82,7 @@ condition_node* _create_condition_node(exp_node* condition, exp_node* then_node,
 
 unary_node* _create_unary_node(char op, exp_node* operand){
     auto node = new unary_node();
-    node->base.type = UNARY_NODE;
+    node->base.type = NodeType::UNARY_NODE;
     node->op = op;
     node->operand = operand;
     return node;
@@ -89,7 +90,7 @@ unary_node* _create_unary_node(char op, exp_node* operand){
 
 binary_node* _create_binary_node(char op, exp_node* lhs, exp_node* rhs){
     auto node = new binary_node();
-    node->base.type = BINARY_NODE;
+    node->base.type = NodeType::BINARY_NODE;
     node->op = op;
     node->lhs = lhs;
     node->rhs = rhs;
@@ -98,7 +99,7 @@ binary_node* _create_binary_node(char op, exp_node* lhs, exp_node* rhs){
 
 for_node* _create_for_node(const std::string &var_name, exp_node* start, exp_node* end, exp_node* step, exp_node* body){
     auto node = new for_node();
-    node->base.type = FOR_NODE;
+    node->base.type = NodeType::FOR_NODE;
     node->var_name = var_name;
     node->start = start;
     node->end = end;
@@ -126,15 +127,31 @@ parser* create_parser(bool create_entry){
     return psr;
 }
 
+void create_builtins(parser* parser, void* context){
+    get_builtins(context, parser->ast->builtins);
+}
+
+void destroy_module(module* module){
+    std::vector<exp_node*>::iterator begin = module->nodes.begin();
+    std::vector<exp_node*>::iterator end = module->nodes.end();
+    std::vector<exp_node*>::iterator it;
+    for(it=begin; it!=end; ++it){
+        log(DEBUG, "release: node type: %d", (*it)->type);
+        delete *it;
+    }
+    delete module;
+}
+
 void destroy_parser(parser* parser){
     std::vector<module*>::iterator begin = parser->ast->modules.begin();
     std::vector<module*>::iterator end = parser->ast->modules.end();
     std::vector<module*>::iterator it;
-    for (it = begin; it != end; ++it){
-        delete *it;
+    for (it = begin; it != end; ++it)
+        destroy_module(*it);
     delete parser->ast;
     delete parser;
 }
+
 
 int parse_next_token(parser* parser){
     auto token = get_token();
@@ -356,7 +373,7 @@ exp_node* _parse_prototype(parser* parser) {
     //is a value: has no parenthese and no parameters
     auto is_a_value = !has_parenthese && arg_names.size() == 0;
     //fprintf(stderr, "creating prototype: %s, args: %lu, current token: %c\n", fun_name.c_str(), arg_names.size(), parser->curr_token_num);
-    return (exp_node*)_create_prototype_node(fun_name, arg_names, proto_type != 0, bin_prec, is_a_value);
+    return (exp_node*)create_prototype_node(fun_name, arg_names, proto_type != 0, bin_prec, is_a_value);
 }
 
 exp_node* parse_function(parser* parser){
@@ -384,7 +401,7 @@ exp_node* parse_function(parser* parser){
 exp_node* parse_exp_to_function(parser* parser){
     if (auto e = _parse_exp(parser)){
         auto args = std::vector<std::string>();
-        auto prototype = _create_prototype_node("main", args);
+        auto prototype = create_prototype_node("main", args);
         return (exp_node*)_create_function_node(prototype, e);
     }
     return 0;

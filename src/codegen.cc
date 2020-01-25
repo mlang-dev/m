@@ -419,6 +419,12 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
     return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*context));
 }
 
+void generate_code(code_generator* cg, std::vector<exp_node*>& nodes){
+    llvm::ArrayRef<exp_node*> nodesRef = nodes;
+    for(int i=0; i<nodesRef.size(); i++){
+        generate_code(cg, nodesRef[i]);
+    }
+}
 void* generate_code(code_generator*cg, exp_node* node){
     switch(node->type){
         case NUMBER_NODE:

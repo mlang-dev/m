@@ -8,7 +8,7 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/helloworld.out",
+            "program": "${workspaceFolder}/m",
             "args": [],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
