@@ -399,10 +399,10 @@ exp_node* parse_function(parser* parser){
 }
 
 exp_node* parse_exp_to_function(parser* parser){
-    if (auto e = _parse_exp(parser)){
+    if (auto exp = _parse_exp(parser)){
         auto args = std::vector<std::string>();
-        auto prototype = create_prototype_node("main", args);
-        return (exp_node*)_create_function_node(prototype, e);
+        auto prototype = create_prototype_node(make_unique_name(""), args);
+        return (exp_node*)_create_function_node(prototype, exp);
     }
     return 0;
 }

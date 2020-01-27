@@ -88,7 +88,7 @@ void* _generate_ident_node(code_generator*cg, ident_node* node){
     llvm::Value *v = (llvm::Value *)cg->named_values[node->name];
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     if (!v){
-        log(ERROR, "Unknown variable name");
+        log(ERROR, "Unknown variable name: %s", node->name.c_str());
         return 0;
     }
     return builder->CreateLoad(v, node->name.c_str());

@@ -6,9 +6,31 @@
 #include "llvm/Support/Debug.h"
 #include "llvm/IR/Function.h"
 
+static char alpha_nums[36];
+static bool alpha_nums_init = false;
+
+int random(int min, int max){
+    return min + (rand() % static_cast<int>(max - min + 1));
+}
+
 std::string make_unique_name(const char* name){
+    if (!alpha_nums_init){
+        char c = '0';
+        for(int i=0;i<10;i++){
+            alpha_nums[i] = c + i;
+        }
+        c = 'a';
+        for(int i=0; i<26; i++){
+            alpha_nums[i+10] = c + i;
+        }
+        alpha_nums_init = true;
+    }
     static int i = 0;
     char s[16];
+    for(int i=0;i<16;i++){
+        int j = random(0, 35);
+        s[i] = alpha_nums[j];
+    }
     std::string str = s;
     return str + name;
 }

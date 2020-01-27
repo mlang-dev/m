@@ -36,20 +36,16 @@ void run(){
                 }
                 break;
             }
-            case TOKEN_OP:{
-                if (parser->curr_token.op_val == ';'){
-                    break;
-                }
-            }
             default:{
                 //fprintf(stderr, "parsing exp to function: token type: %d, %f\n", parser->curr_token.type, parser->curr_token.num_val);
                 if(auto node=parse_exp_to_function(parser)){
-                    parser->ast->entry_module->nodes.push_back(node);
                     if(auto p_fun = generate_code(cg, node)){
+                        // fprintf(stderr, "generated: %d\n", node->type);
                         void* ptr = get_pointer_to_function(jit, p_fun);
                         if(ptr){
                             double (*fun)() = (double (*)())(intptr_t)ptr;
                             fprintf(stderr, "%f\n", fun());
+                            // fprintf(stderr, "executed \n");
                         }else
                             fprintf(stderr, "cannot evaluate the expression\n");
                     }

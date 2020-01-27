@@ -77,9 +77,9 @@ void* get_pointer_to_function(JIT* jit, void* fun) {
         //fprintf(stderr, "iterating 1..");
         llvm::ExecutionEngine* ee = (llvm::ExecutionEngine*)(*it);
         void *p_fun = ee->getPointerToFunction((llvm::Function*)fun);
-        //fprintf(stderr, "iterating 2:%d..", p_fun);
+        fprintf(stderr, "iterating execution engine:%ld..\n", (long)p_fun);
         if (p_fun){
-            fprintf(stderr, "found the function. returning it");
+            fprintf(stderr, "found the function. returning it\n");
             return p_fun;
         }
     }
@@ -130,8 +130,8 @@ void* get_pointer_to_function(JIT* jit, void* fun) {
         // We don't need this anymore
         delete function_pass_manager;
         
-        jit->cg->module = NULL;
-        (*jit->engines).push_back(execution_engine);
+        //jit->cg->module = NULL;
+        //(*jit->engines).push_back(execution_engine);
         execution_engine->finalizeObject();
         return execution_engine->getPointerToFunction((llvm::Function*)fun);
     }
