@@ -9,3 +9,4 @@ typedef struct JIT {
 JIT* create_jit(code_generator* cg);
 void destroy_jit(JIT* jit);
 void* get_pointer_to_function(JIT* jit, void* fun);
+uint64_t get_pointer_to_variable(JIT* jit, void* value);

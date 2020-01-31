@@ -14,6 +14,7 @@ token& get_token(){
     static int curr_char = ' ';
     static std::string ident_str;
     tokens["let"] = TOKEN_LET;
+    tokens["var"] = TOKEN_VAR;
     tokens["import"] = TOKEN_IMPORT;
     tokens["exit"] = TOKEN_EOF;
     tokens["if"] = TOKEN_IF;
@@ -23,7 +24,7 @@ token& get_token(){
     tokens["for"] = TOKEN_FOR;
     tokens["binary"] = TOKEN_BINARY;
     tokens["unary"] = TOKEN_UNARY;
-    tokens["var"] = TOKEN_VAR;
+    
     //skip spaces
     //log(DEBUG, "skiping space\n");
     while (isspace(curr_char)){

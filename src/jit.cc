@@ -67,6 +67,26 @@ void destroy_jit(JIT* jit){
     delete jit;
 }
 
+uint64_t get_pointer_to_variable(JIT* jit, void* value){
+    // std::vector<void*>::iterator begin = (*jit->engines).begin();
+    // std::vector<void*>::iterator end = (*jit->engines).end();
+    // std::vector<void*>::iterator it;
+    // auto llvmValue = (llvm::Value*)value;
+    // //fprintf(stderr, "getting pointer to function %d...\n", (intptr_t)(void*)fun);
+    // for (it = begin; it != end; ++it) {
+    //     //fprintf(stderr, "iterating 1..");
+    //     llvm::ExecutionEngine* ee = (llvm::ExecutionEngine*)(*it);
+    //     auto pgVar = ee->getGlobalValueAddress(global_name);
+    //     //fprintf(stderr, "iterating execution engine:%ld..\n", (long)p_fun);
+    //     if (pgVar){
+    //         fprintf(stderr, "found the global value. returning it\n");
+    //         return pgVar;
+    //     }
+    // }
+    // return 0;
+    return 0;
+}
+
 void* get_pointer_to_function(JIT* jit, void* fun) {
     // See if an existing instance of MCJIT has this function.
     std::vector<void*>::iterator begin = (*jit->engines).begin();

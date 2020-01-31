@@ -9,6 +9,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
 
+using namespace llvm;
 llvm::LLVMContext g_context;
 
 code_generator* create_code_generator(parser* parser){
@@ -22,20 +23,6 @@ code_generator* create_code_generator(parser* parser){
 void destroy_code_generator(code_generator* cg){
     delete (llvm::IRBuilder<>*)cg->builder;
     delete cg;
-}
-
-
-llvm::Module* _get_module_for_new_function(code_generator* cg) {
-    // If we have a Module that hasn't been JITed, use that.
-    if (cg->module)
-        return (llvm::Module*)cg->module;
-    
-    // Otherwise create a new Module.
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    llvm::Module *module = new llvm::Module(make_unique_name("mjit_module_"), *context);
-    cg->modules.push_back(module);
-    cg->module = module;
-    return module;
 }
 
 /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
@@ -85,11 +72,20 @@ void* _generate_num_node(code_generator*cg, num_node* node){
 }
 
 void* _generate_ident_node(code_generator*cg, ident_node* node){
-    llvm::Value *v = (llvm::Value *)cg->named_values[node->name];
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
+    llvm::Value *v = (llvm::Value *)cg->named_values[node->name];
     if (!v){
-        log(ERROR, "Unknown variable name: %s", node->name.c_str());
-        return 0;
+        GlobalVariable* gVar = ((llvm::Module*)cg->module)->getNamedGlobal(node->name); 
+        if(gVar){
+            //return gVar->getInitializer();
+            //log(DEBUG, "getting global variable...");
+            return builder->CreateLoad(gVar, node->name.c_str());
+            //log(DEBUG, "getting global variable... done");
+        }
+        else{
+            log(ERROR, "Unknown variable name: %s", node->name.c_str());
+            return 0;
+        }
     }
     return builder->CreateLoad(v, node->name.c_str());
 }
@@ -143,7 +139,7 @@ void* _generate_prototype_node(code_generator* cg, prototype_node* node){
     std::vector<llvm::Type*> doubles(node->args.size(), llvm::Type::getDoubleTy(*context));
     llvm::FunctionType* ft = llvm::FunctionType::get(llvm::Type::getDoubleTy(*context), doubles, false);
     llvm::Function* fun = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, node->name,
-                                                 _get_module_for_new_function(cg));
+                                                 (llvm::Module*)cg->module);
     unsigned i = 0;
     for(auto &arg : fun->args())
         arg.setName(node->args[i++]);
@@ -261,15 +257,37 @@ void* _generate_condition_node(code_generator* cg, condition_node* node) {
     return phi_node;
 }
 
+void* _generate_global_var_node(code_generator* cg, var_node* node){
+    llvm::ArrayRef<std::pair<std::string, exp_node *>> vars = node->var_names;
+    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
+    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    Module* module = (Module*)cg->module;
+    for(int i=0;i<vars.size();i++){
+        std::string name = vars[i].first;
+        auto gVar = module->getNamedGlobal(name);
+        auto exp = generate_code(cg, vars[i].second);
+        if (!gVar){
+            gVar = new llvm::GlobalVariable(*module, builder->getDoubleTy(), false, llvm::GlobalValue::LinkageTypes::PrivateLinkage, 0, vars[i].first);
+            gVar->setInitializer((llvm::Constant*)exp);
+        }
+        //builder->CreateStore((Value*)exp, gVar);
+        //builder->CreateStore(llvm::ConstantFP::get(*context, llvm::APFloat(5.0)), gVar);
+        //gVar->setInitializer(llvm::ConstantFP::get(*context, llvm::APFloat(10.0)));
+        //log(DEBUG, "created global variable: %s", vars[i].first.c_str());
+    }
+    return 0;
+}
+
 void* _generate_var_node(code_generator* cg, var_node* node) {
     std::vector<llvm::AllocaInst *> old_bindings;
     
-    fprintf(stderr, "_generate_var_node: !\n");
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    fprintf(stderr, "_generate_var_node:1 %lu!\n", node->var_names.size());
+    if (!builder->GetInsertBlock())
+        return _generate_global_var_node(cg, node);
+    //fprintf(stderr, "_generate_var_node:1 %lu!, %lu\n", node->var_names.size(), (long)builder->GetInsertBlock());
     llvm::Function *fun = builder->GetInsertBlock()->getParent();
-    fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
+    //fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
    
     // Register all variables and emit their initializer.
     for (size_t i = 0, e = node->var_names.size(); i != e; ++i) {
@@ -419,12 +437,18 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
     return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*context));
 }
 
-void generate_code(code_generator* cg, std::vector<exp_node*>& nodes){
-    llvm::ArrayRef<exp_node*> nodesRef = nodes;
+void generate_default_code(code_generator* cg, parser* parser){
+    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    llvm::Module *module = new llvm::Module(make_unique_name(parser->ast->entry_module->name.c_str()), *context);
+    cg->modules.push_back(module);
+    cg->module = module;
+
+    llvm::ArrayRef<exp_node*> nodesRef = parser->ast->builtins;
     for(int i=0; i<nodesRef.size(); i++){
         generate_code(cg, nodesRef[i]);
     }
 }
+
 void* generate_code(code_generator*cg, exp_node* node){
     switch(node->type){
         case NUMBER_NODE:

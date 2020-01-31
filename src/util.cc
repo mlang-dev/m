@@ -32,7 +32,8 @@ std::string make_unique_name(const char* name){
         s[i] = alpha_nums[j];
     }
     std::string str = s;
-    return str + name;
+    std::string name_str = name;
+    return name_str + "-" + str;
 }
 
 void* log(LogLevel level, const char * string_format, ...) {

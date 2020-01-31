@@ -20,6 +20,7 @@ typedef struct exp_node {
 } exp_node;
 
 typedef struct module{
+    std::string name;
     std::vector<exp_node*> nodes;
 }module;
 

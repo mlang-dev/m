@@ -7,16 +7,18 @@
 int _get_op_precedence(parser* parser);
 exp_node* _parse_number(parser* parser);
 exp_node* _parse_parentheses(parser* parser);
-exp_node* _parse_ident(parser* parser);
 exp_node* _parse_node(parser* parser);
 exp_node* _parse_binary(parser* parser, int exp_prec, exp_node* lhs);
-exp_node* _parse_exp(parser* parser);
+exp_node* _parse_exp(parser* parser, exp_node* lhs=0);
 exp_node* _parse_condition(parser* parser);
 exp_node* _parse_for(parser* parser);
 exp_node* _parse_if(parser* parser);
 exp_node* _parse_unary(parser* parser);
 exp_node* _parse_var(parser* parser);
 exp_node* _parse_prototype(parser* parser);
+exp_node* _parse_variable(parser* parser, std::string& name);
+exp_node* _parse_function_with_prototype(parser* parser, prototype_node* prototype);
+
 
 
 function_node* _create_function_node(prototype_node* prototype, exp_node* body){
@@ -122,6 +124,7 @@ parser* create_parser(bool create_entry){
     psr->ast = new ast();
     if(create_entry){
         psr->ast->entry_module = new module();
+        psr->ast->entry_module->name = "main";
         psr->ast->modules.push_back(psr->ast->entry_module);
     }
     return psr;
@@ -189,6 +192,68 @@ exp_node* _parse_parentheses(parser* parser){
     return v;
 }
 
+exp_node* parse_exp_or_def(parser* parser){
+    if(parser->curr_token.type != TOKEN_IDENT)
+        return _parse_exp(parser);
+    std::string id_name = *parser->curr_token.ident_str;
+    parse_next_token(parser); //skip identifier
+    if (parser->curr_token_num == '='){
+        //variable definition
+        return _parse_variable(parser, id_name);
+    }
+    else if(parser->curr_token_num==';' || g_op_precedences[parser->curr_token_num]){
+        //just id expression evaluation
+        return _parse_exp(parser, (exp_node*)_create_ident_node(id_name));
+    }
+    else{ // if(parser->curr_token_num=='('|| parser->curr_token.type == TOKEN_IDENT,)
+        //function definition or application
+        if (parser->curr_token_num=='(')
+            parse_next_token(parser);//skip '('
+        auto func_definition = false;
+        std::vector<exp_node*> args;
+        if (parser->curr_token_num != ')'){
+            while(true){
+                if(auto arg = _parse_exp(parser))
+                    args.push_back(arg);
+                else
+                    return 0;
+                if (parser->curr_token_num == '='){
+                    func_definition = true;
+                    break;
+                }
+                if (parser->curr_token_num == ';')
+                    break;
+                else if (parser->curr_token_num==')')
+                    break;
+                // else if (parser->curr_token_num != ',')
+                //     return (exp_node*)log(ERROR, "Expected ')' or ',' in argument list");
+                else if (parser->curr_token_num == ',')
+                    parse_next_token(parser);
+            }
+        }
+        if (parser->curr_token_num != ';')
+            parse_next_token(parser);
+        if (parser->curr_token_num == '=')
+            func_definition = true;
+        //log(DEBUG, "func definition: %d, %lu", func_definition, args.size());
+        if (func_definition){
+            std::vector<std::string> argNames;
+            std::vector<exp_node*>::iterator begin = args.begin();
+            std::vector<exp_node*>::iterator end = args.end();
+            std::vector<exp_node*>::iterator it;
+            for (it=begin; it!=end; it++){
+                auto id = (ident_node*)(*it);
+                argNames.push_back(id->name);
+            }
+            prototype_node* prototype = create_prototype_node(id_name, argNames, false, 0, false);
+            return _parse_function_with_prototype(parser, prototype);
+        }
+        //function application
+        return _parse_exp(parser, (exp_node*)_create_call_node(id_name, args));
+    }
+    
+}
+
 exp_node* _parse_ident(parser* parser){
     std::string id_name = *parser->curr_token.ident_str;
     parse_next_token(parser); //take identifier
@@ -224,7 +289,7 @@ exp_node* _parse_var(parser* parser) {
     if (parser->curr_token.type != TOKEN_IDENT)
         return (exp_node*)log(ERROR, "expected identifier after let");
     std::vector<std::pair<std::string, exp_node *> > var_names;
-    while (1) {
+    while (true) {
         std::string name = *parser->curr_token.ident_str;
         parse_next_token(parser); // eat identifier.
         
@@ -286,7 +351,7 @@ exp_node* _parse_binary(parser* parser, int exp_prec, exp_node* lhs){
         
         int binary_op = parser->curr_token_num;
         parse_next_token(parser);
-        auto rhs = _parse_unary(parser); //_parse_node
+        auto rhs = _parse_unary(parser); 
         if (!rhs)
             return lhs;
         
@@ -301,8 +366,9 @@ exp_node* _parse_binary(parser* parser, int exp_prec, exp_node* lhs){
     }
 }
 
-exp_node* _parse_exp(parser* parser){
-    auto lhs = _parse_unary(parser); //_parse_node
+exp_node* _parse_exp(parser* parser, exp_node* lhs){
+    if (!lhs)
+        lhs = _parse_unary(parser);
     if (!lhs)
         return 0;
     return _parse_binary(parser, 0, lhs);
@@ -355,7 +421,7 @@ exp_node* _parse_prototype(parser* parser) {
     }
     auto has_parenthese = parser->curr_token_num == '(';
     if (has_parenthese)
-        parse_next_token(parser);
+        parse_next_token(parser); //skip '('
     std::vector<std::string> arg_names;
     while (parser->curr_token_num == TOKEN_IDENT){
         //fprintf(stderr, "arg names: %s", (*parser->curr_token.ident_str).c_str());
@@ -376,30 +442,52 @@ exp_node* _parse_prototype(parser* parser) {
     return (exp_node*)create_prototype_node(fun_name, arg_names, proto_type != 0, bin_prec, is_a_value);
 }
 
-exp_node* parse_function(parser* parser){
-    parse_next_token(parser);
-    auto prototype = (prototype_node*)_parse_prototype(parser);
-    if (!prototype)
-       return 0;
+exp_node* _parse_function_with_prototype(parser* parser, prototype_node* prototype){
     if (parser->curr_token_num == '=')
         parse_next_token(parser); //skip '=' token
     if (auto exp = _parse_exp(parser)){
-        if(0){ //(prototype->is_a_value){
-            //not a function but a value
-            std::vector<std::pair<std::string, exp_node *> > var_names;
-            var_names.push_back(std::make_pair(prototype->name, exp));
-            log(INFO, "parse_function: converting to a value: %d!", exp->type);
-            return (exp_node*)_create_var_node(var_names, exp);
-        }
-        else{        
-            return (exp_node*)_create_function_node((prototype_node*)prototype, exp);
-        }
+        return (exp_node*)_create_function_node((prototype_node*)prototype, exp);
+        // if(prototype->is_a_value){
+        //     //not a function but a value
+        //     std::vector<std::pair<std::string, exp_node *> > var_names;
+        //     var_names.push_back(std::make_pair(prototype->name, exp));
+        //     log(INFO, "parse_function: converting to a value: %d!", exp->type);
+        //     return (exp_node*)_create_var_node(var_names, exp);
+        // }
+        // else{        
+        //     return (exp_node*)_create_function_node((prototype_node*)prototype, exp);
+        // }
     }
     return 0;
 }
 
-exp_node* parse_exp_to_function(parser* parser){
+exp_node* _parse_variable(parser* parser, std::string& name){
+    if (parser->curr_token_num == '=')
+        parse_next_token(parser); //skip '=' token
     if (auto exp = _parse_exp(parser)){
+        //not a function but a value
+        std::vector<std::pair<std::string, exp_node *> > var_names;
+        var_names.push_back(std::make_pair(name, exp));
+        //log(INFO, "_parse_variable:  %lu!", var_names.size());
+        return (exp_node*)_create_var_node(var_names, exp);
+    }
+    return 0;
+}
+
+exp_node* parse_function(parser* parser, bool has_fun_def_keyword){
+    if (has_fun_def_keyword)
+        parse_next_token(parser);
+    auto prototype = (prototype_node*)_parse_prototype(parser);
+    if (!prototype)
+       return 0;
+    return _parse_function_with_prototype(parser, prototype);   
+
+}
+
+exp_node* parse_exp_to_function(parser* parser, exp_node* exp){
+    if(!exp)
+        exp = _parse_exp(parser);
+    if (exp){
         auto args = std::vector<std::string>();
         auto prototype = create_prototype_node(make_unique_name(""), args);
         return (exp_node*)_create_function_node(prototype, exp);
