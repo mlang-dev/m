@@ -87,7 +87,40 @@ uint64_t get_pointer_to_variable(JIT* jit, void* value){
     return 0;
 }
 
-void* get_pointer_to_function(JIT* jit, void* fun) {
+void optimize_function(JIT* jit, void* fun){
+    llvm::Module* module = (llvm::Module*)jit->cg->module;
+    // Create a function pass manager for this engine
+    auto *function_pass_manager = new llvm::legacy::FunctionPassManager(module);
+    
+    // Provide basic AliasAnalysis support for GVN.
+    function_pass_manager->add(llvm::createCostModelAnalysisPass());
+    // Promote allocas to registers.
+    function_pass_manager->add(llvm::createPromoteMemoryToRegisterPass());
+    // Do simple "peephole" optimizations and bit-twiddling optzns.
+    function_pass_manager->add(llvm::createInstructionCombiningPass());
+    // Reassociate expressions.
+    function_pass_manager->add(llvm::createReassociatePass());
+    // Eliminate Common SubExpressions.
+    function_pass_manager->add(llvm::createNewGVNPass());
+    // Simplify the control flow graph (deleting unreachable blocks, etc).
+    function_pass_manager->add(llvm::createCFGSimplificationPass());
+    function_pass_manager->doInitialization();
+    function_pass_manager->run(*(llvm::Function*)fun);
+    // //For each function in the module
+    // llvm::Module::iterator it;
+    // llvm::Module::iterator end = module->end();
+    // for (it = module->begin(); it != end; ++it) {
+    //     // Run the FPM on this function
+    //     function_pass_manager->run(*it);
+    // }
+    
+    // We don't need this anymore
+    delete function_pass_manager;
+}
+
+void* get_fun_ptr_to_execute(JIT* jit, void* fun) {
+    llvm::Function* pfun = (llvm::Function*)fun;
+    llvm::Module* module = (llvm::Module*)jit->cg->module;
     // See if an existing instance of MCJIT has this function.
     std::vector<void*>::iterator begin = (*jit->engines).begin();
     std::vector<void*>::iterator end = (*jit->engines).end();
@@ -96,7 +129,7 @@ void* get_pointer_to_function(JIT* jit, void* fun) {
     for (it = begin; it != end; ++it) {
         //fprintf(stderr, "iterating 1..");
         llvm::ExecutionEngine* ee = (llvm::ExecutionEngine*)(*it);
-        void *p_fun = ee->getPointerToFunction((llvm::Function*)fun);
+        void *p_fun = ee->getPointerToFunction(pfun);
         fprintf(stderr, "iterating execution engine:%ld..\n", (long)p_fun);
         if (p_fun){
             fprintf(stderr, "found the function. returning it\n");
@@ -106,54 +139,24 @@ void* get_pointer_to_function(JIT* jit, void* fun) {
     
     // If we didn't find the function, see if we can generate it.
     //fprintf(stderr, "didn't find the function, regenerating :%d... ", _code_generator->_module?1:0);
-    if (jit->cg->module) {
-        std::string ErrStr;
-        llvm::ExecutionEngine *execution_engine =
-        llvm::EngineBuilder(std::unique_ptr<llvm::Module>((llvm::Module*)jit->cg->module))
-        .setErrorStr(&ErrStr)
+    if (module) {
+        std::string err_str;
+        llvm::ExecutionEngine* execution_engine =
+        llvm::EngineBuilder(std::unique_ptr<llvm::Module>(module))
+        .setErrorStr(&err_str)
         .setMCJITMemoryManager(std::unique_ptr<MM>(new MM(jit)))
         .create();
         if (!execution_engine) {
-            log(ERROR, "Could not create ExecutionEngine: %s", ErrStr.c_str());
+            log(ERROR, "Could not create ExecutionEngine: %s", err_str.c_str());
             exit(1);
         }
-        
-        llvm::Module* module = (llvm::Module*)jit->cg->module;
-        // Create a function pass manager for this engine
-        auto *function_pass_manager = new llvm::legacy::FunctionPassManager(module);
-        
         // Set up the optimizer pipeline.  Start with registering info about how the
         // target lays out data structures.
         module->setDataLayout(execution_engine->getDataLayout());
-        // Provide basic AliasAnalysis support for GVN.
-        function_pass_manager->add(llvm::createCostModelAnalysisPass());
-        // Promote allocas to registers.
-        function_pass_manager->add(llvm::createPromoteMemoryToRegisterPass());
-        // Do simple "peephole" optimizations and bit-twiddling optzns.
-        function_pass_manager->add(llvm::createInstructionCombiningPass());
-        // Reassociate expressions.
-        function_pass_manager->add(llvm::createReassociatePass());
-        // Eliminate Common SubExpressions.
-        function_pass_manager->add(llvm::createNewGVNPass());
-        // Simplify the control flow graph (deleting unreachable blocks, etc).
-        function_pass_manager->add(llvm::createCFGSimplificationPass());
-        function_pass_manager->doInitialization();
-        
-        // For each function in the module
-        llvm::Module::iterator it;
-        llvm::Module::iterator end = module->end();
-        for (it = module->begin(); it != end; ++it) {
-            // Run the FPM on this function
-            function_pass_manager->run(*it);
-        }
-        
-        // We don't need this anymore
-        delete function_pass_manager;
-        
-        //jit->cg->module = NULL;
-        //(*jit->engines).push_back(execution_engine);
         execution_engine->finalizeObject();
-        return execution_engine->getPointerToFunction((llvm::Function*)fun);
+        //jit->cg->module = NULL;
+        (*jit->engines).push_back(execution_engine);
+        return execution_engine->getPointerToFunction(pfun);
     }
     return 0;
 }

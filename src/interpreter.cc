@@ -47,13 +47,14 @@ int run(){
             default:{
                 //fprintf(stderr, "default: %d, %f\n", parser->curr_token.type, parser->curr_token.num_val);
                 if(auto node=parse_exp_or_def(parser)){
-                    if (node->type != NodeType::FUNCTION_NODE && node->type!=NodeType::VAR_NODE){
+                    if (node->type != NodeType::FUNCTION_NODE){
                         //log(DEBUG, "it is an expression.");
                         node = parse_exp_to_function(parser, node);
                         if(node){
                             if(auto p_fun = generate_code(cg, node)){
                                 // fprintf(stderr, "generated: %d\n", node->type);
-                                void* ptr = get_pointer_to_function(jit, p_fun);
+                                optimize_function(jit, p_fun);
+                                void* ptr = get_fun_ptr_to_execute(jit, p_fun);
                                 if(ptr){
                                     double (*fun)() = (double (*)())(intptr_t)ptr;
                                     fprintf(stderr, "%f\n", fun());

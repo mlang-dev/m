@@ -1,3 +1,5 @@
 m
 .DS_Store
 *.ll
+*.out
+*.o

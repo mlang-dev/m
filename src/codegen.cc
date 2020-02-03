@@ -270,7 +270,8 @@ void* _generate_global_var_node(code_generator* cg, var_node* node){
             gVar = new llvm::GlobalVariable(*module, builder->getDoubleTy(), false, llvm::GlobalValue::LinkageTypes::PrivateLinkage, 0, vars[i].first);
             gVar->setInitializer((llvm::Constant*)exp);
         }
-        //builder->CreateStore((Value*)exp, gVar);
+        builder->CreateStore((Value*)exp, gVar);
+        return builder->CreateLoad(gVar);
         //builder->CreateStore(llvm::ConstantFP::get(*context, llvm::APFloat(5.0)), gVar);
         //gVar->setInitializer(llvm::ConstantFP::get(*context, llvm::APFloat(10.0)));
         //log(DEBUG, "created global variable: %s", vars[i].first.c_str());
@@ -283,8 +284,8 @@ void* _generate_var_node(code_generator* cg, var_node* node) {
     
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    if (!builder->GetInsertBlock())
-        return _generate_global_var_node(cg, node);
+    //if (!builder->GetInsertBlock())
+    return _generate_global_var_node(cg, node);
     //fprintf(stderr, "_generate_var_node:1 %lu!, %lu\n", node->var_names.size(), (long)builder->GetInsertBlock());
     llvm::Function *fun = builder->GetInsertBlock()->getParent();
     //fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
