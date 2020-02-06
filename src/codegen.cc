@@ -509,17 +509,11 @@ void create_module_and_pass_manager(code_generator* cg) {
   cg->module = std::move(module);
 }
 
-void generate_default_code(code_generator* cg, parser* parser){
-    // llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    // llvm::Module *module = new llvm::Module(make_unique_name(parser->ast->entry_module->name.c_str()), *context);
-    // //cg->modules.push_back(module);
-    // cg->module = module;
-
-    // llvm::ArrayRef<exp_node*> nodesRef = parser->ast->builtins;
-    // for(int i=0; i<nodesRef.size(); i++){
-    //     generate_code(cg, nodesRef[i]);
-    // }
-    
+void generate_runtime_module(code_generator* cg, parser* parser){
+    llvm::ArrayRef<exp_node*> nodesRef = parser->ast->builtins;
+    for(int i=0; i<nodesRef.size(); i++){
+        generate_code(cg, nodesRef[i]);
+    }    
 }
 
 

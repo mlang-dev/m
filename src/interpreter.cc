@@ -13,7 +13,9 @@ int run(){
     code_generator* cg = create_code_generator(parser);
     JIT* jit = create_jit(cg);
     create_builtins(parser, cg->context);
-    generate_default_code(cg, parser);
+    create_module_and_pass_manager(cg);
+    generate_runtime_module(cg, parser);
+    jit->mjit->addModule(std::move(jit->cg->module));
     create_module_and_pass_manager(cg);
     while(true){
         fprintf(stderr, "m> ");

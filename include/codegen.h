@@ -20,4 +20,4 @@ code_generator* create_code_generator(parser* parser);
 void destroy_code_generator(code_generator* cg);
 void create_module_and_pass_manager(code_generator* cg);
 void* generate_code(code_generator* cg, exp_node* node);
-void generate_default_code(code_generator* cg, parser* parser);
+void generate_runtime_module(code_generator* cg, parser* parser);
