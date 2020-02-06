@@ -4,7 +4,7 @@
 using namespace std;
 
 int main(int argc, const char * argv[]) {
-    cout << "m - 0.0.5";
+    cout << "m - 0.0.6";
     cout << endl;
     return run();
 }

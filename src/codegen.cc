@@ -312,10 +312,11 @@ void* _generate_global_var_node(code_generator* cg, var_node* node, bool is_exte
             else{
                 cg->gvs[vars[i].first] = node;
                 gVar = new llvm::GlobalVariable(*cg->module, builder->getDoubleTy(), false, llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0, vars[i].first);//, nullptr, GlobalValue::ThreadLocalMode::NotThreadLocal, 0, false);
-                gVar->setInitializer((llvm::Constant*)exp);
+                gVar->setInitializer(llvm::ConstantFP::get(*context, llvm::APFloat(0.0)));
+                builder->CreateStore((Value*)exp, gVar);
+                return builder->CreateLoad(gVar);
             }
         }
-        //builder->CreateStore((Value*)exp, gVar);
         //return builder->CreateLoad(gVar);
         //log(DEBUG, "create the load for gV");
         //return x;

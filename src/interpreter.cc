@@ -20,7 +20,7 @@ int run(){
         parse_next_token(parser);
         //fprintf(stderr, "got token: token type: %d\n", parser->curr_token.type);
         if (parser->curr_token.type == TOKEN_EOF){
-            dumpm(jit->cg->module.get());
+            //dumpm(jit->cg->module.get());
             fprintf(stderr, "bye !\n");
             break;
         }
@@ -36,10 +36,10 @@ int run(){
                 break;
             }
             default:{
-                //fprintf(stderr, "default: %d, %f\n", parser->curr_token.type, parser->curr_token.num_val);
                 if(auto node=parse_exp_or_def(parser)){
-                    if (node->type != NodeType::FUNCTION_NODE&&node->type != NodeType::VAR_NODE){
+                    if (node->type != NodeType::FUNCTION_NODE){
                         auto fn = make_unique_name("main-fn");
+                        auto node_type = node->type;
                         node = parse_exp_to_function(parser, node, fn.c_str());
                         if(node){
                             if(auto p_fun = generate_code(cg, node)){
@@ -48,8 +48,8 @@ int run(){
                                 auto mf = jit->mjit->findSymbol(fn);
                                 double (*fp)() = (double (*)())(intptr_t)cantFail(mf.getAddress());
                                 fprintf(stderr, "%f\n", fp());
-                                //if (node->type != NodeType::VAR_NODE) //keep global variables in the jit
-                                jit->mjit->removeModule(mk);
+                                if (node_type != NodeType::VAR_NODE) //keep global variables in the jit
+                                    jit->mjit->removeModule(mk);
                                 create_module_and_pass_manager(cg);
                             }
                         }
