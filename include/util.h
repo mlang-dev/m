@@ -20,5 +20,6 @@ void* log(LogLevel level, const char * string_format, ...);
 std::string format(const char * string_format, ...);
 std::vector<std::string> split(std::string, char separator);
 std::string make_unique_name(const char* root);
-void dump(void* p);
+void dumpf(void* p);
+void dumpm(void* p);
 int random(int min, int max);

@@ -5,6 +5,7 @@
 #include <cstdio>
 #include "llvm/Support/Debug.h"
 #include "llvm/IR/Function.h"
+#include "llvm/IR/Module.h"
 
 static char alpha_nums[36];
 static bool alpha_nums_init = false;
@@ -66,8 +67,14 @@ std::string format(const char * string_format, ...) {
 }
 
 
-void dump(void* p){
-    
+void dumpf(void* p){
+    auto pf = (llvm::Function*)p;
+    pf->print(llvm::dbgs(), nullptr);
+}
+
+void dumpm(void*p){
+    auto pm = (llvm::Module*)p;
+    pm->print(llvm::dbgs(), nullptr);
 }
 // void dump(llvm::Function *p){
 //     //p->dump(); //this feature requires cmake to build llvm with -DLLVM_ENABLE_DUMP=ON

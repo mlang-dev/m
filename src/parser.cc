@@ -484,12 +484,12 @@ exp_node* parse_function(parser* parser, bool has_fun_def_keyword){
 
 }
 
-exp_node* parse_exp_to_function(parser* parser, exp_node* exp){
+exp_node* parse_exp_to_function(parser* parser, exp_node* exp, const char* fn){
     if(!exp)
         exp = _parse_exp(parser);
     if (exp){
         auto args = std::vector<std::string>();
-        auto prototype = create_prototype_node(make_unique_name(""), args);
+        auto prototype = create_prototype_node(fn, args);
         return (exp_node*)_create_function_node(prototype, exp);
     }
     return 0;

@@ -14,31 +14,22 @@ int run(){
     JIT* jit = create_jit(cg);
     create_builtins(parser, cg->context);
     generate_default_code(cg, parser);
+    create_module_and_pass_manager(cg);
     while(true){
         fprintf(stderr, "m> ");
         parse_next_token(parser);
         //fprintf(stderr, "got token: token type: %d\n", parser->curr_token.type);
         if (parser->curr_token.type == TOKEN_EOF){
+            dumpm(jit->cg->module.get());
             fprintf(stderr, "bye !\n");
             break;
         }
         switch(parser->curr_token.type){
-            case TOKEN_LET:{
-                //fprintf(stderr, "parsing function...");
-                if (auto node = parse_function(parser, true)){
-                    parser->ast->entry_module->nodes.push_back(node);
-                    if(auto v = generate_code(cg, node)){
-                        dump(v);
-                        //fprintf(stderr, "codegen a %d node.\n", node->type);
-                    }
-                }
-                break;
-            }
             case TOKEN_IMPORT:{
                 if (auto node= parse_import(parser)){
                     parser->ast->entry_module->nodes.push_back(node);
                     if(auto v = generate_code(cg, node)){
-                        dump(v);
+                        //dumpf(v);
                         //fprintf(stderr, "Parsed an import\n");
                     }
                 }
@@ -47,25 +38,27 @@ int run(){
             default:{
                 //fprintf(stderr, "default: %d, %f\n", parser->curr_token.type, parser->curr_token.num_val);
                 if(auto node=parse_exp_or_def(parser)){
-                    if (node->type != NodeType::FUNCTION_NODE){
-                        //log(DEBUG, "it is an expression.");
-                        node = parse_exp_to_function(parser, node);
+                    if (node->type != NodeType::FUNCTION_NODE&&node->type != NodeType::VAR_NODE){
+                        auto fn = make_unique_name("main-fn");
+                        node = parse_exp_to_function(parser, node, fn.c_str());
                         if(node){
                             if(auto p_fun = generate_code(cg, node)){
-                                // fprintf(stderr, "generated: %d\n", node->type);
-                                optimize_function(jit, p_fun);
-                                void* ptr = get_fun_ptr_to_execute(jit, p_fun);
-                                if(ptr){
-                                    double (*fun)() = (double (*)())(intptr_t)ptr;
-                                    fprintf(stderr, "%f\n", fun());
-                                    // fprintf(stderr, "executed \n");
-                                }else
-                                    fprintf(stderr, "cannot evaluate the expression\n");
+                                //dumpm(jit->cg->module.get());
+                                auto mk = jit->mjit->addModule(std::move(jit->cg->module));
+                                auto mf = jit->mjit->findSymbol(fn);
+                                double (*fp)() = (double (*)())(intptr_t)cantFail(mf.getAddress());
+                                fprintf(stderr, "%f\n", fp());
+                                //if (node->type != NodeType::VAR_NODE) //keep global variables in the jit
+                                jit->mjit->removeModule(mk);
+                                create_module_and_pass_manager(cg);
                             }
                         }
                     }else{
+                        //log(DEBUG, "it's a definition. %d", node->type);
                         auto def = generate_code(cg, node);
-                        dump(def);
+                        //dumpm(jit->cg->module.get());
+                        jit->mjit->addModule(std::move(jit->cg->module));
+                        create_module_and_pass_manager(jit->cg);
                     }
 
                 }

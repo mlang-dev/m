@@ -8,6 +8,14 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/ExecutionEngine/ExecutionEngine.h"
+#include "llvm/Transforms/Utils.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+
+void* _generate_global_var_node(code_generator* cg, var_node* node, bool is_external=false);
+void* _generate_prototype_node(code_generator* cg, prototype_node* node);
 
 using namespace llvm;
 llvm::LLVMContext g_context;
@@ -23,6 +31,39 @@ code_generator* create_code_generator(parser* parser){
 void destroy_code_generator(code_generator* cg){
     delete (llvm::IRBuilder<>*)cg->builder;
     delete cg;
+}
+
+
+Function *_get_function(code_generator* cg, std::string name) {
+  // First, see if the function has already been added to the current module.
+  if (auto *f = cg->module->getFunction(name))
+    return f;
+
+  // If not, check whether we can codegen the declaration from some existing
+  // prototype.
+  auto fp = cg->protos.find(name);
+  if (fp != cg->protos.end())
+    return (Function*)_generate_prototype_node(cg, fp->second);
+
+  // If no existing prototype exists, return null.
+  return nullptr;
+}
+
+GlobalVariable *_get_global_variable(code_generator* cg, std::string name) {
+  // First, see if the function has already been added to the current module.
+  if (auto *gv = cg->module->getNamedGlobal(name))
+    return gv;
+
+  // If not, check whether we can codegen the declaration from existing
+  // type.
+  auto fgv = cg->gvs.find(name);
+  if (fgv != cg->gvs.end()){
+    //log(DEBUG, "found defition before");
+    return (GlobalVariable*)_generate_global_var_node(cg, fgv->second, true);
+  }
+
+  // If no existing prototype exists, return null.
+  return nullptr;
 }
 
 /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
@@ -75,12 +116,9 @@ void* _generate_ident_node(code_generator*cg, ident_node* node){
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     llvm::Value *v = (llvm::Value *)cg->named_values[node->name];
     if (!v){
-        GlobalVariable* gVar = ((llvm::Module*)cg->module)->getNamedGlobal(node->name); 
+        GlobalVariable* gVar = _get_global_variable(cg, node->name); 
         if(gVar){
-            //return gVar->getInitializer();
-            //log(DEBUG, "getting global variable...");
             return builder->CreateLoad(gVar, node->name.c_str());
-            //log(DEBUG, "getting global variable... done");
         }
         else{
             log(ERROR, "Unknown variable name: %s", node->name.c_str());
@@ -117,8 +155,7 @@ void* _generate_binary_node(code_generator*cg, binary_node* node){
 }
 
 void* _generate_call_node(code_generator*cg, call_node* node){
-    llvm::Module* module = (llvm::Module*)cg->module;
-    llvm::Function *callee = module->getFunction(node->callee);
+    llvm::Function *callee = _get_function(cg, node->callee);
     if(!callee)
         return log(ERROR, "Unknown function referenced");
     if(callee->arg_size() != node->args.size())
@@ -135,11 +172,12 @@ void* _generate_call_node(code_generator*cg, call_node* node){
 }
 
 void* _generate_prototype_node(code_generator* cg, prototype_node* node){
+    cg->protos[node->name] = node;
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     std::vector<llvm::Type*> doubles(node->args.size(), llvm::Type::getDoubleTy(*context));
     llvm::FunctionType* ft = llvm::FunctionType::get(llvm::Type::getDoubleTy(*context), doubles, false);
     llvm::Function* fun = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, node->name,
-                                                 (llvm::Module*)cg->module);
+                                                 cg->module.get());
     unsigned i = 0;
     for(auto &arg : fun->args())
         arg.setName(node->args[i++]);
@@ -175,6 +213,7 @@ void* _generate_function_node(code_generator* cg, function_node* node){
     _create_argument_allocas(cg, node->prototype, fun);
     if(llvm::Value* ret_val = (llvm::Value*)generate_code(cg, node->body)){
         builder->CreateRet(ret_val);
+        cg->fpm->run(*fun);
         llvm::verifyFunction(*fun);
         return fun;
     }
@@ -189,7 +228,7 @@ void* _generate_unary_node(code_generator* cg, unary_node* node){
     if (operand_v == 0)
         return 0;
     
-    llvm::Function *fun = ((llvm::Module*)cg->module)->getFunction(std::string("unary") + node->op);
+    llvm::Function *fun = _get_function(cg, std::string("unary") + node->op);
     if (fun == 0)
         return log(ERROR, "Unknown unary operator");
     
@@ -257,24 +296,29 @@ void* _generate_condition_node(code_generator* cg, condition_node* node) {
     return phi_node;
 }
 
-void* _generate_global_var_node(code_generator* cg, var_node* node){
+void* _generate_global_var_node(code_generator* cg, var_node* node, bool is_external){
     llvm::ArrayRef<std::pair<std::string, exp_node *>> vars = node->var_names;
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    Module* module = (Module*)cg->module;
     for(int i=0;i<vars.size();i++){
         std::string name = vars[i].first;
-        auto gVar = module->getNamedGlobal(name);
+        auto gVar = cg->module->getNamedGlobal(name);
         auto exp = generate_code(cg, vars[i].second);
         if (!gVar){
-            gVar = new llvm::GlobalVariable(*module, builder->getDoubleTy(), false, llvm::GlobalValue::LinkageTypes::PrivateLinkage, 0, vars[i].first);
-            gVar->setInitializer((llvm::Constant*)exp);
+            if(is_external){
+                gVar = new llvm::GlobalVariable(*cg->module, builder->getDoubleTy(), false, llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0, vars[i].first, nullptr, GlobalValue::ThreadLocalMode::NotThreadLocal, 0, true);
+                return gVar;
+            }
+            else{
+                cg->gvs[vars[i].first] = node;
+                gVar = new llvm::GlobalVariable(*cg->module, builder->getDoubleTy(), false, llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0, vars[i].first);//, nullptr, GlobalValue::ThreadLocalMode::NotThreadLocal, 0, false);
+                gVar->setInitializer((llvm::Constant*)exp);
+            }
         }
-        builder->CreateStore((Value*)exp, gVar);
-        return builder->CreateLoad(gVar);
-        //builder->CreateStore(llvm::ConstantFP::get(*context, llvm::APFloat(5.0)), gVar);
-        //gVar->setInitializer(llvm::ConstantFP::get(*context, llvm::APFloat(10.0)));
-        //log(DEBUG, "created global variable: %s", vars[i].first.c_str());
+        //builder->CreateStore((Value*)exp, gVar);
+        //return builder->CreateLoad(gVar);
+        //log(DEBUG, "create the load for gV");
+        //return x;
     }
     return 0;
 }
@@ -438,17 +482,45 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
     return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*context));
 }
 
-void generate_default_code(code_generator* cg, parser* parser){
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    llvm::Module *module = new llvm::Module(make_unique_name(parser->ast->entry_module->name.c_str()), *context);
-    cg->modules.push_back(module);
-    cg->module = module;
 
-    llvm::ArrayRef<exp_node*> nodesRef = parser->ast->builtins;
-    for(int i=0; i<nodesRef.size(); i++){
-        generate_code(cg, nodesRef[i]);
-    }
+void create_module_and_pass_manager(code_generator* cg) {
+  // Open a new module.
+  auto context = (llvm::LLVMContext*)cg->context;
+  std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>(make_unique_name("mjit"), *context);
+  module->setDataLayout(llvm::EngineBuilder().selectTarget()->createDataLayout());
+
+  // Create a new pass manager attached to it.
+  cg->fpm = std::make_unique<llvm::legacy::FunctionPassManager>(module.get());
+
+  // Promote allocas to registers.
+  cg->fpm->add(createPromoteMemoryToRegisterPass());
+  // Do simple "peephole" optimizations and bit-twiddling optzns.
+  cg->fpm->add(createInstructionCombiningPass());
+  // Reassociate expressions.
+  cg->fpm->add(createReassociatePass());
+  // Eliminate Common SubExpressions.
+  cg->fpm->add(createNewGVNPass());
+  // Simplify the control flow graph (deleting unreachable blocks, etc).
+  cg->fpm->add(createCFGSimplificationPass());
+
+  cg->fpm->doInitialization();
+
+  cg->module = std::move(module);
 }
+
+void generate_default_code(code_generator* cg, parser* parser){
+    // llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    // llvm::Module *module = new llvm::Module(make_unique_name(parser->ast->entry_module->name.c_str()), *context);
+    // //cg->modules.push_back(module);
+    // cg->module = module;
+
+    // llvm::ArrayRef<exp_node*> nodesRef = parser->ast->builtins;
+    // for(int i=0; i<nodesRef.size(); i++){
+    //     generate_code(cg, nodesRef[i]);
+    // }
+    
+}
+
 
 void* generate_code(code_generator*cg, exp_node* node){
     switch(node->type){
@@ -474,44 +546,3 @@ void* generate_code(code_generator*cg, exp_node* node){
             return _generate_var_node(cg, (var_node*)node);
     }
 }
-
-// llvm::Function * GetFunction(code_generator* cg, const std::string fun_name) {
-//     vector<void*>::iterator begin = cg->modules.begin();
-//     vector<void*>::iterator end = cg->modules.end();
-//     vector<void*>::iterator it;
-//     llvm::Module* m;
-//     for (it = begin; it != end; ++it) {
-//         m = (llvm::Module*)(*it);
-//         llvm::Function *F = m->getFunction(fun_name);
-//         if (F) {
-//             if (m == cg->module)
-//                 return F;
-            
-//             assert(cg->module != NULL);
-            
-//             // This function is in a module that has already been JITed.
-//             // We need to generate a new prototype for external linkage.
-//             llvm::Function *fun = ((llvm::Module*)(cg->module))->getFunction(fun_name);
-//             if (fun && !fun->empty()) {
-//                 error_fun("redefinition of function across modules");
-//                 return 0;
-//             }
-            
-//             // If we don't have a prototype yet, create one.
-//             if (!fun)
-//                 fun = llvm::Function::Create(F->getFunctionType(), llvm::Function::ExternalLinkage,
-//                                              fun_name, (llvm::Module*)cg->module);
-//             return fun;
-//         }
-//     }
-//     return NULL;
-// }
-
-// void LLVMCodeGenerator::Dump() {
-//     ModuleVector::iterator begin = _modules.begin();
-//     ModuleVector::iterator end = _modules.end();
-//     ModuleVector::iterator it;
-//     for (it = begin; it != end; ++it){
-//         dump((*it));
-//     }
-// }
