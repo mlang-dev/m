@@ -1,0 +1,1 @@
+int compile(const char* fn);
