@@ -80,6 +80,7 @@
         "__errc": "cpp",
         "__node_handle": "cpp",
         "*.inc": "cpp",
-        "*.def": "cpp"
+        "*.def": "cpp",
+        "filesystem": "cpp"
     }
 }

@@ -16,9 +16,6 @@
 using namespace llvm;
 
 JIT* create_jit(code_generator* cg){
-    llvm::InitializeNativeTarget();
-    llvm::InitializeNativeTargetAsmPrinter();
-    llvm::InitializeNativeTargetAsmParser();
     auto jit = new JIT();
     jit->cg = cg;
     jit->mjit = new llvm::orc::MJIT();

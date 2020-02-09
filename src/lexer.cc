@@ -8,7 +8,7 @@
 #include "lexer.h"
 #include "util.h"
 
-token& get_token(){
+token& get_token(FILE* file){
     static std::map<std::string, TokenType> tokens;
     static token token;
     static int curr_char = ' ';
@@ -29,12 +29,12 @@ token& get_token(){
     //log(DEBUG, "skiping space\n");
     while (isspace(curr_char)){
         //fprintf(stderr, "space char: %d.", curr_char);
-        curr_char = getchar();
+        curr_char = getc(file);
     }
     //log(DEBUG, "skiping space - done\n");
     if (isalpha(curr_char)){
         ident_str = curr_char;
-        while(isalnum((curr_char = getchar())))
+        while(isalnum((curr_char = getc(file))))
             ident_str += curr_char;
         //fprintf(stderr, "id token: %s\n", ident_str.c_str());
         auto token_type = tokens[ident_str];
@@ -46,7 +46,7 @@ token& get_token(){
         std::string num_str;
         do{
             num_str += curr_char;
-            curr_char = getchar();
+            curr_char = getc(file);
         }while(isdigit(curr_char)||curr_char == '.');
         token.num_val = strtod(num_str.c_str(), nullptr);
         //fprintf(stderr, "num token: %f\n", token.num_val);
@@ -55,10 +55,10 @@ token& get_token(){
     }
     else if (curr_char == '#') {
         do
-            curr_char = getchar();
+            curr_char = getc(file);
         while(curr_char!=EOF && curr_char != '\n' && curr_char != '\r');
         if (curr_char!=EOF)
-            return get_token();
+            return get_token(file);
     }
     else if(curr_char == EOF){
         token.type = TOKEN_EOF;
@@ -66,7 +66,7 @@ token& get_token(){
     }
     token.op_val = curr_char;
     token.type  = TOKEN_OP;
-    curr_char = getchar();
+    curr_char = getc(file);
     //fprintf(stderr, "op token: %c, %c\n", token.op_val, curr_char);
     return token;
 }

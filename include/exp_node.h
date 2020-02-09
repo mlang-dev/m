@@ -17,6 +17,7 @@ enum NodeType{
 
 typedef struct exp_node {
     NodeType type;
+    exp_node* parent;
 } exp_node;
 
 typedef struct module{

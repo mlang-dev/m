@@ -44,8 +44,9 @@ num_node* _create_num_node(double val){
 }
 
 var_node* _create_var_node(const std::vector<std::pair<std::string, exp_node*>> &var_names,
-               exp_node* body){
+               exp_node* body, exp_node* parent){
     auto node = new var_node();
+    node->base.parent = parent;
     node->base.type = NodeType::VAR_NODE;
     node->body = body;
     node->var_names = var_names;
@@ -118,10 +119,11 @@ std::map<char, int> g_op_precedences = {
     {'/', 40}
 };
 
-parser* create_parser(bool create_entry){
+parser* create_parser(bool create_entry, FILE* file){
     auto psr = new parser();
     psr->op_precedences=&g_op_precedences;
     psr->ast = new ast();
+    psr->file = file;
     if(create_entry){
         psr->ast->entry_module = new module();
         psr->ast->entry_module->name = "main";
@@ -157,7 +159,7 @@ void destroy_parser(parser* parser){
 
 
 int parse_next_token(parser* parser){
-    auto token = get_token();
+    auto token = get_token(parser->file);
     parser->curr_token = token;
     parser->curr_token_num = token.type == TOKEN_OP? token.op_val : token.type;
     //fprintf(stderr, "got token: %d, %f, %d\n", parser->curr_token.type, 
@@ -318,7 +320,7 @@ exp_node* _parse_var(parser* parser) {
     exp_node *body = _parse_exp(parser);
     if (body == 0)
         return 0;
-    return (exp_node*)_create_var_node(var_names, body);
+    return (exp_node*)_create_var_node(var_names, body, nullptr);
 }
 
 exp_node* _parse_node(parser* parser){
@@ -469,7 +471,7 @@ exp_node* _parse_variable(parser* parser, std::string& name){
         std::vector<std::pair<std::string, exp_node *> > var_names;
         var_names.push_back(std::make_pair(name, exp));
         //log(INFO, "_parse_variable:  %lu!", var_names.size());
-        return (exp_node*)_create_var_node(var_names, exp);
+        return (exp_node*)_create_var_node(var_names, exp, nullptr);
     }
     return 0;
 }

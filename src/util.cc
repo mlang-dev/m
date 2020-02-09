@@ -76,11 +76,9 @@ void dumpm(void*p){
     auto pm = (llvm::Module*)p;
     pm->print(llvm::dbgs(), nullptr);
 }
-// void dump(llvm::Function *p){
-//     //p->dump(); //this feature requires cmake to build llvm with -DLLVM_ENABLE_DUMP=ON
-//     p->print(llvm::dbgs(), nullptr);
-// }
 
-// void dump(llvm::Module *p){
-//     //p->print(llvm::dbgs(), nullptr);
-// }
+std::string get_filename(const char* fullfilename){
+    std::string fn = fullfilename;
+    auto pos = fn.find_last_of('.');
+    return fn.substr(0, pos);
+}

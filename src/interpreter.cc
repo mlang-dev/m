@@ -8,15 +8,15 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
 
-int run(){
-    parser* parser = create_parser(true);
+int run_interactive(){
+    parser* parser = create_parser(true, stdin);
     code_generator* cg = create_code_generator(parser);
     JIT* jit = create_jit(cg);
     create_builtins(parser, cg->context);
-    create_module_and_pass_manager(cg);
+    create_module_and_pass_manager(cg, make_unique_name("mjit").c_str());
     generate_runtime_module(cg, parser);
     jit->mjit->addModule(std::move(jit->cg->module));
-    create_module_and_pass_manager(cg);
+    create_module_and_pass_manager(cg, make_unique_name("mjit").c_str());
     while(true){
         fprintf(stderr, "m> ");
         parse_next_token(parser);
@@ -39,7 +39,15 @@ int run(){
             }
             default:{
                 if(auto node=parse_exp_or_def(parser)){
-                    if (node->type != NodeType::FUNCTION_NODE){
+                    if (node->type == NodeType::FUNCTION_NODE){
+                        //function definition
+                        //log(DEBUG, "it's a definition. %d", node->type);
+                        auto def = generate_code(cg, node);
+                        //dumpm(jit->cg->module.get());
+                        jit->mjit->addModule(std::move(jit->cg->module));
+                        create_module_and_pass_manager(jit->cg, make_unique_name("mjit").c_str());
+                    }else{
+                        //expression: statement or expression evalution
                         auto fn = make_unique_name("main-fn");
                         auto node_type = node->type;
                         node = parse_exp_to_function(parser, node, fn.c_str());
@@ -52,17 +60,10 @@ int run(){
                                 fprintf(stderr, "%f\n", fp());
                                 if (node_type != NodeType::VAR_NODE) //keep global variables in the jit
                                     jit->mjit->removeModule(mk);
-                                create_module_and_pass_manager(cg);
+                                create_module_and_pass_manager(cg, make_unique_name("mjit").c_str());
                             }
                         }
-                    }else{
-                        //log(DEBUG, "it's a definition. %d", node->type);
-                        auto def = generate_code(cg, node);
-                        //dumpm(jit->cg->module.get());
-                        jit->mjit->addModule(std::move(jit->cg->module));
-                        create_module_and_pass_manager(jit->cg);
                     }
-
                 }
                 break;
             }

@@ -15,12 +15,16 @@
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 
 void* _generate_global_var_node(code_generator* cg, var_node* node, bool is_external=false);
+void* _generate_local_var_node(code_generator* cg, var_node* node);
 void* _generate_prototype_node(code_generator* cg, prototype_node* node);
 
 using namespace llvm;
 llvm::LLVMContext g_context;
 
 code_generator* create_code_generator(parser* parser){
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
     code_generator* cg = new code_generator();
     cg->parser = parser;
     cg->context = &g_context;
@@ -54,7 +58,7 @@ GlobalVariable *_get_global_variable(code_generator* cg, std::string name) {
   if (auto *gv = cg->module->getNamedGlobal(name))
     return gv;
 
-  // If not, check whether we can codegen the declaration from existing
+  // If not, it's defined in other module, we can codegen the external declaration from existing
   // type.
   auto fgv = cg->gvs.find(name);
   if (fgv != cg->gvs.end()){
@@ -235,7 +239,6 @@ void* _generate_unary_node(code_generator* cg, unary_node* node){
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     //KSDbgInfo.emitLocation(this);
     return builder->CreateCall(fun, operand_v, "unop");
-    
 }
 
 void* _generate_condition_node(code_generator* cg, condition_node* node) {
@@ -325,12 +328,17 @@ void* _generate_global_var_node(code_generator* cg, var_node* node, bool is_exte
 }
 
 void* _generate_var_node(code_generator* cg, var_node* node) {
+    if (!node->base.parent)
+        return _generate_global_var_node(cg, node);
+    else
+        return _generate_local_var_node(cg, node);
+}
+
+void* _generate_local_var_node(code_generator* cg, var_node* node){
     std::vector<llvm::AllocaInst *> old_bindings;
     
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    //if (!builder->GetInsertBlock())
-    return _generate_global_var_node(cg, node);
     //fprintf(stderr, "_generate_var_node:1 %lu!, %lu\n", node->var_names.size(), (long)builder->GetInsertBlock());
     llvm::Function *fun = builder->GetInsertBlock()->getParent();
     //fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
@@ -484,10 +492,10 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
 }
 
 
-void create_module_and_pass_manager(code_generator* cg) {
+void create_module_and_pass_manager(code_generator* cg, const char* module_name) {
   // Open a new module.
   auto context = (llvm::LLVMContext*)cg->context;
-  std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>(make_unique_name("mjit"), *context);
+  std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>(module_name, *context);
   module->setDataLayout(llvm::EngineBuilder().selectTarget()->createDataLayout());
 
   // Create a new pass manager attached to it.
@@ -515,7 +523,6 @@ void generate_runtime_module(code_generator* cg, parser* parser){
         generate_code(cg, nodesRef[i]);
     }    
 }
-
 
 void* generate_code(code_generator*cg, exp_node* node){
     switch(node->type){

@@ -37,6 +37,6 @@ struct token{
     };
 };
 
-token& get_token();
+token& get_token(FILE* file);
 
 

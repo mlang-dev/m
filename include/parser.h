@@ -8,9 +8,10 @@ typedef struct parser{
     token curr_token;
     int curr_token_num;
     ast* ast;
+    FILE* file;
 }parser;
 
-parser* create_parser(bool create_entry);
+parser* create_parser(bool create_entry, FILE* file);
 void create_builtins(parser* parser, void* context);
 void destroy_parser(parser* parser);
 int parse_next_token(parser* parser);

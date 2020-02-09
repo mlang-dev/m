@@ -153,4 +153,3 @@ JIT* create_jit(code_generator* cg);
 void destroy_jit(JIT* jit);
 uint64_t get_pointer_to_variable(JIT* jit, void* value);
 void optimize_function(JIT* jit, void* fun);
-//void create_module_and_pass_manager(JIT* jit);
