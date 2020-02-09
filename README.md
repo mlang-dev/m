@@ -13,7 +13,7 @@ clang++ `/usr/local/Cellar/llvm/9.0.0_1/bin/llvm-config --ldflags --libs --syste
 ./m ./examples/test_lib.m
 
 ## calling function written in m from c:
-clang++ ./examples/test_main.cc ./examples/test_lib.o -o test_main
+clang++ ./examples/test_main.cc ./examples/test_lib.o -o ./examples/test_main.o
 
 to learn llvm IR:
 clang -S -emit-llvm ./examples/test_main.cc
