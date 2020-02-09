@@ -84,6 +84,7 @@ int gof_emit_file(Module* module, TargetMachine* target_machine, const char* fil
     }
     pass.run(*module);
     dest.flush();
+    printf("generated file: %s\n", filename);
     return 0;
 }
 
