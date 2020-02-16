@@ -30,6 +30,7 @@ enum TokenType {
 
 struct token{
     TokenType type;
+    int indent;
     union{
         std::string* ident_str;
         double num_val;

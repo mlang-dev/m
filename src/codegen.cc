@@ -14,12 +14,14 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 
+using namespace llvm;
+using namespace std;
+llvm::LLVMContext g_context;
+
 void* _generate_global_var_node(code_generator* cg, var_node* node, bool is_external=false);
 void* _generate_local_var_node(code_generator* cg, var_node* node);
 void* _generate_prototype_node(code_generator* cg, prototype_node* node);
-
-using namespace llvm;
-llvm::LLVMContext g_context;
+void* _generate_block_node(code_generator* cg, block_node* block);
 
 code_generator* create_code_generator(parser* parser){
     llvm::InitializeNativeTarget();
@@ -215,7 +217,10 @@ void* _generate_function_node(code_generator* cg, function_node* node){
     builder->SetInsertPoint(bb);
 
     _create_argument_allocas(cg, node->prototype, fun);
-    if(llvm::Value* ret_val = (llvm::Value*)generate_code(cg, node->body)){
+    llvm::Value* ret_val = (llvm::Value*)generate_code(cg, (exp_node*)node->body);
+    if(!ret_val)
+        ret_val = llvm::UndefValue::get(Type::getVoidTy(*context));
+    if(ret_val){
         builder->CreateRet(ret_val);
         cg->fpm->run(*fun);
         llvm::verifyFunction(*fun);
@@ -317,7 +322,6 @@ void* _generate_global_var_node(code_generator* cg, var_node* node, bool is_exte
                 gVar = new llvm::GlobalVariable(*cg->module, builder->getDoubleTy(), false, llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0, vars[i].first);//, nullptr, GlobalValue::ThreadLocalMode::NotThreadLocal, 0, false);
                 gVar->setInitializer(llvm::ConstantFP::get(*context, llvm::APFloat(0.0)));
                 builder->CreateStore((Value*)exp, gVar);
-                return builder->CreateLoad(gVar);
             }
         }
         //return builder->CreateLoad(gVar);
@@ -491,6 +495,14 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
     return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*context));
 }
 
+void* _generate_block_node(code_generator* cg, block_node* block){
+    void* codegen;
+    for(auto exp: block->nodes){
+        codegen = generate_code(cg, exp);
+    }
+    return codegen;
+}
+
 
 void create_module_and_pass_manager(code_generator* cg, const char* module_name) {
   // Open a new module.
@@ -546,5 +558,7 @@ void* generate_code(code_generator*cg, exp_node* node){
             return _generate_unary_node(cg, (unary_node*)node);
         case VAR_NODE:
             return _generate_var_node(cg, (var_node*)node);
+        case BLOCK_NODE:
+            return _generate_block_node(cg, (block_node*)node);
     }
 }

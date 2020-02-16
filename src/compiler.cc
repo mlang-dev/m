@@ -24,31 +24,9 @@ int compile(const char* fn){
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, filename.c_str());
     generate_runtime_module(cg, parser);
-    while(true){
-        parse_next_token(parser);
-        //fprintf(stderr, "got token: token type: %d\n", parser->curr_token.type);
-        if (parser->curr_token.type == TOKEN_EOF){
-            //dumpm(jit->cg->module.get());
-            break;
-        }
-        switch(parser->curr_token.type){
-            case TOKEN_IMPORT:{
-                if (auto node= parse_import(parser)){
-                    parser->ast->entry_module->nodes.push_back(node);
-                    if(auto v = generate_code(cg, node)){
-                        //dumpf(v);
-                        //fprintf(stderr, "Parsed an import\n");
-                    }
-                }
-                break;
-            }
-            default:{
-                if(auto node=parse_exp_or_def(parser)){
-                    auto def = generate_code(cg, node);
-                }
-                break;
-            }
-        }
+    block_node * block = parse_block(parser, nullptr, nullptr);
+    for(auto node: block->nodes){
+      generate_code(cg, node);  
     }
     fclose(file);
     filename += ".o";
