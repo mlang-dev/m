@@ -1,6 +1,6 @@
 # m
 
-m represents Model, or Mathematics, is a succinct & expressive programming language
+m represents Model, or Mathematics, is to be a most succinct & expressive programming language. It supports imperative and functional programming with high performance computing.
 
 
 ## build command:
@@ -12,7 +12,7 @@ clang++ `/usr/local/Cellar/llvm/9.0.0_1/bin/llvm-config --ldflags --libs --syste
 ## using m compiler: 
 ./m ./examples/test_lib.m
 
-## calling function written in m from c:
+## c calls m functions:
 clang++ ./examples/test_main.cc ./examples/test_lib.o -o ./examples/test_main.o
 
 ## m syntax
