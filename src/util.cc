@@ -82,3 +82,7 @@ std::string get_filename(const char* fullfilename){
     auto pos = fn.find_last_of('.');
     return fn.substr(0, pos);
 }
+
+bool is_new_line(int ch){
+  return ch == '\r' || ch == '\n';
+}

@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 
 enum TokenType {
@@ -26,17 +27,24 @@ enum TokenType {
     
     //others
     TOKEN_OP = -14,
+    TOKEN_EOS = -15,
+};
+
+struct source_loc{
+  int line;
+  int col;
 };
 
 struct token{
     TokenType type;
-    int indent;
+    source_loc loc;
     union{
         std::string* ident_str;
         double num_val;
         int op_val;
     };
 };
+
 
 token& get_token(FILE* file);
 

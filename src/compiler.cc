@@ -24,13 +24,17 @@ int compile(const char* fn){
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, filename.c_str());
     generate_runtime_module(cg, parser);
-    block_node * block = parse_block(parser, nullptr, nullptr);
-    for(auto node: block->nodes){
-      generate_code(cg, node);  
+    block_node * block = parse_block(parser, nullptr);
+    if(block){
+      for(auto node: block->nodes){
+        generate_code(cg, node);  
+      }
+      filename += ".o";
+      generate_object_file(cg->module.get(), filename.c_str());
+    }else{
+      log(INFO, "no statement is found.");
     }
     fclose(file);
-    filename += ".o";
-    generate_object_file(cg->module.get(), filename.c_str());
     destroy_code_generator(cg);
     destroy_parser(parser);
     return 0;

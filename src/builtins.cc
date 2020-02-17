@@ -24,7 +24,7 @@ prototype_node* _create_for_id(void* context, llvm::Intrinsic::ID id){
     
     std::vector<std::string> names = split(name, '.');
     //log(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
-    return create_prototype_node(names.back(), args);
+    return create_prototype_node(nullptr, {1, 0}, names.back(), args);
     //return 0;
 }
 

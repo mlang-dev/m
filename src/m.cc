@@ -5,7 +5,7 @@
 using namespace std;
 
 int main(int argc, const char *argv[]) {
-  cout << "m - 0.0.6";
+  cout << "m - 0.0.7";
   cout << endl;
   if (argc == 1)
     return run_interactive();

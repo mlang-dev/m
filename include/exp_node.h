@@ -1,6 +1,8 @@
  #pragma once
 #include <vector>
 #include <string>
+#include "lexer.h"
+
 using namespace std;
 enum NodeType{
     NUMBER_NODE = 1,
@@ -18,7 +20,7 @@ enum NodeType{
 
 typedef struct exp_node {
     NodeType type;
-    int indent;
+    source_loc loc;
     exp_node* parent;
 } exp_node;
 
@@ -98,5 +100,5 @@ typedef struct function_node{
     block_node* body;
 }function_node;
 
-prototype_node* create_prototype_node(const std::string &name, std::vector<std::string> &args,
+prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const std::string &name, std::vector<std::string> &args,
                   bool is_operator = false, unsigned precedence = 0);

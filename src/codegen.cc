@@ -163,7 +163,7 @@ void* _generate_binary_node(code_generator*cg, binary_node* node){
 void* _generate_call_node(code_generator*cg, call_node* node){
     llvm::Function *callee = _get_function(cg, node->callee);
     if(!callee)
-        return log(ERROR, "Unknown function referenced");
+        return log(ERROR, "Unknown function referenced: %s", node->callee.c_str());
     if(callee->arg_size() != node->args.size())
         return log(ERROR, "Incorrect number of arguments passed: callee (prototype generated in llvm): %lu, calling: %lu", callee->arg_size(), node->args.size());
     
@@ -215,9 +215,12 @@ void* _generate_function_node(code_generator* cg, function_node* node){
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", fun);
     builder->SetInsertPoint(bb);
-
     _create_argument_allocas(cg, node->prototype, fun);
-    llvm::Value* ret_val = (llvm::Value*)generate_code(cg, (exp_node*)node->body);
+    llvm::Value* ret_val;
+    for(auto stmt: node->body->nodes){
+      //log(DEBUG, "code gen stmt: %d", stmt->type);
+      ret_val = (llvm::Value*)generate_code(cg, stmt);
+    }
     if(!ret_val)
         ret_val = llvm::UndefValue::get(Type::getVoidTy(*context));
     if(ret_val){
@@ -350,6 +353,7 @@ void* _generate_local_var_node(code_generator* cg, var_node* node){
     // Register all variables and emit their initializer.
     for (size_t i = 0, e = node->var_names.size(); i != e; ++i) {
         const std::string &var_name = node->var_names[i].first;
+        //log(DEBUG, "local var cg: %s", var_name.c_str());
         exp_node *init = node->var_names[i].second;
         
         // Emit the initializer before adding the variable to scope, this prevents
@@ -376,17 +380,19 @@ void* _generate_local_var_node(code_generator* cg, var_node* node){
         // Remember this binding.
         cg->named_values[var_name] = alloca;
     }
+    return 0;
     //KSDbgInfo.emitLocation(this);
     // Codegen the body, now that all vars are in scope.
-    llvm::Value *body_val = (llvm::Value*)generate_code(cg, node->body);
-    if (body_val == 0)
-        return 0;
+
+    // llvm::Value *body_val = (llvm::Value*)generate_code(cg, node->body);
+    // if (body_val == 0)
+    //     return 0;
     
-    // Pop all our variables from scope.
-    for (size_t i = 0, e = node->var_names.size(); i != e; ++i)
-        cg->named_values[node->var_names[i].first] = old_bindings[i];
-    // Return the body computation.
-    return body_val;
+    // // Pop all our variables from scope.
+    // for (size_t i = 0, e = node->var_names.size(); i != e; ++i)
+    //     cg->named_values[node->var_names[i].first] = old_bindings[i];
+    // // Return the body computation.
+    // return body_val;
 }
 
 void* _generate_for_node(code_generator* cg, for_node* node) {

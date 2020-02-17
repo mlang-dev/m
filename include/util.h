@@ -24,3 +24,4 @@ void dumpf(void* p);
 void dumpm(void* p);
 int random(int min, int max);
 std::string get_filename(const char* fullfilename);
+bool is_new_line(int ch);
