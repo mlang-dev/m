@@ -1,10 +1,6 @@
-# comments: define a function
+# This is comment line
+# Defines an average function
 avg x y = (x + y) / 2
-
-# This is an add function
-add x y = 
-  z = x + y
-  z
 
 # This is a distance function
 distance x1 y1 x2 y2 = 
