@@ -587,24 +587,29 @@ exp_node *_parse_if(parser *parser, exp_node* parent) {
   parse_next_token(parser);  // eat the if.
 
   // condition.
+  //log(DEBUG, "parsing if exp");
   exp_node *cond = _parse_exp(parser, parent);
   if (!cond) return 0;
 
-  if (parser->curr_token.type != TOKEN_THEN)
-    return (exp_node *)log(ERROR, "expected then");
-  parse_next_token(parser);  // eat the then
-
+  // if (parser->curr_token.type != TOKEN_THEN)
+  //   return (exp_node *)log(ERROR, "expected then");
+  // parse_next_token(parser);  // eat the then
+  while (parser->curr_token.type==TOKEN_EOS) parse_next_token(parser);
+  //log(DEBUG, "parsing then exp");
   exp_node *then = _parse_exp(parser, parent);
   if (then == 0) return 0;
 
+  while (parser->curr_token.type==TOKEN_EOS) parse_next_token(parser);
   if (parser->curr_token.type != TOKEN_ELSE)
-    return (exp_node *)log(ERROR, "expected else");
+    return (exp_node *)log(ERROR, "expected else, got type: %d", parser->curr_token.type);
 
   parse_next_token(parser);
 
+  //log(DEBUG, "parsing else exp");
   exp_node *else_exp = _parse_exp(parser, parent);
   if (!else_exp) return 0;
 
+  //log(DEBUG, "creating if nodes");
   return (exp_node *)_create_if_node(parent, loc, cond, then, else_exp);
 }
 
