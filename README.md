@@ -6,7 +6,7 @@ m represents Model, or Mathematics, is to be a most succinct & expressive progra
 ## build command:
 clang++ `/usr/local/Cellar/llvm/9.0.0_1/bin/llvm-config --ldflags --libs --system-libs` src/*.cc -Iinclude -I/usr/local/Cellar/llvm/9.0.0_1/include -std=c++17 -stdlib=libc++ -o m
 
-## using m interactive:
+## using m REPL:
 ./m
 
 ## using m compiler: 
@@ -33,5 +33,11 @@ factorial n =
   else n * factorial (n-1)
 ```
 
-to learn llvm IR:
+## useful tools
+* learn llvm IR
+
 clang -S -emit-llvm ./examples/test_main.cc
+
+* dump c/c++ header ast
+
+clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/runtime.h

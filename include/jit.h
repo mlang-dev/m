@@ -115,8 +115,10 @@ private:
         return Sym;
 
     // If we can't find the symbol in the JIT, try looking in the host process.
-    if (auto SymAddr = RTDyldMemoryManager::getSymbolAddressInProcess(Name))
+    if (auto SymAddr = RTDyldMemoryManager::getSymbolAddressInProcess(Name)){
+      log(DEBUG, "found the symbol: %s", Name.c_str());
       return JITSymbol(SymAddr, JITSymbolFlags::Exported);
+    }
 
 #ifdef _WIN32
     // For Windows retry without "_" at beginning, as RTDyldMemoryManager uses

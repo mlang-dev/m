@@ -185,7 +185,7 @@ void destroy_parser(parser *parser) {
 int parse_next_token(parser *parser) {
   auto token = get_token(parser->file);
   parser->curr_token = token;
-  parser->curr_token_num = token.type == TOKEN_OP ? token.op_val : token.type;
+  parser->curr_token_num = token.type == TOKEN_OP ? token.op_val : -token.type;
   // fprintf(stderr, "got token: %d, %f, %d\n", parser->curr_token.type,
   //    parser->curr_token.num_val, parser->curr_token_num);
   return parser->curr_token_num;
@@ -546,35 +546,33 @@ exp_node *_parse_for(parser *parser, exp_node* parent) {
   parse_next_token(parser);  // eat the for.
 
   if (parser->curr_token.type != TOKEN_IDENT)
-    return (exp_node *)log(ERROR, "expected identifier after for");
+    return (exp_node *)log(ERROR, "expected identifier after for, got %s", TokenTypeString[parser->curr_token.type]);
 
   std::string id_name = *parser->curr_token.ident_str;
   parse_next_token(parser);  // eat identifier.
 
-  if (parser->curr_token.op_val != '=')
-    return (exp_node *)log(ERROR, "expected '=' after for");
-  parse_next_token(parser);  // eat '='.
+  if (parser->curr_token.type != TOKEN_IN)
+    return (exp_node *)log(ERROR, "expected 'in' after for %s", parser->curr_token.ident_str);
+  parse_next_token(parser);  // eat 'in'.
 
   exp_node *start = _parse_exp(parser, parent);
   if (start == 0) return 0;
-  if (parser->curr_token.op_val != ',')
-    return (exp_node *)log(ERROR, "expected ',' after for start value");
+  if (parser->curr_token.type != TOKEN_RANGE)
+    return (exp_node *)log(ERROR, "expected '..' after for start value");
   parse_next_token(parser);
 
+  //step or end
   exp_node *end = _parse_exp(parser, parent);
   if (end == 0) return 0;
 
   // The step value is optional.
   exp_node *step = 0;
-  if (parser->curr_token.op_val == ',') {
+  if (parser->curr_token.type == TOKEN_RANGE) {
+    step = end;
     parse_next_token(parser);
-    step = _parse_exp(parser, parent);
-    if (step == 0) return 0;
+    end = _parse_exp(parser, parent);
+    if (end == 0) return 0;
   }
-
-  if (parser->curr_token.type != TOKEN_IN)
-    return (exp_node *)log(ERROR, "expected 'in' after for");
-  parse_next_token(parser);  // eat 'in'.
 
   exp_node *body = _parse_exp(parser, parent);
   if (body == 0) return 0;

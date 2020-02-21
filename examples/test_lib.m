@@ -12,3 +12,6 @@ distance x1 y1 x2 y2 =
 factorial n = 
   if n < 2 n
   else n * factorial (n-1)
+
+printstar n = 
+  putchard 42

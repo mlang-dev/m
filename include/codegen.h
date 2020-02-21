@@ -8,7 +8,7 @@ typedef struct code_generator{
     void* context;
     void* builder;
     parser* parser;
-    map<std::string, void*> named_values; //llvm::AllocaInst*
+    map<string, void*> named_values; //llvm::AllocaInst*
     //vector<void *> modules;
     unique_ptr<llvm::Module> module;
     unique_ptr<llvm::legacy::FunctionPassManager> fpm;
