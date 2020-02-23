@@ -13,7 +13,6 @@ include_directories(
 link_directories(
   /usr/local/Cellar/llvm/9.0.0_1/lib
   examples
-  build/lib
 )
 
 link_libraries(
@@ -189,5 +188,5 @@ add_custom_command(TARGET msample
         )
 add_custom_command(TARGET msample
         POST_BUILD
-        COMMAND examples/msample
+        COMMAND msample
         )
