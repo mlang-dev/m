@@ -1,5 +1,8 @@
 m
+msample
+build
 .DS_Store
 *.ll
 *.out
 *.o
+*.a

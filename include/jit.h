@@ -116,7 +116,7 @@ private:
 
     // If we can't find the symbol in the JIT, try looking in the host process.
     if (auto SymAddr = RTDyldMemoryManager::getSymbolAddressInProcess(Name)){
-      log(DEBUG, "found the symbol: %s", Name.c_str());
+      //log(DEBUG, "found the symbol: %s", Name.c_str());
       return JITSymbol(SymAddr, JITSymbolFlags::Exported);
     }
 
