@@ -4,4 +4,4 @@
 #define DLLEXPORT
 #endif
 
-extern "C" DLLEXPORT double putchard(double x);
+extern "C" DLLEXPORT double print(double x);

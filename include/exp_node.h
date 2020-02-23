@@ -60,8 +60,8 @@ typedef struct ident_node {
 
 typedef struct var_node {
   exp_node base;
-  std::vector<std::pair<std::string, exp_node*> > var_names;
-  exp_node* body;
+  string var_name;
+  exp_node* init_value;
 } var_node;
 
 typedef struct unary_node {

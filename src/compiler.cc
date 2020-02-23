@@ -19,7 +19,7 @@ int generate_object_file(Module* module, const char* filename);
 int compile(const char* fn){
     auto filename = get_filename(fn);
     FILE* file = fopen(fn, "r");
-    parser* parser = create_parser(true, file);
+    parser* parser = create_parser(true, file, false);
     code_generator* cg = create_code_generator(parser);
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, filename.c_str());
@@ -93,5 +93,6 @@ int generate_object_file(Module* module, const char* filename){
     auto target_machine = gof_create_target_machine(module);
     if (!target_machine)
         return 1;
+    //dumpm(module);
     return gof_emit_file(module, target_machine, filename);
 }

@@ -304,32 +304,28 @@ void* _generate_condition_node(code_generator* cg, condition_node* node) {
 
 void* _generate_global_var_node(code_generator* cg, var_node* node,
                                 bool is_external) {
-  llvm::ArrayRef<std::pair<std::string, exp_node*>> vars = node->var_names;
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
   llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-  for (int i = 0; i < vars.size(); i++) {
-    std::string name = vars[i].first;
-    auto gVar = cg->module->getNamedGlobal(name);
-    auto exp = generate_code(cg, vars[i].second);
-    if (!gVar) {
-      if (is_external) {
-        gVar = new llvm::GlobalVariable(
-            *cg->module, builder->getDoubleTy(), false,
-            llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0, vars[i].first,
-            nullptr, GlobalValue::ThreadLocalMode::NotThreadLocal, 0, true);
-        return gVar;
-      } else {
-        cg->gvs[vars[i].first] = node;
-        gVar = new llvm::GlobalVariable(
-            *cg->module, builder->getDoubleTy(), false,
-            llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0,
-            vars[i].first);  //, nullptr,
-                             //GlobalValue::ThreadLocalMode::NotThreadLocal, 0,
-                             //false);
-        gVar->setInitializer(
-            llvm::ConstantFP::get(*context, llvm::APFloat(0.0)));
-        builder->CreateStore((Value*)exp, gVar);
-      }
+  auto gVar = cg->module->getNamedGlobal(node->var_name);
+  auto exp = generate_code(cg, node->init_value);
+  if (!gVar) {
+    if (is_external) {
+      gVar = new llvm::GlobalVariable(
+          *cg->module, builder->getDoubleTy(), false,
+          llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0, node->var_name,
+          nullptr, GlobalValue::ThreadLocalMode::NotThreadLocal, 0, true);
+      return gVar;
+    } else {
+      cg->gvs[node->var_name] = node;
+      gVar = new llvm::GlobalVariable(
+          *cg->module, builder->getDoubleTy(), false,
+          llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0,
+          node->var_name);  //, nullptr,
+                            //GlobalValue::ThreadLocalMode::NotThreadLocal, 0,
+                            //false);
+      gVar->setInitializer(
+          llvm::ConstantFP::get(*context, llvm::APFloat(0.0)));
+      builder->CreateStore((Value*)exp, gVar);
     }
     // return builder->CreateLoad(gVar);
     // log(DEBUG, "create the load for gV");
@@ -356,34 +352,32 @@ void* _generate_local_var_node(code_generator* cg, var_node* node) {
   // fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
 
   // Register all variables and emit their initializer.
-  for (size_t i = 0, e = node->var_names.size(); i != e; ++i) {
-    const std::string& var_name = node->var_names[i].first;
-    // log(DEBUG, "local var cg: %s", var_name.c_str());
-    exp_node* init = node->var_names[i].second;
+  const std::string& var_name = node->var_name;
+  // log(DEBUG, "local var cg: %s", var_name.c_str());
+  exp_node* init = node->init_value;
 
-    // Emit the initializer before adding the variable to scope, this prevents
-    // the initializer from referencing the variable itself, and permits stuff
-    // like this:
-    //  var a = 1 in
-    //    var a = a in ...   # refers to outer 'a'.
-    llvm::Value* init_val;
-    if (init) {
-      init_val = (llvm::Value*)generate_code(cg, init);
-      if (init_val == 0) return 0;
-    } else {  // If not specified, use 0.0.
-      init_val = llvm::ConstantFP::get(*context, llvm::APFloat(0.0));
-    }
-
-    llvm::AllocaInst* alloca = _create_entry_block_alloca(cg, fun, var_name);
-    builder->CreateStore(init_val, alloca);
-
-    // Remember the old variable binding so that we can restore the binding when
-    // we unrecurse.
-    old_bindings.push_back((llvm::AllocaInst*)cg->named_values[var_name]);
-
-    // Remember this binding.
-    cg->named_values[var_name] = alloca;
+  // Emit the initializer before adding the variable to scope, this prevents
+  // the initializer from referencing the variable itself, and permits stuff
+  // like this:
+  //  var a = 1 in
+  //    var a = a in ...   # refers to outer 'a'.
+  llvm::Value* init_val;
+  if (init) {
+    init_val = (llvm::Value*)generate_code(cg, init);
+    if (init_val == 0) return 0;
+  } else {  // If not specified, use 0.0.
+    init_val = llvm::ConstantFP::get(*context, llvm::APFloat(0.0));
   }
+
+  llvm::AllocaInst* alloca = _create_entry_block_alloca(cg, fun, var_name);
+  builder->CreateStore(init_val, alloca);
+
+  // Remember the old variable binding so that we can restore the binding when
+  // we unrecurse.
+  old_bindings.push_back((llvm::AllocaInst*)cg->named_values[var_name]);
+
+  // Remember this binding.
+  cg->named_values[var_name] = alloca;
   return 0;
   // KSDbgInfo.emitLocation(this);
   // Codegen the body, now that all vars are in scope.
@@ -429,7 +423,6 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
       _create_entry_block_alloca(cg, fun, node->var_name);
 
   // KSDbgInfo.emitLocation(this);
-
   // Emit the start code first, without 'variable' in scope.
   llvm::Value* start_v = (llvm::Value*)generate_code(cg, node->start);
   if (start_v == 0) return 0;
@@ -478,7 +471,7 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
   llvm::Value* next_var = builder->CreateFAdd(cur_var, step_v, "nextvar");
   builder->CreateStore(next_var, alloca);
 
-  // Convert condition to a bool by comparing equal to 0.0.
+  // Convert condition to a bool by comparing non-equal to 0.0.
   end_cond = builder->CreateFCmpONE(
       end_cond, llvm::ConstantFP::get(*context, llvm::APFloat(0.0)),
       "loopcond");

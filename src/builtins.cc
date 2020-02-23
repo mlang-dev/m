@@ -36,5 +36,5 @@ void get_builtins(void* context, std::vector<exp_node*> &builtins){
     }
     vector<string> args;
     args.push_back("char");
-    builtins.push_back((exp_node*)create_prototype_node(nullptr, {1, 0}, "putchard", args));
+    builtins.push_back((exp_node*)create_prototype_node(nullptr, {1, 0}, "print", args));
 }

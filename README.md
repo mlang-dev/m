@@ -6,6 +6,8 @@ m represents Model, or Mathematics, is to be a most succinct & expressive progra
 ## build command:
 clang++ `/usr/local/Cellar/llvm/9.0.0_1/bin/llvm-config --ldflags --libs --system-libs` src/*.cc -Iinclude -I/usr/local/Cellar/llvm/9.0.0_1/include -std=c++17 -stdlib=libc++ -o m
 
+clang -c ./src/runtime.cc -I./include -o ./runtime.o
+
 ## using m REPL:
 ./m
 
@@ -13,13 +15,12 @@ clang++ `/usr/local/Cellar/llvm/9.0.0_1/bin/llvm-config --ldflags --libs --syste
 ./m ./examples/test_lib.m
 
 ## c calls m functions:
-clang++ ./examples/test_main.cc ./examples/test_lib.o -o ./examples/test_main.o
+clang++ ./examples/test_main.cc ./examples/test_lib.o ./runtime.o -o ./test_main.o
 
 ## m syntax
 ```
 # comment line: defines a one-line function
 avg x y = (x + y) / 2
-
 
 # defines a distance function
 distance x1 y1 x2 y2 = 
@@ -31,6 +32,11 @@ distance x1 y1 x2 y2 =
 factorial n = 
   if n < 2 n
   else n * factorial (n-1)
+
+# using for loop
+loopprint n = 
+  for i in 0..n
+    print i
 ```
 
 ## useful tools
@@ -41,3 +47,4 @@ clang -S -emit-llvm ./examples/test_main.cc
 * dump c/c++ header ast
 
 clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/runtime.h
+

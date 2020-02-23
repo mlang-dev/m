@@ -13,5 +13,8 @@ factorial n =
   if n < 2 n
   else n * factorial (n-1)
 
-printstar n = 
-  putchard 42
+# using for loop
+loopprint n = 
+  for i in 0..n
+    print i
+

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+#define ENABLE_DEBUG_LOG 0
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_ENUM_STRING(STRING) #STRING,
 #define FOREACH_LOGLEVEL(ENUM_ITEM)\

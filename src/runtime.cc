@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "runtime.h"
 
-double putchard(double x) {
-  putchar((char)x);
+double print(double x) {
+  printf("%f\n", x);
   return x;
 }
