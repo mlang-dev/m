@@ -18,5 +18,10 @@ TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main)
 enable_testing()
 include(GoogleTest)
 gtest_discover_tests(mtest)
+add_custom_command(
+  TARGET mtest
+  POST_BUILD
+  COMMAND mtest
+)
 
 

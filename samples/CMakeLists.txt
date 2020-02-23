@@ -13,16 +13,18 @@ link_directories(
 add_executable(msample
   sample_main.cc
 )
-add_custom_command(TARGET msample
-        PRE_BUILD
-        COMMAND m ${CMAKE_CURRENT_SOURCE_DIR}/sample_lib.m
+add_custom_command(
+  TARGET msample
+  PRE_BUILD
+  COMMAND m ${CMAKE_CURRENT_SOURCE_DIR}/sample_lib.m
 )
 
 TARGET_LINK_LIBRARIES(msample mlr sample_lib.o)
 
-add_custom_command(TARGET msample
-        POST_BUILD
-        COMMAND msample
+add_custom_command(
+  TARGET msample
+  POST_BUILD
+  COMMAND msample
 )
 
 
