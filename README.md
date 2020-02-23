@@ -1,6 +1,6 @@
 # m
 
-m represents Model, or Mathematics, is to be a most succinct & expressive programming language. It supports imperative and functional programming with high performance computing.
+m represents Model, or Mathematics, is to be a most succinct & expressive programming language. It supports imperative and functional programming targeting high performance computing.
 
 
 ## build command:
