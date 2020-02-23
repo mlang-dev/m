@@ -8,6 +8,14 @@ clang++ `/usr/local/Cellar/llvm/9.0.0_1/bin/llvm-config --ldflags --libs --syste
 
 clang -c ./src/runtime.cc -I./include -o ./runtime.o
 
+## or using cmake to build
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+
 ## using m REPL:
 ./m
 
