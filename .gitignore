@@ -1,6 +1,7 @@
 m
 msample
-build
+build/
+extern/
 .DS_Store
 *.ll
 *.out

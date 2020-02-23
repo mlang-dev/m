@@ -13,7 +13,6 @@ exp_node *_parse_number(parser *parser, exp_node* parent);
 exp_node *_parse_parentheses(parser *parser, exp_node* parent);
 exp_node *_parse_node(parser *parser, exp_node* parent);
 exp_node *_parse_binary(parser *parser, exp_node* parent, int exp_prec, exp_node *lhs);
-exp_node *_parse_exp(parser *parser, exp_node* parent, exp_node *lhs = 0);
 exp_node *_parse_for(parser *parser, exp_node* parent);
 exp_node *_parse_if(parser *parser, exp_node* parent);
 exp_node *_parse_unary(parser *parser, exp_node* parent);
@@ -209,7 +208,7 @@ exp_node *_parse_number(parser *parser, exp_node* parent) {
 
 exp_node *_parse_parentheses(parser *parser, exp_node* parent) {
   parse_next_token(parser);
-  auto v = _parse_exp(parser, parent);
+  auto v = parse_exp(parser, parent);
   if (!v) return 0;
   if (parser->curr_token.op_val != ')')
     return (exp_node *)log(ERROR, "expected ')'");
@@ -226,7 +225,7 @@ exp_node *_parse_function_app_or_def(parser *parser, exp_node* parent, source_lo
   parser->allow_id_as_a_func = false;
   if (parser->curr_token.op_val != ')') {
     while (true) {
-      if (auto arg = _parse_exp(parser, parent)){
+      if (auto arg = parse_exp(parser, parent)){
         args.push_back(arg);
       }
       if (parser->curr_token.op_val == '=') {
@@ -254,7 +253,7 @@ exp_node *_parse_function_app_or_def(parser *parser, exp_node* parent, source_lo
   // function application
   //log(DEBUG, "funcation application: %s", id_name.c_str());
   exp_node* call_node = (exp_node *)_create_call_node(parent, loc, id_name, args);
-  return _parse_exp(parser, parent, call_node);
+  return parse_exp(parser, parent, call_node);
 }
 
 exp_node *parse_statement(parser *parser, exp_node *parent) {
@@ -264,7 +263,7 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
   else if (parser->curr_token.type == TOKEN_IMPORT)
     node = parse_import(parser, parent);
   else if (parser->curr_token.type != TOKEN_IDENT){
-    node = _parse_exp(parser, parent);
+    node = parse_exp(parser, parent);
     //log(DEBUG, "not id token exp: %s", NodeTypeString[node->type]);
   }
   else {//id
@@ -279,7 +278,7 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
     } else if (parser->curr_token.type == TOKEN_EOS||g_op_precedences[op]) {
       // just id expression evaluation
       auto lhs = (exp_node *)_create_ident_node(parent, parser->curr_token.loc, id_name);
-      node = _parse_exp(parser, parent, lhs);
+      node = parse_exp(parser, parent, lhs);
       //log(DEBUG, "parsed exp: id exp: %d", node->type);
     } else {  
       // function definition or application
@@ -313,7 +312,7 @@ exp_node *_parse_ident(parser *parser, exp_node* parent) {
     //(
     vector<exp_node *> args;
     while (true) {
-      if (auto arg = _parse_exp(parser, parent))
+      if (auto arg = parse_exp(parser, parent))
         args.push_back(arg);
       else
         return 0;
@@ -367,7 +366,7 @@ exp_node *_parse_binary(parser *parser, exp_node* parent, int exp_prec, exp_node
   }
 }
 
-exp_node *_parse_exp(parser *parser, exp_node* parent, exp_node *lhs) {
+exp_node *parse_exp(parser *parser, exp_node* parent, exp_node *lhs) {
   if(parser->curr_token.type == TOKEN_EOS) return lhs;
   if (!lhs) lhs = _parse_unary(parser, parent);
   if (!lhs||parser->curr_token.type == TOKEN_EOS) return lhs;
@@ -453,7 +452,7 @@ exp_node *_parse_var(parser *parser, exp_node* parent, string &name) {
   if (parser->curr_token.op_val == '=')
     parse_next_token(parser);  // skip '='
                                // token
-  if (auto exp = _parse_exp(parser, parent)) {
+  if (auto exp = parse_exp(parser, parent)) {
     // not a function but a value
     //log(INFO, "_parse_variable:  %lu!", var_names.size());
     return (exp_node *)_create_var_node(parent, parser->curr_token.loc, name, exp);
@@ -462,7 +461,7 @@ exp_node *_parse_var(parser *parser, exp_node* parent, string &name) {
 }
 
 exp_node *parse_exp_to_function(parser *parser, exp_node *exp, const char *fn) {
-  if (!exp) exp = _parse_exp(parser, nullptr);
+  if (!exp) exp = parse_exp(parser, nullptr);
   if (exp) {
     auto args = vector<string>();
     auto prototype = create_prototype_node(nullptr, exp->loc, fn, args);
@@ -517,14 +516,14 @@ exp_node *_parse_for(parser *parser, exp_node* parent) {
     return (exp_node *)log(ERROR, "expected 'in' after for %s", parser->curr_token.ident_str);
   parse_next_token(parser);  // eat 'in'.
 
-  exp_node *start = _parse_exp(parser, parent);
+  exp_node *start = parse_exp(parser, parent);
   if (start == 0) return 0;
   if (parser->curr_token.type != TOKEN_RANGE)
     return (exp_node *)log(ERROR, "expected '..' after for start value");
   parse_next_token(parser);
 
   //step or end
-  exp_node *end_val = _parse_exp(parser, parent);
+  exp_node *end_val = parse_exp(parser, parent);
   if (end_val == 0) return 0;
 
   // The step value is optional.
@@ -532,7 +531,7 @@ exp_node *_parse_for(parser *parser, exp_node* parent) {
   if (parser->curr_token.type == TOKEN_RANGE) {
     step = end_val;
     parse_next_token(parser);
-    end_val = _parse_exp(parser, parent);
+    end_val = parse_exp(parser, parent);
     if (end_val == 0) return 0;
   }else{//default 1
     step = (exp_node*)_create_num_node(parent, parser->curr_token.loc, 1);
@@ -543,7 +542,7 @@ exp_node *_parse_for(parser *parser, exp_node* parent) {
   while(parser->curr_token.type == TOKEN_EOS)
     parse_next_token(parser);
 
-  exp_node *body = _parse_exp(parser, parent);
+  exp_node *body = parse_exp(parser, parent);
   if (body == 0) return 0;
   return (exp_node *)_create_for_node(parent, loc, id_name, start, end, step, body);
 }
@@ -554,7 +553,7 @@ exp_node *_parse_if(parser *parser, exp_node* parent) {
 
   // condition.
   //log(DEBUG, "parsing if exp");
-  exp_node *cond = _parse_exp(parser, parent);
+  exp_node *cond = parse_exp(parser, parent);
   if (!cond) return 0;
 
   // if (parser->curr_token.type != TOKEN_THEN)
@@ -562,7 +561,7 @@ exp_node *_parse_if(parser *parser, exp_node* parent) {
   // parse_next_token(parser);  // eat the then
   while (parser->curr_token.type==TOKEN_EOS) parse_next_token(parser);
   //log(DEBUG, "parsing then exp");
-  exp_node *then = _parse_exp(parser, parent);
+  exp_node *then = parse_exp(parser, parent);
   if (then == 0) return 0;
 
   while (parser->curr_token.type==TOKEN_EOS) parse_next_token(parser);
@@ -572,7 +571,7 @@ exp_node *_parse_if(parser *parser, exp_node* parent) {
   parse_next_token(parser);
 
   //log(DEBUG, "parsing else exp");
-  exp_node *else_exp = _parse_exp(parser, parent);
+  exp_node *else_exp = parse_exp(parser, parent);
   if (!else_exp) return 0;
 
   //log(DEBUG, "creating if nodes");

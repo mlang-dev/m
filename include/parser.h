@@ -20,4 +20,5 @@ exp_node* parse_exp_to_function(parser* parser, exp_node* exp=0, const char * fn
 exp_node* parse_import(parser* parser, exp_node* parent);
 exp_node* parse_statement(parser* parser, exp_node* parent);
 block_node *parse_block(parser *parser, exp_node *parent, void (*fun)(void*, exp_node*) = nullptr, void*jit=nullptr);
+exp_node *parse_exp(parser *parser, exp_node* parent, exp_node *lhs = 0);
 

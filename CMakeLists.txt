@@ -1,9 +1,14 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.16)
 
-project(m)
+project(m, VERSION 0.0.9 LANGUAGES CXX)
 
+# set any CMAKE_ variables here
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 set(CMAKE_CXX_STANDARD 17)
+
+add_library(mlr 
+  src/runtime.cc
+)
 
 include_directories(
   include
@@ -12,7 +17,6 @@ include_directories(
 
 link_directories(
   /usr/local/Cellar/llvm/9.0.0_1/lib
-  examples
 )
 
 link_libraries(
@@ -158,11 +162,6 @@ link_libraries(
   LLVMDemangle
   z
   curses
-  test_lib.o
-)
-
-add_library(mlr 
-  src/runtime.cc
 )
 
 add_executable(m
@@ -176,17 +175,9 @@ add_executable(m
   src/util.cc
   src/codegen.cc
 )
-target_link_libraries(m mlr)
+target_link_libraries(m PRIVATE mlr)
 
-add_executable(msample
-  examples/test_main.cc
-)
-target_link_libraries(msample mlr)
-add_custom_command(TARGET msample
-        PRE_BUILD
-        COMMAND ./m ../examples/test_lib.m
-        )
-add_custom_command(TARGET msample
-        POST_BUILD
-        COMMAND msample
-        )
+add_subdirectory(extern/googletest)
+add_subdirectory(test)
+add_subdirectory(samples)
+

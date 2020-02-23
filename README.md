@@ -20,10 +20,10 @@ make
 ./m
 
 ## using m compiler: 
-./m ./examples/test_lib.m
+./m ./samples/sample_lib.m
 
 ## c calls m functions:
-clang++ ./examples/test_main.cc ./examples/test_lib.o ./runtime.o -o ./test_main.o
+clang++ ./samples/sample_main.cc ./samples/sample_lib.o ./runtime.o -o ./sample
 
 ## m syntax
 ```
