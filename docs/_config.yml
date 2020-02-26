@@ -38,7 +38,7 @@ twitter_username:
 github_username: 
 
 # Build settings
-theme: minima
+theme: jekyll-theme-time-machine
 plugins:
   - jekyll-feed
 
