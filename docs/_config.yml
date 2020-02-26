@@ -19,7 +19,7 @@
 # in the templates via {{ site.myvariable }}.
 lsi: false
 safe: true
-source: https://github.com/ligangwang/m
+#source: https://github.com/ligangwang/m
 incremental: false
 highlighter: rouge
 gist:
