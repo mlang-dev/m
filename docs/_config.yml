@@ -30,7 +30,7 @@ kramdown:
 
 title: m
 email: 
-description: # succinct, expressive. #>- # this means to ignore newlines until "baseurl:"
+description: succinct, expressive, efficient. #>- # this means to ignore newlines until "baseurl:"
 baseurl: "/" # the subpath of your site, e.g. /blog
 url: "https://mlang.dev/" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: 
