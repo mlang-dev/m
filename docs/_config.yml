@@ -60,3 +60,5 @@ theme: jekyll-theme-time-machine
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
+github:
+  repository_url: "https://github.com/ligangwang/m"

@@ -30,7 +30,65 @@
           <a href="{{ site.github.tar_url }}" class="download-button tar"><span>Download</span></a>
           <a href="{{ site.github.zip_url }}" class="download-button zip"><span>Download</span></a>
           {% endif %}
-          <a href="{{ site.github.repository_url }}" class="code">{{ site.title | default: site.github.repository_name }}</a>
+          <!-- <a href="{{ site.url }}">{{ site.title | default: site.github.repository_name }}></a>  
+          <a href="{{ site.github.repository_url }}">source</a> -->
+          <div id="logo-title">
+            <code>
+              <a href="{{ site.url }}/">
+                m>
+              </a>
+            </code>
+          </div>
+          <ul id="nav-list">
+            <li class="nav-item">
+              <a href="{{ site.url }}/build.html"
+                  class="nav-link">
+                <code>
+                  build
+                </code>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ site.url }}/code.html"
+                  class="nav-link">
+                <code>
+                  code
+                </code>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ site.url }}/run.html"
+                  class="nav-link">
+                <code>
+                  run
+                </code>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ site.url }}/release.html"
+                  class="nav-link">
+                <code>
+                  releases
+                </code>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ site.url }}/plan.html"
+                  class="nav-link">
+                <code>
+                  plan
+                </code>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ site.url }}/resource.html"
+                  class="nav-link">
+                <code>
+                  resources
+                </code>
+              </a>
+            </li>
+          </ul>          
         </div>
         <span class="blc"></span><span class="trc"></span>
         </div>
