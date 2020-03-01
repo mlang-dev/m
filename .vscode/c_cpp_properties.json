@@ -4,8 +4,8 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/googletest/googletest/include",
-                "${workspaceFolder}/googletest/googlemock/include",
+                "${workspaceFolder}/extern/googletest/googletest/include",
+                "${workspaceFolder}/extern/googletest/googlemock/include",
                 "/usr/local/Cellar/llvm/9.0.0_1/include"
             ],
             "defines": [],

@@ -3,6 +3,7 @@
 #include <string>
 #include "util.h"
 
+using namespace std;
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
   ENUM_ITEM(TOKEN_UNK)               \
   ENUM_ITEM(TOKEN_EOF)               \
@@ -34,11 +35,23 @@ struct token {
   TokenType type;
   source_loc loc;
   union {
-    std::string* ident_str;
+    string* ident_str;
     double num_val;
     int op_val;
   };
 };
 
-token& get_token(FILE* file);
-void repeat_token();
+struct file_tokenizer{
+  FILE* file;
+  source_loc loc = {1, 0};
+  source_loc tok_loc;
+  token _token;
+  token _next_token = {.type = TOKEN_UNK};
+  int curr_char = ' ';
+  string ident_str;
+};
+
+file_tokenizer* create_tokenizer(FILE* file);
+void destroy_tokenizer(file_tokenizer* tokenizer);
+token& get_token(file_tokenizer* tokenizer);
+void repeat_token(file_tokenizer* tokenizer);

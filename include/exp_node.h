@@ -40,12 +40,12 @@ typedef struct block_node {
 typedef struct module {
   std::string name;
   block_node* block;
+  file_tokenizer* tokenizer;
 } module;
 
 typedef struct ast {
   std::vector<exp_node*> builtins;
   std::vector<module*> modules;
-  module* entry_module;
 } ast;
 
 typedef struct num_node {

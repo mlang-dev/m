@@ -151,23 +151,27 @@ block_node *_create_block_node(exp_node* parent, vector<exp_node *>& nodes) {
 map<char, int> g_op_precedences = {
     {'<', 10}, {'+', 20}, {'-', 20}, {'*', 40}, {'/', 40}};
 
-module *create_module(const char *mod_name) {
+module *create_module(const char *mod_name, FILE* file) {
   module *mod = new module();
   mod->name = mod_name;
   mod->block = new block_node();
+  mod->tokenizer = create_tokenizer(file);
   return mod;
 }
-parser *create_parser(bool create_entry, FILE *file, bool is_repl) {
+parser *create_parser(const char *file_name, bool is_repl, FILE* (*open_file)(const char* file_name)) {
+  FILE* file;
+  if (open_file)
+    file = open_file(file_name);
+  else
+    file = file_name? fopen(file_name, "r") : stderr;
+  const char* mod_name = file_name? file_name : "intepreter_main";
   auto psr = new parser();
   psr->op_precedences = &g_op_precedences;
   psr->ast = new ast();
-  psr->file = file;
   psr->allow_id_as_a_func = true;
   psr->is_repl = is_repl;
-  if (create_entry) {
-    psr->ast->entry_module = create_module("main");
-    psr->ast->modules.push_back(psr->ast->entry_module);
-  }
+  psr->current_module = create_module(mod_name, file);
+  psr->ast->modules.push_back(psr->current_module);
   return psr;
 }
 
@@ -176,6 +180,7 @@ void create_builtins(parser *parser, void *context) {
 }
 
 void destroy_module(module *module) {
+  destroy_tokenizer(module->tokenizer);
   delete module->block;
   delete module;
 }
@@ -187,7 +192,7 @@ void destroy_parser(parser *parser) {
 }
 
 void parse_next_token(parser *parser) {
-  auto token = get_token(parser->file);
+  auto token = get_token(parser->current_module->tokenizer);
   parser->curr_token = token;
 }
 
@@ -239,7 +244,7 @@ exp_node *_parse_function_app_or_def(parser *parser, exp_node* parent, source_lo
     }
   }
   parser->allow_id_as_a_func = true;
-//  log(DEBUG, "is %s a function def: %d", id_name.c_str(), func_definition);
+  //log(DEBUG, "is %s a function def: %d", id_name.c_str(), func_definition);
   if (func_definition) {
     vector<string> argNames;
     for (auto exp : args) {
@@ -269,13 +274,13 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
   else {//id
     string id_name = *parser->curr_token.ident_str;
     source_loc loc = parser->curr_token.loc;
-    //log(DEBUG, "id token: %s", id_name.c_str());
     parse_next_token(parser);  // skip identifier
     char op = parser->curr_token.op_val;
+    //log(DEBUG, "id token: %s, %c, %d, %d", id_name.c_str(), op, op, parent);
     if (op == '=') {
       // variable definition
       node = _parse_var(parser, parent, id_name);
-    } else if (parser->curr_token.type == TOKEN_EOS||g_op_precedences[op]) {
+    } else if (parser->curr_token.type == TOKEN_EOS || parser->curr_token.type == TOKEN_EOF ||g_op_precedences[op]) {
       // just id expression evaluation
       auto lhs = (exp_node *)_create_ident_node(parent, parser->curr_token.loc, id_name);
       node = parse_exp(parser, parent, lhs);
@@ -578,16 +583,15 @@ exp_node *_parse_if(parser *parser, exp_node* parent) {
   return (exp_node *)_create_if_node(parent, loc, cond, then, else_exp);
 }
 
-
 block_node *parse_block(parser *parser, exp_node *parent, void (*fun)(void*, exp_node*), void* jit) {
   int col = parent? parent->loc.col : 1;
   vector<exp_node*> nodes;
   while (true) {
     parse_next_token(parser);
-    //log(DEBUG, "got token in block: (%d, %d), %d", parser->curr_token.loc.line, parser->curr_token.loc.col, col);
+    //log(DEBUG, "got token in block: (%d, %d), %d", parser->curr_token.loc.line, parser->curr_token.loc.col, parser->curr_token.type);
     if (exit_block(parser, parent, col)) {
       //repeat the token
-      repeat_token();
+      repeat_token(parser->current_module->tokenizer);
       break;
     }
     static source_loc loc1 = parser->curr_token.loc;

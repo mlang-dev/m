@@ -46,7 +46,7 @@ void eval_statement(void* p_jit, exp_node* node) {
 }
 
 int run_interactive() {
-  parser* parser = create_parser(true, stdin, true);
+  parser* parser = create_parser(NULL, true);
   code_generator* cg = create_code_generator(parser);
   JIT* jit = create_jit(cg);
   create_builtins(parser, cg->context);

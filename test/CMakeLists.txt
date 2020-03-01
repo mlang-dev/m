@@ -10,10 +10,159 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/include
 )
 
+link_directories(
+  /usr/local/Cellar/llvm/9.0.0_1/lib
+)
+
+link_libraries(
+  LLVMXRay
+  LLVMWindowsManifest
+  LLVMTextAPI
+  LLVMTableGen
+  LLVMSymbolize
+  LLVMDebugInfoPDB
+  LLVMOrcJIT
+  LLVMJITLink
+  LLVMObjectYAML
+  LLVMMCA
+  LLVMLTO
+  LLVMPasses
+  LLVMObjCARCOpts
+  LLVMLineEditor
+  LLVMLibDriver
+  LLVMInterpreter
+  LLVMFuzzMutate
+  LLVMMCJIT
+  LLVMExecutionEngine
+  LLVMRuntimeDyld
+  LLVMDlltoolDriver
+  LLVMOption
+  LLVMDebugInfoGSYM
+  LLVMCoverage
+  LLVMCoroutines
+  LLVMXCoreDisassembler
+  LLVMXCoreCodeGen
+  LLVMXCoreDesc
+  LLVMXCoreInfo
+  LLVMX86Disassembler
+  LLVMX86AsmParser
+  LLVMX86CodeGen
+  LLVMX86Desc
+  LLVMX86Utils
+  LLVMX86Info
+  LLVMWebAssemblyDisassembler
+  LLVMWebAssemblyCodeGen
+  LLVMWebAssemblyDesc
+  LLVMWebAssemblyAsmParser
+  LLVMWebAssemblyInfo
+  LLVMSystemZDisassembler
+  LLVMSystemZCodeGen
+  LLVMSystemZAsmParser
+  LLVMSystemZDesc
+  LLVMSystemZInfo
+  LLVMSparcDisassembler
+  LLVMSparcCodeGen
+  LLVMSparcAsmParser
+  LLVMSparcDesc
+  LLVMSparcInfo
+  LLVMRISCVDisassembler
+  LLVMRISCVCodeGen
+  LLVMRISCVAsmParser
+  LLVMRISCVDesc
+  LLVMRISCVUtils
+  LLVMRISCVInfo
+  LLVMPowerPCDisassembler
+  LLVMPowerPCCodeGen
+  LLVMPowerPCAsmParser
+  LLVMPowerPCDesc
+  LLVMPowerPCInfo
+  LLVMNVPTXCodeGen
+  LLVMNVPTXDesc
+  LLVMNVPTXInfo
+  LLVMMSP430Disassembler
+  LLVMMSP430CodeGen
+  LLVMMSP430AsmParser
+  LLVMMSP430Desc
+  LLVMMSP430Info
+  LLVMMipsDisassembler
+  LLVMMipsCodeGen
+  LLVMMipsAsmParser
+  LLVMMipsDesc
+  LLVMMipsInfo
+  LLVMLanaiDisassembler
+  LLVMLanaiCodeGen
+  LLVMLanaiAsmParser
+  LLVMLanaiDesc
+  LLVMLanaiInfo
+  LLVMHexagonDisassembler
+  LLVMHexagonCodeGen
+  LLVMHexagonAsmParser
+  LLVMHexagonDesc
+  LLVMHexagonInfo
+  LLVMBPFDisassembler
+  LLVMBPFCodeGen
+  LLVMBPFAsmParser
+  LLVMBPFDesc
+  LLVMBPFInfo
+  LLVMARMDisassembler
+  LLVMARMCodeGen
+  LLVMARMAsmParser
+  LLVMARMDesc
+  LLVMARMUtils
+  LLVMARMInfo
+  LLVMAMDGPUDisassembler
+  LLVMAMDGPUCodeGen
+  LLVMMIRParser
+  LLVMipo
+  LLVMInstrumentation
+  LLVMVectorize
+  LLVMLinker
+  LLVMIRReader
+  LLVMAsmParser
+  LLVMAMDGPUAsmParser
+  LLVMAMDGPUDesc
+  LLVMAMDGPUUtils
+  LLVMAMDGPUInfo
+  LLVMAArch64Disassembler
+  LLVMMCDisassembler
+  LLVMAArch64CodeGen
+  LLVMGlobalISel
+  LLVMSelectionDAG
+  LLVMAsmPrinter
+  LLVMDebugInfoDWARF
+  LLVMCodeGen
+  LLVMTarget
+  LLVMScalarOpts
+  LLVMInstCombine
+  LLVMAggressiveInstCombine
+  LLVMTransformUtils
+  LLVMBitWriter
+  LLVMAnalysis
+  LLVMProfileData
+  LLVMObject
+  LLVMBitReader
+  LLVMBitstreamReader
+  LLVMCore
+  LLVMRemarks
+  LLVMAArch64AsmParser
+  LLVMMCParser
+  LLVMAArch64Desc
+  LLVMMC
+  LLVMDebugInfoCodeView
+  LLVMDebugInfoMSF
+  LLVMBinaryFormat
+  LLVMAArch64Utils
+  LLVMAArch64Info
+  LLVMSupport
+  LLVMDemangle
+  z
+  curses
+)
+
 add_executable(mtest
   test_parser.cc
 )
-TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main)
+TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main mlr)
 
 enable_testing()
 include(GoogleTest)

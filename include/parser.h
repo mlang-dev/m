@@ -7,12 +7,12 @@ typedef struct parser{
     std::map<char, int>* op_precedences;
     token curr_token;
     ast* ast;
-    FILE* file;
     bool allow_id_as_a_func;
     bool is_repl;
+    module* current_module;
 }parser;
 
-parser* create_parser(bool create_entry, FILE* file, bool is_repl);
+parser* create_parser(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name)=nullptr);
 void create_builtins(parser* parser, void* context);
 void destroy_parser(parser* parser);
 void parse_next_token(parser* parser);

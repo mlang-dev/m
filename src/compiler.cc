@@ -18,8 +18,7 @@ int generate_object_file(Module* module, const char* filename);
 
 int compile(const char* fn){
     auto filename = get_filename(fn);
-    FILE* file = fopen(fn, "r");
-    parser* parser = create_parser(true, file, false);
+    parser* parser = create_parser(fn, false);
     code_generator* cg = create_code_generator(parser);
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, filename.c_str());
@@ -34,7 +33,6 @@ int compile(const char* fn){
     }else{
       log(INFO, "no statement is found.");
     }
-    fclose(file);
     destroy_code_generator(cg);
     destroy_parser(parser);
     return 0;
