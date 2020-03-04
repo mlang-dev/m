@@ -25,6 +25,18 @@ TEST(testParser, testBlockVariable){
   destroy_parser(parser);
 }
 
+TEST(testParser, testBlockVariableNameWithUnderlyingLine){
+  char test_code[128] = "m_x = 11";
+  auto parser = _create_parser_for_string(test_code);
+  block_node * block = parse_block(parser, nullptr);
+  auto node = (var_node*)block->nodes[0];
+  ASSERT_EQ(1, block->nodes.size());
+  ASSERT_STREQ("m_x", node->var_name.c_str());
+  ASSERT_EQ(VAR_NODE, node->base.type);
+  ASSERT_EQ(NUMBER_NODE, node->init_value->type);
+  destroy_parser(parser);
+}
+
 TEST(testParser, testBlockIdFunction){
   char test_code[128] = "f x = x";
   auto parser = _create_parser_for_string(test_code);
@@ -45,6 +57,18 @@ TEST(testParser, testBlockBinaryFunction){
   auto body = node->body->nodes[0];
   ASSERT_EQ(1, block->nodes.size());
   ASSERT_STREQ("f", node->prototype->name.c_str());
+  ASSERT_EQ(BINARY_NODE, body->type);
+  destroy_parser(parser);
+}
+
+TEST(testParser, testBlockBinaryFunctionName){
+  char test_code[128] = "f_sq x = x * x";
+  auto parser = _create_parser_for_string(test_code);
+  block_node * block = parse_block(parser, nullptr);
+  auto node = (function_node*)block->nodes[0];
+  auto body = node->body->nodes[0];
+  ASSERT_EQ(1, block->nodes.size());
+  ASSERT_STREQ("f_sq", node->prototype->name.c_str());
   ASSERT_EQ(BINARY_NODE, body->type);
   destroy_parser(parser);
 }

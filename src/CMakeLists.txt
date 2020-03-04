@@ -66,11 +66,6 @@ link_libraries(
   LLVMWebAssemblyDesc
   LLVMWebAssemblyAsmParser
   LLVMWebAssemblyInfo
-  LLVMSystemZDisassembler
-  LLVMSystemZCodeGen
-  LLVMSystemZAsmParser
-  LLVMSystemZDesc
-  LLVMSystemZInfo
   LLVMSparcDisassembler
   LLVMSparcCodeGen
   LLVMSparcAsmParser
@@ -153,7 +148,6 @@ link_libraries(
   LLVMObject
   LLVMBitReader
   LLVMBitstreamReader
-  LLVMCore
   LLVMRemarks
   LLVMAArch64AsmParser
   LLVMMCParser
@@ -164,8 +158,14 @@ link_libraries(
   LLVMBinaryFormat
   LLVMAArch64Utils
   LLVMAArch64Info
-  LLVMSupport
   LLVMDemangle
+  LLVMCore
+  LLVMSupport
+  LLVMSystemZDisassembler
+  LLVMSystemZCodeGen
+  LLVMSystemZAsmParser
+  LLVMSystemZDesc
+  LLVMSystemZInfo
   z
   curses
 )

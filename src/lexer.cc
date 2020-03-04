@@ -83,7 +83,8 @@ token& _tokenize_number(file_tokenizer* tokenizer) {
 
 token& _tokenize_id_keyword(file_tokenizer* tokenizer) {
   tokenizer->ident_str = tokenizer->curr_char;
-  while (isalnum((tokenizer->curr_char = get_char(tokenizer)))) tokenizer->ident_str += tokenizer->curr_char;
+  while (isalnum((tokenizer->curr_char = get_char(tokenizer))) || tokenizer->curr_char == '_') 
+    tokenizer->ident_str += tokenizer->curr_char;
   auto token_type = tokens[tokenizer->ident_str];
   tokenizer->_token.type = token_type != 0 ? token_type : TOKEN_IDENT;
   tokenizer->_token.ident_str = &tokenizer->ident_str;
