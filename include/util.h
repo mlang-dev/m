@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+using namespace std;
+
 #define ENABLE_DEBUG_LOG 0
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_ENUM_STRING(STRING) #STRING,
@@ -18,11 +20,11 @@ static const char* LogLevelString[] = {
 };
 
 void* log(LogLevel level, const char * string_format, ...);
-std::string format(const char * string_format, ...);
-std::vector<std::string> split(std::string, char separator);
-std::string make_unique_name(const char* root);
+string format(const char * string_format, ...);
+vector<string> split(string, char separator);
+string make_unique_name(const char* root);
 void dumpf(void* p);
 void dumpm(void* p);
 int random(int min, int max);
-std::string get_filename(const char* fullfilename);
+string get_filename(const char* fullfilename);
 bool is_new_line(int ch);

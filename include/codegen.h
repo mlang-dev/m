@@ -4,7 +4,7 @@
 
 using namespace std;
 
-typedef struct code_generator{
+struct code_generator{
     void* context;
     void* builder;
     parser* parser;
@@ -14,7 +14,7 @@ typedef struct code_generator{
     unique_ptr<llvm::legacy::FunctionPassManager> fpm;
     map<string, prototype_node*> protos;
     map<string, var_node*> gvs; 
-} code_generator;
+};
 
 code_generator* create_code_generator(parser* parser);
 void destroy_code_generator(code_generator* cg);

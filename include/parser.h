@@ -3,14 +3,14 @@
 #include <cassert>
 #include "exp_node.h"
 
-typedef struct parser{
+struct parser{
     std::map<char, int>* op_precedences;
     token curr_token;
     ast* ast;
     bool allow_id_as_a_func;
     bool is_repl;
     module* current_module;
-}parser;
+};
 
 parser* create_parser(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name)=nullptr);
 void create_builtins(parser* parser, void* context);
