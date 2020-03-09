@@ -163,7 +163,7 @@ parser *create_parser(const char *file_name, bool is_repl, FILE* (*open_file)(co
   if (open_file)
     file = open_file(file_name);
   else
-    file = file_name? fopen(file_name, "r") : stderr;
+    file = file_name? fopen(file_name, "r") : stdin;
   const char* mod_name = file_name? file_name : "intepreter_main";
   auto psr = new parser();
   psr->op_precedences = &g_op_precedences;
@@ -561,9 +561,8 @@ exp_node *_parse_if(parser *parser, exp_node* parent) {
   exp_node *cond = parse_exp(parser, parent);
   if (!cond) return 0;
 
-  // if (parser->curr_token.type != TOKEN_THEN)
-  //   return (exp_node *)log(ERROR, "expected then");
-  // parse_next_token(parser);  // eat the then
+  if (parser->curr_token.type == TOKEN_THEN)
+    parse_next_token(parser);  // eat the then
   while (parser->curr_token.type==TOKEN_EOS) parse_next_token(parser);
   //log(DEBUG, "parsing then exp");
   exp_node *then = parse_exp(parser, parent);

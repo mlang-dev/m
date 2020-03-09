@@ -1,6 +1,6 @@
 #include <iostream>
 #include "compiler.h"
-#include "interpreter.h"
+#include "repl.h"
 
 using namespace std;
 
@@ -8,7 +8,7 @@ int main(int argc, const char *argv[]) {
   cout << "m - 0.0.9";
   cout << endl;
   if (argc == 1)
-    return run_interactive();
+    return run_repl();
   else
     return compile(argv[1]);
 }

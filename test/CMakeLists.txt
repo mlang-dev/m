@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
+  /usr/local/Cellar/llvm/9.0.0_1/include
 )
 
 link_directories(
@@ -160,7 +161,9 @@ link_libraries(
 )
 
 add_executable(mtest
+  test_util.cc
   test_parser.cc
+  test_jit.cc
 )
 TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main mlr)
 

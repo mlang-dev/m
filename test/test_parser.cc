@@ -1,21 +1,12 @@
 #include "gtest/gtest.h"
 #include "parser.h"
+#include "test_util.h"
 #include <stdio.h>
 
 
-FILE* _open_file(const char* file_name){
-  char* file_content = (char*)file_name;
-  return fmemopen(file_content, strlen(file_content), "r");
-}
-
-parser* _create_parser_for_string(char* str){
-  FILE* file = fmemopen(str, strlen(str), "r");
-  return create_parser(str, false, _open_file);
-}
-
 TEST(testParser, testBlockVariable){
   char test_code[128] = "x = 11";
-  auto parser = _create_parser_for_string(test_code);
+  auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (var_node*)block->nodes[0];
   ASSERT_EQ(1, block->nodes.size());
@@ -27,7 +18,7 @@ TEST(testParser, testBlockVariable){
 
 TEST(testParser, testBlockVariableNameWithUnderlyingLine){
   char test_code[128] = "m_x = 11";
-  auto parser = _create_parser_for_string(test_code);
+  auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (var_node*)block->nodes[0];
   ASSERT_EQ(1, block->nodes.size());
@@ -39,7 +30,7 @@ TEST(testParser, testBlockVariableNameWithUnderlyingLine){
 
 TEST(testParser, testBlockIdFunction){
   char test_code[128] = "f x = x";
-  auto parser = _create_parser_for_string(test_code);
+  auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (function_node*)block->nodes[0];
   auto body = node->body->nodes[0];
@@ -51,7 +42,7 @@ TEST(testParser, testBlockIdFunction){
 
 TEST(testParser, testBlockBinaryFunction){
   char test_code[128] = "f x = x * x";
-  auto parser = _create_parser_for_string(test_code);
+  auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (function_node*)block->nodes[0];
   auto body = node->body->nodes[0];
@@ -63,7 +54,7 @@ TEST(testParser, testBlockBinaryFunction){
 
 TEST(testParser, testBlockBinaryFunctionName){
   char test_code[128] = "f_sq x = x * x";
-  auto parser = _create_parser_for_string(test_code);
+  auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (function_node*)block->nodes[0];
   auto body = node->body->nodes[0];
@@ -77,7 +68,7 @@ TEST(testParser, testFacIfCondition){
   char test_code[128] = R"(fac n = 
     if n< 2 n
     else n * fac (n-1))";
-  auto parser = _create_parser_for_string(test_code);
+  auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (function_node*)block->nodes[0];
   auto body = node->body->nodes[0];
@@ -92,7 +83,7 @@ TEST(testParser, testForLoop){
   for i in 0..n
     print i
   )";
-  auto parser = _create_parser_for_string(test_code);
+  auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (function_node*)block->nodes[0];
   auto body = node->body->nodes[0];
@@ -108,7 +99,7 @@ TEST(testParser, testVariableInFunction){
   yy = (y1-y2) * (y1-y2)
   sqrt (xx + yy)
   )";
-  auto parser = _create_parser_for_string(test_code);
+  auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (function_node*)block->nodes[0];
   auto body = node->body->nodes[0];
@@ -117,6 +108,3 @@ TEST(testParser, testVariableInFunction){
   ASSERT_EQ(VAR_NODE, body->type);
   destroy_parser(parser);
 }
-
-
-

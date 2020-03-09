@@ -1,3 +1,4 @@
+#pragma once
 #include "lexer.h"
 #include <map>
 #include <cassert>

@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(mlr 
   builtins.cc
   compiler.cc
-  interpreter.cc
+  repl.cc
   jit.cc
   lexer.cc
   parser.cc

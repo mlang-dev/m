@@ -23,6 +23,8 @@ JIT* create_jit(code_generator* cg){
 }
 
 void destroy_jit(JIT* jit){
+    destroy_parser(jit->cg->parser);
+    destroy_code_generator(jit->cg);
     delete jit->mjit;
     delete jit;
 }
