@@ -267,11 +267,12 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
     return nullptr;
   else if (parser->curr_token.type == TOKEN_IMPORT)
     node = parse_import(parser, parent);
-  else if (parser->curr_token.type != TOKEN_IDENT){
-    node = parse_exp(parser, parent);
-    //log(DEBUG, "not id token exp: %s", NodeTypeString[node->type]);
+  else if (parser->curr_token.type == TOKEN_UNARY || parser->curr_token.type == TOKEN_BINARY){
+    //function def
+    auto proto = _parse_prototype(parser, parent);
+    node = _parse_function_with_prototype(parser, (prototype_node*)proto);
   }
-  else {//id
+  else if (parser->curr_token.type == TOKEN_IDENT){ 
     string id_name = *parser->curr_token.ident_str;
     source_loc loc = parser->curr_token.loc;
     parse_next_token(parser);  // skip identifier
@@ -289,6 +290,10 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
       // function definition or application
       node = _parse_function_app_or_def(parser, parent, loc, id_name);
     }
+  }
+  else{
+    node = parse_exp(parser, parent);
+    //log(DEBUG, "not id token exp: %s", NodeTypeString[node->type]);
   }
   if(node)
     node->parent = parent;
@@ -397,11 +402,13 @@ exp_node *_parse_prototype(parser *parser, exp_node* parent) {
       parse_next_token(parser);
       break;
     case TOKEN_UNARY:
+      //log(DEBUG, "found unary operator");
       parse_next_token(parser);
       if (parser->curr_token.type!=TOKEN_OP)
         return (exp_node *)log(ERROR, "Expected unary operator");
       fun_name = "unary";
       fun_name += (char)parser->curr_token.op_val;
+      //log(DEBUG, "finding unary operator: %s", fun_name.c_str());
       proto_type = 1;
       parse_next_token(parser);
       break;
@@ -497,12 +504,14 @@ exp_node *_parse_unary(parser *parser, exp_node* parent) {
       parser->curr_token.op_val == ',') {
     return _parse_node(parser, parent);
   }
-  // fprintf(stderr, "unary: %d, %d\n", parser->curr_token.op_val,
+  //log(DEBUG, "unary: %c", parser->curr_token.op_val);
   // If this is a unary operator, read it.
   int opc = parser->curr_token.op_val;
   parse_next_token(parser);
-  if (exp_node *operand = _parse_unary(parser, parent))
+  if (exp_node *operand = _parse_unary(parser, parent)){
+    //log(DEBUG, "unary node:%c: %s", opc, NodeTypeString[operand->type]);
     return (exp_node *)_create_unary_node(parent, loc, opc, operand);
+  }
   return 0;
 }
 

@@ -16,13 +16,13 @@ double eval_exp(JIT* jit, exp_node* node){
   node = parse_exp_to_function(jit->cg->parser, node, fn.c_str());
   if (node) {
     if (auto p_fun = generate_code(jit->cg, node)) {
-      // dumpm(jit->cg->module.get());
+      //dumpm(jit->cg->module.get());
       auto mk = jit->mjit->addModule(std::move(jit->cg->module));
       auto mf = jit->mjit->findSymbol(fn);
       double (*fp)() = (double (*)())(intptr_t)cantFail(mf.getAddress());
       // keep global variables in the jit
+      result = fp();
       if (node_type != NodeType::VAR_NODE) {
-        result = fp();
         jit->mjit->removeModule(mk);
       }
       create_module_and_pass_manager(jit->cg,

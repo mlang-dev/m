@@ -108,3 +108,4 @@ TEST(testParser, testVariableInFunction){
   ASSERT_EQ(VAR_NODE, body->type);
   destroy_parser(parser);
 }
+

@@ -89,6 +89,7 @@ token& _tokenize_id_keyword(file_tokenizer* tokenizer) {
   tokenizer->_token.type = token_type != 0 ? token_type : TOKEN_IDENT;
   tokenizer->_token.ident_str = &tokenizer->ident_str;
   tokenizer->_token.loc = tokenizer->tok_loc;
+  //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->_token.type);
   return tokenizer->_token;
 }
 
