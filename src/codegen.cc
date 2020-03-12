@@ -154,9 +154,13 @@ void* _generate_binary_node(code_generator* cg, binary_node* node) {
                                    "booltmp");
     }
     default:
-      log(ERROR, "unrecognized binary operator");
-      return 0;
+      break;
   }
+  Function *func = _get_function(cg, std::string("binary") + node->op);
+  assert(func && "binary operator not found!");
+
+  Value *ops[2] = { lv, rv };
+  return builder->CreateCall(func, ops, "binop");
 }
 
 void* _generate_call_node(code_generator* cg, call_node* node) {
@@ -192,28 +196,16 @@ void* _generate_prototype_node(code_generator* cg, prototype_node* node) {
   return fun;
 }
 
-bool _is_unary_op(prototype_node* pnode) {
-  return pnode->is_operator && pnode->args.size() == 1;
-}
-
-bool _is_binary_op(prototype_node* pnode) {
-  return pnode->is_operator && pnode->args.size() == 2;
-}
-
-char _get_op_name(prototype_node* pnode) {
-  assert(_is_unary_op(pnode) || _is_binary_op(pnode));
-  return pnode->name[pnode->name.size() - 1];
-}
-
 void* _generate_function_node(code_generator* cg, function_node* node) {
   cg->named_values.clear();
   llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
   auto fun = (llvm::Function*)_generate_prototype_node(cg, node->prototype);
   if (!fun) return 0;
-  if (_is_binary_op(node->prototype))
-    (*cg->parser->op_precedences)[_get_op_name(node->prototype)] =
-        node->prototype->precedence;
-
+  // if (is_binary_op(node->prototype)){
+  //   log(DEBUG, "found a binary op def ! op:%c, prec: %d", get_op_name(node->prototype), node->prototype->precedence);
+  //   (*cg->parser->op_precedences)[get_op_name(node->prototype)] =
+  //       node->prototype->precedence;
+  // }
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
   llvm::BasicBlock* bb = llvm::BasicBlock::Create(*context, "entry", fun);
   builder->SetInsertPoint(bb);
@@ -231,8 +223,8 @@ void* _generate_function_node(code_generator* cg, function_node* node) {
     return fun;
   }
   fun->eraseFromParent();
-  if (_is_binary_op(node->prototype))
-    cg->parser->op_precedences->erase(_get_op_name(node->prototype));
+  // if (is_binary_op(node->prototype))
+  //   cg->parser->op_precedences->erase(get_op_name(node->prototype));
   return 0;
 }
 

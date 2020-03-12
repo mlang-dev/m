@@ -97,7 +97,7 @@ struct prototype_node {
   exp_node base;
   std::string name;
   std::vector<std::string> args;
-  bool is_operator;
+  char is_operator;
   unsigned precedence;
 };
 

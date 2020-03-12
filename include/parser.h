@@ -22,4 +22,6 @@ exp_node* parse_import(parser* parser, exp_node* parent);
 exp_node* parse_statement(parser* parser, exp_node* parent);
 block_node *parse_block(parser *parser, exp_node *parent, void (*fun)(void*, exp_node*) = nullptr, void*jit=nullptr);
 exp_node *parse_exp(parser *parser, exp_node* parent, exp_node *lhs = 0);
-
+bool is_unary_op(prototype_node* pnode);
+bool is_binary_op(prototype_node* pnode);
+char get_op_name(prototype_node* pnode);

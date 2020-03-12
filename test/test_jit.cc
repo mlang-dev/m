@@ -76,3 +76,19 @@ y=100
   ASSERT_EQ(-100.0, eval_exp(jit, block->nodes[2]));
   destroy_parser(parser);
 }
+
+TEST(testJIT, testBinaryFunc){
+  char test_code[128] = R"(
+unary- x = 0 - x
+binary>10 x y = y < x
+z = 100
+if z>99 then -z else z
+)";
+  auto parser = create_parser_for_string(test_code);
+  JIT* jit = build_jit(parser);
+  block_node * block = parse_block(parser, nullptr);
+  for(int i=0;i<3;i++)
+    eval_statement(jit, block->nodes[i]);
+  ASSERT_EQ(-100.0, eval_exp(jit, block->nodes[3]));
+  destroy_parser(parser);
+}

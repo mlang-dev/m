@@ -1,12 +1,17 @@
 #include "parser.h"
 #include <map>
 #include <memory>
+#include <sstream>
 #include "builtins.h"
 #include "util.h"
+#include "astdump.h"
 
 #define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col <= col && (parser->curr_token.type != TOKEN_EOS||parser->is_repl))
 
 using namespace std;
+
+map<char, int> g_op_precedences = {
+    {'<', 10}, {'+', 20}, {'-', 20}, {'*', 40}, {'/', 40}};
 
 int _get_op_precedence(parser *parser);
 exp_node *_parse_number(parser *parser, exp_node* parent);
@@ -28,6 +33,19 @@ bool _is_exp(exp_node* node){
   return node->type != VAR_NODE && node->type != FUNCTION_NODE && node->type != PROTOTYPE_NODE;
 }
 
+bool is_unary_op(prototype_node* pnode) {
+  return pnode->is_operator && pnode->args.size() == 1;
+}
+
+bool is_binary_op(prototype_node* pnode) {
+  return pnode->is_operator && pnode->args.size() == 2;
+}
+
+char get_op_name(prototype_node* pnode) {
+  assert(is_unary_op(pnode) || is_binary_op(pnode));
+  return pnode->name[pnode->name.size() - 1];
+}
+
 function_node *_create_function_node(prototype_node *prototype,
                                      block_node *body) {
   auto node = new function_node();
@@ -36,6 +54,9 @@ function_node *_create_function_node(prototype_node *prototype,
   node->base.loc = prototype->base.loc;
   node->prototype = prototype;
   node->body = body;
+  if(is_binary_op(prototype)){
+    g_op_precedences[get_op_name(prototype)] = prototype->precedence;
+  }
   return node;
 }
 
@@ -148,8 +169,6 @@ block_node *_create_block_node(exp_node* parent, vector<exp_node *>& nodes) {
     block->nodes.push_back(node);
   return block;
 }
-map<char, int> g_op_precedences = {
-    {'<', 10}, {'+', 20}, {'-', 20}, {'*', 40}, {'/', 40}};
 
 module *create_module(const char *mod_name, FILE* file) {
   module *mod = new module();
@@ -198,7 +217,7 @@ void parse_next_token(parser *parser) {
 
 int _get_op_precedence(parser *parser) {
   if (parser->curr_token.type != TOKEN_OP) return -1;
-  int op_precedence = (*parser->op_precedences)[parser->curr_token.op_val];
+  int op_precedence = g_op_precedences[parser->curr_token.op_val];
   // fprintf(stderr, "op %d: pre: %d\n", op, op_precedence);
   if (op_precedence <= 0) return -1;
   return op_precedence;
@@ -293,7 +312,7 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
   }
   else{
     node = parse_exp(parser, parent);
-    //log(DEBUG, "not id token exp: %s", NodeTypeString[node->type]);
+    //log(DEBUG, "not id token: it's exp: %s", NodeTypeString[node->type]);
   }
   if(node)
     node->parent = parent;
@@ -356,10 +375,24 @@ exp_node *_parse_node(parser *parser, exp_node* parent) {
   }
 }
 
+string map_to_string(map<char,int>  &m) {
+  string output = "";
+  string convrt = "";
+  string result = "";
+	for (auto it = m.cbegin(); it != m.cend(); it++) {
+		convrt = std::to_string(it->second);
+		output += it->first;
+    output += ":" + convrt + ", ";
+	}
+	result = output.substr(0, output.size() - 2 );
+  return result;
+}
+
 exp_node *_parse_binary(parser *parser, exp_node* parent, int exp_prec, exp_node *lhs) {
   while (true) {
     if(parser->curr_token.type==TOKEN_EOS) return lhs;
     int tok_prec = _get_op_precedence(parser);
+    //log(DEBUG, "bin exp: [%c], %d, %s", parser->curr_token.op_val, tok_prec, map_to_string(g_op_precedences).c_str());
     if (tok_prec < exp_prec) return lhs;
     int binary_op = parser->curr_token.op_val;
     parse_next_token(parser);
@@ -402,7 +435,6 @@ exp_node *_parse_prototype(parser *parser, exp_node* parent) {
       parse_next_token(parser);
       break;
     case TOKEN_UNARY:
-      //log(DEBUG, "found unary operator");
       parse_next_token(parser);
       if (parser->curr_token.type!=TOKEN_OP)
         return (exp_node *)log(ERROR, "Expected unary operator");
@@ -425,6 +457,7 @@ exp_node *_parse_prototype(parser *parser, exp_node* parent) {
         if (parser->curr_token.num_val < 1 || parser->curr_token.num_val > 100)
           return (exp_node *)log(ERROR, "Invalid precedecnce: must be 1..100");
         bin_prec = (unsigned)parser->curr_token.num_val;
+        log(DEBUG, "finding binary operator: %s, prec: %d", fun_name.c_str(), bin_prec);
         parse_next_token(parser);
       }
       break;
@@ -569,9 +602,10 @@ exp_node *_parse_if(parser *parser, exp_node* parent) {
   //log(DEBUG, "parsing if exp");
   exp_node *cond = parse_exp(parser, parent);
   if (!cond) return 0;
-
-  if (parser->curr_token.type == TOKEN_THEN)
+  //log(DEBUG, "conf: %s, %s", NodeTypeString[cond->type], dump(cond).c_str());
+  if (parser->curr_token.type == TOKEN_THEN){
     parse_next_token(parser);  // eat the then
+  }
   while (parser->curr_token.type==TOKEN_EOS) parse_next_token(parser);
   //log(DEBUG, "parsing then exp");
   exp_node *then = parse_exp(parser, parent);
@@ -579,7 +613,7 @@ exp_node *_parse_if(parser *parser, exp_node* parent) {
 
   while (parser->curr_token.type==TOKEN_EOS) parse_next_token(parser);
   if (parser->curr_token.type != TOKEN_ELSE)
-    return (exp_node *)log(ERROR, "expected else, got type: %d", parser->curr_token.type);
+    return (exp_node *)log(ERROR, "expected else, got type: %s", NodeTypeString[parser->curr_token.type]);
 
   parse_next_token(parser);
 

@@ -14,6 +14,7 @@ add_library(mlr
   util.cc
   codegen.cc
   runtime.cc
+  astdump.cc
 )
 
 include_directories(
