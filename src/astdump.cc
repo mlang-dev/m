@@ -1,15 +1,10 @@
 #include "astdump.h"
+#include "util.h"
 #include <sstream>
 
-string to_string(vector<string> &array){
-  ostringstream imploded;
-  copy(array.begin(), array.end(),
-           ostream_iterator<string>(imploded, " "));
-  return imploded.str();
-}
 
 string _dump_prototype(prototype_node* proto){
-  return proto->name + to_string(proto->args) + "=";
+  return proto->name + vector_to_string(proto->args) + "=";
 }
 
 string _dump_block(block_node* block){
@@ -26,21 +21,27 @@ string _dump_function(function_node* func){
 }
 
 string _dump_var(var_node* var){
-  return "var: " + var->var_name + "=" + dump(var->init_value);
+  string vars = "var: ";
+  vars += var->var_name + "=" + dump(var->init_value);
+  return vars; 
 }
 
 string _dump_unary(unary_node* unary){
-  return "un: " + unary->op + dump(unary->operand);
+  string un = "un: ";
+  un += unary->op + dump(unary->operand);
+  return un;
 }
 
 string _dump_binary(binary_node* binary){
-  return "bin: " + dump(binary->lhs) + binary->op + dump(binary->rhs);
+  string bin = "bin: ";
+  bin += dump(binary->lhs) + binary->op + dump(binary->rhs);
+  return bin;
 }
 
 string _dump_call(call_node* call){
   vector<string> args;
   transform (call->args.begin(), call->args.end(), args.begin(), dump);
-  return call->callee + " " + to_string(args);
+  return call->callee + " " + vector_to_string(args);
 }
 
 string _dump_if(condition_node* cond){

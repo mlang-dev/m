@@ -12,6 +12,13 @@ using namespace std;
 static char alpha_nums[36];
 static bool alpha_nums_init = false;
 
+string vector_to_string(vector<string> &array){
+  ostringstream imploded;
+  copy(array.begin(), array.end(),
+           ostream_iterator<string>(imploded, " "));
+  return imploded.str();
+}
+
 int random(int min, int max){
     return min + (rand() % static_cast<int>(max - min + 1));
 }

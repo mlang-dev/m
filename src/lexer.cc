@@ -11,12 +11,16 @@
 
 using namespace std;
 
-
 static map<string, TokenType> tokens = {
     {"import", TOKEN_IMPORT}, {"if", TOKEN_IF},         {"else", TOKEN_ELSE},
     {"then", TOKEN_THEN},     {"in", TOKEN_IN},         {"for", TOKEN_FOR},
     {"unary", TOKEN_UNARY},   {"binary", TOKEN_BINARY}, {"..", TOKEN_RANGE},
 };
+
+static map<char, TokenType> char_tokens = {
+  {'(', TOKEN_LPAREN}, {')', TOKEN_RPAREN}, {'[', TOKEN_LBRACKET}, {']', TOKEN_RBRACKET},
+};
+
 static set<char> symbol_chars = {'.'};
 
 static int get_char(file_tokenizer* tokenizer) {
@@ -32,7 +36,7 @@ static int get_char(file_tokenizer* tokenizer) {
 file_tokenizer* create_tokenizer(FILE* file){
   auto tokenizer = new file_tokenizer();
   tokenizer->loc = {1, 0};
-  tokenizer->_next_token = {.type = TOKEN_UNK};
+  tokenizer->next_token = {.type = TOKEN_UNK};
   tokenizer->curr_char = ' ';
   tokenizer->file = file;
   return tokenizer;
@@ -66,19 +70,20 @@ token& _tokenize_number(file_tokenizer* tokenizer) {
     _tokenize_symbol(tokenizer, symbol);
     if (auto type = tokens[symbol]) {
       if (num_str == "") {
-        return _tokenize_symbol_type(tokenizer, tokenizer->_token, type);
+        return _tokenize_symbol_type(tokenizer, tokenizer->cur_token, type);
       } else {
-        _tokenize_symbol_type(tokenizer, tokenizer->_next_token, type);
+        //log(ERROR, "ERROROROR !!!, %s", symbol.c_str());
+        _tokenize_symbol_type(tokenizer, tokenizer->next_token, type);
         break;
       }
     }
     num_str += tokenizer->curr_char;
     tokenizer->curr_char = get_char(tokenizer);
   } while (isdigit(tokenizer->curr_char) || tokenizer->curr_char == '.');
-  tokenizer->_token.num_val = strtod(num_str.c_str(), nullptr);
-  tokenizer->_token.type = TOKEN_NUM;
-  tokenizer->_token.loc = tokenizer->tok_loc;
-  return tokenizer->_token;
+  tokenizer->cur_token.num_val = strtod(num_str.c_str(), nullptr);
+  tokenizer->cur_token.type = TOKEN_NUM;
+  tokenizer->cur_token.loc = tokenizer->tok_loc;
+  return tokenizer->cur_token;
 }
 
 token& _tokenize_id_keyword(file_tokenizer* tokenizer) {
@@ -86,33 +91,18 @@ token& _tokenize_id_keyword(file_tokenizer* tokenizer) {
   while (isalnum((tokenizer->curr_char = get_char(tokenizer))) || tokenizer->curr_char == '_') 
     tokenizer->ident_str += tokenizer->curr_char;
   auto token_type = tokens[tokenizer->ident_str];
-  tokenizer->_token.type = token_type != 0 ? token_type : TOKEN_IDENT;
-  tokenizer->_token.ident_str = &tokenizer->ident_str;
-  tokenizer->_token.loc = tokenizer->tok_loc;
-  //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->_token.type);
-  return tokenizer->_token;
+  tokenizer->cur_token.type = token_type != 0 ? token_type : TOKEN_IDENT;
+  tokenizer->cur_token.ident_str = &tokenizer->ident_str;
+  tokenizer->cur_token.loc = tokenizer->tok_loc;
+  //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.type);
+  return tokenizer->cur_token;
 }
 
-token& _tokenize_eos(file_tokenizer* tokenizer) {
- tokenizer->_token.loc = tokenizer->tok_loc;
-  tokenizer->_token.op_val = tokenizer->curr_char;
-  tokenizer->_token.type = TOKEN_EOS;
-  tokenizer->curr_char = ' ';  // replaced with empty space
-  return tokenizer->_token;
-}
-
-token& _tokenize_eof(file_tokenizer* tokenizer) {
-  tokenizer->_token.loc = tokenizer->tok_loc;
-  tokenizer->_token.op_val = tokenizer->curr_char;
-  tokenizer->_token.type = TOKEN_EOF;
-  return tokenizer->_token;
-}
-
-token& _tokenize_operator(file_tokenizer* tokenizer) {
-  tokenizer->_token.loc = tokenizer->tok_loc;
-  tokenizer->_token.op_val = tokenizer->curr_char;
-  tokenizer->_token.type = TOKEN_OP;
-  return tokenizer->_token;
+token& _tokenize_type(file_tokenizer* tokenizer, TokenType token_type) {
+  tokenizer->cur_token.loc = tokenizer->tok_loc;
+  tokenizer->cur_token.op_val = tokenizer->curr_char;
+  tokenizer->cur_token.type = token_type;
+  return tokenizer->cur_token;
 }
 
 void _skip_to_line_end(file_tokenizer* tokenizer) {
@@ -122,17 +112,14 @@ void _skip_to_line_end(file_tokenizer* tokenizer) {
   if (is_new_line(tokenizer->curr_char)) tokenizer->curr_char = ' ';  // eaten for next get
 }
 
-void repeat_token(file_tokenizer* tokenizer){
-  tokenizer->_next_token = tokenizer->_token;
-}
 
 token& get_token(file_tokenizer* tokenizer) {
   // skip spaces
-  if (tokenizer->_next_token.type) {
+  if (tokenizer->next_token.type) {
     // cleanup looked ahead tokens
-    tokenizer->_token = tokenizer->_next_token;
-    tokenizer->_next_token.type = TOKEN_UNK;
-    return tokenizer->_token;
+    tokenizer->cur_token = tokenizer->next_token;
+    tokenizer->next_token.type = TOKEN_UNK;
+    return tokenizer->cur_token;
   }
   while (isspace(tokenizer->curr_char)) {
     if (is_new_line(tokenizer->curr_char)) break;
@@ -140,11 +127,13 @@ token& get_token(file_tokenizer* tokenizer) {
   }
 
   tokenizer->tok_loc = tokenizer->loc;
-  //log(DEBUG, "skiped spaces: %d, %d", tok_loc.line, tok_loc.col);
+  //log(DEBUG, "skiped spaces: %d, %d, %c", tokenizer->tok_loc.line, tokenizer->tok_loc.col, tokenizer->curr_char);
   if (tokenizer->curr_char == EOF)
-    return _tokenize_eof(tokenizer);
+    return _tokenize_type(tokenizer, TOKEN_EOF);
   else if (is_new_line(tokenizer->curr_char)) {
-    return _tokenize_eos(tokenizer);
+    _tokenize_type(tokenizer, TOKEN_EOS);
+    tokenizer->curr_char = ' ';  // replaced with empty space
+    return tokenizer->cur_token;
   } else if (isalpha(tokenizer->curr_char)) {
     return _tokenize_id_keyword(tokenizer);
   } else if (isdigit(tokenizer->curr_char) || tokenizer->curr_char == '.') {
@@ -154,9 +143,12 @@ token& get_token(file_tokenizer* tokenizer) {
     _skip_to_line_end(tokenizer);
     if (tokenizer->curr_char != EOF) return get_token(tokenizer);
     else
-      return _tokenize_eof(tokenizer);
+      return _tokenize_type(tokenizer, TOKEN_EOF);
   }
-  _tokenize_operator(tokenizer);
+  auto token_type = char_tokens[tokenizer->curr_char];
+  if (!token_type)
+    token_type = TOKEN_OP;
+  _tokenize_type(tokenizer, token_type);
   tokenizer->curr_char = get_char(tokenizer);
-  return tokenizer->_token;
+  return tokenizer->cur_token;
 }

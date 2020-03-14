@@ -162,9 +162,9 @@ link_libraries(
 
 add_executable(mtest
   test_util.cc
+  test.cc
   test_parser.cc
   test_jit.cc
-  test_work.cc
 )
 TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main mlr)
 

@@ -8,8 +8,7 @@ struct code_generator{
     void* context;
     void* builder;
     parser* parser;
-    map<string, void*> named_values; //llvm::AllocaInst*
-    //vector<void *> modules;
+    map<string, void*> named_values;
     unique_ptr<llvm::Module> module;
     unique_ptr<llvm::legacy::FunctionPassManager> fpm;
     map<string, prototype_node*> protos;

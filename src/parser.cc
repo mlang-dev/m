@@ -2,16 +2,21 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <set>
 #include "builtins.h"
 #include "util.h"
 #include "astdump.h"
 
-#define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col <= col && (parser->curr_token.type != TOKEN_EOS||parser->is_repl))
+#define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col < col && (parser->curr_token.type != TOKEN_EOS||parser->is_repl))
 
 using namespace std;
 
 map<char, int> g_op_precedences = {
     {'<', 10}, {'+', 20}, {'-', 20}, {'*', 40}, {'/', 40}};
+
+static set<char> op_chars = {
+  '!', '%', '&', '*', '+', '-', '.', '/', '<', '=', '>', '?', '@', '^', '|'
+};
 
 int _get_op_precedence(parser *parser);
 exp_node *_parse_number(parser *parser, exp_node* parent);
@@ -44,6 +49,15 @@ bool is_binary_op(prototype_node* pnode) {
 char get_op_name(prototype_node* pnode) {
   assert(is_unary_op(pnode) || is_binary_op(pnode));
   return pnode->name[pnode->name.size() - 1];
+}
+
+void queue_token(parser* psr, token tkn){
+  psr->queued_tokens.push(tkn);
+}
+
+void queue_tokens(parser* psr, vector<token> tokens){
+  for(auto tkn: tokens)
+    psr->queued_tokens.push(tkn);
 }
 
 function_node *_create_function_node(prototype_node *prototype,
@@ -211,8 +225,14 @@ void destroy_parser(parser *parser) {
 }
 
 void parse_next_token(parser *parser) {
-  auto token = get_token(parser->current_module->tokenizer);
-  parser->curr_token = token;
+  if (!parser->queued_tokens.empty()) {
+    // cleanup queued tokens, to redo parsing
+    parser->curr_token = parser->queued_tokens.front();;
+    parser->queued_tokens.pop();
+    //log(DEBUG, "using queued tokens !");
+  }
+  else
+    parser->curr_token = get_token(parser->current_module->tokenizer);
 }
 
 int _get_op_precedence(parser *parser) {
@@ -234,20 +254,21 @@ exp_node *_parse_parentheses(parser *parser, exp_node* parent) {
   parse_next_token(parser);
   auto v = parse_exp(parser, parent);
   if (!v) return 0;
-  if (parser->curr_token.op_val != ')')
+  if (parser->curr_token.type != TOKEN_RPAREN)
     return (exp_node *)log(ERROR, "expected ')'");
   parse_next_token(parser);
   return v;
 }
 
-exp_node *_parse_function_app_or_def(parser *parser, exp_node* parent, source_loc loc, string id_name) {
-  if (parser->curr_token.op_val == '(') parse_next_token(parser);  // skip '('
+exp_node *_parse_function_app_or_def(parser *parser, exp_node* parent, source_loc loc, string id_name, bool is_operator = false, int precedence = 0) {
+  if(parser->curr_token.type == TOKEN_LPAREN)
+    parse_next_token(parser);  // skip '('
   auto func_definition = false;
   vector<exp_node *> args;
   //doesn't allow function inside parameter or argument
   //will be enhanced later
   parser->allow_id_as_a_func = false;
-  if (parser->curr_token.op_val != ')') {
+  if (parser->curr_token.type != TOKEN_RPAREN) {
     while (true) {
       if (auto arg = parse_exp(parser, parent)){
         args.push_back(arg);
@@ -256,23 +277,38 @@ exp_node *_parse_function_app_or_def(parser *parser, exp_node* parent, source_lo
         func_definition = true;
         break;
       }
-      else if (parser->curr_token.op_val == ')'||parser->curr_token.type == TOKEN_EOS||parser->curr_token.type == TOKEN_EOF)
+      else if (parser->curr_token.type == TOKEN_RPAREN||parser->curr_token.type == TOKEN_EOS||parser->curr_token.type == TOKEN_EOF)
         break;
       else if (parser->curr_token.op_val == ',')
         parse_next_token(parser);
     }
   }
   parser->allow_id_as_a_func = true;
-  //log(DEBUG, "is %s a function def: %d", id_name.c_str(), func_definition);
+  //log(DEBUG, "is %s a function def: %d, %d", id_name.c_str(), func_definition, is_operator);
   if (func_definition) {
     vector<string> argNames;
     for (auto exp : args) {
       auto id = (ident_node *)exp;
       argNames.push_back(id->name);
     }
+    if (is_operator){
+      if(precedence&&argNames.size() != 2)
+        return (exp_node*)log(ERROR, "precedence only apply for binary operator, got [%s]", vector_to_string(argNames).c_str());
+      else if(argNames.size() != 1 && argNames.size() != 2)
+        return (exp_node*)log(ERROR, "operator overloading only for unary or binary operator");
+      if(argNames.size()==1){
+        id_name = "unary" + id_name;
+      }else{
+        id_name = "binary" + id_name;
+      }
+      
+    }
     prototype_node *prototype =
-        create_prototype_node(parent, loc, id_name, argNames, false, 0);
-    return _parse_function_with_prototype(parser, prototype);
+        create_prototype_node(parent, loc, id_name, argNames, is_operator, precedence);
+    //log(DEBUG, "prototype: %s", id_name.c_str());
+    auto func = _parse_function_with_prototype(parser, prototype);
+    //log(DEBUG, "func: %s", id_name.c_str());
+    return func;
   }
   // function application
   //log(DEBUG, "funcation application: %s", id_name.c_str());
@@ -280,8 +316,15 @@ exp_node *_parse_function_app_or_def(parser *parser, exp_node* parent, source_lo
   return parse_exp(parser, parent, call_node);
 }
 
+string _char_to_string(char c){
+  string s(1, c);
+  return s;
+}
+
 exp_node *parse_statement(parser *parser, exp_node *parent) {
+  //log(DEBUG, "parsing statement:%d, %s", parent, TokenTypeString[parser->curr_token.type]);
   exp_node *node;
+  source_loc loc = parser->curr_token.loc;
   if (parser->curr_token.type == TOKEN_EOF)
     return nullptr;
   else if (parser->curr_token.type == TOKEN_IMPORT)
@@ -311,11 +354,43 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
     }
   }
   else{
-    node = parse_exp(parser, parent);
-    //log(DEBUG, "not id token: it's exp: %s", NodeTypeString[node->type]);
+    if(parser->curr_token.type == TOKEN_LPAREN){
+      vector<token> queued;
+      queued.push_back(parser->curr_token);
+      parse_next_token(parser);//skip ( 
+      queued.push_back(parser->curr_token); 
+      if(parser->curr_token.type == TOKEN_OP && op_chars.count(parser->curr_token.op_val)){
+        //it is operator overloading
+        //log(DEBUG, "it is operator overloading: %c: loc: %d, %d", parser->curr_token.op_val, parser->curr_token.loc.line, parser->curr_token.loc.col);
+        char op = parser->curr_token.op_val;
+        parse_next_token(parser);
+        if(parser->curr_token.type != TOKEN_RPAREN)
+          return (exp_node *)log(ERROR, "expected ')'");
+        parse_next_token(parser);
+        int precedence = 0;
+        if(parser->curr_token.type == TOKEN_NUM){
+          //precedence: parse binary
+          precedence = parser->curr_token.num_val;
+          parse_next_token(parser);//skip it
+          //log(DEBUG, "got precedence: %d", precedence);
+        }
+        node = _parse_function_app_or_def(parser, parent, loc, _char_to_string(op), true, precedence);
+      }else{ //normal exp
+        queue_tokens(parser, queued);
+        parse_next_token(parser);//retrieving (     
+        //log(DEBUG, "normal exp: %c", parser->curr_token.op_val); 
+        node = parse_exp(parser, parent);
+      }
+    }else{
+      //log(DEBUG, "starting to parse exp: %s", TokenTypeString[parser->curr_token.type]);
+      node = parse_exp(parser, parent);
+      //log(DEBUG, "it's exp: %s", NodeTypeString[node->type]);
+    }
   }
-  if(node)
+  if(node){
     node->parent = parent;
+    node->loc = loc;
+  }
   return node;
 }
 
@@ -328,7 +403,7 @@ bool _id_is_a_function_call(parser* parser){
     parser->curr_token.type == TOKEN_NUM ||
     parser->curr_token.type == TOKEN_IF ||
     parser->curr_token.type == TOKEN_UNARY || 
-    parser->curr_token.op_val == '(');
+    parser->curr_token.type == TOKEN_LPAREN);
 }
 
 exp_node *_parse_ident(parser *parser, exp_node* parent) {
@@ -364,7 +439,7 @@ exp_node *_parse_node(parser *parser, exp_node* parent) {
     return _parse_if(parser, parent);
   else if (parser->curr_token.type == TOKEN_FOR)
     return _parse_for(parser, parent);
-  else if (parser->curr_token.op_val == '(')
+  else if (parser->curr_token.type == TOKEN_LPAREN)
     return _parse_parentheses(parser, parent);
   else {
     std::string error =
@@ -400,11 +475,11 @@ exp_node *_parse_binary(parser *parser, exp_node* parent, int exp_prec, exp_node
     if (!rhs) return lhs;
     auto next_prec = _get_op_precedence(parser);
     if (tok_prec < next_prec) {
-//      log(DEBUG, "right first %s", TokenTypeString[parser->curr_token.type]);
+      //log(DEBUG, "right first %s", TokenTypeString[parser->curr_token.type]);
       rhs = _parse_binary(parser, parent, tok_prec + 1, rhs);
       if (!rhs) return 0;
     }
-//    log(DEBUG, "left first: %s", TokenTypeString[parser->curr_token.type]);
+    //log(DEBUG, "left first: %s", TokenTypeString[parser->curr_token.type]);
     lhs = (exp_node *)_create_binary_node(parent, lhs->loc, binary_op, lhs, rhs);
   }
 }
@@ -464,7 +539,7 @@ exp_node *_parse_prototype(parser *parser, exp_node* parent) {
     default:
       return (exp_node *)log(ERROR, "Expected function name in prototype");
   }
-  auto has_parenthese = parser->curr_token.op_val == '(';
+  auto has_parenthese = parser->curr_token.type == TOKEN_LPAREN;
   if (has_parenthese) parse_next_token(parser);  // skip '('
   std::vector<std::string> arg_names;
   while (parser->curr_token.type == TOKEN_IDENT) {
@@ -473,7 +548,7 @@ exp_node *_parse_prototype(parser *parser, exp_node* parent) {
     arg_names.push_back(*parser->curr_token.ident_str);
     parse_next_token(parser);
   }
-  if (has_parenthese && parser->curr_token.op_val != ')')
+  if (has_parenthese && parser->curr_token.type != TOKEN_RPAREN)
     return (exp_node *)log(ERROR, "Expected ')' to match '('");
   // success.
   if (has_parenthese) parse_next_token(parser);  // eat ')'.
@@ -533,7 +608,7 @@ exp_node *_parse_unary(parser *parser, exp_node* parent) {
     ||parser->curr_token.type == TOKEN_EOF)
     return 0;
   auto loc = parser->curr_token.loc;
-  if (parser->curr_token.type != TOKEN_OP || parser->curr_token.op_val == '(' ||
+  if (parser->curr_token.type != TOKEN_OP || parser->curr_token.type == TOKEN_LPAREN ||
       parser->curr_token.op_val == ',') {
     return _parse_node(parser, parent);
   }
@@ -630,23 +705,34 @@ block_node *parse_block(parser *parser, exp_node *parent, void (*fun)(void*, exp
   vector<exp_node*> nodes;
   while (true) {
     parse_next_token(parser);
-    //log(DEBUG, "got token in block: (%d, %d), %d", parser->curr_token.loc.line, parser->curr_token.loc.col, parser->curr_token.type);
     if (exit_block(parser, parent, col)) {
       //repeat the token
-      repeat_token(parser->current_module->tokenizer);
+      queue_token(parser, parser->curr_token);
       break;
     }
-    static source_loc loc1 = parser->curr_token.loc;
+    while(parser->curr_token.type == TOKEN_EOS)
+      parse_next_token(parser);
+    if (exit_block(parser, parent, col)){
+      queue_token(parser, parser->curr_token);
+      break;
+    }
+    //log(DEBUG, "got token in block: (%d, %d), %s", parser->curr_token.loc.line, parser->curr_token.loc.col, TokenTypeString[parser->curr_token.type]);
+    //source_loc loc1 = parser->curr_token.loc;
+    //log(DEBUG, "parsing statement in block--: (%d, %d), %d", loc1.line, loc1.col, parent);
     auto node = parse_statement(parser, parent);
-    //log(DEBUG, "parsed statement in block: (%d, %d), %s", loc1.line, loc1.col, node?NodeTypeString[node->type]:"null node");
-    if (node)
+    if(node){
+      col = node->loc.col;
+      //log(DEBUG, "parsed statement in block: (%d, %d, %d), %s, %d", loc1.line, loc1.col, col, node?NodeTypeString[node->type]:"null node", parent);
+    }
+    if (node){
       nodes.push_back(node);
-    if(fun){
-      (*fun)(jit, node);
+      if(fun){
+        (*fun)(jit, node);
+      }
     }
-    if (exit_block(parser, parent, col)) {
-      break;
-    }
+    // if (exit_block(parser, parent, col)) {
+    //   break;
+    // }
     if (parser->curr_token.type == TOKEN_EOF) break;
     //   //log(DEBUG, "is exp: %d", _is_exp(node));
     //   if(_is_exp(node)) {
