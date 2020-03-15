@@ -3,15 +3,35 @@ layout: default
 ---
 
 ### development plans:
+- operators
+  - <
+  - =
+- basic stack variable types
+  - int
+  - char
+  - bool: true, false
+  - unit: ()
+  - double
+- heap types
+  - string
+  - tuple
+  - option
+  - array/list
+  - queue/dequeue
+  - map/set
+  - RAII memory management
 - wasm target support
 - code in browser
 - multiple modules
-- more stack variable types
-  - int
-  - char
-- heap types
-  - array & list
-  - map/set
-  - RAII memory management
+- pattern matching
+  - _: anything
+  - x: anything (binding x to the value)
+  - 10: integer 10 
+  - false: the boolean value false
+  - (pat1, pat2): a pair (v1, v2) if v1 matches pat1 and v2 matches pat2
+  - (x, _): matches (true, 100), binding x to true
+  - None: matches None of any option type
+  - Some pat: matches Some v if pat matchs the v
+  - pat1::pat2
 - type inference system
 - IDE support

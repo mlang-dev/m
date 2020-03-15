@@ -411,6 +411,7 @@ exp_node *_parse_ident(parser *parser, exp_node* parent) {
   source_loc loc = parser->curr_token.loc;
   
   parse_next_token(parser);             // take identifier
+  //log(DEBUG, "parsed id: %s, curtoken: %s", id_name.c_str(), TokenTypeString[parser->curr_token.type]);
   if (_id_is_a_function_call(parser)) {  // pure variable
     // fprintf(stderr, "ident parsed. %s\n", id_name.c_str());
     //(
@@ -467,19 +468,20 @@ exp_node *_parse_binary(parser *parser, exp_node* parent, int exp_prec, exp_node
   while (true) {
     if(parser->curr_token.type==TOKEN_EOS) return lhs;
     int tok_prec = _get_op_precedence(parser);
-    //log(DEBUG, "bin exp: [%c], %d, %s", parser->curr_token.op_val, tok_prec, map_to_string(g_op_precedences).c_str());
     if (tok_prec < exp_prec) return lhs;
+    //log(DEBUG, "bin exp: [%s, %c], %d, %s", TokenTypeString[parser->curr_token.type], parser->curr_token.op_val, tok_prec, map_to_string(g_op_precedences).c_str());
     int binary_op = parser->curr_token.op_val;
     parse_next_token(parser);
     auto rhs = _parse_unary(parser, parent);
     if (!rhs) return lhs;
+    //log(DEBUG, "bin exp: rhs: %s", NodeTypeString[rhs->type]);
     auto next_prec = _get_op_precedence(parser);
     if (tok_prec < next_prec) {
-      //log(DEBUG, "right first %s", TokenTypeString[parser->curr_token.type]);
+      //log(DEBUG, "right first %s, %d, %d", TokenTypeString[parser->curr_token.type], tok_prec, next_prec);
       rhs = _parse_binary(parser, parent, tok_prec + 1, rhs);
       if (!rhs) return 0;
     }
-    //log(DEBUG, "left first: %s", TokenTypeString[parser->curr_token.type]);
+    //log(DEBUG, "left first: %s, %d, %d", TokenTypeString[parser->curr_token.type], tok_prec, next_prec);
     lhs = (exp_node *)_create_binary_node(parent, lhs->loc, binary_op, lhs, rhs);
   }
 }
@@ -487,6 +489,7 @@ exp_node *_parse_binary(parser *parser, exp_node* parent, int exp_prec, exp_node
 exp_node *parse_exp(parser *parser, exp_node* parent, exp_node *lhs) {
   if(parser->curr_token.type == TOKEN_EOS) return lhs;
   if (!lhs) lhs = _parse_unary(parser, parent);
+  //log(DEBUG, "got lhs: %s", NodeTypeString[lhs->type]);
   if (!lhs||parser->curr_token.type == TOKEN_EOS) return lhs;
   return _parse_binary(parser, parent, 0, lhs);
 }
@@ -532,7 +535,7 @@ exp_node *_parse_prototype(parser *parser, exp_node* parent) {
         if (parser->curr_token.num_val < 1 || parser->curr_token.num_val > 100)
           return (exp_node *)log(ERROR, "Invalid precedecnce: must be 1..100");
         bin_prec = (unsigned)parser->curr_token.num_val;
-        log(DEBUG, "finding binary operator: %s, prec: %d", fun_name.c_str(), bin_prec);
+        //log(DEBUG, "finding binary operator: %s, prec: %d", fun_name.c_str(), bin_prec);
         parse_next_token(parser);
       }
       break;
@@ -722,7 +725,7 @@ block_node *parse_block(parser *parser, exp_node *parent, void (*fun)(void*, exp
     auto node = parse_statement(parser, parent);
     if(node){
       col = node->loc.col;
-      //log(DEBUG, "parsed statement in block: (%d, %d, %d), %s, %d", loc1.line, loc1.col, col, node?NodeTypeString[node->type]:"null node", parent);
+      //log(DEBUG, "parsed statement in block: (%d, %d), %s, %d", node->loc.line, col, node?NodeTypeString[node->type]:"null node", parent);
     }
     if (node){
       nodes.push_back(node);

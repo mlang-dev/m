@@ -2,17 +2,15 @@
 #include "util.h"
 #include <sstream>
 
+string _dump_block(block_node* node){
+  string block = "blk: \n";
+  for(auto stmt: node->nodes)
+    block += "  " + dump(stmt) + "\n";
+  return block;
+}
 
 string _dump_prototype(prototype_node* proto){
   return proto->name + vector_to_string(proto->args) + "=";
-}
-
-string _dump_block(block_node* block){
-  string block_string = "";
-  for(auto node: block->nodes){
-    block_string += "  " + dump(node) + "\n";
-  }
-  return block_string;
 }
 
 string _dump_function(function_node* func){
@@ -33,8 +31,11 @@ string _dump_unary(unary_node* unary){
 }
 
 string _dump_binary(binary_node* binary){
-  string bin = "bin: ";
-  bin += dump(binary->lhs) + binary->op + dump(binary->rhs);
+  string bin = "bin:";
+  bin += binary->op;
+  bin += "[";
+  bin += dump(binary->lhs) + "," + dump(binary->rhs);
+  bin += "]";
   return bin;
 }
 
@@ -84,6 +85,8 @@ string dump(exp_node* node){
     return _dump_id((ident_node*)node);
   else if(node->type == NUMBER_NODE)
     return _dump_number((num_node*)node);
+  else if(node->type == BLOCK_NODE)
+    return _dump_block((block_node*)node);
   else{
     string not_supported = "ast->type not supported: ";
     return not_supported + NodeTypeString[node->type];

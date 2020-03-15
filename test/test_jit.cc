@@ -93,18 +93,19 @@ if z>99 then -z else z
   destroy_parser(parser);
 }
 
-// TEST(testJIT, testUnaryBinaryFunc){
-//   char test_code[128] = R"(
-// (-) x = 0 - x # unary operator overloading
-// (>)10 x y = y < x # binary operator overloading
-// z = 100
-// if z>99 then -z else z
-// )";
-//   auto parser = create_parser_for_string(test_code);
-//   JIT* jit = build_jit(parser);
-//   block_node * block = parse_block(parser, nullptr);
-//   for(int i=0;i<3;i++)
-//     eval_statement(jit, block->nodes[i]);
-//   ASSERT_EQ(-100.0, eval_exp(jit, block->nodes[3]));
-//   destroy_parser(parser);
-// }
+TEST(testJIT, testUnaryBinaryFunc){
+  char test_code[128] = R"(
+(-) x = 0 - x # unary operator overloading
+(>)10 x y = y < x # binary operator overloading
+z = 100
+if z>99 then -z else z
+)";
+  auto parser = create_parser_for_string(test_code);
+  JIT* jit = build_jit(parser);
+  block_node * block = parse_block(parser, nullptr);
+  auto end = 3;
+  for(int i=0;i<end;i++)
+    eval_statement(jit, block->nodes[i]);
+  ASSERT_EQ(-100.0, eval_exp(jit, block->nodes[end]));
+  destroy_parser(parser);
+}

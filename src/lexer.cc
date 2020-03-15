@@ -109,7 +109,6 @@ void _skip_to_line_end(file_tokenizer* tokenizer) {
   do
     tokenizer->curr_char = get_char(tokenizer);
   while (tokenizer->curr_char != EOF && !is_new_line(tokenizer->curr_char));
-  if (is_new_line(tokenizer->curr_char)) tokenizer->curr_char = ' ';  // eaten for next get
 }
 
 

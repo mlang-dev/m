@@ -43,7 +43,9 @@ void eval_statement(void* p_jit, exp_node* node) {
       jit->mjit->addModule(std::move(jit->cg->module));
       create_module_and_pass_manager(jit->cg, make_unique_name("mjit").c_str());
     } else {
-      printf("%f\n", eval_exp(jit, node));
+      auto result = eval_exp(jit, node);
+      if(node->type!=NodeType::VAR_NODE)
+        printf("%f\n", result);
     }
   }
   fprintf(stderr, "m> ");
