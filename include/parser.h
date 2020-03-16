@@ -7,7 +7,7 @@
 
 using namespace std;
 struct parser{
-    map<char, int>* op_precedences;
+    map<string, int>* op_precedences;
     token curr_token;
     ast* ast;
     bool allow_id_as_a_func;

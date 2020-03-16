@@ -43,7 +43,7 @@ struct token {
   union {
     string* ident_str;
     double num_val;
-    int op_val;
+    //int op_val;
   };
 };
 
@@ -52,7 +52,7 @@ struct file_tokenizer{
   source_loc loc = {1, 0};
   source_loc tok_loc;
   token cur_token;  
-  token next_token = {.type = TOKEN_UNK};
+  token next_token;
   int curr_char = ' ';
   string ident_str;
 };

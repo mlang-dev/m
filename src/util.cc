@@ -19,6 +19,11 @@ string vector_to_string(vector<string> &array){
   return imploded.str();
 }
 
+string char_to_string(char c){
+  string s(1, c);
+  return s;
+}
+
 int random(int min, int max){
     return min + (rand() % static_cast<int>(max - min + 1));
 }

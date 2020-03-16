@@ -66,13 +66,13 @@ struct var_node {
 
 struct unary_node {
   exp_node base;
-  char op;
+  string op;
   exp_node* operand;
 };
 
 struct binary_node {
   exp_node base;
-  char op;
+  string op;
   exp_node *lhs, *rhs;
 };
 
@@ -95,8 +95,9 @@ struct call_node {
 
 struct prototype_node {
   exp_node base;
-  std::string name;
-  std::vector<std::string> args;
+  string name;
+  string op;
+  vector<string> args;
   char is_operator;
   unsigned precedence;
 };
@@ -111,4 +112,5 @@ prototype_node* create_prototype_node(exp_node* parent, source_loc loc,
                                       const std::string& name,
                                       std::vector<std::string>& args,
                                       bool is_operator = false,
-                                      unsigned precedence = 0);
+                                      unsigned precedence = 0,
+                                      string op = "");

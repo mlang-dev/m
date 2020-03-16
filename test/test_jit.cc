@@ -15,7 +15,7 @@ TEST(testJIT, testIdFunc){
   eval_statement(jit, block->nodes[0]);
   auto result = eval_exp(jit, block->nodes[1]);
   ASSERT_EQ(10.0, result);
-  destroy_parser(parser);
+  destroy_jit(jit);
 }
 
 TEST(testJIT, testSqrtFunc){
@@ -29,7 +29,7 @@ TEST(testJIT, testSqrtFunc){
   eval_statement(jit, block->nodes[0]);
   auto result = eval_exp(jit, block->nodes[1]);
   ASSERT_EQ(100.0, result);
-  destroy_parser(parser);
+  destroy_jit(jit);
 }
 
 TEST(testJIT, testIfFunc){
@@ -46,7 +46,7 @@ TEST(testJIT, testIfFunc){
   eval_statement(jit, block->nodes[0]);
   ASSERT_EQ(5.0, eval_exp(jit, block->nodes[1]));
   ASSERT_EQ(0, eval_exp(jit, block->nodes[2]));
-  destroy_parser(parser);
+  destroy_jit(jit);
 }
 
 TEST(testJIT, testGloVarFunc){
@@ -59,7 +59,7 @@ y
   block_node * block = parse_block(parser, nullptr);
   eval_statement(jit, block->nodes[0]);
   ASSERT_EQ(100.0, eval_exp(jit, block->nodes[1]));
-  destroy_parser(parser);
+  destroy_jit(jit);
 }
 
 TEST(testJIT, testUnaryFunc){
@@ -74,7 +74,7 @@ y=100
   eval_statement(jit, block->nodes[0]);
   eval_statement(jit, block->nodes[1]);
   ASSERT_EQ(-100.0, eval_exp(jit, block->nodes[2]));
-  destroy_parser(parser);
+  destroy_jit(jit);
 }
 
 TEST(testJIT, testBinaryFunc){
@@ -90,7 +90,7 @@ if z>99 then -z else z
   for(int i=0;i<3;i++)
     eval_statement(jit, block->nodes[i]);
   ASSERT_EQ(-100.0, eval_exp(jit, block->nodes[3]));
-  destroy_parser(parser);
+  destroy_jit(jit);
 }
 
 TEST(testJIT, testUnaryBinaryFunc){
@@ -107,5 +107,5 @@ if z>99 then -z else z
   for(int i=0;i<end;i++)
     eval_statement(jit, block->nodes[i]);
   ASSERT_EQ(-100.0, eval_exp(jit, block->nodes[end]));
-  destroy_parser(parser);
+  destroy_jit(jit);
 }

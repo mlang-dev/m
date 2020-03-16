@@ -138,29 +138,56 @@ void* _generate_binary_node(code_generator* cg, binary_node* node) {
   llvm::Value* rv = (llvm::Value*)generate_code(cg, node->rhs);
   if (!lv || !rv) return nullptr;
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-  switch (node->op) {
-    case '+':
-      return builder->CreateFAdd(lv, rv, "addtmp");
-    case '-':
-      return builder->CreateFSub(lv, rv, "subtmp");
-    case '*':
-      return builder->CreateFMul(lv, rv, "multmp");
-    case '/':
-      return builder->CreateFDiv(lv, rv, "divtmp");
-    case '<': {
-      llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-      lv = builder->CreateFCmpULT(lv, rv, "cmptmp");
-      return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
-                                   "booltmp");
-    }
-    default:
-      break;
+  if (node->op=="+")
+    return builder->CreateFAdd(lv, rv, "addtmp");
+  else if (node->op=="-")
+    return builder->CreateFSub(lv, rv, "subtmp");
+  else if (node->op=="*")
+    return builder->CreateFMul(lv, rv, "multmp");
+  else if (node->op=="/")
+    return builder->CreateFDiv(lv, rv, "divtmp");
+  else if (node->op=="<"){
+    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    lv = builder->CreateFCmpULT(lv, rv, "cmptmp");
+    return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+                                  "booltmp");
   }
-  Function *func = _get_function(cg, std::string("binary") + node->op);
-  assert(func && "binary operator not found!");
-
-  Value *ops[2] = { lv, rv };
-  return builder->CreateCall(func, ops, "binop");
+  else if (node->op==">"){
+    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    lv = builder->CreateFCmpUGT(lv, rv, "cmptmp");
+    return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+                                  "booltmp");
+  }
+  else if (node->op=="=="){
+    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    lv = builder->CreateFCmpUEQ(lv, rv, "cmptmp");
+    return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+                                  "booltmp");
+  }
+  else if (node->op=="!="){
+    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    lv = builder->CreateFCmpUNE(lv, rv, "cmptmp");
+    return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+                                  "booltmp");
+  }
+  else if (node->op=="<="){
+    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    lv = builder->CreateFCmpULE(lv, rv, "cmptmp");
+    return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+                                  "booltmp");
+  }
+  else if (node->op==">="){
+    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    lv = builder->CreateFCmpUGE(lv, rv, "cmptmp");
+    return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+                                  "booltmp");
+  }
+  else{
+    Function *func = _get_function(cg, std::string("binary") + node->op);
+    assert(func && "binary operator not found!");
+    Value *ops[2] = { lv, rv };
+    return builder->CreateCall(func, ops, "binop");
+  }
 }
 
 void* _generate_call_node(code_generator* cg, call_node* node) {

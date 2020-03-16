@@ -29,3 +29,4 @@ int random(int min, int max);
 string get_filename(const char* fullfilename);
 bool is_new_line(int ch);
 string vector_to_string(vector<string>& v);
+string char_to_string(char c);

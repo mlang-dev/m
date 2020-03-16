@@ -11,6 +11,10 @@
 
 using namespace std;
 
+set<char> op_chars = {
+  '!', '%', '&', '*', '+', '-', '.', '/', '<', '=', '>', '?', '@', '^', '|'
+};
+
 static map<string, TokenType> tokens = {
     {"import", TOKEN_IMPORT}, {"if", TOKEN_IF},         {"else", TOKEN_ELSE},
     {"then", TOKEN_THEN},     {"in", TOKEN_IN},         {"for", TOKEN_FOR},
@@ -36,7 +40,7 @@ static int get_char(file_tokenizer* tokenizer) {
 file_tokenizer* create_tokenizer(FILE* file){
   auto tokenizer = new file_tokenizer();
   tokenizer->loc = {1, 0};
-  tokenizer->next_token = {.type = TOKEN_UNK};
+  tokenizer->next_token.type = TOKEN_UNK;
   tokenizer->curr_char = ' ';
   tokenizer->file = file;
   return tokenizer;
@@ -98,9 +102,24 @@ token& _tokenize_id_keyword(file_tokenizer* tokenizer) {
   return tokenizer->cur_token;
 }
 
-token& _tokenize_type(file_tokenizer* tokenizer, TokenType token_type) {
+token& _tokenize_op(file_tokenizer* tokenizer) {
+  tokenizer->ident_str = tokenizer->curr_char;
+  while (op_chars.count((tokenizer->curr_char = get_char(tokenizer)))) 
+    tokenizer->ident_str += tokenizer->curr_char;
+  auto token_type = tokens[tokenizer->ident_str];
+  tokenizer->cur_token.type = TOKEN_OP;
+  tokenizer->cur_token.ident_str = &tokenizer->ident_str;
   tokenizer->cur_token.loc = tokenizer->tok_loc;
-  tokenizer->cur_token.op_val = tokenizer->curr_char;
+  //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.type);
+  return tokenizer->cur_token;
+}
+
+
+token& _tokenize_type(file_tokenizer* tokenizer, TokenType token_type) {
+  tokenizer->ident_str = char_to_string((char)tokenizer->curr_char);
+  tokenizer->cur_token.loc = tokenizer->tok_loc;
+  tokenizer->cur_token.ident_str = &tokenizer->ident_str;
+  //tokenizer->cur_token.op_val = tokenizer->curr_char;
   tokenizer->cur_token.type = token_type;
   return tokenizer->cur_token;
 }
@@ -135,6 +154,8 @@ token& get_token(file_tokenizer* tokenizer) {
     return tokenizer->cur_token;
   } else if (isalpha(tokenizer->curr_char)) {
     return _tokenize_id_keyword(tokenizer);
+  } else if (op_chars.count(tokenizer->curr_char)) {
+    return _tokenize_op(tokenizer);
   } else if (isdigit(tokenizer->curr_char) || tokenizer->curr_char == '.') {
     return _tokenize_number(tokenizer);
   } else if (tokenizer->curr_char == '#') {
@@ -144,6 +165,7 @@ token& get_token(file_tokenizer* tokenizer) {
     else
       return _tokenize_type(tokenizer, TOKEN_EOF);
   }
+
   auto token_type = char_tokens[tokenizer->curr_char];
   if (!token_type)
     token_type = TOKEN_OP;

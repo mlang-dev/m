@@ -163,8 +163,10 @@ link_libraries(
 add_executable(mtest
   test_util.cc
   test.cc
+  test_lexer.cc
   test_parser.cc
   test_parser_logical.cc
+  test_jit_logical.cc
   test_jit.cc
 )
 TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main mlr)
