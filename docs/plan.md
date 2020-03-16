@@ -2,16 +2,16 @@
 layout: default
 ---
 
-### development plans:
+### next development plans:
 - operators
-  - <
-  - =
+  - unary operator: \+, \-
+  - binary operator: \%, **
+  - boolean operator: !, ||, &&
 - basic stack variable types
   - int
   - char
   - bool: true, false
   - unit: ()
-  - double
 - heap types
   - string
   - tuple
@@ -20,6 +20,7 @@ layout: default
   - queue/dequeue
   - map/set
   - RAII memory management
+- c interoperation
 - wasm target support
 - code in browser
 - multiple modules
