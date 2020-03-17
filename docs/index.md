@@ -11,7 +11,7 @@ It is under active development, currently it supports following features
   - \+    addition
   - \-    subtraction
   - \*    multiplication
-  - \/    division
+  - /    division
 
 - binary comparison operators:
   - == equality
@@ -28,5 +28,5 @@ It is under active development, currently it supports following features
 - operator overload
   
   for examples
-  - binary: (|>) x f = f x
-  - unary: (!) x = 0 - x
+  - binary: ```(|>) x f = f x```
+  - unary: ```(!) x = 0 - x```
