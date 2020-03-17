@@ -11,7 +11,7 @@
 double eval_exp(JIT* jit, exp_node* node){
   // expression: statement or expression evalution
   auto fn = make_unique_name("main-fn");
-  auto node_type = node->type;
+  auto node_type = node->node_type;
   double result;
   node = parse_exp_to_function(jit->cg->parser, node, fn.c_str());
   if (node) {
@@ -35,16 +35,16 @@ double eval_exp(JIT* jit, exp_node* node){
 void eval_statement(void* p_jit, exp_node* node) {
   if (node) {
     auto jit = (JIT*)p_jit;
-    if (node->type == NodeType::PROTOTYPE_NODE)
+    if (node->node_type == NodeType::PROTOTYPE_NODE)
       generate_code(jit->cg, node);
-    else if (node->type == NodeType::FUNCTION_NODE) {
+    else if (node->node_type == NodeType::FUNCTION_NODE) {
       // function definition
       auto def = generate_code(jit->cg, node);
       jit->mjit->addModule(std::move(jit->cg->module));
       create_module_and_pass_manager(jit->cg, make_unique_name("mjit").c_str());
     } else {
       auto result = eval_exp(jit, node);
-      if(node->type!=NodeType::VAR_NODE)
+      if(node->node_type!=NodeType::VAR_NODE)
         printf("%f\n", result);
     }
   }

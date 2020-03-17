@@ -34,7 +34,7 @@ const char* get_ctt(parser* parser){
   return TokenTypeString[parser->curr_token.type];
 }
 bool _is_exp(exp_node* node){
-  return node->type != VAR_NODE && node->type != FUNCTION_NODE && node->type != PROTOTYPE_NODE;
+  return node->node_type != VAR_NODE && node->node_type != FUNCTION_NODE && node->node_type != PROTOTYPE_NODE;
 }
 
 bool is_unary_op(prototype_node* pnode) {
@@ -62,7 +62,7 @@ void queue_tokens(parser* psr, vector<token> tokens){
 function_node *_create_function_node(prototype_node *prototype,
                                      block_node *body) {
   auto node = new function_node();
-  node->base.type = NodeType::FUNCTION_NODE;
+  node->base.node_type = NodeType::FUNCTION_NODE;
   node->base.parent = (exp_node*)prototype;
   node->base.loc = prototype->base.loc;
   node->prototype = prototype;
@@ -75,7 +75,7 @@ function_node *_create_function_node(prototype_node *prototype,
 
 ident_node *_create_ident_node(exp_node* parent, source_loc loc, string &name) {
   auto node = new ident_node();
-  node->base.type = NodeType::IDENT_NODE;
+  node->base.node_type = NodeType::IDENT_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
   node->name = name;
@@ -84,7 +84,7 @@ ident_node *_create_ident_node(exp_node* parent, source_loc loc, string &name) {
 
 num_node *_create_num_node(exp_node* parent, source_loc loc, double val) {
   auto node = new num_node();
-  node->base.type = NodeType::NUMBER_NODE;
+  node->base.node_type = NodeType::NUMBER_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
   node->num_val = val;
@@ -93,7 +93,7 @@ num_node *_create_num_node(exp_node* parent, source_loc loc, double val) {
 
 var_node *_create_var_node(exp_node *parent, source_loc loc, string var_name, exp_node *init_value) {
   auto node = new var_node();
-  node->base.type = NodeType::VAR_NODE;
+  node->base.node_type = NodeType::VAR_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
   node->var_name = var_name;
@@ -104,7 +104,7 @@ var_node *_create_var_node(exp_node *parent, source_loc loc, string var_name, ex
 call_node *_create_call_node(exp_node* parent, source_loc loc, const string &callee,
                              vector<exp_node *> &args) {
   auto node = new call_node();
-  node->base.type = NodeType::CALL_NODE;
+  node->base.node_type = NodeType::CALL_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
   node->callee = callee;
@@ -116,7 +116,7 @@ prototype_node *create_prototype_node(exp_node* parent, source_loc loc, const st
                                       vector<string> &args,
                                       bool is_operator, unsigned precedence, string op) {
   auto node = new prototype_node();
-  node->base.type = NodeType::PROTOTYPE_NODE;
+  node->base.node_type = NodeType::PROTOTYPE_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
   node->name = name;
@@ -130,7 +130,7 @@ prototype_node *create_prototype_node(exp_node* parent, source_loc loc, const st
 condition_node *_create_if_node(exp_node* parent, source_loc loc, exp_node *condition, exp_node *then_node,
                                        exp_node *else_node) {
   auto node = new condition_node();
-  node->base.type = NodeType::CONDITION_NODE;
+  node->base.node_type = NodeType::CONDITION_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
   node->condition_node = condition;
@@ -141,7 +141,7 @@ condition_node *_create_if_node(exp_node* parent, source_loc loc, exp_node *cond
 
 unary_node *_create_unary_node(exp_node* parent, source_loc loc, string op, exp_node *operand) {
   auto node = new unary_node();
-  node->base.type = NodeType::UNARY_NODE;
+  node->base.node_type = NodeType::UNARY_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
   node->op = op;
@@ -151,7 +151,7 @@ unary_node *_create_unary_node(exp_node* parent, source_loc loc, string op, exp_
 
 binary_node *_create_binary_node(exp_node* parent, source_loc loc, string op,  exp_node *lhs, exp_node *rhs) {
   auto node = new binary_node();
-  node->base.type = NodeType::BINARY_NODE;
+  node->base.node_type = NodeType::BINARY_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
   node->op = op;
@@ -163,7 +163,7 @@ binary_node *_create_binary_node(exp_node* parent, source_loc loc, string op,  e
 for_node *_create_for_node(exp_node* parent, source_loc loc, const string &var_name, exp_node *start,
                            exp_node *end, exp_node *step, exp_node *body) {
   auto node = new for_node();
-  node->base.type = NodeType::FOR_NODE;
+  node->base.node_type = NodeType::FOR_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
   node->var_name = var_name;
@@ -176,7 +176,7 @@ for_node *_create_for_node(exp_node* parent, source_loc loc, const string &var_n
 
 block_node *_create_block_node(exp_node* parent, vector<exp_node *>& nodes) {
   block_node *block = new block_node();
-  block->base.type = NodeType::BLOCK_NODE;
+  block->base.node_type = NodeType::BLOCK_NODE;
   block->base.parent = parent;
   block->base.loc = nodes[0]->loc;
   for(auto node:nodes)
@@ -344,7 +344,7 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
       // just id expression evaluation
       auto lhs = (exp_node *)_create_ident_node(parent, parser->curr_token.loc, id_name);
       node = parse_exp(parser, parent, lhs);
-      //log(DEBUG, "parsed exp: id exp: %d", node->type);
+      //log(DEBUG, "parsed exp: id exp: %d", node->node_type);
     } else {  
       // function definition or application
       node = _parse_function_app_or_def(parser, parent, loc, id_name);
@@ -381,7 +381,7 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
     }else{
       //log(DEBUG, "starting to parse exp: %s", TokenTypeString[parser->curr_token.type]);
       node = parse_exp(parser, parent);
-      //log(DEBUG, "it's exp: %s", NodeTypeString[node->type]);
+      //log(DEBUG, "it's exp: %s", NodeTypeString[node->node_type]);
     }
   }
   if(node){
@@ -471,7 +471,7 @@ exp_node *_parse_binary(parser *parser, exp_node* parent, int exp_prec, exp_node
     parse_next_token(parser);
     auto rhs = _parse_unary(parser, parent);
     if (!rhs) return lhs;
-    //log(DEBUG, "bin exp: rhs: %s", NodeTypeString[rhs->type]);
+    //log(DEBUG, "bin exp: rhs: %s", NodeTypeString[rhs->node_type]);
     auto next_prec = _get_op_precedence(parser);
     if (tok_prec < next_prec) {
       //log(DEBUG, "right first %s, %d, %d", TokenTypeString[parser->curr_token.type], tok_prec, next_prec);
@@ -486,7 +486,7 @@ exp_node *_parse_binary(parser *parser, exp_node* parent, int exp_prec, exp_node
 exp_node *parse_exp(parser *parser, exp_node* parent, exp_node *lhs) {
   if(parser->curr_token.type == TOKEN_EOS) return lhs;
   if (!lhs) lhs = _parse_unary(parser, parent);
-  //log(DEBUG, "got lhs: %s, %s", NodeTypeString[lhs->type], parser->curr_token.ident_str->c_str());
+  //log(DEBUG, "got lhs: %s, %s", NodeTypeString[lhs->node_type], parser->curr_token.ident_str->c_str());
   if (!lhs||parser->curr_token.type == TOKEN_EOS) return lhs;
   return _parse_binary(parser, parent, 0, lhs);
 }
@@ -617,7 +617,7 @@ exp_node *_parse_unary(parser *parser, exp_node* parent) {
   string opc = *parser->curr_token.ident_str;
   parse_next_token(parser);
   if (exp_node *operand = _parse_unary(parser, parent)){
-    //log(DEBUG, "unary node:%c: %s", opc, NodeTypeString[operand->type]);
+    //log(DEBUG, "unary node:%c: %s", opc, NodeTypeString[operand->node_type]);
     return (exp_node *)_create_unary_node(parent, loc, opc, operand);
   }
   return 0;
@@ -677,7 +677,7 @@ exp_node *_parse_if(parser *parser, exp_node* parent) {
   //log(DEBUG, "parsing if exp");
   exp_node *cond = parse_exp(parser, parent);
   if (!cond) return 0;
-  //log(DEBUG, "conf: %s, %s", NodeTypeString[cond->type], dump(cond).c_str());
+  //log(DEBUG, "conf: %s, %s", NodeTypeString[cond->node_type], dump(cond).c_str());
   if (parser->curr_token.type == TOKEN_THEN){
     parse_next_token(parser);  // eat the then
   }
@@ -722,7 +722,7 @@ block_node *parse_block(parser *parser, exp_node *parent, void (*fun)(void*, exp
     auto node = parse_statement(parser, parent);
     if(node){
       col = node->loc.col;
-      //log(DEBUG, "parsed statement in block: (%d, %d), %s, %d", node->loc.line, col, node?NodeTypeString[node->type]:"null node", parent);
+      //log(DEBUG, "parsed statement in block: (%d, %d), %s, %d", node->loc.line, col, node?NodeTypeString[node->node_type]:"null node", parent);
     }
     if (node){
       nodes.push_back(node);

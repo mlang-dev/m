@@ -239,7 +239,7 @@ void* _generate_function_node(code_generator* cg, function_node* node) {
   _create_argument_allocas(cg, node->prototype, fun);
   llvm::Value* ret_val;
   for (auto stmt : node->body->nodes) {
-    // log(DEBUG, "code gen stmt: %d", stmt->type);
+    // log(DEBUG, "code gen stmt: %d", stmt->node_type);
     ret_val = (llvm::Value*)generate_code(cg, stmt);
   }
   if (!ret_val) ret_val = llvm::UndefValue::get(Type::getVoidTy(*context));
@@ -559,7 +559,7 @@ void generate_runtime_module(code_generator* cg, parser* parser) {
 }
 
 void* generate_code(code_generator* cg, exp_node* node) {
-  switch (node->type) {
+  switch (node->node_type) {
     case UNK_NODE:
       return nullptr;
     case NUMBER_NODE:

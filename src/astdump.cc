@@ -65,30 +65,30 @@ string _dump_number(num_node* node){
 }
 
 string dump(exp_node* node){
-  if(node->type==FUNCTION_NODE)
+  if(node->node_type==FUNCTION_NODE)
     return _dump_function((function_node*)node);
-  else if(node->type == PROTOTYPE_NODE)
+  else if(node->node_type == PROTOTYPE_NODE)
     return _dump_prototype((prototype_node*)node);
-  else if(node->type == VAR_NODE)
+  else if(node->node_type == VAR_NODE)
     return _dump_var((var_node*)node);
-  else if(node->type == UNARY_NODE)
+  else if(node->node_type == UNARY_NODE)
     return _dump_unary((unary_node*)node);
-  else if(node->type == BINARY_NODE)
+  else if(node->node_type == BINARY_NODE)
     return _dump_binary((binary_node*)node);
-  else if(node->type == CONDITION_NODE)
+  else if(node->node_type == CONDITION_NODE)
     return _dump_if((condition_node*)node);
-  else if(node->type == CALL_NODE)
+  else if(node->node_type == CALL_NODE)
     return _dump_call((call_node*)node);
-  else if(node->type == FOR_NODE)
+  else if(node->node_type == FOR_NODE)
     return _dump_for((for_node*)node);
-  else if(node->type == IDENT_NODE)
+  else if(node->node_type == IDENT_NODE)
     return _dump_id((ident_node*)node);
-  else if(node->type == NUMBER_NODE)
+  else if(node->node_type == NUMBER_NODE)
     return _dump_number((num_node*)node);
-  else if(node->type == BLOCK_NODE)
+  else if(node->node_type == BLOCK_NODE)
     return _dump_block((block_node*)node);
   else{
-    string not_supported = "ast->type not supported: ";
-    return not_supported + NodeTypeString[node->type];
+    string not_supported = "ast->node_type not supported: ";
+    return not_supported + NodeTypeString[node->node_type];
   }
 }
