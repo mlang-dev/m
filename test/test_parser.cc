@@ -5,7 +5,7 @@
 
 
 TEST(testParser, testBlockVariable){
-  char test_code[128] = "x = 11";
+  char test_code[] = "x = 11";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (var_node*)block->nodes[0];
@@ -17,7 +17,7 @@ TEST(testParser, testBlockVariable){
 }
 
 TEST(testParser, testBlockVariableNameWithUnderlyingLine){
-  char test_code[128] = "m_x = 11";
+  char test_code[] = "m_x = 11";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (var_node*)block->nodes[0];
@@ -29,7 +29,7 @@ TEST(testParser, testBlockVariableNameWithUnderlyingLine){
 }
 
 TEST(testParser, testBlockIdFunction){
-  char test_code[128] = R"(
+  char test_code[] = R"(
 f x = x
 f 10
 )";
@@ -45,7 +45,7 @@ f 10
 }
 
 TEST(testParser, testBlockBinaryFunction){
-  char test_code[128] = "f x = x * x";
+  char test_code[] = "f x = x * x";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (function_node*)block->nodes[0];
@@ -57,7 +57,7 @@ TEST(testParser, testBlockBinaryFunction){
 }
 
 TEST(testParser, testBlockBinaryFunctionName){
-  char test_code[128] = "f_sq x = x * x";
+  char test_code[] = "f_sq x = x * x";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   auto node = (function_node*)block->nodes[0];

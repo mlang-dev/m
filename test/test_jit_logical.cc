@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 TEST(testJITLogical, testLessThan){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   10<11
   )";
   auto parser = create_parser_for_string(test_code);
@@ -17,7 +17,7 @@ TEST(testJITLogical, testLessThan){
 }
 
 TEST(testJITLogical, testLessThanWrong){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   11<10
   )";
   auto parser = create_parser_for_string(test_code);
@@ -29,7 +29,7 @@ TEST(testJITLogical, testLessThanWrong){
 }
 
 TEST(testJITLogical, testGreaterThan){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   11>10
   )";
   auto parser = create_parser_for_string(test_code);
@@ -41,7 +41,7 @@ TEST(testJITLogical, testGreaterThan){
 }
 
 TEST(testJITLogical, testGreaterThanWrong){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   10>11
   )";
   auto parser = create_parser_for_string(test_code);
@@ -53,7 +53,7 @@ TEST(testJITLogical, testGreaterThanWrong){
 }
 
 TEST(testJITLogical, testEqual){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   10==10
   )";
   auto parser = create_parser_for_string(test_code);
@@ -65,7 +65,7 @@ TEST(testJITLogical, testEqual){
 }
 
 TEST(testJITLogical, testEqualNot){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   10==11
   )";
   auto parser = create_parser_for_string(test_code);
@@ -77,7 +77,7 @@ TEST(testJITLogical, testEqualNot){
 }
 
 TEST(testJITLogical, testNotEqualTrue){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   10!=11
   )";
   auto parser = create_parser_for_string(test_code);
@@ -113,7 +113,7 @@ TEST(testJITLogical, testLETrueL){
 }
 
 TEST(testJITLogical, testLETrueE){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   10<=10
   )";
   auto parser = create_parser_for_string(test_code);
@@ -125,7 +125,7 @@ TEST(testJITLogical, testLETrueE){
 }
 
 TEST(testJITLogical, testLEFalse){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   11<=10
   )";
   auto parser = create_parser_for_string(test_code);
@@ -137,7 +137,7 @@ TEST(testJITLogical, testLEFalse){
 }
 
 TEST(testJITLogical, testGETrueL){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   10>=9
   )";
   auto parser = create_parser_for_string(test_code);
@@ -149,7 +149,7 @@ TEST(testJITLogical, testGETrueL){
 }
 
 TEST(testJITLogical, testGETrueE){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   10>=10
   )";
   auto parser = create_parser_for_string(test_code);
@@ -161,7 +161,7 @@ TEST(testJITLogical, testGETrueE){
 }
 
 TEST(testJITLogical, testGEFalse){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   10>=11
   )";
   auto parser = create_parser_for_string(test_code);

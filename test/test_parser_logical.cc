@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 TEST(testParserLogical, testComparisonLessThan){
-  char test_code[128] = "10 < 11";
+  char test_code[] = "10 < 11";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);
@@ -14,7 +14,7 @@ TEST(testParserLogical, testComparisonLessThan){
 }
 
 TEST(testParserLogical, testComparisonGreaterThan){
-  char test_code[128] = "11 > 10";
+  char test_code[] = "11 > 10";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);
@@ -24,7 +24,7 @@ TEST(testParserLogical, testComparisonGreaterThan){
 }
 
 TEST(testParserLogical, testComparisonEqual){
-  char test_code[128] = "11==10";
+  char test_code[] = "11==10";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);
@@ -34,7 +34,7 @@ TEST(testParserLogical, testComparisonEqual){
 }
 
 TEST(testParserLogical, testComparisonGE){
-  char test_code[128] = "11>=10";
+  char test_code[] = "11>=10";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);
@@ -44,7 +44,7 @@ TEST(testParserLogical, testComparisonGE){
 }
 
 TEST(testParserLogical, testComparisonLE){
-  char test_code[128] = "11<=10";
+  char test_code[] = "11<=10";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);

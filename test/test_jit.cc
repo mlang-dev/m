@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 TEST(testJIT, testIdFunc){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   f x = x
   f 10
   )";
@@ -19,7 +19,7 @@ TEST(testJIT, testIdFunc){
 }
 
 TEST(testJIT, testSqrtFunc){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   f x = x * x
   f 10
   )";
@@ -33,7 +33,7 @@ TEST(testJIT, testSqrtFunc){
 }
 
 TEST(testJIT, testIfFunc){
-  char test_code[128] = R"(
+  char test_code[] = R"(
   f x = 
     if x < 10 then x
     else 0
@@ -50,7 +50,7 @@ TEST(testJIT, testIfFunc){
 }
 
 TEST(testJIT, testGloVarFunc){
-  char test_code[128] = R"(
+  char test_code[] = R"(
 y=100
 y
 )";
@@ -63,7 +63,7 @@ y
 }
 
 TEST(testJIT, testUnaryFunc){
-  char test_code[128] = R"(
+  char test_code[] = R"(
 unary- x = 0 - x
 y=100
 -y
@@ -78,7 +78,7 @@ y=100
 }
 
 TEST(testJIT, testBinaryFunc){
-  char test_code[128] = R"(
+  char test_code[] = R"(
 unary- x = 0 - x
 binary>10 x y = y < x
 z = 100
@@ -94,7 +94,7 @@ if z>99 then -z else z
 }
 
 TEST(testJIT, testUnaryBinaryFunc){
-  char test_code[128] = R"(
+  char test_code[] = R"(
 (-) x = 0 - x # unary operator overloading
 (>)10 x y = y < x # binary operator overloading
 z = 100
