@@ -61,7 +61,7 @@ string _dump_id(ident_node* idnode){
 }
 
 string _dump_number(num_node* node){
-  return "num: " + to_string(node->num_val);
+  return "num: " + to_string(node->double_val);
 }
 
 string dump(exp_node* node){

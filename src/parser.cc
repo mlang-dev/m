@@ -87,7 +87,7 @@ num_node *_create_num_node(exp_node* parent, source_loc loc, double val) {
   node->base.node_type = NodeType::NUMBER_NODE;
   node->base.parent = parent;
   node->base.loc = loc;
-  node->num_val = val;
+  node->double_val = val;
   return node;
 }
 
@@ -244,7 +244,7 @@ int _get_op_precedence(parser *parser) {
 }
 
 exp_node *_parse_number(parser *parser, exp_node* parent) {
-  auto result = _create_num_node(parent, parser->curr_token.loc, parser->curr_token.num_val);
+  auto result = _create_num_node(parent, parser->curr_token.loc, parser->curr_token.double_val);
   if(parser->curr_token.type != TOKEN_EOS)
     parse_next_token(parser);
   return (exp_node *)result;
@@ -367,7 +367,7 @@ exp_node *parse_statement(parser *parser, exp_node *parent) {
         int precedence = 0;
         if(parser->curr_token.type == TOKEN_NUM){
           //precedence: parse binary
-          precedence = parser->curr_token.num_val;
+          precedence = parser->curr_token.double_val;
           parse_next_token(parser);//skip it
           //log(DEBUG, "got precedence: %d", precedence);
         }
@@ -529,9 +529,9 @@ exp_node *_parse_prototype(parser *parser, exp_node* parent) {
       parse_next_token(parser);
       // Read the precedence if present.
       if (parser->curr_token.type == TOKEN_NUM) {
-        if (parser->curr_token.num_val < 1 || parser->curr_token.num_val > 100)
+        if (parser->curr_token.double_val < 1 || parser->curr_token.double_val > 100)
           return (exp_node *)log(ERROR, "Invalid precedecnce: must be 1..100");
-        bin_prec = (unsigned)parser->curr_token.num_val;
+        bin_prec = (unsigned)parser->curr_token.double_val;
         //log(DEBUG, "finding binary operator: %s, prec: %d", fun_name.c_str(), bin_prec);
         parse_next_token(parser);
       }

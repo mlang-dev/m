@@ -115,7 +115,7 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
 
 void* _generate_num_node(code_generator* cg, num_node* node) {
   llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-  return llvm::ConstantFP::get(*context, llvm::APFloat(node->num_val));
+  return llvm::ConstantFP::get(*context, llvm::APFloat(node->double_val));
 }
 
 void* _generate_ident_node(code_generator* cg, ident_node* node) {

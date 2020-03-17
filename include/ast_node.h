@@ -52,7 +52,7 @@ struct ast {
 
 struct num_node {
   exp_node base;
-  double num_val;
+  double double_val;
 };
 
 struct ident_node {

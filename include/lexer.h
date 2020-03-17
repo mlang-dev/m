@@ -3,6 +3,7 @@
 #include <string>
 #include <queue>
 #include "util.h"
+#include "value_type.h"
 
 using namespace std;
 
@@ -39,11 +40,12 @@ struct source_loc {
 
 struct token {
   TokenType type;
+  ValueType value_type;
   source_loc loc;
+  int int_val;
   union {
     string* ident_str;
-    double num_val;
-    //int op_val;
+    double double_val;
   };
 };
 

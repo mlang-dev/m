@@ -25,6 +25,15 @@ static map<char, TokenType> char_tokens = {
   {'(', TOKEN_LPAREN}, {')', TOKEN_RPAREN}, {'[', TOKEN_LBRACKET}, {']', TOKEN_RBRACKET},
 };
 
+map<string, ValueType> value_types = {
+  {"()", TYPE_UNIT},
+  {"bool", TYPE_BOOL},
+  {"char", TYPE_CHAR},
+  {"int", TYPE_INT},
+  {"double", TYPE_DOUBLE},
+  {"fun", TYPE_FUNCTION},
+};
+
 static set<char> symbol_chars = {'.'};
 
 static int get_char(file_tokenizer* tokenizer) {
@@ -57,21 +66,26 @@ token& _tokenize_symbol_type(file_tokenizer* tokenizer, token& t, TokenType type
   return t;
 }
 
-void _tokenize_symbol(file_tokenizer* tokenizer, string& symbol) {
+bool _tokenize_symbol(file_tokenizer* tokenizer, string& symbol) {
   symbol = "";
+  bool has_dot = false;
   do {
-    if (symbol_chars.find(tokenizer->curr_char) != symbol_chars.end())
+    if (symbol_chars.find(tokenizer->curr_char) != symbol_chars.end()){
       symbol += tokenizer->curr_char;
+      has_dot = true;
+    }
     else
       break;
   } while ((tokenizer->curr_char = get_char(tokenizer)));
+  return has_dot;
 }
 
 token& _tokenize_number(file_tokenizer* tokenizer) {
   string num_str = "";
+  bool has_dot = false;
   do {
     string symbol;
-    _tokenize_symbol(tokenizer, symbol);
+    has_dot = _tokenize_symbol(tokenizer, symbol);
     if (auto type = tokens[symbol]) {
       if (num_str == "") {
         return _tokenize_symbol_type(tokenizer, tokenizer->cur_token, type);
@@ -80,11 +94,20 @@ token& _tokenize_number(file_tokenizer* tokenizer) {
         _tokenize_symbol_type(tokenizer, tokenizer->next_token, type);
         break;
       }
+    }else{
+      num_str += symbol;
     }
     num_str += tokenizer->curr_char;
     tokenizer->curr_char = get_char(tokenizer);
   } while (isdigit(tokenizer->curr_char) || tokenizer->curr_char == '.');
-  tokenizer->cur_token.num_val = strtod(num_str.c_str(), nullptr);
+  if (has_dot){
+    tokenizer->cur_token.double_val = strtod(num_str.c_str(), nullptr);
+    tokenizer->cur_token.value_type = TYPE_DOUBLE;
+  }else{
+    tokenizer->cur_token.int_val = stoi(num_str.c_str(), nullptr);
+    tokenizer->cur_token.double_val = stoi(num_str.c_str(), nullptr);
+    tokenizer->cur_token.value_type = TYPE_INT;
+  }
   tokenizer->cur_token.type = TOKEN_NUM;
   tokenizer->cur_token.loc = tokenizer->tok_loc;
   return tokenizer->cur_token;
@@ -154,10 +177,10 @@ token& get_token(file_tokenizer* tokenizer) {
     return tokenizer->cur_token;
   } else if (isalpha(tokenizer->curr_char)) {
     return _tokenize_id_keyword(tokenizer);
-  } else if (op_chars.count(tokenizer->curr_char)) {
-    return _tokenize_op(tokenizer);
   } else if (isdigit(tokenizer->curr_char) || tokenizer->curr_char == '.') {
     return _tokenize_number(tokenizer);
+  } else if (op_chars.count(tokenizer->curr_char)) {
+    return _tokenize_op(tokenizer);
   } else if (tokenizer->curr_char == '#') {
     // skip comments
     _skip_to_line_end(tokenizer);
