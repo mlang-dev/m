@@ -10,6 +10,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace mlang;
 
 set<char> op_chars = {
   '!', '%', '&', '*', '+', '-', '.', '/', '<', '=', '>', '?', '@', '^', '|'
@@ -25,7 +26,7 @@ static map<char, TokenType> char_tokens = {
   {'(', TOKEN_LPAREN}, {')', TOKEN_RPAREN}, {'[', TOKEN_LBRACKET}, {']', TOKEN_RBRACKET},
 };
 
-map<string, ValueType> value_types = {
+map<string, Type> types = {
   {"()", TYPE_UNIT},
   {"bool", TYPE_BOOL},
   {"char", TYPE_CHAR},
@@ -49,7 +50,7 @@ static int get_char(file_tokenizer* tokenizer) {
 file_tokenizer* create_tokenizer(FILE* file){
   auto tokenizer = new file_tokenizer();
   tokenizer->loc = {1, 0};
-  tokenizer->next_token.type = TOKEN_UNK;
+  tokenizer->next_token.token_type = TOKEN_UNK;
   tokenizer->curr_char = ' ';
   tokenizer->file = file;
   return tokenizer;
@@ -60,8 +61,8 @@ void destroy_tokenizer(file_tokenizer* tokenizer){
   delete tokenizer;
 }
 
-token& _tokenize_symbol_type(file_tokenizer* tokenizer, token& t, TokenType type) {
-  t.type = type;
+token& _tokenize_symbol_type(file_tokenizer* tokenizer, token& t, TokenType token_type) {
+  t.token_type = token_type;
   t.loc = tokenizer->tok_loc;
   return t;
 }
@@ -102,13 +103,13 @@ token& _tokenize_number(file_tokenizer* tokenizer) {
   } while (isdigit(tokenizer->curr_char) || tokenizer->curr_char == '.');
   if (has_dot){
     tokenizer->cur_token.double_val = strtod(num_str.c_str(), nullptr);
-    tokenizer->cur_token.value_type = TYPE_DOUBLE;
+    tokenizer->cur_token.type = TYPE_DOUBLE;
   }else{
     tokenizer->cur_token.int_val = stoi(num_str.c_str(), nullptr);
     tokenizer->cur_token.double_val = stoi(num_str.c_str(), nullptr);
-    tokenizer->cur_token.value_type = TYPE_INT;
+    tokenizer->cur_token.type = TYPE_INT;
   }
-  tokenizer->cur_token.type = TOKEN_NUM;
+  tokenizer->cur_token.token_type = TOKEN_NUM;
   tokenizer->cur_token.loc = tokenizer->tok_loc;
   return tokenizer->cur_token;
 }
@@ -118,10 +119,10 @@ token& _tokenize_id_keyword(file_tokenizer* tokenizer) {
   while (isalnum((tokenizer->curr_char = get_char(tokenizer))) || tokenizer->curr_char == '_') 
     tokenizer->ident_str += tokenizer->curr_char;
   auto token_type = tokens[tokenizer->ident_str];
-  tokenizer->cur_token.type = token_type != 0 ? token_type : TOKEN_IDENT;
+  tokenizer->cur_token.token_type = token_type != 0 ? token_type : TOKEN_IDENT;
   tokenizer->cur_token.ident_str = &tokenizer->ident_str;
   tokenizer->cur_token.loc = tokenizer->tok_loc;
-  //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.type);
+  //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
   return tokenizer->cur_token;
 }
 
@@ -130,20 +131,19 @@ token& _tokenize_op(file_tokenizer* tokenizer) {
   while (op_chars.count((tokenizer->curr_char = get_char(tokenizer)))) 
     tokenizer->ident_str += tokenizer->curr_char;
   auto token_type = tokens[tokenizer->ident_str];
-  tokenizer->cur_token.type = TOKEN_OP;
+  tokenizer->cur_token.token_type = TOKEN_OP;
   tokenizer->cur_token.ident_str = &tokenizer->ident_str;
   tokenizer->cur_token.loc = tokenizer->tok_loc;
-  //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.type);
+  //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
   return tokenizer->cur_token;
 }
-
 
 token& _tokenize_type(file_tokenizer* tokenizer, TokenType token_type) {
   tokenizer->ident_str = char_to_string((char)tokenizer->curr_char);
   tokenizer->cur_token.loc = tokenizer->tok_loc;
   tokenizer->cur_token.ident_str = &tokenizer->ident_str;
   //tokenizer->cur_token.op_val = tokenizer->curr_char;
-  tokenizer->cur_token.type = token_type;
+  tokenizer->cur_token.token_type = token_type;
   return tokenizer->cur_token;
 }
 
@@ -156,10 +156,10 @@ void _skip_to_line_end(file_tokenizer* tokenizer) {
 
 token& get_token(file_tokenizer* tokenizer) {
   // skip spaces
-  if (tokenizer->next_token.type) {
+  if (tokenizer->next_token.token_type) {
     // cleanup looked ahead tokens
     tokenizer->cur_token = tokenizer->next_token;
-    tokenizer->next_token.type = TOKEN_UNK;
+    tokenizer->next_token.token_type = TOKEN_UNK;
     return tokenizer->cur_token;
   }
   while (isspace(tokenizer->curr_char)) {

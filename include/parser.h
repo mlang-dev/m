@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 #include <cassert>
-#include "ast_node.h"
+#include "ast.h"
 
 using namespace std;
 struct parser{

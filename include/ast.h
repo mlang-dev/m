@@ -3,7 +3,7 @@
 #include <vector>
 #include "lexer.h"
 #include "util.h"
-#include "value_type.h"
+#include "type.h"
 
 using namespace std;
 
@@ -29,7 +29,7 @@ static const char* NodeTypeString[] = {
 
 struct exp_node {
   NodeType node_type;
-  ValueType value_type;
+  Type type;
   source_loc loc;
   exp_node* parent;
 };
@@ -52,7 +52,10 @@ struct ast {
 
 struct num_node {
   exp_node base;
-  double double_val;
+  union{
+    double double_val;
+    int int_val;
+  };
 };
 
 struct ident_node {

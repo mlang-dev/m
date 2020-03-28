@@ -3,9 +3,10 @@
 #include <string>
 #include <queue>
 #include "util.h"
-#include "value_type.h"
+#include "type.h"
 
 using namespace std;
+using namespace mlang;
 
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
   ENUM_ITEM(TOKEN_UNK)               \
@@ -39,8 +40,8 @@ struct source_loc {
 };
 
 struct token {
-  TokenType type;
-  ValueType value_type;
+  TokenType token_type;
+  Type type;
   source_loc loc;
   int int_val;
   union {

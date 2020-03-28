@@ -69,7 +69,7 @@ TEST(testParser, testBlockBinaryFunctionName){
 }
 
 TEST(testParser, testFacIfCondition){
-  char test_code[128] = R"(fac n = 
+  char test_code[] = R"(fac n = 
     if n< 2 n
     else n * fac (n-1))";
   auto parser = create_parser_for_string(test_code);
@@ -83,7 +83,7 @@ TEST(testParser, testFacIfCondition){
 }
 
 TEST(testParser, testForLoop){
-  char test_code[128] = R"(loopprint n = 
+  char test_code[] = R"(loopprint n = 
   for i in 0..n
     print i
   )";
@@ -98,7 +98,7 @@ TEST(testParser, testForLoop){
 }
 
 TEST(testParser, testVariableInFunction){
-  char test_code[128] = R"(distance x1 y1 x2 y2 = 
+  char test_code[] = R"(distance x1 y1 x2 y2 = 
   xx = (x1-x2) * (x1-x2)
   yy = (y1-y2) * (y1-y2)
   sqrt (xx + yy)
@@ -114,7 +114,7 @@ TEST(testParser, testVariableInFunction){
 }
 
 TEST(testParser, testAvgFunction){
-  char test_code[128] = R"(
+  char test_code[] = R"(
 avg x y = (x + y) / 2
     )";
   auto parser = create_parser_for_string(test_code);
@@ -126,7 +126,7 @@ avg x y = (x + y) / 2
 }
 
 TEST(testParser, testUnaryOperatorOverloadFunction){
-  char test_code[128] = R"((|>) x = 0 - x # unary operator overloading
+  char test_code[] = R"((|>) x = 0 - x # unary operator overloading
   )";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
@@ -138,8 +138,7 @@ TEST(testParser, testUnaryOperatorOverloadFunction){
 }
 
 TEST(testParser, testSimpleUnaryOperatorOverloadFunction){
-  char test_code[128] = R"(unary|> x = 0 - x # unary operator overloading
-  )";
+  char test_code[] = "unary|> x = 0 - x # unary operator overloading";
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   exp_node* node = block->nodes[0];
@@ -149,26 +148,13 @@ TEST(testParser, testSimpleUnaryOperatorOverloadFunction){
   destroy_parser(parser);
 }
 
-// TEST(testParser, testBinaryOperatorOverloadFunction){
-//   char test_code[128] = R"(binary><10 x y = y < x # binary operator overloading
-//   )";
-//   auto parser = create_parser_for_string(test_code);
-//   block_node * block = parse_block(parser, nullptr);
-//   exp_node* node = block->nodes[0];
-//   ASSERT_EQ(FUNCTION_NODE, node->node_type);
-//   function_node* func = (function_node*)node;
-//   ASSERT_STREQ("binary><", func->prototype->name.c_str());
-//   destroy_parser(parser);
-// }
-
-// TEST(testParser, testSimpleBinaryOperatorOverloadFunction){
-//   char test_code[128] = R"((|>)10 x y = y < x # binary operator overloading
-//   )";
-//   auto parser = create_parser_for_string(test_code);
-//   block_node * block = parse_block(parser, nullptr);
-//   exp_node* node = block->nodes[0];
-//   ASSERT_STREQ("FUNCTION_NODE", NodeTypeString[node->node_type]);
-//   function_node* func = (function_node*)node;
-//   ASSERT_STREQ("binary|>", func->prototype->name.c_str());
-//   destroy_parser(parser);
-// }
+TEST(testParser, testSimpleBinaryOperatorOverloadFunction){
+  char test_code[] = "(|>)10 x y = y < x # binary operator overloading";
+  auto parser = create_parser_for_string(test_code);
+  block_node * block = parse_block(parser, nullptr);
+  exp_node* node = block->nodes[0];
+  ASSERT_STREQ("FUNCTION_NODE", NodeTypeString[node->node_type]);
+  function_node* func = (function_node*)node;
+  ASSERT_STREQ("binary|>", func->prototype->name.c_str());
+  destroy_parser(parser);
+}

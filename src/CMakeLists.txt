@@ -12,9 +12,10 @@ add_library(mlr
   lexer.cc
   parser.cc
   util.cc
-  codegen.cc
   runtime.cc
   astdump.cc
+  analyzer.cc
+  codegen.cc
 )
 
 include_directories(

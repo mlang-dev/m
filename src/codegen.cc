@@ -15,6 +15,7 @@
 
 using namespace llvm;
 using namespace std;
+
 llvm::LLVMContext g_context;
 
 void* _generate_global_var_node(code_generator* cg, var_node* node,
@@ -242,7 +243,7 @@ void* _generate_function_node(code_generator* cg, function_node* node) {
     // log(DEBUG, "code gen stmt: %d", stmt->node_type);
     ret_val = (llvm::Value*)generate_code(cg, stmt);
   }
-  if (!ret_val) ret_val = llvm::UndefValue::get(Type::getVoidTy(*context));
+  if (!ret_val) ret_val = llvm::UndefValue::get(llvm::Type::getVoidTy(*context));
   if (ret_val) {
     builder->CreateRet(ret_val);
     cg->fpm->run(*fun);
