@@ -10,7 +10,6 @@
 #include "util.h"
 
 using namespace std;
-using namespace mlang;
 
 set<char> op_chars = {
   '!', '%', '&', '*', '+', '-', '.', '/', '<', '=', '>', '?', '@', '^', '|'

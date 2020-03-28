@@ -6,7 +6,6 @@
 #include "type.h"
 
 using namespace std;
-using namespace mlang;
 
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
   ENUM_ITEM(TOKEN_UNK)               \
