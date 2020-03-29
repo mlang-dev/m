@@ -15,7 +15,7 @@ distance x1 y1 x2 y2 =
 
 # factorial function with recursive call
 factorial n = 
-  if n < 2 n
+  if n < 2 then n
   else n * factorial (n-1)
 
 # using for loop
