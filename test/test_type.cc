@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "repl.h"
 #include "tutil.h"
-#include "analyzer.h"
+#include "type.h"
 #include <stdio.h>
 #include "astdump.h"
+

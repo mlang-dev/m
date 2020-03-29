@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "lexer.h"
-#include "test_util.h"
+#include "tutil.h"
 #include <stdio.h>
 
 TEST(testLexer, testEqualOp){

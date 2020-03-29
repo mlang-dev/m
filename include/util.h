@@ -30,3 +30,5 @@ string get_filename(const char* fullfilename);
 bool is_new_line(int ch);
 string vector_to_string(vector<string>& v);
 string char_to_string(char c);
+string get_id_name();
+void reset_id_name(string idname = "a");

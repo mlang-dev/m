@@ -1,15 +1,25 @@
-#include "test_util.h"
+#include "gtest/gtest.h"
+#include "util.h"
 
-FILE* _open_file(const char* file_name){
-  char* file_content = (char*)file_name;
-  return fmemopen(file_content, strlen(file_content), "r");
+TEST(testUtil, testIdNameGenerator){
+  reset_id_name();
+  ASSERT_STREQ("a", get_id_name().c_str());
+  ASSERT_STREQ("b", get_id_name().c_str());
+  reset_id_name("z");
+  ASSERT_STREQ("z", get_id_name().c_str());
+  ASSERT_STREQ("aa", get_id_name().c_str());
 }
 
-parser* create_parser_for_string(char* str){
-  return create_parser(str, false, _open_file);
+TEST(testUtil, testTwoLetters){
+  reset_id_name("az");
+  ASSERT_STREQ("az", get_id_name().c_str());
+  ASSERT_STREQ("ba", get_id_name().c_str());
+  ASSERT_STREQ("bb", get_id_name().c_str());
 }
 
-file_tokenizer* create_tokenizer_for_string(char* str){
-  FILE* file = fmemopen(str, strlen(str), "r");
-  return create_tokenizer(file);
+TEST(testUtil, testMoreLetters){
+  reset_id_name("zzzy");
+  ASSERT_STREQ("zzzy", get_id_name().c_str());
+  ASSERT_STREQ("zzzz", get_id_name().c_str());
+  ASSERT_STREQ("aaaaa", get_id_name().c_str());
 }

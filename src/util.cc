@@ -9,6 +9,34 @@
 
 using namespace std;
 
+static string id_name = "a";
+void reset_id_name(string idname){
+  id_name = idname;
+}
+
+string _inc_str(string id){
+  if(id == "")
+    return id;
+  char ch = id.back();
+  id.pop_back();
+  if(ch=='z'){
+    ch = 'a';
+    id = _inc_str(id);
+  }
+  else
+    ch++;
+  id.push_back(ch);
+  return id;
+}
+
+string get_id_name(){
+  string str = id_name;
+  id_name = _inc_str(id_name);
+  if(id_name.back()=='a' && all_of(id_name.begin(), id_name.end(), [](char x){return x == 'a';}))
+    id_name.push_back('a');
+  return str;
+}
+
 static char alpha_nums[36];
 static bool alpha_nums_init = false;
 

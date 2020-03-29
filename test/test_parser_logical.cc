@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "parser.h"
-#include "test_util.h"
+#include "tutil.h"
 #include <stdio.h>
 
 TEST(testParserLogical, testComparisonLessThan){

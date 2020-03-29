@@ -161,14 +161,16 @@ link_libraries(
 )
 
 add_executable(mtest
-  test_util.cc
+  tutil.cc
   test.cc
+  test_util.cc
   test_lexer.cc
   test_parser.cc
   test_parser_logical.cc
   test_jit_logical.cc
   test_jit.cc
   test_analyzer.cc
+  test_type.cc
 )
 TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main mlr)
 
