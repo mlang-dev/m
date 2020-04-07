@@ -29,7 +29,7 @@ static const char* NodeTypeString[] = {
 
 struct exp_node {
   NodeType node_type;
-  Type type;
+  type_exp type; //type annotation
   source_loc loc;
   exp_node* parent;
 };

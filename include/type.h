@@ -6,6 +6,7 @@
 
 #define FOREACH_TYPE(ENUM_ITEM) \
   ENUM_ITEM(TYPE_UNK)           \
+  ENUM_ITEM(TYPE_ANY)           \
   ENUM_ITEM(TYPE_UNIT)          \
   ENUM_ITEM(TYPE_BOOL)          \
   ENUM_ITEM(TYPE_CHAR)          \
@@ -17,6 +18,7 @@ enum Type { FOREACH_TYPE(GENERATE_ENUM) };
 
 static const char* const TypeString[] = {
   "unkown",
+  "any",
   "()",
   "bool",
   "char",
