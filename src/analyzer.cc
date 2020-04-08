@@ -10,13 +10,15 @@ type_exp* _analyze_ident(type_env* env, ident_node* ident){
 }
 
 type_exp* _analyze_num(type_env* env, num_node* num){
-  return retrieve(env, TypeString[num->base.type]);
+  return retrieve(env, num->base.type.name);
 }
 
 type_exp* _analyze_var(type_env* env, var_node* var){
+  auto type = analyze(env, var->init_value);
+  if (!type)
+    return type;
   type_exp* result_type = (type_exp*)create_type_var();
-  auto value_type = analyze(env, var->init_value);
-  unify(result_type, value_type, env->nogens);
+  unify(result_type, type, env->nogens);
   return result_type;
 }
 
@@ -48,7 +50,11 @@ type_exp* _analyze_fun(type_env* env, function_node* fun){
 }
 
 type_exp* _analyze_bin(type_env* env, binary_node* bin){
-  //bin->base.value_type = var->init_value->value_type;
+  type_exp* lhs_type = analyze(env, bin->lhs);
+  type_exp* rhs_type = analyze(env, bin->rhs);
+  if(unify(lhs_type, rhs_type, env->nogens))
+    return lhs_type;
+  //log(DEBUG, "error binary op with different type");
   return nullptr;
 }
 
