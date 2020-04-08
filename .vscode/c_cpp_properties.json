@@ -3,10 +3,11 @@
         {
             "name": "Mac",
             "includePath": [
+                "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/extern/googletest/googletest/include",
                 "${workspaceFolder}/extern/googletest/googlemock/include",
-                "/usr/local/Cellar/llvm/9.0.0_1/include"
+                "/usr/local/Cellar/llvm/10.0.0_1/include"
             ],
             "defines": [],
             "macFrameworkPath": [

@@ -60,7 +60,7 @@ int gof_emit_file(Module* module, TargetMachine* target_machine, const char* fil
     }
 
     legacy::PassManager pass;
-    auto file_type = TargetMachine::CodeGenFileType::CGFT_ObjectFile;
+    auto file_type = CodeGenFileType::CGFT_ObjectFile;
     if(target_machine->addPassesToEmitFile(pass, dest, nullptr, file_type)){
         errs() << "Target machine can't emit an object file";
         return 1;

@@ -1,14 +1,15 @@
 #include "builtins.h"
 #include "llvm/IR/Intrinsics.h"
+#include "llvm/ADT/StringRef.h"
 #include "util.h"
 
 using namespace std;
 using namespace llvm;
 
 llvm::Intrinsic::ID builtin_ids[] = {
-    llvm::Intrinsic::ID::sin,
-    llvm::Intrinsic::ID::cos,
-    llvm::Intrinsic::ID::sqrt,
+    llvm::Intrinsic::IndependentIntrinsics::sin,
+    llvm::Intrinsic::IndependentIntrinsics::cos,
+    llvm::Intrinsic::IndependentIntrinsics::sqrt,
 };
 #define NUM_BUILTINS 3
 

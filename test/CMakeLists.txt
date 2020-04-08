@@ -8,11 +8,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
-  /usr/local/Cellar/llvm/9.0.0_1/include
+  /usr/local/Cellar/llvm/10.0.0_1/include
 )
 
 link_directories(
-  /usr/local/Cellar/llvm/9.0.0_1/lib
+  /usr/local/Cellar/llvm/10.0.0_1/lib
 )
 
 link_libraries(
@@ -23,6 +23,7 @@ link_libraries(
   LLVMSymbolize
   LLVMDebugInfoPDB
   LLVMOrcJIT
+  LLVMOrcError
   LLVMJITLink
   LLVMObjectYAML
   LLVMMCA
@@ -156,6 +157,7 @@ link_libraries(
   LLVMAArch64Info
   LLVMSupport
   LLVMDemangle
+  LLVMCFGuard
   z
   curses
 )
