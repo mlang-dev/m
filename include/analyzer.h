@@ -9,4 +9,3 @@ struct type_env{
 type_env* create_type_env();
 void destroy_type_env(type_env* env);
 type_exp* analyze(type_env* env, exp_node* node);
-vector<type_exp*> analyze(type_env* env, block_node* block);

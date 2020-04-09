@@ -9,7 +9,7 @@ TEST(testAnalyzer, testIntVariable){
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   type_env* env = create_type_env();
-  auto type = analyze(env, block)[0];
+  auto type = analyze(env, (exp_node*)block);
   auto node = (var_node*)block->nodes[0];
   ASSERT_EQ(1, block->nodes.size());
   ASSERT_STREQ("x", node->var_name.c_str());
@@ -27,7 +27,7 @@ TEST(testAnalyzer, testDoubleVariable){
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   type_env* env = create_type_env();
-  auto type = analyze(env, block)[0];
+  auto type = analyze(env, (exp_node*)block);
   auto node = (var_node*)block->nodes[0];
   ASSERT_EQ(1, block->nodes.size());
   ASSERT_STREQ("x", node->var_name.c_str());
@@ -45,7 +45,7 @@ TEST(testAnalyzer, testDoubleIntLiteralError){
   auto parser = create_parser_for_string(test_code);
   block_node * block = parse_block(parser, nullptr);
   type_env* env = create_type_env();
-  auto type = analyze(env, block)[0];
+  auto type = analyze(env, (exp_node*)block);
   auto node = (var_node*)block->nodes[0];
   ASSERT_EQ(1, block->nodes.size());
   ASSERT_STREQ("x", node->var_name.c_str());

@@ -5,15 +5,16 @@ type_exp* retrieve(type_env* env, string name){
   return retrieve(name, env->nogens, env->type_env);
 }
 
-type_exp* _analyze_ident(type_env* env, ident_node* ident){
-  return retrieve(env, ident->name);
+type_exp* _analyze_ident(type_env* env, exp_node* ident){
+  return retrieve(env, ((ident_node*)ident)->name);
 }
 
-type_exp* _analyze_num(type_env* env, num_node* num){
-  return retrieve(env, num->base.type.name);
+type_exp* _analyze_num(type_env* env, exp_node* num){
+  return retrieve(env, ((num_node*)num)->base.type.name);
 }
 
-type_exp* _analyze_var(type_env* env, var_node* var){
+type_exp* _analyze_var(type_env* env, exp_node* node){
+  auto var = (var_node*)node;
   auto type = analyze(env, var->init_value);
   if (!type)
     return type;
@@ -22,7 +23,8 @@ type_exp* _analyze_var(type_env* env, var_node* var){
   return result_type;
 }
 
-type_exp* _analyze_call(type_env* env, call_node* call){
+type_exp* _analyze_call(type_env* env, exp_node* node){
+  auto call = (call_node*)node;
   auto fun_type = retrieve(env, call->callee);
   vector<type_exp*> args; args.resize(call->args.size());
   transform(call->args.begin(), call->args.end(), args.begin(), 
@@ -49,41 +51,13 @@ type_exp* _analyze_fun(type_env* env, function_node* fun){
   return (type_exp*)create_type_fun(args, result_type);
 }
 
-type_exp* _analyze_bin(type_env* env, binary_node* bin){
+type_exp* _analyze_bin(type_env* env, exp_node* node){
+  auto bin = (binary_node*)node;
   type_exp* lhs_type = analyze(env, bin->lhs);
   type_exp* rhs_type = analyze(env, bin->rhs);
   if(unify(lhs_type, rhs_type, env->nogens))
     return lhs_type;
   //log(DEBUG, "error binary op with different type");
-  return nullptr;
-}
-
-type_exp* _analyze_una(type_env* env, unary_node* una){
-  //bin->base.value_type = var->init_value->value_type;
-  return nullptr;
-}
-
-type_exp* _analyze_if(type_env* env, condition_node* cond){
-  return nullptr;
-}
-
-type_exp* analyze(type_env* env, exp_node* node){
-  if(node->node_type == IDENT_NODE)
-    return _analyze_ident(env, (ident_node*)node);
-  if(node->node_type == NUMBER_NODE)
-    return _analyze_num(env, (num_node*)node);
-  else if(node->node_type==VAR_NODE)
-    return _analyze_var(env, (var_node*)node);
-  else if(node->node_type==UNARY_NODE)
-    return _analyze_una(env, (unary_node*)node);
-  else if(node->node_type==BINARY_NODE)
-    return _analyze_bin(env, (binary_node*)node);
-  else if(node->node_type == CALL_NODE)
-    return _analyze_call(env, (call_node*)node);
-  else if(node->node_type == FUNCTION_NODE)
-    return _analyze_fun(env, (function_node*)node);
-  else if(node->node_type == CONDITION_NODE)
-    return _analyze_if(env, (condition_node*)node);
   return nullptr;
 }
 
@@ -102,10 +76,55 @@ void destroy_type_env(type_env* env){
   delete env;
 }
 
-vector<type_exp*> analyze(type_env* env, block_node* block){
+type_exp* _analyze_block(type_env* env, exp_node* node){
+  auto block = (block_node*)node;
   vector<type_exp*> exps;
   for(auto node: block->nodes){
     exps.push_back(analyze(env, node));
   }
-  return exps;
+  return exps.back();
+}
+
+type_exp* _analyze_una(type_env* env, exp_node* una){
+  //bin->base.value_type = var->init_value->value_type;
+  return nullptr;
+}
+
+type_exp* _analyze_unk(type_env* env, exp_node* node){
+  return nullptr;
+}
+
+type_exp* _analyze_cond(type_env* env, exp_node* node){
+  return nullptr;
+}
+
+type_exp* _analyze_for(type_env* env, exp_node* node){
+  return nullptr;
+}
+
+type_exp* _analyze_proto(type_env* env, exp_node* node){
+  return nullptr;
+}
+
+type_exp* _analyze_fun(type_env* env, exp_node* node){
+  return nullptr;
+}
+
+type_exp* (*analyze_fp[])(type_env*, exp_node*) = { 
+  _analyze_unk,
+  _analyze_num,
+  _analyze_ident,
+  _analyze_var,
+  _analyze_una,
+  _analyze_bin,
+  _analyze_cond,
+  _analyze_for,
+  _analyze_call,
+  _analyze_proto,
+  _analyze_fun,
+  _analyze_block,
+};
+
+type_exp* analyze(type_env* env, exp_node* node){
+  return analyze_fp[node->node_type](env, node);
 }

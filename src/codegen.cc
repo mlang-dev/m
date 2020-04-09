@@ -18,11 +18,12 @@ using namespace std;
 
 llvm::LLVMContext g_context;
 
+
 void* _generate_global_var_node(code_generator* cg, var_node* node,
                                 bool is_external = false);
 void* _generate_local_var_node(code_generator* cg, var_node* node);
-void* _generate_prototype_node(code_generator* cg, prototype_node* node);
-void* _generate_block_node(code_generator* cg, block_node* block);
+void* _generate_prototype_node(code_generator* cg, exp_node* node);
+void* _generate_block_node(code_generator* cg, exp_node* block);
 
 code_generator* create_code_generator(parser* parser) {
   llvm::InitializeNativeTarget();
@@ -48,7 +49,7 @@ Function* _get_function(code_generator* cg, std::string name) {
   // prototype.
   auto fp = cg->protos.find(name);
   if (fp != cg->protos.end())
-    return (Function*)_generate_prototype_node(cg, fp->second);
+    return (Function*)_generate_prototype_node(cg, (exp_node*)fp->second);
 
   // If no existing prototype exists, return null.
   return nullptr;
@@ -114,120 +115,125 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
   }
 }
 
-void* _generate_num_node(code_generator* cg, num_node* node) {
+void* _generate_num_node(code_generator* cg, exp_node* node) {
   llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-  return llvm::ConstantFP::get(*context, llvm::APFloat(node->double_val));
+  return llvm::ConstantFP::get(*context, llvm::APFloat(((num_node*)node)->double_val));
 }
 
-void* _generate_ident_node(code_generator* cg, ident_node* node) {
+void* _generate_ident_node(code_generator* cg, exp_node* node) {
+  auto ident = (ident_node*)node;
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-  llvm::Value* v = (llvm::Value*)cg->named_values[node->name];
+  llvm::Value* v = (llvm::Value*)cg->named_values[ident->name];
   if (!v) {
-    GlobalVariable* gVar = _get_global_variable(cg, node->name);
+    GlobalVariable* gVar = _get_global_variable(cg, ident->name);
     if (gVar) {
-      return builder->CreateLoad(gVar, node->name.c_str());
+      return builder->CreateLoad(gVar, ident->name.c_str());
     } else {
-      log(ERROR, "Unknown variable name: %s", node->name.c_str());
+      log(ERROR, "Unknown variable name: %s", ident->name.c_str());
       return 0;
     }
   }
-  return builder->CreateLoad(v, node->name.c_str());
+  return builder->CreateLoad(v, ident->name.c_str());
 }
 
-void* _generate_binary_node(code_generator* cg, binary_node* node) {
-  llvm::Value* lv = (llvm::Value*)generate_code(cg, node->lhs);
-  llvm::Value* rv = (llvm::Value*)generate_code(cg, node->rhs);
+void* _generate_binary_node(code_generator* cg, exp_node* node) {
+  auto bin = (binary_node*)node;
+  llvm::Value* lv = (llvm::Value*)generate_code(cg, bin->lhs);
+  llvm::Value* rv = (llvm::Value*)generate_code(cg, bin->rhs);
   if (!lv || !rv) return nullptr;
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-  if (node->op=="+")
+  if (bin->op=="+")
     return builder->CreateFAdd(lv, rv, "addtmp");
-  else if (node->op=="-")
+  else if (bin->op=="-")
     return builder->CreateFSub(lv, rv, "subtmp");
-  else if (node->op=="*")
+  else if (bin->op=="*")
     return builder->CreateFMul(lv, rv, "multmp");
-  else if (node->op=="/")
+  else if (bin->op=="/")
     return builder->CreateFDiv(lv, rv, "divtmp");
-  else if (node->op=="<"){
+  else if (bin->op=="<"){
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     lv = builder->CreateFCmpULT(lv, rv, "cmptmp");
     return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
                                   "booltmp");
   }
-  else if (node->op==">"){
+  else if (bin->op==">"){
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     lv = builder->CreateFCmpUGT(lv, rv, "cmptmp");
     return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
                                   "booltmp");
   }
-  else if (node->op=="=="){
+  else if (bin->op=="=="){
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     lv = builder->CreateFCmpUEQ(lv, rv, "cmptmp");
     return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
                                   "booltmp");
   }
-  else if (node->op=="!="){
+  else if (bin->op=="!="){
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     lv = builder->CreateFCmpUNE(lv, rv, "cmptmp");
     return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
                                   "booltmp");
   }
-  else if (node->op=="<="){
+  else if (bin->op=="<="){
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     lv = builder->CreateFCmpULE(lv, rv, "cmptmp");
     return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
                                   "booltmp");
   }
-  else if (node->op==">="){
+  else if (bin->op==">="){
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
     lv = builder->CreateFCmpUGE(lv, rv, "cmptmp");
     return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
                                   "booltmp");
   }
   else{
-    Function *func = _get_function(cg, std::string("binary") + node->op);
+    Function *func = _get_function(cg, std::string("binary") + bin->op);
     assert(func && "binary operator not found!");
     Value *ops[2] = { lv, rv };
     return builder->CreateCall(func, ops, "binop");
   }
 }
 
-void* _generate_call_node(code_generator* cg, call_node* node) {
-  llvm::Function* callee = _get_function(cg, node->callee);
+void* _generate_call_node(code_generator* cg, exp_node* node) {
+  auto call = (call_node*)node;
+  llvm::Function* callee = _get_function(cg, call->callee);
   if (!callee)
-    return log(ERROR, "Unknown function referenced: %s", node->callee.c_str());
-  if (callee->arg_size() != node->args.size())
+    return log(ERROR, "Unknown function referenced: %s", call->callee.c_str());
+  if (callee->arg_size() != call->args.size())
     return log(ERROR,
                "Incorrect number of arguments passed: callee (prototype "
                "generated in llvm): %lu, calling: %lu",
-               callee->arg_size(), node->args.size());
+               callee->arg_size(), call->args.size());
 
   std::vector<llvm::Value*> arg_values;
-  for (unsigned long i = 0, e = node->args.size(); i != e; ++i) {
-    arg_values.push_back((llvm::Value*)generate_code(cg, node->args[i]));
+  for (unsigned long i = 0, e = call->args.size(); i != e; ++i) {
+    arg_values.push_back((llvm::Value*)generate_code(cg, call->args[i]));
     if (!arg_values.back()) return 0;
   }
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
   return builder->CreateCall(callee, arg_values, "calltmp");
 }
 
-void* _generate_prototype_node(code_generator* cg, prototype_node* node) {
-  cg->protos[node->name] = node;
+void* _generate_prototype_node(code_generator* cg, exp_node* node) {
+  auto proto = (prototype_node*)node;
+  cg->protos[proto->name] = proto;
   llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-  std::vector<llvm::Type*> doubles(node->args.size(),
+  std::vector<llvm::Type*> doubles(proto->args.size(),
                                    llvm::Type::getDoubleTy(*context));
   llvm::FunctionType* ft = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(*context), doubles, false);
   llvm::Function* fun = llvm::Function::Create(
-      ft, llvm::Function::ExternalLinkage, node->name, cg->module.get());
+      ft, llvm::Function::ExternalLinkage, proto->name, cg->module.get());
   unsigned i = 0;
-  for (auto& arg : fun->args()) arg.setName(node->args[i++]);
+  for (auto& arg : fun->args()) arg.setName(proto->args[i++]);
   return fun;
 }
 
-void* _generate_function_node(code_generator* cg, function_node* node) {
+void* _generate_function_node(code_generator* cg, exp_node* node) {
+  auto funn = (function_node*)node;
   cg->named_values.clear();
   llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-  auto fun = (llvm::Function*)_generate_prototype_node(cg, node->prototype);
+  auto fun = (llvm::Function*)_generate_prototype_node(cg, (exp_node*)funn->prototype);
   if (!fun) return 0;
   // if (is_binary_op(node->prototype)){
   //   log(DEBUG, "found a binary op def ! op:%c, prec: %d", get_op_name(node->prototype), node->prototype->precedence);
@@ -237,9 +243,9 @@ void* _generate_function_node(code_generator* cg, function_node* node) {
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
   llvm::BasicBlock* bb = llvm::BasicBlock::Create(*context, "entry", fun);
   builder->SetInsertPoint(bb);
-  _create_argument_allocas(cg, node->prototype, fun);
+  _create_argument_allocas(cg, funn->prototype, fun);
   llvm::Value* ret_val;
-  for (auto stmt : node->body->nodes) {
+  for (auto stmt : funn->body->nodes) {
     // log(DEBUG, "code gen stmt: %d", stmt->node_type);
     ret_val = (llvm::Value*)generate_code(cg, stmt);
   }
@@ -256,11 +262,12 @@ void* _generate_function_node(code_generator* cg, function_node* node) {
   return 0;
 }
 
-void* _generate_unary_node(code_generator* cg, unary_node* node) {
-  llvm::Value* operand_v = (llvm::Value*)generate_code(cg, node->operand);
+void* _generate_unary_node(code_generator* cg, exp_node* node) {
+  auto unary = (unary_node*)node;
+  llvm::Value* operand_v = (llvm::Value*)generate_code(cg, unary->operand);
   if (operand_v == 0) return 0;
 
-  llvm::Function* fun = _get_function(cg, std::string("unary") + node->op);
+  llvm::Function* fun = _get_function(cg, std::string("unary") + unary->op);
   if (fun == 0) return log(ERROR, "Unknown unary operator");
 
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
@@ -268,10 +275,10 @@ void* _generate_unary_node(code_generator* cg, unary_node* node) {
   return builder->CreateCall(fun, operand_v, "unop");
 }
 
-void* _generate_condition_node(code_generator* cg, condition_node* node) {
+void* _generate_condition_node(code_generator* cg, exp_node* node) {
   // KSDbgInfo.emitLocation(this);
-
-  llvm::Value* cond_v = (llvm::Value*)generate_code(cg, node->condition_node);
+  auto cond = (condition_node*)node;
+  llvm::Value* cond_v = (llvm::Value*)generate_code(cg, cond->condition_node);
   if (cond_v == 0) return 0;
 
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
@@ -293,7 +300,7 @@ void* _generate_condition_node(code_generator* cg, condition_node* node) {
   // Emit then value.
   builder->SetInsertPoint(then_bb);
 
-  llvm::Value* then_v = (llvm::Value*)generate_code(cg, node->then_node);
+  llvm::Value* then_v = (llvm::Value*)generate_code(cg, cond->then_node);
   if (then_v == 0) return 0;
 
   builder->CreateBr(merge_bb);
@@ -304,7 +311,7 @@ void* _generate_condition_node(code_generator* cg, condition_node* node) {
   fun->getBasicBlockList().push_back(else_bb);
   builder->SetInsertPoint(else_bb);
 
-  llvm::Value* else_v = (llvm::Value*)generate_code(cg, node->else_node);
+  llvm::Value* else_v = (llvm::Value*)generate_code(cg, cond->else_node);
   if (else_v == 0) return 0;
 
   builder->CreateBr(merge_bb);
@@ -354,11 +361,12 @@ void* _generate_global_var_node(code_generator* cg, var_node* node,
   return 0;
 }
 
-void* _generate_var_node(code_generator* cg, var_node* node) {
-  if (!node->base.parent)
-    return _generate_global_var_node(cg, node);
+void* _generate_var_node(code_generator* cg, exp_node* node) {
+  auto var = (var_node*)node;
+  if (!var->base.parent)
+    return _generate_global_var_node(cg, var);
   else
-    return _generate_local_var_node(cg, node);
+    return _generate_local_var_node(cg, var);
 }
 
 void* _generate_local_var_node(code_generator* cg, var_node* node) {
@@ -413,7 +421,7 @@ void* _generate_local_var_node(code_generator* cg, var_node* node) {
   // return body_val;
 }
 
-void* _generate_for_node(code_generator* cg, for_node* node) {
+void* _generate_for_node(code_generator* cg, exp_node* node) {
   // Output this as:
   //   var = alloca double
   //   ...
@@ -433,6 +441,7 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
   //   store nextvar -> var
   //   br endcond, loop, endloop
   // outloop:
+  auto forn = (for_node*)node;
   llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
   llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
 
@@ -440,11 +449,11 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
 
   // Create an alloca for the variable in the entry block.
   llvm::AllocaInst* alloca =
-      _create_entry_block_alloca(cg, fun, node->var_name);
+      _create_entry_block_alloca(cg, fun, forn->var_name);
 
   // KSDbgInfo.emitLocation(this);
   // Emit the start code first, without 'variable' in scope.
-  llvm::Value* start_v = (llvm::Value*)generate_code(cg, node->start);
+  llvm::Value* start_v = (llvm::Value*)generate_code(cg, forn->start);
   if (start_v == 0) return 0;
 
   // Store the value into the alloca.
@@ -463,18 +472,18 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
   // Within the loop, the variable is defined equal  the PHI node.  If it
   // shadows an existing variable, we have to restore it, so save it now.
   llvm::AllocaInst* old_alloca =
-      (llvm::AllocaInst*)cg->named_values[node->var_name];
-  cg->named_values[node->var_name] = alloca;
+      (llvm::AllocaInst*)cg->named_values[forn->var_name];
+  cg->named_values[forn->var_name] = alloca;
 
   // Emit the body of the loop.  This, like any other expr, can change the
   // current BB.  Note that we ignore the value computed by the body, but don't
   // allow an error.
-  if (generate_code(cg, node->body) == 0) return 0;
+  if (generate_code(cg, forn->body) == 0) return 0;
 
   // Emit the step value.
   llvm::Value* step_v;
-  if (node->step) {
-    step_v = (llvm::Value*)generate_code(cg, node->step);
+  if (forn->step) {
+    step_v = (llvm::Value*)generate_code(cg, forn->step);
     if (step_v == 0) return 0;
   } else {
     // If not specified, use 1.0.
@@ -482,12 +491,12 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
   }
 
   // Compute the end condition.
-  llvm::Value* end_cond = (llvm::Value*)generate_code(cg, node->end);
+  llvm::Value* end_cond = (llvm::Value*)generate_code(cg, forn->end);
   if (end_cond == 0) return end_cond;
 
   // Reload, increment, and restore the alloca.  This handles the case where
   // the body of the loop mutates the variable.
-  llvm::Value* cur_var = builder->CreateLoad(alloca, node->var_name.c_str());
+  llvm::Value* cur_var = builder->CreateLoad(alloca, forn->var_name.c_str());
   llvm::Value* next_var = builder->CreateFAdd(cur_var, step_v, "nextvar");
   builder->CreateStore(next_var, alloca);
 
@@ -508,15 +517,16 @@ void* _generate_for_node(code_generator* cg, for_node* node) {
 
   // Restore the unshadowed variable.
   if (old_alloca)
-    cg->named_values[node->var_name] = old_alloca;
+    cg->named_values[forn->var_name] = old_alloca;
   else
-    cg->named_values.erase(node->var_name);
+    cg->named_values.erase(forn->var_name);
 
   // for expr always returns 0.0.
   return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*context));
 }
 
-void* _generate_block_node(code_generator* cg, block_node* block) {
+void* _generate_block_node(code_generator* cg, exp_node* node) {
+  auto block = (block_node*)node;
   void* codegen;
   for (auto exp : block->nodes) {
     codegen = generate_code(cg, exp);
@@ -559,31 +569,25 @@ void generate_runtime_module(code_generator* cg, parser* parser) {
   }
 }
 
+void* _generate_unk_node(code_generator* cg, exp_node* node){
+  return nullptr;
+}
+
+void* (*cg_fp[])(code_generator*, exp_node*) = { 
+  _generate_unk_node,
+  _generate_num_node,
+  _generate_ident_node,
+  _generate_var_node,
+  _generate_unary_node,
+  _generate_binary_node,
+  _generate_condition_node,
+  _generate_for_node,
+  _generate_call_node,
+  _generate_prototype_node,
+  _generate_function_node,
+  _generate_block_node
+};
+
 void* generate_code(code_generator* cg, exp_node* node) {
-  switch (node->node_type) {
-    case UNK_NODE:
-      return nullptr;
-    case NUMBER_NODE:
-      return _generate_num_node(cg, (num_node*)node);
-    case IDENT_NODE:
-      return _generate_ident_node(cg, (ident_node*)node);
-    case BINARY_NODE:
-      return _generate_binary_node(cg, (binary_node*)node);
-    case CALL_NODE:
-      return _generate_call_node(cg, (call_node*)node);
-    case PROTOTYPE_NODE:
-      return _generate_prototype_node(cg, (prototype_node*)node);
-    case FUNCTION_NODE:
-      return _generate_function_node(cg, (function_node*)node);
-    case CONDITION_NODE:
-      return _generate_condition_node(cg, (condition_node*)node);
-    case FOR_NODE:
-      return _generate_for_node(cg, (for_node*)node);
-    case UNARY_NODE:
-      return _generate_unary_node(cg, (unary_node*)node);
-    case VAR_NODE:
-      return _generate_var_node(cg, (var_node*)node);
-    case BLOCK_NODE:
-      return _generate_block_node(cg, (block_node*)node);
-  }
+  return cg_fp[node->node_type](cg, node);
 }
