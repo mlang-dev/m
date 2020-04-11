@@ -1,3 +1,6 @@
 [submodule "extern/googletest"]
 	path = extern/googletest
 	url = https://github.com/google/googletest
+[submodule "extern/glibc"]
+	path = extern/glibc
+	url = git://sourceware.org/git/glibc.git

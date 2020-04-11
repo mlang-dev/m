@@ -9,14 +9,17 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/Target/TargetMachine.h"
+#include "llvm/Bitcode/BitcodeWriter.h"
 #include "util.h"
+#include "compiler.h"
 
 using namespace llvm;
 using namespace std;
 
 int generate_object_file(Module* module, const char* filename);
+int generate_bitcode_file(Module* module, const char* filename);
 
-int compile(const char* fn){
+int compile(const char* fn, object_file_type file_type){
     auto filename = get_filename(fn);
     parser* parser = create_parser(fn, false);
     code_generator* cg = create_code_generator(parser);
@@ -28,8 +31,14 @@ int compile(const char* fn){
       for(auto node: block->nodes){
         generate_code(cg, node);  
       }
-      filename += ".o";
-      generate_object_file(cg->module.get(), filename.c_str());
+      if (file_type == FT_OBJECT){
+        filename += ".o";
+        generate_object_file(cg->module.get(), filename.c_str());
+      }
+      else if(file_type == FT_BITCODE){
+        filename += ".bc";
+        generate_bitcode_file(cg->module.get(), filename.c_str());
+      }
     }else{
       log(INFO, "no statement is found.");
     }
@@ -37,7 +46,6 @@ int compile(const char* fn){
     destroy_parser(parser);
     return 0;
 }
-
 
 int gof_initialize(){
   llvm::InitializeNativeTarget();
@@ -63,7 +71,7 @@ int gof_emit_file(Module* module, TargetMachine* target_machine, const char* fil
     auto file_type = CodeGenFileType::CGFT_ObjectFile;
     if(target_machine->addPassesToEmitFile(pass, dest, nullptr, file_type)){
         errs() << "Target machine can't emit an object file";
-        return 1;
+        return 2;
     }
     pass.run(*module);
     dest.flush();
@@ -96,4 +104,17 @@ int generate_object_file(Module* module, const char* filename){
         return 1;
     //dumpm(module);
     return gof_emit_file(module, target_machine, filename);
+}
+
+int generate_bitcode_file(Module* module, const char* filename){
+    error_code ec;
+    raw_fd_ostream dest(filename, ec, sys::fs::OF_None);
+    if(ec){
+        errs() << "Could not open file: " << ec.message();
+        return 1;
+    }
+    llvm::WriteBitcodeToFile(*module, dest);
+    dest.flush();
+    printf("generated bc file: %s\n", filename);
+     return 0;
 }

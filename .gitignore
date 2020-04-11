@@ -7,3 +7,4 @@ extern/
 *.out
 *.o
 *.a
+*.bc
