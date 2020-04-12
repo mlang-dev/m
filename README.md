@@ -71,3 +71,4 @@ clang -S -emit-llvm ./examples/test_main.cc
 
 clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/runtime.h
 
+* WebKit coding style is adopted here: https://webkit.org/code-style-guidelines/

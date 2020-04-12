@@ -1,25 +1,34 @@
-#pragma once
+/*
+ * ast.h
+ * 
+ * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * ast header file
+ */
+#ifndef __MLANG_AST_H__
+#define __MLANG_AST_H__
+
+#include "lexer.h"
+#include "type.h"
+#include "util.h"
 #include <string>
 #include <vector>
-#include "lexer.h"
-#include "util.h"
-#include "type.h"
 
 using namespace std;
 
 #define FOREACH_NODETYPE(ENUM_ITEM) \
-  ENUM_ITEM(UNK_NODE)               \
-  ENUM_ITEM(NUMBER_NODE)            \
-  ENUM_ITEM(IDENT_NODE)             \
-  ENUM_ITEM(VAR_NODE)               \
-  ENUM_ITEM(UNARY_NODE)             \
-  ENUM_ITEM(BINARY_NODE)            \
-  ENUM_ITEM(CONDITION_NODE)         \
-  ENUM_ITEM(FOR_NODE)               \
-  ENUM_ITEM(CALL_NODE)              \
-  ENUM_ITEM(PROTOTYPE_NODE)         \
-  ENUM_ITEM(FUNCTION_NODE)          \
-  ENUM_ITEM(BLOCK_NODE)             \
+    ENUM_ITEM(UNK_NODE)             \
+    ENUM_ITEM(NUMBER_NODE)          \
+    ENUM_ITEM(IDENT_NODE)           \
+    ENUM_ITEM(VAR_NODE)             \
+    ENUM_ITEM(UNARY_NODE)           \
+    ENUM_ITEM(BINARY_NODE)          \
+    ENUM_ITEM(CONDITION_NODE)       \
+    ENUM_ITEM(FOR_NODE)             \
+    ENUM_ITEM(CALL_NODE)            \
+    ENUM_ITEM(PROTOTYPE_NODE)       \
+    ENUM_ITEM(FUNCTION_NODE)        \
+    ENUM_ITEM(BLOCK_NODE)
 
 enum NodeType { FOREACH_NODETYPE(GENERATE_ENUM) };
 
@@ -28,94 +37,96 @@ static const char* NodeTypeString[] = {
 };
 
 struct exp_node {
-  NodeType node_type;
-  type_exp type; //type annotation
-  source_loc loc;
-  exp_node* parent;
+    NodeType node_type;
+    type_exp type; //type annotation
+    source_loc loc;
+    exp_node* parent;
 };
 
 struct block_node {
-  exp_node base;
-  vector<exp_node*> nodes;
+    exp_node base;
+    vector<exp_node*> nodes;
 };
 
 struct module {
-  std::string name;
-  block_node* block;
-  file_tokenizer* tokenizer;
+    std::string name;
+    block_node* block;
+    file_tokenizer* tokenizer;
 };
 
 struct ast {
-  std::vector<exp_node*> builtins;
-  std::vector<module*> modules;
+    std::vector<exp_node*> builtins;
+    std::vector<module*> modules;
 };
 
 struct num_node {
-  exp_node base;
-  union{
-    double double_val;
-    int int_val;
-  };
+    exp_node base;
+    union {
+        double double_val;
+        int int_val;
+    };
 };
 
 struct ident_node {
-  exp_node base;
-  std::string name;
+    exp_node base;
+    std::string name;
 };
 
 struct var_node {
-  exp_node base;
-  string var_name;
-  exp_node* init_value;
+    exp_node base;
+    string var_name;
+    exp_node* init_value;
 };
 
 struct unary_node {
-  exp_node base;
-  string op;
-  exp_node* operand;
+    exp_node base;
+    string op;
+    exp_node* operand;
 };
 
 struct binary_node {
-  exp_node base;
-  string op;
-  exp_node *lhs, *rhs;
+    exp_node base;
+    string op;
+    exp_node *lhs, *rhs;
 };
 
 struct condition_node {
-  exp_node base;
-  exp_node *condition_node, *then_node, *else_node;
+    exp_node base;
+    exp_node *condition_node, *then_node, *else_node;
 };
 
 struct for_node {
-  exp_node base;
-  std::string var_name;
-  exp_node *start, *end, *step, *body;
+    exp_node base;
+    std::string var_name;
+    exp_node *start, *end, *step, *body;
 };
 
 struct call_node {
-  exp_node base;
-  std::string callee;
-  std::vector<exp_node*> args;
+    exp_node base;
+    std::string callee;
+    std::vector<exp_node*> args;
 };
 
 struct prototype_node {
-  exp_node base;
-  string name;
-  string op;
-  vector<string> args;
-  char is_operator;
-  unsigned precedence;
+    exp_node base;
+    string name;
+    string op;
+    vector<string> args;
+    char is_operator;
+    unsigned precedence;
 };
 
 struct function_node {
-  exp_node base;
-  prototype_node* prototype;
-  block_node* body;
+    exp_node base;
+    prototype_node* prototype;
+    block_node* body;
 };
 
 prototype_node* create_prototype_node(exp_node* parent, source_loc loc,
-                                      const std::string& name,
-                                      std::vector<std::string>& args,
-                                      bool is_operator = false,
-                                      unsigned precedence = 0,
-                                      string op = "");
+    const std::string& name,
+    std::vector<std::string>& args,
+    bool is_operator = false,
+    unsigned precedence = 0,
+    string op = "");
+
+#endif

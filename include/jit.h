@@ -1,5 +1,3 @@
-#include "codegen.h"
-#include "util.h"
 
 //===- KaleidoscopeJIT.h - A simple JIT for Kaleidoscope --------*- C++ -*-===//
 //
@@ -12,6 +10,12 @@
 // Contains a simple JIT definition for use in the kaleidoscope tutorials.
 //
 //===----------------------------------------------------------------------===//
+#ifndef __MLANG_JIT_H__
+#define __MLANG_JIT_H__
+
+#include "codegen.h"
+#include "util.h"
+
 
 #ifndef _ORC_MJIT_H
 #define _ORC_MJIT_H
@@ -155,3 +159,5 @@ JIT* create_jit(code_generator* cg);
 void destroy_jit(JIT* jit);
 uint64_t get_pointer_to_variable(JIT* jit, void* value);
 void optimize_function(JIT* jit, void* fun);
+
+#endif

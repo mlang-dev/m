@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * m language runtime
+ */
 #include <stdio.h>
 #include "runtime.h"
 
