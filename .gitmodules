@@ -4,3 +4,6 @@
 [submodule "extern/glibc"]
 	path = extern/glibc
 	url = git://sourceware.org/git/glibc.git
+[submodule "extern/llvm-project"]
+	path = extern/llvm-project
+	url = https://github.com/llvm/llvm-project.git

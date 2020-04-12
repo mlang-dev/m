@@ -246,10 +246,11 @@ void* _generate_function_node(code_generator* cg, exp_node* node) {
   _create_argument_allocas(cg, funn->prototype, fun);
   llvm::Value* ret_val;
   for (auto stmt : funn->body->nodes) {
-    // log(DEBUG, "code gen stmt: %d", stmt->node_type);
     ret_val = (llvm::Value*)generate_code(cg, stmt);
   }
-  if (!ret_val) ret_val = llvm::UndefValue::get(llvm::Type::getVoidTy(*context));
+  if (!ret_val) {
+    ret_val = llvm::ConstantFP::get(*context, llvm::APFloat(0.0));
+  }
   if (ret_val) {
     builder->CreateRet(ret_val);
     cg->fpm->run(*fun);

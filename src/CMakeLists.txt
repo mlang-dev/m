@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 set(CMAKE_CXX_STANDARD 17)
 
+include(GoogleTest)
+
 add_library(mlr 
   type.cc
   builtins.cc
@@ -21,11 +23,11 @@ add_library(mlr
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
-  /usr/local/Cellar/llvm/10.0.0_1/include
+  /usr/local/include
 )
 
 link_directories(
-  /usr/local/Cellar/llvm/10.0.0_1/lib
+  /usr/local/lib
 )
 
 link_libraries(

@@ -14,7 +14,8 @@ llvm::Intrinsic::ID builtin_ids[] = {
 #define NUM_BUILTINS 3
 
 prototype_node* _create_for_id(void* context, llvm::Intrinsic::ID id){
-    std::string name = llvm::Intrinsic::getName(id);
+    ArrayRef<llvm::Type*> types;
+    string name = llvm::Intrinsic::getName(id, types);
     llvm::SmallVector<llvm::Intrinsic::IITDescriptor, 8> iitds;
     llvm::Intrinsic::getIntrinsicInfoTableEntries(id, iitds); 
     llvm::ArrayRef<llvm::Intrinsic::IITDescriptor> iitdsRef = iitds;
@@ -25,7 +26,7 @@ prototype_node* _create_for_id(void* context, llvm::Intrinsic::ID id){
         }
     }
     
-    std::vector<std::string> names = split(name, '.');
+    std::vector<std::string> names = split(name.c_str(), '.');
     //log(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
     return create_prototype_node(nullptr, {1, 0}, names.back(), args);
     //return 0;

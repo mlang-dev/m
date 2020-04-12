@@ -7,7 +7,7 @@
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/extern/googletest/googletest/include",
                 "${workspaceFolder}/extern/googletest/googlemock/include",
-                "/usr/local/Cellar/llvm/10.0.0_1/include"
+                "/usr/local/include"
             ],
             "defines": [],
             "macFrameworkPath": [
