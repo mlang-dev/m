@@ -3,7 +3,7 @@ layout: default
 ---
 
 
-# get source codes
+## get source codes
 ```
 git clone https://github.com/ligangwang/m
 cd m
@@ -11,7 +11,7 @@ git submodule init
 git submodule update
 ```
 
-# build llvm
+## build llvm
 ```
 cd ./extern/llvm-project
 mkdir build
@@ -22,7 +22,7 @@ cmake --build . --target install
 cd ../../../
 ```
 
-# build mlang
+## build mlang
 ```
 mkdir build
 cd build
