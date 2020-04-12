@@ -19,6 +19,7 @@ add_library(mlr
   astdump.cc
   analyzer.cc
   codegen.cc
+  env.cc
 )
 
 include_directories(

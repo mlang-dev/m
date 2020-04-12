@@ -8,9 +8,10 @@
 #ifndef __MLANG_REPL_H__
 #define __MLANG_REPL_H__
 
+#include "env.h"
 #include "jit.h"
 
-JIT* build_jit(parser* parser);
+JIT* build_jit(menv* env, parser* parser);
 void eval_statement(void* p_jit, exp_node* node);
 double eval_exp(JIT* jit, exp_node* node);
 int run_repl();

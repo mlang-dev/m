@@ -8,6 +8,7 @@
 #ifndef __MLANG_CODEGEN_H__
 #define __MLANG_CODEGEN_H__
 
+#include "env.h"
 #include "parser.h"
 
 using namespace std;
@@ -23,7 +24,7 @@ struct code_generator {
     map<string, var_node*> gvs;
 };
 
-code_generator* create_code_generator(parser* parser);
+code_generator* create_code_generator(menv* env, parser* parser);
 void destroy_code_generator(code_generator* cg);
 void create_module_and_pass_manager(code_generator* cg, const char* module_name);
 void* generate_code(code_generator* cg, exp_node* node);

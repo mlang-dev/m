@@ -19,6 +19,8 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm-c/Target.h"
 
+#include "env.h"
+
 using namespace llvm;
 using namespace std;
 
@@ -29,8 +31,9 @@ int generate_ir_file(Module* module, const char* filename);
 int compile(const char* fn, object_file_type file_type)
 {
     auto filename = get_filename(fn);
+    menv* env = env_new();
     parser* parser = create_parser(fn, false);
-    code_generator* cg = create_code_generator(parser);
+    code_generator* cg = create_code_generator(env, parser);
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, filename.c_str());
     generate_runtime_module(cg, parser);
@@ -55,6 +58,7 @@ int compile(const char* fn, object_file_type file_type)
     }
     destroy_code_generator(cg);
     destroy_parser(parser);
+    env_free(env);
     return 0;
 }
 

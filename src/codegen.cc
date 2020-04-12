@@ -3,8 +3,6 @@
  *
  * LLVM IR Code Generation Functions
  */
-#include "codegen.h"
-#include "util.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
 #include "llvm/IR/IRBuilder.h"
@@ -18,11 +16,13 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Utils.h"
 #include "llvm/IR/LegacyPassManager.h"
+#include "llvm-c/Core.h"
+
+#include "codegen.h"
+#include "util.h"
 
 using namespace llvm;
 using namespace std;
-
-llvm::LLVMContext g_context;
 
 void* _generate_global_var_node(code_generator* cg, var_node* node,
     bool is_external = false);
@@ -30,15 +30,16 @@ void* _generate_local_var_node(code_generator* cg, var_node* node);
 void* _generate_prototype_node(code_generator* cg, exp_node* node);
 void* _generate_block_node(code_generator* cg, exp_node* block);
 
-code_generator* create_code_generator(parser* parser)
+code_generator* create_code_generator(menv* env, parser* parser)
 {
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
+    llvm::LLVMContext* context = unwrap((LLVMContextRef)env->context);
     code_generator* cg = new code_generator();
     cg->parser = parser;
-    cg->context = &g_context;
-    cg->builder = new llvm::IRBuilder<>(g_context);
+    cg->context = env->context;
+    cg->builder = new llvm::IRBuilder<>(*context);
     return cg;
 }
 
