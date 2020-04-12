@@ -3,21 +3,27 @@ layout: default
 ---
 
 
-
-## build command:
+# get source codes
 ```
-clang++ `/usr/local/Cellar/llvm/10.0.0_1/bin/llvm-config --ldflags --libs --system-libs` src/*.cc -Iinclude -I/usr/local/Cellar/llvm/10.0.0_1/include -std=c++17 -stdlib=libc++ -o m
-
-clang -c ./src/runtime.cc -I./include -o ./runtime.o
-```
-
-## or using cmake to build (tested on macos)
-```
-brew install llvm
 git clone https://github.com/ligangwang/m
 cd m
 git submodule init
 git submodule update
+```
+
+# build llvm
+```
+cd ./extern/llvm-project
+mkdir build
+cd build
+cmake -DLLVM_ENABLE_RTTI=ON ../llvm
+cmake --build . -j NN    NN - number of CPU (cores) that you have
+cmake --build . --target install 
+cd ../../../
+```
+
+# build mlang
+```
 mkdir build
 cd build
 cmake ..
