@@ -23,6 +23,7 @@ using namespace std;
 
 int generate_object_file(Module* module, const char* filename);
 int generate_bitcode_file(Module* module, const char* filename);
+int generate_ir_file(Module* module, const char* filename);
 
 int compile(const char* fn, object_file_type file_type)
 {
@@ -44,8 +45,8 @@ int compile(const char* fn, object_file_type file_type)
             filename += ".bc";
             generate_bitcode_file(cg->module.get(), filename.c_str());
         } else if (file_type == FT_IR) {
-            filename += ".bc";
-            generate_bitcode_file(cg->module.get(), filename.c_str());
+            filename += ".ir";
+            generate_ir_file(cg->module.get(), filename.c_str());
         }
     } else {
         log(INFO, "no statement is found.");
