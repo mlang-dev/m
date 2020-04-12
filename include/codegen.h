@@ -9,8 +9,6 @@
 #define __MLANG_CODEGEN_H__
 
 #include "parser.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/IR/Module.h"
 
 using namespace std;
 
@@ -19,8 +17,8 @@ struct code_generator {
     void* builder;
     parser* parser;
     map<string, void*> named_values;
-    unique_ptr<llvm::Module> module;
-    unique_ptr<llvm::legacy::FunctionPassManager> fpm;
+    void* module;
+    void* fpm;
     map<string, prototype_node*> protos;
     map<string, var_node*> gvs;
 };

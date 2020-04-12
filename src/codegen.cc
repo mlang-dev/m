@@ -17,6 +17,7 @@
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Utils.h"
+#include "llvm/IR/LegacyPassManager.h"
 
 using namespace llvm;
 using namespace std;
@@ -44,13 +45,16 @@ code_generator* create_code_generator(parser* parser)
 void destroy_code_generator(code_generator* cg)
 {
     delete (llvm::IRBuilder<>*)cg->builder;
+    delete (llvm::legacy::FunctionPassManager*)cg->fpm;
+    if(cg->module)
+        delete (llvm::Module*)cg->module;
     delete cg;
 }
 
 Function* _get_function(code_generator* cg, std::string name)
 {
     // First, see if the function has already been added to the current module.
-    if (auto* f = cg->module->getFunction(name))
+    if (llvm::Function* f = ((llvm::Module*)cg->module)->getFunction(name))
         return f;
 
     // If not, check whether we can codegen the declaration from some existing
@@ -66,7 +70,7 @@ Function* _get_function(code_generator* cg, std::string name)
 GlobalVariable* _get_global_variable(code_generator* cg, std::string name)
 {
     // First, see if the function has already been added to the current module.
-    if (auto* gv = cg->module->getNamedGlobal(name))
+    if (llvm::GlobalVariable* gv = ((llvm::Module*)cg->module)->getNamedGlobal(name))
         return gv;
 
     // If not, it's defined in other module, we can codegen the external
@@ -235,7 +239,7 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
     llvm::FunctionType* ft = llvm::FunctionType::get(
         llvm::Type::getDoubleTy(*context), doubles, false);
     llvm::Function* fun = llvm::Function::Create(
-        ft, llvm::Function::ExternalLinkage, proto->name, cg->module.get());
+        ft, llvm::Function::ExternalLinkage, proto->name, (llvm::Module*)cg->module);
     unsigned i = 0;
     for (auto& arg : fun->args())
         arg.setName(proto->args[i++]);
@@ -268,7 +272,7 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
     }
     if (ret_val) {
         builder->CreateRet(ret_val);
-        cg->fpm->run(*fun);
+        ((llvm::legacy::FunctionPassManager*)cg->fpm)->run(*fun);
         llvm::verifyFunction(*fun);
         return fun;
     }
@@ -356,19 +360,20 @@ void* _generate_global_var_node(code_generator* cg, var_node* node,
 {
     llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
     llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    auto gVar = cg->module->getNamedGlobal(node->var_name);
+    llvm::Module *module = (llvm::Module*)cg->module;
+    auto gVar = module->getNamedGlobal(node->var_name);
     auto exp = generate_code(cg, node->init_value);
     if (!gVar) {
         if (is_external) {
             gVar = new llvm::GlobalVariable(
-                *cg->module, builder->getDoubleTy(), false,
+                *module, builder->getDoubleTy(), false,
                 llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0, node->var_name,
                 nullptr, GlobalValue::ThreadLocalMode::NotThreadLocal, 0, true);
             return gVar;
         } else {
             cg->gvs[node->var_name] = node;
             gVar = new llvm::GlobalVariable(
-                *cg->module, builder->getDoubleTy(), false,
+                *module, builder->getDoubleTy(), false,
                 llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0,
                 node->var_name); //, nullptr,
                 //GlobalValue::ThreadLocalMode::NotThreadLocal, 0,
@@ -568,27 +573,26 @@ void create_module_and_pass_manager(code_generator* cg,
 {
     // Open a new module.
     auto context = (llvm::LLVMContext*)cg->context;
-    std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>(module_name, *context);
+    llvm::Module* module = new llvm::Module(module_name, *context);
     module->setDataLayout(
         llvm::EngineBuilder().selectTarget()->createDataLayout());
-
+    cg->module = module;
     // Create a new pass manager attached to it.
-    cg->fpm = std::make_unique<llvm::legacy::FunctionPassManager>(module.get());
+    llvm::legacy::FunctionPassManager* fpm = new llvm::legacy::FunctionPassManager(module);
+    cg->fpm = fpm;
 
     // Promote allocas to registers.
-    cg->fpm->add(createPromoteMemoryToRegisterPass());
+    fpm->add(createPromoteMemoryToRegisterPass());
     // Do simple "peephole" optimizations and bit-twiddling optzns.
-    cg->fpm->add(createInstructionCombiningPass());
+    fpm->add(createInstructionCombiningPass());
     // Reassociate expressions.
-    cg->fpm->add(createReassociatePass());
+    fpm->add(createReassociatePass());
     // Eliminate Common SubExpressions.
-    cg->fpm->add(createNewGVNPass());
+    fpm->add(createNewGVNPass());
     // Simplify the control flow graph (deleting unreachable blocks, etc).
-    cg->fpm->add(createCFGSimplificationPass());
+    fpm->add(createCFGSimplificationPass());
 
-    cg->fpm->doInitialization();
-
-    cg->module = std::move(module);
+    fpm->doInitialization();
 }
 
 void generate_runtime_module(code_generator* cg, parser* parser)

@@ -17,6 +17,7 @@
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Transforms/Scalar.h"
+#include "llvm-c/Target.h"
 
 using namespace llvm;
 using namespace std;
@@ -38,15 +39,16 @@ int compile(const char* fn, object_file_type file_type)
         for (auto node : block->nodes) {
             generate_code(cg, node);
         }
+        llvm::Module* module = (llvm::Module*)cg->module;
         if (file_type == FT_OBJECT) {
             filename += ".o";
-            generate_object_file(cg->module.get(), filename.c_str());
+            generate_object_file(module, filename.c_str());
         } else if (file_type == FT_BITCODE) {
             filename += ".bc";
-            generate_bitcode_file(cg->module.get(), filename.c_str());
+            generate_bitcode_file(module, filename.c_str());
         } else if (file_type == FT_IR) {
             filename += ".ir";
-            generate_ir_file(cg->module.get(), filename.c_str());
+            generate_ir_file(module, filename.c_str());
         }
     } else {
         log(INFO, "no statement is found.");
@@ -58,9 +60,9 @@ int compile(const char* fn, object_file_type file_type)
 
 int gof_initialize()
 {
-    llvm::InitializeNativeTarget();
-    llvm::InitializeNativeTargetAsmPrinter();
-    llvm::InitializeNativeTargetAsmParser();
+    LLVMInitializeNativeTarget();
+    LLVMInitializeNativeAsmPrinter();
+    LLVMInitializeNativeAsmParser();
     // InitializeAllTargetInfos();
     // InitializeAllTargets();
     // InitializeAllTargetMCs();

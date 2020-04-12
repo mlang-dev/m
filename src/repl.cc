@@ -13,6 +13,15 @@
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Transforms/Scalar.h"
 
+
+llvm::orc::VModuleKey _add_module_to_jit(JIT* jit)
+{
+    unique_ptr<llvm::Module> module((llvm::Module*)jit->cg->module);
+    auto ret = jit->mjit->addModule(std::move(module));
+    jit->cg->module = nullptr;
+    return ret;
+}
+
 double eval_exp(JIT* jit, exp_node* node)
 {
     // expression: statement or expression evalution
@@ -22,7 +31,7 @@ double eval_exp(JIT* jit, exp_node* node)
     node = parse_exp_to_function(jit->cg->parser, node, fn.c_str());
     if (node) {
         if (auto p_fun = generate_code(jit->cg, node)) {
-            auto mk = jit->mjit->addModule(std::move(jit->cg->module));
+            auto mk = _add_module_to_jit(jit);
             auto mf = jit->mjit->findSymbol(fn);
             //dumpm(jit->cg->module.get());
             double (*fp)() = (double (*)())(intptr_t)cantFail(mf.getAddress());
@@ -47,7 +56,7 @@ void eval_statement(void* p_jit, exp_node* node)
         else if (node->node_type == NodeType::FUNCTION_NODE) {
             // function definition
             auto def = generate_code(jit->cg, node);
-            jit->mjit->addModule(std::move(jit->cg->module));
+            _add_module_to_jit(jit);
             create_module_and_pass_manager(jit->cg, make_unique_name("mjit").c_str());
         } else {
             auto result = eval_exp(jit, node);
@@ -65,7 +74,7 @@ JIT* build_jit(parser* parser)
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, make_unique_name("mjit").c_str());
     generate_runtime_module(cg, parser);
-    jit->mjit->addModule(std::move(jit->cg->module));
+    _add_module_to_jit(jit);
     create_module_and_pass_manager(cg, make_unique_name("mjit").c_str());
     return jit;
 }
