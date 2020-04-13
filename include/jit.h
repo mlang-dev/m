@@ -22,8 +22,8 @@ typedef struct JIT {
     llvm::orc::KaleidoscopeJIT* mjit;
 }JIT;
 
-JIT* create_jit(code_generator* cg);
-void destroy_jit(JIT* jit);
+JIT* jit_new(code_generator* cg);
+void jit_free(JIT* jit);
 uint64_t get_pointer_to_variable(JIT* jit, void* value);
 void optimize_function(JIT* jit, void* fun);
 

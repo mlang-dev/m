@@ -30,7 +30,7 @@ void* _generate_local_var_node(code_generator* cg, var_node* node);
 void* _generate_prototype_node(code_generator* cg, exp_node* node);
 void* _generate_block_node(code_generator* cg, exp_node* block);
 
-code_generator* create_code_generator(menv* env, parser* parser)
+code_generator* cg_new(menv* env, parser* parser)
 {
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
@@ -43,7 +43,7 @@ code_generator* create_code_generator(menv* env, parser* parser)
     return cg;
 }
 
-void destroy_code_generator(code_generator* cg)
+void cg_free(code_generator* cg)
 {
     delete (llvm::IRBuilder<>*)cg->builder;
     delete (llvm::legacy::FunctionPassManager*)cg->fpm;

@@ -13,7 +13,7 @@ FILE* _open_file(const char* file_name)
 
 parser* create_parser_for_string(char* str)
 {
-    return create_parser(str, false, _open_file);
+    return parser_new(str, false, _open_file);
 }
 
 file_tokenizer* create_tokenizer_for_string(char* str)

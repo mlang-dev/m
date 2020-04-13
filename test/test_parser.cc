@@ -18,7 +18,7 @@ TEST(testParser, testBlockVariable)
     ASSERT_STREQ("x", node->var_name.c_str());
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(NUMBER_NODE, node->init_value->node_type);
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testBlockVariableNameWithUnderlyingLine)
@@ -31,7 +31,7 @@ TEST(testParser, testBlockVariableNameWithUnderlyingLine)
     ASSERT_STREQ("m_x", node->var_name.c_str());
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(NUMBER_NODE, node->init_value->node_type);
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testBlockIdFunction)
@@ -48,7 +48,7 @@ f 10
     ASSERT_STREQ("f", node->prototype->name.c_str());
     ASSERT_EQ(IDENT_NODE, body->node_type);
     auto app = node->body->nodes[1];
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testBlockBinaryFunction)
@@ -61,7 +61,7 @@ TEST(testParser, testBlockBinaryFunction)
     ASSERT_EQ(1, block->nodes.size());
     ASSERT_STREQ("f", node->prototype->name.c_str());
     ASSERT_EQ(BINARY_NODE, body->node_type);
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testBlockBinaryFunctionName)
@@ -74,7 +74,7 @@ TEST(testParser, testBlockBinaryFunctionName)
     ASSERT_EQ(1, block->nodes.size());
     ASSERT_STREQ("f_sq", node->prototype->name.c_str());
     ASSERT_EQ(BINARY_NODE, body->node_type);
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testFacIfCondition)
@@ -89,7 +89,7 @@ TEST(testParser, testFacIfCondition)
     ASSERT_EQ(1, block->nodes.size());
     ASSERT_STREQ("fac", node->prototype->name.c_str());
     ASSERT_EQ(CONDITION_NODE, body->node_type);
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testForLoop)
@@ -105,7 +105,7 @@ TEST(testParser, testForLoop)
     ASSERT_EQ(1, block->nodes.size());
     ASSERT_STREQ("loopprint", node->prototype->name.c_str());
     ASSERT_EQ(FOR_NODE, body->node_type);
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testVariableInFunction)
@@ -122,7 +122,7 @@ TEST(testParser, testVariableInFunction)
     ASSERT_EQ(1, block->nodes.size());
     ASSERT_STREQ("distance", node->prototype->name.c_str());
     ASSERT_EQ(VAR_NODE, body->node_type);
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testAvgFunction)
@@ -135,7 +135,7 @@ avg x y = (x + y) / 2
     function_node* func = (function_node*)block->nodes[0];
     ASSERT_STREQ("avg", func->prototype->name.c_str());
     ASSERT_STREQ("BINARY_NODE", NodeTypeString[func->body->nodes[0]->node_type]);
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testUnaryOperatorOverloadFunction)
@@ -148,7 +148,7 @@ TEST(testParser, testUnaryOperatorOverloadFunction)
     ASSERT_EQ(FUNCTION_NODE, node->node_type);
     function_node* func = (function_node*)node;
     ASSERT_STREQ("unary|>", func->prototype->name.c_str());
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testSimpleUnaryOperatorOverloadFunction)
@@ -160,7 +160,7 @@ TEST(testParser, testSimpleUnaryOperatorOverloadFunction)
     ASSERT_EQ(FUNCTION_NODE, node->node_type);
     function_node* func = (function_node*)node;
     ASSERT_STREQ("unary|>", func->prototype->name.c_str());
-    destroy_parser(parser);
+    parser_free(parser);
 }
 
 TEST(testParser, testSimpleBinaryOperatorOverloadFunction)
@@ -172,5 +172,5 @@ TEST(testParser, testSimpleBinaryOperatorOverloadFunction)
     ASSERT_STREQ("FUNCTION_NODE", NodeTypeString[node->node_type]);
     function_node* func = (function_node*)node;
     ASSERT_STREQ("binary|>", func->prototype->name.c_str());
-    destroy_parser(parser);
+    parser_free(parser);
 }

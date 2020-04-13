@@ -20,7 +20,7 @@
 
 using namespace llvm;
 
-JIT* create_jit(code_generator* cg)
+JIT* jit_new(code_generator* cg)
 {
     auto jit = new JIT();
     jit->cg = cg;
@@ -28,10 +28,10 @@ JIT* create_jit(code_generator* cg)
     return jit;
 }
 
-void destroy_jit(JIT* jit)
+void jit_free(JIT* jit)
 {
-    destroy_parser(jit->cg->parser);
-    destroy_code_generator(jit->cg);
+    parser_free(jit->cg->parser);
+    cg_free(jit->cg);
     delete jit->mjit;
     delete jit;
 }

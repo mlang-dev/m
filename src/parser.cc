@@ -227,7 +227,7 @@ module* create_module(const char* mod_name, FILE* file)
     mod->tokenizer = create_tokenizer(file);
     return mod;
 }
-parser* create_parser(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name))
+parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name))
 {
     FILE* file;
     if (open_file)
@@ -257,7 +257,7 @@ void destroy_module(module* module)
     delete module;
 }
 
-void destroy_parser(parser* parser)
+void parser_free(parser* parser)
 {
     for (auto it : parser->ast->modules)
         destroy_module(it);

@@ -75,7 +75,7 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
     return nullptr;
 }
 
-type_env* create_type_env()
+type_env* type_env_new()
 {
     type_env* env = new type_env();
     vector<type_exp*> args;
@@ -84,10 +84,10 @@ type_env* create_type_env()
     return env;
 }
 
-void destroy_type_env(type_env* env)
+void type_env_free(type_env* env)
 {
     for (auto type : env->type_env) {
-        destroy_type_exp(type.second);
+        type_exp_free(type.second);
     }
     delete env;
 }

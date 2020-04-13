@@ -31,7 +31,7 @@ type_oper* create_type_fun(vector<type_exp*>& args, type_exp* ret)
     return create_type_oper("->", args);
 }
 
-void destroy_type_exp(type_exp* type)
+void type_exp_free(type_exp* type)
 {
     if (type->kind == KIND_VAR) {
         auto var = (type_var*)type;

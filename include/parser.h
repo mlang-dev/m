@@ -25,9 +25,9 @@ struct parser {
     queue<token> queued_tokens;
 };
 
-parser* create_parser(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name) = nullptr);
+parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name) = nullptr);
 void create_builtins(parser* parser, void* context);
-void destroy_parser(parser* parser);
+void parser_free(parser* parser);
 void parse_next_token(parser* parser);
 exp_node* parse_exp_to_function(parser* parser, exp_node* exp = 0, const char* fn = 0);
 exp_node* parse_import(parser* parser, exp_node* parent);

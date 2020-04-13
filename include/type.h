@@ -65,7 +65,7 @@ struct type_oper {
 type_var* create_type_var();
 type_oper* create_type_oper(string name, vector<type_exp*>& args);
 type_oper* create_type_fun(vector<type_exp*>& args, type_exp* ret);
-void destroy_type_exp(type_exp* type);
+void type_exp_free(type_exp* type);
 bool occurs_in_type(type_exp* type1, type_exp* type2);
 type_exp* retrieve(string name, vector<type_exp*>& nogen, map<string, type_exp*>& env);
 string format_type(type_exp* exp);

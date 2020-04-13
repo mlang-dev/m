@@ -16,8 +16,8 @@ struct type_env {
     vector<type_exp*> nogens;
 };
 
-type_env* create_type_env();
-void destroy_type_env(type_env* env);
+type_env* type_env_new();
+void type_env_free(type_env* env);
 type_exp* analyze(type_env* env, exp_node* node);
 
 #endif

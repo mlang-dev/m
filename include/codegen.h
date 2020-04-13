@@ -24,8 +24,8 @@ struct code_generator {
     map<string, var_node*> gvs;
 };
 
-code_generator* create_code_generator(menv* env, parser* parser);
-void destroy_code_generator(code_generator* cg);
+code_generator* cg_new(menv* env, parser* parser);
+void cg_free(code_generator* cg);
 void create_module_and_pass_manager(code_generator* cg, const char* module_name);
 void* generate_code(code_generator* cg, exp_node* node);
 void generate_runtime_module(code_generator* cg, parser* parser);

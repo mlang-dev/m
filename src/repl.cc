@@ -70,8 +70,8 @@ void eval_statement(void* p_jit, exp_node* node)
 
 JIT* build_jit(menv* env, parser* parser)
 {
-    code_generator* cg = create_code_generator(env, parser);
-    JIT* jit = create_jit(cg);
+    code_generator* cg = cg_new(env, parser);
+    JIT* jit = jit_new(cg);
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, make_unique_name("mjit").c_str());
     generate_runtime_module(cg, parser);
@@ -83,12 +83,12 @@ JIT* build_jit(menv* env, parser* parser)
 int run_repl()
 {
     menv* env = env_new();
-    parser* parser = create_parser(NULL, true, NULL);
+    parser* parser = parser_new(NULL, true, NULL);
     JIT* jit = build_jit(env, parser);
     fprintf(stderr, "m> ");
     parse_block(parser, nullptr, &eval_statement, jit);
     fprintf(stderr, "bye !\n");
-    destroy_jit(jit);
+    jit_free(jit);
     env_free(env);
     return 0;
 }

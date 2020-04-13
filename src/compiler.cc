@@ -24,8 +24,8 @@ int compile(const char* fn, object_file_type file_type)
 {
     auto filename = get_filename(fn);
     menv* env = env_new();
-    parser* parser = create_parser(fn, false);
-    code_generator* cg = create_code_generator(env, parser);
+    parser* parser = parser_new(fn, false);
+    code_generator* cg = cg_new(env, parser);
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, filename.c_str());
     generate_runtime_module(cg, parser);
@@ -48,8 +48,8 @@ int compile(const char* fn, object_file_type file_type)
     } else {
         log(INFO, "no statement is found.");
     }
-    destroy_code_generator(cg);
-    destroy_parser(parser);
+    cg_free(cg);
+    parser_free(parser);
     env_free(env);
     return 0;
 }
