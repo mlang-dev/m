@@ -20,6 +20,7 @@
 
 #include "codegen.h"
 #include "util.h"
+#include "array.h"
 
 using namespace llvm;
 using namespace std;
@@ -35,34 +36,33 @@ code_generator* cg_new(menv* env, parser* parser)
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();
-    llvm::LLVMContext* context = unwrap((LLVMContextRef)env->context);
     code_generator* cg = new code_generator();
     cg->parser = parser;
     cg->context = env->context;
-    cg->builder = new llvm::IRBuilder<>(*context);
+    cg->builder = LLVMCreateBuilderInContext((LLVMContextRef)env->context);
     return cg;
 }
 
 void cg_free(code_generator* cg)
 {
-    delete (llvm::IRBuilder<>*)cg->builder;
+    LLVMDisposeBuilder((LLVMBuilderRef)cg->builder);
     delete (llvm::legacy::FunctionPassManager*)cg->fpm;
     if(cg->module)
-        delete (llvm::Module*)cg->module;
+        LLVMDisposeModule((LLVMModuleRef)cg->module);
     delete cg;
 }
 
-Function* _get_function(code_generator* cg, std::string name)
+LLVMValueRef _get_function(code_generator* cg, const char* name)
 {
     // First, see if the function has already been added to the current module.
-    if (llvm::Function* f = ((llvm::Module*)cg->module)->getFunction(name))
+    if (LLVMValueRef f = LLVMGetNamedFunction((LLVMModuleRef)cg->module, name))
         return f;
 
     // If not, check whether we can codegen the declaration from some existing
     // prototype.
     auto fp = cg->protos.find(name);
     if (fp != cg->protos.end())
-        return (Function*)_generate_prototype_node(cg, (exp_node*)fp->second);
+        return (LLVMValueRef)_generate_prototype_node(cg, (exp_node*)fp->second);
 
     // If no existing prototype exists, return null.
     return nullptr;
@@ -157,93 +157,92 @@ void* _generate_ident_node(code_generator* cg, exp_node* node)
 void* _generate_binary_node(code_generator* cg, exp_node* node)
 {
     auto bin = (binary_node*)node;
-    llvm::Value* lv = (llvm::Value*)generate_code(cg, bin->lhs);
-    llvm::Value* rv = (llvm::Value*)generate_code(cg, bin->rhs);
+    LLVMValueRef lv = (LLVMValueRef)generate_code(cg, bin->lhs);
+    LLVMValueRef rv = (LLVMValueRef)generate_code(cg, bin->rhs);
     if (!lv || !rv)
         return nullptr;
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
+    LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
+    LLVMContextRef context = (LLVMContextRef)cg->context;
     if (bin->op == "+")
-        return builder->CreateFAdd(lv, rv, "addtmp");
+        return LLVMBuildFAdd(builder, lv, rv, "addtmp");
     else if (bin->op == "-")
-        return builder->CreateFSub(lv, rv, "subtmp");
+        return LLVMBuildFSub(builder, lv, rv, "subtmp");
     else if (bin->op == "*")
-        return builder->CreateFMul(lv, rv, "multmp");
+        return LLVMBuildFMul(builder, lv, rv, "multmp");
     else if (bin->op == "/")
-        return builder->CreateFDiv(lv, rv, "divtmp");
+        return LLVMBuildFDiv(builder, lv, rv, "divtmp");
     else if (bin->op == "<") {
-        llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-        lv = builder->CreateFCmpULT(lv, rv, "cmptmp");
-        return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+        lv = LLVMBuildFCmp(builder, LLVMRealULT, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else if (bin->op == ">") {
-        llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-        lv = builder->CreateFCmpUGT(lv, rv, "cmptmp");
-        return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+        lv = LLVMBuildFCmp(builder, LLVMRealUGT, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else if (bin->op == "==") {
-        llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-        lv = builder->CreateFCmpUEQ(lv, rv, "cmptmp");
-        return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+        lv = LLVMBuildFCmp(builder, LLVMRealUEQ, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else if (bin->op == "!=") {
-        llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-        lv = builder->CreateFCmpUNE(lv, rv, "cmptmp");
-        return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+        lv = LLVMBuildFCmp(builder, LLVMRealUNE, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else if (bin->op == "<=") {
-        llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-        lv = builder->CreateFCmpULE(lv, rv, "cmptmp");
-        return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+        lv = LLVMBuildFCmp(builder, LLVMRealULE, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else if (bin->op == ">=") {
-        llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-        lv = builder->CreateFCmpUGE(lv, rv, "cmptmp");
-        return builder->CreateUIToFP(lv, llvm::Type::getDoubleTy(*context),
+        lv = LLVMBuildFCmp(builder, LLVMRealUGE, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else {
-        Function* func = _get_function(cg, std::string("binary") + bin->op);
-        assert(func && "binary operator not found!");
-        Value* ops[2] = { lv, rv };
-        return builder->CreateCall(func, ops, "binop");
+        string fname = std::string("binary") + bin->op;
+        LLVMValueRef fun = _get_function(cg, fname.c_str());
+        assert(fun && "binary operator not found!");
+        LLVMValueRef ops[2] = { (LLVMValueRef)lv, (LLVMValueRef)rv };
+        return LLVMBuildCall(builder, fun, ops, 2, "binop");
     }
 }
 
 void* _generate_call_node(code_generator* cg, exp_node* node)
 {
     auto call = (call_node*)node;
-    llvm::Function* callee = _get_function(cg, call->callee);
+    LLVMValueRef callee = _get_function(cg, call->callee.c_str());
     if (!callee)
         return log(ERROR, "Unknown function referenced: %s", call->callee.c_str());
-    if (callee->arg_size() != call->args.size())
+    if (LLVMCountParams(callee) != call->args.size())
         return log(ERROR,
             "Incorrect number of arguments passed: callee (prototype "
             "generated in llvm): %lu, calling: %lu",
-            callee->arg_size(), call->args.size());
+            LLVMCountParams(callee), call->args.size());
 
-    std::vector<llvm::Value*> arg_values;
+    std::vector<LLVMValueRef> arg_values;
     for (unsigned long i = 0, e = call->args.size(); i != e; ++i) {
-        arg_values.push_back((llvm::Value*)generate_code(cg, call->args[i]));
+        arg_values.push_back((LLVMValueRef)generate_code(cg, call->args[i]));
         if (!arg_values.back())
             return 0;
     }
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    return builder->CreateCall(callee, arg_values, "calltmp");
+    LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
+    return LLVMBuildCall(builder, callee, arg_values.data(), arg_values.size(), "calltmp");
 }
 
 void* _generate_prototype_node(code_generator* cg, exp_node* node)
 {
     auto proto = (prototype_node*)node;
     cg->protos[proto->name] = proto;
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    std::vector<llvm::Type*> doubles(proto->args.size(),
-        llvm::Type::getDoubleTy(*context));
-    llvm::FunctionType* ft = llvm::FunctionType::get(
-        llvm::Type::getDoubleTy(*context), doubles, false);
-    llvm::Function* fun = llvm::Function::Create(
-        ft, llvm::Function::ExternalLinkage, proto->name, (llvm::Module*)cg->module);
+    LLVMContextRef context = (LLVMContextRef)cg->context;
+    Array* doubles = array_init();
+    for (auto& arg : proto->args){
+        array_append(doubles, LLVMDoubleTypeInContext(context));
+    }
+    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)doubles->data, doubles->used, false);
+    LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, proto->name.c_str(), ft);
     unsigned i = 0;
-    for (auto& arg : fun->args())
-        arg.setName(proto->args[i++]);
+    for (unsigned i = 0; i< LLVMCountParams(fun); i++){
+        LLVMValueRef param = LLVMGetParam(fun, i);
+        LLVMSetValueName2(param, proto->args[i].c_str(), proto->args[i].size());
+    }
+    array_free(doubles);
     return fun;
 }
 
@@ -251,8 +250,8 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
 {
     auto funn = (function_node*)node;
     cg->named_values.clear();
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    auto fun = (llvm::Function*)_generate_prototype_node(cg, (exp_node*)funn->prototype);
+    LLVMContextRef context = (LLVMContextRef)cg->context;
+    LLVMValueRef fun = (LLVMValueRef)_generate_prototype_node(cg, (exp_node*)funn->prototype);
     if (!fun)
         return 0;
     // if (is_binary_op(node->prototype)){
@@ -260,24 +259,25 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
     //   (*cg->parser->op_precedences)[get_op_name(node->prototype)] =
     //       node->prototype->precedence;
     // }
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    llvm::BasicBlock* bb = llvm::BasicBlock::Create(*context, "entry", fun);
-    builder->SetInsertPoint(bb);
-    _create_argument_allocas(cg, funn->prototype, fun);
-    llvm::Value* ret_val;
+    LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
+    LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(context, fun, "entry");
+    LLVMPositionBuilderAtEnd(builder, bb);
+    _create_argument_allocas(cg, funn->prototype, (Function*)fun);
+    LLVMValueRef ret_val;
     for (auto stmt : funn->body->nodes) {
-        ret_val = (llvm::Value*)generate_code(cg, stmt);
+        ret_val = (LLVMValueRef)generate_code(cg, stmt);
     }
     if (!ret_val) {
-        ret_val = llvm::ConstantFP::get(*context, llvm::APFloat(0.0));
+        ret_val = LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0);
     }
     if (ret_val) {
-        builder->CreateRet(ret_val);
-        ((llvm::legacy::FunctionPassManager*)cg->fpm)->run(*fun);
-        llvm::verifyFunction(*fun);
+        LLVMBuildRet(builder, ret_val);
+        Function *pfun = (Function*)fun;
+        ((llvm::legacy::FunctionPassManager*)cg->fpm)->run(*pfun);
+        llvm::verifyFunction(*pfun);
         return fun;
     }
-    fun->eraseFromParent();
+    LLVMDeleteFunction(fun);
     // if (is_binary_op(node->prototype))
     //   cg->parser->op_precedences->erase(get_op_name(node->prototype));
     return 0;
@@ -286,17 +286,18 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
 void* _generate_unary_node(code_generator* cg, exp_node* node)
 {
     auto unary = (unary_node*)node;
-    llvm::Value* operand_v = (llvm::Value*)generate_code(cg, unary->operand);
+    LLVMValueRef operand_v = (LLVMValueRef)generate_code(cg, unary->operand);
     if (operand_v == 0)
         return 0;
 
-    llvm::Function* fun = _get_function(cg, std::string("unary") + unary->op);
+    string fname = std::string("unary") + unary->op;
+    LLVMValueRef fun = _get_function(cg, fname.c_str());
     if (fun == 0)
         return log(ERROR, "Unknown unary operator");
 
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
+    LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     // KSDbgInfo.emitLocation(this);
-    return builder->CreateCall(fun, operand_v, "unop");
+    return LLVMBuildCall(builder, fun, &operand_v, 1, "unop");
 }
 
 void* _generate_condition_node(code_generator* cg, exp_node* node)
@@ -577,7 +578,7 @@ void create_module_and_pass_manager(code_generator* cg,
     LLVMModuleRef moduleRef = LLVMModuleCreateWithNameInContext(module_name, wrap(context));
     llvm::Module* module = unwrap(moduleRef);
     LLVMSetDataLayout(moduleRef, llvm::EngineBuilder().selectTarget()->createDataLayout().getStringRepresentation().c_str());
-    cg->module = module;
+    cg->module = moduleRef;
     // Create a new pass manager attached to it.
     llvm::legacy::FunctionPassManager* fpm = new llvm::legacy::FunctionPassManager(module);
     cg->fpm = fpm;

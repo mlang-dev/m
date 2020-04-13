@@ -145,3 +145,4 @@ bool is_new_line(int ch)
 {
     return ch == '\r' || ch == '\n';
 }
+

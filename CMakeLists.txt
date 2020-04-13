@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(m, VERSION 0.0.9 LANGUAGES CXX)
+project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
 # set any CMAKE_ variables here
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")

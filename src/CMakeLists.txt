@@ -20,6 +20,7 @@ add_library(mlr
   analyzer.cc
   codegen.cc
   env.cc
+  array.c
 )
 
 include_directories(
