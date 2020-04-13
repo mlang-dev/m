@@ -34,7 +34,7 @@ int compile(const char* fn, object_file_type file_type)
         for (auto node : block->nodes) {
             generate_code(cg, node);
         }
-        LLVMModuleRef module = wrap((llvm::Module*)cg->module);
+        LLVMModuleRef module = (LLVMModuleRef)cg->module;
         if (file_type == FT_OBJECT) {
             filename += ".o";
             generate_object_file(module, filename.c_str());
@@ -84,7 +84,6 @@ int generate_object_file(LLVMModuleRef module, const char* filename)
     LLVMTargetMachineRef target_machine = (LLVMTargetMachineRef)create_target_machine(module);
     if (!target_machine)
         return 1;
-    //dumpm(module);
     return gof_emit_file(module, target_machine, filename);
 }
 

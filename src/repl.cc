@@ -27,7 +27,7 @@ double eval_exp(JIT* jit, exp_node* node)
         if (auto p_fun = generate_code(jit->cg, node)) {
             auto mk = _add_module_to_jit(jit);
             auto mf = jit->mjit->findSymbol(fn);
-            //dumpm(jit->cg->module.get());
+            //LLVMDumpModule(module);
             double (*fp)() = (double (*)())(intptr_t)cantFail(mf.getAddress());
             // keep global variables in the jit
             result = fp();

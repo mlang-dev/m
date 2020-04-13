@@ -78,9 +78,6 @@ LLVMValueRef _create_entry_block_alloca(code_generator* cg,
     LLVMValueRef fun,
     const char *var_name)
 {
-    // llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    // llvm::IRBuilder<> builder(&fun->getEntryBlock(),
-    //     fun->getEntryBlock().begin());
     LLVMBuilderRef builder = LLVMCreateBuilder();
     LLVMBasicBlockRef bb = LLVMGetEntryBasicBlock(fun);
     LLVMPositionBuilder(builder, bb, LLVMGetFirstInstruction(bb));
@@ -96,7 +93,6 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
 {
     for (unsigned i = 0; i< LLVMCountParams(fun); i++) {
         // Create an alloca for this variable.
-        //llvm::AllocaInst*
         LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, node->args[i].c_str());
 
         // Create a debug descriptor for the variable.
@@ -309,46 +305,31 @@ void* _generate_condition_node(code_generator* cg, exp_node* node)
     LLVMBasicBlockRef else_bb = LLVMCreateBasicBlockInContext(context, "else");
     LLVMBasicBlockRef merge_bb = LLVMCreateBasicBlockInContext(context, "ifcont");
 
-    //builder->CreateCondBr(cond_v, then_bb, else_bb);
     LLVMBuildCondBr(builder, cond_v, then_bb, else_bb);
     // Emit then value.
-    //builder->SetInsertPoint(then_bb);
     LLVMPositionBuilderAtEnd(builder, then_bb);
 
     LLVMValueRef then_v = (LLVMValueRef)generate_code(cg, cond->then_node);
     if (then_v == 0)
         return 0;
 
-    //builder->CreateBr(merge_bb);
     LLVMBuildBr(builder, merge_bb);
     // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
-    then_bb = LLVMGetInsertBlock(builder);// builder->GetInsertBlock();
+    then_bb = LLVMGetInsertBlock(builder);
 
-    // Emit else block.
-    //fun->getBasicBlockList().push_back(else_bb);
     LLVMAppendExistingBasicBlock(fun, else_bb);
-    //builder->SetInsertPoint(else_bb);
     LLVMPositionBuilderAtEnd(builder, else_bb);
 
     LLVMValueRef else_v = (LLVMValueRef)generate_code(cg, cond->else_node);
     if (else_v == 0)
         return 0;
 
-    //builder->CreateBr(merge_bb);
     LLVMBuildBr(builder, merge_bb);
-    // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
-    //else_bb = builder->GetInsertBlock();
     else_bb = LLVMGetInsertBlock(builder);
-    // Emit merge block.
-    //fun->getBasicBlockList().push_back(merge_bb);
     LLVMAppendExistingBasicBlock(fun, merge_bb);
-    //builder->SetInsertPoint(merge_bb);
      LLVMPositionBuilderAtEnd(builder, merge_bb);
-    //llvm::PHINode* phi_node = builder->CreatePHI(llvm::Type::getDoubleTy(*context), 2, "iftmp");
     LLVMValueRef phi_node = LLVMBuildPhi(builder, LLVMDoubleTypeInContext(context), "iftmp");
-    //phi_node->addIncoming(then_v, then_bb);
     LLVMAddIncoming(phi_node, &then_v, &then_bb, 1);
-    //phi_node->addIncoming(else_v, else_bb);
     LLVMAddIncoming(phi_node, &else_v, &else_bb, 1);
     return phi_node;
 }

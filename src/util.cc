@@ -4,13 +4,11 @@
  * utilities functions
  */
 #include "util.h"
-#include "llvm/IR/Function.h"
-#include "llvm/IR/Module.h"
-#include "llvm/Support/Debug.h"
 #include <cstdio>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -120,18 +118,6 @@ string format(const char* string_format, ...)
     vsprintf(data, string_format, args);
     va_end(args);
     return data;
-}
-
-void dumpf(void* p)
-{
-    auto pf = (llvm::Function*)p;
-    pf->print(llvm::dbgs(), nullptr);
-}
-
-void dumpm(void* p)
-{
-    auto pm = (llvm::Module*)p;
-    pm->print(llvm::dbgs(), nullptr);
 }
 
 string get_filename(const char* fullfilename)
