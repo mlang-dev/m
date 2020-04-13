@@ -77,30 +77,11 @@ int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, con
     return 0;
 }
 
-LLVMTargetMachineRef gof_create_target_machine(LLVMModuleRef module)
-{
-    char* target_triple = LLVMGetDefaultTargetTriple();
-    LLVMSetTarget(module, target_triple);
-    char* error;
-    LLVMTargetRef target;
-    if (LLVMGetTargetFromTriple(target_triple, &target, &error)) {
-        errs() << error;
-        return nullptr;
-    }
-    auto cpu = "generic";
-    auto features = "";
-    LLVMCodeGenOptLevel opt = LLVMCodeGenOptLevel::LLVMCodeGenLevelDefault;
-    LLVMRelocMode rm = LLVMRelocMode::LLVMRelocDefault;
-    LLVMCodeModel cm = LLVMCodeModel::LLVMCodeModelDefault;
-    LLVMTargetMachineRef target_machine = LLVMCreateTargetMachine(target, target_triple, cpu, features, opt, rm, cm);
-    LLVMSetModuleDataLayout(module, LLVMCreateTargetDataLayout(target_machine));
-    return target_machine;
-}
 
 int generate_object_file(LLVMModuleRef module, const char* filename)
 {
     gof_initialize();
-    auto target_machine = gof_create_target_machine(module);
+    LLVMTargetMachineRef target_machine = (LLVMTargetMachineRef)create_target_machine(module);
     if (!target_machine)
         return 1;
     //dumpm(module);

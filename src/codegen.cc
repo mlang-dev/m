@@ -3,27 +3,13 @@
  *
  * LLVM IR Code Generation Functions
  */
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/ExecutionEngine/ExecutionEngine.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Verifier.h"
-#include "llvm/Support/Host.h"
-#include "llvm/Target/TargetMachine.h"
-#include "llvm/Transforms/InstCombine/InstCombine.h"
-#include "llvm/Transforms/Scalar.h"
-#include "llvm/Transforms/Utils.h"
-#include "llvm/IR/LegacyPassManager.h"
 #include "llvm-c/Core.h"
 #include "llvm-c/Target.h"
+#include "llvm-c/TargetMachine.h"
 
 #include "codegen.h"
 #include "util.h"
 #include "array.h"
-
-using namespace llvm;
-using namespace std;
 
 void* _generate_global_var_node(code_generator* cg, var_node* node,
     bool is_external = false);
@@ -46,7 +32,7 @@ code_generator* cg_new(menv* env, parser* parser)
 void cg_free(code_generator* cg)
 {
     LLVMDisposeBuilder((LLVMBuilderRef)cg->builder);
-    delete (llvm::legacy::FunctionPassManager*)cg->fpm;
+    //delete (llvm::legacy::FunctionPassManager*)cg->fpm;
     if(cg->module)
         LLVMDisposeModule((LLVMModuleRef)cg->module);
     delete cg;
@@ -68,10 +54,10 @@ LLVMValueRef _get_function(code_generator* cg, const char* name)
     return nullptr;
 }
 
-GlobalVariable* _get_global_variable(code_generator* cg, std::string name)
+LLVMValueRef _get_global_variable(code_generator* cg, std::string name)
 {
     // First, see if the function has already been added to the current module.
-    if (llvm::GlobalVariable* gv = ((llvm::Module*)cg->module)->getNamedGlobal(name))
+    if (LLVMValueRef gv = LLVMGetNamedGlobal((LLVMModuleRef)cg->module, name.c_str()))
         return gv;
 
     // If not, it's defined in other module, we can codegen the external
@@ -79,7 +65,7 @@ GlobalVariable* _get_global_variable(code_generator* cg, std::string name)
     auto fgv = cg->gvs.find(name);
     if (fgv != cg->gvs.end()) {
         // log(DEBUG, "found defition before");
-        return (GlobalVariable*)_generate_global_var_node(cg, fgv->second, true);
+        return (LLVMValueRef)_generate_global_var_node(cg, fgv->second, true);
     }
 
     // If no existing prototype exists, return null.
@@ -88,27 +74,30 @@ GlobalVariable* _get_global_variable(code_generator* cg, std::string name)
 
 /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
 /// the function.  This is used for mutable variables etc.
-llvm::AllocaInst* _create_entry_block_alloca(code_generator* cg,
-    llvm::Function* fun,
-    const std::string& var_name)
+LLVMValueRef _create_entry_block_alloca(code_generator* cg,
+    LLVMValueRef fun,
+    const char *var_name)
 {
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    llvm::IRBuilder<> builder(&fun->getEntryBlock(),
-        fun->getEntryBlock().begin());
-    return builder.CreateAlloca(llvm::Type::getDoubleTy(*context), 0,
-        var_name.c_str());
+    // llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    // llvm::IRBuilder<> builder(&fun->getEntryBlock(),
+    //     fun->getEntryBlock().begin());
+    LLVMBuilderRef builder = LLVMCreateBuilder();
+    LLVMBasicBlockRef bb = LLVMGetEntryBasicBlock(fun);
+    LLVMPositionBuilder(builder, bb, LLVMGetFirstInstruction(bb));
+    LLVMValueRef alloca = LLVMBuildAlloca(builder, LLVMDoubleTypeInContext((LLVMContextRef)cg->context), var_name);
+    LLVMDisposeBuilder(builder);
+    return alloca;
 }
 
 /// _create_argument_allocas - Create an alloca for each argument and register
 /// the argument in the symbol table so that references to it will succeed.
 void _create_argument_allocas(code_generator* cg, prototype_node* node,
-    llvm::Function* fun)
+    LLVMValueRef fun)
 {
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    llvm::Function::arg_iterator arg_it = fun->arg_begin();
-    for (size_t i = 0, e = node->args.size(); i != e; ++i, ++arg_it) {
+    for (unsigned i = 0; i< LLVMCountParams(fun); i++) {
         // Create an alloca for this variable.
-        llvm::AllocaInst* alloca = _create_entry_block_alloca(cg, fun, node->args[i]);
+        //llvm::AllocaInst*
+        LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, node->args[i].c_str());
 
         // Create a debug descriptor for the variable.
         /*DIScope *Scope = KSDbgInfo.LexicalBlocks.back();
@@ -124,7 +113,8 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
     */
 
         // Store the initial value into the alloca.
-        builder->CreateStore(arg_it, alloca);
+        //builder->CreateStore(arg_it, alloca);
+        LLVMBuildStore((LLVMBuilderRef)cg->builder, LLVMGetParam(fun, i), alloca);
 
         // Add arguments to variable symbol table.
         cg->named_values[node->args[i]] = alloca;
@@ -133,25 +123,23 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
 
 void* _generate_num_node(code_generator* cg, exp_node* node)
 {
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    return llvm::ConstantFP::get(*context, llvm::APFloat(((num_node*)node)->double_val));
+    return LLVMConstReal(LLVMDoubleTypeInContext((LLVMContextRef)cg->context), ((num_node*)node)->double_val);
 }
 
 void* _generate_ident_node(code_generator* cg, exp_node* node)
 {
     auto ident = (ident_node*)node;
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    llvm::Value* v = (llvm::Value*)cg->named_values[ident->name];
+    LLVMValueRef v = (LLVMValueRef)cg->named_values[ident->name];
     if (!v) {
-        GlobalVariable* gVar = _get_global_variable(cg, ident->name);
+        LLVMValueRef gVar = _get_global_variable(cg, ident->name);
         if (gVar) {
-            return builder->CreateLoad(gVar, ident->name.c_str());
+            return LLVMBuildLoad((LLVMBuilderRef)cg->builder, gVar, ident->name.c_str());
         } else {
             log(ERROR, "Unknown variable name: %s", ident->name.c_str());
             return 0;
         }
     }
-    return builder->CreateLoad(v, ident->name.c_str());
+    return LLVMBuildLoad((LLVMBuilderRef)cg->builder, v, ident->name.c_str());
 }
 
 void* _generate_binary_node(code_generator* cg, exp_node* node)
@@ -262,7 +250,7 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(context, fun, "entry");
     LLVMPositionBuilderAtEnd(builder, bb);
-    _create_argument_allocas(cg, funn->prototype, (Function*)fun);
+    _create_argument_allocas(cg, funn->prototype, fun);
     LLVMValueRef ret_val;
     for (auto stmt : funn->body->nodes) {
         ret_val = (LLVMValueRef)generate_code(cg, stmt);
@@ -272,9 +260,9 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
     }
     if (ret_val) {
         LLVMBuildRet(builder, ret_val);
-        Function *pfun = (Function*)fun;
-        ((llvm::legacy::FunctionPassManager*)cg->fpm)->run(*pfun);
-        llvm::verifyFunction(*pfun);
+        // Function *pfun = (Function*)fun;
+        // ((llvm::legacy::FunctionPassManager*)cg->fpm)->run(*pfun);
+        // llvm::verifyFunction(*pfun);
         return fun;
     }
     LLVMDeleteFunction(fun);
@@ -303,90 +291,88 @@ void* _generate_unary_node(code_generator* cg, exp_node* node)
 void* _generate_condition_node(code_generator* cg, exp_node* node)
 {
     // KSDbgInfo.emitLocation(this);
-    auto cond = (condition_node*)node;
-    llvm::Value* cond_v = (llvm::Value*)generate_code(cg, cond->condition_node);
+    condition_node* cond = (condition_node*)node;
+    LLVMValueRef cond_v = (LLVMValueRef)generate_code(cg, cond->condition_node);
     if (cond_v == 0)
         return 0;
 
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
+    LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
+    LLVMContextRef context = (LLVMContextRef)cg->context;
     // Convert condition to a bool by comparing equal to 0.0.
-    cond_v = builder->CreateFCmpONE(
-        cond_v, llvm::ConstantFP::get(*context, llvm::APFloat(0.0)), "ifcond");
+    cond_v = LLVMBuildFCmp(builder, LLVMRealONE, cond_v, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0), "ifcond");
 
-    llvm::Function* fun = builder->GetInsertBlock()->getParent();
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(builder));// builder->GetInsertBlock()->getParent();
 
     // Create blocks for the then and else cases.  Insert the 'then' block at the
     // end of the function.
-    llvm::BasicBlock* then_bb = llvm::BasicBlock::Create(*context, "then", fun);
-    llvm::BasicBlock* else_bb = llvm::BasicBlock::Create(*context, "else");
-    llvm::BasicBlock* merge_bb = llvm::BasicBlock::Create(*context, "ifcont");
+    LLVMBasicBlockRef then_bb = LLVMAppendBasicBlockInContext(context, fun, "then");
+    LLVMBasicBlockRef else_bb = LLVMCreateBasicBlockInContext(context, "else");
+    LLVMBasicBlockRef merge_bb = LLVMCreateBasicBlockInContext(context, "ifcont");
 
-    builder->CreateCondBr(cond_v, then_bb, else_bb);
-
+    //builder->CreateCondBr(cond_v, then_bb, else_bb);
+    LLVMBuildCondBr(builder, cond_v, then_bb, else_bb);
     // Emit then value.
-    builder->SetInsertPoint(then_bb);
+    //builder->SetInsertPoint(then_bb);
+    LLVMPositionBuilderAtEnd(builder, then_bb);
 
-    llvm::Value* then_v = (llvm::Value*)generate_code(cg, cond->then_node);
+    LLVMValueRef then_v = (LLVMValueRef)generate_code(cg, cond->then_node);
     if (then_v == 0)
         return 0;
 
-    builder->CreateBr(merge_bb);
+    //builder->CreateBr(merge_bb);
+    LLVMBuildBr(builder, merge_bb);
     // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
-    then_bb = builder->GetInsertBlock();
+    then_bb = LLVMGetInsertBlock(builder);// builder->GetInsertBlock();
 
     // Emit else block.
-    fun->getBasicBlockList().push_back(else_bb);
-    builder->SetInsertPoint(else_bb);
+    //fun->getBasicBlockList().push_back(else_bb);
+    LLVMAppendExistingBasicBlock(fun, else_bb);
+    //builder->SetInsertPoint(else_bb);
+    LLVMPositionBuilderAtEnd(builder, else_bb);
 
-    llvm::Value* else_v = (llvm::Value*)generate_code(cg, cond->else_node);
+    LLVMValueRef else_v = (LLVMValueRef)generate_code(cg, cond->else_node);
     if (else_v == 0)
         return 0;
 
-    builder->CreateBr(merge_bb);
+    //builder->CreateBr(merge_bb);
+    LLVMBuildBr(builder, merge_bb);
     // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
-    else_bb = builder->GetInsertBlock();
-
+    //else_bb = builder->GetInsertBlock();
+    else_bb = LLVMGetInsertBlock(builder);
     // Emit merge block.
-    fun->getBasicBlockList().push_back(merge_bb);
-    builder->SetInsertPoint(merge_bb);
-    llvm::PHINode* phi_node = builder->CreatePHI(llvm::Type::getDoubleTy(*context), 2, "iftmp");
-
-    phi_node->addIncoming(then_v, then_bb);
-    phi_node->addIncoming(else_v, else_bb);
+    //fun->getBasicBlockList().push_back(merge_bb);
+    LLVMAppendExistingBasicBlock(fun, merge_bb);
+    //builder->SetInsertPoint(merge_bb);
+     LLVMPositionBuilderAtEnd(builder, merge_bb);
+    //llvm::PHINode* phi_node = builder->CreatePHI(llvm::Type::getDoubleTy(*context), 2, "iftmp");
+    LLVMValueRef phi_node = LLVMBuildPhi(builder, LLVMDoubleTypeInContext(context), "iftmp");
+    //phi_node->addIncoming(then_v, then_bb);
+    LLVMAddIncoming(phi_node, &then_v, &then_bb, 1);
+    //phi_node->addIncoming(else_v, else_bb);
+    LLVMAddIncoming(phi_node, &else_v, &else_bb, 1);
     return phi_node;
 }
 
 void* _generate_global_var_node(code_generator* cg, var_node* node,
     bool is_external)
 {
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    llvm::Module *module = (llvm::Module*)cg->module;
-    auto gVar = module->getNamedGlobal(node->var_name);
-    auto exp = generate_code(cg, node->init_value);
+    LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
+    LLVMContextRef context = (LLVMContextRef)cg->context;
+    LLVMModuleRef module = (LLVMModuleRef)cg->module;
+    LLVMValueRef gVar = LLVMGetNamedGlobal(module, node->var_name.c_str());
+    LLVMValueRef exp = (LLVMValueRef)generate_code(cg, node->init_value);
     if (!gVar) {
         if (is_external) {
-            gVar = new llvm::GlobalVariable(
-                *module, builder->getDoubleTy(), false,
-                llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0, node->var_name,
-                nullptr, GlobalValue::ThreadLocalMode::NotThreadLocal, 0, true);
+            gVar = LLVMAddGlobal(module, LLVMDoubleTypeInContext(context), node->var_name.c_str());
+            LLVMSetExternallyInitialized(gVar, true);
             return gVar;
         } else {
             cg->gvs[node->var_name] = node;
-            gVar = new llvm::GlobalVariable(
-                *module, builder->getDoubleTy(), false,
-                llvm::GlobalValue::LinkageTypes::ExternalLinkage, 0,
-                node->var_name); //, nullptr,
-                //GlobalValue::ThreadLocalMode::NotThreadLocal, 0,
-                //false);
-            gVar->setInitializer(
-                llvm::ConstantFP::get(*context, llvm::APFloat(0.0)));
-            builder->CreateStore((Value*)exp, gVar);
+            gVar = LLVMAddGlobal(module, LLVMDoubleTypeInContext(context), node->var_name.c_str());
+            LLVMSetExternallyInitialized(gVar, true);
+            LLVMSetInitializer(gVar, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0));                
+            LLVMBuildStore(builder, exp, gVar);
         }
-        // return builder->CreateLoad(gVar);
-        // log(DEBUG, "create the load for gV");
-        // return x;
     }
     return 0;
 }
@@ -402,13 +388,12 @@ void* _generate_var_node(code_generator* cg, exp_node* node)
 
 void* _generate_local_var_node(code_generator* cg, var_node* node)
 {
-    std::vector<llvm::AllocaInst*> old_bindings;
+    std::vector<LLVMValueRef> old_bindings;
 
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
+    LLVMContextRef context = (LLVMContextRef)cg->context;
+    LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     // fprintf(stderr, "_generate_var_node:1 %lu!, %lu\n", node->var_names.size(),
-    // (long)builder->GetInsertBlock());
-    llvm::Function* fun = builder->GetInsertBlock()->getParent();
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(builder));// builder->GetInsertBlock()->getParent();
     // fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
 
     // Register all variables and emit their initializer.
@@ -421,37 +406,25 @@ void* _generate_local_var_node(code_generator* cg, var_node* node)
     // like this:
     //  var a = 1 in
     //    var a = a in ...   # refers to outer 'a'.
-    llvm::Value* init_val;
+    LLVMValueRef init_val;
     if (init) {
-        init_val = (llvm::Value*)generate_code(cg, init);
+        init_val = (LLVMValueRef)generate_code(cg, init);
         if (init_val == 0)
             return 0;
     } else { // If not specified, use 0.0.
-        init_val = llvm::ConstantFP::get(*context, llvm::APFloat(0.0));
+        init_val = LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0);
     }
 
-    llvm::AllocaInst* alloca = _create_entry_block_alloca(cg, fun, var_name);
-    builder->CreateStore(init_val, alloca);
-
+    LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, var_name.c_str());
+    LLVMBuildStore(builder, init_val, alloca);
     // Remember the old variable binding so that we can restore the binding when
     // we unrecurse.
-    old_bindings.push_back((llvm::AllocaInst*)cg->named_values[var_name]);
+    old_bindings.push_back((LLVMValueRef)cg->named_values[var_name]);
 
     // Remember this binding.
     cg->named_values[var_name] = alloca;
     return 0;
     // KSDbgInfo.emitLocation(this);
-    // Codegen the body, now that all vars are in scope.
-
-    // llvm::Value *body_val = (llvm::Value*)generate_code(cg, node->body);
-    // if (body_val == 0)
-    //     return 0;
-
-    // // Pop all our variables from scope.
-    // for (size_t i = 0, e = node->var_names.size(); i != e; ++i)
-    //     cg->named_values[node->var_names[i].first] = old_bindings[i];
-    // // Return the body computation.
-    // return body_val;
 }
 
 void* _generate_for_node(code_generator* cg, exp_node* node)
@@ -476,36 +449,35 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
     //   br endcond, loop, endloop
     // outloop:
     auto forn = (for_node*)node;
-    llvm::LLVMContext* context = (llvm::LLVMContext*)cg->context;
-    llvm::IRBuilder<>* builder = (llvm::IRBuilder<>*)cg->builder;
-
-    llvm::Function* fun = builder->GetInsertBlock()->getParent();
+    LLVMContextRef context = (LLVMContextRef)cg->context;
+    LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
+    LLVMBasicBlockRef bb = LLVMGetInsertBlock(builder);
+    LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
     // Create an alloca for the variable in the entry block.
-    llvm::AllocaInst* alloca = _create_entry_block_alloca(cg, fun, forn->var_name);
+    LLVMValueRef alloca = _create_entry_block_alloca(cg, (LLVMValueRef)fun, forn->var_name.c_str());
 
     // KSDbgInfo.emitLocation(this);
     // Emit the start code first, without 'variable' in scope.
-    llvm::Value* start_v = (llvm::Value*)generate_code(cg, forn->start);
+    LLVMValueRef start_v = (LLVMValueRef)generate_code(cg, forn->start);
     if (start_v == 0)
         return 0;
 
     // Store the value into the alloca.
-    builder->CreateStore(start_v, alloca);
-
+    LLVMBuildStore(builder, start_v, alloca);
     // Make the new basic block for the loop header, inserting after current
     // block.
-    llvm::BasicBlock* loop_bb = llvm::BasicBlock::Create(*context, "loop", fun);
+    LLVMBasicBlockRef loop_bb = LLVMAppendBasicBlockInContext(context, fun, "loop");
 
     // Insert an explicit fall through from the current block to the LoopBB.
-    builder->CreateBr(loop_bb);
+    LLVMBuildBr(builder, loop_bb);
 
     // Start insertion in LoopBB.
-    builder->SetInsertPoint(loop_bb);
+    LLVMPositionBuilderAtEnd(builder, loop_bb);
 
     // Within the loop, the variable is defined equal  the PHI node.  If it
     // shadows an existing variable, we have to restore it, so save it now.
-    llvm::AllocaInst* old_alloca = (llvm::AllocaInst*)cg->named_values[forn->var_name];
+    LLVMValueRef old_alloca = (LLVMValueRef)cg->named_values[forn->var_name];
     cg->named_values[forn->var_name] = alloca;
 
     // Emit the body of the loop.  This, like any other expr, can change the
@@ -515,40 +487,37 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
         return 0;
 
     // Emit the step value.
-    llvm::Value* step_v;
+    LLVMValueRef step_v;
     if (forn->step) {
-        step_v = (llvm::Value*)generate_code(cg, forn->step);
+        step_v = (LLVMValueRef)generate_code(cg, forn->step);
         if (step_v == 0)
             return 0;
     } else {
         // If not specified, use 1.0.
-        step_v = llvm::ConstantFP::get(*context, llvm::APFloat(1.0));
+        step_v = LLVMConstReal(LLVMDoubleTypeInContext(context), 1.0);
     }
 
     // Compute the end condition.
-    llvm::Value* end_cond = (llvm::Value*)generate_code(cg, forn->end);
+    LLVMValueRef end_cond = (LLVMValueRef)generate_code(cg, forn->end);
     if (end_cond == 0)
         return end_cond;
 
     // Reload, increment, and restore the alloca.  This handles the case where
     // the body of the loop mutates the variable.
-    llvm::Value* cur_var = builder->CreateLoad(alloca, forn->var_name.c_str());
-    llvm::Value* next_var = builder->CreateFAdd(cur_var, step_v, "nextvar");
-    builder->CreateStore(next_var, alloca);
-
+    LLVMValueRef cur_var = LLVMBuildLoad(builder, alloca, forn->var_name.c_str());
+    LLVMValueRef next_var = LLVMBuildFAdd(builder, cur_var, step_v, "nextvar");
+    LLVMBuildStore(builder, next_var, alloca);
     // Convert condition to a bool by comparing non-equal to 0.0.
-    end_cond = builder->CreateFCmpONE(
-        end_cond, llvm::ConstantFP::get(*context, llvm::APFloat(0.0)),
-        "loopcond");
+    end_cond = LLVMBuildFCmp(builder, LLVMRealONE, end_cond, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0), "loopcond");
 
     // Create the "after loop" block and insert it.
-    llvm::BasicBlock* after_bb = llvm::BasicBlock::Create(*context, "afterloop", fun);
+    LLVMBasicBlockRef after_bb = LLVMAppendBasicBlockInContext(context, fun, "afterloop");
 
     // Insert the conditional branch into the end of LoopEndBB.
-    builder->CreateCondBr(end_cond, loop_bb, after_bb);
+    LLVMBuildCondBr(builder, end_cond, loop_bb, after_bb);
 
     // Any new code will be inserted in AfterBB.
-    builder->SetInsertPoint(after_bb);
+    LLVMPositionBuilderAtEnd(builder, after_bb);
 
     // Restore the unshadowed variable.
     if (old_alloca)
@@ -557,7 +526,7 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
         cg->named_values.erase(forn->var_name);
 
     // for expr always returns 0.0.
-    return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*context));
+    return LLVMConstNull(LLVMDoubleTypeInContext(context));
 }
 
 void* _generate_block_node(code_generator* cg, exp_node* node)
@@ -574,34 +543,33 @@ void create_module_and_pass_manager(code_generator* cg,
     const char* module_name)
 {
     // Open a new module.
-    auto context = (llvm::LLVMContext*)cg->context;
-    LLVMModuleRef moduleRef = LLVMModuleCreateWithNameInContext(module_name, wrap(context));
-    llvm::Module* module = unwrap(moduleRef);
-    LLVMSetDataLayout(moduleRef, llvm::EngineBuilder().selectTarget()->createDataLayout().getStringRepresentation().c_str());
+    LLVMModuleRef moduleRef = LLVMModuleCreateWithNameInContext(module_name, (LLVMContextRef)cg->context);
+    LLVMTargetMachineRef target_marchine = (LLVMTargetMachineRef)create_target_machine(moduleRef);
+    LLVMTargetDataRef data_layout = LLVMCreateTargetDataLayout(target_marchine);
+    LLVMSetModuleDataLayout(moduleRef, data_layout);
     cg->module = moduleRef;
-    // Create a new pass manager attached to it.
-    llvm::legacy::FunctionPassManager* fpm = new llvm::legacy::FunctionPassManager(module);
-    cg->fpm = fpm;
+    // // Create a new pass manager attached to it.
+    // llvm::legacy::FunctionPassManager* fpm = new llvm::legacy::FunctionPassManager(module);
+    // cg->fpm = fpm;
 
-    // Promote allocas to registers.
-    fpm->add(createPromoteMemoryToRegisterPass());
-    // Do simple "peephole" optimizations and bit-twiddling optzns.
-    fpm->add(createInstructionCombiningPass());
-    // Reassociate expressions.
-    fpm->add(createReassociatePass());
-    // Eliminate Common SubExpressions.
-    fpm->add(createNewGVNPass());
-    // Simplify the control flow graph (deleting unreachable blocks, etc).
-    fpm->add(createCFGSimplificationPass());
+    // // Promote allocas to registers.
+    // fpm->add(createPromoteMemoryToRegisterPass());
+    // // Do simple "peephole" optimizations and bit-twiddling optzns.
+    // fpm->add(createInstructionCombiningPass());
+    // // Reassociate expressions.
+    // fpm->add(createReassociatePass());
+    // // Eliminate Common SubExpressions.
+    // fpm->add(createNewGVNPass());
+    // // Simplify the control flow graph (deleting unreachable blocks, etc).
+    // fpm->add(createCFGSimplificationPass());
 
-    fpm->doInitialization();
+    // fpm->doInitialization();
 }
 
 void generate_runtime_module(code_generator* cg, parser* parser)
 {
-    llvm::ArrayRef<exp_node*> nodesRef = parser->ast->builtins;
-    for (int i = 0; i < nodesRef.size(); i++) {
-        generate_code(cg, nodesRef[i]);
+    for (auto node: parser->ast->builtins) {
+        generate_code(cg, node);
     }
 }
 
@@ -628,4 +596,25 @@ void* (*cg_fp[])(code_generator*, exp_node*) = {
 void* generate_code(code_generator* cg, exp_node* node)
 {
     return cg_fp[node->node_type](cg, node);
+}
+
+void* create_target_machine(void* pmodule)
+{
+    LLVMModuleRef module = (LLVMModuleRef)pmodule;
+    char* target_triple = LLVMGetDefaultTargetTriple();
+    LLVMSetTarget(module, target_triple);
+    char* error;
+    LLVMTargetRef target;
+    if (LLVMGetTargetFromTriple(target_triple, &target, &error)) {
+        log(ERROR, "error in creating target machine: %s", error);
+        return nullptr;
+    }
+    auto cpu = "generic";
+    auto features = "";
+    LLVMCodeGenOptLevel opt = LLVMCodeGenOptLevel::LLVMCodeGenLevelDefault;
+    LLVMRelocMode rm = LLVMRelocMode::LLVMRelocDefault;
+    LLVMCodeModel cm = LLVMCodeModel::LLVMCodeModelDefault;
+    LLVMTargetMachineRef target_machine = LLVMCreateTargetMachine(target, target_triple, cpu, features, opt, rm, cm);
+    LLVMSetModuleDataLayout(module, LLVMCreateTargetDataLayout(target_machine));
+    return target_machine;
 }

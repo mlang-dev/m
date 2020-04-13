@@ -19,7 +19,7 @@ struct code_generator {
     parser* parser;
     map<string, void*> named_values;
     void* module;
-    void* fpm;
+    //void* fpm;
     map<string, prototype_node*> protos;
     map<string, var_node*> gvs;
 };
@@ -29,5 +29,6 @@ void cg_free(code_generator* cg);
 void create_module_and_pass_manager(code_generator* cg, const char* module_name);
 void* generate_code(code_generator* cg, exp_node* node);
 void generate_runtime_module(code_generator* cg, parser* parser);
+void* create_target_machine(void* module);
 
 #endif
