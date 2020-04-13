@@ -10,13 +10,13 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/Host.h"
-#include "llvm/Support/TargetSelect.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Utils.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm-c/Core.h"
+#include "llvm-c/Target.h"
 
 #include "codegen.h"
 #include "util.h"
@@ -32,9 +32,9 @@ void* _generate_block_node(code_generator* cg, exp_node* block);
 
 code_generator* create_code_generator(menv* env, parser* parser)
 {
-    llvm::InitializeNativeTarget();
-    llvm::InitializeNativeTargetAsmPrinter();
-    llvm::InitializeNativeTargetAsmParser();
+    LLVMInitializeNativeTarget();
+    LLVMInitializeNativeAsmPrinter();
+    LLVMInitializeNativeAsmParser();
     llvm::LLVMContext* context = unwrap((LLVMContextRef)env->context);
     code_generator* cg = new code_generator();
     cg->parser = parser;
@@ -574,9 +574,9 @@ void create_module_and_pass_manager(code_generator* cg,
 {
     // Open a new module.
     auto context = (llvm::LLVMContext*)cg->context;
-    llvm::Module* module = new llvm::Module(module_name, *context);
-    module->setDataLayout(
-        llvm::EngineBuilder().selectTarget()->createDataLayout());
+    LLVMModuleRef moduleRef = LLVMModuleCreateWithNameInContext(module_name, wrap(context));
+    llvm::Module* module = unwrap(moduleRef);
+    LLVMSetDataLayout(moduleRef, llvm::EngineBuilder().selectTarget()->createDataLayout().getStringRepresentation().c_str());
     cg->module = module;
     // Create a new pass manager attached to it.
     llvm::legacy::FunctionPassManager* fpm = new llvm::legacy::FunctionPassManager(module);

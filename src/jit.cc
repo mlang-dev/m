@@ -24,7 +24,7 @@ JIT* create_jit(code_generator* cg)
 {
     auto jit = new JIT();
     jit->cg = cg;
-    jit->mjit = new llvm::orc::MJIT();
+    jit->mjit = new llvm::orc::KaleidoscopeJIT();
     return jit;
 }
 

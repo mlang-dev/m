@@ -6,27 +6,19 @@
 #include "compiler.h"
 #include "jit.h"
 #include "util.h"
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/Bitcode/BitcodeWriter.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Verifier.h"
-#include "llvm/Support/Host.h"
-#include "llvm/Support/TargetRegistry.h"
-#include "llvm/Support/TargetSelect.h"
-#include "llvm/Target/TargetMachine.h"
-#include "llvm/Transforms/Scalar.h"
+#include "llvm-c/Core.h"
 #include "llvm-c/Target.h"
+#include "llvm-c/TargetMachine.h"
+#include "llvm-c/BitWriter.h"
 
 #include "env.h"
 
 using namespace llvm;
 using namespace std;
 
-int generate_object_file(Module* module, const char* filename);
-int generate_bitcode_file(Module* module, const char* filename);
-int generate_ir_file(Module* module, const char* filename);
+int generate_object_file(LLVMModuleRef module, const char* filename);
+int generate_bitcode_file(LLVMModuleRef module, const char* filename);
+int generate_ir_file(LLVMModuleRef module, const char* filename);
 
 int compile(const char* fn, object_file_type file_type)
 {
@@ -42,7 +34,7 @@ int compile(const char* fn, object_file_type file_type)
         for (auto node : block->nodes) {
             generate_code(cg, node);
         }
-        llvm::Module* module = (llvm::Module*)cg->module;
+        LLVMModuleRef module = wrap((llvm::Module*)cg->module);
         if (file_type == FT_OBJECT) {
             filename += ".o";
             generate_object_file(module, filename.c_str());
@@ -75,47 +67,37 @@ int gof_initialize()
     return 0;
 }
 
-int gof_emit_file(Module* module, TargetMachine* target_machine, const char* filename)
+int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, const char* filename)
 {
-    error_code ec;
-    raw_fd_ostream dest(filename, ec, sys::fs::OF_None);
-    if (ec) {
-        errs() << "Could not open file: " << ec.message();
-        return 1;
-    }
-
-    legacy::PassManager pass;
-    auto file_type = CodeGenFileType::CGFT_ObjectFile;
-    if (target_machine->addPassesToEmitFile(pass, dest, nullptr, file_type)) {
+    if (LLVMTargetMachineEmitToFile(target_machine, module, (char*)filename, LLVMCodeGenFileType::LLVMObjectFile, NULL)) {
         errs() << "Target machine can't emit an object file";
         return 2;
     }
-    pass.run(*module);
-    dest.flush();
     printf("generated obj file: %s\n", filename);
     return 0;
 }
 
-TargetMachine* gof_create_target_machine(Module* module)
+LLVMTargetMachineRef gof_create_target_machine(LLVMModuleRef module)
 {
-    auto target_triple = sys::getDefaultTargetTriple();
-    module->setTargetTriple(target_triple);
-    string error;
-    auto target = TargetRegistry::lookupTarget(target_triple, error);
-    if (!target) {
+    char* target_triple = LLVMGetDefaultTargetTriple();
+    LLVMSetTarget(module, target_triple);
+    char* error;
+    LLVMTargetRef target;
+    if (LLVMGetTargetFromTriple(target_triple, &target, &error)) {
         errs() << error;
         return nullptr;
     }
     auto cpu = "generic";
     auto features = "";
-    TargetOptions opt;
-    auto rm = Optional<Reloc::Model>();
-    auto target_machine = target->createTargetMachine(target_triple, cpu, features, opt, rm);
-    module->setDataLayout(target_machine->createDataLayout());
+    LLVMCodeGenOptLevel opt = LLVMCodeGenOptLevel::LLVMCodeGenLevelDefault;
+    LLVMRelocMode rm = LLVMRelocMode::LLVMRelocDefault;
+    LLVMCodeModel cm = LLVMCodeModel::LLVMCodeModelDefault;
+    LLVMTargetMachineRef target_machine = LLVMCreateTargetMachine(target, target_triple, cpu, features, opt, rm, cm);
+    LLVMSetModuleDataLayout(module, LLVMCreateTargetDataLayout(target_machine));
     return target_machine;
 }
 
-int generate_object_file(Module* module, const char* filename)
+int generate_object_file(LLVMModuleRef module, const char* filename)
 {
     gof_initialize();
     auto target_machine = gof_create_target_machine(module);
@@ -125,30 +107,15 @@ int generate_object_file(Module* module, const char* filename)
     return gof_emit_file(module, target_machine, filename);
 }
 
-int generate_bitcode_file(Module* module, const char* filename)
+int generate_bitcode_file(LLVMModuleRef module, const char* filename)
 {
-    error_code ec;
-    raw_fd_ostream dest(filename, ec, sys::fs::OF_None);
-    if (ec) {
-        errs() << "Could not open file: " << ec.message();
-        return 1;
-    }
-    llvm::WriteBitcodeToFile(*module, dest);
-    dest.flush();
+    LLVMWriteBitcodeToFile(module, filename);
     printf("generated bc file: %s\n", filename);
     return 0;
 }
 
-int generate_ir_file(Module* module, const char* filename)
+int generate_ir_file(LLVMModuleRef module, const char* filename)
 {
-    error_code ec;
-    raw_fd_ostream dest(filename, ec, sys::fs::OF_None);
-    if (ec) {
-        errs() << "Could not open file: " << ec.message();
-        return 1;
-    }
-    module->print(dest, nullptr);
-    dest.flush();
-    printf("generated ir file: %s\n", filename);
+    LLVMPrintModuleToFile(module, filename, NULL);
     return 0;
 }
