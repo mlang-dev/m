@@ -14,15 +14,14 @@
 #include <map>
 #include <vector>
 
-using namespace std;
 struct parser {
-    map<string, int>* op_precedences;
+    std::map<std::string, int>* op_precedences;
     token curr_token;
     ast* ast;
     bool allow_id_as_a_func;
     bool is_repl;
     module* current_module;
-    queue<token> queued_tokens;
+    std::queue<token> queued_tokens;
 };
 
 parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name) = nullptr);
@@ -38,6 +37,6 @@ bool is_unary_op(prototype_node* pnode);
 bool is_binary_op(prototype_node* pnode);
 char get_op_name(prototype_node* pnode);
 void queue_token(parser* parser, token tkn);
-void queue_tokens(parser* psr, vector<token> tokens);
+void queue_tokens(parser* psr, std::vector<token> tokens);
 
 #endif

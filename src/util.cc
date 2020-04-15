@@ -10,15 +10,13 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
-static string id_name = "a";
-void reset_id_name(string idname)
+static std::string id_name = "a";
+void reset_id_name(std::string idname)
 {
     id_name = idname;
 }
 
-string _inc_str(string id)
+std::string _inc_str(std::string id)
 {
     if (id == "")
         return id;
@@ -33,9 +31,9 @@ string _inc_str(string id)
     return id;
 }
 
-string get_id_name()
+std::string get_id_name()
 {
-    string str = id_name;
+    std::string str = id_name;
     id_name = _inc_str(id_name);
     if (id_name.back() == 'a' && all_of(id_name.begin(), id_name.end(), [](char x) { return x == 'a'; }))
         id_name.push_back('a');
@@ -45,17 +43,17 @@ string get_id_name()
 static char alpha_nums[36];
 static bool alpha_nums_init = false;
 
-string vector_to_string(vector<string>& array)
+std::string vector_to_string(std::vector<std::string>& array)
 {
-    ostringstream imploded;
+    std::ostringstream imploded;
     copy(array.begin(), array.end(),
-        ostream_iterator<string>(imploded, " "));
+        std::ostream_iterator<std::string>(imploded, " "));
     return imploded.str();
 }
 
-string char_to_string(char c)
+std::string char_to_string(char c)
 {
-    string s(1, c);
+    std::string s(1, c);
     return s;
 }
 
@@ -64,7 +62,7 @@ int random(int min, int max)
     return min + (rand() % static_cast<int>(max - min + 1));
 }
 
-string make_unique_name(const char* name)
+std::string make_unique_name(const char* name)
 {
     if (!alpha_nums_init) {
         char c = '0';
@@ -83,8 +81,8 @@ string make_unique_name(const char* name)
         int j = random(0, 35);
         s[i] = alpha_nums[j];
     }
-    string str = s;
-    string name_str = name;
+    std::string str = s;
+    std::string name_str = name;
     return name_str + "-" + str;
 }
 
@@ -99,18 +97,18 @@ void* log(LogLevel level, const char* string_format, ...)
     return 0;
 }
 
-vector<string> split(string str, char separator)
+std::vector<std::string> split(std::string str, char separator)
 {
-    vector<string> strings;
-    istringstream f(str);
-    string s;
+    std::vector<std::string> strings;
+    std::istringstream f(str);
+    std::string s;
     while (getline(f, s, separator)) {
         strings.push_back(s);
     }
     return strings;
 }
 
-string format(const char* string_format, ...)
+std::string format(const char* string_format, ...)
 {
     va_list args;
     char data[512];
@@ -120,9 +118,9 @@ string format(const char* string_format, ...)
     return data;
 }
 
-string get_filename(const char* fullfilename)
+std::string get_filename(const char* fullfilename)
 {
-    string fn = fullfilename;
+    std::string fn = fullfilename;
     auto pos = fn.find_last_of('.');
     return fn.substr(0, pos);
 }

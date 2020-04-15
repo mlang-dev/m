@@ -11,17 +11,15 @@
 #include "env.h"
 #include "parser.h"
 
-using namespace std;
-
 struct code_generator {
     void* context;
     void* builder;
     parser* parser;
-    map<string, void*> named_values;
+    std::map<std::string, void*> named_values;
     void* module;
     //void* fpm;
-    map<string, prototype_node*> protos;
-    map<string, var_node*> gvs;
+    std::map<std::string, prototype_node*> protos;
+    std::map<std::string, var_node*> gvs;
 };
 
 code_generator* cg_new(menv* env, parser* parser);

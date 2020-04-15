@@ -14,13 +14,12 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 
-set<char> op_chars = {
+std::set<char> op_chars = {
     '!', '%', '&', '*', '+', '-', '.', '/', '<', '=', '>', '?', '@', '^', '|'
 };
 
-static map<string, TokenType> tokens = {
+static std::map<std::string, TokenType> tokens = {
     { "import", TOKEN_IMPORT },
     { "if", TOKEN_IF },
     { "else", TOKEN_ELSE },
@@ -32,14 +31,14 @@ static map<string, TokenType> tokens = {
     { "..", TOKEN_RANGE },
 };
 
-static map<char, TokenType> char_tokens = {
+static std::map<char, TokenType> char_tokens = {
     { '(', TOKEN_LPAREN },
     { ')', TOKEN_RPAREN },
     { '[', TOKEN_LBRACKET },
     { ']', TOKEN_RBRACKET },
 };
 
-map<string, Type> types = {
+std::map<std::string, Type> types = {
     { "()", TYPE_UNIT },
     { "bool", TYPE_BOOL },
     { "char", TYPE_CHAR },
@@ -48,7 +47,7 @@ map<string, Type> types = {
     { "fun", TYPE_FUNCTION },
 };
 
-static set<char> symbol_chars = { '.' };
+static std::set<char> symbol_chars = { '.' };
 
 static int get_char(file_tokenizer* tokenizer)
 {
@@ -84,7 +83,7 @@ token& _tokenize_symbol_type(file_tokenizer* tokenizer, token& t, TokenType toke
     return t;
 }
 
-bool _tokenize_symbol(file_tokenizer* tokenizer, string& symbol)
+bool _tokenize_symbol(file_tokenizer* tokenizer, std::string& symbol)
 {
     symbol = "";
     bool has_dot = false;
@@ -100,10 +99,10 @@ bool _tokenize_symbol(file_tokenizer* tokenizer, string& symbol)
 
 token& _tokenize_number(file_tokenizer* tokenizer)
 {
-    string num_str = "";
+    std::string num_str = "";
     bool has_dot = false;
     do {
-        string symbol;
+        std::string symbol;
         has_dot = _tokenize_symbol(tokenizer, symbol);
         if (auto type = tokens[symbol]) {
             if (num_str == "") {
@@ -123,8 +122,8 @@ token& _tokenize_number(file_tokenizer* tokenizer)
         tokenizer->cur_token.double_val = strtod(num_str.c_str(), nullptr);
         tokenizer->cur_token.type = TYPE_DOUBLE;
     } else {
-        tokenizer->cur_token.int_val = stoi(num_str.c_str(), nullptr);
-        tokenizer->cur_token.double_val = stoi(num_str.c_str(), nullptr);
+        tokenizer->cur_token.int_val = std::stoi(num_str.c_str(), nullptr);
+        tokenizer->cur_token.double_val = std::stoi(num_str.c_str(), nullptr);
         tokenizer->cur_token.type = TYPE_INT;
     }
     tokenizer->cur_token.token_type = TOKEN_NUM;

@@ -13,7 +13,6 @@
 #include <vector>
 #include "parser.h"
 
-using namespace std;
-string dump(exp_node* node);
+std::string dump(exp_node* node);
 
 #endif

@@ -49,7 +49,7 @@ static const char* KindString[] = {
 //type variable or operator
 struct type_exp {
     Kind kind; //type variable or type operator
-    string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
+    std::string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 };
 
 struct type_var {
@@ -59,16 +59,16 @@ struct type_var {
 
 struct type_oper {
     type_exp base;
-    vector<type_exp*> args; //type composition like function or tuple, record
+    std::vector<type_exp*> args; //type composition like function or tuple, record
 };
 
 type_var* create_type_var();
-type_oper* create_type_oper(string name, vector<type_exp*>& args);
-type_oper* create_type_fun(vector<type_exp*>& args, type_exp* ret);
+type_oper* create_type_oper(std::string name, std::vector<type_exp*>& args);
+type_oper* create_type_fun(std::vector<type_exp*>& args, type_exp* ret);
 void type_exp_free(type_exp* type);
 bool occurs_in_type(type_exp* type1, type_exp* type2);
-type_exp* retrieve(string name, vector<type_exp*>& nogen, map<string, type_exp*>& env);
-string format_type(type_exp* exp);
-bool unify(type_exp* type1, type_exp* type2, vector<type_exp*>& nogens);
+type_exp* retrieve(std::string name, std::vector<type_exp*>& nogen, std::map<std::string, type_exp*>& env);
+std::string format_type(type_exp* exp);
+bool unify(type_exp* type1, type_exp* type2, std::vector<type_exp*>& nogens);
 
 #endif

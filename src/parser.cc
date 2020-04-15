@@ -14,9 +14,8 @@
 
 #define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col < col && (parser->curr_token.token_type != TOKEN_EOS || parser->is_repl))
 
-using namespace std;
 
-map<string, int> g_op_precedences = {
+std::map<std::string, int> g_op_precedences = {
     { "<", 10 }, { ">", 10 }, { "==", 10 }, { "!=", 10 }, { "<=", 10 }, { ">=", 10 },
     { "+", 20 }, { "-", 20 },
     { "*", 40 }, { "/", 40 }
@@ -65,7 +64,7 @@ void queue_token(parser* psr, token tkn)
     psr->queued_tokens.push(tkn);
 }
 
-void queue_tokens(parser* psr, vector<token> tokens)
+void queue_tokens(parser* psr, std::vector<token> tokens)
 {
     for (auto tkn : tokens)
         psr->queued_tokens.push(tkn);
@@ -86,7 +85,7 @@ function_node* _create_function_node(prototype_node* prototype,
     return node;
 }
 
-ident_node* _create_ident_node(exp_node* parent, source_loc loc, string& name)
+ident_node* _create_ident_node(exp_node* parent, source_loc loc, std::string& name)
 {
     auto node = new ident_node();
     node->base.node_type = NodeType::IDENT_NODE;
@@ -118,7 +117,7 @@ num_node* _create_num_node(exp_node* parent, source_loc loc, int val)
     return node;
 }
 
-var_node* _create_var_node(exp_node* parent, source_loc loc, string var_name, exp_node* init_value)
+var_node* _create_var_node(exp_node* parent, source_loc loc, std::string var_name, exp_node* init_value)
 {
     auto node = new var_node();
     node->base.node_type = VAR_NODE;
@@ -129,8 +128,8 @@ var_node* _create_var_node(exp_node* parent, source_loc loc, string var_name, ex
     return node;
 }
 
-call_node* _create_call_node(exp_node* parent, source_loc loc, const string& callee,
-    vector<exp_node*>& args)
+call_node* _create_call_node(exp_node* parent, source_loc loc, const std::string& callee,
+    std::vector<exp_node*>& args)
 {
     auto node = new call_node();
     node->base.node_type = NodeType::CALL_NODE;
@@ -141,9 +140,9 @@ call_node* _create_call_node(exp_node* parent, source_loc loc, const string& cal
     return node;
 }
 
-prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const string& name,
-    vector<string>& args,
-    bool is_operator, unsigned precedence, string op)
+prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const std::string& name,
+    std::vector<std::string>& args,
+    bool is_operator, unsigned precedence, std::string op)
 {
     auto node = new prototype_node();
     node->base.node_type = NodeType::PROTOTYPE_NODE;
@@ -170,7 +169,7 @@ condition_node* _create_if_node(exp_node* parent, source_loc loc, exp_node* cond
     return node;
 }
 
-unary_node* _create_unary_node(exp_node* parent, source_loc loc, string op, exp_node* operand)
+unary_node* _create_unary_node(exp_node* parent, source_loc loc, std::string op, exp_node* operand)
 {
     auto node = new unary_node();
     node->base.node_type = NodeType::UNARY_NODE;
@@ -181,7 +180,7 @@ unary_node* _create_unary_node(exp_node* parent, source_loc loc, string op, exp_
     return node;
 }
 
-binary_node* _create_binary_node(exp_node* parent, source_loc loc, string op, exp_node* lhs, exp_node* rhs)
+binary_node* _create_binary_node(exp_node* parent, source_loc loc, std::string op, exp_node* lhs, exp_node* rhs)
 {
     auto node = new binary_node();
     node->base.node_type = NodeType::BINARY_NODE;
@@ -193,7 +192,7 @@ binary_node* _create_binary_node(exp_node* parent, source_loc loc, string op, ex
     return node;
 }
 
-for_node* _create_for_node(exp_node* parent, source_loc loc, const string& var_name, exp_node* start,
+for_node* _create_for_node(exp_node* parent, source_loc loc, const std::string& var_name, exp_node* start,
     exp_node* end, exp_node* step, exp_node* body)
 {
     auto node = new for_node();
@@ -208,7 +207,7 @@ for_node* _create_for_node(exp_node* parent, source_loc loc, const string& var_n
     return node;
 }
 
-block_node* _create_block_node(exp_node* parent, vector<exp_node*>& nodes)
+block_node* _create_block_node(exp_node* parent, std::vector<exp_node*>& nodes)
 {
     block_node* block = new block_node();
     block->base.node_type = NodeType::BLOCK_NODE;
@@ -314,12 +313,12 @@ exp_node* _parse_parentheses(parser* parser, exp_node* parent)
     return v;
 }
 
-exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_loc loc, string id_name, bool is_operator = false, int precedence = 0)
+exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_loc loc, std::string id_name, bool is_operator = false, int precedence = 0)
 {
     if (parser->curr_token.token_type == TOKEN_LPAREN)
         parse_next_token(parser); // skip '('
     auto func_definition = false;
-    vector<exp_node*> args;
+    std::vector<exp_node*> args;
     //doesn't allow function inside parameter or argument
     //will be enhanced later
     //log(DEBUG, "function app or def: %s", id_name.c_str());
@@ -341,7 +340,7 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
     parser->allow_id_as_a_func = true;
     //log(DEBUG, "is %s a function def: %d, %d", id_name.c_str(), func_definition, is_operator);
     if (func_definition) {
-        vector<string> argNames;
+        std::vector<std::string> argNames;
         for (auto exp : args) {
             auto id = (ident_node*)exp;
             argNames.push_back(id->name);
@@ -369,7 +368,7 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
     return parse_exp(parser, parent, call_node);
 }
 
-extern set<char> op_chars;
+extern std::set<char> op_chars;
 exp_node* parse_statement(parser* parser, exp_node* parent)
 {
     //log(DEBUG, "parsing statement:%d, %s", parent, TokenTypeString[parser->curr_token.token_type]);
@@ -384,10 +383,10 @@ exp_node* parse_statement(parser* parser, exp_node* parent)
         auto proto = _parse_prototype(parser, parent);
         node = _parse_function_with_prototype(parser, (prototype_node*)proto);
     } else if (parser->curr_token.token_type == TOKEN_IDENT) {
-        string id_name = *parser->curr_token.ident_str;
+        std::string id_name = *parser->curr_token.ident_str;
         source_loc loc = parser->curr_token.loc;
         parse_next_token(parser); // skip identifier
-        string op = parser->curr_token.token_type == TOKEN_OP ? *parser->curr_token.ident_str : "";
+        std::string op = parser->curr_token.token_type == TOKEN_OP ? *parser->curr_token.ident_str : "";
         //log(DEBUG, "id token: %s, %s, %d", id_name.c_str(), op.c_str(), parent);
         if (op == "=") {
             // variable definition
@@ -403,14 +402,14 @@ exp_node* parse_statement(parser* parser, exp_node* parent)
         }
     } else {
         if (parser->curr_token.token_type == TOKEN_LPAREN) {
-            vector<token> queued;
+            std::vector<token> queued;
             queued.push_back(parser->curr_token);
             parse_next_token(parser); //skip (
             queued.push_back(parser->curr_token);
             if (parser->curr_token.token_type == TOKEN_OP && op_chars.count(parser->curr_token.ident_str->at(0))) {
                 //it is operator overloading
                 //log(DEBUG, "it is operator overloading: %c: loc: %d, %d", parser->curr_token.op_val, parser->curr_token.loc.line, parser->curr_token.loc.col);
-                string op = *parser->curr_token.ident_str;
+                std::string op = *parser->curr_token.ident_str;
                 parse_next_token(parser);
                 if (parser->curr_token.token_type != TOKEN_RPAREN)
                     return (exp_node*)log(ERROR, "expected ')'");
@@ -454,7 +453,7 @@ bool _id_is_a_function_call(parser* parser)
 
 exp_node* _parse_ident(parser* parser, exp_node* parent)
 {
-    string id_name = *parser->curr_token.ident_str;
+    std::string id_name = *parser->curr_token.ident_str;
     source_loc loc = parser->curr_token.loc;
 
     parse_next_token(parser); // take identifier
@@ -462,7 +461,7 @@ exp_node* _parse_ident(parser* parser, exp_node* parent)
     if (_id_is_a_function_call(parser)) { // pure variable
         // fprintf(stderr, "ident parsed. %s\n", id_name.c_str());
         //(
-        vector<exp_node*> args;
+        std::vector<exp_node*> args;
         while (true) {
             if (auto arg = parse_exp(parser, parent))
                 args.push_back(arg);
@@ -499,11 +498,11 @@ exp_node* _parse_node(parser* parser, exp_node* parent)
     }
 }
 
-string map_to_string(map<char, int>& m)
+std::string map_to_string(std::map<char, int>& m)
 {
-    string output = "";
-    string convrt = "";
-    string result = "";
+    std::string output = "";
+    std::string convrt = "";
+    std::string result = "";
     for (auto it = m.cbegin(); it != m.cend(); it++) {
         convrt = std::to_string(it->second);
         output += it->first;
@@ -522,7 +521,7 @@ exp_node* _parse_binary(parser* parser, exp_node* parent, int exp_prec, exp_node
         if (tok_prec < exp_prec)
             return lhs;
         //log(DEBUG, "bin exp: [%s, %c], %d, %s", TokenTypeString[parser->curr_token.token_type], parser->curr_token.op_val, tok_prec, map_to_string(g_op_precedences).c_str());
-        string binary_op = *parser->curr_token.ident_str;
+        std::string binary_op = *parser->curr_token.ident_str;
         parse_next_token(parser);
         auto rhs = _parse_unary(parser, parent);
         if (!rhs)
@@ -633,7 +632,7 @@ exp_node* _parse_function_with_prototype(parser* parser,
     return 0;
 }
 
-exp_node* _parse_var(parser* parser, exp_node* parent, string& name)
+exp_node* _parse_var(parser* parser, exp_node* parent, std::string& name)
 {
     if (*parser->curr_token.ident_str == "=")
         parse_next_token(parser); // skip '='
@@ -651,9 +650,9 @@ exp_node* parse_exp_to_function(parser* parser, exp_node* exp, const char* fn)
     if (!exp)
         exp = parse_exp(parser, nullptr);
     if (exp) {
-        auto args = vector<string>();
+        auto args = std::vector<std::string>();
         auto prototype = create_prototype_node(nullptr, exp->loc, fn, args);
-        vector<exp_node*> nodes;
+        std::vector<exp_node*> nodes;
         nodes.push_back(exp);
         auto block = _create_block_node((exp_node*)prototype, nodes);
         return (exp_node*)_create_function_node(prototype, block);
@@ -683,7 +682,7 @@ exp_node* _parse_unary(parser* parser, exp_node* parent)
     }
     //log(DEBUG, "unary: %c", parser->curr_token.op_val);
     // If this is a unary operator, read it.
-    string opc = *parser->curr_token.ident_str;
+    std::string opc = *parser->curr_token.ident_str;
     parse_next_token(parser);
     if (exp_node* operand = _parse_unary(parser, parent)) {
         //log(DEBUG, "unary node:%c: %s", opc, NodeTypeString[operand->node_type]);
@@ -784,7 +783,7 @@ exp_node* _parse_if(parser* parser, exp_node* parent)
 block_node* parse_block(parser* parser, exp_node* parent, void (*fun)(void*, exp_node*), void* jit)
 {
     int col = parent ? parent->loc.col : 1;
-    vector<exp_node*> nodes;
+    std::vector<exp_node*> nodes;
     while (true) {
         parse_next_token(parser);
         if (exit_block(parser, parent, col)) {

@@ -5,8 +5,8 @@
  *
  * array c header file
  */
-#ifndef __LIB_ARRAY_H__
-#define __LIB_ARRAY_H__
+#ifndef __CLIB_ARRAY_H__
+#define __CLIB_ARRAY_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,13 +14,13 @@ extern "C" {
 
 typedef struct {
     void** data;
-    size_t used;
-    size_t size;
-} Array;
+    size_t used_size;
+    size_t total_size;
+} array;
 
-Array* array_init();
-void array_append(Array* a, void* element);
-void array_free(Array* a);
+array* array_init();
+void array_append(array* a, void* element);
+void array_free(array* a);
 
 #ifdef __cplusplus
 }

@@ -180,7 +180,7 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else {
-        string fname = std::string("binary") + bin->op;
+        std::string fname = std::string("binary") + bin->op;
         LLVMValueRef fun = _get_function(cg, fname.c_str());
         assert(fun && "binary operator not found!");
         LLVMValueRef ops[2] = { (LLVMValueRef)lv, (LLVMValueRef)rv };
@@ -215,11 +215,11 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
     auto proto = (prototype_node*)node;
     cg->protos[proto->name] = proto;
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    Array* doubles = array_init();
+    array* doubles = array_init();
     for (auto& arg : proto->args){
         array_append(doubles, LLVMDoubleTypeInContext(context));
     }
-    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)doubles->data, doubles->used, false);
+    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)doubles->data, doubles->used_size, false);
     LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, proto->name.c_str(), ft);
     unsigned i = 0;
     for (unsigned i = 0; i< LLVMCountParams(fun); i++){
@@ -274,7 +274,7 @@ void* _generate_unary_node(code_generator* cg, exp_node* node)
     if (operand_v == 0)
         return 0;
 
-    string fname = std::string("unary") + unary->op;
+    std::string fname = std::string("unary") + unary->op;
     LLVMValueRef fun = _get_function(cg, fname.c_str());
     if (fun == 0)
         return log(ERROR, "Unknown unary operator");

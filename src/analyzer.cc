@@ -6,7 +6,7 @@
 
 #include "analyzer.h"
 
-type_exp* retrieve(type_env* env, string name)
+type_exp* retrieve(type_env* env, std::string name)
 {
     return retrieve(name, env->nogens, env->type_env);
 }
@@ -36,7 +36,7 @@ type_exp* _analyze_call(type_env* env, exp_node* node)
 {
     auto call = (call_node*)node;
     auto fun_type = retrieve(env, call->callee);
-    vector<type_exp*> args;
+    std::vector<type_exp*> args;
     args.resize(call->args.size());
     transform(call->args.begin(), call->args.end(), args.begin(),
         [&](exp_node* node) {
@@ -50,10 +50,10 @@ type_exp* _analyze_call(type_env* env, exp_node* node)
 type_exp* _analyze_fun(type_env* env, function_node* fun)
 {
     //# create a new non-generic variable for the binder
-    vector<type_exp*> args;
+    std::vector<type_exp*> args;
     args.resize(fun->prototype->args.size());
     transform(fun->prototype->args.begin(), fun->prototype->args.end(), args.begin(),
-        [](string arg) {
+        [](std::string arg) {
             return (type_exp*)create_type_var();
         });
     for (int i = 0; i < args.size(); i++) {
@@ -78,7 +78,7 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
 type_env* type_env_new()
 {
     type_env* env = new type_env();
-    vector<type_exp*> args;
+    std::vector<type_exp*> args;
     for (auto def_type : TypeString)
         env->type_env[def_type] = (type_exp*)create_type_oper(def_type, args);
     return env;
@@ -95,7 +95,7 @@ void type_env_free(type_env* env)
 type_exp* _analyze_block(type_env* env, exp_node* node)
 {
     auto block = (block_node*)node;
-    vector<type_exp*> exps;
+    std::vector<type_exp*> exps;
     for (auto node : block->nodes) {
         exps.push_back(analyze(env, node));
     }

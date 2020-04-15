@@ -14,7 +14,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 
 #define FOREACH_NODETYPE(ENUM_ITEM) \
     ENUM_ITEM(UNK_NODE)             \
@@ -45,7 +44,7 @@ struct exp_node {
 
 struct block_node {
     exp_node base;
-    vector<exp_node*> nodes;
+    std::vector<exp_node*> nodes;
 };
 
 struct module {
@@ -74,19 +73,19 @@ struct ident_node {
 
 struct var_node {
     exp_node base;
-    string var_name;
+    std::string var_name;
     exp_node* init_value;
 };
 
 struct unary_node {
     exp_node base;
-    string op;
+    std::string op;
     exp_node* operand;
 };
 
 struct binary_node {
     exp_node base;
-    string op;
+    std::string op;
     exp_node *lhs, *rhs;
 };
 
@@ -109,9 +108,9 @@ struct call_node {
 
 struct prototype_node {
     exp_node base;
-    string name;
-    string op;
-    vector<string> args;
+    std::string name;
+    std::string op;
+    std::vector<std::string> args;
     char is_operator;
     unsigned precedence;
 };
@@ -127,6 +126,6 @@ prototype_node* create_prototype_node(exp_node* parent, source_loc loc,
     std::vector<std::string>& args,
     bool is_operator = false,
     unsigned precedence = 0,
-    string op = "");
+    std::string op = "");
 
 #endif

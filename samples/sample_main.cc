@@ -1,5 +1,4 @@
 #include <iostream>
-using namespace std;
 
 extern "C" {
     double avg(double, double);
@@ -9,10 +8,10 @@ extern "C" {
 }
 
 int main() {
-    cout << "average of 13.0 and 14.0: " << avg(13.0, 14.0) << endl;
-    cout << "distance between (1, 2) and (4,6): " << distance(1, 2, 4, 6) << endl;
-    cout << "factorial of 5!: " << factorial(5) << endl;
+    printf("average of 13.0 and 14.0: %f\n", avg(13.0, 14.0));
+    printf("distance between (1, 2) and (4,6): %f\n", distance(1, 2, 4, 6));
+    printf("factorial of 5!: %f\n", factorial(5));
     loopprint(10);
-    cout << endl;
+    printf("\n");
     return 0;
 }

@@ -16,7 +16,7 @@ type_var* create_type_var()
     return var;
 }
 
-type_oper* create_type_oper(string name, vector<type_exp*>& args)
+type_oper* create_type_oper(std::string name, std::vector<type_exp*>& args)
 {
     auto var = new type_oper();
     var->base.kind = KIND_OPER;
@@ -25,7 +25,7 @@ type_oper* create_type_oper(string name, vector<type_exp*>& args)
     return var;
 }
 
-type_oper* create_type_fun(vector<type_exp*>& args, type_exp* ret)
+type_oper* create_type_fun(std::vector<type_exp*>& args, type_exp* ret)
 {
     args.push_back(ret);
     return create_type_oper("->", args);
@@ -41,14 +41,14 @@ void type_exp_free(type_exp* type)
     delete op;
 }
 
-string format_type(type_exp* exp)
+std::string format_type(type_exp* exp)
 {
     if (exp->kind == KIND_VAR) {
         auto var = (type_var*)exp;
         return var->instance != nullptr ? format_type(var->instance) : exp->name;
     }
     auto op = (type_oper*)exp;
-    string str = "";
+    std::string str = "";
     for (auto e : op->args) {
         str += " ";
         str += format_type(e);
@@ -74,7 +74,7 @@ type_exp* prune(type_exp* type)
     return type;
 }
 
-inline bool _occurs_in_type_list(type_exp* type1, vector<type_exp*> list)
+inline bool _occurs_in_type_list(type_exp* type1, std::vector<type_exp*> list)
 {
     return any_of(list.begin(), list.end(), [&](type_exp* exp) { return occurs_in_type(type1, exp); });
 }
@@ -89,7 +89,7 @@ bool occurs_in_type(type_exp* type1, type_exp* type2)
     return _occurs_in_type_list(type1, oper->args);
 }
 
-bool unify(type_exp* type1, type_exp* type2, vector<type_exp*>& nogens)
+bool unify(type_exp* type1, type_exp* type2, std::vector<type_exp*>& nogens)
 {
     type1 = prune(type1);
     type2 = prune(type2);
@@ -141,7 +141,7 @@ CopyEnv* copy_env(type_exp* old_type, type_exp* new_type, CopyEnv* tail)
     return env;
 }
 
-type_exp* _fresh_var(type_exp* type1, map<type_exp*, type_exp*>& env)
+type_exp* _fresh_var(type_exp* type1, std::map<type_exp*, type_exp*>& env)
 {
     if (env[type1])
         return env[type1];
@@ -159,7 +159,7 @@ type_exp* _fresh_var(type_exp* type1, map<type_exp*, type_exp*>& env)
     //   return _fresh_var(type1, scan->tail, env);
 }
 
-type_exp* fresh(type_exp* type1, vector<type_exp*>& nogen, map<type_exp*, type_exp*>& env)
+type_exp* fresh(type_exp* type1, std::vector<type_exp*>& nogen, std::map<type_exp*, type_exp*>& env)
 {
     type1 = prune(type1);
     if (type1->kind == KIND_VAR) {
@@ -170,19 +170,19 @@ type_exp* fresh(type_exp* type1, vector<type_exp*>& nogen, map<type_exp*, type_e
             return type1;
     }
     auto op1 = (type_oper*)type1;
-    vector<type_exp*> refreshed;
+    std::vector<type_exp*> refreshed;
     refreshed.resize(op1->args.size());
-    transform(op1->args.begin(), op1->args.end(), refreshed.begin(),
+    std::transform(op1->args.begin(), op1->args.end(), refreshed.begin(),
         [&](type_exp* x) {
             return fresh(x, nogen, env);
         });
     return (type_exp*)create_type_oper(type1->name, refreshed);
 }
 
-type_exp* retrieve(string name, vector<type_exp*>& nogen, map<string, type_exp*>& env)
+type_exp* retrieve(std::string name, std::vector<type_exp*>& nogen, std::map<std::string, type_exp*>& env)
 {
     if (env[name]) {
-        map<type_exp*, type_exp*> type_env;
+        std::map<type_exp*, type_exp*> type_env;
         return fresh(env[name], nogen, type_env);
     }
     return nullptr;

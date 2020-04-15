@@ -9,9 +9,6 @@
 #include "llvm/ADT/StringRef.h"
 #include "llvm/IR/Intrinsics.h"
 
-using namespace std;
-using namespace llvm;
-
 llvm::Intrinsic::ID builtin_ids[] = {
     llvm::Intrinsic::IndependentIntrinsics::sin,
     llvm::Intrinsic::IndependentIntrinsics::cos,
@@ -21,8 +18,8 @@ llvm::Intrinsic::ID builtin_ids[] = {
 
 prototype_node* _create_for_id(void* context, llvm::Intrinsic::ID id)
 {
-    ArrayRef<llvm::Type*> types;
-    string name = llvm::Intrinsic::getName(id, types);
+    llvm::ArrayRef<llvm::Type*> types;
+    std::string name = llvm::Intrinsic::getName(id, types);
     llvm::SmallVector<llvm::Intrinsic::IITDescriptor, 8> iitds;
     llvm::Intrinsic::getIntrinsicInfoTableEntries(id, iitds);
     llvm::ArrayRef<llvm::Intrinsic::IITDescriptor> iitdsRef = iitds;
@@ -44,7 +41,7 @@ void get_builtins(void* context, std::vector<exp_node*>& builtins)
     for (int i = 0; i < NUM_BUILTINS; i++) {
         builtins.push_back((exp_node*)_create_for_id(context, builtin_ids[i]));
     }
-    vector<string> args;
+    std::vector<std::string> args;
     args.push_back("char");
     builtins.push_back((exp_node*)create_prototype_node(nullptr, { 1, 0 }, "print", args));
 }

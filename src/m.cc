@@ -7,7 +7,6 @@
 #include "repl.h"
 #include <unistd.h>
 
-using namespace std;
 
 extern char* optarg;
 extern int optind, opterr, optopt;
@@ -26,7 +25,7 @@ int main(int argc, char* argv[])
     int fflag = 0;
     char* fopt = 0;
     object_file_type file_type = FT_OBJECT;
-    vector<char*> src_files;
+    std::vector<char*> src_files;
     while (optind < argc) {
         if ((option = getopt(argc, argv, "f:")) != -1) {
             switch (option) {

@@ -13,9 +13,6 @@
 
 #include "env.h"
 
-using namespace llvm;
-using namespace std;
-
 int generate_object_file(LLVMModuleRef module, const char* filename);
 int generate_bitcode_file(LLVMModuleRef module, const char* filename);
 int generate_ir_file(LLVMModuleRef module, const char* filename);
@@ -70,7 +67,7 @@ int gof_initialize()
 int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, const char* filename)
 {
     if (LLVMTargetMachineEmitToFile(target_machine, module, (char*)filename, LLVMCodeGenFileType::LLVMObjectFile, NULL)) {
-        errs() << "Target machine can't emit an object file";
+        printf("Target machine can't emit an object file\n");
         return 2;
     }
     printf("generated obj file: %s\n", filename);

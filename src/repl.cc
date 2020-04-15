@@ -11,7 +11,7 @@
 
 llvm::orc::VModuleKey _add_module_to_jit(JIT* jit)
 {
-    unique_ptr<llvm::Module> module((llvm::Module*)jit->cg->module);
+    std::unique_ptr<llvm::Module> module((llvm::Module*)jit->cg->module);
     jit->cg->module = nullptr;
     return jit->mjit->addModule(std::move(module));
 }

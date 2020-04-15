@@ -11,9 +11,9 @@
 #include "ast.h"
 
 struct type_env {
-    map<string, type_exp*> type_env;
-    map<type_exp*, type_exp*> types;
-    vector<type_exp*> nogens;
+    std::map<std::string, type_exp*> type_env;
+    std::map<type_exp*, type_exp*> types;
+    std::vector<type_exp*> nogens;
 };
 
 type_env* type_env_new();

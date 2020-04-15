@@ -14,7 +14,6 @@
 #include <queue>
 #include <string>
 
-using namespace std;
 
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
     ENUM_ITEM(TOKEN_UNK)             \
@@ -54,7 +53,7 @@ struct token {
     source_loc loc;
     int int_val;
     union {
-        string* ident_str;
+        std::string* ident_str;
         double double_val;
     };
 };
@@ -66,7 +65,7 @@ struct file_tokenizer {
     token cur_token;
     token next_token;
     int curr_char = ' ';
-    string ident_str;
+    std::string ident_str;
 };
 
 file_tokenizer* create_tokenizer(FILE* file);
