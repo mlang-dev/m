@@ -122,8 +122,8 @@ token& _tokenize_number(file_tokenizer* tokenizer)
         tokenizer->cur_token.double_val = strtod(num_str.c_str(), nullptr);
         tokenizer->cur_token.type = TYPE_DOUBLE;
     } else {
-        tokenizer->cur_token.int_val = std::stoi(num_str.c_str(), nullptr);
-        tokenizer->cur_token.double_val = std::stoi(num_str.c_str(), nullptr);
+        tokenizer->cur_token.int_val = atoi(num_str.c_str());
+        tokenizer->cur_token.double_val = atoi(num_str.c_str());
         tokenizer->cur_token.type = TYPE_INT;
     }
     tokenizer->cur_token.token_type = TOKEN_NUM;

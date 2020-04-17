@@ -9,7 +9,7 @@
 
 #include "codegen.h"
 #include "util.h"
-#include "array.h"
+#include "clib/array.h"
 
 void* _generate_global_var_node(code_generator* cg, var_node* node,
     bool is_external = false);

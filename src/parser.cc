@@ -677,7 +677,8 @@ exp_node* _parse_unary(parser* parser, exp_node* parent)
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
     auto loc = parser->curr_token.loc;
-    if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.token_type == TOKEN_LPAREN || *parser->curr_token.ident_str == ",") {
+    if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.token_type == TOKEN_LPAREN 
+        || *parser->curr_token.ident_str == ",") {
         return _parse_node(parser, parent);
     }
     //log(DEBUG, "unary: %c", parser->curr_token.op_val);
