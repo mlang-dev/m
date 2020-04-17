@@ -10,11 +10,11 @@
 
 #include "ast.h"
 
-struct type_env {
+typedef struct {
     std::map<std::string, type_exp*> type_env;
     std::map<type_exp*, type_exp*> types;
     std::vector<type_exp*> nogens;
-};
+}type_env;
 
 type_env* type_env_new();
 void type_env_free(type_env* env);
