@@ -32,13 +32,13 @@ function_node* create_function_node(prototype_node* prototype,
     return node;
 }
 
-ident_node* create_ident_node(exp_node* parent, source_loc loc, std::string& name)
+ident_node* create_ident_node(exp_node* parent, source_loc loc, const char *name)
 {
     auto node = new ident_node();
     node->base.node_type = NodeType::IDENT_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->name, name.c_str());
+    string_init(&node->name, name);
     return node;
 }
 
@@ -64,42 +64,42 @@ num_node* create_num_node(exp_node* parent, source_loc loc, int val)
     return node;
 }
 
-var_node* create_var_node(exp_node* parent, source_loc loc, std::string var_name, exp_node* init_value)
+var_node* create_var_node(exp_node* parent, source_loc loc, const char *var_name, exp_node* init_value)
 {
     auto node = new var_node();
     node->base.node_type = VAR_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->var_name, var_name.c_str());
+    string_init(&node->var_name, var_name);
     node->init_value = init_value;
     return node;
 }
 
-call_node* create_call_node(exp_node* parent, source_loc loc, const std::string& callee,
+call_node* create_call_node(exp_node* parent, source_loc loc, const char *callee,
     std::vector<exp_node*>& args)
 {
     auto node = new call_node();
     node->base.node_type = NodeType::CALL_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->callee, callee.c_str());
+    string_init(&node->callee, callee);
     node->args = args;
     return node;
 }
 
-prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const std::string& name,
+prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const char *name,
     std::vector<std::string>& args,
-    bool is_operator, unsigned precedence, std::string op)
+    bool is_operator, unsigned precedence, const char *op)
 {
     auto node = new prototype_node();
     node->base.node_type = NodeType::PROTOTYPE_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->name, name.c_str());
+    string_init(&node->name, name);
     node->args = args;
     node->is_operator = is_operator;
     node->precedence = precedence;
-    string_init(&node->op, op.c_str());
+    string_init(&node->op, op);
     return node;
 }
 
@@ -116,37 +116,37 @@ condition_node* create_if_node(exp_node* parent, source_loc loc, exp_node* condi
     return node;
 }
 
-unary_node* create_unary_node(exp_node* parent, source_loc loc, std::string op, exp_node* operand)
+unary_node* create_unary_node(exp_node* parent, source_loc loc, const char *op, exp_node* operand)
 {
     auto node = new unary_node();
     node->base.node_type = NodeType::UNARY_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->op, op.c_str());
+    string_init(&node->op, op);
     node->operand = operand;
     return node;
 }
 
-binary_node* create_binary_node(exp_node* parent, source_loc loc, std::string op, exp_node* lhs, exp_node* rhs)
+binary_node* create_binary_node(exp_node* parent, source_loc loc, const char *op, exp_node* lhs, exp_node* rhs)
 {
     auto node = new binary_node();
     node->base.node_type = NodeType::BINARY_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->op, op.c_str());
+    string_init(&node->op, op);
     node->lhs = lhs;
     node->rhs = rhs;
     return node;
 }
 
-for_node* create_for_node(exp_node* parent, source_loc loc, const std::string& var_name, exp_node* start,
+for_node* create_for_node(exp_node* parent, source_loc loc, const char *var_name, exp_node* start,
     exp_node* end, exp_node* step, exp_node* body)
 {
     auto node = new for_node();
     node->base.node_type = NodeType::FOR_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->var_name, var_name.c_str());
+    string_init(&node->var_name, var_name);
     node->start = start;
     node->end = end;
     node->step = step;

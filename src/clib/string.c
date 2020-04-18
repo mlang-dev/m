@@ -15,8 +15,21 @@ void string_init(string* str, const char* chars)
     size_t len = strlen(chars);
     if (len < SSO_LENGTH) {
         str->data = str->reserved;
+        str->cap = SSO_LENGTH;
     } else {
         str->data = (char*)malloc(len + 1);
+        str->cap = len + 1;
+    }
+    memcpy(str->data, chars, len + 1);
+    str->size = len;
+}
+
+void string_copy(string* str, const char* chars)
+{
+    size_t len = strlen(chars);
+    if (len >= str->cap) {
+        str->data = (char*)malloc(len + 1);
+        str->cap = len + 1;
     }
     memcpy(str->data, chars, len + 1);
     str->size = len;
@@ -57,8 +70,9 @@ void string_add(string *str1, const char *chars)
 
 bool string_eqs(string *str1, string *str2)
 {
-    if (str1->size != str2->size)
+    if (str1->size != str2->size){
         return false;
+    }
     return strcmp(str1->data, str2->data) == 0;
 }
 

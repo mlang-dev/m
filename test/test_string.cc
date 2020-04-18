@@ -73,3 +73,15 @@ TEST(testString, testNotEq2)
     ASSERT_FALSE(string_eq(&str, "hello world!."));
     string_deinit(&str);
 }
+
+TEST(testString, testCopy)
+{
+    string str;
+    char test_char[] = "hello world!";
+    string_init(&str, "");
+    string_copy(&str, "hello world!");
+    ASSERT_EQ(str.size, strlen(test_char));
+    ASSERT_STREQ(str.data, "hello world!");
+    ASSERT_TRUE(string_eq(&str, "hello world!"));
+    string_deinit(&str);
+}

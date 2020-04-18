@@ -19,12 +19,14 @@ extern "C" {
 
 typedef struct{
   size_t size;
+  size_t cap;
   char reserved[SSO_LENGTH]; //reserved for short string optimization
   char* data;
 }string;
 
 string* string_new(const char *chars);
 void string_init(string *str, const char *chars);
+void string_copy(string* str, const char* chars);
 bool string_eq(string *str1, const char *chars);
 bool string_eqs(string *str1, string *str2);
 void string_append(string *str1, string *str2);
