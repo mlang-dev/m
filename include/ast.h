@@ -109,8 +109,8 @@ struct call_node {
 
 struct prototype_node {
     exp_node base;
-    std::string name;
-    std::string op;
+    string name;
+    string op;
     std::vector<std::string> args;
     char is_operator;
     unsigned precedence;
@@ -145,7 +145,5 @@ for_node* create_for_node(exp_node* parent, source_loc loc, const std::string& v
     exp_node* end, exp_node* step, exp_node* body);
 block_node* create_block_node(exp_node* parent, std::vector<exp_node*>& nodes);
 module* create_module(const char* mod_name, FILE* file);
-
-
 
 #endif

@@ -14,7 +14,7 @@ bool is_binary_op(prototype_node* pnode)
 char get_op_name(prototype_node* pnode)
 {
     assert(is_unary_op(pnode) || is_binary_op(pnode));
-    return pnode->name[pnode->name.size() - 1];
+    return pnode->name.data[pnode->name.size - 1];
 }
 
 function_node* create_function_node(prototype_node* prototype,
@@ -27,7 +27,7 @@ function_node* create_function_node(prototype_node* prototype,
     node->prototype = prototype;
     node->body = body;
     if (is_binary_op(prototype)) {
-        g_op_precedences[prototype->op] = prototype->precedence;
+        g_op_precedences[std::string(prototype->op.data)] = prototype->precedence;
     }
     return node;
 }
@@ -95,11 +95,11 @@ prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const st
     node->base.node_type = NodeType::PROTOTYPE_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    node->name = name;
+    string_init(&node->name, name.c_str());
     node->args = args;
     node->is_operator = is_operator;
     node->precedence = precedence;
-    node->op = op;
+    string_init(&node->op, op.c_str());
     return node;
 }
 

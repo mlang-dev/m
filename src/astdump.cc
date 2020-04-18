@@ -17,7 +17,7 @@ std::string _dump_block(block_node* node)
 
 std::string _dump_prototype(prototype_node* proto)
 {
-    return proto->name + vector_to_string(proto->args) + "=";
+    return std::string(proto->name.data) + vector_to_string(proto->args) + "=";
 }
 
 std::string _dump_function(function_node* func)

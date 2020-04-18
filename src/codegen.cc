@@ -214,14 +214,14 @@ void* _generate_call_node(code_generator* cg, exp_node* node)
 void* _generate_prototype_node(code_generator* cg, exp_node* node)
 {
     auto proto = (prototype_node*)node;
-    cg->protos[proto->name] = proto;
+    cg->protos[std::string(proto->name.data)] = proto;
     LLVMContextRef context = (LLVMContextRef)cg->context;
     array* doubles = array_init();
     for (auto& arg : proto->args){
         array_append(doubles, LLVMDoubleTypeInContext(context));
     }
     LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)doubles->data, doubles->used_size, false);
-    LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, proto->name.c_str(), ft);
+    LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, proto->name.data, ft);
     unsigned i = 0;
     for (unsigned i = 0; i< LLVMCountParams(fun); i++){
         LLVMValueRef param = LLVMGetParam(fun, i);
