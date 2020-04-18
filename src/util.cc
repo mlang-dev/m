@@ -11,7 +11,7 @@
 #include <vector>
 
 static std::string id_name = "a";
-void reset_id_name(std::string idname)
+void reset_id_name(const char *idname)
 {
     id_name = idname;
 }
@@ -31,13 +31,15 @@ std::string _inc_str(std::string id)
     return id;
 }
 
-std::string get_id_name()
+string get_id_name()
 {
     std::string str = id_name;
     id_name = _inc_str(id_name);
     if (id_name.back() == 'a' && all_of(id_name.begin(), id_name.end(), [](char x) { return x == 'a'; }))
         id_name.push_back('a');
-    return str;
+    string res;
+    string_init(&res, str.c_str());
+    return res;
 }
 
 static char alpha_nums[36];
@@ -51,18 +53,12 @@ std::string vector_to_string(std::vector<std::string>& array)
     return imploded.str();
 }
 
-std::string char_to_string(char c)
-{
-    std::string s(1, c);
-    return s;
-}
-
 int random(int min, int max)
 {
     return min + (rand() % static_cast<int>(max - min + 1));
 }
 
-std::string make_unique_name(const char* name)
+string make_unique_name(const char* name)
 {
     if (!alpha_nums_init) {
         char c = '0';
@@ -81,9 +77,11 @@ std::string make_unique_name(const char* name)
         int j = random(0, 35);
         s[i] = alpha_nums[j];
     }
-    std::string str = s;
-    std::string name_str = name;
-    return name_str + "-" + str;
+    string name_str;
+    string_init(&name_str, name);
+    string_add(&name_str, "-");
+    string_add(&name_str, s);
+    return name_str;
 }
 
 void* log(LogLevel level, const char* string_format, ...)
@@ -108,21 +106,16 @@ std::vector<std::string> split(std::string str, char separator)
     return strings;
 }
 
-std::string format(const char* string_format, ...)
+string format(const char* string_format, ...)
 {
     va_list args;
     char data[512];
     va_start(args, string_format);
     vsprintf(data, string_format, args);
     va_end(args);
-    return data;
-}
-
-std::string get_filename(const char* fullfilename)
-{
-    std::string fn = fullfilename;
-    auto pos = fn.find_last_of('.');
-    return fn.substr(0, pos);
+    string str;
+    string_init(&str, data);
+    return str;
 }
 
 bool is_new_line(int ch)

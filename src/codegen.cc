@@ -216,18 +216,20 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
     auto proto = (prototype_node*)node;
     cg->protos[std::string(proto->name.data)] = proto;
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    array* doubles = array_init();
+    array doubles;
+    array_init(&doubles, sizeof(LLVMTypeRef));
     for (auto& arg : proto->args){
-        array_append(doubles, LLVMDoubleTypeInContext(context));
+        LLVMTypeRef doubleType = LLVMDoubleTypeInContext(context);
+        array_append(&doubles, &doubleType);
     }
-    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)doubles->data, doubles->used_size, false);
+    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)doubles.data, doubles.size, false);
     LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, proto->name.data, ft);
     unsigned i = 0;
     for (unsigned i = 0; i< LLVMCountParams(fun); i++){
         LLVMValueRef param = LLVMGetParam(fun, i);
         LLVMSetValueName2(param, proto->args[i].c_str(), proto->args[i].size());
     }
-    array_free(doubles);
+    array_deinit(&doubles);
     return fun;
 }
 

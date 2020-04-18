@@ -85,3 +85,30 @@ TEST(testString, testCopy)
     ASSERT_TRUE(string_eq(&str, "hello world!"));
     string_deinit(&str);
 }
+
+TEST(testString, testSubstringUntil)
+{
+    string str;
+    string_init(&str, "abc.def.cfg");
+    substr_until(&str, '.');
+    ASSERT_STREQ(str.data, "abc.def");
+    string_deinit(&str);
+}
+
+TEST(testString, testJoin)
+{
+    string str;
+    string_init(&str, "abc.def.cfg");
+    substr_until(&str, '.');
+    ASSERT_STREQ(str.data, "abc.def");
+    string_deinit(&str);
+}
+
+TEST(testString, testSplit)
+{
+    string str;
+    string_init(&str, "abc.def.cfg");
+    substr_until(&str, '.');
+    ASSERT_STREQ(str.data, "abc.def");
+    string_deinit(&str);
+}

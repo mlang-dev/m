@@ -26,7 +26,9 @@ prototype_node* _create_for_id(void* context, llvm::Intrinsic::ID id)
     std::vector<std::string> args;
     for (int i = 0; i < iitdsRef.size(); i++) {
         if (iitdsRef[i].Kind == llvm::Intrinsic::IITDescriptor::Argument && iitdsRef[i].getArgumentKind() != llvm::Intrinsic::IITDescriptor::ArgKind::AK_MatchType) {
-            args.push_back(format("arg%d", i));
+            string arg = format("arg%d", i);
+            args.push_back(std::string(arg.data));
+            string_deinit(&arg);
         }
     }
 

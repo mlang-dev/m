@@ -9,10 +9,12 @@
 
 type_var* create_type_var()
 {
+    string name = get_id_name();
     auto var = new type_var();
     var->base.kind = KIND_VAR;
-    var->base.name = get_id_name();
+    var->base.name = std::string(name.data);
     var->instance = nullptr;
+    string_deinit(&name);
     return var;
 }
 

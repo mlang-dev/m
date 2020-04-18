@@ -19,12 +19,14 @@ int generate_ir_file(LLVMModuleRef module, const char* filename);
 
 int compile(const char* fn, object_file_type file_type)
 {
-    auto filename = get_filename(fn);
+    string filename;
+    string_init(&filename, fn);
+    substr_until(&filename, '.');
     menv* env = env_new();
     parser* parser = parser_new(fn, false);
     code_generator* cg = cg_new(env, parser);
     create_builtins(parser, cg->context);
-    create_module_and_pass_manager(cg, filename.c_str());
+    create_module_and_pass_manager(cg, filename.data);
     generate_runtime_module(cg, parser);
     block_node* block = parse_block(parser, nullptr);
     if (block) {
@@ -33,14 +35,14 @@ int compile(const char* fn, object_file_type file_type)
         }
         LLVMModuleRef module = (LLVMModuleRef)cg->module;
         if (file_type == FT_OBJECT) {
-            filename += ".o";
-            generate_object_file(module, filename.c_str());
+            string_add(&filename, ".o");
+            generate_object_file(module, filename.data);
         } else if (file_type == FT_BITCODE) {
-            filename += ".bc";
-            generate_bitcode_file(module, filename.c_str());
+            string_add(&filename, ".bc");
+            generate_bitcode_file(module, filename.data);
         } else if (file_type == FT_IR) {
-            filename += ".ir";
-            generate_ir_file(module, filename.c_str());
+            string_add(&filename, ".ir");
+            generate_ir_file(module, filename.data);
         }
     } else {
         log(INFO, "no statement is found.");
@@ -48,6 +50,7 @@ int compile(const char* fn, object_file_type file_type)
     cg_free(cg);
     parser_free(parser);
     env_free(env);
+    string_deinit(&filename);
     return 0;
 }
 

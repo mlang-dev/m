@@ -7,32 +7,48 @@
  */
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "clib/array.h"
 
-array* array_init()
+array* array_new(size_t element_size)
 {
-    size_t init_size = 7;
     array* arr = (array*)malloc(sizeof(array));
-    arr->data = malloc(init_size * sizeof(void*));
-    arr->used_size = 0;
-    arr->total_size = init_size;
+    array_init(arr, element_size);
     return arr;
+}
+
+void array_init(array *arr, size_t element_size)
+{
+    arr->_element_size = element_size;
+    size_t init_size = 7;
+    arr->data = (unsigned char*)malloc(init_size * element_size);
+    arr->cap = init_size;
+    arr->size = 0;
 }
 
 void array_append(array* a, void* element)
 {
-    if (a->used_size == a->total_size) {
-        a->total_size *= 2;
-        a->data = realloc(a->data, a->total_size * sizeof(void*));
+    if (a->size == a->cap) {
+        a->cap *= 2;
+        a->data = realloc(a->data, a->cap * a->_element_size);
     }
-    a->data[a->used_size++] = element;
+    memcpy(a->data + a->size * a->_element_size, (unsigned char*)element, a->_element_size);
+    a->size ++;
 }
 
-void array_free(array* a)
+void* array_get(array *arr, size_t index)
 {
-    free(a->data);
-    a->data = NULL;
-    a->used_size = a->total_size = 0;
-    free(a);
+    return (void*)(arr->data + index * arr->_element_size);
+}
+
+void array_deinit(array *arr)
+{
+    free(arr->data);
+}
+
+void array_free(array* arr)
+{
+    array_deinit(arr);
+    free(arr);
 }
