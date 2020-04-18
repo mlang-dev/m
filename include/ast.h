@@ -8,12 +8,13 @@
 #ifndef __MLANG_AST_H__
 #define __MLANG_AST_H__
 
-#include "lexer.h"
-#include "type.h"
-#include "util.h"
 #include <string>
 #include <vector>
 
+#include "lexer.h"
+#include "type.h"
+#include "util.h"
+#include "clib/string.h"
 
 #define FOREACH_NODETYPE(ENUM_ITEM) \
     ENUM_ITEM(UNK_NODE)             \
@@ -48,7 +49,7 @@ struct block_node {
 };
 
 struct module {
-    std::string name;
+    string name;
     block_node* block;
     file_tokenizer* tokenizer;
 };
@@ -68,7 +69,7 @@ struct num_node {
 
 struct ident_node {
     exp_node base;
-    std::string name;
+    string name;
 };
 
 struct var_node {
@@ -121,11 +122,30 @@ struct function_node {
     block_node* body;
 };
 
+function_node* create_function_node(prototype_node* prototype,
+    block_node* body);
+ident_node* create_ident_node(exp_node* parent, source_loc loc, std::string& name);
+num_node* create_num_node(exp_node* parent, source_loc loc, double val);
+num_node* create_num_node(exp_node* parent, source_loc loc, int val);
+var_node* create_var_node(exp_node* parent, source_loc loc, std::string var_name, exp_node* init_value);
+call_node* create_call_node(exp_node* parent, source_loc loc, const std::string& callee,
+    std::vector<exp_node*>& args);
 prototype_node* create_prototype_node(exp_node* parent, source_loc loc,
     const std::string& name,
     std::vector<std::string>& args,
     bool is_operator = false,
     unsigned precedence = 0,
     std::string op = "");
+
+condition_node* create_if_node(exp_node* parent, source_loc loc, exp_node* condition, exp_node* then_node,
+    exp_node* else_node);
+unary_node* create_unary_node(exp_node* parent, source_loc loc, std::string op, exp_node* operand);
+binary_node* create_binary_node(exp_node* parent, source_loc loc, std::string op, exp_node* lhs, exp_node* rhs);
+for_node* create_for_node(exp_node* parent, source_loc loc, const std::string& var_name, exp_node* start,
+    exp_node* end, exp_node* step, exp_node* body);
+block_node* create_block_node(exp_node* parent, std::vector<exp_node*>& nodes);
+module* create_module(const char* mod_name, FILE* file);
+
+
 
 #endif

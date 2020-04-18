@@ -17,13 +17,15 @@ extern "C" {
 #define SSO_LENGTH 19
 
 typedef struct{
-  char reserved[SSO_LENGTH]; //reserved for short string optimization
   size_t size;
+  char reserved[SSO_LENGTH]; //reserved for short string optimization
   char* data;
 }string;
 
 string* string_new(const char *chars);
 void string_init(string *str, const char *chars);
+void string_append(string *str1, string *str2);
+void string_add(string *str1, const char *chars);
 void string_deinit(string *str);
 void string_free(string *str);
 

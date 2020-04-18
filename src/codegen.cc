@@ -125,17 +125,18 @@ void* _generate_num_node(code_generator* cg, exp_node* node)
 void* _generate_ident_node(code_generator* cg, exp_node* node)
 {
     auto ident = (ident_node*)node;
-    LLVMValueRef v = (LLVMValueRef)cg->named_values[ident->name];
+    std::string idname(ident->name.data);
+    LLVMValueRef v = (LLVMValueRef)cg->named_values[idname];
     if (!v) {
-        LLVMValueRef gVar = _get_global_variable(cg, ident->name);
+        LLVMValueRef gVar = _get_global_variable(cg, idname);
         if (gVar) {
-            return LLVMBuildLoad((LLVMBuilderRef)cg->builder, gVar, ident->name.c_str());
+            return LLVMBuildLoad((LLVMBuilderRef)cg->builder, gVar, ident->name.data);
         } else {
-            log(ERROR, "Unknown variable name: %s", ident->name.c_str());
+            log(ERROR, "Unknown variable name: %s", ident->name.data);
             return 0;
         }
     }
-    return LLVMBuildLoad((LLVMBuilderRef)cg->builder, v, ident->name.c_str());
+    return LLVMBuildLoad((LLVMBuilderRef)cg->builder, v, ident->name.data);
 }
 
 void* _generate_binary_node(code_generator* cg, exp_node* node)

@@ -72,7 +72,8 @@ std::string _dump_for(for_node* fornode)
 
 std::string _dump_id(ident_node* idnode)
 {
-    return "id: " + idnode->name;
+    std::string idname(idnode->name.data);
+    return "id: " + idname;
 }
 
 std::string _dump_number(num_node* node)

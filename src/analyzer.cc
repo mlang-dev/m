@@ -13,7 +13,8 @@ type_exp* retrieve(type_env* env, std::string name)
 
 type_exp* _analyze_ident(type_env* env, exp_node* ident)
 {
-    return retrieve(env, ((ident_node*)ident)->name);
+    std::string idname(((ident_node*)ident)->name.data);
+    return retrieve(env, idname);
 }
 
 type_exp* _analyze_num(type_env* env, exp_node* num)

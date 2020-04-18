@@ -13,6 +13,7 @@ add_library(mlr
   repl.cc
   jit.cc
   lexer.cc
+  ast.cc
   parser.cc
   util.cc
   runtime.cc

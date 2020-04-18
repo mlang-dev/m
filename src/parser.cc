@@ -43,22 +43,6 @@ bool _is_exp(exp_node* node)
     return node->node_type != VAR_NODE && node->node_type != FUNCTION_NODE && node->node_type != PROTOTYPE_NODE;
 }
 
-bool is_unary_op(prototype_node* pnode)
-{
-    return pnode->is_operator && pnode->args.size() == 1;
-}
-
-bool is_binary_op(prototype_node* pnode)
-{
-    return pnode->is_operator && pnode->args.size() == 2;
-}
-
-char get_op_name(prototype_node* pnode)
-{
-    assert(is_unary_op(pnode) || is_binary_op(pnode));
-    return pnode->name[pnode->name.size() - 1];
-}
-
 void queue_token(parser* psr, token tkn)
 {
     psr->queued_tokens.push(tkn);
@@ -70,162 +54,6 @@ void queue_tokens(parser* psr, std::vector<token> tokens)
         psr->queued_tokens.push(tkn);
 }
 
-function_node* _create_function_node(prototype_node* prototype,
-    block_node* body)
-{
-    auto node = new function_node();
-    node->base.node_type = NodeType::FUNCTION_NODE;
-    node->base.parent = (exp_node*)prototype;
-    node->base.loc = prototype->base.loc;
-    node->prototype = prototype;
-    node->body = body;
-    if (is_binary_op(prototype)) {
-        g_op_precedences[prototype->op] = prototype->precedence;
-    }
-    return node;
-}
-
-ident_node* _create_ident_node(exp_node* parent, source_loc loc, std::string& name)
-{
-    auto node = new ident_node();
-    node->base.node_type = NodeType::IDENT_NODE;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->name = name;
-    return node;
-}
-
-num_node* _create_num_node(exp_node* parent, source_loc loc, double val)
-{
-    auto node = new num_node();
-    node->base.node_type = NUMBER_NODE;
-    node->base.type.name = "double";
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->double_val = val;
-    return node;
-}
-
-num_node* _create_num_node(exp_node* parent, source_loc loc, int val)
-{
-    auto node = new num_node();
-    node->base.node_type = NUMBER_NODE;
-    node->base.type.name = "int";
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->double_val = val;
-    return node;
-}
-
-var_node* _create_var_node(exp_node* parent, source_loc loc, std::string var_name, exp_node* init_value)
-{
-    auto node = new var_node();
-    node->base.node_type = VAR_NODE;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->var_name = var_name;
-    node->init_value = init_value;
-    return node;
-}
-
-call_node* _create_call_node(exp_node* parent, source_loc loc, const std::string& callee,
-    std::vector<exp_node*>& args)
-{
-    auto node = new call_node();
-    node->base.node_type = NodeType::CALL_NODE;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->callee = callee;
-    node->args = args;
-    return node;
-}
-
-prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const std::string& name,
-    std::vector<std::string>& args,
-    bool is_operator, unsigned precedence, std::string op)
-{
-    auto node = new prototype_node();
-    node->base.node_type = NodeType::PROTOTYPE_NODE;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->name = name;
-    node->args = args;
-    node->is_operator = is_operator;
-    node->precedence = precedence;
-    node->op = op;
-    return node;
-}
-
-condition_node* _create_if_node(exp_node* parent, source_loc loc, exp_node* condition, exp_node* then_node,
-    exp_node* else_node)
-{
-    auto node = new condition_node();
-    node->base.node_type = NodeType::CONDITION_NODE;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->condition_node = condition;
-    node->then_node = then_node;
-    node->else_node = else_node;
-    return node;
-}
-
-unary_node* _create_unary_node(exp_node* parent, source_loc loc, std::string op, exp_node* operand)
-{
-    auto node = new unary_node();
-    node->base.node_type = NodeType::UNARY_NODE;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->op = op;
-    node->operand = operand;
-    return node;
-}
-
-binary_node* _create_binary_node(exp_node* parent, source_loc loc, std::string op, exp_node* lhs, exp_node* rhs)
-{
-    auto node = new binary_node();
-    node->base.node_type = NodeType::BINARY_NODE;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->op = op;
-    node->lhs = lhs;
-    node->rhs = rhs;
-    return node;
-}
-
-for_node* _create_for_node(exp_node* parent, source_loc loc, const std::string& var_name, exp_node* start,
-    exp_node* end, exp_node* step, exp_node* body)
-{
-    auto node = new for_node();
-    node->base.node_type = NodeType::FOR_NODE;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->var_name = var_name;
-    node->start = start;
-    node->end = end;
-    node->step = step;
-    node->body = body;
-    return node;
-}
-
-block_node* _create_block_node(exp_node* parent, std::vector<exp_node*>& nodes)
-{
-    block_node* block = new block_node();
-    block->base.node_type = NodeType::BLOCK_NODE;
-    block->base.parent = parent;
-    block->base.loc = nodes[0]->loc;
-    for (auto node : nodes)
-        block->nodes.push_back(node);
-    return block;
-}
-
-module* create_module(const char* mod_name, FILE* file)
-{
-    module* mod = new module();
-    mod->name = mod_name;
-    mod->block = new block_node();
-    mod->tokenizer = create_tokenizer(file);
-    return mod;
-}
 parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name))
 {
     FILE* file;
@@ -249,10 +77,19 @@ void create_builtins(parser* parser, void* context)
     get_builtins(context, parser->ast->builtins);
 }
 
+void block_deinit(block_node *block)
+{
+    for(exp_node *node : block->nodes){
+
+    }
+}
+
 void destroy_module(module* module)
 {
     destroy_tokenizer(module->tokenizer);
+    block_deinit(module->block);
     delete module->block;
+    string_deinit(&module->name);
     delete module;
 }
 
@@ -291,10 +128,10 @@ exp_node* _parse_number(parser* parser, exp_node* parent)
 {
     num_node* result;
     if (parser->curr_token.type == TYPE_INT)
-        result = _create_num_node(parent, parser->curr_token.loc,
+        result = create_num_node(parent, parser->curr_token.loc,
             parser->curr_token.int_val);
     else
-        result = _create_num_node(parent, parser->curr_token.loc,
+        result = create_num_node(parent, parser->curr_token.loc,
             parser->curr_token.double_val);
     if (parser->curr_token.token_type != TOKEN_EOS)
         parse_next_token(parser);
@@ -343,7 +180,8 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
         std::vector<std::string> argNames;
         for (auto exp : args) {
             auto id = (ident_node*)exp;
-            argNames.push_back(id->name);
+            std::string idname(id->name.data);
+            argNames.push_back(idname);
         }
         if (is_operator) {
             if (precedence && argNames.size() != 2)
@@ -364,7 +202,7 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
     }
     // function application
     //log(DEBUG, "function application: %s", id_name.c_str());
-    exp_node* call_node = (exp_node*)_create_call_node(parent, loc, id_name, args);
+    exp_node* call_node = (exp_node*)create_call_node(parent, loc, id_name, args);
     return parse_exp(parser, parent, call_node);
 }
 
@@ -393,7 +231,7 @@ exp_node* parse_statement(parser* parser, exp_node* parent)
             node = _parse_var(parser, parent, id_name);
         } else if (parser->curr_token.token_type == TOKEN_EOS || parser->curr_token.token_type == TOKEN_EOF || g_op_precedences[op]) {
             // just id expression evaluation
-            auto lhs = (exp_node*)_create_ident_node(parent, parser->curr_token.loc, id_name);
+            auto lhs = (exp_node*)create_ident_node(parent, parser->curr_token.loc, id_name);
             node = parse_exp(parser, parent, lhs);
             //log(DEBUG, "parsed exp: id exp: %d", node->node_type);
         } else {
@@ -473,9 +311,9 @@ exp_node* _parse_ident(parser* parser, exp_node* parent)
             parse_next_token(parser);
         }
         parse_next_token(parser);
-        return (exp_node*)_create_call_node(parent, loc, id_name, args);
+        return (exp_node*)create_call_node(parent, loc, id_name, args);
     }
-    return (exp_node*)_create_ident_node(parent, parser->curr_token.loc, id_name);
+    return (exp_node*)create_ident_node(parent, parser->curr_token.loc, id_name);
 }
 
 exp_node* _parse_node(parser* parser, exp_node* parent)
@@ -535,7 +373,7 @@ exp_node* _parse_binary(parser* parser, exp_node* parent, int exp_prec, exp_node
                 return 0;
         }
         //log(DEBUG, "left first: %s, %d, %d", TokenTypeString[parser->curr_token.token_type], tok_prec, next_prec);
-        lhs = (exp_node*)_create_binary_node(parent, lhs->loc, binary_op, lhs, rhs);
+        lhs = (exp_node*)create_binary_node(parent, lhs->loc, binary_op, lhs, rhs);
     }
 }
 
@@ -627,7 +465,7 @@ exp_node* _parse_function_with_prototype(parser* parser,
 {
     auto block = parse_block(parser, (exp_node*)prototype);
     if (block) {
-        return (exp_node*)_create_function_node(prototype, block);
+        return (exp_node*)create_function_node(prototype, block);
     }
     return 0;
 }
@@ -640,7 +478,7 @@ exp_node* _parse_var(parser* parser, exp_node* parent, std::string& name)
     if (auto exp = parse_exp(parser, parent)) {
         // not a function but a value
         //log(INFO, "_parse_variable:  %lu!", var_names.size());
-        return (exp_node*)_create_var_node(parent, parser->curr_token.loc, name, exp);
+        return (exp_node*)create_var_node(parent, parser->curr_token.loc, name, exp);
     }
     return 0;
 }
@@ -654,8 +492,8 @@ exp_node* parse_exp_to_function(parser* parser, exp_node* exp, const char* fn)
         auto prototype = create_prototype_node(nullptr, exp->loc, fn, args);
         std::vector<exp_node*> nodes;
         nodes.push_back(exp);
-        auto block = _create_block_node((exp_node*)prototype, nodes);
-        return (exp_node*)_create_function_node(prototype, block);
+        auto block = create_block_node((exp_node*)prototype, nodes);
+        return (exp_node*)create_function_node(prototype, block);
     }
     return 0;
 }
@@ -687,7 +525,7 @@ exp_node* _parse_unary(parser* parser, exp_node* parent)
     parse_next_token(parser);
     if (exp_node* operand = _parse_unary(parser, parent)) {
         //log(DEBUG, "unary node:%c: %s", opc, NodeTypeString[operand->node_type]);
-        return (exp_node*)_create_unary_node(parent, loc, opc, operand);
+        return (exp_node*)create_unary_node(parent, loc, opc, operand);
     }
     return 0;
 }
@@ -730,18 +568,18 @@ exp_node* _parse_for(parser* parser, exp_node* parent)
         if (end_val == 0)
             return 0;
     } else { //default 1
-        step = (exp_node*)_create_num_node(parent, parser->curr_token.loc, 1.0);
+        step = (exp_node*)create_num_node(parent, parser->curr_token.loc, 1.0);
     }
     //convert end variable to a logic
-    auto id_node = (exp_node*)_create_ident_node(parent, start->loc, id_name);
-    auto end = (exp_node*)_create_binary_node(parent, end_val->loc, "<", id_node, end_val);
+    auto id_node = (exp_node*)create_ident_node(parent, start->loc, id_name);
+    auto end = (exp_node*)create_binary_node(parent, end_val->loc, "<", id_node, end_val);
     while (parser->curr_token.token_type == TOKEN_EOS)
         parse_next_token(parser);
 
     exp_node* body = parse_exp(parser, parent);
     if (body == 0)
         return 0;
-    return (exp_node*)_create_for_node(parent, loc, id_name, start, end, step, body);
+    return (exp_node*)create_for_node(parent, loc, id_name, start, end, step, body);
 }
 
 exp_node* _parse_if(parser* parser, exp_node* parent)
@@ -778,7 +616,7 @@ exp_node* _parse_if(parser* parser, exp_node* parent)
         return 0;
 
     //log(DEBUG, "creating if nodes");
-    return (exp_node*)_create_if_node(parent, loc, cond, then, else_exp);
+    return (exp_node*)create_if_node(parent, loc, cond, then, else_exp);
 }
 
 block_node* parse_block(parser* parser, exp_node* parent, void (*fun)(void*, exp_node*), void* jit)
@@ -825,5 +663,5 @@ block_node* parse_block(parser* parser, exp_node* parent, void (*fun)(void*, exp
         // }
     }
     //log(DEBUG, "parsed statements: %d", nodes.size());
-    return nodes.size() > 0 ? _create_block_node(parent, nodes) : nullptr;
+    return nodes.size() > 0 ? create_block_node(parent, nodes) : nullptr;
 }
