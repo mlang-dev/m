@@ -103,7 +103,7 @@ struct for_node {
 
 struct call_node {
     exp_node base;
-    std::string callee;
+    string callee;
     std::vector<exp_node*> args;
 };
 

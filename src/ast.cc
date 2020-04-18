@@ -82,7 +82,7 @@ call_node* create_call_node(exp_node* parent, source_loc loc, const std::string&
     node->base.node_type = NodeType::CALL_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    node->callee = callee;
+    string_init(&node->callee, callee.c_str());
     node->args = args;
     return node;
 }

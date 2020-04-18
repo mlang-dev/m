@@ -56,7 +56,7 @@ std::string _dump_call(call_node* call)
 {
     std::vector<std::string> args;
     transform(call->args.begin(), call->args.end(), args.begin(), dump);
-    return call->callee + " " + vector_to_string(args);
+    return std::string(call->callee.data) + " " + vector_to_string(args);
 }
 
 std::string _dump_if(condition_node* cond)

@@ -36,7 +36,7 @@ type_exp* _analyze_var(type_env* env, exp_node* node)
 type_exp* _analyze_call(type_env* env, exp_node* node)
 {
     auto call = (call_node*)node;
-    auto fun_type = retrieve(env, call->callee);
+    auto fun_type = retrieve(env, std::string(call->callee.data));
     std::vector<type_exp*> args;
     args.resize(call->args.size());
     transform(call->args.begin(), call->args.end(), args.begin(),

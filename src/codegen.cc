@@ -192,9 +192,9 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
 void* _generate_call_node(code_generator* cg, exp_node* node)
 {
     auto call = (call_node*)node;
-    LLVMValueRef callee = _get_function(cg, call->callee.c_str());
+    LLVMValueRef callee = _get_function(cg, call->callee.data);
     if (!callee)
-        return log(ERROR, "Unknown function referenced: %s", call->callee.c_str());
+        return log(ERROR, "Unknown function referenced: %s", call->callee.data);
     if (LLVMCountParams(callee) != call->args.size())
         return log(ERROR,
             "Incorrect number of arguments passed: callee (prototype "
