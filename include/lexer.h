@@ -8,12 +8,13 @@
 #ifndef __MLANG_LEXER_H__
 #define __MLANG_LEXER_H__
 
-#include <map>
-#include <queue>
-#include <string>
-
 #include "type.h"
 #include "util.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "clib/string.h"
 
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
@@ -61,16 +62,21 @@ struct token {
 
 struct file_tokenizer {
     FILE* file;
-    source_loc loc = { 1, 0 };
+    source_loc loc;
     source_loc tok_loc;
     token cur_token;
     token next_token;
-    char curr_char[2] = {' ', '\0'};
+    char curr_char[2];
     string ident_str;
 };
 
+
 file_tokenizer* create_tokenizer(FILE* file);
 void destroy_tokenizer(file_tokenizer* tokenizer);
-token& get_token(file_tokenizer* tokenizer);
+token* get_token(file_tokenizer* tokenizer);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

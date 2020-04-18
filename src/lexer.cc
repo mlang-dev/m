@@ -80,10 +80,10 @@ void destroy_tokenizer(file_tokenizer* tokenizer)
     delete tokenizer;
 }
 
-token& _tokenize_symbol_type(file_tokenizer* tokenizer, token& t, TokenType token_type)
+token* _tokenize_symbol_type(file_tokenizer* tokenizer, token* t, TokenType token_type)
 {
-    t.token_type = token_type;
-    t.loc = tokenizer->tok_loc;
+    t->token_type = token_type;
+    t->loc = tokenizer->tok_loc;
     return t;
 }
 
@@ -101,7 +101,7 @@ bool _tokenize_symbol(file_tokenizer* tokenizer, std::string& symbol)
     return has_dot;
 }
 
-token& _tokenize_number(file_tokenizer* tokenizer)
+token* _tokenize_number(file_tokenizer* tokenizer)
 {
     std::string num_str = "";
     bool has_dot = false;
@@ -110,10 +110,10 @@ token& _tokenize_number(file_tokenizer* tokenizer)
         has_dot = _tokenize_symbol(tokenizer, symbol);
         if (auto type = tokens[symbol]) {
             if (num_str == "") {
-                return _tokenize_symbol_type(tokenizer, tokenizer->cur_token, type);
+                return _tokenize_symbol_type(tokenizer, &tokenizer->cur_token, type);
             } else {
                 //log(ERROR, "ERROROROR !!!, %s", symbol.c_str());
-                _tokenize_symbol_type(tokenizer, tokenizer->next_token, type);
+                _tokenize_symbol_type(tokenizer, &tokenizer->next_token, type);
                 break;
             }
         } else {
@@ -132,10 +132,10 @@ token& _tokenize_number(file_tokenizer* tokenizer)
     }
     tokenizer->cur_token.token_type = TOKEN_NUM;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    return tokenizer->cur_token;
+    return &tokenizer->cur_token;
 }
 
-token& _tokenize_id_keyword(file_tokenizer* tokenizer)
+token* _tokenize_id_keyword(file_tokenizer* tokenizer)
 {
     string_copy(&tokenizer->ident_str, tokenizer->curr_char);
     while (isalnum((tokenizer->curr_char[0] = get_char(tokenizer))) || tokenizer->curr_char[0] == '_'){
@@ -146,10 +146,10 @@ token& _tokenize_id_keyword(file_tokenizer* tokenizer)
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
-    return tokenizer->cur_token;
+    return &tokenizer->cur_token;
 }
 
-token& _tokenize_op(file_tokenizer* tokenizer)
+token* _tokenize_op(file_tokenizer* tokenizer)
 {
     string_copy(&tokenizer->ident_str, tokenizer->curr_char);
     while (op_chars.count((tokenizer->curr_char[0] = get_char(tokenizer))))
@@ -159,17 +159,17 @@ token& _tokenize_op(file_tokenizer* tokenizer)
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
-    return tokenizer->cur_token;
+    return &tokenizer->cur_token;
 }
 
-token& _tokenize_type(file_tokenizer* tokenizer, TokenType token_type)
+token* _tokenize_type(file_tokenizer* tokenizer, TokenType token_type)
 {
     string_copy(&tokenizer->ident_str, tokenizer->curr_char);
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     //tokenizer->cur_token.op_val = tokenizer->curr_char;
     tokenizer->cur_token.token_type = token_type;
-    return tokenizer->cur_token;
+    return &tokenizer->cur_token;
 }
 
 void _skip_to_line_end(file_tokenizer* tokenizer)
@@ -179,14 +179,14 @@ void _skip_to_line_end(file_tokenizer* tokenizer)
     while (tokenizer->curr_char[0] != EOF && !is_new_line(tokenizer->curr_char[0]));
 }
 
-token& get_token(file_tokenizer* tokenizer)
+token* get_token(file_tokenizer* tokenizer)
 {
     // skip spaces
     if (tokenizer->next_token.token_type) {
         // cleanup looked ahead tokens
         tokenizer->cur_token = tokenizer->next_token;
         tokenizer->next_token.token_type = TOKEN_UNK;
-        return tokenizer->cur_token;
+        return &tokenizer->cur_token;
     }
     while (isspace(tokenizer->curr_char[0])) {
         if (is_new_line(tokenizer->curr_char[0]))
@@ -201,7 +201,7 @@ token& get_token(file_tokenizer* tokenizer)
     else if (is_new_line(tokenizer->curr_char[0])) {
         _tokenize_type(tokenizer, TOKEN_EOS);
         tokenizer->curr_char[0] = ' '; // replaced with empty space
-        return tokenizer->cur_token;
+        return &tokenizer->cur_token;
     } else if (isalpha(tokenizer->curr_char[0])) {
         return _tokenize_id_keyword(tokenizer);
     } else if (isdigit(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '.') {
@@ -222,5 +222,5 @@ token& get_token(file_tokenizer* tokenizer)
         token_type = TOKEN_OP;
     _tokenize_type(tokenizer, token_type);
     tokenizer->curr_char[0] = get_char(tokenizer);
-    return tokenizer->cur_token;
+    return &tokenizer->cur_token;
 }

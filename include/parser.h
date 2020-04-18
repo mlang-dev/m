@@ -8,11 +8,13 @@
 #ifndef __MLANG_PARSER_H__
 #define __MLANG_PARSER_H__
 
-#include "ast.h"
-#include "lexer.h"
 #include <cassert>
 #include <map>
 #include <vector>
+#include <queue>
+
+#include "ast.h"
+#include "lexer.h"
 
 struct parser {
     std::map<std::string, int>* op_precedences;

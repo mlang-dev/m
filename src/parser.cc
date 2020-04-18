@@ -110,7 +110,7 @@ void parse_next_token(parser* parser)
         parser->queued_tokens.pop();
         //log(DEBUG, "using queued tokens !");
     } else
-        parser->curr_token = get_token(parser->current_module->tokenizer);
+        parser->curr_token = *get_token(parser->current_module->tokenizer);
 }
 
 int _get_op_precedence(parser* parser)
