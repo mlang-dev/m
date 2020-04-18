@@ -9,6 +9,7 @@
 #define __CLIB_STRING_H__
 
 #include <stddef.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +25,8 @@ typedef struct{
 
 string* string_new(const char *chars);
 void string_init(string *str, const char *chars);
+bool string_eq(string *str1, const char *chars);
+bool string_eqs(string *str1, string *str2);
 void string_append(string *str1, string *str2);
 void string_add(string *str1, const char *chars);
 void string_deinit(string *str);

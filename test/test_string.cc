@@ -49,3 +49,27 @@ TEST(testString, testLongAppendToLong)
   ASSERT_STREQ("hello world!  this will become a very long string. and more now", str.data);
   string_deinit(&str);
 }
+
+TEST(testString, testEq)
+{
+    string str;
+    string_init(&str, "hello world!");
+    ASSERT_TRUE(string_eq(&str, "hello world!"));
+    string_deinit(&str);
+}
+
+TEST(testString, testNotEq)
+{
+    string str;
+    string_init(&str, "hello world!");
+    ASSERT_FALSE(string_eq(&str, "hello world."));
+    string_deinit(&str);
+}
+
+TEST(testString, testNotEq2)
+{
+    string str;
+    string_init(&str, "hello world!");
+    ASSERT_FALSE(string_eq(&str, "hello world!."));
+    string_deinit(&str);
+}

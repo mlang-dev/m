@@ -29,21 +29,23 @@ std::string _dump_function(function_node* func)
 std::string _dump_var(var_node* var)
 {
     std::string vars = "var: ";
-    vars += var->var_name + "=" + dump(var->init_value);
+    std::string varname(var->var_name.data);
+    vars += varname + "=" + dump(var->init_value);
     return vars;
 }
 
 std::string _dump_unary(unary_node* unary)
 {
     std::string un = "un: ";
-    un += unary->op + dump(unary->operand);
+    std::string op(unary->op.data);
+    un += op + dump(unary->operand);
     return un;
 }
 
 std::string _dump_binary(binary_node* binary)
 {
     std::string bin = "bin:";
-    bin += binary->op;
+    bin += std::string(binary->op.data);
     bin += "[";
     bin += dump(binary->lhs) + "," + dump(binary->rhs);
     bin += "]";
@@ -67,7 +69,7 @@ std::string _dump_if(condition_node* cond)
 
 std::string _dump_for(for_node* fornode)
 {
-    return "for " + fornode->var_name + " in " + dump(fornode->start) + ".." + dump(fornode->end);
+    return "for " + std::string(fornode->var_name.data) + " in " + dump(fornode->start) + ".." + dump(fornode->end);
 }
 
 std::string _dump_id(ident_node* idnode)

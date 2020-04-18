@@ -15,7 +15,7 @@ TEST(testParser, testBlockVariable)
     block_node* block = parse_block(parser, nullptr);
     auto node = (var_node*)block->nodes[0];
     ASSERT_EQ(1, block->nodes.size());
-    ASSERT_STREQ("x", node->var_name.c_str());
+    ASSERT_STREQ("x", node->var_name.data);
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(NUMBER_NODE, node->init_value->node_type);
     parser_free(parser);
@@ -28,7 +28,7 @@ TEST(testParser, testBlockVariableNameWithUnderlyingLine)
     block_node* block = parse_block(parser, nullptr);
     auto node = (var_node*)block->nodes[0];
     ASSERT_EQ(1, block->nodes.size());
-    ASSERT_STREQ("m_x", node->var_name.c_str());
+    ASSERT_STREQ("m_x", node->var_name.data);
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(NUMBER_NODE, node->init_value->node_type);
     parser_free(parser);

@@ -70,7 +70,7 @@ var_node* create_var_node(exp_node* parent, source_loc loc, std::string var_name
     node->base.node_type = VAR_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    node->var_name = var_name;
+    string_init(&node->var_name, var_name.c_str());
     node->init_value = init_value;
     return node;
 }
@@ -122,7 +122,7 @@ unary_node* create_unary_node(exp_node* parent, source_loc loc, std::string op, 
     node->base.node_type = NodeType::UNARY_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    node->op = op;
+    string_init(&node->op, op.c_str());
     node->operand = operand;
     return node;
 }
@@ -133,7 +133,7 @@ binary_node* create_binary_node(exp_node* parent, source_loc loc, std::string op
     node->base.node_type = NodeType::BINARY_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    node->op = op;
+    string_init(&node->op, op.c_str());
     node->lhs = lhs;
     node->rhs = rhs;
     return node;
@@ -146,7 +146,7 @@ for_node* create_for_node(exp_node* parent, source_loc loc, const std::string& v
     node->base.node_type = NodeType::FOR_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    node->var_name = var_name;
+    string_init(&node->var_name, var_name.c_str());
     node->start = start;
     node->end = end;
     node->step = step;

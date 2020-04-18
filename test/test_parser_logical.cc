@@ -15,7 +15,7 @@ TEST(testParserLogical, testComparisonLessThan)
     block_node* block = parse_block(parser, nullptr);
     ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);
     auto node = (binary_node*)block->nodes[0];
-    ASSERT_STREQ("<", node->op.c_str());
+    ASSERT_STREQ("<", node->op.data);
     parser_free(parser);
 }
 
@@ -26,7 +26,7 @@ TEST(testParserLogical, testComparisonGreaterThan)
     block_node* block = parse_block(parser, nullptr);
     ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);
     auto node = (binary_node*)block->nodes[0];
-    ASSERT_STREQ(">", node->op.c_str());
+    ASSERT_STREQ(">", node->op.data);
     parser_free(parser);
 }
 
@@ -37,7 +37,7 @@ TEST(testParserLogical, testComparisonEqual)
     block_node* block = parse_block(parser, nullptr);
     ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);
     auto node = (binary_node*)block->nodes[0];
-    ASSERT_STREQ("==", node->op.c_str());
+    ASSERT_STREQ("==", node->op.data);
     parser_free(parser);
 }
 
@@ -48,7 +48,7 @@ TEST(testParserLogical, testComparisonGE)
     block_node* block = parse_block(parser, nullptr);
     ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);
     auto node = (binary_node*)block->nodes[0];
-    ASSERT_STREQ(">=", node->op.c_str());
+    ASSERT_STREQ(">=", node->op.data);
     parser_free(parser);
 }
 
@@ -59,6 +59,6 @@ TEST(testParserLogical, testComparisonLE)
     block_node* block = parse_block(parser, nullptr);
     ASSERT_EQ(BINARY_NODE, block->nodes[0]->node_type);
     auto node = (binary_node*)block->nodes[0];
-    ASSERT_STREQ("<=", node->op.c_str());
+    ASSERT_STREQ("<=", node->op.data);
     parser_free(parser);
 }

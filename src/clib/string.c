@@ -55,6 +55,22 @@ void string_add(string *str1, const char *chars)
     string_deinit(&str2);
 }
 
+bool string_eqs(string *str1, string *str2)
+{
+    if (str1->size != str2->size)
+        return false;
+    return strcmp(str1->data, str2->data) == 0;
+}
+
+bool string_eq(string* str1, const char* chars)
+{
+    string str2;
+    string_init(&str2, chars);
+    bool result = string_eqs(str1, &str2);
+    string_deinit(&str2);
+    return result;
+}
+
 void string_deinit(string* str)
 {
     if (str->data != str->reserved)

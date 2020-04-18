@@ -148,40 +148,40 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
         return nullptr;
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    if (bin->op == "+")
+    if (string_eq(&bin->op, "+"))
         return LLVMBuildFAdd(builder, lv, rv, "addtmp");
-    else if (bin->op == "-")
+    else if (string_eq(&bin->op,"-"))
         return LLVMBuildFSub(builder, lv, rv, "subtmp");
-    else if (bin->op == "*")
+    else if (string_eq(&bin->op, "*"))
         return LLVMBuildFMul(builder, lv, rv, "multmp");
-    else if (bin->op == "/")
+    else if (string_eq(&bin->op, "/"))
         return LLVMBuildFDiv(builder, lv, rv, "divtmp");
-    else if (bin->op == "<") {
+    else if (string_eq(&bin->op, "<")) {
         lv = LLVMBuildFCmp(builder, LLVMRealULT, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (bin->op == ">") {
+    } else if (string_eq(&bin->op, ">")) {
         lv = LLVMBuildFCmp(builder, LLVMRealUGT, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (bin->op == "==") {
+    } else if (string_eq(&bin->op, "==")) {
         lv = LLVMBuildFCmp(builder, LLVMRealUEQ, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (bin->op == "!=") {
+    } else if (string_eq(&bin->op, "!=")) {
         lv = LLVMBuildFCmp(builder, LLVMRealUNE, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (bin->op == "<=") {
+    } else if (string_eq(&bin->op, "<=")) {
         lv = LLVMBuildFCmp(builder, LLVMRealULE, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (bin->op == ">=") {
+    } else if (string_eq(&bin->op, ">=")) {
         lv = LLVMBuildFCmp(builder, LLVMRealUGE, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else {
-        std::string fname = std::string("binary") + bin->op;
+        std::string fname = std::string("binary") + std::string(bin->op.data);
         LLVMValueRef fun = _get_function(cg, fname.c_str());
         assert(fun && "binary operator not found!");
         LLVMValueRef ops[2] = { (LLVMValueRef)lv, (LLVMValueRef)rv };
@@ -275,7 +275,7 @@ void* _generate_unary_node(code_generator* cg, exp_node* node)
     if (operand_v == 0)
         return 0;
 
-    std::string fname = std::string("unary") + unary->op;
+    std::string fname = std::string("unary") + std::string(unary->op.data);
     LLVMValueRef fun = _get_function(cg, fname.c_str());
     if (fun == 0)
         return log(ERROR, "Unknown unary operator");
@@ -341,16 +341,17 @@ void* _generate_global_var_node(code_generator* cg, var_node* node,
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMModuleRef module = (LLVMModuleRef)cg->module;
-    LLVMValueRef gVar = LLVMGetNamedGlobal(module, node->var_name.c_str());
+    LLVMValueRef gVar = LLVMGetNamedGlobal(module, node->var_name.data);
     LLVMValueRef exp = (LLVMValueRef)generate_code(cg, node->init_value);
     if (!gVar) {
         if (is_external) {
-            gVar = LLVMAddGlobal(module, LLVMDoubleTypeInContext(context), node->var_name.c_str());
+            gVar = LLVMAddGlobal(module, LLVMDoubleTypeInContext(context), node->var_name.data);
             LLVMSetExternallyInitialized(gVar, true);
             return gVar;
         } else {
-            cg->gvs[node->var_name] = node;
-            gVar = LLVMAddGlobal(module, LLVMDoubleTypeInContext(context), node->var_name.c_str());
+            std::string varname(node->var_name.data);
+            cg->gvs[varname] = node;
+            gVar = LLVMAddGlobal(module, LLVMDoubleTypeInContext(context), node->var_name.data);
             LLVMSetExternallyInitialized(gVar, true);
             LLVMSetInitializer(gVar, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0));                
             LLVMBuildStore(builder, exp, gVar);
@@ -379,7 +380,7 @@ void* _generate_local_var_node(code_generator* cg, var_node* node)
     // fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
 
     // Register all variables and emit their initializer.
-    const std::string& var_name = node->var_name;
+    const std::string var_name(node->var_name.data);
     // log(DEBUG, "local var cg: %s", var_name.c_str());
     exp_node* init = node->init_value;
 
@@ -437,7 +438,7 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
     // Create an alloca for the variable in the entry block.
-    LLVMValueRef alloca = _create_entry_block_alloca(cg, (LLVMValueRef)fun, forn->var_name.c_str());
+    LLVMValueRef alloca = _create_entry_block_alloca(cg, (LLVMValueRef)fun, forn->var_name.data);
 
     // KSDbgInfo.emitLocation(this);
     // Emit the start code first, without 'variable' in scope.
@@ -459,8 +460,9 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
 
     // Within the loop, the variable is defined equal  the PHI node.  If it
     // shadows an existing variable, we have to restore it, so save it now.
-    LLVMValueRef old_alloca = (LLVMValueRef)cg->named_values[forn->var_name];
-    cg->named_values[forn->var_name] = alloca;
+    std::string varname(forn->var_name.data);
+    LLVMValueRef old_alloca = (LLVMValueRef)cg->named_values[varname];
+    cg->named_values[varname] = alloca;
 
     // Emit the body of the loop.  This, like any other expr, can change the
     // current BB.  Note that we ignore the value computed by the body, but don't
@@ -486,7 +488,7 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
 
     // Reload, increment, and restore the alloca.  This handles the case where
     // the body of the loop mutates the variable.
-    LLVMValueRef cur_var = LLVMBuildLoad(builder, alloca, forn->var_name.c_str());
+    LLVMValueRef cur_var = LLVMBuildLoad(builder, alloca, forn->var_name.data);
     LLVMValueRef next_var = LLVMBuildFAdd(builder, cur_var, step_v, "nextvar");
     LLVMBuildStore(builder, next_var, alloca);
     // Convert condition to a bool by comparing non-equal to 0.0.
@@ -503,9 +505,9 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
 
     // Restore the unshadowed variable.
     if (old_alloca)
-        cg->named_values[forn->var_name] = old_alloca;
+        cg->named_values[varname] = old_alloca;
     else
-        cg->named_values.erase(forn->var_name);
+        cg->named_values.erase(varname);
 
     // for expr always returns 0.0.
     return LLVMConstNull(LLVMDoubleTypeInContext(context));

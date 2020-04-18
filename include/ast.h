@@ -74,19 +74,19 @@ struct ident_node {
 
 struct var_node {
     exp_node base;
-    std::string var_name;
+    string var_name;
     exp_node* init_value;
 };
 
 struct unary_node {
     exp_node base;
-    std::string op;
+    string op;
     exp_node* operand;
 };
 
 struct binary_node {
     exp_node base;
-    std::string op;
+    string op;
     exp_node *lhs, *rhs;
 };
 
@@ -97,7 +97,7 @@ struct condition_node {
 
 struct for_node {
     exp_node base;
-    std::string var_name;
+    string var_name;
     exp_node *start, *end, *step, *body;
 };
 
