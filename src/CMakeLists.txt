@@ -21,6 +21,7 @@ add_library(mlr
   codegen.cc
   env.cc
   clib/array.c
+  clib/string.c
 )
 
 include_directories(

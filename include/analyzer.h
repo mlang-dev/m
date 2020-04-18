@@ -12,7 +12,6 @@
 
 typedef struct {
     std::map<std::string, type_exp*> type_env;
-    std::map<type_exp*, type_exp*> types;
     std::vector<type_exp*> nogens;
 }type_env;
 
