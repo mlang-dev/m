@@ -1,61 +1,68 @@
 /*
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * utilities functions
+ * c util functions
  */
-#include "util.h"
-#include <cstdio>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
+#include <string.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-static std::string id_name = "a";
+#include "clib/util.h"
+
+static char id_name[512] = "a";
 void reset_id_name(const char *idname)
 {
-    id_name = idname;
+    strcpy(id_name, idname);
 }
 
-std::string _inc_str(std::string id)
+void _inc_str(string* id)
 {
-    if (id == "")
-        return id;
-    char ch = id.back();
-    id.pop_back();
+    if (id->size==0)
+        return;
+  //  char ch = id.data[id.size-1];
+    char ch = string_popback(id);
+    printf("inc str got: %c, remaining: %s\n", ch, id->data);
     if (ch == 'z') {
         ch = 'a';
-        id = _inc_str(id);
+        _inc_str(id);
     } else
         ch++;
-    id.push_back(ch);
-    return id;
+    printf("inc str push back %c to %s\n", ch, id->data);
+    string_pushback(id, ch);
+    printf("inc str pushed back %c to become %s, %s\n", ch, id->data, id->reserved);
+    //return id;
+}
+
+bool is_all(string *str, char match)
+{
+    for(size_t i = 0; i<str->size; i++){
+        if (str->data[i] != match)
+            return false;
+    }
+    return true;
 }
 
 string get_id_name()
 {
-    std::string str = id_name;
-    id_name = _inc_str(id_name);
-    if (id_name.back() == 'a' && all_of(id_name.begin(), id_name.end(), [](char x) { return x == 'a'; }))
-        id_name.push_back('a');
-    string res;
-    string_init_chars(&res, str.c_str());
-    return res;
+    string str;
+    string_init_chars(&str, id_name);
+    string new_id_name;
+    string_init_chars(&new_id_name, id_name);
+    _inc_str(&new_id_name);
+    if (string_back(&new_id_name) == 'a' && is_all(&new_id_name,  'a'))
+        string_pushback(&new_id_name, 'a');
+    reset_id_name(new_id_name.data);
+    string_deinit(&new_id_name);
+    return str;
 }
 
 static char alpha_nums[36];
 static bool alpha_nums_init = false;
 
-std::string vector_to_string(std::vector<std::string>& array)
+int get_random(int min, int max)
 {
-    std::ostringstream imploded;
-    copy(array.begin(), array.end(),
-        std::ostream_iterator<std::string>(imploded, " "));
-    return imploded.str();
-}
-
-int random(int min, int max)
-{
-    return min + (rand() % static_cast<int>(max - min + 1));
+    return min + (rand() % (max - min + 1));
 }
 
 string make_unique_name(const char* name)
@@ -74,7 +81,7 @@ string make_unique_name(const char* name)
     static int i = 0;
     char s[16];
     for (int i = 0; i < 16; i++) {
-        int j = random(0, 35);
+        int j = get_random(0, 35);
         s[i] = alpha_nums[j];
     }
     string name_str;
@@ -84,7 +91,7 @@ string make_unique_name(const char* name)
     return name_str;
 }
 
-void* log(LogLevel level, const char* string_format, ...)
+void* log_info(enum LogLevel level, const char* string_format, ...)
 {
     va_list args;
     char format[512];
@@ -93,17 +100,6 @@ void* log(LogLevel level, const char* string_format, ...)
     vfprintf(stderr, format, args);
     va_end(args);
     return 0;
-}
-
-std::vector<std::string> split(std::string str, char separator)
-{
-    std::vector<std::string> strings;
-    std::istringstream f(str);
-    std::string s;
-    while (getline(f, s, separator)) {
-        strings.push_back(s);
-    }
-    return strings;
 }
 
 string format(const char* string_format, ...)

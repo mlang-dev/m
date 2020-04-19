@@ -14,7 +14,7 @@
 #define __MLANG_JIT_H__
 
 #include "codegen.h"
-#include "util.h"
+#include "clib/util.h"
 #include "KaleidoscopeJIT.h"
 
 typedef struct JIT {    

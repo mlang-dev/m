@@ -13,7 +13,7 @@
 
 #include "lexer.h"
 #include "type.h"
-#include "util.h"
+#include "clib/util.h"
 #include "clib/string.h"
 
 #define FOREACH_NODETYPE(ENUM_ITEM) \

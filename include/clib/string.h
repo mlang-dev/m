@@ -3,7 +3,7 @@
  * 
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * string c header file
+ * dynamic string c header file
  */
 #ifndef __CLIB_STRING_H__
 #define __CLIB_STRING_H__
@@ -44,7 +44,9 @@ array string_split(string* str, char sep);
 string* string_substr(string *str, char match);
 void string_deinit(string *str);
 void string_free(string *str);
-
+char string_back(string *str);
+char string_popback(string *str);
+void string_pushback(string *str, char ch);
 //generic interface
 void string_init_generic(void *dest, void *src);
 void string_deinit_generic(void *dest);

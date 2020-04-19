@@ -1,6 +1,12 @@
+/*
+ * string.c
+ * 
+ * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * dynamic string in C
+ */
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "clib/string.h"
 #include "clib/array.h"
@@ -152,7 +158,6 @@ array string_split(string* str, char sep)
             size_t sub_str_len = str->data[i] == sep? i-collect_start: i-collect_start + 1;
             string_copy_with_len(&sub_str, &str->data[collect_start], sub_str_len);
             array_insert(&arr, &sub_str);
-            printf("array leme size: %s\n", STRING_POINTER(array_get(&arr, 0))->data);
             collect_start = i+1;
         }
     }
@@ -176,4 +181,29 @@ void string_init_generic(void *dest, void *src)
 void string_deinit_generic(void *dest)
 {
   string_deinit((string*)dest);
+}
+
+char string_back(string* str)
+{
+    if (str->size == 0)
+        return '\0';
+    return str->data[str->size-1];
+}
+
+char string_popback(string* str)
+{
+    if (str->size == 0)
+        return '\0';
+    char back = str->data[str->size-1];
+    str->data[str->size-1] = '\0';
+    str->size--;
+    return back;
+}
+
+void string_pushback(string *str, char ch)
+{
+    char temp[2];
+    temp[0] = ch;
+    temp[1] = '\0';
+    string_add(str, temp);
 }

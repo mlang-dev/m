@@ -4,7 +4,7 @@
  * JIT (just-in-time compiler)
  */
 #include "jit.h"
-#include "util.h"
+#include "clib/util.h"
 
 JIT* jit_new(code_generator* cg)
 {

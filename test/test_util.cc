@@ -3,12 +3,12 @@
  *
  * unit test for utility functions
  */
-#include "util.h"
+#include "clib/util.h"
 #include "gtest/gtest.h"
 
 TEST(testUtil, testIdNameGenerator)
 {
-    reset_id_name();
+    reset_id_name("a");
     ASSERT_STREQ("a", get_id_name().data);
     ASSERT_STREQ("b", get_id_name().data);
     reset_id_name("z");

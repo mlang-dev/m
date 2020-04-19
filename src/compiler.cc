@@ -5,7 +5,7 @@
  */
 #include "compiler.h"
 #include "jit.h"
-#include "util.h"
+#include "clib/util.h"
 #include "llvm-c/Core.h"
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
@@ -45,7 +45,7 @@ int compile(const char* fn, object_file_type file_type)
             generate_ir_file(module, filename.data);
         }
     } else {
-        log(INFO, "no statement is found.");
+        log_info(INFO, "no statement is found.");
     }
     cg_free(cg);
     parser_free(parser);

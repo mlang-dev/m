@@ -5,7 +5,7 @@
  */
 
 #include "builtins.h"
-#include "util.h"
+#include "clib/util.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/IR/Intrinsics.h"
 
@@ -31,10 +31,15 @@ prototype_node* _create_for_id(void* context, llvm::Intrinsic::ID id)
             string_deinit(&arg);
         }
     }
-
-    std::vector<std::string> names = split(name.c_str(), '.');
-    //log(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
-    return create_prototype_node(nullptr, { 1, 0 }, names.back().c_str(), args);
+    string str_name;
+    string_init_chars(&str_name, name.c_str());
+    array names = string_split(&str_name, '.');
+    //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
+    prototype_node* node = create_prototype_node(nullptr, { 1, 0 }, 
+        STRING_POINTER(array_get(&names, names.size-1))->data, args);
+    string_deinit(&str_name);
+    array_deinit(&names);
+    return node;
     //return 0;
 }
 

@@ -72,7 +72,7 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
     type_exp* rhs_type = analyze(env, bin->rhs);
     if (unify(lhs_type, rhs_type, env->nogens))
         return lhs_type;
-    //log(DEBUG, "error binary op with different type");
+    //log_info(DEBUG, "error binary op with different type");
     return nullptr;
 }
 

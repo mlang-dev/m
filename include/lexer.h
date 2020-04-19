@@ -9,7 +9,7 @@
 #define __MLANG_LEXER_H__
 
 #include "type.h"
-#include "util.h"
+#include "clib/util.h"
 
 #ifdef __cplusplus
 extern "C" {

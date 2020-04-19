@@ -16,7 +16,6 @@ add_library(mlr
   lexer.cc
   ast.cc
   parser.cc
-  util.cc
   runtime.cc
   astdump.cc
   analyzer.cc
@@ -24,7 +23,8 @@ add_library(mlr
   env.cc
   clib/array.c
   clib/string.c
-)
+  clib/util.c
+ )
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/include

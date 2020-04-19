@@ -8,7 +8,7 @@
 #include "llvm-c/TargetMachine.h"
 
 #include "codegen.h"
-#include "util.h"
+#include "clib/util.h"
 #include "clib/array.h"
 
 void* _generate_global_var_node(code_generator* cg, var_node* node,
@@ -64,7 +64,7 @@ LLVMValueRef _get_global_variable(code_generator* cg, std::string name)
     // declaration from existing type.
     auto fgv = cg->gvs.find(name);
     if (fgv != cg->gvs.end()) {
-        // log(DEBUG, "found defition before");
+        // log_info(DEBUG, "found defition before");
         return (LLVMValueRef)_generate_global_var_node(cg, fgv->second, true);
     }
 
@@ -132,7 +132,7 @@ void* _generate_ident_node(code_generator* cg, exp_node* node)
         if (gVar) {
             return LLVMBuildLoad((LLVMBuilderRef)cg->builder, gVar, ident->name.data);
         } else {
-            log(ERROR, "Unknown variable name: %s", ident->name.data);
+            log_info(ERROR, "Unknown variable name: %s", ident->name.data);
             return 0;
         }
     }
@@ -194,9 +194,9 @@ void* _generate_call_node(code_generator* cg, exp_node* node)
     auto call = (call_node*)node;
     LLVMValueRef callee = _get_function(cg, call->callee.data);
     if (!callee)
-        return log(ERROR, "Unknown function referenced: %s", call->callee.data);
+        return log_info(ERROR, "Unknown function referenced: %s", call->callee.data);
     if (LLVMCountParams(callee) != call->args.size())
-        return log(ERROR,
+        return log_info(ERROR,
             "Incorrect number of arguments passed: callee (prototype "
             "generated in llvm): %lu, calling: %lu",
             LLVMCountParams(callee), call->args.size());
@@ -242,7 +242,7 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
     if (!fun)
         return 0;
     // if (is_binary_op(node->prototype)){
-    //   log(DEBUG, "found a binary op def ! op:%c, prec: %d", get_op_name(node->prototype), node->prototype->precedence);
+    //   log_info(DEBUG, "found a binary op def ! op:%c, prec: %d", get_op_name(node->prototype), node->prototype->precedence);
     //   (*cg->parser->op_precedences)[get_op_name(node->prototype)] =
     //       node->prototype->precedence;
     // }
@@ -280,7 +280,7 @@ void* _generate_unary_node(code_generator* cg, exp_node* node)
     std::string fname = std::string("unary") + std::string(unary->op.data);
     LLVMValueRef fun = _get_function(cg, fname.c_str());
     if (fun == 0)
-        return log(ERROR, "Unknown unary operator");
+        return log_info(ERROR, "Unknown unary operator");
 
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     // KSDbgInfo.emitLocation(this);
@@ -383,7 +383,7 @@ void* _generate_local_var_node(code_generator* cg, var_node* node)
 
     // Register all variables and emit their initializer.
     const std::string var_name(node->var_name.data);
-    // log(DEBUG, "local var cg: %s", var_name.c_str());
+    // log_info(DEBUG, "local var cg: %s", var_name.c_str());
     exp_node* init = node->init_value;
 
     // Emit the initializer before adding the variable to scope, this prevents
@@ -592,7 +592,7 @@ void* create_target_machine(void* pmodule)
     char* error;
     LLVMTargetRef target;
     if (LLVMGetTargetFromTriple(target_triple, &target, &error)) {
-        log(ERROR, "error in creating target machine: %s", error);
+        log_info(ERROR, "error in creating target machine: %s", error);
         return nullptr;
     }
     auto cpu = "generic";

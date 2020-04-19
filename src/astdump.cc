@@ -4,8 +4,25 @@
  * AST print functions
  */
 #include "astdump.h"
-#include "util.h"
+#include "clib/util.h"
 #include <sstream>
+
+std::string _join(std::vector<std::string> args)
+{
+    array arr;
+    string_array_init(&arr);
+    string str_arg;
+    for(auto arg:args){
+        string_init_chars(&str_arg, arg.c_str());
+        array_insert(&arr, &str_arg);
+    }
+    string str = string_join(&arr, ' ');
+    std::string result = std::string(str.data);
+    string_deinit(&str);
+    string_deinit(&str_arg);
+    array_deinit(&arr);
+    return result;
+}
 
 std::string _dump_block(block_node* node)
 {
@@ -17,7 +34,7 @@ std::string _dump_block(block_node* node)
 
 std::string _dump_prototype(prototype_node* proto)
 {
-    return std::string(proto->name.data) + vector_to_string(proto->args) + "=";
+    return std::string(proto->name.data) + _join(proto->args) + "=";
 }
 
 std::string _dump_function(function_node* func)
@@ -56,7 +73,7 @@ std::string _dump_call(call_node* call)
 {
     std::vector<std::string> args;
     transform(call->args.begin(), call->args.end(), args.begin(), dump);
-    return std::string(call->callee.data) + " " + vector_to_string(args);
+    return std::string(call->callee.data) + " " + _join(args);
 }
 
 std::string _dump_if(condition_node* cond)

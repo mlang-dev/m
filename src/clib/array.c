@@ -1,5 +1,5 @@
 /*
- * array
+ * array.c
  * 
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *

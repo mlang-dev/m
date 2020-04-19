@@ -8,9 +8,10 @@
 #ifndef __MLANG_TYPE_H__
 #define __MLANG_TYPE_H__
 
-#include "util.h"
+#include "clib/util.h"
 #include <map>
 #include <vector>
+#include <string>
 
 #define FOREACH_TYPE(ENUM_ITEM) \
     ENUM_ITEM(TYPE_UNK)         \

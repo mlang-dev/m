@@ -3,7 +3,7 @@
  * 
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * array c header file
+ * dynamic array c header file
  */
 #ifndef __CLIB_ARRAY_H__
 #define __CLIB_ARRAY_H__

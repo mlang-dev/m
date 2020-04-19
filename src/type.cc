@@ -95,8 +95,8 @@ bool unify(type_exp* type1, type_exp* type2, std::vector<type_exp*>& nogens)
 {
     type1 = prune(type1);
     type2 = prune(type2);
-    //log(DEBUG, "unify type1 : %d: %s", type1->kind, type1->name.c_str());
-    //log(DEBUG, "unify type2 : %d: %s", type2->kind, type2->name.c_str());
+    //log_info(DEBUG, "unify type1 : %d: %s", type1->kind, type1->name.c_str());
+    //log_info(DEBUG, "unify type2 : %d: %s", type2->kind, type2->name.c_str());
 
     //not unify a generic one with no-generic one
     if (type1->kind == KIND_VAR && type2->kind == KIND_VAR) {

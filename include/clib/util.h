@@ -8,8 +8,12 @@
 #ifndef __MLANG_UTIL_H__
 #define __MLANG_UTIL_H__
 
-#include <string>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "clib/string.h"
+#include "clib/array.h"
 
 #define ENABLE_DEBUG_LOG 0
 #define GENERATE_ENUM(ENUM) ENUM,
@@ -27,14 +31,16 @@ static const char* LogLevelString[] = {
     FOREACH_LOGLEVEL(GENERATE_ENUM_STRING)
 };
 
-void* log(LogLevel level, const char* string_format, ...);
+void* log_info(enum LogLevel level, const char* string_format, ...);
 string format(const char* string_format, ...);
-std::vector<std::string> split(std::string, char separator);
 string make_unique_name(const char* root);
-int random(int min, int max);
+//int random(int min, int max);
 bool is_new_line(int ch);
-std::string vector_to_string(std::vector<std::string>& v);
 string get_id_name();
-void reset_id_name(const char *idname = "a");
+void reset_id_name(const char *idname);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

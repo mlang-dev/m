@@ -4,7 +4,7 @@
  * m lexer, m tokenizer
  */
 #include "lexer.h"
-#include "util.h"
+#include "clib/util.h"
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
@@ -112,7 +112,7 @@ token* _tokenize_number(file_tokenizer* tokenizer)
             if (num_str == "") {
                 return _tokenize_symbol_type(tokenizer, &tokenizer->cur_token, type);
             } else {
-                //log(ERROR, "ERROROROR !!!, %s", symbol.c_str());
+                //log_info(ERROR, "ERROROROR !!!, %s", symbol.c_str());
                 _tokenize_symbol_type(tokenizer, &tokenizer->next_token, type);
                 break;
             }
@@ -145,7 +145,7 @@ token* _tokenize_id_keyword(file_tokenizer* tokenizer)
     tokenizer->cur_token.token_type = token_type != 0 ? token_type : TOKEN_IDENT;
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
+    //log_info(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
     return &tokenizer->cur_token;
 }
 
@@ -158,7 +158,7 @@ token* _tokenize_op(file_tokenizer* tokenizer)
     tokenizer->cur_token.token_type = TOKEN_OP;
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    //log(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
+    //log_info(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
     return &tokenizer->cur_token;
 }
 
@@ -195,7 +195,7 @@ token* get_token(file_tokenizer* tokenizer)
     }
 
     tokenizer->tok_loc = tokenizer->loc;
-    //log(DEBUG, "skiped spaces: %d, %d, %c", tokenizer->tok_loc.line, tokenizer->tok_loc.col, tokenizer->curr_char);
+    //log_info(DEBUG, "skiped spaces: %d, %d, %c", tokenizer->tok_loc.line, tokenizer->tok_loc.col, tokenizer->curr_char);
     if (tokenizer->curr_char[0] == EOF)
         return _tokenize_type(tokenizer, TOKEN_EOF);
     else if (is_new_line(tokenizer->curr_char[0])) {
