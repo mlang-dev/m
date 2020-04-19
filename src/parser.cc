@@ -106,7 +106,6 @@ void parse_next_token(parser* parser)
     if (!parser->queued_tokens.empty()) {
         // cleanup queued tokens, to redo parsing
         parser->curr_token = parser->queued_tokens.front();
-        ;
         parser->queued_tokens.pop();
         //log_info(DEBUG, "using queued tokens !");
     } else
@@ -165,12 +164,12 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
             if (auto arg = parse_exp(parser, parent)) {
                 args.push_back(arg);
             }
-            if (string_eq(parser->curr_token.ident_str, "=")) {
+            if (string_eq_chars(parser->curr_token.ident_str, "=")) {
                 func_definition = true;
                 break;
             } else if (parser->curr_token.token_type == TOKEN_RPAREN || parser->curr_token.token_type == TOKEN_EOS || parser->curr_token.token_type == TOKEN_EOF)
                 break;
-            else if (string_eq(parser->curr_token.ident_str, ","))
+            else if (string_eq_chars(parser->curr_token.ident_str, ","))
                 parse_next_token(parser);
         }
     }
@@ -473,7 +472,7 @@ exp_node* _parse_function_with_prototype(parser* parser,
 
 exp_node* _parse_var(parser* parser, exp_node* parent, const char *name)
 {
-    if (string_eq(parser->curr_token.ident_str, "="))
+    if (string_eq_chars(parser->curr_token.ident_str, "="))
         parse_next_token(parser); // skip '='
             // token
     if (auto exp = parse_exp(parser, parent)) {
@@ -517,7 +516,7 @@ exp_node* _parse_unary(parser* parser, exp_node* parent)
         return 0;
     auto loc = parser->curr_token.loc;
     if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.token_type == TOKEN_LPAREN 
-        || string_eq(parser->curr_token.ident_str, ",")) {
+        || string_eq_chars(parser->curr_token.ident_str, ",")) {
         return _parse_node(parser, parent);
     }
     //log_info(DEBUG, "unary: %c", parser->curr_token.op_val);

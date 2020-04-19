@@ -26,7 +26,7 @@ typedef struct {
 array* array_new(size_t element_size);
 void array_init(array* arr, size_t element_size);
 void array_deinit(array *arr);
-void array_insert(array* a, void* element);
+void array_push(array* a, void* element);
 void* array_get(array* arr, size_t index);
 void array_free(array* a);
 void string_array_init(array* arr);

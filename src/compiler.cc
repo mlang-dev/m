@@ -35,13 +35,13 @@ int compile(const char* fn, object_file_type file_type)
         }
         LLVMModuleRef module = (LLVMModuleRef)cg->module;
         if (file_type == FT_OBJECT) {
-            string_add(&filename, ".o");
+            string_add_chars(&filename, ".o");
             generate_object_file(module, filename.data);
         } else if (file_type == FT_BITCODE) {
-            string_add(&filename, ".bc");
+            string_add_chars(&filename, ".bc");
             generate_bitcode_file(module, filename.data);
         } else if (file_type == FT_IR) {
-            string_add(&filename, ".ir");
+            string_add_chars(&filename, ".ir");
             generate_ir_file(module, filename.data);
         }
     } else {

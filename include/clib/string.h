@@ -35,18 +35,18 @@ void string_init_chars(string *str, const char *chars);
 void string_copy_chars(string* str, const char* chars);
 void string_copy_with_len(string* str, const char* data, size_t len);
 void string_copy(string* dest, string *src);
-bool string_eq(string *str1, const char *chars);
-bool string_eqs(string *str1, string *str2);
-void string_append(string *str1, string *str2);
-void string_add(string *str1, const char *chars);
+bool string_eq_chars(string *str1, const char *chars);
+bool string_eq(string *str1, string *str2);
+void string_add(string *str1, string *str2);
+void string_add_chars(string *str1, const char *chars);
 string string_join(array* arr, char sep);
 array string_split(string* str, char sep);
 string* string_substr(string *str, char match);
 void string_deinit(string *str);
 void string_free(string *str);
 char string_back(string *str);
-char string_popback(string *str);
-void string_pushback(string *str, char ch);
+char string_pop(string *str); // from back
+void string_push(string *str, char ch); //push to back
 //generic interface
 void string_init_generic(void *dest, void *src);
 void string_deinit_generic(void *dest);

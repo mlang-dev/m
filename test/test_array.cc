@@ -14,8 +14,8 @@ TEST(testArray, testArrayInitInt)
   array arr;
   array_init(&arr, sizeof(int));
   int i=10, j=20;
-  array_insert(&arr, &i);
-  array_insert(&arr, &j);
+  array_push(&arr, &i);
+  array_push(&arr, &j);
   ASSERT_EQ(2, arr.size);
   ASSERT_EQ(10, *((int*)array_get(&arr, 0)));
   ASSERT_EQ(20, *((int*)array_get(&arr, 1)));
@@ -31,8 +31,8 @@ TEST(testArray, testArrayOfString)
   string str2;
   string_init_chars(&str2, "world");
 
-  array_insert(&arr, &str1);
-  array_insert(&arr, &str2);
+  array_push(&arr, &str1);
+  array_push(&arr, &str2);
   ASSERT_EQ(2, arr.size);
   ASSERT_STREQ("hello", STRING_POINTER(array_get(&arr, 0))->data);
   ASSERT_STREQ("world", STRING_POINTER(array_get(&arr, 1))->data);

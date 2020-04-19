@@ -139,7 +139,7 @@ token* _tokenize_id_keyword(file_tokenizer* tokenizer)
 {
     string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
     while (isalnum((tokenizer->curr_char[0] = get_char(tokenizer))) || tokenizer->curr_char[0] == '_'){
-        string_add(&tokenizer->ident_str, tokenizer->curr_char);
+        string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
     }
     auto token_type = tokens[std::string(tokenizer->ident_str.data)];
     tokenizer->cur_token.token_type = token_type != 0 ? token_type : TOKEN_IDENT;
@@ -153,7 +153,7 @@ token* _tokenize_op(file_tokenizer* tokenizer)
 {
     string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
     while (op_chars.count((tokenizer->curr_char[0] = get_char(tokenizer))))
-        string_add(&tokenizer->ident_str, tokenizer->curr_char);
+        string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
     auto token_type = tokens[std::string(tokenizer->ident_str.data)];
     tokenizer->cur_token.token_type = TOKEN_OP;
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;

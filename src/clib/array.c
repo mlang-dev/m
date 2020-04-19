@@ -31,7 +31,7 @@ void array_init(array *arr, size_t element_size)
     arr->element_deinit = NULL;
 }
 
-void array_insert(array* a, void* element)
+void array_push(array* a, void* element)
 {
     if (a->size == a->cap) {
         a->cap *= 2;

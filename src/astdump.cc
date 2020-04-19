@@ -14,7 +14,7 @@ std::string _join(std::vector<std::string> args)
     string str_arg;
     for(auto arg:args){
         string_init_chars(&str_arg, arg.c_str());
-        array_insert(&arr, &str_arg);
+        array_push(&arr, &str_arg);
     }
     string str = string_join(&arr, ' ');
     std::string result = std::string(str.data);

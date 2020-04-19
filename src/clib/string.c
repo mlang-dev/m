@@ -65,7 +65,7 @@ void string_copy(string* dest, string* src)
     string_copy_with_len(dest, src->data, src->size);
 }
 
-void string_append(string *str1, string *str2)
+void string_add(string *str1, string *str2)
 {
     //
     size_t len = str1->size + str2->size;
@@ -90,15 +90,15 @@ void string_append(string *str1, string *str2)
     str1->size = len;
 }
 
-void string_add(string *str1, const char *chars)
+void string_add_chars(string *str1, const char *chars)
 {
     string str2;
     string_init_chars(&str2, chars);
-    string_append(str1, &str2);
+    string_add(str1, &str2);
     string_deinit(&str2);
 }
 
-bool string_eqs(string *str1, string *str2)
+bool string_eq(string *str1, string *str2)
 {
     if (str1->size != str2->size){
         return false;
@@ -106,11 +106,11 @@ bool string_eqs(string *str1, string *str2)
     return strcmp(str1->data, str2->data) == 0;
 }
 
-bool string_eq(string* str1, const char* chars)
+bool string_eq_chars(string* str1, const char* chars)
 {
     string str2;
     string_init_chars(&str2, chars);
-    bool result = string_eqs(str1, &str2);
+    bool result = string_eq(str1, &str2);
     string_deinit(&str2);
     return result;
 }
@@ -143,9 +143,9 @@ string string_join(array* arr, char sep)
     string str;
     string_init(&str);
     for (int i=0; i<arr->size; i++){
-        string_append(&str, (string*)array_get(arr, i));
+        string_add(&str, (string*)array_get(arr, i));
         if (i < arr->size - 1)
-            string_append(&str, &str_sepa);
+            string_add(&str, &str_sepa);
     }
     string_deinit(&str_sepa);
     return str;
@@ -162,7 +162,7 @@ array string_split(string* str, char sep)
         if(str->data[i] == sep||i==str->size-1){
             size_t sub_str_len = str->data[i] == sep? i-collect_start: i-collect_start + 1;
             string_copy_with_len(&sub_str, &str->data[collect_start], sub_str_len);
-            array_insert(&arr, &sub_str);
+            array_push(&arr, &sub_str);
             collect_start = i+1;
         }
     }
@@ -195,7 +195,7 @@ char string_back(string* str)
     return str->data[str->size-1];
 }
 
-char string_popback(string* str)
+char string_pop(string* str)
 {
     if (str->size == 0)
         return '\0';
@@ -205,10 +205,10 @@ char string_popback(string* str)
     return back;
 }
 
-void string_pushback(string *str, char ch)
+void string_push(string *str, char ch)
 {
     char temp[2];
     temp[0] = ch;
     temp[1] = '\0';
-    string_add(str, temp);
+    string_add_chars(str, temp);
 }

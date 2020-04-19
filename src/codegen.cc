@@ -148,35 +148,35 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
         return nullptr;
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    if (string_eq(&bin->op, "+"))
+    if (string_eq_chars(&bin->op, "+"))
         return LLVMBuildFAdd(builder, lv, rv, "addtmp");
-    else if (string_eq(&bin->op,"-"))
+    else if (string_eq_chars(&bin->op,"-"))
         return LLVMBuildFSub(builder, lv, rv, "subtmp");
-    else if (string_eq(&bin->op, "*"))
+    else if (string_eq_chars(&bin->op, "*"))
         return LLVMBuildFMul(builder, lv, rv, "multmp");
-    else if (string_eq(&bin->op, "/"))
+    else if (string_eq_chars(&bin->op, "/"))
         return LLVMBuildFDiv(builder, lv, rv, "divtmp");
-    else if (string_eq(&bin->op, "<")) {
+    else if (string_eq_chars(&bin->op, "<")) {
         lv = LLVMBuildFCmp(builder, LLVMRealULT, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (string_eq(&bin->op, ">")) {
+    } else if (string_eq_chars(&bin->op, ">")) {
         lv = LLVMBuildFCmp(builder, LLVMRealUGT, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (string_eq(&bin->op, "==")) {
+    } else if (string_eq_chars(&bin->op, "==")) {
         lv = LLVMBuildFCmp(builder, LLVMRealUEQ, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (string_eq(&bin->op, "!=")) {
+    } else if (string_eq_chars(&bin->op, "!=")) {
         lv = LLVMBuildFCmp(builder, LLVMRealUNE, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (string_eq(&bin->op, "<=")) {
+    } else if (string_eq_chars(&bin->op, "<=")) {
         lv = LLVMBuildFCmp(builder, LLVMRealULE, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
-    } else if (string_eq(&bin->op, ">=")) {
+    } else if (string_eq_chars(&bin->op, ">=")) {
         lv = LLVMBuildFCmp(builder, LLVMRealUGE, lv, rv, "cmptmp");
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
@@ -220,7 +220,7 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
     array_init(&doubles, sizeof(LLVMTypeRef));
     for (auto& arg : proto->args){
         LLVMTypeRef doubleType = LLVMDoubleTypeInContext(context);
-        array_insert(&doubles, &doubleType);
+        array_push(&doubles, &doubleType);
     }
     LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)doubles.data, doubles.size, false);
     LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, proto->name.data, ft);

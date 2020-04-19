@@ -19,7 +19,7 @@ TEST(testString, testEmptyString)
   string str;
   string_init_chars(&str, "");
   ASSERT_STREQ("", str.data);
-  ASSERT_TRUE(string_eq(&str, ""));
+  ASSERT_TRUE(string_eq_chars(&str, ""));
   string_deinit(&str);
 }
 
@@ -28,7 +28,7 @@ TEST(testString, testEmptyString2)
   string str;
   string_init(&str);
   ASSERT_STREQ("", str.data);
-  ASSERT_TRUE(string_eq(&str, ""));
+  ASSERT_TRUE(string_eq_chars(&str, ""));
   string_deinit(&str);
 }
 
@@ -44,7 +44,7 @@ TEST(testString, testShortAppend)
 {
   string str;
   string_init_chars(&str, "hello");
-  string_add(&str, " world!");
+  string_add_chars(&str, " world!");
   ASSERT_STREQ("hello world!", str.data);
   string_deinit(&str);
 }
@@ -53,7 +53,7 @@ TEST(testString, testShortAppendToLong)
 {
   string str;
   string_init_chars(&str, "hello");
-  string_add(&str, " world!  this will become a very long string. ");
+  string_add_chars(&str, " world!  this will become a very long string. ");
   ASSERT_STREQ("hello world!  this will become a very long string. ", str.data);
   string_deinit(&str);
 }
@@ -62,7 +62,7 @@ TEST(testString, testLongAppendToLong)
 {
   string str;
   string_init_chars(&str, "hello world!  this will become a very long string.");
-  string_add(&str, " and more now");
+  string_add_chars(&str, " and more now");
   ASSERT_STREQ("hello world!  this will become a very long string. and more now", str.data);
   string_deinit(&str);
 }
@@ -71,7 +71,7 @@ TEST(testString, testEq)
 {
     string str;
     string_init_chars(&str, "hello world!");
-    ASSERT_TRUE(string_eq(&str, "hello world!"));
+    ASSERT_TRUE(string_eq_chars(&str, "hello world!"));
     string_deinit(&str);
 }
 
@@ -79,7 +79,7 @@ TEST(testString, testNotEq)
 {
     string str;
     string_init_chars(&str, "hello world!");
-    ASSERT_FALSE(string_eq(&str, "hello world."));
+    ASSERT_FALSE(string_eq_chars(&str, "hello world."));
     string_deinit(&str);
 }
 
@@ -87,7 +87,7 @@ TEST(testString, testNotEq2)
 {
     string str;
     string_init_chars(&str, "hello world!");
-    ASSERT_FALSE(string_eq(&str, "hello world!."));
+    ASSERT_FALSE(string_eq_chars(&str, "hello world!."));
     string_deinit(&str);
 }
 
@@ -99,7 +99,7 @@ TEST(testString, testCopy)
     string_copy_chars(&str, "hello world!");
     ASSERT_EQ(str.size, strlen(test_char));
     ASSERT_STREQ(str.data, "hello world!");
-    ASSERT_TRUE(string_eq(&str, "hello world!"));
+    ASSERT_TRUE(string_eq_chars(&str, "hello world!"));
     string_deinit(&str);
 }
 
@@ -164,7 +164,7 @@ TEST(testString, testJoin)
     string str;
     string_array_init(&arr);
     string_init_chars(&str, "abc");
-    array_insert(&arr, &str);
+    array_push(&arr, &str);
     string result = string_join(&arr, '.');
     ASSERT_STREQ(result.data, "abc");
     string_deinit(&str);
@@ -177,9 +177,9 @@ TEST(testString, testJoinMultiString)
     string str;
     string_array_init(&arr);
     string_init_chars(&str, "abc");
-    array_insert(&arr, &str);
+    array_push(&arr, &str);
     string_copy_chars(&str, "def");
-    array_insert(&arr, &str);
+    array_push(&arr, &str);
     string result = string_join(&arr, '.');
     ASSERT_STREQ(result.data, "abc.def");
     string_deinit(&str);
@@ -192,9 +192,9 @@ TEST(testString, testJoinMultiLongString)
     string str;
     string_array_init(&arr);
     string_init_chars(&str, "this is a very long string");
-    array_insert(&arr, &str);
+    array_push(&arr, &str);
     string_copy_chars(&str, "this is a second very long string");
-    array_insert(&arr, &str);
+    array_push(&arr, &str);
     string result = string_join(&arr, '.');
     ASSERT_STREQ(result.data, "this is a very long string.this is a second very long string");
     string_deinit(&str);

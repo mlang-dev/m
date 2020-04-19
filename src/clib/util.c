@@ -20,13 +20,13 @@ void _inc_str(string* id)
 {
     if (id->size==0)
         return;
-    char ch = string_popback(id);
+    char ch = string_pop(id);
     if (ch == 'z') {
         ch = 'a';
         _inc_str(id);
     } else
         ch++;
-    string_pushback(id, ch);
+    string_push(id, ch);
 }
 
 bool is_all(string *str, char match)
@@ -46,7 +46,7 @@ string get_id_name()
     string_init_chars(&new_id_name, id_name);
     _inc_str(&new_id_name);
     if (string_back(&new_id_name) == 'a' && is_all(&new_id_name,  'a'))
-        string_pushback(&new_id_name, 'a');
+        string_push(&new_id_name, 'a');
     reset_id_name(new_id_name.data);
     string_deinit(&new_id_name);
     return str;
@@ -81,8 +81,8 @@ string make_unique_name(const char* name)
     }
     string name_str;
     string_init_chars(&name_str, name);
-    string_add(&name_str, "-");
-    string_add(&name_str, s);
+    string_add_chars(&name_str, "-");
+    string_add_chars(&name_str, s);
     return name_str;
 }
 
