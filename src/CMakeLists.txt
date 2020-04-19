@@ -23,6 +23,7 @@ add_library(mlr
   env.cc
   clib/array.c
   clib/string.c
+  clib/queue.c
   clib/util.c
  )
 
