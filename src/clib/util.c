@@ -20,18 +20,13 @@ void _inc_str(string* id)
 {
     if (id->size==0)
         return;
-  //  char ch = id.data[id.size-1];
     char ch = string_popback(id);
-    printf("inc str got: %c, remaining: %s\n", ch, id->data);
     if (ch == 'z') {
         ch = 'a';
         _inc_str(id);
     } else
         ch++;
-    printf("inc str push back %c to %s\n", ch, id->data);
     string_pushback(id, ch);
-    printf("inc str pushed back %c to become %s, %s\n", ch, id->data, id->reserved);
-    //return id;
 }
 
 bool is_all(string *str, char match)

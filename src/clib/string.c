@@ -11,6 +11,13 @@
 #include "clib/string.h"
 #include "clib/array.h"
 
+void _init_str(string *str)  
+{
+    str->data = str->reserved;
+    str->size = 0;
+    str->cap = SSO_LENGTH;
+}
+
 string* string_new(const char* chars)
 {
     string* str = (string*)malloc(sizeof(string));
@@ -27,14 +34,12 @@ string* string_new_len(const char* chars, size_t len)
 
 void string_init(string* str)
 {
-    str->data = str->reserved;
-    str->size = 0;
-    str->cap = SSO_LENGTH;
+    string_init_chars(str, "");
 }
 
 void string_init_chars(string* str, const char* chars)
 {
-    string_init(str);
+    _init_str(str);
     string_copy_chars(str, chars);
 }
 

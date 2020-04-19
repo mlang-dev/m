@@ -14,6 +14,23 @@ TEST(testString, testShortInit)
   string_deinit(&str);
 }
 
+TEST(testString, testEmptyString)
+{
+  string str;
+  string_init_chars(&str, "");
+  ASSERT_STREQ("", str.data);
+  ASSERT_TRUE(string_eq(&str, ""));
+  string_deinit(&str);
+}
+
+TEST(testString, testEmptyString2)
+{
+  string str;
+  string_init(&str);
+  ASSERT_STREQ("", str.data);
+  ASSERT_TRUE(string_eq(&str, ""));
+  string_deinit(&str);
+}
 
 TEST(testString, testLongInit)
 {
