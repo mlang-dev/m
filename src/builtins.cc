@@ -27,7 +27,7 @@ prototype_node* _create_for_id(void* context, llvm::Intrinsic::ID id)
     for (int i = 0; i < iitdsRef.size(); i++) {
         if (iitdsRef[i].Kind == llvm::Intrinsic::IITDescriptor::Argument && iitdsRef[i].getArgumentKind() != llvm::Intrinsic::IITDescriptor::ArgKind::AK_MatchType) {
             string arg = format("arg%d", i);
-            args.push_back(std::string(arg.data));
+            args.push_back(std::string(string_get(&arg)));
             string_deinit(&arg);
         }
     }
@@ -36,7 +36,7 @@ prototype_node* _create_for_id(void* context, llvm::Intrinsic::ID id)
     array names = string_split(&str_name, '.');
     //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
     prototype_node* node = create_prototype_node(nullptr, { 1, 0 }, 
-        STRING_POINTER(array_get(&names, names.size-1))->data, args);
+        string_get(STRING_POINTER(array_get(&names, names.size-1))), args);
     string_deinit(&str_name);
     array_deinit(&names);
     return node;

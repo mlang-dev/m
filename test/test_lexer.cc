@@ -14,7 +14,7 @@ TEST(testLexer, testEqualOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
-    ASSERT_STREQ("==", token->ident_str->data);
+    ASSERT_STREQ("==", string_get(token->ident_str));
     destroy_tokenizer(tokenizer);
 }
 
@@ -24,7 +24,7 @@ TEST(testLexer, testLEOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
-    ASSERT_STREQ("<=", token->ident_str->data);
+    ASSERT_STREQ("<=", string_get(token->ident_str));
     destroy_tokenizer(tokenizer);
 }
 
@@ -34,7 +34,7 @@ TEST(testLexer, testGEOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
-    ASSERT_STREQ(">=", token->ident_str->data);
+    ASSERT_STREQ(">=", string_get(token->ident_str));
     destroy_tokenizer(tokenizer);
 }
 
@@ -44,7 +44,7 @@ TEST(testLexer, testNEOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
-    ASSERT_STREQ("!=", token->ident_str->data);
+    ASSERT_STREQ("!=", string_get(token->ident_str));
     destroy_tokenizer(tokenizer);
 }
 

@@ -26,7 +26,7 @@ int compile(const char* fn, object_file_type file_type)
     parser* parser = parser_new(fn, false);
     code_generator* cg = cg_new(env, parser);
     create_builtins(parser, cg->context);
-    create_module_and_pass_manager(cg, filename.data);
+    create_module_and_pass_manager(cg, string_get(&filename));
     generate_runtime_module(cg, parser);
     block_node* block = parse_block(parser, nullptr);
     if (block) {
@@ -36,13 +36,13 @@ int compile(const char* fn, object_file_type file_type)
         LLVMModuleRef module = (LLVMModuleRef)cg->module;
         if (file_type == FT_OBJECT) {
             string_add_chars(&filename, ".o");
-            generate_object_file(module, filename.data);
+            generate_object_file(module, string_get(&filename));
         } else if (file_type == FT_BITCODE) {
             string_add_chars(&filename, ".bc");
-            generate_bitcode_file(module, filename.data);
+            generate_bitcode_file(module, string_get(&filename));
         } else if (file_type == FT_IR) {
             string_add_chars(&filename, ".ir");
-            generate_ir_file(module, filename.data);
+            generate_ir_file(module, string_get(&filename));
         }
     } else {
         log_info(INFO, "no statement is found.");

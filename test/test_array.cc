@@ -34,8 +34,8 @@ TEST(testArray, testArrayOfString)
   array_push(&arr, &str1);
   array_push(&arr, &str2);
   ASSERT_EQ(2, arr.size);
-  ASSERT_STREQ("hello", STRING_POINTER(array_get(&arr, 0))->data);
-  ASSERT_STREQ("world", STRING_POINTER(array_get(&arr, 1))->data);
+  ASSERT_STREQ("hello", string_get(STRING_POINTER(array_get(&arr, 0))));
+  ASSERT_STREQ("world", string_get(STRING_POINTER(array_get(&arr, 1))));
 
   string_deinit(&str1);
   string_deinit(&str2);

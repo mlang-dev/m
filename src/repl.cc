@@ -19,7 +19,7 @@ llvm::orc::VModuleKey _add_module_to_jit(JIT* jit)
 void _create_jit_module(code_generator *cg)
 {
     string mod_name = make_unique_name("mjit");
-    create_module_and_pass_manager(cg, mod_name.data);
+    create_module_and_pass_manager(cg, string_get(&mod_name));
     string_deinit(&mod_name);
 }
 
@@ -29,11 +29,11 @@ double eval_exp(JIT* jit, exp_node* node)
     string fn = make_unique_name("main-fn");
     auto node_type = node->node_type;
     double result;
-    node = parse_exp_to_function(jit->cg->parser, node, fn.data);
+    node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
     if (node) {
         if (auto p_fun = generate_code(jit->cg, node)) {
             auto mk = _add_module_to_jit(jit);
-            auto mf = jit->mjit->findSymbol(std::string(fn.data));
+            auto mf = jit->mjit->findSymbol(std::string(string_get(&fn)));
             //LLVMDumpModule(module);
             double (*fp)() = (double (*)())(intptr_t)cantFail(mf.getAddress());
             // keep global variables in the jit

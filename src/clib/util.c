@@ -31,8 +31,9 @@ void _inc_str(string* id)
 
 bool is_all(string *str, char match)
 {
+    const char* data = string_get(str);
     for(size_t i = 0; i<str->size; i++){
-        if (str->data[i] != match)
+        if (data[i] != match)
             return false;
     }
     return true;
@@ -47,7 +48,7 @@ string get_id_name()
     _inc_str(&new_id_name);
     if (string_back(&new_id_name) == 'a' && is_all(&new_id_name,  'a'))
         string_push(&new_id_name, 'a');
-    reset_id_name(new_id_name.data);
+    reset_id_name(string_get(&new_id_name));
     string_deinit(&new_id_name);
     return str;
 }

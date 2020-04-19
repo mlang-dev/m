@@ -17,7 +17,7 @@ std::string _join(std::vector<std::string> args)
         array_push(&arr, &str_arg);
     }
     string str = string_join(&arr, ' ');
-    std::string result = std::string(str.data);
+    std::string result = std::string(string_get(&str));
     string_deinit(&str);
     string_deinit(&str_arg);
     array_deinit(&arr);
@@ -34,7 +34,7 @@ std::string _dump_block(block_node* node)
 
 std::string _dump_prototype(prototype_node* proto)
 {
-    return std::string(proto->name.data) + _join(proto->args) + "=";
+    return std::string(string_get(&proto->name)) + _join(proto->args) + "=";
 }
 
 std::string _dump_function(function_node* func)
@@ -46,7 +46,7 @@ std::string _dump_function(function_node* func)
 std::string _dump_var(var_node* var)
 {
     std::string vars = "var: ";
-    std::string varname(var->var_name.data);
+    std::string varname(string_get(&var->var_name));
     vars += varname + "=" + dump(var->init_value);
     return vars;
 }
@@ -54,7 +54,7 @@ std::string _dump_var(var_node* var)
 std::string _dump_unary(unary_node* unary)
 {
     std::string un = "un: ";
-    std::string op(unary->op.data);
+    std::string op(string_get(&unary->op));
     un += op + dump(unary->operand);
     return un;
 }
@@ -62,7 +62,7 @@ std::string _dump_unary(unary_node* unary)
 std::string _dump_binary(binary_node* binary)
 {
     std::string bin = "bin:";
-    bin += std::string(binary->op.data);
+    bin += std::string(string_get(&binary->op));
     bin += "[";
     bin += dump(binary->lhs) + "," + dump(binary->rhs);
     bin += "]";
@@ -73,7 +73,7 @@ std::string _dump_call(call_node* call)
 {
     std::vector<std::string> args;
     transform(call->args.begin(), call->args.end(), args.begin(), dump);
-    return std::string(call->callee.data) + " " + _join(args);
+    return std::string(string_get(&call->callee)) + " " + _join(args);
 }
 
 std::string _dump_if(condition_node* cond)
@@ -86,12 +86,12 @@ std::string _dump_if(condition_node* cond)
 
 std::string _dump_for(for_node* fornode)
 {
-    return "for " + std::string(fornode->var_name.data) + " in " + dump(fornode->start) + ".." + dump(fornode->end);
+    return "for " + std::string(string_get(&fornode->var_name)) + " in " + dump(fornode->start) + ".." + dump(fornode->end);
 }
 
 std::string _dump_id(ident_node* idnode)
 {
-    std::string idname(idnode->name.data);
+    std::string idname(string_get(&idnode->name));
     return "id: " + idname;
 }
 

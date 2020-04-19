@@ -22,8 +22,8 @@ extern "C" {
 typedef struct{
   size_t size;
   size_t cap;
-  char reserved[SSO_LENGTH]; //reserved for short string optimization
-  char* data;
+  char _reserved[SSO_LENGTH]; //reserved for short string optimization
+  char* _dyn_data; //internal usage for dynamic allocated long string
 }string;
 
 #define STRING_POINTER(vp) ((string*)vp)
@@ -50,6 +50,7 @@ void string_push(string *str, char ch); //push to back
 //generic interface
 void string_init_generic(void *dest, void *src);
 void string_deinit_generic(void *dest);
+char * string_get(string *str);
 
 #ifdef __cplusplus
 }

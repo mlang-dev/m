@@ -18,7 +18,7 @@ TEST(testAnalyzer, testIntVariable)
     auto type = analyze(env, (exp_node*)block);
     auto node = (var_node*)block->nodes[0];
     ASSERT_EQ(1, block->nodes.size());
-    ASSERT_STREQ("x", node->var_name.data);
+    ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_STREQ("int", node->init_value->type.name.c_str());
     ASSERT_EQ(KIND_VAR, type->kind);
@@ -37,7 +37,7 @@ TEST(testAnalyzer, testDoubleVariable)
     auto type = analyze(env, (exp_node*)block);
     auto node = (var_node*)block->nodes[0];
     ASSERT_EQ(1, block->nodes.size());
-    ASSERT_STREQ("x", node->var_name.data);
+    ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_STREQ("double", node->init_value->type.name.c_str());
     ASSERT_EQ(KIND_VAR, type->kind);
@@ -56,7 +56,7 @@ TEST(testAnalyzer, testDoubleIntLiteralError)
     auto type = analyze(env, (exp_node*)block);
     auto node = (var_node*)block->nodes[0];
     ASSERT_EQ(1, block->nodes.size());
-    ASSERT_STREQ("x", node->var_name.data);
+    ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(nullptr, type);
     type_env_free(env);
