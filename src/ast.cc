@@ -38,7 +38,7 @@ ident_node* create_ident_node(exp_node* parent, source_loc loc, const char *name
     node->base.node_type = NodeType::IDENT_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->name, name);
+    string_init_chars(&node->name, name);
     return node;
 }
 
@@ -70,7 +70,7 @@ var_node* create_var_node(exp_node* parent, source_loc loc, const char *var_name
     node->base.node_type = VAR_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->var_name, var_name);
+    string_init_chars(&node->var_name, var_name);
     node->init_value = init_value;
     return node;
 }
@@ -82,7 +82,7 @@ call_node* create_call_node(exp_node* parent, source_loc loc, const char *callee
     node->base.node_type = NodeType::CALL_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->callee, callee);
+    string_init_chars(&node->callee, callee);
     node->args = args;
     return node;
 }
@@ -95,11 +95,11 @@ prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const ch
     node->base.node_type = NodeType::PROTOTYPE_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->name, name);
+    string_init_chars(&node->name, name);
     node->args = args;
     node->is_operator = is_operator;
     node->precedence = precedence;
-    string_init(&node->op, op);
+    string_init_chars(&node->op, op);
     return node;
 }
 
@@ -122,7 +122,7 @@ unary_node* create_unary_node(exp_node* parent, source_loc loc, const char *op, 
     node->base.node_type = NodeType::UNARY_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->op, op);
+    string_init_chars(&node->op, op);
     node->operand = operand;
     return node;
 }
@@ -133,7 +133,7 @@ binary_node* create_binary_node(exp_node* parent, source_loc loc, const char *op
     node->base.node_type = NodeType::BINARY_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->op, op);
+    string_init_chars(&node->op, op);
     node->lhs = lhs;
     node->rhs = rhs;
     return node;
@@ -146,7 +146,7 @@ for_node* create_for_node(exp_node* parent, source_loc loc, const char *var_name
     node->base.node_type = NodeType::FOR_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init(&node->var_name, var_name);
+    string_init_chars(&node->var_name, var_name);
     node->start = start;
     node->end = end;
     node->step = step;
@@ -168,7 +168,7 @@ block_node* create_block_node(exp_node* parent, std::vector<exp_node*>& nodes)
 module* create_module(const char* mod_name, FILE* file)
 {
     module* mod = new module();
-    string_init(&mod->name, mod_name);
+    string_init_chars(&mod->name, mod_name);
     mod->block = new block_node();
     mod->tokenizer = create_tokenizer(file);
     return mod;

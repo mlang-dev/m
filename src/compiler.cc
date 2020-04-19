@@ -20,8 +20,8 @@ int generate_ir_file(LLVMModuleRef module, const char* filename);
 int compile(const char* fn, object_file_type file_type)
 {
     string filename;
-    string_init(&filename, fn);
-    substr_until(&filename, '.');
+    string_init_chars(&filename, fn);
+    string_substr(&filename, '.');
     menv* env = env_new();
     parser* parser = parser_new(fn, false);
     code_generator* cg = cg_new(env, parser);

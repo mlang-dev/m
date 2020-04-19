@@ -1,51 +1,57 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "clib/string.h"
+#include "clib/array.h"
 
 string* string_new(const char* chars)
 {
     string* str = (string*)malloc(sizeof(string));
-    string_init(str, chars);
+    string_init_chars(str, chars);
     return str;
 }
 
 string* string_new_len(const char* chars, size_t len)
 {
     string* str = (string*)malloc(sizeof(string));
-    string_init_len(str, chars, len);
+    string_copy_with_len(str, chars, len);
     return str;
 }
 
-void string_init(string* str, const char* chars)
+void string_init(string* str)
 {
-    size_t len = strlen(chars);
-    string_init_len(str, chars, len);
-    str->data[len] = '\0';
+    str->data = str->reserved;
+    str->size = 0;
+    str->cap = SSO_LENGTH;
 }
 
-void string_init_len(string *str, const char* chars, size_t len)
+void string_init_chars(string* str, const char* chars)
 {
-    if (len < SSO_LENGTH) {
-        str->data = str->reserved;
-        str->cap = SSO_LENGTH;
-    } else {
-        str->data = (char*)malloc(len + 1);
-        str->cap = len + 1;
-    }
-    memcpy(str->data, chars, len);
-    str->size = len;
+    string_init(str);
+    string_copy_chars(str, chars);
 }
 
-void string_copy(string* str, const char* chars)
+void string_copy_with_len(string* dest, const char* data, size_t len)
 {
-    size_t len = strlen(chars);
-    if (len >= str->cap) {
-        str->data = (char*)malloc(len + 1);
-        str->cap = len + 1;
+    if (len >= dest->cap) {
+        dest->data = (char*)malloc(len + 1);
+        dest->cap = len + 1;
     }
-    memcpy(str->data, chars, len + 1);
-    str->size = len;
+    memcpy(dest->data, data, len);
+    dest->data[len] = '\0';
+    dest->size = len;
+}
+
+void string_copy_chars(string* dest, const char* chars)
+{
+    string_copy_with_len(dest, chars, strlen(chars));
+}
+
+void string_copy(string* dest, string* src)
+{
+    string_init(dest);
+    string_copy_with_len(dest, src->data, src->size);
 }
 
 void string_append(string *str1, string *str2)
@@ -76,7 +82,7 @@ void string_append(string *str1, string *str2)
 void string_add(string *str1, const char *chars)
 {
     string str2;
-    string_init(&str2, chars);
+    string_init_chars(&str2, chars);
     string_append(str1, &str2);
     string_deinit(&str2);
 }
@@ -92,7 +98,7 @@ bool string_eqs(string *str1, string *str2)
 bool string_eq(string* str1, const char* chars)
 {
     string str2;
-    string_init(&str2, chars);
+    string_init_chars(&str2, chars);
     bool result = string_eqs(str1, &str2);
     string_deinit(&str2);
     return result;
@@ -104,7 +110,7 @@ void string_deinit(string* str)
         free(str->data);
 }
 
-string* substr_until(string *str, char match)
+string* string_substr(string *str, char match)
 {
     for (int i=str->size-1; i>=0; i--){
         if(str->data[i] == match){
@@ -121,32 +127,36 @@ string string_join(array* arr, char sep)
     char separator[2];
     separator[0] = sep;
     separator[1] = '\0';
-    string strsep;
-    string_init(&strsep, separator);
+    string str_sepa;
+    string_init_chars(&str_sepa, separator);
     string str;
-    string_init(&str, "");
+    string_init(&str);
     for (int i=0; i<arr->size; i++){
-        string_append(&str, (string*)&arr->data[i]);
+        string_append(&str, (string*)array_get(arr, i));
         if (i < arr->size - 1)
-            string_append(&str, &strsep);
+            string_append(&str, &str_sepa);
     }
-    string_deinit(&strsep);
+    string_deinit(&str_sepa);
     return str;
 }
 
 array string_split(string* str, char sep)
 {
     array arr;
-    array_init(&arr, sizeof(string));
+    string_array_init(&arr);
+    string sub_str;
+    string_init(&sub_str);
     int collect_start = 0;
     for(int i=0;i<str->size;i++){
-        if(str->data[i] == sep){
-            string sub_str;
-            string_init_len(&sub_str, &str->data[collect_start], i-collect_start);
+        if(str->data[i] == sep||i==str->size-1){
+            size_t sub_str_len = str->data[i] == sep? i-collect_start: i-collect_start + 1;
+            string_copy_with_len(&sub_str, &str->data[collect_start], sub_str_len);
+            array_insert(&arr, &sub_str);
+            printf("array leme size: %s\n", STRING_POINTER(array_get(&arr, 0))->data);
             collect_start = i+1;
-            array_append(&arr, &sub_str);
         }
     }
+    string_deinit(&sub_str);
     return arr;
 }
 
@@ -155,4 +165,15 @@ void string_free(string* str)
 {
     string_deinit(str);
     free(str);
+}
+
+//generic interfaces
+void string_init_generic(void *dest, void *src)
+{
+  string_copy((string*)dest, (string*)src);
+}
+
+void string_deinit_generic(void *dest)
+{
+  string_deinit((string*)dest);
 }

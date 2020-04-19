@@ -38,7 +38,7 @@ string get_id_name()
     if (id_name.back() == 'a' && all_of(id_name.begin(), id_name.end(), [](char x) { return x == 'a'; }))
         id_name.push_back('a');
     string res;
-    string_init(&res, str.c_str());
+    string_init_chars(&res, str.c_str());
     return res;
 }
 
@@ -78,7 +78,7 @@ string make_unique_name(const char* name)
         s[i] = alpha_nums[j];
     }
     string name_str;
-    string_init(&name_str, name);
+    string_init_chars(&name_str, name);
     string_add(&name_str, "-");
     string_add(&name_str, s);
     return name_str;
@@ -114,7 +114,7 @@ string format(const char* string_format, ...)
     vsprintf(data, string_format, args);
     va_end(args);
     string str;
-    string_init(&str, data);
+    string_init_chars(&str, data);
     return str;
 }
 
