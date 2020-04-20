@@ -24,6 +24,7 @@ add_library(mlr
   clib/array.c
   clib/string.c
   clib/queue.c
+  clib/hashset.c
   clib/util.c
  )
 
