@@ -1,9 +1,9 @@
 /*
- * array.c
+ * queue.c
  * 
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * dynamic array in C
+ * dynamic queue in C
  */
 #include <stddef.h>
 #include <stdlib.h>
@@ -26,23 +26,31 @@ void queue_push(queue *q, void* element)
     q->back++;
 }
 
-void queue_pop(queue *q)
+void* queue_pop(queue *q)
 {
-    if (q->front < q->back)
+    if (q->front < q->back){
         q->front++;
+        return array_get(&q->items, q->front-1);
+    }
+    return NULL;
 }
 
 void* queue_front(queue *q)
 {
-    return q->front < q->back ? array_get(&q->items, q->front) : NULL;
+    return q->back > q->front ? array_get(&q->items, q->front) : NULL;
 }
 
 void* queue_back(queue *q)
 {
-    return  (q->back > 0) ? array_get(&q->items, q->back - 1) : NULL;
+    return  q->back > q->front ? array_get(&q->items, q->back - 1) : NULL;
 }
 
 void queue_deinit(queue *q)
 {
     array_deinit(&q->items);
+}
+
+size_t queue_size(queue *q)
+{
+    return q->back - q->front;
 }
