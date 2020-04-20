@@ -8,6 +8,18 @@
 #include <string.h>
 #include "clib/object.h"
 
+bool is_eq(object *dest, object *src);
+
+eq_predicate eq_predicates[ALL] = {
+    is_eq,
+    is_eq,
+    is_eq,
+    is_eq,
+    is_eq,
+    is_eq,
+    is_eq,
+};
+
 bool is_eq(object *dest, object *src)
 {
     if (dest->type != src->type||dest->size != src->size)
@@ -17,7 +29,17 @@ bool is_eq(object *dest, object *src)
     return memcmp(dest, src, dest->size) == 0;
 }
 
-object box_int(int value)
+void register_eq_predicate(enum ctype type, eq_predicate eq)
+{
+    eq_predicates[type] = eq;
+}
+
+eq_predicate get_eq(enum ctype type)
+{
+    return eq_predicates[type];
+}
+
+object make_int(int value)
 {
     object o;
     o.i_data = value;

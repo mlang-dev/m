@@ -37,7 +37,7 @@ bool match_empty(hashable* box, object *key_data)
 
 bool match_found(hashable* box, object *key_data)
 {
-    return box->status == HASH_EXIST && is_eq(&box->key_data, key_data);
+    return box->status == HASH_EXIST && get_eq(box->key_data.type)(&box->key_data, key_data);
 }
 
 bool match_search(hashable* box, object *key_data)

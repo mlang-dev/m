@@ -13,6 +13,8 @@
 
 void _init_str(string *str)  
 {
+    register_eq_predicate(STRING, string_eq_generic);
+    str->base.type = STRING;
     str->base.p_data = NULL;
     str->base.size = 0;
     str->cap = SSO_LENGTH;
@@ -29,6 +31,13 @@ string* string_new_len(const char* chars, size_t len)
 {
     string* str = (string*)malloc(sizeof(string));
     string_copy_with_len(str, chars, len);
+    return str;
+}
+
+string make_string(const char *chars)
+{
+    string str;
+    string_init_chars(&str, chars);
     return str;
 }
 
@@ -226,4 +235,9 @@ void string_push(string *str, char ch)
 size_t string_size(string *str)
 {
     return str->base.size;
+}
+
+bool string_eq_generic(object *str1, object *str2)
+{
+    return string_eq((string*)str1, (string*)str2);
 }

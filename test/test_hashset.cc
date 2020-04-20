@@ -13,9 +13,9 @@ TEST(testHashset, TestAddAndGet)
 {
     hashset hs;
     hashset_init(&hs);
-    object obj1 = box_int(10);
-    object obj2 = box_int(20);
-    object obj3 = box_int(30);
+    object obj1 = make_int(10);
+    object obj2 = make_int(20);
+    object obj3 = make_int(30);
     hashset_add(&hs, &obj1);
     hashset_add(&hs, &obj2);
     ASSERT_EQ(2, hashset_size(&hs));

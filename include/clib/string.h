@@ -30,6 +30,7 @@ typedef struct{
 
 string* string_new(const char *chars);
 string* string_new_len(const char *chars, size_t len);
+string make_string(const char *chars);
 void string_init(string *str);
 void string_init_chars(string *str, const char *chars);
 void string_copy_chars(string* str, const char* chars);
@@ -52,6 +53,7 @@ size_t string_size(string *str);
 //generic interface
 void string_init_generic(void *dest, void *src);
 void string_deinit_generic(void *dest);
+bool string_eq_generic(object *str1, object *str2);
 
 
 #ifdef __cplusplus

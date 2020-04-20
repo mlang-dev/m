@@ -18,7 +18,7 @@ extern "C" {
 enum ctype
 {
     //value type
-    VALUE_TYPE,
+    VALUE_TYPE = 0,
     CHAR,
     INT,
     FLOAT,
@@ -27,6 +27,7 @@ enum ctype
     REFERENCE_TYPE,
     //reference type or value type (depending on how long of the string)
     STRING,
+    ALL
 };
 
 typedef struct {
@@ -41,8 +42,10 @@ typedef struct {
     };
 }object;
 
-bool is_eq(object *dest, object *src);
-object box_int(int value);
+typedef bool (*eq_predicate)(object *dest, object *src);
+void register_eq_predicate(enum ctype type, eq_predicate eq);
+eq_predicate get_eq(enum ctype type);
+object make_int(int value);
 
 #ifdef __cplusplus
 }
