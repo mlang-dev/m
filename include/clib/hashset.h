@@ -5,26 +5,25 @@
  *
  * dynamic hash set c header file
  */
-#ifndef __CLIB_QUEUE_H__
-#define __CLIB_QUEUE_H__
+#ifndef __CLIB_HASHSET_H__
+#define __CLIB_HASHSET_H__
 
 #include <stddef.h>
 
-#include "array.h"
+#include "object.h"
+#include "hashtable.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
-    array items;
-} hashset;
+typedef hashtable hashset;
 
-void hashset_init(hashset *hs, size_t element_size);
+void hashset_init(hashset *hs);
 void hashset_deinit(hashset *hs);
-void hashset_add(hashset *hs, void* element);
+void hashset_add(hashset *hs, object* key_data);
 size_t hashset_size(hashset *hs);
-bool hashset_in(hashset* hs, void* element);
+bool hashset_in(hashset* hs, object* key_data);
 
 #ifdef __cplusplus
 }

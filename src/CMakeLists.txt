@@ -21,10 +21,13 @@ add_library(mlr
   analyzer.cc
   codegen.cc
   env.cc
+  clib/object.c
   clib/array.c
   clib/string.c
   clib/queue.c
+  clib/hash.c
   clib/hashset.c
+  clib/hashtable.c
   clib/util.c
  )
 

@@ -20,10 +20,10 @@ extern "C" {
 #define SSO_LENGTH 19
 
 typedef struct{
-  size_t size;
-  size_t cap;
-  char _reserved[SSO_LENGTH]; //reserved for short string optimization
-  char* _dyn_data; //internal usage for dynamic allocated long string
+    size_t size;
+    size_t cap;
+    char _reserved[SSO_LENGTH]; //reserved for short string optimization
+    char* _dyn_data; //internal usage for dynamic allocated long string
 }string;
 
 #define STRING_POINTER(vp) ((string*)vp)

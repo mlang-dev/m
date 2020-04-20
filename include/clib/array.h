@@ -24,12 +24,15 @@ typedef struct {
 } array;
 
 array* array_new(size_t element_size);
-void array_init(array* arr, size_t element_size);
+void array_init(array* a, size_t element_size);
+void array_init_size(array *a, size_t element_size, size_t init_size);
+void array_grow(array *a);
 void array_deinit(array *arr);
 void array_push(array* a, void* element);
-void* array_get(array* arr, size_t index);
+void array_set(array *a, size_t index, void *element);
+void* array_get(array* a, size_t index);
 void array_free(array* a);
-void string_array_init(array* arr);
+void string_array_init(array* a);
 
 #ifdef __cplusplus
 }

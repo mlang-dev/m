@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * unit test for clib array functions
+ * unit test for clib queue functions
  */
 #include "gtest/gtest.h"
 

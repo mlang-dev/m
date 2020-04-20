@@ -13,28 +13,29 @@
 #include "clib/array.h"
 #include "clib/string.h"
 #include "clib/hashset.h"
+#include "clib/hash.h"
 
-void hashset_init(hashset *hs, size_t element_size)
+void hashset_init(hashset *hs)
 {
-    array_init(&hs->items, element_size);
+    hashtable_init(hs);
 }
 
-void hashset_add(hashset *hs, void* element)
+void hashset_add(hashset *hs, object *key_data)
 {
-    array_push(&hs->items, element);
+    hashtable_add(hs, key_data, NULL);
 }
 
 size_t hashset_size(hashset *hs)
 {
-    return 0;
+    return hashtable_size(hs);
 }
 
-bool hashset_in(hashset *hs, void* element)
+bool hashset_in(hashset *hs, object* key_data)
 {
-    return false;
+    return hashtable_in(hs, key_data);
 }
 
 void hashset_deinit(hashset *hs)
 {
-    array_deinit(&hs->items);
+    hashtable_deinit(hs);
 }

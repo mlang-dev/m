@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * unit test for utility functions
+ * unit test for string functions
  */
 #include "clib/string.h"
 #include "gtest/gtest.h"

@@ -1,26 +1,26 @@
 /*
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * unit test for clib array functions
+ * unit test for clib hashset functions
  */
 #include "gtest/gtest.h"
 
+#include "clib/object.h"
 #include "clib/hashset.h"
 #include "clib/string.h"
-
 
 TEST(testHashset, TestAddAndGet)
 {
     hashset hs;
-    hashset_init(&hs, sizeof(int));
-    int i=10; int j=20;
-    hashset_add(&hs, &i);
-    hashset_add(&hs, &j);
-    int k = 0;
+    hashset_init(&hs);
+    object obj1 = box_int(10);
+    object obj2 = box_int(20);
+    object obj3 = box_int(30);
+    hashset_add(&hs, &obj1);
+    hashset_add(&hs, &obj2);
     ASSERT_EQ(2, hashset_size(&hs));
-    ASSERT_TRUE(hashset_in(&hs, &i));
-    ASSERT_TRUE(hashset_in(&hs, &j));
-    ASSERT_FALSE(hashset_in(&hs, &k));
+    ASSERT_TRUE(hashset_in(&hs, &obj1));
+    ASSERT_TRUE(hashset_in(&hs, &obj2));
+    ASSERT_FALSE(hashset_in(&hs, &obj3));
     hashset_deinit(&hs);
-
 }
