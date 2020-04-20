@@ -5,6 +5,7 @@
             "includePath": [
                 "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include",
                 "${workspaceFolder}/include",
+                "${workspaceFolder}/include/clib",
                 "${workspaceFolder}/extern/googletest/googletest/include",
                 "${workspaceFolder}/extern/googletest/googlemock/include",
                 "/usr/local/include"
