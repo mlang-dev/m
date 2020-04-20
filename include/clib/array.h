@@ -14,11 +14,14 @@ extern "C" {
 
 #include <stddef.h>
 
+#include "clib/object.h"
+
+
 typedef struct {
-    size_t size;
+    object base;
+    //bytes array
     size_t cap;
     size_t _element_size; //element size of the array
-    unsigned char *data; //bytes array
     void (*element_init)(void* dest, void* src); //element fields copy override for deep copy 
     void (*element_deinit)(void* dest); //element fields deep copy free
 } array;
@@ -31,6 +34,9 @@ void array_deinit(array *arr);
 void array_push(array* a, void* element);
 void array_set(array *a, size_t index, void *element);
 void* array_get(array* a, size_t index);
+void* array_data(array *a);
+void* array_back(array *a);
+size_t array_size(array *a);
 void array_free(array* a);
 void string_array_init(array* a);
 

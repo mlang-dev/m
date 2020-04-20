@@ -18,7 +18,7 @@ void reset_id_name(const char *idname)
 
 void _inc_str(string* id)
 {
-    if (id->size==0)
+    if (!string_size(id))
         return;
     char ch = string_pop(id);
     if (ch == 'z') {
@@ -32,7 +32,7 @@ void _inc_str(string* id)
 bool is_all(string *str, char match)
 {
     const char* data = string_get(str);
-    for(size_t i = 0; i<str->size; i++){
+    for(size_t i = 0; i<string_size(str); i++){
         if (data[i] != match)
             return false;
     }

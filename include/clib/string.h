@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 #include "clib/array.h"
+#include "clib/object.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,10 +21,9 @@ extern "C" {
 #define SSO_LENGTH 19
 
 typedef struct{
-    size_t size;
+    object base;
     size_t cap;
     char _reserved[SSO_LENGTH]; //reserved for short string optimization
-    char* _dyn_data; //internal usage for dynamic allocated long string
 }string;
 
 #define STRING_POINTER(vp) ((string*)vp)
@@ -47,10 +47,12 @@ void string_free(string *str);
 char string_back(string *str);
 char string_pop(string *str); // from back
 void string_push(string *str, char ch); //push to back
+char * string_get(string *str);
+size_t string_size(string *str);
 //generic interface
 void string_init_generic(void *dest, void *src);
 void string_deinit_generic(void *dest);
-char * string_get(string *str);
+
 
 #ifdef __cplusplus
 }

@@ -12,9 +12,9 @@ bool is_eq(object *dest, object *src)
 {
     if (dest->type != src->type||dest->size != src->size)
         return false;
-    if (dest->type!=POINTER)
-        return memcmp(dest, src, dest->size) == 0;
-    return memcmp(dest->p_data, src->p_data, dest->size) == 0;
+    if (dest->type>REFERENCE_TYPE)
+        return memcmp(dest->p_data, src->p_data, dest->size) == 0;
+    return memcmp(dest, src, dest->size) == 0;
 }
 
 object box_int(int value)

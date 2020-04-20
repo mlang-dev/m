@@ -97,7 +97,7 @@ TEST(testString, testCopy)
     char test_char[] = "hello world!";
     string_init(&str);
     string_copy_chars(&str, "hello world!");
-    ASSERT_EQ(str.size, strlen(test_char));
+    ASSERT_EQ(string_size(&str), strlen(test_char));
     ASSERT_STREQ(string_get(&str), "hello world!");
     ASSERT_TRUE(string_eq_chars(&str, "hello world!"));
     string_deinit(&str);
@@ -126,7 +126,7 @@ TEST(testString, testSplitNoMatched)
     string str;
     string_init_chars(&str, "abcdefcfg");
     array arr = string_split(&str, '.');
-    ASSERT_EQ(1, arr.size);
+    ASSERT_EQ(1, array_size(&arr));
     ASSERT_STREQ("abcdefcfg", string_get(STRING_POINTER(array_get(&arr, 0))));
     array_deinit(&arr);
     string_deinit(&str);
@@ -137,7 +137,7 @@ TEST(testString, testSplit)
     string str;
     string_init_chars(&str, "abc.def.cfg");
     array arr = string_split(&str, '.');
-    ASSERT_EQ(3, arr.size);
+    ASSERT_EQ(3, array_size(&arr));
     ASSERT_STREQ("abc", string_get(STRING_POINTER(array_get(&arr, 0))));
     ASSERT_STREQ("def", string_get(STRING_POINTER(array_get(&arr, 1))));
     ASSERT_STREQ("cfg", string_get(STRING_POINTER(array_get(&arr, 2))));
@@ -150,7 +150,7 @@ TEST(testString, testSplitLongString)
     string str;
     string_init_chars(&str, "this is very long string.def.cfg");
     array arr = string_split(&str, '.');
-    ASSERT_EQ(3, arr.size);
+    ASSERT_EQ(3, array_size(&arr));
     ASSERT_STREQ("this is very long string", string_get(STRING_POINTER(array_get(&arr, 0))));
     ASSERT_STREQ("def", string_get(STRING_POINTER(array_get(&arr, 1))));
     ASSERT_STREQ("cfg", string_get(STRING_POINTER(array_get(&arr, 2))));

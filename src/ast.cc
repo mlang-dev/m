@@ -14,7 +14,7 @@ bool is_binary_op(prototype_node* pnode)
 char get_op_name(prototype_node* pnode)
 {
     assert(is_unary_op(pnode) || is_binary_op(pnode));
-    return string_get(&pnode->name)[pnode->name.size - 1];
+    return string_back(&pnode->name);
 }
 
 function_node* create_function_node(prototype_node* prototype,

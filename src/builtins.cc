@@ -36,7 +36,7 @@ prototype_node* _create_for_id(void* context, llvm::Intrinsic::ID id)
     array names = string_split(&str_name, '.');
     //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
     prototype_node* node = create_prototype_node(nullptr, { 1, 0 }, 
-        string_get(STRING_POINTER(array_get(&names, names.size-1))), args);
+        string_get(STRING_POINTER(array_back(&names))), args);
     string_deinit(&str_name);
     array_deinit(&names);
     return node;

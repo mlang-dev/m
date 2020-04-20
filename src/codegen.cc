@@ -222,7 +222,7 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
         LLVMTypeRef doubleType = LLVMDoubleTypeInContext(context);
         array_push(&doubles, &doubleType);
     }
-    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)doubles.data, doubles.size, false);
+    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)array_data(&doubles), array_size(&doubles), false);
     LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, string_get(&proto->name), ft);
     unsigned i = 0;
     for (unsigned i = 0; i< LLVMCountParams(fun); i++){

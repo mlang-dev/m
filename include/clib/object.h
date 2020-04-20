@@ -18,15 +18,15 @@ extern "C" {
 enum ctype
 {
     //value type
+    VALUE_TYPE,
     CHAR,
     INT,
     FLOAT,
     DOUBLE,
+
+    REFERENCE_TYPE,
     //reference type or value type (depending on how long of the string)
     STRING,
-
-    //reference type
-    POINTER,
 };
 
 typedef struct {
