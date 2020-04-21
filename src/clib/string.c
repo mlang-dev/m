@@ -7,13 +7,19 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+#include <stdio.h>
 
 #include "clib/string.h"
 #include "clib/array.h"
+#include "clib/object.h"
 
 void _init_str(string *str)  
 {
-    register_eq_predicate(STRING, string_eq_generic);
+    object_interface string_interface = {
+        string_eq_generic, string_init_generic, 
+        string_deinit_generic, string_data_generic};
+    register_object_interface(STRING, string_interface);
     str->base.type = STRING;
     str->base.p_data = NULL;
     str->base.size = 0;
@@ -170,7 +176,7 @@ string string_join(array* arr, char sep)
 array string_split(string* str, char sep)
 {
     array arr;
-    string_array_init(&arr);
+    array_init(&arr, sizeof(string));
     string sub_str;
     string_init(&sub_str);
     int collect_start = 0;
@@ -179,7 +185,7 @@ array string_split(string* str, char sep)
         if(data[i] == sep||i==str->base.size-1){
             size_t sub_str_len = data[i] == sep? i-collect_start: i-collect_start + 1;
             string_copy_with_len(&sub_str, &data[collect_start], sub_str_len);
-            array_push(&arr, &sub_str);
+            array_push(&arr, &sub_str.base);
             collect_start = i+1;
         }
     }
@@ -192,17 +198,6 @@ void string_free(string* str)
 {
     string_deinit(str);
     free(str);
-}
-
-//generic interfaces
-void string_init_generic(void *dest, void *src)
-{
-  string_copy((string*)dest, (string*)src);
-}
-
-void string_deinit_generic(void *dest)
-{
-  string_deinit((string*)dest);
 }
 
 char string_back(string* str)
@@ -237,7 +232,24 @@ size_t string_size(string *str)
     return str->base.size;
 }
 
+//generic interfaces
+void string_init_generic(object *dest, object *src)
+{
+  string_copy((string*)dest, (string*)src);
+}
+
+void string_deinit_generic(object *dest)
+{
+  string_deinit((string*)dest);
+}
+
 bool string_eq_generic(object *str1, object *str2)
 {
+    assert(str1->type == STRING && str2->type == STRING);
     return string_eq((string*)str1, (string*)str2);
+}
+
+void* string_data_generic(object *obj)
+{
+    return string_get((string*)obj);
 }

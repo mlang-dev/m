@@ -3,6 +3,8 @@
  *
  * unit test for string functions
  */
+#include <string.h>
+
 #include "clib/string.h"
 #include "gtest/gtest.h"
 
@@ -162,9 +164,9 @@ TEST(testString, testJoin)
 {
     array arr;
     string str;
-    string_array_init(&arr);
+    array_init(&arr, sizeof(string));
     string_init_chars(&str, "abc");
-    array_push(&arr, &str);
+    array_push(&arr, &str.base);
     string result = string_join(&arr, '.');
     ASSERT_STREQ(string_get(&result), "abc");
     string_deinit(&str);
@@ -175,11 +177,11 @@ TEST(testString, testJoinMultiString)
 {
     array arr;
     string str;
-    string_array_init(&arr);
+    array_init(&arr, sizeof(string));
     string_init_chars(&str, "abc");
-    array_push(&arr, &str);
+    array_push(&arr, &str.base);
     string_copy_chars(&str, "def");
-    array_push(&arr, &str);
+    array_push(&arr, &str.base);
     string result = string_join(&arr, '.');
     ASSERT_STREQ(string_get(&result), "abc.def");
     string_deinit(&str);
@@ -190,11 +192,11 @@ TEST(testString, testJoinMultiLongString)
 {
     array arr;
     string str;
-    string_array_init(&arr);
+    array_init(&arr, sizeof(string));
     string_init_chars(&str, "this is a very long string");
-    array_push(&arr, &str);
+    array_push(&arr, &str.base);
     string_copy_chars(&str, "this is a second very long string");
-    array_push(&arr, &str);
+    array_push(&arr, &str.base);
     string result = string_join(&arr, '.');
     ASSERT_STREQ(string_get(&result), "this is a very long string.this is a second very long string");
     string_deinit(&str);

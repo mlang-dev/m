@@ -3,6 +3,7 @@
  *
  * LLVM IR Code Generation Functions
  */
+#include <stdlib.h>
 #include "llvm-c/Core.h"
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
@@ -10,6 +11,7 @@
 #include "codegen.h"
 #include "clib/util.h"
 #include "clib/array.h"
+#include "clib/object.h"
 
 void* _generate_global_var_node(code_generator* cg, var_node* node,
     bool is_external = false);
@@ -216,20 +218,18 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
     auto proto = (prototype_node*)node;
     cg->protos[std::string(string_get(&proto->name))] = proto;
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    array doubles;
-    array_init(&doubles, sizeof(LLVMTypeRef));
-    for (auto& arg : proto->args){
-        LLVMTypeRef doubleType = LLVMDoubleTypeInContext(context);
-        array_push(&doubles, &doubleType);
-    }
-    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), (LLVMTypeRef*)array_data(&doubles), array_size(&doubles), false);
-    LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, string_get(&proto->name), ft);
+    LLVMTypeRef *doubles = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * proto->args.size());
     unsigned i = 0;
+    for (auto& arg : proto->args){
+        doubles[i++] = LLVMDoubleTypeInContext(context);
+    }
+    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), doubles, proto->args.size(), false);
+    LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, string_get(&proto->name), ft);
     for (unsigned i = 0; i< LLVMCountParams(fun); i++){
         LLVMValueRef param = LLVMGetParam(fun, i);
         LLVMSetValueName2(param, proto->args[i].c_str(), proto->args[i].size());
     }
-    array_deinit(&doubles);
+    free(doubles);
     return fun;
 }
 
@@ -557,6 +557,7 @@ void create_module_and_pass_manager(code_generator* cg,
 void generate_runtime_module(code_generator* cg, parser* parser)
 {
     for (auto node: parser->ast->builtins) {
+        //log_info(DEBUG, "generating node type: %s\n", NodeTypeString[node->node_type]);
         generate_code(cg, node);
     }
 }

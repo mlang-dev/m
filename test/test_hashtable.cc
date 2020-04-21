@@ -12,7 +12,7 @@
 TEST(testHashtable, TestAddAndGet)
 {
     hashtable ht;
-    hashtable_init(&ht);
+    hashtable_init(&ht, sizeof(object), sizeof(object));
     object obj1 = make_int(10);
     object val1 = make_int(100);
     object obj2 = make_int(20);
@@ -33,7 +33,7 @@ TEST(testHashtable, TestAddAndGet)
 TEST(testHashtable, TestStringKey)
 {
     hashtable ht;
-    hashtable_init(&ht);
+    hashtable_init(&ht, sizeof(string), sizeof(object));
     string obj1 = make_string("hello");
     object val1 = make_int(100);
     string obj2 = make_string("world");
@@ -43,11 +43,8 @@ TEST(testHashtable, TestStringKey)
     hashtable_add(&ht, (object*)&obj2, &val2);
     ASSERT_EQ(2, hashtable_size(&ht));
     ASSERT_TRUE(hashtable_in(&ht, (object*)&obj1));
-    printf("string key added0\n");
     ASSERT_TRUE(hashtable_in(&ht, (object*)&obj2));
-    printf("string key added\n");
     ASSERT_EQ(100, hashtable_get(&ht, (object*)&obj1)->i_data);
-    printf("string key added2\n");
     ASSERT_EQ(200, hashtable_get(&ht, (object*)&obj2)->i_data);
     ASSERT_FALSE(hashtable_in(&ht, (object*)&obj3));
     ASSERT_EQ(NULL, hashtable_get(&ht, (object*)&obj3));

@@ -3,10 +3,13 @@
  *
  * mlang driver, command line to run as an intepreter or compiler options
  */
+#include <unistd.h>
+#include <string.h>
+
 #include "compiler.h"
 #include "repl.h"
-#include <unistd.h>
-
+#include "clib/array.h"
+#include "clib/object.h"
 
 extern char* optarg;
 extern int optind, opterr, optopt;
@@ -25,7 +28,8 @@ int main(int argc, char* argv[])
     int fflag = 0;
     char* fopt = 0;
     object_file_type file_type = FT_OBJECT;
-    std::vector<char*> src_files;
+    array src_files;
+    array_init(&src_files, sizeof(object));
     while (optind < argc) {
         if ((option = getopt(argc, argv, "f:")) != -1) {
             switch (option) {
@@ -47,15 +51,23 @@ int main(int argc, char* argv[])
                 break;
             }
         } else {
-            src_files.push_back(argv[optind++]);
+            object o = make_ref(argv[optind]);
+            array_push(&src_files, &o);
+            optind ++;
         }
     }
-    if (src_files.empty())
-        return run_repl();
+    int result;
+    if (!array_size(&src_files)){
+        result = run_repl();
+    }
     else {
         if (!file_type)
             file_type = FT_OBJECT;
-        for (auto src_file : src_files)
-            return compile(src_file, file_type);
+        for (int i = 0; i < array_size(&src_files); i++){
+            result = compile((char*)array_get(&src_files, i)->p_data, file_type);
+            break;
+        }
     }
+    array_deinit(&src_files);
+    return result;
 }

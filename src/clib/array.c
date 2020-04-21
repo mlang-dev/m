@@ -32,19 +32,14 @@ void array_init_size(array *a, size_t element_size, size_t init_size)
     memset(a->base.p_data, 0, init_size * element_size);
     a->cap = init_size;
     a->base.size = 0;
-    a->element_init = NULL;
-    a->element_deinit = NULL;
 }
 
-void _copy_element_to_array(array *a, size_t index, void *element)
+void _copy_element_to_array(array *a, size_t index, object *element)
 {
-    if (a->element_init)
-        a->element_init(a->base.p_data + (index * a->_element_size), element);
-    else
-        memcpy(a->base.p_data + (index * a->_element_size), (unsigned char*)element, a->_element_size);
+    get_init(element->type)(a->base.p_data + (index * a->_element_size), element);
 }
 
-void array_push(array* a, void* element)
+void array_push(array* a, object* element)
 {
     if (a->base.size == a->cap) {
         array_grow(a);
@@ -59,7 +54,7 @@ void array_grow(array *a)
     a->base.p_data = realloc(a->base.p_data, a->cap * a->_element_size);
 }
 
-void array_set(array *a, size_t index, void *element)
+void array_set(array *a, size_t index, object *element)
 {
     if(index>a->cap - 1)
         return;
@@ -68,9 +63,9 @@ void array_set(array *a, size_t index, void *element)
         a->base.size = index + 1;
 }
 
-void* array_get(array *a, size_t index)
+object* array_get(array *a, size_t index)
 {
-    return (void*)(a->base.p_data + (index * a->_element_size));
+    return (object*)(a->base.p_data + (index * a->_element_size));
 }
 
 void* array_data(array* a)
@@ -78,7 +73,7 @@ void* array_data(array* a)
     return a->base.p_data;
 }
 
-void* array_back(array *a)
+object* array_back(array *a)
 {
     return array_get(a, a->base.size - 1);
 }
@@ -94,19 +89,11 @@ void array_free(array* a)
     free(a);
 }
 
-void string_array_init(array *a)
-{
-    array_init(a, sizeof(string));
-    a->element_init = string_init_generic;
-    a->element_deinit = string_deinit_generic;
-}
-
 void array_deinit(array *a)
 {
-    if (a->element_deinit){
-        for(size_t i=0;i<a->base.size;i++){
-            a->element_deinit(array_get(a, i));
-        }
+    for(size_t i=0;i<a->base.size;i++){
+        object *obj = array_get(a, i);
+        get_deinit(obj->type)(obj);
     }
     free(a->base.p_data);
 }

@@ -12,7 +12,7 @@
 TEST(testHashset, TestAddAndGet)
 {
     hashset hs;
-    hashset_init(&hs);
+    hashset_init(&hs, sizeof(object));
     object obj1 = make_int(10);
     object obj2 = make_int(20);
     object obj3 = make_int(30);

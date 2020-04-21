@@ -6,21 +6,36 @@
  * a generic variant object type implementation
  */
 #include <string.h>
+#include <stdio.h>
+#include <assert.h>
+
 #include "clib/object.h"
 
-bool is_eq(object *dest, object *src);
+bool obj_eq(object *dest, object *src);
+void obj_init(object *dest, object *src);
+void obj_deinit(object *obj);
+void* obj_data(object *obj);
 
-eq_predicate eq_predicates[ALL] = {
-    is_eq,
-    is_eq,
-    is_eq,
-    is_eq,
-    is_eq,
-    is_eq,
-    is_eq,
-};
+object_interface default_object_interface = {obj_eq, obj_init, obj_deinit, obj_data};
+object_interface object_interfaces[ALL];
 
-bool is_eq(object *dest, object *src)
+void obj_init(object *dest, object *src)
+{
+    *dest = *src;
+    printf("copied obj:%s\n", dest->p_data);
+}
+
+void obj_deinit(object *obj)
+{
+
+}
+
+void *obj_data(object *obj)
+{
+    return &obj->c_data;
+}
+
+bool obj_eq(object *dest, object *src)
 {
     if (dest->type != src->type||dest->size != src->size)
         return false;
@@ -29,14 +44,29 @@ bool is_eq(object *dest, object *src)
     return memcmp(dest, src, dest->size) == 0;
 }
 
-void register_eq_predicate(enum ctype type, eq_predicate eq)
+void register_object_interface(enum ctype type, object_interface interface)
 {
-    eq_predicates[type] = eq;
+    object_interfaces[type] = interface;
 }
 
-eq_predicate get_eq(enum ctype type)
+object_eq get_eq(enum ctype type)
 {
-    return eq_predicates[type];
+    return object_interfaces[type].eq ? object_interfaces[type].eq : default_object_interface.eq;
+}
+
+object_init get_init(enum ctype type)
+{
+    return object_interfaces[type].init ? object_interfaces[type].init : default_object_interface.init;
+}
+
+object_deinit get_deinit(enum ctype type)
+{
+    return object_interfaces[type].deinit ? object_interfaces[type].deinit : default_object_interface.deinit;
+}
+
+object_data get_data(enum ctype type)
+{
+    return object_interfaces[type].data ? object_interfaces[type].data : default_object_interface.data;
 }
 
 object make_int(int value)
@@ -45,5 +75,14 @@ object make_int(int value)
     o.i_data = value;
     o.size = sizeof(value);
     o.type = INT;
+    return o;
+}
+
+object make_ref(void *p)
+{
+    object o;
+    o.p_data = p;
+    o.size = sizeof(void*);
+    o.type = POINTER;
     return o;
 }

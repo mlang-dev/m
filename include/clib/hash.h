@@ -22,9 +22,9 @@ unsigned int hash(const char* str, unsigned int len);
 
 typedef struct
 {
+    object* key_data;
+    object* value_data;
     unsigned int status;    //00: empty  01: occupied  10: deleted with open addressing hash 
-    object key_data;
-    object value_data;
 }hashable;
 
 

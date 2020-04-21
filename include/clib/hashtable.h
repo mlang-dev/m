@@ -20,10 +20,12 @@ extern "C" {
 
 typedef struct {
     array buckets;
+    size_t key_object_size;
+    size_t value_object_size;
     size_t size;
 } hashtable;
 
-void hashtable_init(hashtable *ht);
+void hashtable_init(hashtable *ht, size_t key_object_size, size_t value_object_size);
 void hashtable_deinit(hashtable *ht);
 void hashtable_add(hashtable *ht, object *key_data, object *value_data);
 object* hashtable_get(hashtable *ht, object *key_data);

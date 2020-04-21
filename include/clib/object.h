@@ -24,9 +24,10 @@ enum ctype
     FLOAT,
     DOUBLE,
 
-    REFERENCE_TYPE,
+    REFERENCE_TYPE = 64, //5
     //reference type or value type (depending on how long of the string)
     STRING,
+    POINTER,
     ALL
 };
 
@@ -42,10 +43,25 @@ typedef struct {
     };
 }object;
 
-typedef bool (*eq_predicate)(object *dest, object *src);
-void register_eq_predicate(enum ctype type, eq_predicate eq);
-eq_predicate get_eq(enum ctype type);
+typedef bool (*object_eq)(object *dest, object *src);
+typedef void (*object_init)(object *dest, object *src); 
+typedef void (*object_deinit)(object* obj);
+typedef void *(*object_data)(object* obj);
+
+typedef struct _object_interface{
+    object_eq eq;
+    object_init init;
+    object_deinit deinit;
+    object_data data;
+}object_interface;
+
+void register_object_interface(enum ctype type, object_interface interface);
+object_eq get_eq(enum ctype type);
+object_init get_init(enum ctype type);
+object_deinit get_deinit(enum ctype type);
+object_data get_data(enum ctype type);
 object make_int(int value);
+object make_ref(void *p);
 
 #ifdef __cplusplus
 }

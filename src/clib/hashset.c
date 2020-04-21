@@ -15,9 +15,9 @@
 #include "clib/hashset.h"
 #include "clib/hash.h"
 
-void hashset_init(hashset *hs)
+void hashset_init(hashset *hs, size_t key_object_size)
 {
-    hashtable_init(hs);
+    hashtable_init(hs, key_object_size, 0);
 }
 
 void hashset_add(hashset *hs, object *key_data)

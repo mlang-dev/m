@@ -51,10 +51,10 @@ void string_push(string *str, char ch); //push to back
 char * string_get(string *str);
 size_t string_size(string *str);
 //generic interface
-void string_init_generic(void *dest, void *src);
-void string_deinit_generic(void *dest);
+void string_init_generic(object *dest, object *src);
+void string_deinit_generic(object *dest);
 bool string_eq_generic(object *str1, object *str2);
-
+void* string_data_generic(object *obj);
 
 #ifdef __cplusplus
 }

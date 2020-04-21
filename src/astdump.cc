@@ -10,11 +10,11 @@
 std::string _join(std::vector<std::string> args)
 {
     array arr;
-    string_array_init(&arr);
+    array_init(&arr, sizeof(string));
     string str_arg;
     for(auto arg:args){
         string_init_chars(&str_arg, arg.c_str());
-        array_push(&arr, &str_arg);
+        array_push(&arr, &str_arg.base);
     }
     string str = string_join(&arr, ' ');
     std::string result = std::string(string_get(&str));

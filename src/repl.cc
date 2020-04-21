@@ -85,9 +85,9 @@ int run_repl()
     menv* env = env_new();
     parser* parser = parser_new(NULL, true, NULL);
     JIT* jit = build_jit(env, parser);
-    fprintf(stderr, "m> ");
+    printf("m> ");
     parse_block(parser, nullptr, &eval_statement, jit);
-    fprintf(stderr, "bye !\n");
+    printf("bye !\n");
     jit_free(jit);
     env_free(env);
     return 0;
