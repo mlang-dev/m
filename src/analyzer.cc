@@ -6,21 +6,19 @@
 
 #include "analyzer.h"
 
-type_exp* retrieve(type_env* env, std::string name)
+type_exp* retrieve(type_env* env, string *name)
 {
-    return env->type_env[name];
-    //return retrieve(name, env->nogens, env->type_env);
+    return retrieve_type(name, &env->nogens, env->type_env);
 }
 
 type_exp* _analyze_ident(type_env* env, exp_node* ident)
 {
-    std::string idname(string_get(&((ident_node*)ident)->name));
-    return retrieve(env, idname);
+    return retrieve(env, &((ident_node*)ident)->name);
 }
 
 type_exp* _analyze_num(type_env* env, exp_node* num)
 {
-    return retrieve(env, ((num_node*)num)->base.type.name);
+    return retrieve(env, &((num_node*)num)->base.type.name);
 }
 
 type_exp* _analyze_var(type_env* env, exp_node* node)
@@ -37,7 +35,7 @@ type_exp* _analyze_var(type_env* env, exp_node* node)
 type_exp* _analyze_call(type_env* env, exp_node* node)
 {
     auto call = (call_node*)node;
-    auto fun_type = retrieve(env, std::string(string_get(&call->callee)));
+    auto fun_type = retrieve(env, &call->callee);
     array args;
     array_init(&args, sizeof(object));
     for(auto arg: call->args){
@@ -87,8 +85,11 @@ type_env* type_env_new()
     array_init(&env->nogens, sizeof(object));
     array args;
     array_init(&args, sizeof(object));
-    for (auto def_type : TypeString)
-        env->type_env[def_type] = (type_exp*)create_type_oper(def_type, &args);
+    for (auto def_type : TypeString){
+        string type_str;
+        string_init_chars(&type_str, def_type);
+        env->type_env[def_type] = (type_exp*)create_type_oper(&type_str, &args);
+    }
     return env;
 }
 

@@ -12,18 +12,18 @@ type_var* create_type_var()
     string name = get_id_name();
     auto var = new type_var();
     var->base.kind = KIND_VAR;
-    var->base.name = std::string(string_get(&name));
+    var->base.name = name;
     var->instance = nullptr;
     string_deinit(&name);
     return var;
 }
 
 //array of type_exp*
-type_oper* create_type_oper(std::string name, array* args)
+type_oper* create_type_oper(string *name, array* args)
 {
     auto var = new type_oper();
     var->base.kind = KIND_OPER;
-    var->base.name = name;
+    var->base.name = *name;
     var->args = *args;
     return var;
 }
@@ -31,9 +31,11 @@ type_oper* create_type_oper(std::string name, array* args)
 //args: array of type_exp*
 type_oper* create_type_fun(array* args, type_exp* ret)
 {
+    string str;
+    string_init_chars(&str, "->");
     object obj = make_ref(ret);
     array_push(args, &obj);
-    return create_type_oper("->", args);
+    return create_type_oper(&str, args);
 }
 
 void type_exp_free(type_exp* type)
@@ -46,18 +48,20 @@ void type_exp_free(type_exp* type)
     delete op;
 }
 
-std::string format_type(type_exp* exp)
+string format_type(type_exp* exp)
 {
     if (exp->kind == KIND_VAR) {
         auto var = (type_var*)exp;
         return var->instance != nullptr ? format_type(var->instance) : exp->name;
     }
     auto op = (type_oper*)exp;
-    std::string str = "";
+    string str;
+    string_init_chars(&str, "");
     for (unsigned i = 0; i < array_size(&op->args); i++) {
         type_exp *type = (type_exp*)array_get(&op->args, i)->p_data;
-        str += " ";
-        str += format_type(type);
+        string_add_chars(&str, " ");
+        string str_type = format_type(type);
+        string_add(&str, (string*)&str_type);
     }
     return str;
 }
@@ -126,7 +130,7 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
         } else {
             auto oper1 = (type_oper*)type1;
             auto oper2 = (type_oper*)type2;
-            if (type1->name != type2->name || array_size(&oper1->args) != array_size(&oper2->args))
+            if (!string_eq(&type1->name, &type2->name) || array_size(&oper1->args) != array_size(&oper2->args))
                 return false;
             for (int i = 0; i < array_size(&oper1->args); i++) {
                 if (!unify((type_exp*)array_get(&oper1->args, i)->p_data, (type_exp*)array_get(&oper2->args, i), nogens))
@@ -189,11 +193,12 @@ type_exp* fresh(type_exp* type1, array* nogen, std::map<type_exp*, type_exp*>& e
         object o = make_ref(type);
         array_push(&refreshed, &o);
     }
-    return (type_exp*)create_type_oper(type1->name, &refreshed);
+    return (type_exp*)create_type_oper(&type1->name, &refreshed);
 }
 
-type_exp* retrieve(std::string name, array *nogen, std::map<std::string, type_exp*>& env)
+type_exp* retrieve_type(string *pname, array *nogen, std::map<std::string, type_exp*>& env)
 {
+    std::string name = std::string(string_get(pname));
     if (env[name]) {
         std::map<type_exp*, type_exp*> type_env;
         return fresh(env[name], nogen, type_env);

@@ -50,7 +50,7 @@ static const char* KindString[] = {
 //type variable or operator
 struct type_exp {
     Kind kind; //type variable or type operator
-    std::string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
+    string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 };
 
 struct type_var {
@@ -64,12 +64,12 @@ struct type_oper {
 };
 
 type_var* create_type_var();
-type_oper* create_type_oper(std::string name, array *args);
+type_oper* create_type_oper(string *name, array *args);
 type_oper* create_type_fun(array *args, type_exp* ret);
 void type_exp_free(type_exp* type);
 bool occurs_in_type(type_exp* type1, type_exp* type2);
-type_exp* retrieve(std::string name, array *nogen, std::map<std::string, type_exp*>& env);
-std::string format_type(type_exp* exp);
+type_exp* retrieve_type(string *name, array *nogen, std::map<std::string, type_exp*>& env);
+string format_type(type_exp* exp);
 bool unify(type_exp* type1, type_exp* type2, array *nogens);
 
 #endif

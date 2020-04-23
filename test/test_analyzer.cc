@@ -20,10 +20,10 @@ TEST(testAnalyzer, testIntVariable)
     ASSERT_EQ(1, block->nodes.size());
     ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
-    ASSERT_STREQ("int", node->init_value->type.name.c_str());
+    ASSERT_STREQ("int", string_get(&node->init_value->type.name));
     ASSERT_EQ(KIND_VAR, type->kind);
     auto var = (type_var*)type;
-    ASSERT_STREQ("int", var->instance->name.c_str());
+    ASSERT_STREQ("int", string_get(&var->instance->name));
     type_env_free(env);
     parser_free(parser);
 }
@@ -39,10 +39,10 @@ TEST(testAnalyzer, testDoubleVariable)
     ASSERT_EQ(1, block->nodes.size());
     ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
-    ASSERT_STREQ("double", node->init_value->type.name.c_str());
+    ASSERT_STREQ("double", string_get(&node->init_value->type.name));
     ASSERT_EQ(KIND_VAR, type->kind);
     auto var = (type_var*)type;
-    ASSERT_STREQ("double", var->instance->name.c_str());
+    ASSERT_STREQ("double", string_get(&var->instance->name));
     type_env_free(env);
     parser_free(parser);
 }

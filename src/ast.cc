@@ -44,9 +44,11 @@ ident_node* create_ident_node(exp_node* parent, source_loc loc, const char *name
 
 num_node* create_num_node(exp_node* parent, source_loc loc, double val)
 {
+    string str;
+    string_init_chars(&str, "double");
     auto node = new num_node();
     node->base.node_type = NUMBER_NODE;
-    node->base.type.name = "double";
+    node->base.type.name = str;
     node->base.parent = parent;
     node->base.loc = loc;
     node->double_val = val;
@@ -55,9 +57,11 @@ num_node* create_num_node(exp_node* parent, source_loc loc, double val)
 
 num_node* create_num_node(exp_node* parent, source_loc loc, int val)
 {
+    string str;
+    string_init_chars(&str, "int");
     auto node = new num_node();
     node->base.node_type = NUMBER_NODE;
-    node->base.type.name = "int";
+    node->base.type.name = str;
     node->base.parent = parent;
     node->base.loc = loc;
     node->double_val = val;

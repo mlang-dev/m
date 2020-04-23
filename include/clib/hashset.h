@@ -12,6 +12,7 @@
 
 #include "object.h"
 #include "hashtable.h"
+#include "generic.h"
 
 #ifdef __cplusplus
 extern "C" {
