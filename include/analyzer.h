@@ -9,10 +9,11 @@
 #define __MLANG_ANALYZER_H__
 
 #include "ast.h"
+#include "clib/hashtable.h"
 
 typedef struct {
-    std::map<std::string, type_exp*> type_env;
-    std::vector<type_exp*> nogens;
+    std::map<std::string, type_exp*> type_env;  //hashtable of <string, type_exp*>
+    array nogens; //array of type_exp*
 }type_env;
 
 type_env* type_env_new();

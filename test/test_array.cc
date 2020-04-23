@@ -7,7 +7,7 @@
 
 #include "clib/array.h"
 #include "clib/string.h"
-
+#include <string.h>
 
 TEST(testArray, testArrayInitInt)
 {
@@ -21,6 +21,7 @@ TEST(testArray, testArrayInitInt)
   ASSERT_EQ(20, array_get(&arr, 1)->i_data);
   array_deinit(&arr);
 }
+
 
 TEST(testArray, testArrayOfString)
 {
@@ -42,7 +43,6 @@ TEST(testArray, testArrayOfString)
   array_deinit(&arr);
 }
 
-
 TEST(testArray, testRef)
 {
   array arr;
@@ -53,4 +53,25 @@ TEST(testArray, testRef)
   ASSERT_EQ(1, array_size(&arr));
   ASSERT_STREQ("hello", (char*)array_get(&arr, 0)->p_data);
   array_deinit(&arr);
+}
+
+
+TEST(testArray, testElementWithNoOverhead)
+{
+  array arr;
+  array_init(&arr, sizeof(char*));
+  char exp[] = "hello";
+  array_push_g(&arr, &exp);
+  ASSERT_EQ(1, array_size(&arr));
+  ASSERT_STREQ("hello", (char*)array_get_g(&arr, 0));
+}
+
+TEST(testArray, testElementWithNoOverheadInt)
+{
+  array arr;
+  array_init(&arr, sizeof(int));
+  int i = 1000;
+  array_push_g(&arr, &i);
+  ASSERT_EQ(1, array_size(&arr));
+  ASSERT_EQ(1000, *((int*)array_get_g(&arr, 0)));
 }

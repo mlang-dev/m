@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "clib/array.h"
 #include "clib/string.h"
@@ -28,10 +29,16 @@ void array_init(array *a, size_t element_size)
 void array_init_size(array *a, size_t element_size, size_t init_size)
 {
     a->_element_size = element_size;
-    a->base.p_data = (unsigned char*)malloc(init_size * element_size);
+    a->base.p_data = malloc(init_size * element_size);
     memset(a->base.p_data, 0, init_size * element_size);
     a->cap = init_size;
     a->base.size = 0;
+}
+
+void array_copy(array *dest, array *src)
+{
+    array_init_size(dest, src->_element_size, src->base.size);
+    memcpy(dest->base.p_data, src->base.p_data, src->base.size * src->_element_size);
 }
 
 void _copy_element_to_array(array *a, size_t index, object *element)
@@ -45,6 +52,15 @@ void array_push(array* a, object* element)
         array_grow(a);
     }
     _copy_element_to_array(a, a->base.size, element);
+    a->base.size ++;
+}
+
+void array_push_g(array* a, void* element)
+{
+    if (a->base.size == a->cap) {
+        array_grow(a);
+    }
+    memcpy(a->base.p_data + (a->base.size * a->_element_size), element, a->_element_size);
     a->base.size ++;
 }
 
@@ -65,7 +81,12 @@ void array_set(array *a, size_t index, object *element)
 
 object* array_get(array *a, size_t index)
 {
-    return (object*)(a->base.p_data + (index * a->_element_size));
+    return (object*)array_get_g(a, index);
+}
+
+void* array_get_g(array *a, size_t index)
+{
+    return a->base.p_data + (index * a->_element_size);
 }
 
 void* array_data(array* a)

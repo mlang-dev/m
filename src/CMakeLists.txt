@@ -20,7 +20,7 @@ add_library(mlr
   astdump.cc
   analyzer.cc
   codegen.cc
-  env.cc
+  env.c
   clib/object.c
   clib/array.c
   clib/string.c
@@ -29,6 +29,7 @@ add_library(mlr
   clib/hashset.c
   clib/hashtable.c
   clib/util.c
+  clib/generic.c
  )
 
 include_directories(

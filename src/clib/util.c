@@ -98,7 +98,7 @@ void* log_info(enum LogLevel level, const char* string_format, ...)
     return 0;
 }
 
-string format(const char* string_format, ...)
+string str_format(const char* string_format, ...)
 {
     va_list args;
     char data[512];

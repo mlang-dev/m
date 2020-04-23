@@ -8,6 +8,10 @@
 #ifndef __MLANG_COMPILER_H__
 #define __MLANG_COMPILER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum object_file_type{
   FT_UNK = 0,
   FT_BITCODE = 1,
@@ -15,6 +19,10 @@ enum object_file_type{
   FT_OBJECT  = 3
 };
 
-int compile(const char* fn, object_file_type file_type);
+int compile(const char* fn, enum object_file_type file_type);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -32,7 +32,7 @@ static const char* LogLevelString[] = {
 };
 
 void* log_info(enum LogLevel level, const char* string_format, ...);
-string format(const char* string_format, ...);
+string str_format(const char* string_format, ...);
 string make_unique_name(const char* root);
 //int random(int min, int max);
 bool is_new_line(int ch);

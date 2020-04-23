@@ -22,7 +22,6 @@ object_interface object_interfaces[ALL];
 void obj_init(object *dest, object *src)
 {
     *dest = *src;
-    printf("copied obj:%s\n", dest->p_data);
 }
 
 void obj_deinit(object *obj)

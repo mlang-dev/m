@@ -8,7 +8,6 @@
 #ifndef __MLANG_AST_H__
 #define __MLANG_AST_H__
 
-#include <string>
 #include <vector>
 
 #include "lexer.h"
@@ -55,7 +54,7 @@ struct module {
 };
 
 struct ast {
-    std::vector<exp_node*> builtins;
+    array builtins; //array of exp_node*
     std::vector<module*> modules;
 };
 
@@ -111,7 +110,7 @@ struct prototype_node {
     exp_node base;
     string name;
     string op;
-    std::vector<std::string> args;
+    array args;
     char is_operator;
     unsigned precedence;
 };
@@ -132,7 +131,7 @@ call_node* create_call_node(exp_node* parent, source_loc loc, const char *callee
     std::vector<exp_node*>& args);
 prototype_node* create_prototype_node(exp_node* parent, source_loc loc,
     const char *name,
-    std::vector<std::string>& args,
+    array* args,
     bool is_operator = false,
     unsigned precedence = 0,
     const char *op = "");

@@ -95,7 +95,7 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
 {
     for (unsigned i = 0; i< LLVMCountParams(fun); i++) {
         // Create an alloca for this variable.
-        LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, node->args[i].c_str());
+        LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, string_get((string*)array_get(&node->args, i)));
 
         // Create a debug descriptor for the variable.
         /*DIScope *Scope = KSDbgInfo.LexicalBlocks.back();
@@ -115,7 +115,7 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
         LLVMBuildStore((LLVMBuilderRef)cg->builder, LLVMGetParam(fun, i), alloca);
 
         // Add arguments to variable symbol table.
-        cg->named_values[node->args[i]] = alloca;
+        cg->named_values[std::string(string_get((string*)array_get(&node->args, i)))] = alloca;
     }
 }
 
@@ -215,19 +215,21 @@ void* _generate_call_node(code_generator* cg, exp_node* node)
 
 void* _generate_prototype_node(code_generator* cg, exp_node* node)
 {
-    auto proto = (prototype_node*)node;
+    prototype_node *proto = (prototype_node*)node;
+    string *str = (string*)array_get(&proto->args, 0);
+ 
     cg->protos[std::string(string_get(&proto->name))] = proto;
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    LLVMTypeRef *doubles = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * proto->args.size());
-    unsigned i = 0;
-    for (auto& arg : proto->args){
-        doubles[i++] = LLVMDoubleTypeInContext(context);
+    LLVMTypeRef *doubles = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * array_size(&proto->args));
+    for (unsigned i = 0; i< array_size(&proto->args); i++){
+        doubles[i] = LLVMDoubleTypeInContext(context);
     }
-    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), doubles, proto->args.size(), false);
+    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), doubles, array_size(&proto->args), false);
     LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, string_get(&proto->name), ft);
     for (unsigned i = 0; i< LLVMCountParams(fun); i++){
         LLVMValueRef param = LLVMGetParam(fun, i);
-        LLVMSetValueName2(param, proto->args[i].c_str(), proto->args[i].size());
+        string* arg = (string*)array_get(&proto->args, i);
+        LLVMSetValueName2(param, string_get(arg), arg->base.size);
     }
     free(doubles);
     return fun;
@@ -556,8 +558,8 @@ void create_module_and_pass_manager(code_generator* cg,
 
 void generate_runtime_module(code_generator* cg, parser* parser)
 {
-    for (auto node: parser->ast->builtins) {
-        //log_info(DEBUG, "generating node type: %s\n", NodeTypeString[node->node_type]);
+    for (int i = 0; i < array_size(&parser->ast->builtins); i++) {
+        exp_node *node = (exp_node*)array_get(&parser->ast->builtins, i)->p_data;
         generate_code(cg, node);
     }
 }

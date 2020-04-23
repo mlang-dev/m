@@ -5,14 +5,12 @@
 #include "analyzer.h"
 #include <stdio.h>
 #include "astdump.h"
-TEST(testArray, testRef)
+
+TEST(testGeneral, testBuildJit)
 {
-  array arr;
-  array_init(&arr, sizeof(object));
-  char exp[] = "hello";
-  object ref = make_ref(exp);
-  array_push(&arr, &ref);
-  ASSERT_EQ(1, array_size(&arr));
-  ASSERT_STREQ("hello", (char*)array_get(&arr, 0)->p_data);
-  array_deinit(&arr);
+    menv* env = env_new();
+    parser* parser = parser_new(NULL, true, NULL);
+    JIT* jit = build_jit(env, parser);
+    jit_free(jit);
+    env_free(env);
 }

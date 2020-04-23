@@ -60,16 +60,16 @@ struct type_var {
 
 struct type_oper {
     type_exp base;
-    std::vector<type_exp*> args; //type composition like function or tuple, record
+    array args; //array of type_exp*
 };
 
 type_var* create_type_var();
-type_oper* create_type_oper(std::string name, std::vector<type_exp*>& args);
-type_oper* create_type_fun(std::vector<type_exp*>& args, type_exp* ret);
+type_oper* create_type_oper(std::string name, array *args);
+type_oper* create_type_fun(array *args, type_exp* ret);
 void type_exp_free(type_exp* type);
 bool occurs_in_type(type_exp* type1, type_exp* type2);
-type_exp* retrieve(std::string name, std::vector<type_exp*>& nogen, std::map<std::string, type_exp*>& env);
+type_exp* retrieve(std::string name, array *nogen, std::map<std::string, type_exp*>& env);
 std::string format_type(type_exp* exp);
-bool unify(type_exp* type1, type_exp* type2, std::vector<type_exp*>& nogens);
+bool unify(type_exp* type1, type_exp* type2, array *nogens);
 
 #endif

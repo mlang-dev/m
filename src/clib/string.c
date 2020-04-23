@@ -235,12 +235,12 @@ size_t string_size(string *str)
 //generic interfaces
 void string_init_generic(object *dest, object *src)
 {
-  string_copy((string*)dest, (string*)src);
+    string_copy((string*)dest, (string*)src);
 }
 
 void string_deinit_generic(object *dest)
 {
-  string_deinit((string*)dest);
+    string_deinit((string*)dest);
 }
 
 bool string_eq_generic(object *str1, object *str2)

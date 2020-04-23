@@ -3,12 +3,12 @@ extern std::map<std::string, int> g_op_precedences;
 
 bool is_unary_op(prototype_node* pnode)
 {
-    return pnode->is_operator && pnode->args.size() == 1;
+    return pnode->is_operator && array_size(&pnode->args) == 1;
 }
 
 bool is_binary_op(prototype_node* pnode)
 {
-    return pnode->is_operator && pnode->args.size() == 2;
+    return pnode->is_operator && array_size(&pnode->args) == 2;
 }
 
 char get_op_name(prototype_node* pnode)
@@ -88,7 +88,7 @@ call_node* create_call_node(exp_node* parent, source_loc loc, const char *callee
 }
 
 prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const char *name,
-    std::vector<std::string>& args,
+    array* args,
     bool is_operator, unsigned precedence, const char *op)
 {
     auto node = new prototype_node();
@@ -96,7 +96,7 @@ prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const ch
     node->base.parent = parent;
     node->base.loc = loc;
     string_init_chars(&node->name, name);
-    node->args = args;
+    node->args = *args;
     node->is_operator = is_operator;
     node->precedence = precedence;
     string_init_chars(&node->op, op);

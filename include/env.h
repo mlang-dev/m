@@ -6,14 +6,22 @@
  * header file of m environement
  */
 
-#ifndef __MLANG_ENVIRONMENT_H__
-#define __MLANG_ENVIRONMENT_H__
+#ifndef __MLANG_ENV_H__
+#define __MLANG_ENV_H__
 
-struct menv{
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct _menv{
     void* context;
-};
+}menv;
 
 menv *env_new();
 void env_free(menv* env);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

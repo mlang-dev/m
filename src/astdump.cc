@@ -7,23 +7,6 @@
 #include "clib/util.h"
 #include <sstream>
 
-std::string _join(std::vector<std::string> args)
-{
-    array arr;
-    array_init(&arr, sizeof(string));
-    string str_arg;
-    for(auto arg:args){
-        string_init_chars(&str_arg, arg.c_str());
-        array_push(&arr, &str_arg.base);
-    }
-    string str = string_join(&arr, ' ');
-    std::string result = std::string(string_get(&str));
-    string_deinit(&str);
-    string_deinit(&str_arg);
-    array_deinit(&arr);
-    return result;
-}
-
 std::string _dump_block(block_node* node)
 {
     std::string block = "blk: \n";
@@ -34,7 +17,10 @@ std::string _dump_block(block_node* node)
 
 std::string _dump_prototype(prototype_node* proto)
 {
-    return std::string(string_get(&proto->name)) + _join(proto->args) + "=";
+    string joined = string_join(&proto->args, ' ');
+    std::string ret = std::string(string_get(&proto->name)) + std::string(string_get(&joined)) + "=";
+    string_deinit(&joined);
+    return ret;
 }
 
 std::string _dump_function(function_node* func)
@@ -73,7 +59,8 @@ std::string _dump_call(call_node* call)
 {
     std::vector<std::string> args;
     transform(call->args.begin(), call->args.end(), args.begin(), dump);
-    return std::string(string_get(&call->callee)) + " " + _join(args);
+    //string joined = string_join(&proto->args, ' ');
+    return std::string(string_get(&call->callee)); //+ " " + _join(args);
 }
 
 std::string _dump_if(condition_node* cond)

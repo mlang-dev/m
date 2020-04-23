@@ -17,10 +17,15 @@
 
 void hashset_init(hashset *hs, size_t key_object_size)
 {
-    hashtable_init(hs, key_object_size, 0);
+    hashtable_init_free(hs, key_object_size, 0, generic_free, NULL);
 }
 
-void hashset_add(hashset *hs, object *key_data)
+void hashset_init_free(hashset *hs, size_t key_object_size, free_fun key_free)
+{
+    hashtable_init_free(hs, key_object_size, 0, key_free, NULL);
+}
+
+void hashset_add(hashset *hs, void *key_data)
 {
     hashtable_add(hs, key_data, NULL);
 }
@@ -30,7 +35,7 @@ size_t hashset_size(hashset *hs)
     return hashtable_size(hs);
 }
 
-bool hashset_in(hashset *hs, object* key_data)
+bool hashset_in(hashset *hs, void* key_data)
 {
     return hashtable_in(hs, key_data);
 }

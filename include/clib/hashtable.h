@@ -12,6 +12,7 @@
 
 #include "array.h"
 #include "object.h"
+#include "generic.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,14 +24,17 @@ typedef struct {
     size_t key_object_size;
     size_t value_object_size;
     size_t size;
+    free_fun key_free;
+    free_fun value_free;
 } hashtable;
 
 void hashtable_init(hashtable *ht, size_t key_object_size, size_t value_object_size);
+void hashtable_init_free(hashtable *ht, size_t key_object_size, size_t value_object_size, free_fun key_free, free_fun value_free);
 void hashtable_deinit(hashtable *ht);
-void hashtable_add(hashtable *ht, object *key_data, object *value_data);
-object* hashtable_get(hashtable *ht, object *key_data);
+void hashtable_add(hashtable *ht, void *key, void *value);
+void* hashtable_get(hashtable *ht, void *key);
 size_t hashtable_size(hashtable *ht);
-bool hashtable_in(hashtable* hs, object *key_data);
+bool hashtable_in(hashtable* hs, void *key);
 
 #ifdef __cplusplus
 }

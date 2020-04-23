@@ -8,7 +8,8 @@
 
 type_exp* retrieve(type_env* env, std::string name)
 {
-    return retrieve(name, env->nogens, env->type_env);
+    return env->type_env[name];
+    //return retrieve(name, env->nogens, env->type_env);
 }
 
 type_exp* _analyze_ident(type_env* env, exp_node* ident)
@@ -29,7 +30,7 @@ type_exp* _analyze_var(type_env* env, exp_node* node)
     if (!type)
         return type;
     type_exp* result_type = (type_exp*)create_type_var();
-    unify(result_type, type, env->nogens);
+    unify(result_type, type, &env->nogens);
     return result_type;
 }
 
@@ -37,32 +38,36 @@ type_exp* _analyze_call(type_env* env, exp_node* node)
 {
     auto call = (call_node*)node;
     auto fun_type = retrieve(env, std::string(string_get(&call->callee)));
-    std::vector<type_exp*> args;
-    args.resize(call->args.size());
-    transform(call->args.begin(), call->args.end(), args.begin(),
-        [&](exp_node* node) {
-            return analyze(env, node);
-        });
+    array args;
+    array_init(&args, sizeof(object));
+    for(auto arg: call->args){
+        type_exp *type = analyze(env, arg);
+        object o = make_ref(type);
+        array_push(&args, &o);
+    }
     type_exp* result_type = (type_exp*)create_type_var();
-    unify((type_exp*)create_type_fun(args, result_type), fun_type, env->nogens);
+    unify((type_exp*)create_type_fun(&args, result_type), fun_type, &env->nogens);
+    array_deinit(&args);
     return result_type;
 }
 
 type_exp* _analyze_fun(type_env* env, function_node* fun)
 {
     //# create a new non-generic variable for the binder
-    std::vector<type_exp*> args;
-    args.resize(fun->prototype->args.size());
-    transform(fun->prototype->args.begin(), fun->prototype->args.end(), args.begin(),
-        [](std::string arg) {
-            return (type_exp*)create_type_var();
-        });
-    for (int i = 0; i < args.size(); i++) {
-        env->nogens.push_back(args[i]);
-        env->type_env[fun->prototype->args[i]] = args[i];
+    array args;//<type_exp*> args;
+    array_init(&args, sizeof(object));
+    //args.resize(fun->prototype->args.size());
+    for(unsigned i = 0; i < array_size(&fun->prototype->args); i++){
+        type_exp *exp = (type_exp*)create_type_var();
+        object o = make_ref(exp);
+        array_push(&args, &o);
+        array_push(&env->nogens, &o);
+        env->type_env[std::string(string_get((string*)array_get(&fun->prototype->args, i)))] = exp;
     }
     type_exp* result_type = analyze(env, fun->body->nodes.back()); //TODO: need to recursively analyze
-    return (type_exp*)create_type_fun(args, result_type);
+    type_exp* ret = (type_exp*)create_type_fun(&args, result_type);
+    array_deinit(&args);
+    return ret;
 }
 
 type_exp* _analyze_bin(type_env* env, exp_node* node)
@@ -70,7 +75,7 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
     auto bin = (binary_node*)node;
     type_exp* lhs_type = analyze(env, bin->lhs);
     type_exp* rhs_type = analyze(env, bin->rhs);
-    if (unify(lhs_type, rhs_type, env->nogens))
+    if (unify(lhs_type, rhs_type, &env->nogens))
         return lhs_type;
     //log_info(DEBUG, "error binary op with different type");
     return nullptr;
@@ -79,9 +84,11 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
 type_env* type_env_new()
 {
     type_env* env = new type_env();
-    std::vector<type_exp*> args;
+    array_init(&env->nogens, sizeof(object));
+    array args;
+    array_init(&args, sizeof(object));
     for (auto def_type : TypeString)
-        env->type_env[def_type] = (type_exp*)create_type_oper(def_type, args);
+        env->type_env[def_type] = (type_exp*)create_type_oper(def_type, &args);
     return env;
 }
 

@@ -14,7 +14,6 @@
 
 #define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col < col && (parser->curr_token.token_type != TOKEN_EOS || parser->is_repl))
 
-
 std::map<std::string, int> g_op_precedences = {
     { "<", 10 }, { ">", 10 }, { "==", 10 }, { "!=", 10 }, { "<=", 10 }, { ">=", 10 },
     { "+", 20 }, { "-", 20 },
@@ -65,6 +64,7 @@ parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const
     auto psr = new parser();
     psr->op_precedences = &g_op_precedences;
     psr->ast = new ast();
+    array_init(&psr->ast->builtins, sizeof(object));
     psr->allow_id_as_a_func = true;
     psr->is_repl = is_repl;
     psr->current_module = create_module(mod_name, file);
@@ -74,7 +74,7 @@ parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const
 
 void create_builtins(parser* parser, void* context)
 {
-    get_builtins(context, parser->ast->builtins);
+    parser->ast->builtins = get_builtins(context);
 }
 
 void block_deinit(block_node *block)
@@ -176,28 +176,29 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
     parser->allow_id_as_a_func = true;
     //log_info(DEBUG, "is %s a function def: %d, %d", id_name.c_str(), func_definition, is_operator);
     if (func_definition) {
-        std::vector<std::string> argNames;
+        array argNames;
+        array_init(&argNames, sizeof(string));
         for (auto exp : args) {
             auto id = (ident_node*)exp;
-            std::string idname(string_get(&id->name));
-            argNames.push_back(idname);
+            array_push(&argNames, &id->name.base);
         }
         if (is_operator) {
-            if (precedence && argNames.size() != 2){
+            if (precedence && array_size(&argNames) != 2){
                 return (exp_node*)log_info(ERROR, "precedence only apply for binary operator");
             }
-            else if (argNames.size() != 1 && argNames.size() != 2)
+            else if (array_size(&argNames) != 1 && array_size(&argNames) != 2)
                 return (exp_node*)log_info(ERROR, "operator overloading only for unary or binary operator");
-            if (argNames.size() == 1) {
+            if (array_size(&argNames) == 1) {
                 id_name = "unary" + id_name;
             } else {
                 id_name = "binary" + id_name;
             }
         }
-        prototype_node* prototype = create_prototype_node(parent, loc, id_name.c_str(), argNames, is_operator, precedence, is_operator ? id_name.c_str() : "");
+        prototype_node* prototype = create_prototype_node(parent, loc, id_name.c_str(), &argNames, is_operator, precedence, is_operator ? id_name.c_str() : "");
         //log_info(DEBUG, "prototype: %s", id_name.c_str());
         auto func = _parse_function_with_prototype(parser, prototype);
         //log_info(DEBUG, "func: %s", id_name.c_str());
+        //array_deinit(&argNames);
         return func;
     }
     // function application
@@ -441,11 +442,12 @@ exp_node* _parse_prototype(parser* parser, exp_node* parent)
     auto has_parenthese = parser->curr_token.token_type == TOKEN_LPAREN;
     if (has_parenthese)
         parse_next_token(parser); // skip '('
-    std::vector<std::string> arg_names;
+    array arg_names;
+    array_init(&arg_names, sizeof(string));
     while (parser->curr_token.token_type == TOKEN_IDENT) {
         // fprintf(stderr, "arg names: %s",
         // (*parser->curr_token.ident_str).c_str());
-        arg_names.push_back(std::string(string_get(parser->curr_token.ident_str)));
+        array_push(&arg_names, (object*)parser->curr_token.ident_str);
         parse_next_token(parser);
     }
     if (has_parenthese && parser->curr_token.token_type != TOKEN_RPAREN)
@@ -454,10 +456,12 @@ exp_node* _parse_prototype(parser* parser, exp_node* parent)
     if (has_parenthese)
         parse_next_token(parser); // eat ')'.
     // Verify right number of names for operator.
-    if (proto_type && arg_names.size() != proto_type)
+    if (proto_type && array_size(&arg_names) != proto_type)
         return (exp_node*)log_info(ERROR, "Invalid number of operands for operator");
-    return (exp_node*)create_prototype_node(parent, loc, fun_name.c_str(), arg_names, proto_type != 0,
+    exp_node * ret = (exp_node*)create_prototype_node(parent, loc, fun_name.c_str(), &arg_names, proto_type != 0,
         bin_prec);
+    //array_deinit(&arg_names);
+    return ret;
 }
 
 exp_node* _parse_function_with_prototype(parser* parser,
@@ -488,11 +492,13 @@ exp_node* parse_exp_to_function(parser* parser, exp_node* exp, const char* fn)
     if (!exp)
         exp = parse_exp(parser, nullptr);
     if (exp) {
-        auto args = std::vector<std::string>();
-        auto prototype = create_prototype_node(nullptr, exp->loc, fn, args);
+        array args;
+        array_init(&args, sizeof(string));
+        auto prototype = create_prototype_node(nullptr, exp->loc, fn, &args);
         std::vector<exp_node*> nodes;
         nodes.push_back(exp);
         auto block = create_block_node((exp_node*)prototype, nodes);
+        //array_deinit(&args);
         return (exp_node*)create_function_node(prototype, block);
     }
     return 0;

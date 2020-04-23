@@ -8,7 +8,6 @@
 #ifndef __MLANG_PARSER_H__
 #define __MLANG_PARSER_H__
 
-#include <cassert>
 #include <map>
 #include <vector>
 #include <queue>

@@ -18,18 +18,21 @@ type_var* create_type_var()
     return var;
 }
 
-type_oper* create_type_oper(std::string name, std::vector<type_exp*>& args)
+//array of type_exp*
+type_oper* create_type_oper(std::string name, array* args)
 {
     auto var = new type_oper();
     var->base.kind = KIND_OPER;
     var->base.name = name;
-    var->args = args;
+    var->args = *args;
     return var;
 }
 
-type_oper* create_type_fun(std::vector<type_exp*>& args, type_exp* ret)
+//args: array of type_exp*
+type_oper* create_type_fun(array* args, type_exp* ret)
 {
-    args.push_back(ret);
+    object obj = make_ref(ret);
+    array_push(args, &obj);
     return create_type_oper("->", args);
 }
 
@@ -51,9 +54,10 @@ std::string format_type(type_exp* exp)
     }
     auto op = (type_oper*)exp;
     std::string str = "";
-    for (auto e : op->args) {
+    for (unsigned i = 0; i < array_size(&op->args); i++) {
+        type_exp *type = (type_exp*)array_get(&op->args, i)->p_data;
         str += " ";
-        str += format_type(e);
+        str += format_type(type);
     }
     return str;
 }
@@ -76,9 +80,14 @@ type_exp* prune(type_exp* type)
     return type;
 }
 
-inline bool _occurs_in_type_list(type_exp* type1, std::vector<type_exp*> list)
+bool _occurs_in_type_list(type_exp* type1, array* list)
 {
-    return any_of(list.begin(), list.end(), [&](type_exp* exp) { return occurs_in_type(type1, exp); });
+    for (unsigned i = 0; i < array_size(list); i++){
+        type_exp *type = (type_exp*)array_get(list, i)->p_data;
+        if (occurs_in_type(type1, type))
+            return true;
+    }
+    return false;
 }
 
 bool occurs_in_type(type_exp* type1, type_exp* type2)
@@ -88,10 +97,10 @@ bool occurs_in_type(type_exp* type1, type_exp* type2)
         return is_same_type(type1, type2);
     }
     auto oper = (type_oper*)type2;
-    return _occurs_in_type_list(type1, oper->args);
+    return _occurs_in_type_list(type1, &oper->args);
 }
 
-bool unify(type_exp* type1, type_exp* type2, std::vector<type_exp*>& nogens)
+bool unify(type_exp* type1, type_exp* type2, array *nogens)
 {
     type1 = prune(type1);
     type2 = prune(type2);
@@ -117,10 +126,10 @@ bool unify(type_exp* type1, type_exp* type2, std::vector<type_exp*>& nogens)
         } else {
             auto oper1 = (type_oper*)type1;
             auto oper2 = (type_oper*)type2;
-            if (type1->name != type2->name || oper1->args.size() != oper2->args.size())
+            if (type1->name != type2->name || array_size(&oper1->args) != array_size(&oper2->args))
                 return false;
-            for (int i = 0; i < oper1->args.size(); i++) {
-                if (!unify(oper1->args[i], oper2->args[i], nogens))
+            for (int i = 0; i < array_size(&oper1->args); i++) {
+                if (!unify((type_exp*)array_get(&oper1->args, i)->p_data, (type_exp*)array_get(&oper2->args, i), nogens))
                     return false;
             }
         }
@@ -161,7 +170,7 @@ type_exp* _fresh_var(type_exp* type1, std::map<type_exp*, type_exp*>& env)
     //   return _fresh_var(type1, scan->tail, env);
 }
 
-type_exp* fresh(type_exp* type1, std::vector<type_exp*>& nogen, std::map<type_exp*, type_exp*>& env)
+type_exp* fresh(type_exp* type1, array* nogen, std::map<type_exp*, type_exp*>& env)
 {
     type1 = prune(type1);
     if (type1->kind == KIND_VAR) {
@@ -172,16 +181,18 @@ type_exp* fresh(type_exp* type1, std::vector<type_exp*>& nogen, std::map<type_ex
             return type1;
     }
     auto op1 = (type_oper*)type1;
-    std::vector<type_exp*> refreshed;
-    refreshed.resize(op1->args.size());
-    std::transform(op1->args.begin(), op1->args.end(), refreshed.begin(),
-        [&](type_exp* x) {
-            return fresh(x, nogen, env);
-        });
-    return (type_exp*)create_type_oper(type1->name, refreshed);
+    array refreshed; //array of type_exp*
+    array_init(&refreshed, sizeof(object));
+    for(int i = 0; i<array_size(&op1->args); i++){
+        type_exp *type1 = (type_exp*)array_get(&op1->args, i)->p_data;
+        type_exp *type = fresh(type1, nogen, env);
+        object o = make_ref(type);
+        array_push(&refreshed, &o);
+    }
+    return (type_exp*)create_type_oper(type1->name, &refreshed);
 }
 
-type_exp* retrieve(std::string name, std::vector<type_exp*>& nogen, std::map<std::string, type_exp*>& env)
+type_exp* retrieve(std::string name, array *nogen, std::map<std::string, type_exp*>& env)
 {
     if (env[name]) {
         std::map<type_exp*, type_exp*> type_env;
