@@ -14,6 +14,8 @@
 #include "clib/array.h"
 #include "clib/object.h"
 
+fun default_string_fun = {string_copy_generic, string_free_generic};
+
 void _init_str(string *str)  
 {
     object_interface string_interface = {
@@ -176,7 +178,7 @@ string string_join(array* arr, char sep)
 array string_split(string* str, char sep)
 {
     array arr;
-    array_init(&arr, sizeof(string));
+    array_string_init(&arr);
     string sub_str;
     string_init(&sub_str);
     int collect_start = 0;
@@ -185,7 +187,7 @@ array string_split(string* str, char sep)
         if(data[i] == sep||i==str->base.size-1){
             size_t sub_str_len = data[i] == sep? i-collect_start: i-collect_start + 1;
             string_copy_with_len(&sub_str, &data[collect_start], sub_str_len);
-            array_push(&arr, &sub_str.base);
+            array_push(&arr, &sub_str);
             collect_start = i+1;
         }
     }
@@ -238,7 +240,17 @@ void string_init_generic(object *dest, object *src)
     string_copy((string*)dest, (string*)src);
 }
 
+void string_copy_generic(void *dest, void *src, size_t size)
+{
+    string_copy((string*)dest, (string*)src);
+}
+
 void string_deinit_generic(object *dest)
+{
+    string_deinit((string*)dest);
+}
+
+void string_free_generic(void *dest)
 {
     string_deinit((string*)dest);
 }

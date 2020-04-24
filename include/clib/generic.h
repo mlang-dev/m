@@ -19,7 +19,18 @@ typedef struct _value_ref{
 }value_ref;
 
 typedef void (*free_fun)(void *);
+typedef void (*copy_fun)(void *dest, void *src, size_t size);
+
+typedef struct _fun{
+    copy_fun copy;
+    free_fun free;
+}fun;
+
 void generic_free(void *p);
+void generic_copy(void *dest, void *src, size_t size);
+
+extern fun default_fun;
+extern fun value_fun;
 
 #ifdef __cplusplus
 }

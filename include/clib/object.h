@@ -60,8 +60,6 @@ object_eq get_eq(enum ctype type);
 object_init get_init(enum ctype type);
 object_deinit get_deinit(enum ctype type);
 object_data get_data(enum ctype type);
-object make_int(int value);
-object make_ref(void *p);
 
 #ifdef __cplusplus
 }

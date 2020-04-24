@@ -67,21 +67,3 @@ object_data get_data(enum ctype type)
 {
     return object_interfaces[type].data ? object_interfaces[type].data : default_object_interface.data;
 }
-
-object make_int(int value)
-{
-    object o;
-    o.i_data = value;
-    o.size = sizeof(value);
-    o.type = INT;
-    return o;
-}
-
-object make_ref(void *p)
-{
-    object o;
-    o.p_data = p;
-    o.size = sizeof(void*);
-    o.type = POINTER;
-    return o;
-}

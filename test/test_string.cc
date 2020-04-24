@@ -150,10 +150,10 @@ TEST(testString, testSplit)
 TEST(testString, testSplitLongString)
 {
     string str;
-    string_init_chars(&str, "this is very long string.def.cfg");
+    string_init_chars(&str, "this is a very long string.def.cfg");
     array arr = string_split(&str, '.');
     ASSERT_EQ(3, array_size(&arr));
-    ASSERT_STREQ("this is very long string", string_get(STRING_POINTER(array_get(&arr, 0))));
+    ASSERT_STREQ("this is a very long string", string_get(STRING_POINTER(array_get(&arr, 0))));
     ASSERT_STREQ("def", string_get(STRING_POINTER(array_get(&arr, 1))));
     ASSERT_STREQ("cfg", string_get(STRING_POINTER(array_get(&arr, 2))));
     array_deinit(&arr);
@@ -164,9 +164,9 @@ TEST(testString, testJoin)
 {
     array arr;
     string str;
-    array_init(&arr, sizeof(string));
+    array_string_init(&arr);
     string_init_chars(&str, "abc");
-    array_push(&arr, &str.base);
+    array_push(&arr, &str);
     string result = string_join(&arr, '.');
     ASSERT_STREQ(string_get(&result), "abc");
     string_deinit(&str);
@@ -177,11 +177,11 @@ TEST(testString, testJoinMultiString)
 {
     array arr;
     string str;
-    array_init(&arr, sizeof(string));
+    array_string_init(&arr);
     string_init_chars(&str, "abc");
-    array_push(&arr, &str.base);
+    array_push(&arr, &str);
     string_copy_chars(&str, "def");
-    array_push(&arr, &str.base);
+    array_push(&arr, &str);
     string result = string_join(&arr, '.');
     ASSERT_STREQ(string_get(&result), "abc.def");
     string_deinit(&str);
@@ -192,11 +192,11 @@ TEST(testString, testJoinMultiLongString)
 {
     array arr;
     string str;
-    array_init(&arr, sizeof(string));
+    array_string_init(&arr);
     string_init_chars(&str, "this is a very long string");
-    array_push(&arr, &str.base);
+    array_push(&arr, &str);
     string_copy_chars(&str, "this is a second very long string");
-    array_push(&arr, &str.base);
+    array_push(&arr, &str);
     string result = string_join(&arr, '.');
     ASSERT_STREQ(string_get(&result), "this is a very long string.this is a second very long string");
     string_deinit(&str);

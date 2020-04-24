@@ -28,7 +28,7 @@ prototype_node* _create_for_id(void* pcontext, llvm::Intrinsic::ID id)
     LLVMGetParamTypes(fun, params);
     //;llvm::Intrinsic::getName(id, types);
     array args;
-    array_init(&args, sizeof(string));
+    array_string_init(&args);
     for (int i = 0; i < param_count; i++) {
         string arg = str_format("arg%d", i);
         array_push(&args, &arg.base);
@@ -50,18 +50,18 @@ prototype_node* _create_for_id(void* pcontext, llvm::Intrinsic::ID id)
 array get_builtins(void* context)
 {
     array builtins;
-    array_init(&builtins, sizeof(object));
+    array_init(&builtins, sizeof(exp_node*));
     for (int i = 0; i < NUM_BUILTINS; i++) {
-        object o = make_ref(_create_for_id(context, builtin_ids[i]));
-        array_push(&builtins, &o);
+        prototype_node *proto = _create_for_id(context, builtin_ids[i]);
+        array_push(&builtins, &proto);
     }
-    array args;
+    array args; //array of string
     string str;
-    array_init(&args, sizeof(string));
+    array_string_init(&args);
     string_init_chars(&str, "char");
     array_push(&args, (object*)&str);
-    object o = make_ref(create_prototype_node(nullptr, { 1, 0 }, "print", &args));
-    array_push(&builtins, &o);
+    prototype_node* proto = create_prototype_node(nullptr, { 1, 0 }, "print", &args);
+    array_push(&builtins, &proto);
     string_deinit(&str);
     //args copied to the prototype node, so not needed to deinit
     return builtins;

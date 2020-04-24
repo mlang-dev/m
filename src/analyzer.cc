@@ -37,11 +37,10 @@ type_exp* _analyze_call(type_env* env, exp_node* node)
     auto call = (call_node*)node;
     auto fun_type = retrieve(env, &call->callee);
     array args;
-    array_init(&args, sizeof(object));
+    array_init(&args, sizeof(type_exp*));
     for(auto arg: call->args){
         type_exp *type = analyze(env, arg);
-        object o = make_ref(type);
-        array_push(&args, &o);
+        array_push(&args, &type);
     }
     type_exp* result_type = (type_exp*)create_type_var();
     unify((type_exp*)create_type_fun(&args, result_type), fun_type, &env->nogens);
@@ -53,13 +52,12 @@ type_exp* _analyze_fun(type_env* env, function_node* fun)
 {
     //# create a new non-generic variable for the binder
     array args;//<type_exp*> args;
-    array_init(&args, sizeof(object));
+    array_init(&args, sizeof(type_exp*));
     //args.resize(fun->prototype->args.size());
     for(unsigned i = 0; i < array_size(&fun->prototype->args); i++){
         type_exp *exp = (type_exp*)create_type_var();
-        object o = make_ref(exp);
-        array_push(&args, &o);
-        array_push(&env->nogens, &o);
+        array_push(&args, &exp);
+        array_push(&env->nogens, &exp);
         env->type_env[std::string(string_get((string*)array_get(&fun->prototype->args, i)))] = exp;
     }
     type_exp* result_type = analyze(env, fun->body->nodes.back()); //TODO: need to recursively analyze
@@ -82,9 +80,9 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
 type_env* type_env_new()
 {
     type_env* env = new type_env();
-    array_init(&env->nogens, sizeof(object));
+    array_init(&env->nogens, sizeof(type_exp*));
     array args;
-    array_init(&args, sizeof(object));
+    array_init(&args, sizeof(type_exp*));
     for (auto def_type : TypeString){
         string type_str;
         string_init_chars(&type_str, def_type);

@@ -11,35 +11,34 @@
 TEST(testQueue, TestQueuePushAndPop)
 {
     queue q;
-    queue_init(&q, sizeof(object));
-    object i=make_int(10); object j=make_int(20);
+    queue_init(&q, sizeof(int));
+    int i=10; int j=20;
     queue_push(&q, &i);
     queue_push(&q, &j);
 
     ASSERT_EQ(2, queue_size(&q));
-    int first = ((object*)queue_front(&q))->i_data;
+    int first = *((int*)queue_front(&q));
     queue_pop(&q);
-    int second = ((object*)queue_front(&q))->i_data;
+    int second = *((int*)queue_front(&q));
     queue_pop(&q);
     ASSERT_EQ(10, first);
     ASSERT_EQ(20, second);
     ASSERT_EQ(NULL, queue_back(&q));
     queue_deinit(&q);
-
 }
 
 
 TEST(testQueue, TestQueuePopWithValue)
 {
     queue q;
-    queue_init(&q, sizeof(object));
-    object i=make_int(10); object j=make_int(20);
+    queue_init(&q, sizeof(int));
+    int i=10; int j=20;
     queue_push(&q, &i);
     queue_push(&q, &j);
 
     ASSERT_EQ(2, queue_size(&q));
-    int first = ((object*)queue_pop(&q))->i_data;
-    int second = ((object*)queue_pop(&q))->i_data;
+    int first = *((int*)queue_pop(&q));
+    int second = *((int*)queue_pop(&q));
     ASSERT_EQ(10, first);
     ASSERT_EQ(20, second);
     ASSERT_EQ(NULL, queue_front(&q));

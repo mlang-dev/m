@@ -14,28 +14,29 @@ extern "C" {
 
 #include <stddef.h>
 #include "clib/object.h"
-
+#include "clib/generic.h"
 
 typedef struct {
     object base;
     //bytes array
     size_t cap;
     size_t _element_size; //element size of the array
+    fun f;
 } array;
 
 array* array_new(size_t element_size);
+void array_string_init(array* a);
 void array_init(array* a, size_t element_size);
-void array_init_size(array *a, size_t element_size, size_t init_size);
+void array_init_fun(array* a, size_t element_size, fun f);
+void array_init_size(array *a, size_t element_size, size_t init_size, fun f);
 void array_grow(array *a);
 void array_deinit(array *a);
-void array_push(array* a, object* element);
-void array_push_g(array* a, void* element);
-void array_set(array *a, size_t index, object *element);
+void array_push(array* a, void* element);
+void array_set(array *a, size_t index, void *element);
 void array_copy(array *dest, array *src);
-object* array_get(array* a, size_t index);
-void* array_get_g(array *a, size_t index);
+void* array_get(array* a, size_t index);
 void* array_data(array *a);
-object* array_back(array *a);
+void* array_back(array *a);
 size_t array_size(array *a);
 void array_free(array* a);
 

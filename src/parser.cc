@@ -64,7 +64,7 @@ parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const
     auto psr = new parser();
     psr->op_precedences = &g_op_precedences;
     psr->ast = new ast();
-    array_init(&psr->ast->builtins, sizeof(object));
+    array_init(&psr->ast->builtins, sizeof(exp_node*));
     psr->allow_id_as_a_func = true;
     psr->is_repl = is_repl;
     psr->current_module = create_module(mod_name, file);
@@ -177,10 +177,10 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
     //log_info(DEBUG, "is %s a function def: %d, %d", id_name.c_str(), func_definition, is_operator);
     if (func_definition) {
         array argNames;
-        array_init(&argNames, sizeof(string));
+        array_string_init(&argNames);
         for (auto exp : args) {
             auto id = (ident_node*)exp;
-            array_push(&argNames, &id->name.base);
+            array_push(&argNames, &id->name);
         }
         if (is_operator) {
             if (precedence && array_size(&argNames) != 2){
@@ -443,11 +443,11 @@ exp_node* _parse_prototype(parser* parser, exp_node* parent)
     if (has_parenthese)
         parse_next_token(parser); // skip '('
     array arg_names;
-    array_init(&arg_names, sizeof(string));
+    array_string_init(&arg_names);
     while (parser->curr_token.token_type == TOKEN_IDENT) {
         // fprintf(stderr, "arg names: %s",
         // (*parser->curr_token.ident_str).c_str());
-        array_push(&arg_names, (object*)parser->curr_token.ident_str);
+        array_push(&arg_names, parser->curr_token.ident_str);
         parse_next_token(parser);
     }
     if (has_parenthese && parser->curr_token.token_type != TOKEN_RPAREN)
@@ -493,7 +493,7 @@ exp_node* parse_exp_to_function(parser* parser, exp_node* exp, const char* fn)
         exp = parse_exp(parser, nullptr);
     if (exp) {
         array args;
-        array_init(&args, sizeof(string));
+        array_string_init(&args);
         auto prototype = create_prototype_node(nullptr, exp->loc, fn, &args);
         std::vector<exp_node*> nodes;
         nodes.push_back(exp);

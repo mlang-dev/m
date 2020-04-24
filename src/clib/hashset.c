@@ -17,12 +17,12 @@
 
 void hashset_init(hashset *hs, size_t key_object_size)
 {
-    hashtable_init_free(hs, key_object_size, 0, generic_free, NULL);
+    hashtable_init_fun(hs, key_object_size, 0, default_fun, default_fun);
 }
 
-void hashset_init_free(hashset *hs, size_t key_object_size, free_fun key_free)
+void hashset_init_fun(hashset *hs, size_t key_object_size, fun key_fun)
 {
-    hashtable_init_free(hs, key_object_size, 0, key_free, NULL);
+    hashtable_init_fun(hs, key_object_size, 0, key_fun, default_fun);
 }
 
 void hashset_add(hashset *hs, void *key_data)

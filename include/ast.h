@@ -110,7 +110,7 @@ struct prototype_node {
     exp_node base;
     string name;
     string op;
-    array args;
+    array args; /*array of string*/
     char is_operator;
     unsigned precedence;
 };

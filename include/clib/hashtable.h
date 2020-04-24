@@ -24,17 +24,22 @@ typedef struct {
     size_t key_object_size;
     size_t value_object_size;
     size_t size;
-    free_fun key_free;
-    free_fun value_free;
+    fun key_f;
+    fun value_f;
 } hashtable;
 
+void hashtable_init_ref(hashtable *ht);
 void hashtable_init(hashtable *ht, size_t key_object_size, size_t value_object_size);
-void hashtable_init_free(hashtable *ht, size_t key_object_size, size_t value_object_size, free_fun key_free, free_fun value_free);
+void hashtable_init_fun(hashtable *ht, size_t key_object_size, size_t value_object_size, 
+fun key_f, fun value_f);
 void hashtable_deinit(hashtable *ht);
 void hashtable_add(hashtable *ht, void *key, void *value);
+void hashtable_add_ref(hashtable *ht, value_ref key, value_ref value);
 void* hashtable_get(hashtable *ht, void *key);
+void* hashtable_get_ref(hashtable *ht, value_ref key);
 size_t hashtable_size(hashtable *ht);
 bool hashtable_in(hashtable* hs, void *key);
+bool hashtable_in_ref(hashtable *ht, value_ref key);
 
 #ifdef __cplusplus
 }

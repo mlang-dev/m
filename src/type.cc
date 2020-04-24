@@ -33,8 +33,7 @@ type_oper* create_type_fun(array* args, type_exp* ret)
 {
     string str;
     string_init_chars(&str, "->");
-    object obj = make_ref(ret);
-    array_push(args, &obj);
+    array_push(args, &ret);
     return create_type_oper(&str, args);
 }
 
@@ -58,7 +57,7 @@ string format_type(type_exp* exp)
     string str;
     string_init_chars(&str, "");
     for (unsigned i = 0; i < array_size(&op->args); i++) {
-        type_exp *type = (type_exp*)array_get(&op->args, i)->p_data;
+        type_exp *type = (type_exp*)array_get(&op->args, i);
         string_add_chars(&str, " ");
         string str_type = format_type(type);
         string_add(&str, (string*)&str_type);
@@ -87,7 +86,7 @@ type_exp* prune(type_exp* type)
 bool _occurs_in_type_list(type_exp* type1, array* list)
 {
     for (unsigned i = 0; i < array_size(list); i++){
-        type_exp *type = (type_exp*)array_get(list, i)->p_data;
+        type_exp *type = (type_exp*)array_get(list, i);
         if (occurs_in_type(type1, type))
             return true;
     }
@@ -133,7 +132,7 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
             if (!string_eq(&type1->name, &type2->name) || array_size(&oper1->args) != array_size(&oper2->args))
                 return false;
             for (int i = 0; i < array_size(&oper1->args); i++) {
-                if (!unify((type_exp*)array_get(&oper1->args, i)->p_data, (type_exp*)array_get(&oper2->args, i), nogens))
+                if (!unify((type_exp*)array_get(&oper1->args, i), (type_exp*)array_get(&oper2->args, i), nogens))
                     return false;
             }
         }
@@ -186,12 +185,11 @@ type_exp* fresh(type_exp* type1, array* nogen, std::map<type_exp*, type_exp*>& e
     }
     auto op1 = (type_oper*)type1;
     array refreshed; //array of type_exp*
-    array_init(&refreshed, sizeof(object));
+    array_init(&refreshed, sizeof(type_exp*));
     for(int i = 0; i<array_size(&op1->args); i++){
-        type_exp *type1 = (type_exp*)array_get(&op1->args, i)->p_data;
+        type_exp *type1 = (type_exp*)array_get(&op1->args, i);
         type_exp *type = fresh(type1, nogen, env);
-        object o = make_ref(type);
-        array_push(&refreshed, &o);
+        array_push(&refreshed, &type);
     }
     return (type_exp*)create_type_oper(&type1->name, &refreshed);
 }

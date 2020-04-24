@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     char* fopt = 0;
     object_file_type file_type = FT_OBJECT;
     array src_files;
-    array_init(&src_files, sizeof(object));
+    array_init(&src_files, sizeof(char *));
     while (optind < argc) {
         if ((option = getopt(argc, argv, "f:")) != -1) {
             switch (option) {
@@ -51,8 +51,7 @@ int main(int argc, char* argv[])
                 break;
             }
         } else {
-            object o = make_ref(argv[optind]);
-            array_push(&src_files, &o);
+            array_push(&src_files, &argv[optind]);
             optind ++;
         }
     }
@@ -64,7 +63,7 @@ int main(int argc, char* argv[])
         if (!file_type)
             file_type = FT_OBJECT;
         for (int i = 0; i < array_size(&src_files); i++){
-            result = compile((char*)array_get(&src_files, i)->p_data, file_type);
+            result = compile((char*)array_get(&src_files, i), file_type);
             break;
         }
     }
