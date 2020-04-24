@@ -72,15 +72,15 @@ JIT* build_jit(menv* env, parser* parser)
 {
     code_generator* cg = cg_new(env, parser);
     JIT* jit = jit_new(cg);
-    log_info(DEBUG, "creating builtins");
+    //log_info(DEBUG, "creating builtins");
     create_builtins(parser, cg->context);
-    log_info(DEBUG, "creating jit modules");
+    //log_info(DEBUG, "creating jit modules");
     _create_jit_module(cg);
-    log_info(DEBUG, "generating runtime modules");
+    //log_info(DEBUG, "generating runtime modules");
     generate_runtime_module(cg, parser);
-    log_info(DEBUG, "adding to jit");
+    //log_info(DEBUG, "adding to jit");
     _add_module_to_jit(jit);
-    log_info(DEBUG, "creating jit modules 2");
+    //log_info(DEBUG, "creating jit modules 2");
     _create_jit_module(cg);
     return jit;
 }

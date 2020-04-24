@@ -216,8 +216,8 @@ void* _generate_call_node(code_generator* cg, exp_node* node)
 void* _generate_prototype_node(code_generator* cg, exp_node* node)
 {
     prototype_node *proto = (prototype_node*)node;
-    string *str = (string*)array_get(&proto->args, 0);
-    log_info(DEBUG, "generating prototype node: %s", string_get(str));
+    //string *str = (string*)array_get(&proto->args, 0);
+    //log_info(DEBUG, "generating prototype node: %s", string_get(str));
  
     cg->protos[std::string(string_get(&proto->name))] = proto;
     LLVMContextRef context = (LLVMContextRef)cg->context;
@@ -560,7 +560,7 @@ void create_module_and_pass_manager(code_generator* cg,
 void generate_runtime_module(code_generator* cg, parser* parser)
 {
     for (int i = 0; i < array_size(&parser->ast->builtins); i++) {
-        exp_node *node = (exp_node*)array_get(&parser->ast->builtins, i);
+        exp_node *node = *(exp_node**)array_get(&parser->ast->builtins, i);
         generate_code(cg, node);
     }
 }

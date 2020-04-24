@@ -57,7 +57,7 @@ string format_type(type_exp* exp)
     string str;
     string_init_chars(&str, "");
     for (unsigned i = 0; i < array_size(&op->args); i++) {
-        type_exp *type = (type_exp*)array_get(&op->args, i);
+        type_exp *type = *(type_exp**)array_get(&op->args, i);
         string_add_chars(&str, " ");
         string str_type = format_type(type);
         string_add(&str, (string*)&str_type);
@@ -86,7 +86,7 @@ type_exp* prune(type_exp* type)
 bool _occurs_in_type_list(type_exp* type1, array* list)
 {
     for (unsigned i = 0; i < array_size(list); i++){
-        type_exp *type = (type_exp*)array_get(list, i);
+        type_exp *type = *(type_exp**)array_get(list, i);
         if (occurs_in_type(type1, type))
             return true;
     }
@@ -132,7 +132,7 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
             if (!string_eq(&type1->name, &type2->name) || array_size(&oper1->args) != array_size(&oper2->args))
                 return false;
             for (int i = 0; i < array_size(&oper1->args); i++) {
-                if (!unify((type_exp*)array_get(&oper1->args, i), (type_exp*)array_get(&oper2->args, i), nogens))
+                if (!unify(*(type_exp**)array_get(&oper1->args, i), *(type_exp**)array_get(&oper2->args, i), nogens))
                     return false;
             }
         }
@@ -187,7 +187,7 @@ type_exp* fresh(type_exp* type1, array* nogen, std::map<type_exp*, type_exp*>& e
     array refreshed; //array of type_exp*
     array_init(&refreshed, sizeof(type_exp*));
     for(int i = 0; i<array_size(&op1->args); i++){
-        type_exp *type1 = (type_exp*)array_get(&op1->args, i);
+        type_exp *type1 = *(type_exp**)array_get(&op1->args, i);
         type_exp *type = fresh(type1, nogen, env);
         array_push(&refreshed, &type);
     }

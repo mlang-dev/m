@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
         if (!file_type)
             file_type = FT_OBJECT;
         for (int i = 0; i < array_size(&src_files); i++){
-            result = compile((char*)array_get(&src_files, i), file_type);
+            result = compile(*(char**)array_get(&src_files, i), file_type);
             break;
         }
     }
