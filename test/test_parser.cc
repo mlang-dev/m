@@ -13,8 +13,8 @@ TEST(testParser, testBlockVariable)
     char test_code[] = "x = 11";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    auto node = (var_node*)block->nodes[0];
-    ASSERT_EQ(1, block->nodes.size());
+    auto node = *(var_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(NUMBER_NODE, node->init_value->node_type);
@@ -26,8 +26,8 @@ TEST(testParser, testBlockVariableNameWithUnderlyingLine)
     char test_code[] = "m_x = 11";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    auto node = (var_node*)block->nodes[0];
-    ASSERT_EQ(1, block->nodes.size());
+    auto node = *(var_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("m_x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(NUMBER_NODE, node->init_value->node_type);
@@ -42,12 +42,11 @@ f 10
 )";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    auto node = (function_node*)block->nodes[0];
-    auto body = node->body->nodes[0];
-    ASSERT_EQ(2, block->nodes.size());
+    auto node = *(function_node**)array_front(&block->nodes);
+    auto body_node = *(exp_node**)array_front(&node->body->nodes);
+    ASSERT_EQ(2, array_size(&block->nodes));
     ASSERT_STREQ("f", string_get(&node->prototype->name));
-    ASSERT_EQ(IDENT_NODE, body->node_type);
-    auto app = node->body->nodes[1];
+    ASSERT_EQ(IDENT_NODE, body_node->node_type);
     parser_free(parser);
 }
 
@@ -56,11 +55,11 @@ TEST(testParser, testBlockBinaryFunction)
     char test_code[] = "f x = x * x";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    auto node = (function_node*)block->nodes[0];
-    auto body = node->body->nodes[0];
-    ASSERT_EQ(1, block->nodes.size());
+    auto node = *(function_node**)array_front(&block->nodes);
+    auto body_node = *(exp_node**)array_front(&node->body->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("f", string_get(&node->prototype->name));
-    ASSERT_EQ(BINARY_NODE, body->node_type);
+    ASSERT_EQ(BINARY_NODE, body_node->node_type);
     parser_free(parser);
 }
 
@@ -69,11 +68,11 @@ TEST(testParser, testBlockBinaryFunctionName)
     char test_code[] = "f_sq x = x * x";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    auto node = (function_node*)block->nodes[0];
-    auto body = node->body->nodes[0];
-    ASSERT_EQ(1, block->nodes.size());
+    auto node = *(function_node**)array_front(&block->nodes);
+    auto body_node = *(exp_node**)array_front(&node->body->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("f_sq", string_get(&node->prototype->name));
-    ASSERT_EQ(BINARY_NODE, body->node_type);
+    ASSERT_EQ(BINARY_NODE, body_node->node_type);
     parser_free(parser);
 }
 
@@ -84,11 +83,11 @@ TEST(testParser, testFacIfCondition)
     else n * fac (n-1))";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    auto node = (function_node*)block->nodes[0];
-    auto body = node->body->nodes[0];
-    ASSERT_EQ(1, block->nodes.size());
+    auto node = *(function_node**)array_front(&block->nodes);
+    auto body_node = *(exp_node**)array_front(&node->body->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("fac", string_get(&node->prototype->name));
-    ASSERT_EQ(CONDITION_NODE, body->node_type);
+    ASSERT_EQ(CONDITION_NODE, body_node->node_type);
     parser_free(parser);
 }
 
@@ -100,11 +99,11 @@ TEST(testParser, testForLoop)
   )";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    auto node = (function_node*)block->nodes[0];
-    auto body = node->body->nodes[0];
-    ASSERT_EQ(1, block->nodes.size());
+    auto node = *(function_node**)array_front(&block->nodes);
+    auto body_node = *(exp_node**)array_front(&node->body->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("loopprint", string_get(&node->prototype->name));
-    ASSERT_EQ(FOR_NODE, body->node_type);
+    ASSERT_EQ(FOR_NODE, body_node->node_type);
     parser_free(parser);
 }
 
@@ -117,9 +116,9 @@ TEST(testParser, testVariableInFunction)
   )";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    auto node = (function_node*)block->nodes[0];
-    auto body = node->body->nodes[0];
-    ASSERT_EQ(1, block->nodes.size());
+    auto node = *(function_node**)array_front(&block->nodes);
+    auto body = *(exp_node**)array_front(&node->body->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("distance", string_get(&node->prototype->name));
     ASSERT_EQ(VAR_NODE, body->node_type);
     parser_free(parser);
@@ -132,9 +131,10 @@ avg x y = (x + y) / 2
     )";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    function_node* func = (function_node*)block->nodes[0];
+    auto func = *(function_node**)array_front(&block->nodes);
+    auto body_node = *(exp_node**)array_front(&func->body->nodes);
     ASSERT_STREQ("avg", string_get(&func->prototype->name));
-    ASSERT_STREQ("BINARY_NODE", NodeTypeString[func->body->nodes[0]->node_type]);
+    ASSERT_STREQ("BINARY_NODE", NodeTypeString[body_node->node_type]);
     parser_free(parser);
 }
 
@@ -144,7 +144,7 @@ TEST(testParser, testUnaryOperatorOverloadFunction)
   )";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    exp_node* node = block->nodes[0];
+    auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(FUNCTION_NODE, node->node_type);
     function_node* func = (function_node*)node;
     ASSERT_STREQ("unary|>", string_get(&func->prototype->name));
@@ -156,7 +156,7 @@ TEST(testParser, testSimpleUnaryOperatorOverloadFunction)
     char test_code[] = "unary|> x = 0 - x # unary operator overloading";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    exp_node* node = block->nodes[0];
+    auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(FUNCTION_NODE, node->node_type);
     function_node* func = (function_node*)node;
     ASSERT_STREQ("unary|>", string_get(&func->prototype->name));
@@ -168,7 +168,7 @@ TEST(testParser, testSimpleBinaryOperatorOverloadFunction)
     char test_code[] = "(|>)10 x y = y < x # binary operator overloading";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, nullptr);
-    exp_node* node = block->nodes[0];
+    auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_STREQ("FUNCTION_NODE", NodeTypeString[node->node_type]);
     function_node* func = (function_node*)node;
     ASSERT_STREQ("binary|>", string_get(&func->prototype->name));

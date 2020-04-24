@@ -16,7 +16,7 @@ extern "C" {
 #include "clib/object.h"
 #include "clib/generic.h"
 
-typedef struct {
+typedef struct _array{
     object base;
     //bytes array
     size_t cap;
@@ -37,6 +37,7 @@ void array_copy(array *dest, array *src);
 void* array_get(array* a, size_t index);
 void* array_data(array *a);
 void* array_back(array *a);
+void* array_front(array *a);
 size_t array_size(array *a);
 void array_free(array* a);
 

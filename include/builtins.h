@@ -10,6 +10,14 @@
 
 #include "ast.h"
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 array get_builtins(void* context);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

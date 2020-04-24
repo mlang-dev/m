@@ -36,7 +36,7 @@ TEST(testHashtable, TestAddAndGet)
 TEST(testHashtable, TestStringKey)
 {
     hashtable ht;
-    hashtable_init(&ht, sizeof(char*), sizeof(int));
+    hashtable_init_ref(&ht);
     char str1[] = "hello";
     char str2[] = "world";
     char str3[] = "something else";

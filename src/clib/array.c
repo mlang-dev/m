@@ -52,6 +52,7 @@ void array_copy(array *dest, array *src)
 {
     array_init_size(dest, src->_element_size, src->base.size, src->f);
     memcpy(dest->base.p_data, src->base.p_data, src->base.size * src->_element_size);
+    dest->base.size = src->base.size;
 }
 
 void _copy_element_to_array(array *a, size_t index, void *element)
@@ -97,6 +98,11 @@ void* array_data(array* a)
 void* array_back(array *a)
 {
     return array_get(a, a->base.size - 1);
+}
+
+void* array_front(array *a)
+{
+    return array_get(a, 0);
 }
 
 size_t array_size(array *a)

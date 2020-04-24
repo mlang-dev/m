@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 
-typedef struct {
+typedef struct _hashtable{
     array buckets;
     size_t key_object_size;
     size_t value_object_size;

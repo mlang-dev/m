@@ -3,25 +3,29 @@
  *
  * Built-in functions 
  */
+#include <string.h>
+#include <stdlib.h>
+
 #include "builtins.h"
 #include "clib/util.h"
 #include "clib/string.h"
-#include "llvm/IR/Intrinsics.h"
+
 #include "llvm-c/Core.h"
 
-llvm::Intrinsic::ID builtin_ids[] = {
-    llvm::Intrinsic::IndependentIntrinsics::sin,
-    llvm::Intrinsic::IndependentIntrinsics::cos,
-    llvm::Intrinsic::IndependentIntrinsics::sqrt,
-};
-#define NUM_BUILTINS 3
 
-prototype_node* _create_for_id(void* pcontext, llvm::Intrinsic::ID id)
+const char * buiiltin_funs[] = {
+    "llvm.sin",
+    "llvm.cos",
+    "llvm.sqrt",
+};
+
+prototype_node* _create_for_id(void* pcontext, const char* name)
 {
     LLVMContextRef context = (LLVMContextRef)pcontext;
     LLVMTypeRef types[1] = {LLVMDoubleTypeInContext(context)};
     size_t name_len = 0;
-    std::string name = LLVMIntrinsicCopyOverloadedName(id, NULL, 0, &name_len);
+    unsigned id = LLVMLookupIntrinsicID(name, strlen(name));
+    //const char * name = LLVMIntrinsicCopyOverloadedName(id, NULL, 0, &name_len);
     LLVMTypeRef fun = LLVMIntrinsicGetType(context, id, types, 1);
     size_t param_count = LLVMCountParamTypes(fun);
     LLVMTypeRef *params = (LLVMTypeRef*)malloc(param_count * sizeof(LLVMTypeRef));
@@ -34,10 +38,11 @@ prototype_node* _create_for_id(void* pcontext, llvm::Intrinsic::ID id)
         array_push(&args, &arg.base);
     }
     string str_name;
-    string_init_chars(&str_name, name.c_str());
+    string_init_chars(&str_name, name);
     array names = string_split(&str_name, '.');
     //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
-    prototype_node* node = create_prototype_node(nullptr, { 1, 0 }, 
+    source_loc loc = {1, 0};
+    prototype_node* node = create_prototype_node_default(NULL, loc, 
         string_get(STRING_POINTER(array_back(&names))), &args);
     string_deinit(&str_name);
     array_deinit(&names);
@@ -51,8 +56,9 @@ array get_builtins(void* context)
 {
     array builtins;
     array_init(&builtins, sizeof(exp_node*));
-    for (int i = 0; i < NUM_BUILTINS; i++) {
-        prototype_node *proto = _create_for_id(context, builtin_ids[i]);
+    int builtins_num = sizeof(buiiltin_funs)/sizeof(char*);
+    for (int i = 0; i < builtins_num; i++) {
+        prototype_node *proto = _create_for_id(context, buiiltin_funs[i]);
         array_push(&builtins, &proto);
     }
     // auto p = *(prototype_node**)array_get(&builtins, 0);
@@ -62,7 +68,8 @@ array get_builtins(void* context)
     array_string_init(&args);
     string_init_chars(&str, "char");
     array_push(&args, &str);
-    prototype_node* proto = create_prototype_node(nullptr, { 1, 0 }, "print", &args);
+    source_loc loc = {1, 0};
+    prototype_node* proto = create_prototype_node_default(NULL, loc, "print", &args);
     array_push(&builtins, &proto);
     string_deinit(&str);
     //args copied to the prototype node, so not needed to deinit

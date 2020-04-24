@@ -31,7 +31,7 @@ enum ctype
     ALL
 };
 
-typedef struct {
+typedef struct _object{
     enum ctype type;
     size_t size; //size of data, not the struct size
     union{

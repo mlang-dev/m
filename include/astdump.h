@@ -9,10 +9,17 @@
 #define __MLANG_ASTDUMP_H__
 
 #include <stdio.h>
-#include <string>
-#include <vector>
-#include "parser.h"
+#include "ast.h"
+#include "clib/string.h"
 
-std::string dump(exp_node* node);
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+string dump(exp_node* node);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

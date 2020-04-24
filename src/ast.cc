@@ -1,4 +1,14 @@
+/*
+ * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * m language ast c code implementation. 
+ * 
+ */
+#include <map>
+#include <string>
+
 #include "ast.h"
+
 extern std::map<std::string, int> g_op_precedences;
 
 bool is_unary_op(prototype_node* pnode)
@@ -42,7 +52,7 @@ ident_node* create_ident_node(exp_node* parent, source_loc loc, const char *name
     return node;
 }
 
-num_node* create_num_node(exp_node* parent, source_loc loc, double val)
+num_node* create_double_node(exp_node* parent, source_loc loc, double val)
 {
     string str;
     string_init_chars(&str, "double");
@@ -55,7 +65,7 @@ num_node* create_num_node(exp_node* parent, source_loc loc, double val)
     return node;
 }
 
-num_node* create_num_node(exp_node* parent, source_loc loc, int val)
+num_node* create_int_node(exp_node* parent, source_loc loc, int val)
 {
     string str;
     string_init_chars(&str, "int");
@@ -80,15 +90,20 @@ var_node* create_var_node(exp_node* parent, source_loc loc, const char *var_name
 }
 
 call_node* create_call_node(exp_node* parent, source_loc loc, const char *callee,
-    std::vector<exp_node*>& args)
+    array* args)
 {
     auto node = new call_node();
     node->base.node_type = NodeType::CALL_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
     string_init_chars(&node->callee, callee);
-    node->args = args;
+    array_copy(&node->args, args);
     return node;
+}
+
+prototype_node* create_prototype_node_default(exp_node* parent, source_loc loc, const char *name, array* args)
+{
+    return create_prototype_node(parent, loc, name, args, false, 0, "");
 }
 
 prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const char *name,
@@ -158,14 +173,14 @@ for_node* create_for_node(exp_node* parent, source_loc loc, const char *var_name
     return node;
 }
 
-block_node* create_block_node(exp_node* parent, std::vector<exp_node*>& nodes)
+block_node* create_block_node(exp_node* parent, array *nodes)
 {
     block_node* block = new block_node();
     block->base.node_type = NodeType::BLOCK_NODE;
     block->base.parent = parent;
-    block->base.loc = nodes[0]->loc;
-    for (auto node : nodes)
-        block->nodes.push_back(node);
+    exp_node * exp = (*(exp_node**)array_front(nodes));
+    block->base.loc = (*(exp_node**)array_front(nodes))->loc;
+    array_copy(&block->nodes, nodes);
     return block;
 }
 
@@ -174,6 +189,7 @@ module* create_module(const char* mod_name, FILE* file)
     module* mod = new module();
     string_init_chars(&mod->name, mod_name);
     mod->block = new block_node();
+    array_init(&mod->block->nodes, sizeof(exp_node*));
     mod->tokenizer = create_tokenizer(file);
     return mod;
 }

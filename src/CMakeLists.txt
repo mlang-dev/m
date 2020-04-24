@@ -8,8 +8,8 @@ set(CMAKE_C_STANDARD 99)
 include(GoogleTest)
 
 add_library(mlr 
-  type.cc
-  builtins.cc
+  type.c
+  builtins.c
   compiler.cc
   repl.cc
   jit.cc
@@ -17,8 +17,8 @@ add_library(mlr
   ast.cc
   parser.cc
   runtime.cc
-  astdump.cc
-  analyzer.cc
+  astdump.c
+  analyzer.c
   codegen.cc
   env.c
   clib/object.c

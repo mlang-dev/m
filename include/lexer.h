@@ -8,14 +8,14 @@
 #ifndef __MLANG_LEXER_H__
 #define __MLANG_LEXER_H__
 
+#include <stdio.h>
 #include "type.h"
 #include "clib/util.h"
+#include "clib/string.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "clib/string.h"
 
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
     ENUM_ITEM(TOKEN_UNK)             \
@@ -38,18 +38,19 @@ extern "C" {
     ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_EOS)
 
-enum TokenType { FOREACH_TOKENTYPE(GENERATE_ENUM) };
+enum _TokenType { FOREACH_TOKENTYPE(GENERATE_ENUM) };
+typedef enum _TokenType TokenType;
 
 static const char* TokenTypeString[] = {
     FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
 };
 
-struct source_loc {
+typedef struct _source_loc {
     int line;
     int col;
-};
+}source_loc;
 
-struct token {
+typedef struct _token {
     TokenType token_type;
     Type type;
     source_loc loc;
@@ -58,9 +59,9 @@ struct token {
         string* ident_str;
         double double_val;
     };
-};
+}token;
 
-struct file_tokenizer {
+typedef struct _file_tokenizer {
     FILE* file;
     source_loc loc;
     source_loc tok_loc;
@@ -68,8 +69,7 @@ struct file_tokenizer {
     token next_token;
     char curr_char[2];
     string ident_str;
-};
-
+}file_tokenizer;
 
 file_tokenizer* create_tokenizer(FILE* file);
 void destroy_tokenizer(file_tokenizer* tokenizer);

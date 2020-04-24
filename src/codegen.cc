@@ -4,6 +4,8 @@
  * LLVM IR Code Generation Functions
  */
 #include <stdlib.h>
+#include <string>
+
 #include "llvm-c/Core.h"
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
@@ -197,15 +199,15 @@ void* _generate_call_node(code_generator* cg, exp_node* node)
     LLVMValueRef callee = _get_function(cg, string_get(&call->callee));
     if (!callee)
         return log_info(ERROR, "Unknown function referenced: %s", string_get(&call->callee));
-    if (LLVMCountParams(callee) != call->args.size())
+    if (LLVMCountParams(callee) != array_size(&call->args))
         return log_info(ERROR,
             "Incorrect number of arguments passed: callee (prototype "
             "generated in llvm): %lu, calling: %lu",
-            LLVMCountParams(callee), call->args.size());
+            LLVMCountParams(callee), array_size(&call->args));
 
     std::vector<LLVMValueRef> arg_values;
-    for (unsigned long i = 0, e = call->args.size(); i != e; ++i) {
-        arg_values.push_back((LLVMValueRef)generate_code(cg, call->args[i]));
+    for (unsigned long i = 0, e = array_size(&call->args); i != e; ++i) {
+        arg_values.push_back((LLVMValueRef)generate_code(cg, *(exp_node**)array_get(&call->args, i)));
         if (!arg_values.back())
             return 0;
     }
@@ -254,7 +256,8 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
     LLVMPositionBuilderAtEnd(builder, bb);
     _create_argument_allocas(cg, funn->prototype, fun);
     LLVMValueRef ret_val;
-    for (auto stmt : funn->body->nodes) {
+    for (int i = 0; i < array_size(&funn->body->nodes); i++) {
+        exp_node* stmt = *(exp_node**)array_get(&funn->body->nodes, i);
         ret_val = (LLVMValueRef)generate_code(cg, stmt);
     }
     if (!ret_val) {
@@ -524,7 +527,8 @@ void* _generate_block_node(code_generator* cg, exp_node* node)
 {
     auto block = (block_node*)node;
     void* codegen;
-    for (auto exp : block->nodes) {
+    for (int i = 0; i < array_size(&block->nodes); i++) {
+        exp_node* exp = *(exp_node**)array_get(&block->nodes, i);
         codegen = generate_code(cg, exp);
     }
     return codegen;
