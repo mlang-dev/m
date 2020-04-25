@@ -13,6 +13,14 @@
 #define DLLEXPORT
 #endif
 
-extern "C" DLLEXPORT double print(double x);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+    DLLEXPORT double print(double x);
+    
+#ifdef __cplusplus
+}
+#endif
 
 #endif

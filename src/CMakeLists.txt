@@ -16,7 +16,7 @@ add_library(mlr
   lexer.cc
   ast.c
   parser.c
-  runtime.cc
+  runtime.c
   astdump.c
   analyzer.c
   codegen.cc
