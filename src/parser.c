@@ -68,6 +68,7 @@ void _build_op_precs(hashtable* op_precs)
         value_ref key = {(void*)_op_preces[i].op, strlen(_op_preces[i].op) + 1};
         value_ref value = {(void*)&_op_preces[i].prec, sizeof(_op_preces[i].prec)};
         hashtable_add_ref(op_precs, key, value);
+        //hashtable_add_p(op_precs, _op_preces[i].op, &_op_preces[i].prec);
     }
 }
 

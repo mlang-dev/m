@@ -199,8 +199,7 @@ type_exp* fresh(type_exp* type1, array* nogen)//, std::map<type_exp*, type_exp*>
 
 type_exp* retrieve_type(string *name, array *nogen, hashtable *env)
 {
-    value_ref key = {string_get(name), string_size(name) + 1};
-    type_exp* exp = *(type_exp**)hashtable_get_ref(env, key);
+    type_exp* exp = (type_exp*)hashtable_get_p(env, string_get(name));
     if (exp) {
         //std::map<type_exp*, type_exp*> type_env;
         return fresh(exp, nogen);

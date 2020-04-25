@@ -77,20 +77,18 @@ type_env* type_env_new()
         string type_str;
         string_init_chars(&type_str, TypeString[i]);
         type_exp* exp = (type_exp*)create_type_oper(&type_str, &args);
-        value_ref key = {(void*)TypeString[i], strlen(TypeString[i])+1};
-        value_ref value = {(void*)&exp, sizeof(type_exp*)};
-        hashtable_add_ref(&env->type_env, key, value);
+        hashtable_set_p(&env->type_env, TypeString[i], exp);
     }
     return env;
 }
 
 void type_env_free(type_env* env)
 {
-    for (int i = 0; i < env->type_env.buckets.cap; i++) {
-        hashbox* box = (hashbox*)array_get(&env->type_env.buckets, i);
-        if (box->status)
-            type_exp_free(*(type_exp**)hashbox_get_value(box));
-    }
+    // for (int i = 0; i < env->type_env.buckets.cap; i++) {
+    //     hashbox* box = (hashbox*)array_get(&env->type_env.buckets, i);
+    //     if (box->status)
+    //         type_exp_free(*(type_exp**)hashbox_get_value(box));
+    // }
     hashtable_deinit(&env->type_env);
     free(env);
 }
@@ -144,9 +142,7 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
         array_push(&args, &exp);
         array_push(&env->nogens, &exp);
         char *arg_str = string_get((string*)array_get(&fun->prototype->args, i));
-        value_ref key = {(void*)arg_str, strlen(arg_str)+1};
-        value_ref value = {(void*)&exp, sizeof(type_exp*)};
-        hashtable_add_ref(&env->type_env, key, value);
+        hashtable_set_p(&env->type_env, arg_str, exp);
     }
     type_exp* result_type = analyze(env, *(exp_node**)array_back(&fun->body->nodes)); //TODO: need to recursively analyze
     type_exp* ret = (type_exp*)create_type_fun(&args, result_type);
