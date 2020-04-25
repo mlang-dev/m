@@ -28,15 +28,18 @@ typedef struct parser {
     queue queued_tokens;  //queue of token
 }parser;
 
-parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name) = nullptr);
+typedef FILE* (*open_file)(const char* file_name);
+typedef void (*exp_executor)(void*, exp_node*);
+
+parser* parser_new(const char* file_name, bool is_repl, open_file op_file);
 void create_builtins(parser* parser, void* context);
 void parser_free(parser* parser);
 void parse_next_token(parser* parser);
-exp_node* parse_exp_to_function(parser* parser, exp_node* exp = 0, const char* fn = 0);
+exp_node* parse_exp_to_function(parser* parser, exp_node* exp, const char* fn);
 exp_node* parse_import(parser* parser, exp_node* parent);
 exp_node* parse_statement(parser* parser, exp_node* parent);
-block_node* parse_block(parser* parser, exp_node* parent, void (*fun)(void*, exp_node*) = nullptr, void* jit = nullptr);
-exp_node* parse_exp(parser* parser, exp_node* parent, exp_node* lhs = 0);
+block_node* parse_block(parser* parser, exp_node* parent, exp_executor exp_exe, void* jit);
+exp_node* parse_exp(parser* parser, exp_node* parent, exp_node* lhs);
 bool is_unary_op(prototype_node* pnode);
 bool is_binary_op(prototype_node* pnode);
 char get_op_name(prototype_node* pnode);

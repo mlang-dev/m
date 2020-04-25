@@ -13,7 +13,7 @@ TEST(testAnalyzer, testIntVariable)
 {
     char test_code[] = "x = 11";
     auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, nullptr);
+    block_node* block = parse_block(parser, NULL, NULL, NULL);
     type_env* env = type_env_new();
     auto type = analyze(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
@@ -32,7 +32,7 @@ TEST(testAnalyzer, testDoubleVariable)
 {
     char test_code[] = "x = 11.0";
     auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, nullptr);
+    block_node* block = parse_block(parser, NULL, NULL, NULL);
     type_env* env = type_env_new();
     auto type = analyze(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
@@ -51,14 +51,14 @@ TEST(testAnalyzer, testDoubleIntLiteralError)
 {
     char test_code[] = "x = 11.0 + 10";
     auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, nullptr);
+    block_node* block = parse_block(parser, NULL, NULL, NULL);
     type_env* env = type_env_new();
     auto type = analyze(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
-    ASSERT_EQ(nullptr, type);
+    ASSERT_EQ(NULL, type);
     type_env_free(env);
     parser_free(parser);
 }

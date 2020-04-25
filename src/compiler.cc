@@ -23,12 +23,12 @@ int compile(const char* fn, object_file_type file_type)
     string_init_chars(&filename, fn);
     string_substr(&filename, '.');
     menv* env = env_new();
-    parser* parser = parser_new(fn, false);
+    parser* parser = parser_new(fn, false, NULL);
     code_generator* cg = cg_new(env, parser);
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, string_get(&filename));
     generate_runtime_module(cg, parser);
-    block_node* block = parse_block(parser, nullptr);
+    block_node* block = parse_block(parser, NULL, NULL, NULL);
     if (block) {
         for (int i = 0; i < array_size(&block->nodes); i ++) {
             exp_node* node = *(exp_node**)array_get(&block->nodes, i);

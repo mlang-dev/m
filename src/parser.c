@@ -3,6 +3,7 @@
  *
  * m language parser
  */
+#include <stdlib.h>
 #include <string.h>
 
 #include "parser.h"
@@ -96,11 +97,11 @@ parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const
     else
         file = file_name ? fopen(file_name, "r") : stdin;
     const char* mod_name = file_name ? file_name : "intepreter_main";
-    auto psr = new parser();
+    parser* psr = (parser*)malloc(sizeof(parser));
     queue_init(&psr->queued_tokens, sizeof(token));
     hashtable_init_ref(&psr->op_precs);
     _build_op_precs(&psr->op_precs);
-    psr->ast = new ast();
+    psr->ast = (ast*)malloc(sizeof(ast));
     array_init(&psr->ast->builtins, sizeof(exp_node*));
     array_init(&psr->ast->modules, sizeof(module*));
     psr->allow_id_as_a_func = true;
@@ -126,9 +127,9 @@ void destroy_module(module* module)
 {
     destroy_tokenizer(module->tokenizer);
     block_deinit(module->block);
-    delete module->block;
+    free(module->block);
     string_deinit(&module->name);
-    delete module;
+    free(module);
 }
 
 void parser_free(parser* parser)
@@ -137,8 +138,8 @@ void parser_free(parser* parser)
         module *it = *(module**)array_get(&parser->ast->modules, i);
         destroy_module(it);
     }
-    delete parser->ast;
-    delete parser;
+    free(parser->ast);
+    free(parser);
 }
 
 void parse_next_token(parser* parser)
@@ -176,7 +177,7 @@ exp_node* _parse_number(parser* parser, exp_node* parent)
 exp_node* _parse_parentheses(parser* parser, exp_node* parent)
 {
     parse_next_token(parser);
-    auto v = parse_exp(parser, parent);
+    exp_node* v = parse_exp(parser, parent, NULL);
     if (!v)
         return 0;
     if (parser->curr_token.token_type != TOKEN_RPAREN)
@@ -185,11 +186,11 @@ exp_node* _parse_parentheses(parser* parser, exp_node* parent)
     return v;
 }
 
-exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_loc loc, const char *pid_name, bool is_operator = false, int precedence = 0)
+exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_loc loc, const char *pid_name, bool is_operator, int precedence)
 {
     if (parser->curr_token.token_type == TOKEN_LPAREN)
         parse_next_token(parser); // skip '('
-    auto func_definition = false;
+    bool func_definition = false;
     array args;
     array_init(&args, sizeof(exp_node*));
     //doesn't allow function inside parameter or argument
@@ -200,7 +201,8 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
     parser->allow_id_as_a_func = false;
     if (parser->curr_token.token_type != TOKEN_RPAREN) {
         while (true) {
-            if (auto arg = parse_exp(parser, parent)) {
+            exp_node* arg = parse_exp(parser, parent, NULL);
+            if (arg) {
                 array_push(&args, &arg);
             }
             if (string_eq_chars(parser->curr_token.ident_str, "=")) {
@@ -238,10 +240,9 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
         }
         prototype_node* prototype = create_prototype_node(parent, loc, string_get(&id_name), &arg_names, is_operator, precedence, is_operator ? string_get(&id_name) : "");
         //log_info(DEBUG, "prototype: %s", id_name.c_str());
-        auto func = _parse_function_with_prototype(parser, prototype);
+        return _parse_function_with_prototype(parser, prototype);
         //log_info(DEBUG, "func: %s", id_name.c_str());
         //array_deinit(&argNames);
-        return func;
     }
     // function application
     //log_info(DEBUG, "function application: %s", id_name.c_str());
@@ -255,12 +256,12 @@ exp_node* parse_statement(parser* parser, exp_node* parent)
     exp_node* node;
     source_loc loc = parser->curr_token.loc;
     if (parser->curr_token.token_type == TOKEN_EOF)
-        return nullptr;
+        return NULL;
     else if (parser->curr_token.token_type == TOKEN_IMPORT)
         node = parse_import(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_UNARY || parser->curr_token.token_type == TOKEN_BINARY) {
         //function def
-        auto proto = _parse_prototype(parser, parent);
+        exp_node* proto = _parse_prototype(parser, parent);
         node = _parse_function_with_prototype(parser, (prototype_node*)proto);
     } else if (parser->curr_token.token_type == TOKEN_IDENT) {
         string id_name;
@@ -279,12 +280,12 @@ exp_node* parse_statement(parser* parser, exp_node* parent)
             parser->curr_token.token_type == TOKEN_EOF || 
             _get_op_prec(&parser->op_precs, string_get(&op)) > 0) {
             // just id expression evaluation
-            auto lhs = (exp_node*)create_ident_node(parent, parser->curr_token.loc, string_get(&id_name));
+            exp_node* lhs = (exp_node*)create_ident_node(parent, parser->curr_token.loc, string_get(&id_name));
             node = parse_exp(parser, parent, lhs);
             //log_info(DEBUG, "parsed exp: id exp: %d", node->node_type);
         } else {
             // function definition or application
-            node = _parse_function_app_or_def(parser, parent, loc, string_get(&id_name));
+            node = _parse_function_app_or_def(parser, parent, loc, string_get(&id_name), false, 0);
         }
     } else {
         if (parser->curr_token.token_type == TOKEN_LPAREN) {
@@ -314,12 +315,12 @@ exp_node* parse_statement(parser* parser, exp_node* parent)
                 queue_tokens(parser, &queued);
                 parse_next_token(parser); //retrieving (
                 //log_info(DEBUG, "normal exp: %c", parser->curr_token.op_val);
-                node = parse_exp(parser, parent);
+                node = parse_exp(parser, parent, NULL);
             }
             array_deinit(&queued);
         } else {
             //log_info(DEBUG, "starting to parse exp: %s", TokenTypeString[parser->curr_token.token_type]);
-            node = parse_exp(parser, parent);
+            node = parse_exp(parser, parent, NULL);
             //log_info(DEBUG, "it's exp: %s", NodeTypeString[node->node_type]);
         }
     }
@@ -354,7 +355,8 @@ exp_node* _parse_ident(parser* parser, exp_node* parent)
         array args;
         array_init(&args, sizeof(exp_node*));
         while (true) {
-            if (auto arg = parse_exp(parser, parent))
+            exp_node* arg = parse_exp(parser, parent, NULL);
+            if (arg)
                 array_push(&args, &arg);
             else
                 return 0;
@@ -407,11 +409,11 @@ exp_node* _parse_binary(parser* parser, exp_node* parent, int exp_prec, exp_node
         string binary_op;
         string_copy(&binary_op, parser->curr_token.ident_str);
         parse_next_token(parser);
-        auto rhs = _parse_unary(parser, parent);
+        exp_node* rhs = _parse_unary(parser, parent);
         if (!rhs)
             return lhs;
         //log_info(DEBUG, "bin exp: rhs: %s", NodeTypeString[rhs->node_type]);
-        auto next_prec = _get_op_precedence(parser);
+        int next_prec = _get_op_precedence(parser);
         if (tok_prec < next_prec) {
             //log_info(DEBUG, "right first %s, %d, %d", TokenTypeString[parser->curr_token.token_type], tok_prec, next_prec);
             rhs = _parse_binary(parser, parent, tok_prec + 1, rhs);
@@ -484,7 +486,7 @@ exp_node* _parse_prototype(parser* parser, exp_node* parent)
     default:
         return (exp_node*)log_info(ERROR, "Expected function name in prototype");
     }
-    auto has_parenthese = parser->curr_token.token_type == TOKEN_LPAREN;
+    bool has_parenthese = parser->curr_token.token_type == TOKEN_LPAREN;
     if (has_parenthese)
         parse_next_token(parser); // skip '('
     array arg_names;
@@ -520,7 +522,7 @@ exp_node* _create_fun_node(parser* parser, prototype_node* prototype, block_node
 exp_node* _parse_function_with_prototype(parser* parser,
     prototype_node* prototype)
 {
-    auto block = parse_block(parser, (exp_node*)prototype);
+    block_node* block = parse_block(parser, (exp_node*)prototype, NULL, NULL);
     if (block) {
         return _create_fun_node(parser, prototype, block);
     }
@@ -532,7 +534,8 @@ exp_node* _parse_var(parser* parser, exp_node* parent, const char *name)
     if (string_eq_chars(parser->curr_token.ident_str, "="))
         parse_next_token(parser); // skip '='
             // token
-    if (auto exp = parse_exp(parser, parent)) {
+    exp_node* exp = parse_exp(parser, parent, NULL);
+    if (exp) {
         // not a function but a value
         //log_info(INFO, "_parse_variable:  %lu!", var_names.size());
         return (exp_node*)create_var_node(parent, parser->curr_token.loc, name, exp);
@@ -543,15 +546,15 @@ exp_node* _parse_var(parser* parser, exp_node* parent, const char *name)
 exp_node* parse_exp_to_function(parser* parser, exp_node* exp, const char* fn)
 {
     if (!exp)
-        exp = parse_exp(parser, nullptr);
+        exp = parse_exp(parser, NULL, NULL);
     if (exp) {
         array args;
         array_string_init(&args);
-        auto prototype = create_prototype_node_default(nullptr, exp->loc, fn, &args);
+        prototype_node* prototype = create_prototype_node_default(NULL, exp->loc, fn, &args);
         array nodes;
         array_init(&nodes, sizeof(exp_node*));
         array_push(&nodes, &exp);
-        auto block = create_block_node((exp_node*)prototype, &nodes);
+        block_node* block = create_block_node((exp_node*)prototype, &nodes);
         //array_deinit(&args);
         return _create_fun_node(parser, prototype, block);
     }
@@ -574,7 +577,7 @@ exp_node* _parse_unary(parser* parser, exp_node* parent)
         || parser->curr_token.token_type == TOKEN_EOS
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
-    auto loc = parser->curr_token.loc;
+    source_loc loc = parser->curr_token.loc;
     if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.token_type == TOKEN_LPAREN 
         || string_eq_chars(parser->curr_token.ident_str, ",")) {
         return _parse_node(parser, parent);
@@ -584,7 +587,8 @@ exp_node* _parse_unary(parser* parser, exp_node* parent)
     string opc;
     string_copy(&opc, parser->curr_token.ident_str);
     parse_next_token(parser);
-    if (exp_node* operand = _parse_unary(parser, parent)) {
+    exp_node* operand = _parse_unary(parser, parent);
+    if (operand) {
         //log_info(DEBUG, "unary node:%c: %s", opc, NodeTypeString[operand->node_type]);
         return (exp_node*)create_unary_node(parent, loc, string_get(&opc), operand);
     }
@@ -608,7 +612,7 @@ exp_node* _parse_for(parser* parser, exp_node* parent)
         return (exp_node*)log_info(ERROR, "expected 'in' after for %s", parser->curr_token.ident_str);
     parse_next_token(parser); // eat 'in'.
 
-    exp_node* start = parse_exp(parser, parent);
+    exp_node* start = parse_exp(parser, parent, NULL);
     if (start == 0)
         return 0;
     if (parser->curr_token.token_type != TOKEN_RANGE)
@@ -617,7 +621,7 @@ exp_node* _parse_for(parser* parser, exp_node* parent)
     parse_next_token(parser);
 
     //step or end
-    exp_node* end_val = parse_exp(parser, parent);
+    exp_node* end_val = parse_exp(parser, parent, NULL);
     if (end_val == 0)
         return 0;
 
@@ -626,19 +630,19 @@ exp_node* _parse_for(parser* parser, exp_node* parent)
     if (parser->curr_token.token_type == TOKEN_RANGE) {
         step = end_val;
         parse_next_token(parser);
-        end_val = parse_exp(parser, parent);
+        end_val = parse_exp(parser, parent, NULL);
         if (end_val == 0)
             return 0;
     } else { //default 1
         step = (exp_node*)create_double_node(parent, parser->curr_token.loc, 1.0);
     }
     //convert end variable to a logic
-    auto id_node = (exp_node*)create_ident_node(parent, start->loc, string_get(&id_name));
-    auto end = (exp_node*)create_binary_node(parent, end_val->loc, "<", id_node, end_val);
+    exp_node* id_node = (exp_node*)create_ident_node(parent, start->loc, string_get(&id_name));
+    exp_node* end = (exp_node*)create_binary_node(parent, end_val->loc, "<", id_node, end_val);
     while (parser->curr_token.token_type == TOKEN_EOS)
         parse_next_token(parser);
 
-    exp_node* body = parse_exp(parser, parent);
+    exp_node* body = parse_exp(parser, parent, NULL);
     if (body == 0)
         return 0;
     return (exp_node*)create_for_node(parent, loc, string_get(&id_name), start, end, step, body);
@@ -651,7 +655,7 @@ exp_node* _parse_if(parser* parser, exp_node* parent)
 
     // condition.
     //log_info(DEBUG, "parsing if exp");
-    exp_node* cond = parse_exp(parser, parent);
+    exp_node* cond = parse_exp(parser, parent, NULL);
     if (!cond)
         return 0;
     //log_info(DEBUG, "conf: %s, %s", NodeTypeString[cond->node_type], dump(cond).c_str());
@@ -661,7 +665,7 @@ exp_node* _parse_if(parser* parser, exp_node* parent)
     while (parser->curr_token.token_type == TOKEN_EOS)
         parse_next_token(parser);
     //log_info(DEBUG, "parsing then exp");
-    exp_node* then = parse_exp(parser, parent);
+    exp_node* then = parse_exp(parser, parent, NULL);
     if (then == 0)
         return 0;
 
@@ -673,7 +677,7 @@ exp_node* _parse_if(parser* parser, exp_node* parent)
     parse_next_token(parser);
 
     //log_info(DEBUG, "parsing else exp");
-    exp_node* else_exp = parse_exp(parser, parent);
+    exp_node* else_exp = parse_exp(parser, parent, NULL);
     if (!else_exp)
         return 0;
 
@@ -702,7 +706,7 @@ block_node* parse_block(parser* parser, exp_node* parent, void (*fun)(void*, exp
         //log_info(DEBUG, "got token in block: (%d, %d), %s", parser->curr_token.loc.line, parser->curr_token.loc.col, TokenTypeString[parser->curr_token.token_type]);
         source_loc loc = parser->curr_token.loc;
         //log_info(DEBUG, "parsing statement in block--: (%d, %d), %d", loc.line, loc.col, parent);
-        auto node = parse_statement(parser, parent);
+        exp_node* node = parse_statement(parser, parent);
         if (node) {
             col = node->loc.col;
             array_push(&nodes, &node);
