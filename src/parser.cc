@@ -7,18 +7,14 @@
 #include "astdump.h"
 #include "builtins.h"
 #include "clib/util.h"
+#include "clib/hashtable.h"
+
 #include <map>
 #include <memory>
 #include <set>
 #include <sstream>
 
 #define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col < col && (parser->curr_token.token_type != TOKEN_EOS || parser->is_repl))
-
-std::map<std::string, int> g_op_precedences = {
-    { "<", 10 }, { ">", 10 }, { "==", 10 }, { "!=", 10 }, { "<=", 10 }, { ">=", 10 },
-    { "+", 20 }, { "-", 20 },
-    { "*", 40 }, { "/", 40 }
-};
 
 int _get_op_precedence(parser* parser);
 exp_node* _parse_number(parser* parser, exp_node* parent);
@@ -53,6 +49,45 @@ void queue_tokens(parser* psr, std::vector<token> tokens)
         psr->queued_tokens.push(tkn);
 }
 
+typedef struct _op_prec{
+    char op[4];
+    unsigned int prec;
+}op_prec;
+
+op_prec _op_preces[] = {
+    { "<", 10 }, { ">", 10 }, { "==", 10 }, { "!=", 10 }, { "<=", 10 }, { ">=", 10 },
+    { "+", 20 }, { "-", 20 },
+    { "*", 40 }, { "/", 40 }
+};
+
+void _build_op_precs(hashtable* op_precs)
+{
+    int num = sizeof(_op_preces) / sizeof(op_prec);
+    for (int i = 0; i < num; i++){
+        value_ref key = {(void*)_op_preces[i].op, strlen(_op_preces[i].op) + 1};
+        value_ref value = {(void*)&_op_preces[i].prec, sizeof(_op_preces[i].prec)};
+        hashtable_add_ref(op_precs, key, value);
+    }
+}
+
+void _set_op_prec(hashtable* op_precs, const char* op, unsigned int prec)
+{
+    value_ref key = {(void*)op, strlen(op) + 1};
+    value_ref value = {(void*)&prec, sizeof(prec)};
+    hashtable_add_ref(op_precs, key, value);
+}
+
+int _get_op_prec(hashtable* op_precs, const char* op)
+{
+    if(!op || !op[0])
+        return -1;
+    value_ref key = {(void*)op, strlen(op) + 1};
+    unsigned int * prec = (unsigned int*)hashtable_get_ref(op_precs, key);
+    if (prec)
+        return *prec;
+    return -1;
+}
+
 parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name))
 {
     FILE* file;
@@ -62,7 +97,8 @@ parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const
         file = file_name ? fopen(file_name, "r") : stdin;
     const char* mod_name = file_name ? file_name : "intepreter_main";
     auto psr = new parser();
-    psr->op_precedences = &g_op_precedences;
+    hashtable_init_ref(&psr->op_precs);
+    _build_op_precs(&psr->op_precs);
     psr->ast = new ast();
     array_init(&psr->ast->builtins, sizeof(exp_node*));
     array_init(&psr->ast->modules, sizeof(module*));
@@ -119,11 +155,8 @@ int _get_op_precedence(parser* parser)
 {
     if (parser->curr_token.token_type != TOKEN_OP)
         return -1;
-    int op_precedence = g_op_precedences[std::string(string_get(parser->curr_token.ident_str))];
-    // fprintf(stderr, "op %d: pre: %d\n", op, op_precedence);
-    if (op_precedence <= 0)
-        return -1;
-    return op_precedence;
+    const char* op = string_get(parser->curr_token.ident_str);
+    return _get_op_prec(&parser->op_precs, op);
 }
 
 exp_node* _parse_number(parser* parser, exp_node* parent)
@@ -234,7 +267,9 @@ exp_node* parse_statement(parser* parser, exp_node* parent)
         if (op == "=") {
             // variable definition
             node = _parse_var(parser, parent, id_name.c_str());
-        } else if (parser->curr_token.token_type == TOKEN_EOS || parser->curr_token.token_type == TOKEN_EOF || g_op_precedences[op]) {
+        } else if (parser->curr_token.token_type == TOKEN_EOS || 
+            parser->curr_token.token_type == TOKEN_EOF || 
+            _get_op_prec(&parser->op_precs, op.c_str()) > 0) {
             // just id expression evaluation
             auto lhs = (exp_node*)create_ident_node(parent, parser->curr_token.loc, id_name.c_str());
             node = parse_exp(parser, parent, lhs);
@@ -471,12 +506,20 @@ exp_node* _parse_prototype(parser* parser, exp_node* parent)
     return ret;
 }
 
+exp_node* _create_fun_node(parser* parser, prototype_node* prototype, block_node *block)
+{
+    if (is_binary_op(prototype)) {
+        _set_op_prec(&parser->op_precs, string_get(&prototype->op), prototype->precedence);
+    }
+    return (exp_node*)create_function_node(prototype, block);
+}
+
 exp_node* _parse_function_with_prototype(parser* parser,
     prototype_node* prototype)
 {
     auto block = parse_block(parser, (exp_node*)prototype);
     if (block) {
-        return (exp_node*)create_function_node(prototype, block);
+        return _create_fun_node(parser, prototype, block);
     }
     return 0;
 }
@@ -507,7 +550,7 @@ exp_node* parse_exp_to_function(parser* parser, exp_node* exp, const char* fn)
         array_push(&nodes, &exp);
         auto block = create_block_node((exp_node*)prototype, &nodes);
         //array_deinit(&args);
-        return (exp_node*)create_function_node(prototype, block);
+        return _create_fun_node(parser, prototype, block);
     }
     return 0;
 }

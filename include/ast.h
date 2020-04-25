@@ -153,6 +153,10 @@ for_node* create_for_node(exp_node* parent, source_loc loc, const char *var_name
 block_node* create_block_node(exp_node* parent, array *nodes);
 module* create_module(const char* mod_name, FILE* file);
 
+bool is_unary_op(prototype_node* pnode);
+bool is_binary_op(prototype_node* pnode);
+char get_op_name(prototype_node* pnode);
+
 #ifdef __cplusplus
 }
 #endif

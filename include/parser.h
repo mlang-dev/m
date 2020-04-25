@@ -12,11 +12,13 @@
 #include <vector>
 #include <queue>
 
+#include "clib/hashtable.h"
+
 #include "ast.h"
 #include "lexer.h"
 
 struct parser {
-    std::map<std::string, int>* op_precedences;
+    hashtable op_precs;
     token curr_token;
     ast* ast;
     bool allow_id_as_a_func;
