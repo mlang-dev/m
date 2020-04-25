@@ -15,16 +15,25 @@
 
 #include "codegen.h"
 #include "clib/util.h"
-#include "KaleidoscopeJIT.h"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
 
 typedef struct JIT {    
     code_generator* cg;
-    llvm::orc::KaleidoscopeJIT* mjit;
+    void* instance;
 }JIT;
 
 JIT* jit_new(code_generator* cg);
 void jit_free(JIT* jit);
-uint64_t get_pointer_to_variable(JIT* jit, void* value);
-void optimize_function(JIT* jit, void* fun);
+
+void add_module(JIT *jit, void* module);
+typedef double (*target_address)();
+target_address find_target_address(JIT *jit, const char *symbol);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

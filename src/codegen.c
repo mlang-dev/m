@@ -23,6 +23,7 @@ void* _generate_block_node(code_generator* cg, exp_node* block);
 
 code_generator* cg_new(menv* env, parser* parser)
 {
+    LLVMInitializeCore(LLVMGetGlobalPassRegistry());
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();
@@ -46,6 +47,7 @@ void cg_free(code_generator* cg)
     hashtable_deinit(&cg->protos);
     hashtable_deinit(&cg->named_values);
     free(cg);
+    //LLVMShutdown();
 }
 
 LLVMValueRef _get_function(code_generator* cg, const char* name)

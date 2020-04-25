@@ -19,6 +19,7 @@ enum object_file_type{
   FT_OBJECT  = 3
 };
 
+typedef enum object_file_type object_file_type;
 int compile(const char* fn, enum object_file_type file_type);
 
 #ifdef __cplusplus

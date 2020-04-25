@@ -10,9 +10,9 @@ include(GoogleTest)
 add_library(mlr 
   type.c
   builtins.c
-  compiler.cc
-  repl.cc
-  jit.cc
+  compiler.c
+  repl.c
+  jit.c
   lexer.c
   ast.c
   parser.c

@@ -57,6 +57,8 @@ int compile(const char* fn, object_file_type file_type)
 
 int gof_initialize()
 {
+    LLVMInitializeCore(LLVMGetGlobalPassRegistry());
+
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();
@@ -70,7 +72,7 @@ int gof_initialize()
 
 int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, const char* filename)
 {
-    if (LLVMTargetMachineEmitToFile(target_machine, module, (char*)filename, LLVMCodeGenFileType::LLVMObjectFile, NULL)) {
+    if (LLVMTargetMachineEmitToFile(target_machine, module, (char*)filename, LLVMObjectFile, NULL)) {
         printf("Target machine can't emit an object file\n");
         return 2;
     }

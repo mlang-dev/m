@@ -3,6 +3,7 @@
  *
  * mlang driver, command line to run as an intepreter or compiler options
  */
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 
