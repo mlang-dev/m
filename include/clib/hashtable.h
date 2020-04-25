@@ -40,7 +40,9 @@ void* hashtable_get_ref(hashtable *ht, value_ref key);
 size_t hashtable_size(hashtable *ht);
 bool hashtable_in(hashtable* hs, void *key);
 bool hashtable_in_ref(hashtable *ht, value_ref key);
-
+void hashtable_set_p(hashtable* ht, const char* key_p, void* value_p);
+void* hashtable_get_p(hashtable* ht, const char* key_p);
+bool hashtable_in_p(hashtable* ht, const char* key_p);
 #ifdef __cplusplus
 }
 #endif

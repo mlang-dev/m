@@ -174,3 +174,23 @@ void hashtable_deinit(hashtable *ht)
     }
     array_deinit(&ht->buckets);
 }
+
+void hashtable_set_p(hashtable* ht, const char* key_p, void* value_p)
+{
+    value_ref key = {(void*)key_p, strlen(key_p) + 1};
+    value_ref value = {(void*)&value_p, sizeof(value_p)};
+    hashtable_add_ref(ht, key, value);
+}
+
+void* hashtable_get_p(hashtable* ht, const char* key_p)
+{
+    value_ref key = {(void*)key_p, strlen(key_p) + 1};
+    void** p = (void**)hashtable_get_ref(ht, key);
+    return p? *p:NULL;
+}
+
+bool hashtable_in_p(hashtable* ht, const char* key_p)
+{
+    value_ref key = {(void*)key_p, strlen(key_p) + 1};
+    return hashtable_in_ref(ht, key);
+}

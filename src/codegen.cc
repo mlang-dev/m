@@ -283,9 +283,10 @@ void* _generate_unary_node(code_generator* cg, exp_node* node)
     LLVMValueRef operand_v = (LLVMValueRef)generate_code(cg, unary->operand);
     if (operand_v == 0)
         return 0;
-
-    std::string fname = std::string("unary") + std::string(string_get(&unary->op));
-    LLVMValueRef fun = _get_function(cg, fname.c_str());
+    string fname;
+    string_init_chars(&fname, "unary");
+    string_add(&fname, &unary->op);
+    LLVMValueRef fun = _get_function(cg, string_get(&fname));
     if (fun == 0)
         return log_info(ERROR, "Unknown unary operator");
 

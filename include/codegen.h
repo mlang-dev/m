@@ -13,6 +13,7 @@
 
 #include "env.h"
 #include "parser.h"
+#include "clib/hashtable.h"
 
 typedef struct _code_generator {
     void* context;
@@ -23,6 +24,7 @@ typedef struct _code_generator {
     //void* fpm;
     std::map<std::string, prototype_node*> protos;
     std::map<std::string, var_node*> gvs;
+    //hashtable gvs; //hashtable of char* and var_node*
 }code_generator;
 
 code_generator* cg_new(menv* env, parser* parser);

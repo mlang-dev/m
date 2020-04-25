@@ -12,6 +12,7 @@ TEST(testString, testShortInit)
 {
   string str;
   string_init_chars(&str, "hello world");
+  ASSERT_EQ(11, string_size(&str));
   ASSERT_STREQ("hello world", string_get(&str));
   string_deinit(&str);
 }
