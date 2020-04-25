@@ -139,7 +139,6 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
     //# create a new non-generic variable for the binder
     array args;//<type_exp*> args;
     array_init(&args, sizeof(type_exp*));
-    //args.resize(fun->prototype->args.size());
     for(unsigned i = 0; i < array_size(&fun->prototype->args); i++){
         type_exp *exp = (type_exp*)create_type_var();
         array_push(&args, &exp);
@@ -148,7 +147,6 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
         value_ref key = {(void*)arg_str, strlen(arg_str)+1};
         value_ref value = {(void*)&exp, sizeof(type_exp*)};
         hashtable_add_ref(&env->type_env, key, value);
-        //env->type_env[std::string(string_get((string*)array_get(&fun->prototype->args, i)))] = exp;
     }
     type_exp* result_type = analyze(env, *(exp_node**)array_back(&fun->body->nodes)); //TODO: need to recursively analyze
     type_exp* ret = (type_exp*)create_type_fun(&args, result_type);

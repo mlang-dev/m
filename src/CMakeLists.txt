@@ -189,7 +189,10 @@ link_libraries(
 )
 
 add_executable(m
-  m.cc
+  m.c
 )
+
+set_target_properties(m PROPERTIES LINKER_LANGUAGE CXX)
+
 target_link_libraries(m PRIVATE mlr)
 
