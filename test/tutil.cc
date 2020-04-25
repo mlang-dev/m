@@ -3,6 +3,8 @@
  *
  * Utility functions for testing
  */
+#include <string.h>
+
 #include "tutil.h"
 
 FILE* _open_file(const char* file_name)

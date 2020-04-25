@@ -8,24 +8,25 @@
 #ifndef __MLANG_PARSER_H__
 #define __MLANG_PARSER_H__
 
-#include <map>
-#include <vector>
-#include <queue>
-
+#include "clib/queue.h"
 #include "clib/hashtable.h"
 
 #include "ast.h"
 #include "lexer.h"
 
-struct parser {
+// #ifdef __cplusplus
+// extern "C"{
+// #endif
+
+typedef struct parser {
     hashtable op_precs;
     token curr_token;
     ast* ast;
     bool allow_id_as_a_func;
     bool is_repl;
     module* current_module;
-    std::queue<token> queued_tokens;
-};
+    queue queued_tokens;  //queue of token
+}parser;
 
 parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name) = nullptr);
 void create_builtins(parser* parser, void* context);
@@ -40,6 +41,10 @@ bool is_unary_op(prototype_node* pnode);
 bool is_binary_op(prototype_node* pnode);
 char get_op_name(prototype_node* pnode);
 void queue_token(parser* parser, token tkn);
-void queue_tokens(parser* psr, std::vector<token> tokens);
+void queue_tokens(parser* psr, array* tokens); //array of token
+
+// #ifdef __cplusplus
+// }
+// #endif
 
 #endif

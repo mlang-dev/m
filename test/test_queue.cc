@@ -46,3 +46,14 @@ TEST(testQueue, TestQueuePopWithValue)
     queue_deinit(&q);
 
 }
+
+TEST(testQueue, TestQueueCircle)
+{
+    queue q;
+    queue_init(&q, sizeof(int));
+    ASSERT_EQ(7, q.items.cap);
+    for(int i=0;i<10;i++){
+        queue_push(&q, &i);
+    }
+    ASSERT_EQ(7, q.items.cap);
+}

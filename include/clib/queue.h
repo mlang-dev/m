@@ -18,8 +18,8 @@ extern "C" {
 
 typedef struct {
     array items;
-    size_t front;
-    size_t back;
+    size_t front; //pointing to the place where element is to be read from
+    size_t back; //pointing to the place where element is to be put next
 } queue;
 
 void queue_init(queue *q, size_t element_size);

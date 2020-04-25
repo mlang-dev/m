@@ -8,10 +8,13 @@
 #ifndef __MLANG_CODEGEN_H__
 #define __MLANG_CODEGEN_H__
 
+#include <string>
+#include <map>
+
 #include "env.h"
 #include "parser.h"
 
-struct code_generator {
+typedef struct _code_generator {
     void* context;
     void* builder;
     parser* parser;
@@ -20,7 +23,7 @@ struct code_generator {
     //void* fpm;
     std::map<std::string, prototype_node*> protos;
     std::map<std::string, var_node*> gvs;
-};
+}code_generator;
 
 code_generator* cg_new(menv* env, parser* parser);
 void cg_free(code_generator* cg);

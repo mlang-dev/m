@@ -81,8 +81,6 @@ void array_set(array *a, size_t index, void *element)
     if(index>a->cap - 1)
         return;
     _copy_element_to_array(a, index, element);
-    if (a->base.size < index + 1)
-        a->base.size = index + 1;
 }
 
 void* array_get(array *a, size_t index)

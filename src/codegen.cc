@@ -5,6 +5,7 @@
  */
 #include <stdlib.h>
 #include <string>
+#include <vector>
 
 #include "llvm-c/Core.h"
 #include "llvm-c/Target.h"
