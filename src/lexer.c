@@ -3,24 +3,36 @@
  *
  * m lexer, m tokenizer
  */
+#include <ctype.h>
+#include <stdlib.h>
+#include <memory.h>
+
 #include "lexer.h"
 #include "clib/util.h"
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
-#include <map>
-#include <memory>
-#include <set>
-#include <string>
-#include <vector>
+#include "clib/string.h"
 
 #define CUR_CHAR(tokenizer)  tokenizer->curr_char[0]
 
-std::set<char> op_chars = {
+char op_chars[] = {
     '!', '%', '&', '*', '+', '-', '.', '/', '<', '=', '>', '?', '@', '^', '|'
 };
 
-static std::map<std::string, TokenType> tokens = {
+bool is_op_char(char op)
+{
+    for(int i=0; i<sizeof(op_chars)/sizeof(char);i++){
+        if (op_chars[i] == op)
+            return true;
+    }
+    return false;
+}
+
+typedef struct keyword_token{
+    char keyword[16];
+    TokenType token;
+}keyword_token;
+
+
+static keyword_token tokens[] = {
     { "import", TOKEN_IMPORT },
     { "if", TOKEN_IF },
     { "else", TOKEN_ELSE },
@@ -32,23 +44,37 @@ static std::map<std::string, TokenType> tokens = {
     { "..", TOKEN_RANGE },
 };
 
-static std::map<char, TokenType> char_tokens = {
+TokenType get_token_type(const char* keyword)
+{
+    for(int i=0; i<sizeof(tokens)/sizeof(keyword_token);i++){
+        if (strcmp(tokens[i].keyword, keyword) == 0)
+            return tokens[i].token;
+    }
+    return TOKEN_UNK;
+}
+
+typedef struct char_token{
+    char keyword;
+    TokenType token;
+}char_token;
+
+static char_token char_tokens[] = {
     { '(', TOKEN_LPAREN },
     { ')', TOKEN_RPAREN },
     { '[', TOKEN_LBRACKET },
     { ']', TOKEN_RBRACKET },
 };
 
-std::map<std::string, Type> types = {
-    { "()", TYPE_UNIT },
-    { "bool", TYPE_BOOL },
-    { "char", TYPE_CHAR },
-    { "int", TYPE_INT },
-    { "double", TYPE_DOUBLE },
-    { "fun", TYPE_FUNCTION },
-};
+TokenType get_char_token_type(char keyword)
+{
+    for(int i=0; i<sizeof(char_tokens)/sizeof(char_token);i++){
+        if (char_tokens[i].keyword == keyword)
+            return char_tokens[i].token;
+    }
+    return TOKEN_UNK;
+}
 
-static std::set<char> symbol_chars = { '.' };
+
 
 static int get_char(file_tokenizer* tokenizer)
 {
@@ -63,8 +89,9 @@ static int get_char(file_tokenizer* tokenizer)
 
 file_tokenizer* create_tokenizer(FILE* file)
 {
-    auto tokenizer = new file_tokenizer();
-    tokenizer->loc = { 1, 0 };
+    file_tokenizer* tokenizer = (file_tokenizer*)malloc(sizeof(file_tokenizer));
+    source_loc loc = {1, 0};
+    tokenizer->loc = loc;
     tokenizer->next_token.token_type = TOKEN_UNK;
     tokenizer->curr_char[0] = ' ';
     tokenizer->curr_char[1] = '\0';
@@ -77,7 +104,7 @@ void destroy_tokenizer(file_tokenizer* tokenizer)
 {
     fclose(tokenizer->file);
     string_deinit(&tokenizer->ident_str);
-    delete tokenizer;
+    free(tokenizer);
 }
 
 token* _tokenize_symbol_type(file_tokenizer* tokenizer, token* t, TokenType token_type)
@@ -87,13 +114,12 @@ token* _tokenize_symbol_type(file_tokenizer* tokenizer, token* t, TokenType toke
     return t;
 }
 
-bool _tokenize_symbol(file_tokenizer* tokenizer, std::string& symbol)
+bool _tokenize_symbol(file_tokenizer* tokenizer, string* symbol)
 {
-    symbol = "";
     bool has_dot = false;
     do {
-        if (symbol_chars.find(tokenizer->curr_char[0]) != symbol_chars.end()) {
-            symbol += tokenizer->curr_char;
+        if (tokenizer->curr_char[0] == '.') {
+            string_add_chars(symbol, tokenizer->curr_char);
             has_dot = true;
         } else
             break;
@@ -103,13 +129,16 @@ bool _tokenize_symbol(file_tokenizer* tokenizer, std::string& symbol)
 
 token* _tokenize_number(file_tokenizer* tokenizer)
 {
-    std::string num_str = "";
+    string num_str;
+    string_init(&num_str);
     bool has_dot = false;
     do {
-        std::string symbol;
-        has_dot = _tokenize_symbol(tokenizer, symbol);
-        if (auto type = tokens[symbol]) {
-            if (num_str == "") {
+        string symbol;
+        string_init(&symbol);
+        has_dot = _tokenize_symbol(tokenizer, &symbol);
+        TokenType type = get_token_type(string_get(&symbol));
+        if (type) {
+            if (string_eq_chars(&num_str, "")) {
                 return _tokenize_symbol_type(tokenizer, &tokenizer->cur_token, type);
             } else {
                 //log_info(ERROR, "ERROROROR !!!, %s", symbol.c_str());
@@ -117,17 +146,17 @@ token* _tokenize_number(file_tokenizer* tokenizer)
                 break;
             }
         } else {
-            num_str += symbol;
+            string_add(&num_str, &symbol);
         }
-        num_str += tokenizer->curr_char;
+        string_add_chars(&num_str, tokenizer->curr_char);
         tokenizer->curr_char[0] = get_char(tokenizer);
     } while (isdigit(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '.');
     if (has_dot) {
-        tokenizer->cur_token.double_val = strtod(num_str.c_str(), nullptr);
+        tokenizer->cur_token.double_val = strtod(string_get(&num_str), NULL);
         tokenizer->cur_token.type = TYPE_DOUBLE;
     } else {
-        tokenizer->cur_token.int_val = atoi(num_str.c_str());
-        tokenizer->cur_token.double_val = atoi(num_str.c_str());
+        tokenizer->cur_token.int_val = atoi(string_get(&num_str));
+        tokenizer->cur_token.double_val = atoi(string_get(&num_str));
         tokenizer->cur_token.type = TYPE_INT;
     }
     tokenizer->cur_token.token_type = TOKEN_NUM;
@@ -141,7 +170,7 @@ token* _tokenize_id_keyword(file_tokenizer* tokenizer)
     while (isalnum((tokenizer->curr_char[0] = get_char(tokenizer))) || tokenizer->curr_char[0] == '_'){
         string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
     }
-    auto token_type = tokens[std::string(string_get(&tokenizer->ident_str))];
+    TokenType token_type = get_token_type(string_get(&tokenizer->ident_str));
     tokenizer->cur_token.token_type = token_type != 0 ? token_type : TOKEN_IDENT;
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
@@ -152,8 +181,12 @@ token* _tokenize_id_keyword(file_tokenizer* tokenizer)
 token* _tokenize_op(file_tokenizer* tokenizer)
 {
     string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
-    while (op_chars.count((tokenizer->curr_char[0] = get_char(tokenizer))))
+    while (true){
+        tokenizer->curr_char[0] = get_char(tokenizer);
+        if(!is_op_char(tokenizer->curr_char[0]))
+            break;
         string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
+    }
     //auto token_type = tokens[std::string(string_get(&tokenizer->ident_str))];
     //TokenType token_type = op_chars.count(string_get(&tokenizer->ident_str)[0]) ? TOKEN_OPERATOR : TOKEN_OP;
     tokenizer->cur_token.token_type = TOKEN_OP;
@@ -207,7 +240,7 @@ token* get_token(file_tokenizer* tokenizer)
         return _tokenize_id_keyword(tokenizer);
     } else if (isdigit(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '.') {
         return _tokenize_number(tokenizer);
-    } else if (op_chars.count(tokenizer->curr_char[0])) {
+    } else if (is_op_char(tokenizer->curr_char[0])) {
         return _tokenize_op(tokenizer);
     } else if (tokenizer->curr_char[0] == '#') {
         // skip comments
@@ -218,7 +251,7 @@ token* get_token(file_tokenizer* tokenizer)
             return _tokenize_type(tokenizer, TOKEN_EOF);
     }
 
-    auto token_type = char_tokens[tokenizer->curr_char[0]];
+    TokenType token_type = get_char_token_type(tokenizer->curr_char[0]);
     if (!token_type)
         token_type = TOKEN_OP;
     _tokenize_type(tokenizer, token_type);

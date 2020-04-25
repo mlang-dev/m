@@ -13,7 +13,7 @@ add_library(mlr
   compiler.cc
   repl.cc
   jit.cc
-  lexer.cc
+  lexer.c
   ast.c
   parser.c
   runtime.c
