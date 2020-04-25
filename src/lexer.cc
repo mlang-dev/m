@@ -155,7 +155,7 @@ token* _tokenize_op(file_tokenizer* tokenizer)
     while (op_chars.count((tokenizer->curr_char[0] = get_char(tokenizer))))
         string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
     //auto token_type = tokens[std::string(string_get(&tokenizer->ident_str))];
-    TokenType token_type = op_chars.count(string_get(&tokenizer->ident_str)[0]) ? TOKEN_OPERATOR : TOKEN_OP;
+    //TokenType token_type = op_chars.count(string_get(&tokenizer->ident_str)[0]) ? TOKEN_OPERATOR : TOKEN_OP;
     tokenizer->cur_token.token_type = TOKEN_OP;
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     tokenizer->cur_token.loc = tokenizer->tok_loc;

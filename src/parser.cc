@@ -10,10 +10,6 @@
 #include "builtins.h"
 #include "clib/util.h"
 #include "clib/hashtable.h"
-#include <map>
-#include <memory>
-#include <set>
-#include <sstream>
 
 
 #define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col < col && (parser->curr_token.token_type != TOKEN_EOS || parser->is_repl))
@@ -189,7 +185,7 @@ exp_node* _parse_parentheses(parser* parser, exp_node* parent)
     return v;
 }
 
-exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_loc loc, std::string id_name, bool is_operator = false, int precedence = 0)
+exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_loc loc, const char *pid_name, bool is_operator = false, int precedence = 0)
 {
     if (parser->curr_token.token_type == TOKEN_LPAREN)
         parse_next_token(parser); // skip '('
@@ -199,6 +195,8 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
     //doesn't allow function inside parameter or argument
     //will be enhanced later
     //log_info(DEBUG, "function app or def: %s", id_name.c_str());
+    string id_name;
+    string_init_chars(&id_name, pid_name);
     parser->allow_id_as_a_func = false;
     if (parser->curr_token.token_type != TOKEN_RPAREN) {
         while (true) {
@@ -230,12 +228,15 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
             else if (array_size(&arg_names) != 1 && array_size(&arg_names) != 2)
                 return (exp_node*)log_info(ERROR, "operator overloading only for unary or binary operator");
             if (array_size(&arg_names) == 1) {
-                id_name = "unary" + id_name;
+                string_copy_chars(&id_name, "unary");
+                string_add_chars(&id_name, pid_name);
+                //id_name = "unary" + id_name;
             } else {
-                id_name = "binary" + id_name;
+                string_copy_chars(&id_name, "binary");
+                string_add_chars(&id_name, pid_name);
             }
         }
-        prototype_node* prototype = create_prototype_node(parent, loc, id_name.c_str(), &arg_names, is_operator, precedence, is_operator ? id_name.c_str() : "");
+        prototype_node* prototype = create_prototype_node(parent, loc, string_get(&id_name), &arg_names, is_operator, precedence, is_operator ? string_get(&id_name) : "");
         //log_info(DEBUG, "prototype: %s", id_name.c_str());
         auto func = _parse_function_with_prototype(parser, prototype);
         //log_info(DEBUG, "func: %s", id_name.c_str());
@@ -244,11 +245,10 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
     }
     // function application
     //log_info(DEBUG, "function application: %s", id_name.c_str());
-    exp_node* call_node = (exp_node*)create_call_node(parent, loc, id_name.c_str(), &args);
+    exp_node* call_node = (exp_node*)create_call_node(parent, loc, string_get(&id_name), &args);
     return parse_exp(parser, parent, call_node);
 }
 
-//extern std::set<char> op_chars;
 exp_node* parse_statement(parser* parser, exp_node* parent)
 {
     //log_info(DEBUG, "parsing statement:%d, %s", parent, TokenTypeString[parser->curr_token.token_type]);
@@ -263,39 +263,41 @@ exp_node* parse_statement(parser* parser, exp_node* parent)
         auto proto = _parse_prototype(parser, parent);
         node = _parse_function_with_prototype(parser, (prototype_node*)proto);
     } else if (parser->curr_token.token_type == TOKEN_IDENT) {
-        std::string id_name(string_get(parser->curr_token.ident_str));
+        string id_name;
+        string_copy(&id_name, parser->curr_token.ident_str);
         source_loc loc = parser->curr_token.loc;
         parse_next_token(parser); // skip identifier
-        std::string op = parser->curr_token.token_type == TOKEN_OP ? std::string(string_get(parser->curr_token.ident_str)) : "";
+        string op;
+        string_init(&op);
+        if(parser->curr_token.token_type == TOKEN_OP)
+            string_copy(&op, parser->curr_token.ident_str);
         //log_info(DEBUG, "id token: %s, %s, %d", id_name.c_str(), op.c_str(), parent);
-        if (op == "=") {
+        if (string_eq_chars(&op, "=")) {
             // variable definition
-            node = _parse_var(parser, parent, id_name.c_str());
+            node = _parse_var(parser, parent, string_get(&id_name));
         } else if (parser->curr_token.token_type == TOKEN_EOS || 
             parser->curr_token.token_type == TOKEN_EOF || 
-            _get_op_prec(&parser->op_precs, op.c_str()) > 0) {
+            _get_op_prec(&parser->op_precs, string_get(&op)) > 0) {
             // just id expression evaluation
-            auto lhs = (exp_node*)create_ident_node(parent, parser->curr_token.loc, id_name.c_str());
+            auto lhs = (exp_node*)create_ident_node(parent, parser->curr_token.loc, string_get(&id_name));
             node = parse_exp(parser, parent, lhs);
             //log_info(DEBUG, "parsed exp: id exp: %d", node->node_type);
         } else {
             // function definition or application
-            node = _parse_function_app_or_def(parser, parent, loc, id_name.c_str());
+            node = _parse_function_app_or_def(parser, parent, loc, string_get(&id_name));
         }
     } else {
         if (parser->curr_token.token_type == TOKEN_LPAREN) {
             array queued;
             array_init(&queued, sizeof(token));
-            //std::vector<token> queued;
-            //queued.push_back(parser->curr_token);
             array_push(&queued, &parser->curr_token);
             parse_next_token(parser); //skip (
-            //queued.push_back(parser->curr_token);
             array_push(&queued, &parser->curr_token);
             if (parser->curr_token.token_type == TOKEN_OP) {// && op_chars.count(string_get(parser->curr_token.ident_str)[0])
                 //it is operator overloading
                 //log_info(DEBUG, "it is operator overloading: %c: loc: %d, %d", parser->curr_token.op_val, parser->curr_token.loc.line, parser->curr_token.loc.col);
-                std::string op(string_get(parser->curr_token.ident_str));
+                string op;
+                string_copy(&op, parser->curr_token.ident_str);
                 parse_next_token(parser);
                 if (parser->curr_token.token_type != TOKEN_RPAREN)
                     return (exp_node*)log_info(ERROR, "expected ')'");
@@ -307,7 +309,7 @@ exp_node* parse_statement(parser* parser, exp_node* parent)
                     parse_next_token(parser); //skip it
                     //log_info(DEBUG, "got precedence: %d", precedence);
                 }
-                node = _parse_function_app_or_def(parser, parent, loc, op.c_str(), true, precedence);
+                node = _parse_function_app_or_def(parser, parent, loc, string_get(&op), true, precedence);
             } else { //normal exp
                 queue_tokens(parser, &queued);
                 parse_next_token(parser); //retrieving (
@@ -340,7 +342,8 @@ bool _id_is_a_function_call(parser* parser)
 
 exp_node* _parse_ident(parser* parser, exp_node* parent)
 {
-    std::string id_name(string_get(parser->curr_token.ident_str));
+    string id_name;
+    string_copy(&id_name, parser->curr_token.ident_str);
     source_loc loc = parser->curr_token.loc;
 
     parse_next_token(parser); // take identifier
@@ -361,11 +364,11 @@ exp_node* _parse_ident(parser* parser, exp_node* parent)
             parse_next_token(parser);
         }
         parse_next_token(parser);
-        exp_node* exp = (exp_node*)create_call_node(parent, loc, id_name.c_str(), &args);
+        exp_node* exp = (exp_node*)create_call_node(parent, loc, string_get(&id_name), &args);
         array_deinit(&args);
         return exp;
     }
-    return (exp_node*)create_ident_node(parent, parser->curr_token.loc, id_name.c_str());
+    return (exp_node*)create_ident_node(parent, parser->curr_token.loc, string_get(&id_name));
 }
 
 exp_node* _parse_node(parser* parser, exp_node* parent)
@@ -381,25 +384,15 @@ exp_node* _parse_node(parser* parser, exp_node* parent)
     else if (parser->curr_token.token_type == TOKEN_LPAREN)
         return _parse_parentheses(parser, parent);
     else {
-        std::string error = "unknown token: " + std::to_string(parser->curr_token.token_type);
-        if (parser->curr_token.token_type == TOKEN_OP)
-            error += " op: " + std::string(string_get(parser->curr_token.ident_str));
-        return (exp_node*)log_info(ERROR, error.c_str());
+        string error;
+        string_init_chars(&error, "unknown token: ");
+        string_add_chars(&error, TokenTypeString[parser->curr_token.token_type]);
+        if (parser->curr_token.token_type == TOKEN_OP){
+            string_add_chars(&error, " op: ");
+            string_add(&error, parser->curr_token.ident_str);
+        }
+        return (exp_node*)log_info(ERROR, string_get(&error));
     }
-}
-
-std::string map_to_string(std::map<char, int>& m)
-{
-    std::string output = "";
-    std::string convrt = "";
-    std::string result = "";
-    for (auto it = m.cbegin(); it != m.cend(); it++) {
-        convrt = std::to_string(it->second);
-        output += it->first;
-        output += ":" + convrt + ", ";
-    }
-    result = output.substr(0, output.size() - 2);
-    return result;
 }
 
 exp_node* _parse_binary(parser* parser, exp_node* parent, int exp_prec, exp_node* lhs)
@@ -411,7 +404,8 @@ exp_node* _parse_binary(parser* parser, exp_node* parent, int exp_prec, exp_node
         if (tok_prec < exp_prec)
             return lhs;
         //log_info(DEBUG, "bin exp: [%s, %c], %d, %s", TokenTypeString[parser->curr_token.token_type], parser->curr_token.op_val, tok_prec, map_to_string(g_op_precedences).c_str());
-        std::string binary_op(string_get(parser->curr_token.ident_str));
+        string binary_op;
+        string_copy(&binary_op, parser->curr_token.ident_str);
         parse_next_token(parser);
         auto rhs = _parse_unary(parser, parent);
         if (!rhs)
@@ -425,7 +419,7 @@ exp_node* _parse_binary(parser* parser, exp_node* parent, int exp_prec, exp_node
                 return 0;
         }
         //log_info(DEBUG, "left first: %s, %d, %d", TokenTypeString[parser->curr_token.token_type], tok_prec, next_prec);
-        lhs = (exp_node*)create_binary_node(parent, lhs->loc, binary_op.c_str(), lhs, rhs);
+        lhs = (exp_node*)create_binary_node(parent, lhs->loc, string_get(&binary_op), lhs, rhs);
     }
 }
 
@@ -447,14 +441,14 @@ exp_node* parse_exp(parser* parser, exp_node* parent, exp_node* lhs)
 ///   ::= unary LETTER (id)
 exp_node* _parse_prototype(parser* parser, exp_node* parent)
 {
-    std::string fun_name;
+    string fun_name;
     source_loc loc = parser->curr_token.loc;
     // SourceLocation FnLoc = CurLoc;
     unsigned proto_type = 0; // 0 = identifier, 1 = unary, 2 = binary.
     unsigned bin_prec = 30;
     switch (parser->curr_token.token_type) {
     case TOKEN_IDENT:
-        fun_name = std::string(string_get(parser->curr_token.ident_str));
+        string_copy(&fun_name, parser->curr_token.ident_str);
         proto_type = 0;
         // fprintf(stderr, "ident token in parse prototype: %s\n",
         // fun_name.c_str());
@@ -464,8 +458,8 @@ exp_node* _parse_prototype(parser* parser, exp_node* parent)
         parse_next_token(parser);
         if (parser->curr_token.token_type != TOKEN_OP)
             return (exp_node*)log_info(ERROR, "Expected unary operator");
-        fun_name = "unary";
-        fun_name += std::string(string_get(parser->curr_token.ident_str));
+        string_init_chars(&fun_name, "unary");
+        string_add(&fun_name, parser->curr_token.ident_str);
         //log_info(DEBUG, "finding unary operator: %s", fun_name.c_str());
         proto_type = 1;
         parse_next_token(parser);
@@ -474,8 +468,8 @@ exp_node* _parse_prototype(parser* parser, exp_node* parent)
         parse_next_token(parser);
         if (parser->curr_token.token_type != TOKEN_OP)
             return (exp_node*)log_info(ERROR, "Expected binary operator");
-        fun_name = "binary";
-        fun_name += std::string(string_get(parser->curr_token.ident_str));
+        string_init_chars(&fun_name, "binary");
+        string_add(&fun_name, parser->curr_token.ident_str);
         proto_type = 2;
         parse_next_token(parser);
         // Read the precedence if present.
@@ -509,7 +503,7 @@ exp_node* _parse_prototype(parser* parser, exp_node* parent)
     // Verify right number of names for operator.
     if (proto_type && array_size(&arg_names) != proto_type)
         return (exp_node*)log_info(ERROR, "Invalid number of operands for operator");
-    exp_node * ret = (exp_node*)create_prototype_node(parent, loc, fun_name.c_str(), &arg_names, proto_type != 0,
+    exp_node * ret = (exp_node*)create_prototype_node(parent, loc, string_get(&fun_name), &arg_names, proto_type != 0,
         bin_prec, "");
     //array_deinit(&arg_names);
     return ret;
@@ -587,11 +581,12 @@ exp_node* _parse_unary(parser* parser, exp_node* parent)
     }
     //log_info(DEBUG, "unary: %c", parser->curr_token.op_val);
     // If this is a unary operator, read it.
-    std::string opc = std::string(string_get(parser->curr_token.ident_str));
+    string opc;
+    string_copy(&opc, parser->curr_token.ident_str);
     parse_next_token(parser);
     if (exp_node* operand = _parse_unary(parser, parent)) {
         //log_info(DEBUG, "unary node:%c: %s", opc, NodeTypeString[operand->node_type]);
-        return (exp_node*)create_unary_node(parent, loc, opc.c_str(), operand);
+        return (exp_node*)create_unary_node(parent, loc, string_get(&opc), operand);
     }
     return 0;
 }
@@ -605,7 +600,8 @@ exp_node* _parse_for(parser* parser, exp_node* parent)
     if (parser->curr_token.token_type != TOKEN_IDENT)
         return (exp_node*)log_info(ERROR, "expected identifier after for, got %s", TokenTypeString[parser->curr_token.token_type]);
 
-    std::string id_name = std::string(string_get(parser->curr_token.ident_str));
+    string id_name;
+    string_copy(&id_name, parser->curr_token.ident_str);
     parse_next_token(parser); // eat identifier.
 
     if (parser->curr_token.token_type != TOKEN_IN)
@@ -637,7 +633,7 @@ exp_node* _parse_for(parser* parser, exp_node* parent)
         step = (exp_node*)create_double_node(parent, parser->curr_token.loc, 1.0);
     }
     //convert end variable to a logic
-    auto id_node = (exp_node*)create_ident_node(parent, start->loc, id_name.c_str());
+    auto id_node = (exp_node*)create_ident_node(parent, start->loc, string_get(&id_name));
     auto end = (exp_node*)create_binary_node(parent, end_val->loc, "<", id_node, end_val);
     while (parser->curr_token.token_type == TOKEN_EOS)
         parse_next_token(parser);
@@ -645,7 +641,7 @@ exp_node* _parse_for(parser* parser, exp_node* parent)
     exp_node* body = parse_exp(parser, parent);
     if (body == 0)
         return 0;
-    return (exp_node*)create_for_node(parent, loc, id_name.c_str(), start, end, step, body);
+    return (exp_node*)create_for_node(parent, loc, string_get(&id_name), start, end, step, body);
 }
 
 exp_node* _parse_if(parser* parser, exp_node* parent)

@@ -35,7 +35,6 @@ extern "C" {
     ENUM_ITEM(TOKEN_RPAREN)          \
     ENUM_ITEM(TOKEN_LBRACKET)        \
     ENUM_ITEM(TOKEN_RBRACKET)        \
-    ENUM_ITEM(TOKEN_OPERATOR)        \
     ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_EOS)
 
