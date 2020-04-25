@@ -45,7 +45,7 @@ typedef bool (*match_predicate) (hashbox* box, void *key, size_t key_size);
 
 bool match_empty(hashbox* box, void *key, size_t key_size)
 {
-    return box->status == HASH_EMPTY || box->status == HASH_DELETED;
+    return box->status == HASH_EMPTY;
 }
 
 bool match_found(hashbox* box, void *key, size_t key_size)
@@ -102,7 +102,7 @@ void _hashtable_grow(hashtable* ht)
     array_init_size(&new_buckets, ht->buckets._element_size, ht->buckets.cap * 2, default_fun);
     for(size_t i = 0; i<ht->buckets.cap; i++){
         hashbox* h = (hashbox*)array_get(&ht->buckets, i);
-        if (h->status != HASH_EMPTY){
+        if (h->status == HASH_EXIST){
             size_t key_size = ht->key_object_size? ht->key_object_size : h->key_size;
             size_t value_size = ht->value_object_size? ht->value_object_size : h->value_size;
             _add_to_buckets(&new_buckets, hashbox_get_key(h), key_size, hashbox_get_value(h), value_size, ht->key_f, ht->value_f);
@@ -168,11 +168,35 @@ void hashtable_deinit(hashtable *ht)
 {
     for(size_t i = 0; i<ht->buckets.cap; i++){
         hashbox* h = (hashbox*)array_get(&ht->buckets, i);
-        if (h->status != HASH_EMPTY){
+        if (h->status == HASH_EXIST){
             ht->key_f.free(hashbox_get_key(h));
         }
     }
     array_deinit(&ht->buckets);
+}
+
+void hashtable_clear(hashtable *ht)
+{
+    for(size_t i = 0; i<ht->buckets.cap; i++){
+        hashbox* h = (hashbox*)array_get(&ht->buckets, i);
+        if (h->status == HASH_EXIST){
+            ht->key_f.free(hashbox_get_key(h));
+        if (h->status != HASH_EMPTY)
+            h->status = HASH_EMPTY;
+            h->key_value_pair = NULL;
+        }
+    }
+}
+
+void hashtable_remove(hashtable *ht, const char *key_p)
+{
+    hashbox *box = _find(&ht->buckets, (void*)key_p, strlen(key_p) + 1, match_search);
+    if(box){
+        if(box->status == HASH_EXIST){
+            ht->key_f.free(hashbox_get_key(box));
+            box->status = HASH_DELETED;
+        }
+    }
 }
 
 void hashtable_set_p(hashtable* ht, const char* key_p, void* value_p)
@@ -186,7 +210,7 @@ void* hashtable_get_p(hashtable* ht, const char* key_p)
 {
     value_ref key = {(void*)key_p, strlen(key_p) + 1};
     void** p = (void**)hashtable_get_ref(ht, key);
-    return p? *p:NULL;
+    return p? *p : NULL;
 }
 
 bool hashtable_in_p(hashtable* ht, const char* key_p)

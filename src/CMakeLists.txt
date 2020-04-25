@@ -19,7 +19,7 @@ add_library(mlr
   runtime.c
   astdump.c
   analyzer.c
-  codegen.cc
+  codegen.c
   env.c
   clib/object.c
   clib/array.c

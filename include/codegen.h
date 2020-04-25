@@ -8,23 +8,23 @@
 #ifndef __MLANG_CODEGEN_H__
 #define __MLANG_CODEGEN_H__
 
-#include <string>
-#include <map>
-
 #include "env.h"
 #include "parser.h"
 #include "clib/hashtable.h"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
 
 typedef struct _code_generator {
     void* context;
     void* builder;
     parser* parser;
-    std::map<std::string, void*> named_values;
+    hashtable named_values; //hashtable of string, void*
     void* module;
     //void* fpm;
-    std::map<std::string, prototype_node*> protos;
-    std::map<std::string, var_node*> gvs;
-    //hashtable gvs; //hashtable of char* and var_node*
+    hashtable protos; //hashtable of char*, prototype_node*
+    hashtable gvs; //hashtable of char* and var_node*
 }code_generator;
 
 code_generator* cg_new(menv* env, parser* parser);
@@ -33,5 +33,9 @@ void create_module_and_pass_manager(code_generator* cg, const char* module_name)
 void* generate_code(code_generator* cg, exp_node* node);
 void generate_runtime_module(code_generator* cg, parser* parser);
 void* create_target_machine(void* module);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

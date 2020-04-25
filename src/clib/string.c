@@ -90,6 +90,10 @@ void string_copy(string* dest, string* src)
 void string_add(string *str1, string *str2)
 {
     //
+    if (!string_size(str2))
+        return;
+    //printf("string sizes: %zu, %zu\n", string_size(str1), string_size(str2));
+    assert(string_size(str1)<1000 && string_size(str2) < 1000);
     size_t len = str1->base.size + str2->base.size;
     if (len>SSO_LENGTH-1){
         //allocate in dynamic array

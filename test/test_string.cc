@@ -203,3 +203,51 @@ TEST(testString, testJoinMultiLongString)
     string_deinit(&str);
     array_deinit(&arr);
 }
+
+TEST(testString, testShortStringAddShortString)
+{
+    string str1;
+    string str2;
+    string_init_chars(&str1, "hello ");
+    string_init_chars(&str2, "world !");
+    string_add(&str1, &str2);
+    ASSERT_STREQ(string_get(&str1), "hello world !");
+    string_deinit(&str1);
+    string_deinit(&str2);
+}
+
+TEST(testString, testShortStringAddLongString)
+{
+    string str1;
+    string str2;
+    string_init_chars(&str1, "hello ");
+    string_init_chars(&str2, "world ! this is a very long string.");
+    string_add(&str1, &str2);
+    ASSERT_STREQ(string_get(&str1), "hello world ! this is a very long string.");
+    string_deinit(&str1);
+    string_deinit(&str2);
+}
+
+TEST(testString, testLongStringAddLongString)
+{
+    string str1;
+    string str2;
+    string_init_chars(&str1, "hello this is the first long string");
+    string_init_chars(&str2, " this is the second long string.");
+    string_add(&str1, &str2);
+    ASSERT_STREQ(string_get(&str1), "hello this is the first long string this is the second long string.");
+    string_deinit(&str1);
+    string_deinit(&str2);
+}
+
+TEST(testString, testLongStringAddShortString)
+{
+    string str1;
+    string str2;
+    string_init_chars(&str1, "this is the first long string");
+    string_init_chars(&str2, " hello world !");
+    string_add(&str1, &str2);
+    ASSERT_STREQ(string_get(&str1), "this is the first long string hello world !");
+    string_deinit(&str1);
+    string_deinit(&str2);
+}

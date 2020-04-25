@@ -4,8 +4,7 @@
  * LLVM IR Code Generation Functions
  */
 #include <stdlib.h>
-#include <string>
-#include <vector>
+#include <assert.h>
 
 #include "llvm-c/Core.h"
 #include "llvm-c/Target.h"
@@ -17,7 +16,7 @@
 #include "clib/object.h"
 
 void* _generate_global_var_node(code_generator* cg, var_node* node,
-    bool is_external = false);
+    bool is_external);
 void* _generate_local_var_node(code_generator* cg, var_node* node);
 void* _generate_prototype_node(code_generator* cg, exp_node* node);
 void* _generate_block_node(code_generator* cg, exp_node* block);
@@ -27,10 +26,13 @@ code_generator* cg_new(menv* env, parser* parser)
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();
-    code_generator* cg = new code_generator();
+    code_generator* cg = (code_generator*)malloc(sizeof(code_generator));
     cg->parser = parser;
     cg->context = env->context;
     cg->builder = LLVMCreateBuilderInContext((LLVMContextRef)env->context);
+    hashtable_init_ref(&cg->gvs);
+    hashtable_init_ref(&cg->protos);
+    hashtable_init_ref(&cg->named_values);
     return cg;
 }
 
@@ -40,41 +42,46 @@ void cg_free(code_generator* cg)
     //delete (llvm::legacy::FunctionPassManager*)cg->fpm;
     if(cg->module)
         LLVMDisposeModule((LLVMModuleRef)cg->module);
-    delete cg;
+    hashtable_deinit(&cg->gvs);
+    hashtable_deinit(&cg->protos);
+    hashtable_deinit(&cg->named_values);
+    free(cg);
 }
 
 LLVMValueRef _get_function(code_generator* cg, const char* name)
 {
     // First, see if the function has already been added to the current module.
-    if (LLVMValueRef f = LLVMGetNamedFunction((LLVMModuleRef)cg->module, name))
+    LLVMValueRef f = LLVMGetNamedFunction((LLVMModuleRef)cg->module, name);
+    if (f)
         return f;
 
     // If not, check whether we can codegen the declaration from some existing
     // prototype.
-    auto fp = cg->protos.find(name);
-    if (fp != cg->protos.end())
-        return (LLVMValueRef)_generate_prototype_node(cg, (exp_node*)fp->second);
+    exp_node* fp = (exp_node*)hashtable_get_p(&cg->protos, name);
+    if (fp)
+        return (LLVMValueRef)_generate_prototype_node(cg, fp);
 
     // If no existing prototype exists, return null.
-    return nullptr;
+    return NULL;
 }
 
-LLVMValueRef _get_global_variable(code_generator* cg, std::string name)
+LLVMValueRef _get_global_variable(code_generator* cg, const char *name)
 {
     // First, see if the function has already been added to the current module.
-    if (LLVMValueRef gv = LLVMGetNamedGlobal((LLVMModuleRef)cg->module, name.c_str()))
+    LLVMValueRef gv = LLVMGetNamedGlobal((LLVMModuleRef)cg->module, name);
+    if (gv)
         return gv;
 
     // If not, it's defined in other module, we can codegen the external
     // declaration from existing type.
-    auto fgv = cg->gvs.find(name);
-    if (fgv != cg->gvs.end()) {
+    var_node* fgv = (var_node*)hashtable_get_p(&cg->gvs, name);//.find(name);
+    if (fgv) {
         // log_info(DEBUG, "found defition before");
-        return (LLVMValueRef)_generate_global_var_node(cg, fgv->second, true);
+        return (LLVMValueRef)_generate_global_var_node(cg, fgv, true);
     }
 
     // If no existing prototype exists, return null.
-    return nullptr;
+    return NULL;
 }
 
 /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
@@ -118,7 +125,7 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
         LLVMBuildStore((LLVMBuilderRef)cg->builder, LLVMGetParam(fun, i), alloca);
 
         // Add arguments to variable symbol table.
-        cg->named_values[std::string(string_get((string*)array_get(&node->args, i)))] = alloca;
+        hashtable_set_p(&cg->named_values, string_get((string*)array_get(&node->args, i)), alloca);
     }
 }
 
@@ -129,28 +136,28 @@ void* _generate_num_node(code_generator* cg, exp_node* node)
 
 void* _generate_ident_node(code_generator* cg, exp_node* node)
 {
-    auto ident = (ident_node*)node;
-    std::string idname(string_get(&ident->name));
-    LLVMValueRef v = (LLVMValueRef)cg->named_values[idname];
+    ident_node* ident = (ident_node*)node;
+    const char *idname = string_get(&ident->name);
+    LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->named_values, idname);
     if (!v) {
         LLVMValueRef gVar = _get_global_variable(cg, idname);
         if (gVar) {
-            return LLVMBuildLoad((LLVMBuilderRef)cg->builder, gVar, string_get(&ident->name));
+            return LLVMBuildLoad((LLVMBuilderRef)cg->builder, gVar, idname);
         } else {
-            log_info(ERROR, "Unknown variable name: %s", string_get(&ident->name));
+            log_info(ERROR, "Unknown variable name: %s", idname);
             return 0;
         }
     }
-    return LLVMBuildLoad((LLVMBuilderRef)cg->builder, v, string_get(&ident->name));
+    return LLVMBuildLoad((LLVMBuilderRef)cg->builder, v, idname);
 }
 
 void* _generate_binary_node(code_generator* cg, exp_node* node)
 {
-    auto bin = (binary_node*)node;
+    binary_node* bin = (binary_node*)node;
     LLVMValueRef lv = (LLVMValueRef)generate_code(cg, bin->lhs);
     LLVMValueRef rv = (LLVMValueRef)generate_code(cg, bin->rhs);
     if (!lv || !rv)
-        return nullptr;
+        return NULL;
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMContextRef context = (LLVMContextRef)cg->context;
     if (string_eq_chars(&bin->op, "+"))
@@ -186,8 +193,10 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else {
-        std::string fname = std::string("binary") + std::string(string_get(&bin->op));
-        LLVMValueRef fun = _get_function(cg, fname.c_str());
+        string f_name;
+        string_init_chars(&f_name, "binary");
+        string_add(&f_name, &bin->op);
+        LLVMValueRef fun = _get_function(cg, string_get(&f_name));
         assert(fun && "binary operator not found!");
         LLVMValueRef ops[2] = { (LLVMValueRef)lv, (LLVMValueRef)rv };
         return LLVMBuildCall(builder, fun, ops, 2, "binop");
@@ -196,7 +205,7 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
 
 void* _generate_call_node(code_generator* cg, exp_node* node)
 {
-    auto call = (call_node*)node;
+    call_node* call = (call_node*)node;
     LLVMValueRef callee = _get_function(cg, string_get(&call->callee));
     if (!callee)
         return log_info(ERROR, "Unknown function referenced: %s", string_get(&call->callee));
@@ -206,14 +215,17 @@ void* _generate_call_node(code_generator* cg, exp_node* node)
             "generated in llvm): %lu, calling: %lu",
             LLVMCountParams(callee), array_size(&call->args));
 
-    std::vector<LLVMValueRef> arg_values;
+    LLVMValueRef *arg_values = (LLVMValueRef*)malloc(array_size(&call->args)*sizeof(LLVMValueRef));
     for (unsigned long i = 0, e = array_size(&call->args); i != e; ++i) {
-        arg_values.push_back((LLVMValueRef)generate_code(cg, *(exp_node**)array_get(&call->args, i)));
-        if (!arg_values.back())
+        LLVMValueRef ret = (LLVMValueRef)generate_code(cg, *(exp_node**)array_get(&call->args, i));
+        if (!ret)
             return 0;
+        arg_values[i] = ret;
     }
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
-    return LLVMBuildCall(builder, callee, arg_values.data(), arg_values.size(), "calltmp");
+    void *call_value = LLVMBuildCall(builder, callee, arg_values, array_size(&call->args), "calltmp");
+    free(arg_values);
+    return call_value;
 }
 
 void* _generate_prototype_node(code_generator* cg, exp_node* node)
@@ -222,7 +234,7 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
     //string *str = (string*)array_get(&proto->args, 0);
     //log_info(DEBUG, "generating prototype node: %s", string_get(str));
  
-    cg->protos[std::string(string_get(&proto->name))] = proto;
+    hashtable_set_p(&cg->protos, string_get(&proto->name), proto);
     LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMTypeRef *doubles = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * array_size(&proto->args));
     for (unsigned i = 0; i< array_size(&proto->args); i++){
@@ -241,8 +253,9 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
 
 void* _generate_function_node(code_generator* cg, exp_node* node)
 {
-    auto funn = (function_node*)node;
-    cg->named_values.clear();
+    function_node* funn = (function_node*)node;
+    //cg->named_values.clear();
+    hashtable_clear(&cg->named_values);
     LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMValueRef fun = (LLVMValueRef)_generate_prototype_node(cg, (exp_node*)funn->prototype);
     if (!fun)
@@ -279,7 +292,7 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
 
 void* _generate_unary_node(code_generator* cg, exp_node* node)
 {
-    auto unary = (unary_node*)node;
+    unary_node* unary = (unary_node*)node;
     LLVMValueRef operand_v = (LLVMValueRef)generate_code(cg, unary->operand);
     if (operand_v == 0)
         return 0;
@@ -360,8 +373,7 @@ void* _generate_global_var_node(code_generator* cg, var_node* node,
             LLVMSetExternallyInitialized(gVar, true);
             return gVar;
         } else {
-            std::string varname(var_name);
-            cg->gvs[varname] = node;
+            hashtable_set_p(&cg->gvs, var_name, node);
             gVar = LLVMAddGlobal(module, LLVMDoubleTypeInContext(context), var_name);
             LLVMSetExternallyInitialized(gVar, true);
             LLVMSetInitializer(gVar, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0));                
@@ -373,16 +385,16 @@ void* _generate_global_var_node(code_generator* cg, var_node* node,
 
 void* _generate_var_node(code_generator* cg, exp_node* node)
 {
-    auto var = (var_node*)node;
+    var_node* var = (var_node*)node;
     if (!var->base.parent)
-        return _generate_global_var_node(cg, var);
+        return _generate_global_var_node(cg, var, false);
     else
         return _generate_local_var_node(cg, var);
 }
 
 void* _generate_local_var_node(code_generator* cg, var_node* node)
 {
-    std::vector<LLVMValueRef> old_bindings;
+    //std::vector<LLVMValueRef> old_bindings;
 
     LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
@@ -391,7 +403,7 @@ void* _generate_local_var_node(code_generator* cg, var_node* node)
     // fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
 
     // Register all variables and emit their initializer.
-    const std::string var_name(string_get(&node->var_name));
+    const char * var_name = string_get(&node->var_name);
     // log_info(DEBUG, "local var cg: %s", var_name.c_str());
     exp_node* init = node->init_value;
 
@@ -409,14 +421,14 @@ void* _generate_local_var_node(code_generator* cg, var_node* node)
         init_val = LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0);
     }
 
-    LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, var_name.c_str());
+    LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, var_name);
     LLVMBuildStore(builder, init_val, alloca);
     // Remember the old variable binding so that we can restore the binding when
     // we unrecurse.
-    old_bindings.push_back((LLVMValueRef)cg->named_values[var_name]);
-
+    //old_bindings.push_back((LLVMValueRef)hashtable_get_p(&cg->named_values, var_name));
+    hashtable_set_p(&cg->named_values, var_name, alloca);
     // Remember this binding.
-    cg->named_values[var_name] = alloca;
+    //cg->named_values[var_name] = alloca;
     return 0;
     // KSDbgInfo.emitLocation(this);
 }
@@ -442,7 +454,7 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
     //   store nextvar -> var
     //   br endcond, loop, endloop
     // outloop:
-    auto forn = (for_node*)node;
+    for_node* forn = (for_node*)node;
     const char* var_name = string_get(&forn->var_name);
     LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
@@ -472,9 +484,8 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
 
     // Within the loop, the variable is defined equal  the PHI node.  If it
     // shadows an existing variable, we have to restore it, so save it now.
-    std::string varname(var_name);
-    LLVMValueRef old_alloca = (LLVMValueRef)cg->named_values[varname];
-    cg->named_values[varname] = alloca;
+    LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get_p(&cg->named_values, var_name);
+    hashtable_set_p(&cg->named_values, var_name, alloca);
 
     // Emit the body of the loop.  This, like any other expr, can change the
     // current BB.  Note that we ignore the value computed by the body, but don't
@@ -517,9 +528,10 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
 
     // Restore the unshadowed variable.
     if (old_alloca)
-        cg->named_values[varname] = old_alloca;
+        //cg->named_values[varname] = old_alloca;
+        hashtable_set_p(&cg->named_values, var_name, old_alloca);
     else
-        cg->named_values.erase(varname);
+        hashtable_remove(&cg->named_values, var_name);
 
     // for expr always returns 0.0.
     return LLVMConstNull(LLVMDoubleTypeInContext(context));
@@ -527,7 +539,7 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
 
 void* _generate_block_node(code_generator* cg, exp_node* node)
 {
-    auto block = (block_node*)node;
+    block_node* block = (block_node*)node;
     void* codegen;
     for (int i = 0; i < array_size(&block->nodes); i++) {
         exp_node* exp = *(exp_node**)array_get(&block->nodes, i);
@@ -573,7 +585,7 @@ void generate_runtime_module(code_generator* cg, parser* parser)
 
 void* _generate_unk_node(code_generator* cg, exp_node* node)
 {
-    return nullptr;
+    return NULL;
 }
 
 void* (*cg_fp[])(code_generator*, exp_node*) = {
@@ -605,13 +617,13 @@ void* create_target_machine(void* pmodule)
     LLVMTargetRef target;
     if (LLVMGetTargetFromTriple(target_triple, &target, &error)) {
         log_info(ERROR, "error in creating target machine: %s", error);
-        return nullptr;
+        return NULL;
     }
-    auto cpu = "generic";
-    auto features = "";
-    LLVMCodeGenOptLevel opt = LLVMCodeGenOptLevel::LLVMCodeGenLevelDefault;
-    LLVMRelocMode rm = LLVMRelocMode::LLVMRelocDefault;
-    LLVMCodeModel cm = LLVMCodeModel::LLVMCodeModelDefault;
+    const char* cpu = "generic";
+    const char* features = "";
+    LLVMCodeGenOptLevel opt = LLVMCodeGenLevelDefault;
+    LLVMRelocMode rm = LLVMRelocDefault;
+    LLVMCodeModel cm = LLVMCodeModelDefault;
     LLVMTargetMachineRef target_machine = LLVMCreateTargetMachine(target, target_triple, cpu, features, opt, rm, cm);
     LLVMSetModuleDataLayout(module, LLVMCreateTargetDataLayout(target_machine));
     return target_machine;
