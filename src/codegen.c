@@ -217,7 +217,7 @@ void* _generate_call_node(code_generator* cg, exp_node* node)
             "generated in llvm): %lu, calling: %lu",
             LLVMCountParams(callee), array_size(&call->args));
 
-    LLVMValueRef *arg_values = (LLVMValueRef*)malloc(array_size(&call->args)*sizeof(LLVMValueRef));
+    LLVMValueRef arg_values[array_size(&call->args)];//variable-length array, C99 feature
     for (unsigned long i = 0, e = array_size(&call->args); i != e; ++i) {
         LLVMValueRef ret = (LLVMValueRef)generate_code(cg, *(exp_node**)array_get(&call->args, i));
         if (!ret)
@@ -225,9 +225,7 @@ void* _generate_call_node(code_generator* cg, exp_node* node)
         arg_values[i] = ret;
     }
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
-    void *call_value = LLVMBuildCall(builder, callee, arg_values, array_size(&call->args), "calltmp");
-    free(arg_values);
-    return call_value;
+    return LLVMBuildCall(builder, callee, arg_values, array_size(&call->args), "calltmp");
 }
 
 void* _generate_prototype_node(code_generator* cg, exp_node* node)
@@ -238,7 +236,7 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
  
     hashtable_set_p(&cg->protos, string_get(&proto->name), proto);
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    LLVMTypeRef *doubles = (LLVMTypeRef*)malloc(sizeof(LLVMTypeRef) * array_size(&proto->args));
+    LLVMTypeRef doubles[array_size(&proto->args)];
     for (unsigned i = 0; i< array_size(&proto->args); i++){
         doubles[i] = LLVMDoubleTypeInContext(context);
     }
@@ -249,7 +247,6 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
         string* arg = (string*)array_get(&proto->args, i);
         LLVMSetValueName2(param, string_get(arg), arg->base.size);
     }
-    free(doubles);
     return fun;
 }
 

@@ -82,6 +82,9 @@ hashbox *_find(array *buckets, void *key, size_t key_size, match_predicate match
 void _add_to_buckets(array *buckets, void *key, size_t key_size, void *value, size_t value_size, fun key_f, fun value_f)
 {
     hashbox *box = _find(buckets, key, key_size, match_empty);
+    if(box->key_value_pair){
+        printf("oops ! something wrong: %p, status: %d\n", box->key_value_pair, box->status);
+    }
     assert(box->key_value_pair == NULL);
     assert(value || !value_size);
     box->key_value_pair = malloc(key_size + value_size);
