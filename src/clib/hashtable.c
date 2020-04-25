@@ -82,7 +82,7 @@ hashbox *_find(array *buckets, void *key, size_t key_size, match_predicate match
 void _add_to_buckets(array *buckets, void *key, size_t key_size, void *value, size_t value_size, fun key_f, fun value_f)
 {
     hashbox *box = _find(buckets, key, key_size, match_empty);
-    assert(box && box->key_value_pair == NULL);
+    assert(box->key_value_pair == NULL);
     assert(value || !value_size);
     box->key_value_pair = malloc(key_size + value_size);
     key_f.copy(hashbox_get_key(box), key, key_size);
