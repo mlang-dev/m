@@ -14,9 +14,9 @@
 #include "ast.h"
 #include "lexer.h"
 
-// #ifdef __cplusplus
-// extern "C"{
-// #endif
+#ifdef __cplusplus
+extern "C"{
+#endif
 
 typedef struct parser {
     hashtable op_precs;
@@ -43,8 +43,8 @@ char get_op_name(prototype_node* pnode);
 void queue_token(parser* parser, token tkn);
 void queue_tokens(parser* psr, array* tokens); //array of token
 
-// #ifdef __cplusplus
-// }
-// #endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif
