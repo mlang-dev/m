@@ -170,7 +170,7 @@ string string_join(array* arr, char sep)
     string_init_chars(&str_sepa, separator);
     string str;
     string_init(&str);
-    for (int i=0; i<array_size(arr); i++){
+    for (size_t i=0; i<array_size(arr); i++){
         string_add(&str, (string*)array_get(arr, i));
         if (i < array_size(arr) - 1)
             string_add(&str, &str_sepa);
@@ -187,7 +187,7 @@ array string_split(string* str, char sep)
     string_init(&sub_str);
     int collect_start = 0;
     char *data = string_get(str);
-    for(int i=0;i<str->base.size;i++){
+    for(size_t i=0;i<str->base.size;i++){
         if(data[i] == sep||i==str->base.size-1){
             size_t sub_str_len = data[i] == sep? i-collect_start: i-collect_start + 1;
             string_copy_with_len(&sub_str, &data[collect_start], sub_str_len);
@@ -246,6 +246,8 @@ void string_init_generic(object *dest, object *src)
 
 void string_copy_generic(void *dest, void *src, size_t size)
 {
+    if (!size)
+        return;
     string_copy((string*)dest, (string*)src);
 }
 

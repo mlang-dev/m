@@ -23,9 +23,7 @@ prototype_node* _create_for_id(void* pcontext, const char* name)
 {
     LLVMContextRef context = (LLVMContextRef)pcontext;
     LLVMTypeRef types[1] = {LLVMDoubleTypeInContext(context)};
-    size_t name_len = 0;
     unsigned id = LLVMLookupIntrinsicID(name, strlen(name));
-    //const char * name = LLVMIntrinsicCopyOverloadedName(id, NULL, 0, &name_len);
     LLVMTypeRef fun = LLVMIntrinsicGetType(context, id, types, 1);
     size_t param_count = LLVMCountParamTypes(fun);
     LLVMTypeRef *params = (LLVMTypeRef*)malloc(param_count * sizeof(LLVMTypeRef));
@@ -33,7 +31,7 @@ prototype_node* _create_for_id(void* pcontext, const char* name)
     //;llvm::Intrinsic::getName(id, types);
     array args;
     array_string_init(&args);
-    for (int i = 0; i < param_count; i++) {
+    for (size_t i = 0; i < param_count; i++) {
         string arg = str_format("arg%d", i);
         array_push(&args, &arg.base);
     }

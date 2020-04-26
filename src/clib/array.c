@@ -58,7 +58,7 @@ void array_copy(array *dest, array *src)
 void _copy_element_to_array(array *a, size_t index, void *element)
 {
     //get_init(element->type)(a->base.p_data + (index * a->_element_size), element);
-    a->f.copy(a->base.p_data + (index * a->_element_size), element, a->_element_size);
+    a->f.copy((unsigned char*)a->base.p_data + (index * a->_element_size), element, a->_element_size);
 }
 
 void array_push(array* a, void *element)
@@ -85,7 +85,7 @@ void array_set(array *a, size_t index, void *element)
 
 void* array_get(array *a, size_t index)
 {
-    return a->base.p_data + (index * a->_element_size);
+    return (unsigned char*)a->base.p_data + (index * a->_element_size);
 }
 
 void* array_data(array* a)

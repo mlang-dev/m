@@ -68,7 +68,7 @@ void add_module(JIT *jit, void* module)
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcJITDylibRef jd = LLVMOrcLLJITGetMainJITDylib(j);
     LLVMOrcThreadSafeContextRef tsc = LLVMOrcCreateNewThreadSafeContext();
-    LLVMOrcThreadSafeModuleRef tsm = LLVMOrcCreateNewThreadSafeModule((LLVMModuleRef)jit->cg->module, tsc);
+    LLVMOrcThreadSafeModuleRef tsm = LLVMOrcCreateNewThreadSafeModule((LLVMModuleRef)module, tsc);
     LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
 }
 

@@ -20,11 +20,11 @@ typedef struct _code_generator {
     void* context;
     void* builder;
     parser* parser;
-    hashtable named_values; //hashtable of string, void*
+    struct hashtable named_values; //hashtable of string, void*
     void* module;
     //void* fpm;
-    hashtable protos; //hashtable of char*, prototype_node*
-    hashtable gvs; //hashtable of char* and var_node*
+    struct hashtable protos; //hashtable of char*, prototype_node*
+    struct hashtable gvs; //hashtable of char* and var_node*
 }code_generator;
 
 code_generator* cg_new(menv* env, parser* parser);

@@ -26,7 +26,7 @@ double eval_exp(JIT* jit, exp_node* node)
     // expression: statement or expression evalution
     string fn = make_unique_name("main-fn");
     NodeType node_type = node->node_type;
-    double result;
+    double result = 0.0;
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
     if (node) {
         void* p_fun = generate_code(jit->cg, node);

@@ -74,7 +74,6 @@ string make_unique_name(const char* name)
         }
         alpha_nums_init = true;
     }
-    static int i = 0;
     char s[16];
     for (int i = 0; i < 16; i++) {
         int j = get_random(0, 35);
@@ -114,4 +113,3 @@ bool is_new_line(int ch)
 {
     return ch == '\r' || ch == '\n';
 }
-

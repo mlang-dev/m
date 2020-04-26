@@ -12,7 +12,7 @@ string _dump_block(block_node* node)
 {
     string block;
     string_init_chars(&block, "blk: \n");
-    for (int i = 0; i < array_size(&node->nodes); i++){
+    for (size_t i = 0; i < array_size(&node->nodes); i++){
         exp_node* stmt = *(exp_node**)array_get(&node->nodes, i);
         string str_stmt = dump(stmt);
         string_add_chars(&block,  "  ");
@@ -81,7 +81,7 @@ string _dump_call(call_node* call)
 {
     array args;
     array_string_init(&args);
-    for(int i = 0; i < array_size(&call->args); i++){
+    for(size_t i = 0; i < array_size(&call->args); i++){
         string dp = dump(*(exp_node**)array_get(&call->args, i));
         array_push(&args, &dp);
     }

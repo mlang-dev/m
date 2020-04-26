@@ -41,7 +41,7 @@ type_exp* _analyze_call(type_env* env, exp_node* node)
     type_exp* fun_type = retrieve(env, &call->callee);
     array args;
     array_init(&args, sizeof(type_exp*));
-    for(int i = 0; i < array_size(&call->args); i++){
+    for(size_t i = 0; i < array_size(&call->args); i++){
         exp_node* arg = *(exp_node**)array_get(&call->args, i);
         type_exp *type = analyze(env, arg);
         array_push(&args, &type);
@@ -69,7 +69,7 @@ type_env* type_env_new()
     type_env* env = (type_env*)malloc(sizeof(type_env));
     memset((void*)env, 0, sizeof(type_env));
     array_init(&env->nogens, sizeof(type_exp*));
-    hashtable_init_ref(&env->type_env);
+    hashtable_init(&env->type_env);
     array args;
     array_init(&args, sizeof(type_exp*));
     int types = sizeof(TypeString)/sizeof(TypeString[0]);
@@ -77,7 +77,7 @@ type_env* type_env_new()
         string type_str;
         string_init_chars(&type_str, TypeString[i]);
         type_exp* exp = (type_exp*)create_type_oper(&type_str, &args);
-        hashtable_set_p(&env->type_env, TypeString[i], exp);
+        hashtable_set(&env->type_env, TypeString[i], exp);
     }
     return env;
 }
@@ -98,7 +98,7 @@ type_exp* _analyze_block(type_env* env, exp_node* node)
     block_node* block = (block_node*)node;
     //std::vector<type_exp*> exps;
     type_exp* exp = NULL;
-    for (int i = 0; i < array_size(&block->nodes); i++) {
+    for (size_t i = 0; i < array_size(&block->nodes); i++) {
         exp_node *node = *(exp_node**)array_get(&block->nodes, i);
         exp = analyze(env, node);//exps.push_back(analyze(env, node));
     }
@@ -108,26 +108,36 @@ type_exp* _analyze_block(type_env* env, exp_node* node)
 type_exp* _analyze_una(type_env* env, exp_node* una)
 {
     //bin->base.value_type = var->init_value->value_type;
+    if (!env || !una)
+        return 0;
     return 0;
 }
 
 type_exp* _analyze_unk(type_env* env, exp_node* node)
 {
+    if (!env || !node)
+        return 0;
     return 0;
 }
 
 type_exp* _analyze_cond(type_env* env, exp_node* node)
 {
+    if (!env || !node)
+        return 0;
     return 0;
 }
 
 type_exp* _analyze_for(type_env* env, exp_node* node)
 {
+    if (!env || !node)
+        return 0;
     return 0;
 }
 
 type_exp* _analyze_proto(type_env* env, exp_node* node)
 {
+    if (!env || !node)
+        return 0;
     return 0;
 }
 
@@ -142,7 +152,7 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
         array_push(&args, &exp);
         array_push(&env->nogens, &exp);
         char *arg_str = string_get((string*)array_get(&fun->prototype->args, i));
-        hashtable_set_p(&env->type_env, arg_str, exp);
+        hashtable_set(&env->type_env, arg_str, exp);
     }
     type_exp* result_type = analyze(env, *(exp_node**)array_back(&fun->body->nodes)); //TODO: need to recursively analyze
     type_exp* ret = (type_exp*)create_type_fun(&args, result_type);

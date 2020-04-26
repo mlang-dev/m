@@ -164,6 +164,11 @@ link_libraries(
 
 add_executable(mtest
   tutil.cc
+  test_string.cc
+  test_array.cc
+  test_queue.cc
+  test_hashtable.cc
+  test_hashset.cc
   test.cc
   test_util.cc
   test_lexer.cc
@@ -172,11 +177,6 @@ add_executable(mtest
   test_jit_logical.cc
   test_jit.cc
   test_analyzer.cc
-  test_string.cc
-  test_array.cc
-  test_queue.cc
-  test_hashset.cc
-  test_hashtable.cc
 )
 TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main mlr)
 

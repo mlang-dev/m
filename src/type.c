@@ -133,7 +133,7 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
             type_oper* oper2 = (type_oper*)type2;
             if (!string_eq(&type1->name, &type2->name) || array_size(&oper1->args) != array_size(&oper2->args))
                 return false;
-            for (int i = 0; i < array_size(&oper1->args); i++) {
+            for (size_t i = 0; i < array_size(&oper1->args); i++) {
                 if (!unify(*(type_exp**)array_get(&oper1->args, i), *(type_exp**)array_get(&oper2->args, i), nogens))
                     return false;
             }
@@ -159,7 +159,8 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
 
 type_exp* _fresh_var(type_exp* type1)//, std::map<type_exp*, type_exp*>& env)
 {
-    
+    if (!type1)
+        return NULL;
     //if (env[type1]) //std::map<type_exp*, type_exp*>& env
     //    return env[type1];
     type_exp* new_type = (type_exp*)create_type_var();
@@ -189,7 +190,7 @@ type_exp* fresh(type_exp* type1, array* nogen)//, std::map<type_exp*, type_exp*>
     type_oper* op1 = (type_oper*)type1;
     array refreshed; //array of type_exp*
     array_init(&refreshed, sizeof(type_exp*));
-    for(int i = 0; i<array_size(&op1->args); i++){
+    for(size_t i = 0; i<array_size(&op1->args); i++){
         type_exp *type1 = *(type_exp**)array_get(&op1->args, i);
         type_exp *type = fresh(type1, nogen);//, env);
         array_push(&refreshed, &type);
@@ -197,9 +198,9 @@ type_exp* fresh(type_exp* type1, array* nogen)//, std::map<type_exp*, type_exp*>
     return (type_exp*)create_type_oper(&type1->name, &refreshed);
 }
 
-type_exp* retrieve_type(string *name, array *nogen, hashtable *env)
+type_exp* retrieve_type(string *name, array *nogen, struct hashtable *env)
 {
-    type_exp* exp = (type_exp*)hashtable_get_p(env, string_get(name));
+    type_exp* exp = (type_exp*)hashtable_get(env, string_get(name));
     if (exp) {
         //std::map<type_exp*, type_exp*> type_env;
         return fresh(exp, nogen);

@@ -31,9 +31,9 @@ code_generator* cg_new(menv* env, parser* parser)
     cg->parser = parser;
     cg->context = env->context;
     cg->builder = LLVMCreateBuilderInContext((LLVMContextRef)env->context);
-    hashtable_init_ref(&cg->gvs);
-    hashtable_init_ref(&cg->protos);
-    hashtable_init_ref(&cg->named_values);
+    hashtable_init(&cg->gvs);
+    hashtable_init(&cg->protos);
+    hashtable_init(&cg->named_values);
     return cg;
 }
 
@@ -59,7 +59,7 @@ LLVMValueRef _get_function(code_generator* cg, const char* name)
 
     // If not, check whether we can codegen the declaration from some existing
     // prototype.
-    exp_node* fp = (exp_node*)hashtable_get_p(&cg->protos, name);
+    exp_node* fp = (exp_node*)hashtable_get(&cg->protos, name);
     if (fp)
         return (LLVMValueRef)_generate_prototype_node(cg, fp);
 
@@ -76,7 +76,7 @@ LLVMValueRef _get_global_variable(code_generator* cg, const char *name)
 
     // If not, it's defined in other module, we can codegen the external
     // declaration from existing type.
-    var_node* fgv = (var_node*)hashtable_get_p(&cg->gvs, name);//.find(name);
+    var_node* fgv = (var_node*)hashtable_get(&cg->gvs, name);//.find(name);
     if (fgv) {
         // log_info(DEBUG, "found defition before");
         return (LLVMValueRef)_generate_global_var_node(cg, fgv, true);
@@ -127,7 +127,7 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
         LLVMBuildStore((LLVMBuilderRef)cg->builder, LLVMGetParam(fun, i), alloca);
 
         // Add arguments to variable symbol table.
-        hashtable_set_p(&cg->named_values, string_get((string*)array_get(&node->args, i)), alloca);
+        hashtable_set(&cg->named_values, string_get((string*)array_get(&node->args, i)), alloca);
     }
 }
 
@@ -140,7 +140,7 @@ void* _generate_ident_node(code_generator* cg, exp_node* node)
 {
     ident_node* ident = (ident_node*)node;
     const char *idname = string_get(&ident->name);
-    LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->named_values, idname);
+    LLVMValueRef v = (LLVMValueRef)hashtable_get(&cg->named_values, idname);
     if (!v) {
         LLVMValueRef gVar = _get_global_variable(cg, idname);
         if (gVar) {
@@ -234,7 +234,7 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
     //string *str = (string*)array_get(&proto->args, 0);
     //log_info(DEBUG, "generating prototype node: %s", string_get(str));
  
-    hashtable_set_p(&cg->protos, string_get(&proto->name), proto);
+    hashtable_set(&cg->protos, string_get(&proto->name), proto);
     LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMTypeRef doubles[array_size(&proto->args)];
     for (unsigned i = 0; i< array_size(&proto->args); i++){
@@ -269,7 +269,7 @@ void* _generate_function_node(code_generator* cg, exp_node* node)
     LLVMPositionBuilderAtEnd(builder, bb);
     _create_argument_allocas(cg, funn->prototype, fun);
     LLVMValueRef ret_val;
-    for (int i = 0; i < array_size(&funn->body->nodes); i++) {
+    for (size_t i = 0; i < array_size(&funn->body->nodes); i++) {
         exp_node* stmt = *(exp_node**)array_get(&funn->body->nodes, i);
         ret_val = (LLVMValueRef)generate_code(cg, stmt);
     }
@@ -372,7 +372,7 @@ void* _generate_global_var_node(code_generator* cg, var_node* node,
             LLVMSetExternallyInitialized(gVar, true);
             return gVar;
         } else {
-            hashtable_set_p(&cg->gvs, var_name, node);
+            hashtable_set(&cg->gvs, var_name, node);
             gVar = LLVMAddGlobal(module, LLVMDoubleTypeInContext(context), var_name);
             LLVMSetExternallyInitialized(gVar, true);
             LLVMSetInitializer(gVar, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0));                
@@ -425,7 +425,7 @@ void* _generate_local_var_node(code_generator* cg, var_node* node)
     // Remember the old variable binding so that we can restore the binding when
     // we unrecurse.
     //old_bindings.push_back((LLVMValueRef)hashtable_get_p(&cg->named_values, var_name));
-    hashtable_set_p(&cg->named_values, var_name, alloca);
+    hashtable_set(&cg->named_values, var_name, alloca);
     // Remember this binding.
     //cg->named_values[var_name] = alloca;
     return 0;
@@ -483,8 +483,8 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
 
     // Within the loop, the variable is defined equal  the PHI node.  If it
     // shadows an existing variable, we have to restore it, so save it now.
-    LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get_p(&cg->named_values, var_name);
-    hashtable_set_p(&cg->named_values, var_name, alloca);
+    LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get(&cg->named_values, var_name);
+    hashtable_set(&cg->named_values, var_name, alloca);
 
     // Emit the body of the loop.  This, like any other expr, can change the
     // current BB.  Note that we ignore the value computed by the body, but don't
@@ -528,7 +528,7 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
     // Restore the unshadowed variable.
     if (old_alloca)
         //cg->named_values[varname] = old_alloca;
-        hashtable_set_p(&cg->named_values, var_name, old_alloca);
+        hashtable_set(&cg->named_values, var_name, old_alloca);
     else
         hashtable_remove(&cg->named_values, var_name);
 
@@ -540,7 +540,7 @@ void* _generate_block_node(code_generator* cg, exp_node* node)
 {
     block_node* block = (block_node*)node;
     void* codegen;
-    for (int i = 0; i < array_size(&block->nodes); i++) {
+    for (size_t i = 0; i < array_size(&block->nodes); i++) {
         exp_node* exp = *(exp_node**)array_get(&block->nodes, i);
         codegen = generate_code(cg, exp);
     }
@@ -576,7 +576,7 @@ void create_module_and_pass_manager(code_generator* cg,
 
 void generate_runtime_module(code_generator* cg, parser* parser)
 {
-    for (int i = 0; i < array_size(&parser->ast->builtins); i++) {
+    for (size_t i = 0; i < array_size(&parser->ast->builtins); i++) {
         exp_node *node = *(exp_node**)array_get(&parser->ast->builtins, i);
         generate_code(cg, node);
     }
@@ -584,6 +584,9 @@ void generate_runtime_module(code_generator* cg, parser* parser)
 
 void* _generate_unk_node(code_generator* cg, exp_node* node)
 {
+    if (!cg || !node)
+        return 0;
+
     return NULL;
 }
 

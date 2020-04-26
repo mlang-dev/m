@@ -56,14 +56,14 @@ int main(int argc, char* argv[])
             optind ++;
         }
     }
-    int result;
+    int result = 0;
     if (!array_size(&src_files)){
         result = run_repl();
     }
     else {
         if (!file_type)
             file_type = FT_OBJECT;
-        for (int i = 0; i < array_size(&src_files); i++){
+        for (size_t i = 0; i < array_size(&src_files); i++){
             result = compile(*(char**)array_get(&src_files, i), file_type);
             break;
         }

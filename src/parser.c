@@ -55,36 +55,34 @@ void queue_token(parser* psr, token tkn)
 
 void queue_tokens(parser* psr, array *tokens)
 {
-    for(int i=0;i<array_size(tokens); i++){
+    for(size_t i=0;i<array_size(tokens); i++){
         token* tok = (token*)array_get(tokens, i);
         queue_push(&psr->queued_tokens, tok);
     }
 }
 
-void _build_op_precs(hashtable* op_precs)
+void _build_op_precs(struct hashtable* op_precs)
 {
     int num = sizeof(_op_preces) / sizeof(op_prec);
     for (int i = 0; i < num; i++){
-        value_ref key = {(void*)_op_preces[i].op, strlen(_op_preces[i].op) + 1};
-        value_ref value = {(void*)&_op_preces[i].prec, sizeof(_op_preces[i].prec)};
-        hashtable_add_ref(op_precs, key, value);
+        // value_ref key = {(void*)_op_preces[i].op, strlen(_op_preces[i].op) + 1};
+        // value_ref value = {(void*)&_op_preces[i].prec, sizeof(_op_preces[i].prec)};
+        // hashtable_add_ref(op_precs, key, value);
+        hashtable_set(op_precs, _op_preces[i].op, &_op_preces[i].prec);
         //hashtable_add_p(op_precs, _op_preces[i].op, &_op_preces[i].prec);
     }
 }
 
-void _set_op_prec(hashtable* op_precs, const char* op, unsigned int prec)
+void _set_op_prec(struct hashtable* op_precs, const char* op, unsigned int prec)
 {
-    value_ref key = {(void*)op, strlen(op) + 1};
-    value_ref value = {(void*)&prec, sizeof(prec)};
-    hashtable_add_ref(op_precs, key, value);
+    hashtable_set(op_precs, op, &prec);
 }
 
-int _get_op_prec(hashtable* op_precs, const char* op)
+int _get_op_prec(struct hashtable* op_precs, const char* op)
 {
     if(!op || !op[0])
         return -1;
-    value_ref key = {(void*)op, strlen(op) + 1};
-    unsigned int * prec = (unsigned int*)hashtable_get_ref(op_precs, key);
+    unsigned int * prec = (unsigned int*)hashtable_get(op_precs, op);
     if (prec)
         return *prec;
     return -1;
@@ -100,7 +98,7 @@ parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const
     const char* mod_name = file_name ? file_name : "intepreter_main";
     parser* psr = (parser*)malloc(sizeof(parser));
     queue_init(&psr->queued_tokens, sizeof(token));
-    hashtable_init_ref(&psr->op_precs);
+    hashtable_init(&psr->op_precs);
     _build_op_precs(&psr->op_precs);
     psr->ast = (ast*)malloc(sizeof(ast));
     array_init(&psr->ast->builtins, sizeof(exp_node*));
@@ -119,6 +117,8 @@ void create_builtins(parser* parser, void* context)
 
 void block_deinit(block_node *block)
 {
+    if(!block)
+        return;
     // for(exp_node *node : block->nodes){
 
     // }
@@ -135,7 +135,7 @@ void destroy_module(module* module)
 
 void parser_free(parser* parser)
 {
-    for (int i = 0; i < array_size(&parser->ast->modules); i++){
+    for (size_t i = 0; i < array_size(&parser->ast->modules); i++){
         module *it = *(module**)array_get(&parser->ast->modules, i);
         destroy_module(it);
     }
@@ -220,7 +220,7 @@ exp_node* _parse_function_app_or_def(parser* parser, exp_node* parent, source_lo
     if (func_definition) {
         array arg_names;
         array_string_init(&arg_names);
-        for (int i = 0; i < array_size(&args); i++) {
+        for (size_t i = 0; i < array_size(&args); i++) {
             ident_node *id = *(ident_node**)array_get(&args, i);
             array_push(&arg_names, &id->name);
         }
@@ -705,7 +705,7 @@ block_node* parse_block(parser* parser, exp_node* parent, void (*fun)(void*, exp
             break;
         }
         //log_info(DEBUG, "got token in block: (%d, %d), %s", parser->curr_token.loc.line, parser->curr_token.loc.col, TokenTypeString[parser->curr_token.token_type]);
-        source_loc loc = parser->curr_token.loc;
+        //source_loc loc = parser->curr_token.loc;
         //log_info(DEBUG, "parsing statement in block--: (%d, %d), %d", loc.line, loc.col, parent);
         exp_node* node = parse_statement(parser, parent);
         if (node) {

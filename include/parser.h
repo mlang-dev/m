@@ -19,7 +19,7 @@ extern "C"{
 #endif
 
 typedef struct parser {
-    hashtable op_precs;
+    struct hashtable op_precs;
     token curr_token;
     ast* ast;
     bool allow_id_as_a_func;

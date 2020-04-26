@@ -174,7 +174,6 @@ block_node* create_block_node(exp_node* parent, array *nodes)
     block_node* block = (block_node*)malloc(sizeof(block_node));
     block->base.node_type = BLOCK_NODE;
     block->base.parent = parent;
-    exp_node * exp = (*(exp_node**)array_front(nodes));
     block->base.loc = (*(exp_node**)array_front(nodes))->loc;
     array_copy(&block->nodes, nodes);
     return block;

@@ -3,7 +3,7 @@
  * 
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * dynamic hashtable implemented using open addressing with linear probing
+ * dynamic hashtable with collision resolution implemented using chaining (singly-linked list)
  */
 #include <stddef.h>
 #include <stdlib.h>
@@ -11,213 +11,159 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "clib/array.h"
-#include "clib/string.h"
 #include "clib/hashtable.h"
 #include "clib/hash.h"
 
-void hashtable_init_ref(hashtable *ht)
-{
-    hashtable_init_fun(ht, 0, 0, default_fun, default_fun);
-}
+bool match_entry (struct hash_entry *entry, const char *key, size_t key_size){
+    return entry->data.key_size == key_size && !memcmp(entry->data.key_value_pair, key, key_size);
+} 
 
-void hashtable_init(hashtable *ht, size_t key_object_size, size_t value_object_size)
+void hashtable_init(struct hashtable *ht)
 {
-    hashtable_init_fun(ht, key_object_size, value_object_size, default_fun, default_fun);
-}
-
-void hashtable_init_fun(hashtable *ht, size_t key_object_size, size_t value_object_size, fun key_f, fun value_f)
-{
+    ht->cap = 19;
     ht->size = 0;
-    ht->key_object_size = key_object_size;
-    ht->value_object_size = value_object_size;
-    ht->key_f = key_f;
-    ht->value_f = value_f;
-    array_init_size(&ht->buckets, sizeof(hashbox), 19, default_fun);
+    ht->heads = calloc(ht->cap, sizeof(struct hash_head));
 }
 
-size_t _get_index(array *buckets, void *key, size_t key_size)
+size_t _get_index(struct hashtable *ht, unsigned char *key, size_t key_size)
 {
-    return hash(key, key_size) % buckets->cap;
+    return hash(key, key_size) % ht->cap;
 }
 
-typedef bool (*match_predicate) (hashbox* box, void *key, size_t key_size);
-
-bool match_empty(hashbox* box, void *key, size_t key_size)
+void _hashtable_grow(struct hashtable* ht)
 {
-    return box->status == HASH_EMPTY;
-}
+    struct hash_head *head, *heads, *new_head;
+    struct hash_entry *entry;
+    size_t cap, index;
 
-bool match_found(hashbox* box, void *key, size_t key_size)
-{
-    return box->status == HASH_EXIST && memcmp(hashbox_get_key(box), key, key_size) == 0;
-}
-
-bool match_search(hashbox* box, void *key, size_t key_size)
-{
-    return match_empty(box, key, key_size) || match_found(box, key, key_size);
-}
-
-hashbox* _find_from_to(array *buckets, void *key, size_t key_size, size_t from, size_t to, match_predicate match)
-{
-    size_t index = from;
-    while(index>=to){
-        hashbox *box = (hashbox*)array_get(buckets, index);
-        if (match(box, key, key_size))
-            return box;
-        index--;
-    }
-    return NULL;
-}
-
-hashbox *_find(array *buckets, void *key, size_t key_size, match_predicate match)
-{
-    size_t index = _get_index(buckets, key, key_size);
-    hashbox *box = _find_from_to(buckets, key, key_size, index, 0, match);  
-    if (box)
-        return box;
-    return _find_from_to(buckets, key, key_size, buckets->cap - 1, index + 1, match);    
-}
-
-void _add_to_buckets(array *buckets, void *key, size_t key_size, void *value, size_t value_size, fun key_f, fun value_f)
-{
-    hashbox *box = _find(buckets, key, key_size, match_empty);
-    if(box->key_value_pair){
-        printf("oops ! something wrong: %p, status: %d\n", box->key_value_pair, box->status);
-    }
-    assert(box->key_value_pair == NULL);
-    assert(value || !value_size);
-    box->key_value_pair = malloc(key_size + value_size);
-    key_f.copy(hashbox_get_key(box), key, key_size);
-    box->key_size = key_size;
-    box->value_size = value_size;
-    //get_init(key_data->type)(box->key_data, key_data);
-    if (value){
-        value_f.copy(hashbox_get_value(box), value, value_size);//malloc(ht->value_object_size);
-        //get_init(value_data->type)(box->value_data, value_data);
-    }
-    box->status = HASH_EXIST;
-}
-
-void _hashtable_grow(hashtable* ht)
-{
-    array new_buckets;
-    array_init_size(&new_buckets, ht->buckets._element_size, ht->buckets.cap * 2, default_fun);
-    for(size_t i = 0; i<ht->buckets.cap; i++){
-        hashbox* h = (hashbox*)array_get(&ht->buckets, i);
-        if (h->status == HASH_EXIST){
-            size_t key_size = ht->key_object_size? ht->key_object_size : h->key_size;
-            size_t value_size = ht->value_object_size? ht->value_object_size : h->value_size;
-            _add_to_buckets(&new_buckets, hashbox_get_key(h), key_size, hashbox_get_value(h), value_size, ht->key_f, ht->value_f);
+    if(ht->size > 0.75 * ht->cap){
+        cap = ht->cap;
+        heads = ht->heads;
+        ht->cap *= 2;
+        ht->heads = calloc(ht->cap, sizeof(struct hash_head));
+        for(size_t i = 0; i < cap; i++){
+            head = &heads[i];
+            list_foreach(entry, head, list){
+                index = _get_index(ht, (unsigned char*)entry->data.key_value_pair, entry->data.key_size);
+                new_head = &ht->heads[index];
+                list_insert_head(new_head, entry, list);
+            }
         }
+        free(heads);
     }
-    ht->buckets = new_buckets;
 }
 
-void* hashtable_get(hashtable *ht, void *key)
+struct hashbox* _get_hashbox(struct hash_head *head, const char *key, size_t key_size)
 {
-    hashbox *box = _find(&ht->buckets, key, ht->key_object_size, match_search);
-    if (box->status==HASH_EXIST)
-        return hashbox_get_value(box);
+    struct hash_entry *entry;
+    list_foreach(entry, head, list){
+        if(match_entry(entry, key, key_size)){
+            return &entry->data;
+        }
+    }    
     return NULL;
 }
 
-void* hashtable_get_ref(hashtable *ht, value_ref key)
+struct hash_entry* _hash_entry_new(size_t key_size, size_t value_size)
 {
-    hashbox *box = _find(&ht->buckets, key.data, key.size, match_search);
-    if (box->status==HASH_EXIST)
-        return hashbox_get_value(box);
+    struct hash_entry *entry = (struct hash_entry*)calloc(1, sizeof(struct hash_entry));
+    entry->data.status = HASH_EXIST;
+    entry->data.key_size = key_size;
+    entry->data.value_size = value_size;
+    entry->data.key_value_pair = (unsigned char*)malloc(key_size + value_size);
+    return entry;
+}
+
+void _hash_entry_free(struct hash_entry *entry)
+{   
+    free(entry->data.key_value_pair);
+    free(entry);
+}
+
+void hashtable_clear(struct hashtable *ht)
+{
+    struct hash_head *head;
+    struct hash_entry *entry, *next;
+    for(size_t i = 0; i<ht->cap; i++){
+        head = &ht->heads[i];
+        entry = head->first;
+        while(entry){
+            next = entry->list.next;
+            _hash_entry_free(entry);
+            entry = next;
+        }
+        head->first = NULL;
+    }
+}
+
+void hashtable_remove(struct hashtable *ht, const char *key)
+{
+	struct hash_head *head;
+	struct hash_entry *entry;
+    struct hash_entry *prev = NULL;
+    size_t key_size = strlen(key) + 1;
+    head = &ht->heads[_get_index(ht, (unsigned char*)key, key_size)];
+    list_foreach(entry, head, list){
+        if(match_entry(entry, key, key_size)){
+            break;
+        }
+        prev = entry;
+    }    
+    if (entry){
+        if(prev)
+            list_remove_next(prev, list);
+        else
+            list_remove_head(head, list);
+        _hash_entry_free(entry);
+        ht->size --;
+    }
+}
+
+void hashtable_set(struct hashtable* ht, const char* key, void* value)
+{
+    size_t key_size = strlen(key) + 1;
+    size_t value_size = sizeof(value);
+    _hashtable_grow(ht);
+    struct hash_head *head = &ht->heads[_get_index(ht, (unsigned char*)key, key_size)];
+    struct hashbox *box = _get_hashbox(head, key, key_size);
+    if(!box){
+        struct hash_entry *entry = _hash_entry_new(key_size, value_size);
+        memcpy(entry->data.key_value_pair, key, key_size);
+        list_insert_head(head, entry, list);
+        ht->size ++;
+        box = &entry->data;
+    }
+    memcpy(box->key_value_pair + key_size, &value, value_size);
+}
+
+void* hashtable_get(struct hashtable* ht, const char* key)
+{
+	struct hash_head *head;
+    void **data = NULL;
+    struct hashbox *box;
+    size_t key_size = strlen(key) + 1;
+    head = &ht->heads[_get_index(ht, (unsigned char*)key, key_size)];
+    box = _get_hashbox(head, key, key_size);
+    if (box){
+        data = (void**)(box->key_value_pair + key_size);
+        return data ? *data : NULL;
+    }    
     return NULL;
 }
 
-void hashtable_add(hashtable *ht, void *key, void *value)
+bool hashtable_in(struct hashtable* ht, const char* key)
 {
-    size_t size_cap = ht->buckets.cap / 2;
-    if (ht->size >= size_cap){
-        _hashtable_grow(ht);
-    }
-    _add_to_buckets(&ht->buckets, key, ht->key_object_size, value, ht->value_object_size, ht->key_f, ht->value_f);
-    ht->size ++;
+    void *data = hashtable_get(ht, key);
+    return data != NULL;
 }
 
-void hashtable_add_ref(hashtable *ht, value_ref key, value_ref value)
-{
-    size_t size_cap = ht->buckets.cap / 2;
-    if (ht->size >= size_cap){
-        _hashtable_grow(ht);
-    }
-    _add_to_buckets(&ht->buckets, key.data, key.size, value.data, value.size, ht->key_f, ht->value_f);
-    ht->size ++;
-}
-
-size_t hashtable_size(hashtable *ht)
+size_t hashtable_size(struct hashtable* ht)
 {
     return ht->size;
 }
 
-bool hashtable_in(hashtable *ht, void *key)
+void hashtable_deinit(struct hashtable *ht)
 {
-    hashbox *box = _find(&ht->buckets, key, ht->key_object_size, match_search);
-    return (box && box->status == HASH_EXIST);
-}
-
-bool hashtable_in_ref(hashtable *ht, value_ref key)
-{
-    hashbox *box = _find(&ht->buckets, key.data, key.size, match_search);
-    return (box && box->status == HASH_EXIST);
-}
-
-void hashtable_deinit(hashtable *ht)
-{
-    for(size_t i = 0; i<ht->buckets.cap; i++){
-        hashbox* h = (hashbox*)array_get(&ht->buckets, i);
-        if (h->status == HASH_EXIST){
-            ht->key_f.free(hashbox_get_key(h));
-        }
-    }
-    array_deinit(&ht->buckets);
-}
-
-void hashtable_clear(hashtable *ht)
-{
-    for(size_t i = 0; i<ht->buckets.cap; i++){
-        hashbox* h = (hashbox*)array_get(&ht->buckets, i);
-        if (h->status == HASH_EXIST){
-            ht->key_f.free(hashbox_get_key(h));
-        if (h->status != HASH_EMPTY)
-            h->status = HASH_EMPTY;
-            h->key_value_pair = NULL;
-        }
-    }
-}
-
-void hashtable_remove(hashtable *ht, const char *key_p)
-{
-    hashbox *box = _find(&ht->buckets, (void*)key_p, strlen(key_p) + 1, match_search);
-    if(box){
-        if(box->status == HASH_EXIST){
-            ht->key_f.free(hashbox_get_key(box));
-            box->status = HASH_DELETED;
-        }
-    }
-}
-
-void hashtable_set_p(hashtable* ht, const char* key_p, void* value_p)
-{
-    value_ref key = {(void*)key_p, strlen(key_p) + 1};
-    value_ref value = {(void*)&value_p, sizeof(value_p)};
-    hashtable_add_ref(ht, key, value);
-}
-
-void* hashtable_get_p(hashtable* ht, const char* key_p)
-{
-    value_ref key = {(void*)key_p, strlen(key_p) + 1};
-    void** p = (void**)hashtable_get_ref(ht, key);
-    return p? *p : NULL;
-}
-
-bool hashtable_in_p(hashtable* ht, const char* key_p)
-{
-    value_ref key = {(void*)key_p, strlen(key_p) + 1};
-    return hashtable_in_ref(ht, key);
+    hashtable_clear(ht);
+    free(ht->heads);
 }

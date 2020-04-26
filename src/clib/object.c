@@ -26,7 +26,8 @@ void obj_init(object *dest, object *src)
 
 void obj_deinit(object *obj)
 {
-
+    if(!obj)
+        return;
 }
 
 void *obj_data(object *obj)

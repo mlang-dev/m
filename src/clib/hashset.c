@@ -15,19 +15,15 @@
 #include "clib/hashset.h"
 #include "clib/hash.h"
 
-void hashset_init(hashset *hs, size_t key_object_size)
+void hashset_init(hashset *hs)
 {
-    hashtable_init_fun(hs, key_object_size, 0, default_fun, default_fun);
+    hashtable_init(hs);
 }
 
-void hashset_init_fun(hashset *hs, size_t key_object_size, fun key_fun)
-{
-    hashtable_init_fun(hs, key_object_size, 0, key_fun, default_fun);
-}
 
-void hashset_add(hashset *hs, void *key_data)
+void hashset_set(hashset *hs, void *key_data)
 {
-    hashtable_add(hs, key_data, NULL);
+    hashtable_set(hs, key_data, NULL);
 }
 
 size_t hashset_size(hashset *hs)

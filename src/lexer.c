@@ -19,7 +19,7 @@ char op_chars[] = {
 
 bool is_op_char(char op)
 {
-    for(int i=0; i<sizeof(op_chars)/sizeof(char);i++){
+    for(size_t i=0; i<sizeof(op_chars)/sizeof(char);i++){
         if (op_chars[i] == op)
             return true;
     }
@@ -46,7 +46,7 @@ static keyword_token tokens[] = {
 
 TokenType get_token_type(const char* keyword)
 {
-    for(int i=0; i<sizeof(tokens)/sizeof(keyword_token);i++){
+    for(size_t i=0; i<sizeof(tokens)/sizeof(keyword_token);i++){
         if (strcmp(tokens[i].keyword, keyword) == 0)
             return tokens[i].token;
     }
@@ -67,7 +67,7 @@ static char_token char_tokens[] = {
 
 TokenType get_char_token_type(char keyword)
 {
-    for(int i=0; i<sizeof(char_tokens)/sizeof(char_token);i++){
+    for(size_t i=0; i<sizeof(char_tokens)/sizeof(char_token);i++){
         if (char_tokens[i].keyword == keyword)
             return char_tokens[i].token;
     }

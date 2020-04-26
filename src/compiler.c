@@ -30,7 +30,7 @@ int compile(const char* fn, object_file_type file_type)
     generate_runtime_module(cg, parser);
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     if (block) {
-        for (int i = 0; i < array_size(&block->nodes); i ++) {
+        for (size_t i = 0; i < array_size(&block->nodes); i ++) {
             exp_node* node = *(exp_node**)array_get(&block->nodes, i);
             generate_code(cg, node);
         }

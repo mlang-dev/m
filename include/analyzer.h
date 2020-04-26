@@ -16,7 +16,7 @@ extern "C"{
 #endif
 
 typedef struct _type_env{
-    hashtable type_env;  //hashtable of <string, type_exp*>
+    struct hashtable type_env;  //hashtable of <string, type_exp*>
     array nogens; //array of type_exp*
 }type_env;
 
