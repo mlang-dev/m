@@ -4,7 +4,7 @@ layout: default
 
 # m
 
-m represents Model, Matrix or Mathematics, a succinct & expressive programming language. It supports imperative and functional programming paradigms targeting high performance computing.
+m is a succinct & expressive programming language, where efficiency and elegance meet. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction whenever possible.
 
 It is under active development, currently it supports following features
 - arithmetic operators
