@@ -21,6 +21,19 @@ TEST(testParser, testBlockVariable)
     parser_free(parser);
 }
 
+TEST(testParser, testBool)
+{
+    char test_code[] = "x = true";
+    auto parser = create_parser_for_string(test_code);
+    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    auto node = *(var_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_EQ(VAR_NODE, node->base.node_type);
+    ASSERT_EQ(NUMBER_NODE, node->init_value->node_type);
+    parser_free(parser);
+}
+
 TEST(testParser, testBlockVariableNameWithUnderlyingLine)
 {
     char test_code[] = "m_x = 11";

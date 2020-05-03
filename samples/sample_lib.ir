@@ -1,0 +1,112 @@
+; ModuleID = '../samples/sample_lib'
+source_filename = "../samples/sample_lib"
+target datalayout = "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-apple-darwin19.4.0"
+
+declare double @sin(double)
+
+declare double @cos(double)
+
+declare double @sqrt(double)
+
+declare double @print(double)
+
+define double @avg(double %x, double %y) {
+entry:
+  %y2 = alloca double
+  %x1 = alloca double
+  store double %x, double* %x1
+  store double %y, double* %y2
+  %x3 = load double, double* %x1
+  %y4 = load double, double* %y2
+  %addtmp = fadd double %x3, %y4
+  %divtmp = fdiv double %addtmp, 2.000000e+00
+  ret double %divtmp
+}
+
+define double @distance(double %x1, double %y1, double %x2, double %y2) {
+entry:
+  %yy = alloca double
+  %xx = alloca double
+  %y24 = alloca double
+  %x23 = alloca double
+  %y12 = alloca double
+  %x11 = alloca double
+  store double %x1, double* %x11
+  store double %y1, double* %y12
+  store double %x2, double* %x23
+  store double %y2, double* %y24
+  %x15 = load double, double* %x11
+  %x26 = load double, double* %x23
+  %subtmp = fsub double %x15, %x26
+  %x17 = load double, double* %x11
+  %x28 = load double, double* %x23
+  %subtmp9 = fsub double %x17, %x28
+  %multmp = fmul double %subtmp, %subtmp9
+  store double %multmp, double* %xx
+  %y110 = load double, double* %y12
+  %y211 = load double, double* %y24
+  %subtmp12 = fsub double %y110, %y211
+  %y113 = load double, double* %y12
+  %y214 = load double, double* %y24
+  %subtmp15 = fsub double %y113, %y214
+  %multmp16 = fmul double %subtmp12, %subtmp15
+  store double %multmp16, double* %yy
+  %xx17 = load double, double* %xx
+  %yy18 = load double, double* %yy
+  %addtmp = fadd double %xx17, %yy18
+  %calltmp = call double @sqrt(double %addtmp)
+  ret double %calltmp
+}
+
+define double @factorial(double %n) {
+entry:
+  %n1 = alloca double
+  store double %n, double* %n1
+  %n2 = load double, double* %n1
+  %cmptmp = fcmp ult double %n2, 2.000000e+00
+  %booltmp = uitofp i1 %cmptmp to double
+  %ifcond = fcmp one double %booltmp, 0.000000e+00
+  br i1 %ifcond, label %then, label %else
+
+then:                                             ; preds = %entry
+  %n3 = load double, double* %n1
+  br label %ifcont
+
+else:                                             ; preds = %entry
+  %n4 = load double, double* %n1
+  %n5 = load double, double* %n1
+  %subtmp = fsub double %n5, 1.000000e+00
+  %calltmp = call double @factorial(double %subtmp)
+  %multmp = fmul double %n4, %calltmp
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  %iftmp = phi double [ %n3, %then ], [ %multmp, %else ]
+  ret double %iftmp
+}
+
+define double @loopprint(double %n) {
+entry:
+  %i = alloca double
+  %n1 = alloca double
+  store double %n, double* %n1
+  store double 0.000000e+00, double* %i
+  br label %loop
+
+loop:                                             ; preds = %loop, %entry
+  %i2 = load double, double* %i
+  %calltmp = call double @print(double %i2)
+  %i3 = load double, double* %i
+  %n4 = load double, double* %n1
+  %cmptmp = fcmp ult double %i3, %n4
+  %booltmp = uitofp i1 %cmptmp to double
+  %i5 = load double, double* %i
+  %nextvar = fadd double %i5, 1.000000e+00
+  store double %nextvar, double* %i
+  %loopcond = fcmp one double %booltmp, 0.000000e+00
+  br i1 %loopcond, label %loop, label %afterloop
+
+afterloop:                                        ; preds = %loop
+  ret double 0.000000e+00
+}

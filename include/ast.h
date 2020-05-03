@@ -42,7 +42,7 @@ static const char* NodeTypeString[] = {
 
 typedef struct _exp_node {
     NodeType node_type;
-    type_exp type; //type annotation
+    type_exp *type; //type annotation
     source_loc loc;
     struct _exp_node* parent;
 }exp_node;
@@ -131,6 +131,7 @@ function_node* create_function_node(prototype_node* prototype,
 ident_node* create_ident_node(exp_node* parent, source_loc loc, const char *name);
 num_node* create_double_node(exp_node* parent, source_loc loc, double val);
 num_node* create_int_node(exp_node* parent, source_loc loc, int val);
+num_node* create_bool_node(exp_node* parent, source_loc loc, int val);
 var_node* create_var_node(exp_node* parent, source_loc loc, const char *var_name, exp_node* init_value);
 call_node* create_call_node(exp_node* parent, source_loc loc, const char *callee,
     array *args);

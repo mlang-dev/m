@@ -24,7 +24,7 @@ void print_usage()
 
 int main(int argc, char* argv[])
 {
-    printf("m - 0.0.13\n");
+    printf("m - 0.0.14\n");
     int option;
     int fflag = 0;
     char* fopt = 0;
@@ -64,7 +64,13 @@ int main(int argc, char* argv[])
         if (!file_type)
             file_type = FT_OBJECT;
         for (size_t i = 0; i < array_size(&src_files); i++){
-            result = compile(*(char**)array_get(&src_files, i), file_type);
+            const char * fn = *(const char**)array_get(&src_files, i);
+            if( access( fn, F_OK ) == -1 ) {
+                printf("file: %s does not exist\n", fn);
+                exit(1);
+            }
+
+            result = compile(fn, file_type);
             break;
         }
     }

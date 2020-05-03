@@ -161,13 +161,10 @@ string* string_substr(string *str, char match)
     return 0;
 }
 
-string string_join(array* arr, char sep)
+string string_join(array* arr, const char *sep)
 {
-    char separator[2];
-    separator[0] = sep;
-    separator[1] = '\0';
     string str_sepa;
-    string_init_chars(&str_sepa, separator);
+    string_init_chars(&str_sepa, sep);
     string str;
     string_init(&str);
     for (size_t i=0; i<array_size(arr); i++){

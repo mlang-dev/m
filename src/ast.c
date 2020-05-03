@@ -54,7 +54,20 @@ num_node* create_double_node(exp_node* parent, source_loc loc, double val)
     string_init_chars(&str, "double");
     num_node* node = (num_node*)malloc(sizeof(num_node));
     node->base.node_type = NUMBER_NODE;
-    node->base.type.name = str;
+    node->base.type = (type_exp*)create_type_oper(&str, NULL);
+    node->base.parent = parent;
+    node->base.loc = loc;
+    node->double_val = val;
+    return node;
+}
+
+num_node* _create_int_node(exp_node* parent, source_loc loc, int val, const char* type)
+{
+    string str;
+    string_init_chars(&str, type);
+    num_node* node = (num_node*)malloc(sizeof(num_node));
+    node->base.node_type = NUMBER_NODE;
+    node->base.type = (type_exp*)create_type_oper(&str, NULL);;
     node->base.parent = parent;
     node->base.loc = loc;
     node->double_val = val;
@@ -63,15 +76,12 @@ num_node* create_double_node(exp_node* parent, source_loc loc, double val)
 
 num_node* create_int_node(exp_node* parent, source_loc loc, int val)
 {
-    string str;
-    string_init_chars(&str, "int");
-    num_node* node = (num_node*)malloc(sizeof(num_node));
-    node->base.node_type = NUMBER_NODE;
-    node->base.type.name = str;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->double_val = val;
-    return node;
+    return _create_int_node(parent, loc, val, "int");
+}
+
+num_node* create_bool_node(exp_node* parent, source_loc loc, int val)
+{
+    return _create_int_node(parent, loc, val, "bool");
 }
 
 var_node* create_var_node(exp_node* parent, source_loc loc, const char *var_name, exp_node* init_value)

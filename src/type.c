@@ -4,13 +4,15 @@
  * m language type inference algorithms. 
  * references: http://lucacardelli.name/Papers/BasicTypechecking.pdf
  */
-
+#include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 #include "type.h"
 
 type_var* create_type_var()
 {
     string name = get_id_name();
+    //printf("new id: %s\n", string_get(&name));
     type_var *var = (type_var*)malloc(sizeof(type_var));
     var->base.kind = KIND_VAR;
     var->base.name = name;
@@ -25,8 +27,18 @@ type_oper* create_type_oper(string *name, array* args)
     type_oper* var = (type_oper*)malloc(sizeof(type_oper));
     var->base.kind = KIND_OPER;
     var->base.name = *name;
-    var->args = *args;
+    if(args)
+        var->args = *args;
     return var;
+}
+
+type_oper* create_nullary_type(const char * type)
+{
+    string type_str;
+    string_init_chars(&type_str, type);
+    array args;
+    array_init(&args, sizeof(type_exp*));
+    return create_type_oper(&type_str, &args);
 }
 
 //args: array of type_exp*
@@ -206,4 +218,43 @@ type_exp* retrieve_type(string *name, array *nogen, struct hashtable *env)
         return fresh(exp, nogen);
     }
     return NULL;
+}
+
+string to_string(type_exp* type)
+{
+    if (type->kind == KIND_VAR){
+        type_var* var = (type_var*)type;
+        if(var->instance){
+            return to_string(var->instance);
+        }else
+            return var->base.name;
+    }else if(type->kind == KIND_OPER){
+        type_oper *oper = (type_oper*)type;
+        if(array_size(&oper->args)==0) /* nullary operator, e.g. builtin types: int, double*/
+            return oper->base.name;
+        else{
+            array array_type_strs;
+            array_string_init(&array_type_strs);
+            for(size_t i = 0; i < array_size(&oper->args); i++){
+                string type_str = to_string(*(type_exp**)array_get(&oper->args, i));
+                array_push(&array_type_strs, &type_str);
+            }
+            array subarray;
+            array_copy_size(&subarray, &array_type_strs, array_size(&array_type_strs) - 1);
+            string typestr = string_join(&subarray, " * ");
+            if(string_eq_chars(&oper->base.name, "->")){
+                string_add_chars(&typestr, " -> ");
+            }else{
+                string_add_chars(&typestr, " * ");
+            }
+            string_add(&typestr, (string*)array_back(&array_type_strs));
+            //printf("hello: %s\n", string_get(&typestr));
+            return typestr;
+        }
+    }else{
+        assert(false);
+        string empty;
+        string_init(&empty);
+        return empty;
+    }
 }

@@ -24,7 +24,7 @@ string _dump_block(block_node* node)
 
 string _dump_prototype(prototype_node* proto)
 {
-    string joined = string_join(&proto->args, ' ');
+    string joined = string_join(&proto->args, " ");
     string result;
     string_init_chars(&result, string_get(&proto->name));
     string_add(&result, &joined);
@@ -85,7 +85,7 @@ string _dump_call(call_node* call)
         string dp = dump(*(exp_node**)array_get(&call->args, i));
         array_push(&args, &dp);
     }
-    string args_str = string_join(&args, ' ');
+    string args_str = string_join(&args, " ");
     string result;
     string_init_chars(&result, string_get(&call->callee));
     string_add_chars(&result, " ");

@@ -40,7 +40,7 @@ bool string_eq_chars(string *str1, const char *chars);
 bool string_eq(string *str1, string *str2);
 void string_add(string *str1, string *str2);
 void string_add_chars(string *str1, const char *chars);
-string string_join(array* arr, char sep);
+string string_join(array* arr, const char * sep);
 array string_split(string* str, char sep);
 string* string_substr(string *str, char match);
 void string_deinit(string *str);

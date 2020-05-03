@@ -1,0 +1,47 @@
+; ModuleID = '../samples/sample'
+source_filename = "../samples/sample"
+target datalayout = "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-apple-darwin19.4.0"
+
+declare double @sin(double)
+
+declare double @cos(double)
+
+declare double @sqrt(double)
+
+declare double @print(double)
+
+define double @loopprint(double %n) {
+entry:
+  %i = alloca double
+  %n1 = alloca double
+  store double %n, double* %n1
+  store double 0.000000e+00, double* %i
+  br label %loop
+
+loop:                                             ; preds = %loop, %entry
+  %i2 = load double, double* %i
+  %calltmp = call double @print(double %i2)
+  %i3 = load double, double* %i
+  %n4 = load double, double* %n1
+  %cmptmp = fcmp ult double %i3, %n4
+  %booltmp = uitofp i1 %cmptmp to double
+  %i5 = load double, double* %i
+  %nextvar = fadd double %i5, 1.000000e+00
+  store double %nextvar, double* %i
+  %loopcond = fcmp one double %booltmp, 0.000000e+00
+  br i1 %loopcond, label %loop, label %afterloop
+
+afterloop:                                        ; preds = %loop
+  ret double 0.000000e+00
+}
+
+define double @main(double %argc, double %argv) {
+entry:
+  %argv2 = alloca double
+  %argc1 = alloca double
+  store double %argc, double* %argc1
+  store double %argv, double* %argv2
+  %calltmp = call double @loopprint(double 1.000000e+01)
+  ret double 0.000000e+00
+}

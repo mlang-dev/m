@@ -31,6 +31,8 @@ extern "C" {
     ENUM_ITEM(TOKEN_RANGE)           \
     ENUM_ITEM(TOKEN_UNARY)           \
     ENUM_ITEM(TOKEN_BINARY)          \
+    ENUM_ITEM(TOKEN_TRUE)            \
+    ENUM_ITEM(TOKEN_FALSE)           \
     ENUM_ITEM(TOKEN_LPAREN)          \
     ENUM_ITEM(TOKEN_RPAREN)          \
     ENUM_ITEM(TOKEN_LBRACKET)        \

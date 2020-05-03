@@ -17,4 +17,3 @@ factorial n =
 loopprint n = 
   for i in 0..n
     print i
-

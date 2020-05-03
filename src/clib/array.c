@@ -50,9 +50,14 @@ void array_init_size(array *a, size_t element_size, size_t init_size, fun f)
 
 void array_copy(array *dest, array *src)
 {
-    array_init_size(dest, src->_element_size, src->base.size, src->f);
-    memcpy(dest->base.p_data, src->base.p_data, src->base.size * src->_element_size);
-    dest->base.size = src->base.size;
+    array_copy_size(dest, src, src->base.size);
+}
+
+void array_copy_size(array *dest, array *src, size_t size)
+{
+    array_init_size(dest, src->_element_size, size, src->f);
+    memcpy(dest->base.p_data, src->base.p_data, size * src->_element_size);
+    dest->base.size = size;
 }
 
 void _copy_element_to_array(array *a, size_t index, void *element)

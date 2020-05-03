@@ -42,6 +42,8 @@ static keyword_token tokens[] = {
     { "unary", TOKEN_UNARY },
     { "binary", TOKEN_BINARY },
     { "..", TOKEN_RANGE },
+    { "true", TOKEN_TRUE },
+    { "false", TOKEN_FALSE},
 };
 
 TokenType get_token_type(const char* keyword)
@@ -73,8 +75,6 @@ TokenType get_char_token_type(char keyword)
     }
     return TOKEN_UNK;
 }
-
-
 
 static int get_char(file_tokenizer* tokenizer)
 {
@@ -172,7 +172,12 @@ token* _tokenize_id_keyword(file_tokenizer* tokenizer)
     }
     TokenType token_type = get_token_type(string_get(&tokenizer->ident_str));
     tokenizer->cur_token.token_type = token_type != 0 ? token_type : TOKEN_IDENT;
-    tokenizer->cur_token.ident_str = &tokenizer->ident_str;
+    if (token_type == TOKEN_TRUE || token_type == TOKEN_FALSE){
+        tokenizer->cur_token.int_val = token_type == TOKEN_TRUE ? 1 : 0;
+        tokenizer->cur_token.type = TYPE_BOOL;
+    }
+    else
+        tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     //log_info(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
     return &tokenizer->cur_token;

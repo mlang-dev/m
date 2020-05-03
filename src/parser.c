@@ -3,6 +3,7 @@
  *
  * m language parser
  */
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -161,15 +162,27 @@ int _get_op_precedence(parser* parser)
     return _get_op_prec(&parser->op_precs, op);
 }
 
+exp_node* _parse_bool_value(parser* parser, exp_node* parent)
+{
+    num_node* result;
+    result = create_bool_node(parent, parser->curr_token.loc,
+        parser->curr_token.int_val);
+    if (parser->curr_token.token_type != TOKEN_EOS)
+        parse_next_token(parser);
+    return (exp_node*)result;
+}
+
 exp_node* _parse_number(parser* parser, exp_node* parent)
 {
     num_node* result;
     if (parser->curr_token.type == TYPE_INT)
         result = create_int_node(parent, parser->curr_token.loc,
             parser->curr_token.int_val);
-    else
+    else if(parser->curr_token.type == TYPE_DOUBLE)
         result = create_double_node(parent, parser->curr_token.loc,
             parser->curr_token.double_val);
+    else 
+        assert (false);
     if (parser->curr_token.token_type != TOKEN_EOS)
         parse_next_token(parser);
     return (exp_node*)result;
@@ -378,6 +391,8 @@ exp_node* _parse_node(parser* parser, exp_node* parent)
 {
     if (parser->curr_token.token_type == TOKEN_IDENT)
         return _parse_ident(parser, parent);
+    else if (parser->curr_token.token_type == TOKEN_TRUE || parser->curr_token.token_type == TOKEN_FALSE)
+        return _parse_bool_value(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_NUM)
         return _parse_number(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_IF)
@@ -639,6 +654,7 @@ exp_node* _parse_for(parser* parser, exp_node* parent)
     }
     //convert end variable to a logic
     exp_node* id_node = (exp_node*)create_ident_node(parent, start->loc, string_get(&id_name));
+    printf("end node: %p, %p\n", (void*)id_node, (void*)end_val);
     exp_node* end = (exp_node*)create_binary_node(parent, end_val->loc, "<", id_node, end_val);
     while (parser->curr_token.token_type == TOKEN_EOS)
         parse_next_token(parser);

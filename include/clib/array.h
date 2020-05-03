@@ -34,6 +34,7 @@ void array_deinit(array *a);
 void array_push(array* a, void* element);
 void array_set(array *a, size_t index, void *element);
 void array_copy(array *dest, array *src);
+void array_copy_size(array *dest, array *src, size_t size);
 void* array_get(array* a, size_t index);
 void* array_data(array *a);
 void* array_back(array *a);

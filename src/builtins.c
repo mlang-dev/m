@@ -33,7 +33,7 @@ prototype_node* _create_for_id(void* pcontext, const char* name)
     array_string_init(&args);
     for (size_t i = 0; i < param_count; i++) {
         string arg = str_format("arg%d", i);
-        array_push(&args, &arg.base);
+        array_push(&args, &arg);
     }
     string str_name;
     string_init_chars(&str_name, name);
