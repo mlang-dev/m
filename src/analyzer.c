@@ -9,6 +9,7 @@
 
 #include "analyzer.h"
 #include "clib/hash.h"
+#include "builtins.h"
 
 type_exp* _analyze_unk(type_env* env, exp_node* node)
 {
@@ -36,12 +37,15 @@ type_exp* _analyze_num(type_env* env, exp_node* num)
 type_exp* _analyze_var(type_env* env, exp_node* node)
 {
     var_node* var = (var_node*)node;
+    //printf("analyzing var0: %s, %s\n", string_get(&var->var_name), NodeTypeString[var->init_value->node_type]);
     type_exp* type = analyze(env, var->init_value);
     if (!type)
         return type;
     type_exp* result_type = (type_exp*)create_type_var();
     unify(result_type, type, &env->nogens);
     node->type = result_type;
+    //printf("analyzing var: %s\n", string_get(&var->var_name));
+    hashtable_set(&env->type_env, string_get(&var->var_name), result_type);
     return result_type;
 }
 
@@ -58,8 +62,12 @@ type_exp* _analyze_call(type_env* env, exp_node* node)
         array_push(&args, &type);
     }
     type_exp* result_type = (type_exp*)create_type_var();
-    unify((type_exp*)create_type_fun(&args, result_type), fun_type, &env->nogens);
-    array_deinit(&args);
+    array_push(&args, &result_type);
+    //string fun_type_str = to_string(fun_type);
+    //printf("analyzing call: %s, %s\n", string_get(&call->callee), string_get(&fun_type_str));
+    unify((type_exp*)create_type_fun(&args), fun_type, &env->nogens);
+    // string result = to_string(result_type);
+    // printf("returning called type: %s\n", string_get(&result));
     node->type = result_type;
     return result_type;
 }
@@ -83,12 +91,11 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
     binary_node* bin = (binary_node*)node;
     type_exp* lhs_type = analyze(env, bin->lhs);
     type_exp* rhs_type = analyze(env, bin->rhs);
-    if (unify(lhs_type, rhs_type, &env->nogens)){
+    if(unify(lhs_type, rhs_type, &env->nogens)){
         node->type = lhs_type;
         return lhs_type;
     }
-    //log_info(DEBUG, "error binary op with different type");
-    return NULL;
+    return 0;
 }
 
 type_exp* _analyze_cond(type_env* env, exp_node* node)
@@ -102,7 +109,6 @@ type_exp* _analyze_cond(type_env* env, exp_node* node)
     unify(then_type, else_type, &env->nogens);
     return then_type;
 }
-
 
 type_exp* _analyze_for(type_env* env, exp_node* node)
 {
@@ -118,7 +124,7 @@ type_exp* _analyze_for(type_env* env, exp_node* node)
     return (type_exp*)create_nullary_type("()");
 }
 
-type_env* type_env_new()
+type_env* type_env_new(void* context)
 {
     type_env* env = (type_env*)malloc(sizeof(type_env));
     memset((void*)env, 0, sizeof(type_env));
@@ -126,13 +132,25 @@ type_env* type_env_new()
     hashtable_init(&env->type_env);
     array args;
     array_init(&args, sizeof(type_exp*));
-    int types = sizeof(TypeString)/sizeof(TypeString[0]);
-    for (int i=0; i<types; i++){
+    size_t types = sizeof(TypeString)/sizeof(TypeString[0]);
+    for (size_t i=0; i<types; i++){
         string type_str;
         string_init_chars(&type_str, TypeString[i]);
         type_exp* exp = (type_exp*)create_type_oper(&type_str, &args);
         hashtable_set(&env->type_env, TypeString[i], exp);
     }
+    type_exp* double_type = (type_exp*)create_nullary_type("double");
+    array double_args;
+    array_init(&double_args, sizeof(type_exp*));
+    array_push(&double_args, &double_type);
+    array_push(&double_args, &double_type);
+    array builtins = get_builtins(context);
+    for(size_t i = 0; i < array_size(&builtins); i++){
+        prototype_node* proto = *(prototype_node**)array_get(&builtins, i);
+        type_exp* exp = (type_exp*)create_type_fun(&double_args);
+        hashtable_set(&env->type_env, string_get(&proto->name), exp);
+    }
+    //array_deinit(&builtins);
     return env;
 }
 
@@ -180,15 +198,15 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
         array_push(&env->nogens, &exp);
         char *arg_str = string_get((string*)array_get(&fun->prototype->args, i));
         hashtable_set(&env->type_env, arg_str, exp);
+        //printf("setting fun arg: %s\n", arg_str);
     }
     type_exp *fun_type = (type_exp*)create_type_var();
     hashtable_set(&env->type_env, string_get(&fun->prototype->name), fun_type);
     type_exp* ret_type = analyze(env, (exp_node*)fun->body); 
-    type_exp* result_type = (type_exp*)create_type_fun(&args, ret_type);
+    array_push(&args, &ret_type);
+    type_exp* result_type = (type_exp*)create_type_fun(&args);
     unify(fun_type, result_type, &env->nogens);
     node->type = prune(fun_type);
-    //printf("analyzing fun: %p, %p\n", (void*)fun_type, (void*)result_type);
-    array_deinit(&args);
     return node->type;
 }
 

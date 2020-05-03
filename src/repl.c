@@ -51,6 +51,7 @@ void eval_statement(void* p_jit, exp_node* node)
 {
     if (node) {
         JIT* jit = (JIT*)p_jit;
+        analyze(jit->env->type_sys, node);
         if (node->node_type == PROTOTYPE_NODE)
             generate_code(jit->cg, node);
         else if (node->node_type == FUNCTION_NODE) {
@@ -71,6 +72,7 @@ JIT* build_jit(menv* env, parser* parser)
 {
     code_generator* cg = cg_new(env, parser);
     JIT* jit = jit_new(cg);
+    jit->env = env;
     //log_info(DEBUG, "creating builtins");
     create_builtins(parser, cg->context);
     //log_info(DEBUG, "creating jit modules");

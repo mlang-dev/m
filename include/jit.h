@@ -15,6 +15,7 @@
 
 #include "codegen.h"
 #include "clib/util.h"
+#include "env.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -23,6 +24,7 @@ extern "C"{
 typedef struct JIT {    
     code_generator* cg;
     void* instance;
+    menv* env;
 }JIT;
 
 JIT* jit_new(code_generator* cg);

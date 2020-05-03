@@ -29,6 +29,7 @@ int compile(const char* fn, object_file_type file_type)
     create_module_and_pass_manager(cg, string_get(&filename));
     generate_runtime_module(cg, parser);
     block_node* block = parse_block(parser, NULL, NULL, NULL);
+    //analyze(env->type_sys, (exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i ++) {
             exp_node* node = *(exp_node**)array_get(&block->nodes, i);

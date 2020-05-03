@@ -71,7 +71,7 @@ typedef struct _type_oper {
 type_var* create_type_var();
 type_oper* create_type_oper(string *name, array *args);
 type_oper* create_nullary_type(const char * type);
-type_oper* create_type_fun(array *args, type_exp* ret);
+type_oper* create_type_fun(array *args);
 void type_exp_free(type_exp* type);
 bool occurs_in_type(type_exp* type1, type_exp* type2);
 type_exp* retrieve_type(string *name, array *nogen, struct hashtable *env); //env pointing to hashtable of (string, type_exp*)

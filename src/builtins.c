@@ -59,8 +59,6 @@ array get_builtins(void* context)
         prototype_node *proto = _create_for_id(context, buiiltin_funs[i]);
         array_push(&builtins, &proto);
     }
-    // auto p = *(prototype_node**)array_get(&builtins, 0);
-    // printf("hello world built in proto type: %d !\n", p->base.node_type);
     array args; //array of string
     string str;
     array_string_init(&args);

@@ -42,11 +42,10 @@ type_oper* create_nullary_type(const char * type)
 }
 
 //args: array of type_exp*
-type_oper* create_type_fun(array* args, type_exp* ret)
+type_oper* create_type_fun(array* args)
 {
     string str;
     string_init_chars(&str, "->");
-    array_push(args, &ret);
     return create_type_oper(&str, args);
 }
 
@@ -89,6 +88,7 @@ type_exp* prune(type_exp* type)
 {
     if (type->kind == KIND_VAR) {
         type_var* var = (type_var*)type;
+        assert(type!=var->instance);
         if (var->instance) {
             var->instance = prune(var->instance);
             return var->instance;
@@ -121,6 +121,8 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
 {
     type1 = prune(type1);
     type2 = prune(type2);
+    if (type1 == type2)
+        return true;
     //log_info(DEBUG, "unify type1 : %d: %s", type1->kind, string_get(&type1->name));
     //log_info(DEBUG, "unify type2 : %d: %s", type2->kind, string_get(&type2->name));
 
@@ -134,7 +136,11 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
         type_var* var = (type_var*)type1;
         if (occurs_in_type(type1, type2) && !is_same_type(type1, type2))
             return false;
-        else {
+        else{
+            // if (type2->kind == KIND_OPER){
+            //     string type2_str = to_string(type2);
+            //     printf("right side is: %s\n", string_get(&type2_str));
+            // }
             var->instance = type2;
         }
     } else {
@@ -148,10 +154,12 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
             for (size_t i = 0; i < array_size(&oper1->args); i++) {
                 if (!unify(*(type_exp**)array_get(&oper1->args, i), *(type_exp**)array_get(&oper2->args, i), nogens))
                     return false;
+                //string type1_str = to_string(*(type_exp**)array_get(&oper1->args, i));
+                //printf("unifyed all args: %zu, %s\n", i, string_get(&type1_str));
             }
         }
     }
-     return true;
+    return true;
 }
 
 // struct CopyEnv {
@@ -189,39 +197,41 @@ type_exp* _fresh_var(type_exp* type1)//, std::map<type_exp*, type_exp*>& env)
     //   return _fresh_var(type1, scan->tail, env);
 }
 
-type_exp* fresh(type_exp* type1, array* nogen)//, std::map<type_exp*, type_exp*>& env)
+type_exp* fresh(type_exp* type, array* nogen)//, std::map<type_exp*, type_exp*>& env)
 {
-    type1 = prune(type1);
-    if (type1->kind == KIND_VAR) {
-        if (!_occurs_in_type_list(type1, nogen)) {
+    type = prune(type);
+    if (type->kind == KIND_VAR) {
+        if (!_occurs_in_type_list(type, nogen)) {
             //generic
-            return _fresh_var(type1);//, env);
+            //printf("generic type: %s\n", string_get(&type->name));
+            return _fresh_var(type);//, env);
         } else
-            return type1;
+            return type;
     }
-    type_oper* op1 = (type_oper*)type1;
+    type_oper* op = (type_oper*)type;
     array refreshed; //array of type_exp*
     array_init(&refreshed, sizeof(type_exp*));
-    for(size_t i = 0; i<array_size(&op1->args); i++){
-        type_exp *type1 = *(type_exp**)array_get(&op1->args, i);
-        type_exp *type = fresh(type1, nogen);//, env);
-        array_push(&refreshed, &type);
+    for(size_t i = 0; i<array_size(&op->args); i++){
+        type_exp *arg_type = *(type_exp**)array_get(&op->args, i);
+        //printf("fresh type: %p, %zu\n", (void*)arg_type, array_size(&op->args));
+        type_exp *new_arg_type = fresh(arg_type, nogen);//, env);
+        array_push(&refreshed, &new_arg_type);
     }
-    return (type_exp*)create_type_oper(&type1->name, &refreshed);
+    return (type_exp*)create_type_oper(&type->name, &refreshed);
 }
 
 type_exp* retrieve_type(string *name, array *nogen, struct hashtable *env)
 {
     type_exp* exp = (type_exp*)hashtable_get(env, string_get(name));
     if (exp) {
-        //std::map<type_exp*, type_exp*> type_env;
         return fresh(exp, nogen);
     }
-    return NULL;
+    return 0;
 }
 
 string to_string(type_exp* type)
 {
+    type = prune(type);
     if (type->kind == KIND_VAR){
         type_var* var = (type_var*)type;
         if(var->instance){

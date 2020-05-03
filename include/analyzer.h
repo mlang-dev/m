@@ -20,7 +20,8 @@ typedef struct _type_env{
     array nogens; //array of type_exp*
 }type_env;
 
-type_env* type_env_new();
+type_exp* retrieve(type_env* env, string *name);
+type_env* type_env_new(void* context);
 void type_env_free(type_env* env);
 type_exp* analyze(type_env* env, exp_node* node);
 

@@ -654,7 +654,7 @@ exp_node* _parse_for(parser* parser, exp_node* parent)
     }
     //convert end variable to a logic
     exp_node* id_node = (exp_node*)create_ident_node(parent, start->loc, string_get(&id_name));
-    printf("end node: %p, %p\n", (void*)id_node, (void*)end_val);
+    //printf("end node: %p, %p\n", (void*)id_node, (void*)end_val);
     exp_node* end = (exp_node*)create_binary_node(parent, end_val->loc, "<", id_node, end_val);
     while (parser->curr_token.token_type == TOKEN_EOS)
         parse_next_token(parser);

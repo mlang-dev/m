@@ -9,11 +9,14 @@
 #ifndef __MLANG_ENV_H__
 #define __MLANG_ENV_H__
 
+#include "analyzer.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct _menv{
+    type_env *type_sys;
     void* context;
 }menv;
 
