@@ -9,18 +9,18 @@
 #include "clib/hashset.h"
 #include "clib/string.h"
 
-// TEST(testHashset, TestAddAndGet)
-// {
-//     hashset hs;
-//     hashset_init(&hs);
-//     int obj1 = 10;
-//     int obj2 = 20;
-//     int obj3 = 30;
-//     hashset_set(&hs, &obj1);
-//     hashset_set(&hs, &obj2);
-//     ASSERT_EQ(2, hashset_size(&hs));
-//     ASSERT_TRUE(hashset_in(&hs, &obj1));
-//     ASSERT_TRUE(hashset_in(&hs, &obj2));
-//     ASSERT_FALSE(hashset_in(&hs, &obj3));
-//     hashset_deinit(&hs);
-// }
+TEST(testHashset, TestAddAndCheck)
+{
+    hashset hs;
+    hashset_init(&hs);
+    const char *str1 = "hello hs1";
+    const char *str2 = "hello hs2";
+    const char *str3 = "no existing";
+    hashset_set(&hs, str1);
+    hashset_set(&hs, str2);
+    ASSERT_EQ(2, hashset_size(&hs));
+    ASSERT_TRUE(hashset_in(&hs, str1));
+    ASSERT_TRUE(hashset_in(&hs, str2));
+    ASSERT_FALSE(hashset_in(&hs, str3));
+    hashset_deinit(&hs);
+}

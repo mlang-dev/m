@@ -66,11 +66,7 @@ void _build_op_precs(struct hashtable* op_precs)
 {
     int num = sizeof(_op_preces) / sizeof(op_prec);
     for (int i = 0; i < num; i++){
-        // value_ref key = {(void*)_op_preces[i].op, strlen(_op_preces[i].op) + 1};
-        // value_ref value = {(void*)&_op_preces[i].prec, sizeof(_op_preces[i].prec)};
-        // hashtable_add_ref(op_precs, key, value);
         hashtable_set(op_precs, _op_preces[i].op, &_op_preces[i].prec);
-        //hashtable_add_p(op_precs, _op_preces[i].op, &_op_preces[i].prec);
     }
 }
 

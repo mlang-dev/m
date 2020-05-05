@@ -31,8 +31,10 @@ JIT* jit_new(code_generator* cg);
 void jit_free(JIT* jit);
 
 void add_module(JIT *jit, void* module);
-typedef double (*target_address)();
-target_address find_target_address(JIT *jit, const char *symbol);
+typedef double (*target_address_double)();
+typedef int (*target_address_int)();
+target_address_double find_target_address_double(JIT *jit, const char *symbol);
+target_address_int find_target_address_int(JIT *jit, const char *symbol);
 
 #ifdef __cplusplus
 }

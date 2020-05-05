@@ -11,6 +11,24 @@
 #include "clib/hash.h"
 #include "builtins.h"
 
+const char * pred_ops[] = {
+    "<",
+    ">",
+    "==",
+    "!=",
+    "<=",
+    ">="
+};
+
+bool _is_pred_op(const char* op)
+{
+    for(size_t i=0; i<sizeof(pred_ops)/sizeof(pred_ops[0]);i++){
+        if (strcmp(pred_ops[i], op) == 0)
+            return true;
+    }
+    return false;
+}
+
 type_exp* _analyze_unk(type_env* env, exp_node* node)
 {
     printf("analyzing unk: %s\n", NodeTypeString[node->node_type]);
@@ -90,11 +108,16 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
     binary_node* bin = (binary_node*)node;
     type_exp* lhs_type = analyze(env, bin->lhs);
     type_exp* rhs_type = analyze(env, bin->rhs);
+    type_exp* result = 0;
     if(unify(lhs_type, rhs_type, &env->nogens)){
-        node->type = lhs_type;
-        return lhs_type;
+        if (_is_pred_op(string_get(&bin->op)))
+            result = (type_exp*)create_nullary_type("bool");
+        else
+            result = lhs_type;
+        node->type = result;
+        return result;
     }
-    return 0;
+    return result;
 }
 
 type_exp* _analyze_cond(type_env* env, exp_node* node)
@@ -149,7 +172,6 @@ type_env* type_env_new(void* context)
         type_exp* exp = (type_exp*)create_type_fun(&double_args);
         hashtable_set(&env->type_env, string_get(&proto->name), exp);
     }
-    //array_deinit(&builtins);
     return env;
 }
 

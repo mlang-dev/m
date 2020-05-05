@@ -67,6 +67,14 @@ struct hashbox* _get_hashbox(struct hash_head *head, const char *key, size_t key
     return NULL;
 }
 
+struct hashbox* _hashtable_get_hashbox(struct hashtable* ht, const char* key)
+{
+	struct hash_head *head;
+    size_t key_size = strlen(key) + 1;
+    head = &ht->heads[_get_index(ht, (unsigned char*)key, key_size)];
+    return _get_hashbox(head, key, key_size);
+}
+
 struct hash_entry* _hash_entry_new(size_t key_size, size_t value_size)
 {
     struct hash_entry *entry = (struct hash_entry*)calloc(1, sizeof(struct hash_entry));
@@ -127,7 +135,8 @@ void hashtable_set(struct hashtable* ht, const char* key, void* value)
     size_t key_size = strlen(key) + 1;
     size_t value_size = sizeof(value);
     _hashtable_grow(ht);
-    struct hash_head *head = &ht->heads[_get_index(ht, (unsigned char*)key, key_size)];
+    size_t index = _get_index(ht, (unsigned char*)key, key_size);
+    struct hash_head *head = &ht->heads[index];
     struct hashbox *box = _get_hashbox(head, key, key_size);
     if(!box){
         struct hash_entry *entry = _hash_entry_new(key_size, value_size);
@@ -141,23 +150,20 @@ void hashtable_set(struct hashtable* ht, const char* key, void* value)
 
 void* hashtable_get(struct hashtable* ht, const char* key)
 {
-	struct hash_head *head;
-    void **data = NULL;
-    struct hashbox *box;
+    void** data;
     size_t key_size = strlen(key) + 1;
-    head = &ht->heads[_get_index(ht, (unsigned char*)key, key_size)];
-    box = _get_hashbox(head, key, key_size);
+    struct hashbox *box = _hashtable_get_hashbox(ht, key);
     if (box){
         data = (void**)(box->key_value_pair + key_size);
-        return data ? *data : NULL;
+        return data ? *data : 0;
     }    
-    return NULL;
+    return 0;
 }
 
 bool hashtable_in(struct hashtable* ht, const char* key)
 {
-    void *data = hashtable_get(ht, key);
-    return data != NULL;
+    struct hashbox *box = _hashtable_get_hashbox(ht, key);
+    return box != 0;
 }
 
 size_t hashtable_size(struct hashtable* ht)

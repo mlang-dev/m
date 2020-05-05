@@ -86,6 +86,24 @@ TEST(testAnalyzer, testDoubleIntLiteralError)
     parser_free(parser);
 }
 
+TEST(testAnalyzer, testGreaterThan)
+{
+    char test_code[] = R"(
+  11>10
+  )";
+    auto parser = create_parser_for_string(test_code);
+    menv* env = env_new();
+    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    menv* menv = env_new();
+    analyze(menv->type_sys, (exp_node*)block);
+    ASSERT_EQ(BINARY_NODE, node->node_type);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("bool", string_get(&type_str));
+    parser_free(parser);
+    env_free(env);
+}
+
 TEST(testAnalyzer, testIdentityFunc)
 {
     reset_id_name("a");

@@ -231,6 +231,11 @@ type_exp* retrieve_type(string *name, array *nogen, struct hashtable *env)
 
 string to_string(type_exp* type)
 {
+    if(!type){
+        string error;
+        string_init_chars(&error, "type error");
+        return error;
+    }
     type = prune(type);
     if (type->kind == KIND_VAR){
         type_var* var = (type_var*)type;
