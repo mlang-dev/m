@@ -33,7 +33,7 @@ size_t _get_index(struct hashtable *ht, unsigned char *key, size_t key_size)
 void _hashtable_grow(struct hashtable* ht)
 {
     struct hash_head *head, *heads, *new_head;
-    struct hash_entry *entry;
+    struct hash_entry *entry, *next;
     size_t cap, index;
 
     if(ht->size > 0.75 * ht->cap){
@@ -43,10 +43,13 @@ void _hashtable_grow(struct hashtable* ht)
         ht->heads = calloc(ht->cap, sizeof(struct hash_head));
         for(size_t i = 0; i < cap; i++){
             head = &heads[i];
-            list_foreach(entry, head, list){
+            entry = head->first;
+            while(entry){
+                next = entry->list.next;
                 index = _get_index(ht, (unsigned char*)entry->data.key_value_pair, entry->data.key_size);
                 new_head = &ht->heads[index];
                 list_insert_head(new_head, entry, list);
+                entry = next;
             }
         }
         free(heads);

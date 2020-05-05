@@ -11,6 +11,7 @@
 #include "clib/hashtable.h"
 #include "clib/string.h"
 #include "clib/generic.h"
+#include "clib/util.h"
 
 // TEST(testHashtable, TestAddAndGet)
 // {
@@ -90,5 +91,42 @@ TEST(testHashtable, TestClear)
     hashtable_clear(&ht);
     ASSERT_FALSE(hashtable_in(&ht, str1));
     ASSERT_FALSE(hashtable_in(&ht, str2));
+    hashtable_deinit(&ht);
+}
+
+TEST(testHashtable, TestHashtableCollision)
+{
+    reset_id_name("a");
+    hashtable ht;
+    hashtable_init(&ht);
+    int j = 99, k = 100;
+    hashtable_set(&ht, "sin", &j);
+    hashtable_set(&ht, "int", &k); 
+    ASSERT_EQ(99, *(int*)hashtable_get(&ht, "sin"));
+    ASSERT_EQ(100, *(int*)hashtable_get(&ht, "int"));
+    ASSERT_EQ(2, hashtable_size(&ht));
+    hashtable_deinit(&ht);
+}
+
+TEST(testHashtable, TestHashtableGrowWithCollision)
+{
+    reset_id_name("a");
+    hashtable ht;
+    hashtable_init(&ht);
+    char strs[20][20];
+    int value[20];
+    int j = 99, k = 100;
+    hashtable_set(&ht, "sin", &j);
+    hashtable_set(&ht, "int", &k); 
+    for(int i = 0; i < 18; i++){
+        value[i] = i;
+        string str = get_id_name();
+        strcpy(strs[i], string_get(&str));
+        hashtable_set(&ht, strs[i], &value[i]);
+    }
+    ASSERT_EQ(0, *(int*)hashtable_get(&ht, strs[0]));
+    ASSERT_EQ(10, *(int*)hashtable_get(&ht, strs[10]));
+    ASSERT_EQ(99, *(int*)hashtable_get(&ht, "sin"));
+    ASSERT_EQ(100, *(int*)hashtable_get(&ht, "int"));
     hashtable_deinit(&ht);
 }

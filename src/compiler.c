@@ -27,7 +27,7 @@ int compile(const char* fn, object_file_type file_type)
     code_generator* cg = cg_new(env, parser);
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, string_get(&filename));
-    generate_runtime_module(cg, parser);
+    generate_runtime_module(cg, &parser->ast->builtins);
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     //analyze(env->type_sys, (exp_node*)block);
     if (block) {

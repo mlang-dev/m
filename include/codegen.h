@@ -31,7 +31,7 @@ code_generator* cg_new(menv* env, parser* parser);
 void cg_free(code_generator* cg);
 void create_module_and_pass_manager(code_generator* cg, const char* module_name);
 void* generate_code(code_generator* cg, exp_node* node);
-void generate_runtime_module(code_generator* cg, parser* parser);
+void generate_runtime_module(code_generator* cg, array *builtins);
 void* create_target_machine(void* module);
 
 #ifdef __cplusplus

@@ -574,10 +574,10 @@ void create_module_and_pass_manager(code_generator* cg,
     // fpm->doInitialization();
 }
 
-void generate_runtime_module(code_generator* cg, parser* parser)
+void generate_runtime_module(code_generator* cg, array* builtins)
 {
-    for (size_t i = 0; i < array_size(&parser->ast->builtins); i++) {
-        exp_node *node = *(exp_node**)array_get(&parser->ast->builtins, i);
+    for (size_t i = 0; i < array_size(builtins); i++) {
+        exp_node *node = *(exp_node**)array_get(builtins, i);
         generate_code(cg, node);
     }
 }

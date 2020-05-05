@@ -37,14 +37,13 @@ type_exp* _analyze_num(type_env* env, exp_node* num)
 type_exp* _analyze_var(type_env* env, exp_node* node)
 {
     var_node* var = (var_node*)node;
-    //printf("analyzing var0: %s, %s\n", string_get(&var->var_name), NodeTypeString[var->init_value->node_type]);
     type_exp* type = analyze(env, var->init_value);
-    if (!type)
-        return type;
+    if(!type)
+        return 0;
     type_exp* result_type = (type_exp*)create_type_var();
     unify(result_type, type, &env->nogens);
     node->type = result_type;
-    //printf("analyzing var: %s\n", string_get(&var->var_name));
+    //printf("analyzing var done: %s\n", string_get(&var->var_name));
     hashtable_set(&env->type_env, string_get(&var->var_name), result_type);
     return result_type;
 }

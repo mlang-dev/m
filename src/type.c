@@ -263,8 +263,5 @@ string to_string(type_exp* type)
         }
     }else{
         assert(false);
-        string empty;
-        string_init(&empty);
-        return empty;
     }
 }

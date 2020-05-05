@@ -3,8 +3,9 @@
  *
  * m repl, interactive JIT running environment
  */
-#include "jit.h"
+#include <assert.h>
 
+#include "jit.h"
 #include "env.h"
 
 
@@ -52,14 +53,22 @@ void eval_statement(void* p_jit, exp_node* node)
     if (node) {
         JIT* jit = (JIT*)p_jit;
         analyze(jit->env->type_sys, node);
-        if (node->node_type == PROTOTYPE_NODE)
+        if(node->type){
+            string node_type = to_string(node->type);
+            printf("%s\n", string_get(&node_type));
+        }
+        if (node->node_type == PROTOTYPE_NODE){
             generate_code(jit->cg, node);
+        }
         else if (node->node_type == FUNCTION_NODE) {
             // function definition
             generate_code(jit->cg, node);
             _add_current_module_to_jit(jit);
             _create_jit_module(jit->cg);
         } else {
+            /*
+             * evaluate an expression
+             */
             double result = eval_exp(jit, node);
             if (node->node_type != VAR_NODE)
                 printf("%f\n", result);
@@ -78,7 +87,7 @@ JIT* build_jit(menv* env, parser* parser)
     //log_info(DEBUG, "creating jit modules");
     _create_jit_module(cg);
     //log_info(DEBUG, "generating runtime modules");
-    generate_runtime_module(cg, parser);
+    generate_runtime_module(cg, &parser->ast->builtins);
     //log_info(DEBUG, "adding to jit");
     _add_current_module_to_jit(jit);
     //log_info(DEBUG, "creating jit modules 2");
