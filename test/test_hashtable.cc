@@ -12,6 +12,7 @@
 #include "clib/string.h"
 #include "clib/generic.h"
 #include "clib/util.h"
+#include "type.h"
 
 // TEST(testHashtable, TestAddAndGet)
 // {
@@ -129,4 +130,24 @@ TEST(testHashtable, TestHashtableGrowWithCollision)
     ASSERT_EQ(99, *(int*)hashtable_get(&ht, "sin"));
     ASSERT_EQ(100, *(int*)hashtable_get(&ht, "int"));
     hashtable_deinit(&ht);
+}
+
+TEST(testHashtable, TestHashtablePointerKey)
+{
+    reset_id_name("a");
+    hashtable ht;
+    hashtable_init(&ht);
+    type_oper *op1 = create_nullary_type("int");
+    type_oper *op2 = create_nullary_type("double");
+    type_oper *op3 = create_nullary_type("bool");
+    hashtable_set_p(&ht, op1, op1);
+    hashtable_set_p(&ht, op2, op2); 
+    ASSERT_EQ(op1, hashtable_get_p(&ht, op1));
+    ASSERT_EQ(op2, hashtable_get_p(&ht, op2));
+    ASSERT_EQ(0, hashtable_get_p(&ht, op3));
+    ASSERT_EQ(2, hashtable_size(&ht));
+    hashtable_deinit(&ht);
+    type_exp_free((type_exp*)op1);
+    type_exp_free((type_exp*)op2);
+    type_exp_free((type_exp*)op3);
 }

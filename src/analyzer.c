@@ -42,6 +42,11 @@ type_exp* retrieve(type_env* env, string *name)
     return retrieve_type(name, &env->nogens, &env->type_env);
 }
 
+void set(type_env* env, const char *name, type_exp* type)
+{
+    set_type(&env->type_env, name, type);
+}
+
 type_exp* _analyze_ident(type_env* env, exp_node* ident)
 {
     return retrieve(env, &((ident_node*)ident)->name);
@@ -62,7 +67,7 @@ type_exp* _analyze_var(type_env* env, exp_node* node)
     unify(result_type, type, &env->nogens);
     node->type = result_type;
     //printf("analyzing var done: %s\n", string_get(&var->var_name));
-    hashtable_set(&env->type_env, string_get(&var->var_name), result_type);
+    set(env, string_get(&var->var_name), result_type);
     return result_type;
 }
 
@@ -159,7 +164,7 @@ type_env* type_env_new(void* context)
         string type_str;
         string_init_chars(&type_str, TypeString[i]);
         type_exp* exp = (type_exp*)create_type_oper(&type_str, &args);
-        hashtable_set(&env->type_env, TypeString[i], exp);
+        set(env, TypeString[i], exp);
     }
     type_exp* double_type = (type_exp*)create_nullary_type("double");
     array double_args;
@@ -170,7 +175,7 @@ type_env* type_env_new(void* context)
     for(size_t i = 0; i < array_size(&builtins); i++){
         prototype_node* proto = *(prototype_node**)array_get(&builtins, i);
         type_exp* exp = (type_exp*)create_type_fun(&double_args);
-        hashtable_set(&env->type_env, string_get(&proto->name), exp);
+        set(env, string_get(&proto->name), exp);
     }
     return env;
 }
@@ -217,12 +222,12 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
         type_exp *exp = (type_exp*)create_type_var();
         array_push(&args, &exp);
         array_push(&env->nogens, &exp);
-        char *arg_str = string_get((string*)array_get(&fun->prototype->args, i));
-        hashtable_set(&env->type_env, arg_str, exp);
+        const char *arg_str = string_get((string*)array_get(&fun->prototype->args, i));
+        set(env, arg_str, exp);
         //printf("setting fun arg: %s\n", arg_str);
     }
     type_exp *fun_type = (type_exp*)create_type_var();
-    hashtable_set(&env->type_env, string_get(&fun->prototype->name), fun_type);
+    set(env, string_get(&fun->prototype->name), fun_type);
     type_exp* ret_type = analyze(env, (exp_node*)fun->body); 
     array_push(&args, &ret_type);
     type_exp* result_type = (type_exp*)create_type_fun(&args);

@@ -29,17 +29,13 @@ double eval_exp(JIT* jit, exp_node* node)
     NodeType node_type = node->node_type;
     double result = 0.0;
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
+    analyze(jit->env->type_sys, node);
+    //string node_type_str = to_string(node->type);
+    //printf("%s\n", string_get(&node_type_str));
     if (node) {
         void* p_fun = generate_code(jit->cg, node);
         if (p_fun) {
-            if(node->type){
-                printf("hello0, %p, %s\n", (void*)node->type, NodeTypeString[node->node_type]);
-                string node_type_str = to_string(node->type);
-                printf("hello1\n");
-                printf("inferred type: %s\n", string_get(&node_type_str));
-            }
             _add_current_module_to_jit(jit);
-
             target_address_double fp = find_target_address_double(jit, string_get(&fn));
             //LLVMDumpModule(module);
             // keep global variables in the jit
@@ -59,8 +55,10 @@ void eval_statement(void* p_jit, exp_node* node)
     if (node) {
         JIT* jit = (JIT*)p_jit;
         analyze(jit->env->type_sys, node);
+        //printf("node typed: %p\n", (void*)node->type);
         string type_node_str = to_string(node->type);
         printf("%s\n", string_get(&type_node_str));
+        string_deinit(&type_node_str);
         if (node->node_type == PROTOTYPE_NODE){
             generate_code(jit->cg, node);
         }
@@ -73,6 +71,7 @@ void eval_statement(void* p_jit, exp_node* node)
             /*
              * evaluate an expression
              */
+            //printf("eval exp\n");
             double result = eval_exp(jit, node);
             if (node->node_type != VAR_NODE)
                 printf("%f\n", result);

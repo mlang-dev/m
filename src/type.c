@@ -229,6 +229,11 @@ type_exp* retrieve_type(string *name, array *nogen, struct hashtable *env)
     return 0;
 }
 
+void set_type(struct hashtable *env, const char *name, type_exp* type)
+{
+    hashtable_set(env, name, type);
+}
+
 string to_string(type_exp* type)
 {
     if(!type){
@@ -267,6 +272,7 @@ string to_string(type_exp* type)
             return typestr;
         }
     }else{
+        printf("type kind: %d\n", type->kind);
         assert(false);
     }
 }

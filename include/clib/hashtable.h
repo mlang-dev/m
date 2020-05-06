@@ -45,8 +45,14 @@ size_t hashtable_size(struct hashtable *ht);
 // bool hashtable_in(hashtable* hs, void *key);
 // bool hashtable_in_ref(hashtable *ht, value_ref key);
 void hashtable_set(struct hashtable *ht, const char *key, void *value);
+void hashtable_set_g(struct hashtable* ht, void* key, size_t key_size, void* value);
+void hashtable_set_p(struct hashtable* ht, void* key, void *value);
 void* hashtable_get(struct hashtable *ht, const char *key);
+void* hashtable_get_g(struct hashtable *ht, void *key, size_t key_size);
+void* hashtable_get_p(struct hashtable *ht, void *key);
 bool hashtable_in(struct hashtable *ht, const char *key);
+bool hashtable_in_g(struct hashtable* ht, void *key, size_t key_size);
+bool hashtable_in_p(struct hashtable* ht, void *key);
 void hashtable_clear(struct hashtable* ht);
 void hashtable_remove(struct hashtable* ht, const char* key);
 

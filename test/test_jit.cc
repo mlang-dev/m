@@ -9,6 +9,26 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
+
+TEST(testJIT, testNumber)
+{
+    char test_code[] = R"(
+  10
+  10
+  )";
+    auto parser = create_parser_for_string(test_code);
+    menv* env = env_new();
+    JIT* jit = build_jit(env, parser);
+    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    auto node1 = *(exp_node**)array_front(&block->nodes);
+    auto result = eval_exp(jit, node1);
+    auto node2 = *(exp_node**)array_back(&block->nodes);
+    result = eval_exp(jit, node2);
+    ASSERT_EQ(10.0, result);
+    jit_free(jit);
+    env_free(env);
+}
+
 TEST(testJIT, testIdFunc)
 {
     char test_code[] = R"(
@@ -20,7 +40,7 @@ TEST(testJIT, testIdFunc)
     JIT* jit = build_jit(env, parser);
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
-    auto node1 = *(exp_node**)array_get(&block->nodes, 1);
+    auto node1 = *(exp_node**)array_back(&block->nodes);
     eval_statement(jit, node);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(10.0, result);
