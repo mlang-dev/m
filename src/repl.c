@@ -55,10 +55,11 @@ void eval_statement(void* p_jit, exp_node* node)
     if (node) {
         JIT* jit = (JIT*)p_jit;
         analyze(jit->env->type_sys, node);
-        //printf("node typed: %p\n", (void*)node->type);
         string type_node_str = to_string(node->type);
         printf("%s\n", string_get(&type_node_str));
         string_deinit(&type_node_str);
+        if (!node->type)
+            goto exit;
         if (node->node_type == PROTOTYPE_NODE){
             generate_code(jit->cg, node);
         }
@@ -77,6 +78,7 @@ void eval_statement(void* p_jit, exp_node* node)
                 printf("%f\n", result);
         }
     }
+exit:
     fprintf(stderr, "m> ");
 }
 

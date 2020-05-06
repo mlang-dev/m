@@ -135,3 +135,14 @@ TEST(testLexer, testDouble)
     ASSERT_EQ(30.5, token->double_val);
     destroy_tokenizer(tokenizer);
 }
+
+TEST(testLexer, testMoreDouble)
+{
+    char test_code[] = "30.12";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_NUM, token->token_type);
+    ASSERT_EQ(TYPE_DOUBLE, token->type);
+    ASSERT_EQ(30.12, token->double_val);
+    destroy_tokenizer(tokenizer);
+}

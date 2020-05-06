@@ -29,6 +29,22 @@ TEST(testJIT, testNumber)
     env_free(env);
 }
 
+TEST(testJIT, testTypeError)
+{
+    char test_code[] = R"(
+  10 + 10.0
+  )";
+    auto parser = create_parser_for_string(test_code);
+    menv* env = env_new();
+    JIT* jit = build_jit(env, parser);
+    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    eval_statement(jit, node);
+    ASSERT_EQ(0, node->type);
+    jit_free(jit);
+    env_free(env);
+}
+
 TEST(testJIT, testIdFunc)
 {
     char test_code[] = R"(

@@ -54,9 +54,11 @@ num_node* create_double_node(exp_node* parent, source_loc loc, double val)
 {
     string str;
     string_init_chars(&str, "double");
+    array args;
+    array_init(&args, sizeof(type_exp*));
     num_node* node = (num_node*)malloc(sizeof(num_node));
     node->base.node_type = NUMBER_NODE;
-    node->base.type = (type_exp*)create_type_oper(&str, NULL);
+    node->base.type = (type_exp*)create_type_oper(&str, &args);
     node->base.parent = parent;
     node->base.loc = loc;
     node->double_val = val;
@@ -67,9 +69,11 @@ num_node* _create_int_node(exp_node* parent, source_loc loc, int val, const char
 {
     string str;
     string_init_chars(&str, type);
+    array args;
+    array_init(&args, sizeof(type_exp*));
     num_node* node = (num_node*)malloc(sizeof(num_node));
     node->base.node_type = NUMBER_NODE;
-    node->base.type = (type_exp*)create_type_oper(&str, NULL);;
+    node->base.type = (type_exp*)create_type_oper(&str, &args);;
     node->base.parent = parent;
     node->base.loc = loc;
     node->double_val = val;

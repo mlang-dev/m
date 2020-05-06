@@ -44,7 +44,7 @@ type_exp* retrieve(type_env* env, string *name)
 
 void set(type_env* env, const char *name, type_exp* type)
 {
-    set_type(&env->type_env, name, type);
+     set_type(&env->type_env, name, type);
 }
 
 type_exp* _analyze_ident(type_env* env, exp_node* ident)
@@ -52,9 +52,9 @@ type_exp* _analyze_ident(type_env* env, exp_node* ident)
     return retrieve(env, &((ident_node*)ident)->name);
 }
 
-type_exp* _analyze_num(type_env* env, exp_node* num)
+type_exp* _analyze_num(type_env* env, exp_node* node)
 {
-    return retrieve(env, &((num_node*)num)->base.type->name);
+    return retrieve(env, &node->type->name);
 }
 
 type_exp* _analyze_var(type_env* env, exp_node* node)
@@ -65,7 +65,6 @@ type_exp* _analyze_var(type_env* env, exp_node* node)
         return 0;
     type_exp* result_type = (type_exp*)create_type_var();
     unify(result_type, type, &env->nogens);
-    node->type = result_type;
     //printf("analyzing var done: %s\n", string_get(&var->var_name));
     set(env, string_get(&var->var_name), result_type);
     return result_type;
@@ -90,7 +89,6 @@ type_exp* _analyze_call(type_env* env, exp_node* node)
     unify((type_exp*)create_type_fun(&args), fun_type, &env->nogens);
     // string result = to_string(result_type);
     // printf("returning called type: %s\n", string_get(&result));
-    node->type = result_type;
     return result_type;
 }
 
@@ -103,7 +101,6 @@ type_exp* _analyze_una(type_env* env, exp_node* node)
         type_exp* bool_type = (type_exp*)create_nullary_type("bool");
         unify(op_type, bool_type, &env->nogens);
         unary->operand->type = op_type;
-        node->type = op_type;
     }
     return op_type;
 }
@@ -119,7 +116,6 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
             result = (type_exp*)create_nullary_type("bool");
         else
             result = lhs_type;
-        node->type = result;
         return result;
     }
     return result;
@@ -195,11 +191,10 @@ type_exp* _analyze_block(type_env* env, exp_node* node)
 {
     block_node* block = (block_node*)node;
     //std::vector<type_exp*> exps;
-    type_exp* exp = NULL;
+    type_exp* exp = 0;
     for (size_t i = 0; i < array_size(&block->nodes); i++) {
         exp_node *node = *(exp_node**)array_get(&block->nodes, i);
         exp = analyze(env, node);//exps.push_back(analyze(env, node));
-        node->type = exp;
     }
     return exp;
 }
@@ -232,8 +227,7 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
     array_push(&args, &ret_type);
     type_exp* result_type = (type_exp*)create_type_fun(&args);
     unify(fun_type, result_type, &env->nogens);
-    node->type = prune(fun_type);
-    return node->type;
+    return prune(fun_type);
 }
 
 type_exp* (*analyze_fp[])(type_env*, exp_node*) = {
@@ -253,5 +247,7 @@ type_exp* (*analyze_fp[])(type_env*, exp_node*) = {
 
 type_exp* analyze(type_env* env, exp_node* node)
 {
-    return analyze_fp[node->node_type](env, node);
+    type_exp *type = analyze_fp[node->node_type](env, node);
+    node->type = type;
+    return type;
 }

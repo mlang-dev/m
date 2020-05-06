@@ -135,7 +135,9 @@ token* _tokenize_number(file_tokenizer* tokenizer)
     do {
         string symbol;
         string_init(&symbol);
-        has_dot = _tokenize_symbol(tokenizer, &symbol);
+        bool met_dot = _tokenize_symbol(tokenizer, &symbol);
+        if (!has_dot)
+            has_dot = met_dot;
         TokenType type = get_token_type(string_get(&symbol));
         if (type) {
             if (string_eq_chars(&num_str, "")) {
@@ -152,7 +154,7 @@ token* _tokenize_number(file_tokenizer* tokenizer)
         tokenizer->curr_char[0] = get_char(tokenizer);
     } while (isdigit(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '.');
     if (has_dot) {
-        tokenizer->cur_token.double_val = strtod(string_get(&num_str), NULL);
+        tokenizer->cur_token.double_val = strtod(string_get(&num_str), 0);
         tokenizer->cur_token.type = TYPE_DOUBLE;
     } else {
         tokenizer->cur_token.int_val = atoi(string_get(&num_str));
