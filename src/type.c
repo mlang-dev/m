@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "type.h"
+#include "clib/hashtable.h"
 
 type_var* create_type_var()
 {
@@ -78,12 +79,6 @@ string format_type(type_exp* exp)
     return str;
 }
 
-bool is_same_type(type_exp* type1, type_exp* type2)
-{
-    return type1 == type2;
-    //return type1->kind == type2->kind && type1->name == type2->name;
-}
-
 type_exp* prune(type_exp* type)
 {
     if (type->kind == KIND_VAR) {
@@ -97,25 +92,26 @@ type_exp* prune(type_exp* type)
     return type;
 }
 
-bool _occurs_in_type_list(type_exp* type1, array* list)
+bool _occurs_in_type_list(type_var* var, array* list)
 {
     for (unsigned i = 0; i < array_size(list); i++){
         type_exp *type = *(type_exp**)array_get(list, i);
-        if (occurs_in_type(type1, type))
+        if (occurs_in_type(var, type))
             return true;
     }
     return false;
 }
 
-bool occurs_in_type(type_exp* type1, type_exp* type2)
+bool occurs_in_type(type_var* var, type_exp* type2)
 {
     type2 = prune(type2);
     if (type2->kind == KIND_VAR) {
-        return is_same_type(type1, type2);
+        return (type_exp*)var == type2;
     }
     type_oper* oper = (type_oper*)type2;
-    return _occurs_in_type_list(type1, &oper->args);
+    return _occurs_in_type_list(var, &oper->args);
 }
+
 
 bool unify(type_exp* type1, type_exp* type2, array *nogens)
 {
@@ -128,13 +124,13 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
 
     //not unify a generic one with no-generic one
     if (type1->kind == KIND_VAR && type2->kind == KIND_VAR) {
-        if (_occurs_in_type_list(type1, nogens) && !_occurs_in_type_list(type2, nogens))
+        if (_occurs_in_type_list((type_var*)type1, nogens) && !_occurs_in_type_list((type_var*)type2, nogens))
             return unify(type2, type1, nogens);
     }
 
     if (type1->kind == KIND_VAR) {
         type_var* var = (type_var*)type1;
-        if (occurs_in_type(type1, type2) && !is_same_type(type1, type2))
+        if (occurs_in_type(var, type2) && type1 != type2)
             return false;
         else{
             // if (type2->kind == KIND_OPER){
@@ -162,49 +158,24 @@ bool unify(type_exp* type1, type_exp* type2, array *nogens)
     return true;
 }
 
-// struct CopyEnv {
-//     type_exp* old_type;
-//     type_exp* new_type;
-//     CopyEnv* tail;
-// };
-
-// CopyEnv* copy_env(type_exp* old_type, type_exp* new_type, CopyEnv* tail)
-// {
-//     auto env = new CopyEnv();
-//     env->old_type = old_type;
-//     env->new_type = new_type;
-//     env->tail = tail;
-//     return env;
-// }
-
-type_exp* _fresh_var(type_exp* type1)//, std::map<type_exp*, type_exp*>& env)
+bool _is_generic(type_var* var, array* nogen)
 {
-    if (!type1)
-        return NULL;
-    //if (env[type1]) //std::map<type_exp*, type_exp*>& env
-    //    return env[type1];
-    type_exp* new_type = (type_exp*)create_type_var();
-    //env[new_type] = new_type;
-    return new_type;
-    // if (!scan){
-    //   auto new_type = (type_exp*)create_type_var();
-    //   env = copy_env(type1, new_type, env);
-    //   return new_type;
-    // }
-    // else if(is_same_type(type1, scan->old_type))
-    //   return scan->new_type;
-    // else
-    //   return _fresh_var(type1, scan->tail, env);
+    return !_occurs_in_type_list(var, nogen);
 }
 
-type_exp* fresh(type_exp* type, array* nogen)//, std::map<type_exp*, type_exp*>& env)
+type_exp* _freshrec(type_exp* type, array* nogen, struct hashtable *type_vars)
 {
     type = prune(type);
     if (type->kind == KIND_VAR) {
-        if (!_occurs_in_type_list(type, nogen)) {
-            //generic
+        type_var *var = (type_var*)type;
+        if (_is_generic(var, nogen)) {
             //printf("generic type: %s\n", string_get(&type->name));
-            return _fresh_var(type);//, env);
+            type_var *temp = hashtable_get_p(type_vars, var);
+            if (!temp){
+                temp = create_type_var();
+                hashtable_set_p(type_vars, var, temp);
+            }
+            return (type_exp*)temp;
         } else
             return type;
     }
@@ -214,10 +185,19 @@ type_exp* fresh(type_exp* type, array* nogen)//, std::map<type_exp*, type_exp*>&
     for(size_t i = 0; i<array_size(&op->args); i++){
         type_exp *arg_type = *(type_exp**)array_get(&op->args, i);
         //printf("fresh type: %p, %zu\n", (void*)arg_type, array_size(&op->args));
-        type_exp *new_arg_type = fresh(arg_type, nogen);//, env);
+        type_exp *new_arg_type = _freshrec(arg_type, nogen, type_vars);//, env);
         array_push(&refreshed, &new_arg_type);
     }
     return (type_exp*)create_type_oper(&type->name, &refreshed);
+}
+
+type_exp* fresh(type_exp* type, array* nogen)
+{
+    struct hashtable type_vars;
+    hashtable_init(&type_vars);
+    type_exp* result = _freshrec(type, nogen, &type_vars);
+    hashtable_deinit(&type_vars);
+    return result;
 }
 
 type_exp* retrieve_type(string *name, array *nogen, struct hashtable *env)
