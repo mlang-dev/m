@@ -52,42 +52,30 @@ void cg_free(code_generator* cg)
 
 LLVMValueRef _get_function(code_generator* cg, const char* name)
 {
-    // First, see if the function has already been added to the current module.
     LLVMValueRef f = LLVMGetNamedFunction((LLVMModuleRef)cg->module, name);
     if (f)
         return f;
 
-    // If not, check whether we can codegen the declaration from some existing
-    // prototype.
     exp_node* fp = (exp_node*)hashtable_get(&cg->protos, name);
     if (fp)
         return (LLVMValueRef)_generate_prototype_node(cg, fp);
 
-    // If no existing prototype exists, return null.
-    return NULL;
+    return 0;
 }
 
 LLVMValueRef _get_global_variable(code_generator* cg, const char *name)
 {
-    // First, see if the function has already been added to the current module.
     LLVMValueRef gv = LLVMGetNamedGlobal((LLVMModuleRef)cg->module, name);
     if (gv)
         return gv;
-
-    // If not, it's defined in other module, we can codegen the external
-    // declaration from existing type.
     var_node* fgv = (var_node*)hashtable_get(&cg->gvs, name);//.find(name);
     if (fgv) {
-        // log_info(DEBUG, "found defition before");
         return (LLVMValueRef)_generate_global_var_node(cg, fgv, true);
     }
 
-    // If no existing prototype exists, return null.
-    return NULL;
+    return 0;
 }
 
-/// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
-/// the function.  This is used for mutable variables etc.
 LLVMValueRef _create_entry_block_alloca(code_generator* cg,
     LLVMValueRef fun,
     const char *var_name)
@@ -100,13 +88,10 @@ LLVMValueRef _create_entry_block_alloca(code_generator* cg,
     return alloca;
 }
 
-/// _create_argument_allocas - Create an alloca for each argument and register
-/// the argument in the symbol table so that references to it will succeed.
 void _create_argument_allocas(code_generator* cg, prototype_node* node,
     LLVMValueRef fun)
 {
     for (unsigned i = 0; i< LLVMCountParams(fun); i++) {
-        // Create an alloca for this variable.
         LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, string_get((string*)array_get(&node->args, i)));
 
         // Create a debug descriptor for the variable.
@@ -122,11 +107,7 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
                             Builder.GetInsertBlock());
     */
 
-        // Store the initial value into the alloca.
-        //builder->CreateStore(arg_it, alloca);
         LLVMBuildStore((LLVMBuilderRef)cg->builder, LLVMGetParam(fun, i), alloca);
-
-        // Add arguments to variable symbol table.
         hashtable_set(&cg->named_values, string_get((string*)array_get(&node->args, i)), alloca);
     }
 }
@@ -159,7 +140,7 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
     LLVMValueRef lv = (LLVMValueRef)generate_code(cg, bin->lhs);
     LLVMValueRef rv = (LLVMValueRef)generate_code(cg, bin->rhs);
     if (!lv || !rv)
-        return NULL;
+        return 0;
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMContextRef context = (LLVMContextRef)cg->context;
     if (string_eq_chars(&bin->op, "+"))
@@ -217,7 +198,7 @@ void* _generate_call_node(code_generator* cg, exp_node* node)
             "generated in llvm): %lu, calling: %lu",
             LLVMCountParams(callee), array_size(&call->args));
 
-    LLVMValueRef arg_values[array_size(&call->args)];//variable-length array, C99 feature
+    LLVMValueRef arg_values[array_size(&call->args)];
     for (unsigned long i = 0, e = array_size(&call->args); i != e; ++i) {
         LLVMValueRef ret = (LLVMValueRef)generate_code(cg, *(exp_node**)array_get(&call->args, i));
         if (!ret)
@@ -253,7 +234,6 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
 void* _generate_function_node(code_generator* cg, exp_node* node)
 {
     function_node* funn = (function_node*)node;
-    //cg->named_values.clear();
     hashtable_clear(&cg->named_values);
     LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMValueRef fun = (LLVMValueRef)_generate_prototype_node(cg, (exp_node*)funn->prototype);
@@ -317,19 +297,15 @@ void* _generate_condition_node(code_generator* cg, exp_node* node)
 
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    // Convert condition to a bool by comparing equal to 0.0.
     cond_v = LLVMBuildFCmp(builder, LLVMRealONE, cond_v, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0), "ifcond");
 
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(builder));// builder->GetInsertBlock()->getParent();
 
-    // Create blocks for the then and else cases.  Insert the 'then' block at the
-    // end of the function.
     LLVMBasicBlockRef then_bb = LLVMAppendBasicBlockInContext(context, fun, "then");
     LLVMBasicBlockRef else_bb = LLVMCreateBasicBlockInContext(context, "else");
     LLVMBasicBlockRef merge_bb = LLVMCreateBasicBlockInContext(context, "ifcont");
 
     LLVMBuildCondBr(builder, cond_v, then_bb, else_bb);
-    // Emit then value.
     LLVMPositionBuilderAtEnd(builder, then_bb);
 
     LLVMValueRef then_v = (LLVMValueRef)generate_code(cg, cond->then_node);
@@ -337,7 +313,6 @@ void* _generate_condition_node(code_generator* cg, exp_node* node)
         return 0;
 
     LLVMBuildBr(builder, merge_bb);
-    // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
     then_bb = LLVMGetInsertBlock(builder);
 
     LLVMAppendExistingBasicBlock(fun, else_bb);
@@ -393,30 +368,21 @@ void* _generate_var_node(code_generator* cg, exp_node* node)
 
 void* _generate_local_var_node(code_generator* cg, var_node* node)
 {
-    //std::vector<LLVMValueRef> old_bindings;
-
-    LLVMContextRef context = (LLVMContextRef)cg->context;
+   LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     // fprintf(stderr, "_generate_var_node:1 %lu!, %lu\n", node->var_names.size(),
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(builder));// builder->GetInsertBlock()->getParent();
     // fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
-
-    // Register all variables and emit their initializer.
     const char * var_name = string_get(&node->var_name);
     // log_info(DEBUG, "local var cg: %s", var_name.c_str());
     exp_node* init = node->init_value;
 
-    // Emit the initializer before adding the variable to scope, this prevents
-    // the initializer from referencing the variable itself, and permits stuff
-    // like this:
-    //  var a = 1 in
-    //    var a = a in ...   # refers to outer 'a'.
     LLVMValueRef init_val;
     if (init) {
         init_val = (LLVMValueRef)generate_code(cg, init);
         if (init_val == 0)
             return 0;
-    } else { // If not specified, use 0.0.
+    } else { 
         init_val = LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0);
     }
 
@@ -434,25 +400,6 @@ void* _generate_local_var_node(code_generator* cg, var_node* node)
 
 void* _generate_for_node(code_generator* cg, exp_node* node)
 {
-    // Output this as:
-    //   var = alloca double
-    //   ...
-    //   start = startexpr
-    //   store start -> var
-    //   goto loop
-    // loop:
-    //   ...
-    //   bodyexpr
-    //   ...
-    // loopend:
-    //   step = stepexpr
-    //   endcond = endexpr
-    //
-    //   curvar = load var
-    //   nextvar = curvar + step
-    //   store nextvar -> var
-    //   br endcond, loop, endloop
-    // outloop:
     for_node* forn = (for_node*)node;
     const char* var_name = string_get(&forn->var_name);
     LLVMContextRef context = (LLVMContextRef)cg->context;
@@ -460,79 +407,52 @@ void* _generate_for_node(code_generator* cg, exp_node* node)
     LLVMBasicBlockRef bb = LLVMGetInsertBlock(builder);
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
-    // Create an alloca for the variable in the entry block.
     LLVMValueRef alloca = _create_entry_block_alloca(cg, (LLVMValueRef)fun, var_name);
 
     // KSDbgInfo.emitLocation(this);
-    // Emit the start code first, without 'variable' in scope.
     LLVMValueRef start_v = (LLVMValueRef)generate_code(cg, forn->start);
     if (start_v == 0)
         return 0;
 
-    // Store the value into the alloca.
     LLVMBuildStore(builder, start_v, alloca);
-    // Make the new basic block for the loop header, inserting after current
-    // block.
     LLVMBasicBlockRef loop_bb = LLVMAppendBasicBlockInContext(context, fun, "loop");
-
-    // Insert an explicit fall through from the current block to the LoopBB.
     LLVMBuildBr(builder, loop_bb);
-
-    // Start insertion in LoopBB.
     LLVMPositionBuilderAtEnd(builder, loop_bb);
 
-    // Within the loop, the variable is defined equal  the PHI node.  If it
-    // shadows an existing variable, we have to restore it, so save it now.
     LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get(&cg->named_values, var_name);
     hashtable_set(&cg->named_values, var_name, alloca);
 
-    // Emit the body of the loop.  This, like any other expr, can change the
-    // current BB.  Note that we ignore the value computed by the body, but don't
-    // allow an error.
     if (generate_code(cg, forn->body) == 0)
         return 0;
 
-    // Emit the step value.
     LLVMValueRef step_v;
     if (forn->step) {
         step_v = (LLVMValueRef)generate_code(cg, forn->step);
         if (step_v == 0)
             return 0;
     } else {
-        // If not specified, use 1.0.
         step_v = LLVMConstReal(LLVMDoubleTypeInContext(context), 1.0);
     }
 
-    // Compute the end condition.
     LLVMValueRef end_cond = (LLVMValueRef)generate_code(cg, forn->end);
     if (end_cond == 0)
         return end_cond;
 
-    // Reload, increment, and restore the alloca.  This handles the case where
-    // the body of the loop mutates the variable.
     LLVMValueRef cur_var = LLVMBuildLoad(builder, alloca, var_name);
     LLVMValueRef next_var = LLVMBuildFAdd(builder, cur_var, step_v, "nextvar");
     LLVMBuildStore(builder, next_var, alloca);
-    // Convert condition to a bool by comparing non-equal to 0.0.
     end_cond = LLVMBuildFCmp(builder, LLVMRealONE, end_cond, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0), "loopcond");
 
-    // Create the "after loop" block and insert it.
     LLVMBasicBlockRef after_bb = LLVMAppendBasicBlockInContext(context, fun, "afterloop");
 
-    // Insert the conditional branch into the end of LoopEndBB.
     LLVMBuildCondBr(builder, end_cond, loop_bb, after_bb);
-
-    // Any new code will be inserted in AfterBB.
     LLVMPositionBuilderAtEnd(builder, after_bb);
 
-    // Restore the unshadowed variable.
     if (old_alloca)
-        //cg->named_values[varname] = old_alloca;
         hashtable_set(&cg->named_values, var_name, old_alloca);
     else
         hashtable_remove(&cg->named_values, var_name);
 
-    // for expr always returns 0.0.
     return LLVMConstNull(LLVMDoubleTypeInContext(context));
 }
 
@@ -550,7 +470,6 @@ void* _generate_block_node(code_generator* cg, exp_node* node)
 void create_module_and_pass_manager(code_generator* cg,
     const char* module_name)
 {
-    // Open a new module.
     LLVMModuleRef moduleRef = LLVMModuleCreateWithNameInContext(module_name, (LLVMContextRef)cg->context);
     LLVMTargetMachineRef target_marchine = (LLVMTargetMachineRef)create_target_machine(moduleRef);
     LLVMTargetDataRef data_layout = LLVMCreateTargetDataLayout(target_marchine);
@@ -587,7 +506,7 @@ void* _generate_unk_node(code_generator* cg, exp_node* node)
     if (!cg || !node)
         return 0;
 
-    return NULL;
+    return 0;
 }
 
 void* (*cg_fp[])(code_generator*, exp_node*) = {
@@ -619,7 +538,7 @@ void* create_target_machine(void* pmodule)
     LLVMTargetRef target;
     if (LLVMGetTargetFromTriple(target_triple, &target, &error)) {
         log_info(ERROR, "error in creating target machine: %s", error);
-        return NULL;
+        return 0;
     }
     const char* cpu = "generic";
     const char* features = "";
