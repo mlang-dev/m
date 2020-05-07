@@ -15,6 +15,58 @@
 #include "clib/array.h"
 #include "clib/object.h"
 
+typedef LLVMValueRef (*binary_op)(LLVMBuilderRef, LLVMValueRef LHS, LLVMValueRef RHS,
+                          const char *Name);
+struct binary_ops
+{
+    binary_op add;
+    binary_op sub;
+    binary_op mul;
+    binary_op div;
+};
+
+struct binary_ops bin_ops[2] = {
+    {
+        LLVMBuildFAdd,
+        LLVMBuildSub,
+        LLVMBuildMul,
+        LLVMBuildSDiv
+    },
+    {
+        LLVMBuildFAdd,
+        LLVMBuildFSub,
+        LLVMBuildFMul,
+        LLVMBuildFDiv
+    }
+};
+/*
+    else if (string_eq_chars(&bin->op, "<")) {
+        lv = LLVMBuildFCmp(builder, LLVMRealULT, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+            "booltmp");
+    } else if (string_eq_chars(&bin->op, ">")) {
+        lv = LLVMBuildFCmp(builder, LLVMRealUGT, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+            "booltmp");
+    } else if (string_eq_chars(&bin->op, "==")) {
+        lv = LLVMBuildFCmp(builder, LLVMRealUEQ, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+            "booltmp");
+    } else if (string_eq_chars(&bin->op, "!=")) {
+        lv = LLVMBuildFCmp(builder, LLVMRealUNE, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+            "booltmp");
+    } else if (string_eq_chars(&bin->op, "<=")) {
+        lv = LLVMBuildFCmp(builder, LLVMRealULE, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+            "booltmp");
+    } else if (string_eq_chars(&bin->op, ">=")) {
+        lv = LLVMBuildFCmp(builder, LLVMRealUGE, lv, rv, "cmptmp");
+        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+            "booltmp");
+*/
+
+
 void* _generate_global_var_node(code_generator* cg, var_node* node,
     bool is_external);
 void* _generate_local_var_node(code_generator* cg, var_node* node);
@@ -143,8 +195,10 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
         return 0;
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMContextRef context = (LLVMContextRef)cg->context;
+    int method_index = (bin->base.type && bin->base.type->type==TYPE_INT) ? 0 : 1;
+    struct binary_ops *ops = &bin_ops[method_index];
     if (string_eq_chars(&bin->op, "+"))
-        return LLVMBuildFAdd(builder, lv, rv, "addtmp");
+        return ops->add(builder, lv, rv, "addtmp");
     else if (string_eq_chars(&bin->op,"-"))
         return LLVMBuildFSub(builder, lv, rv, "subtmp");
     else if (string_eq_chars(&bin->op, "*"))
@@ -388,12 +442,7 @@ void* _generate_local_var_node(code_generator* cg, var_node* node)
 
     LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, var_name);
     LLVMBuildStore(builder, init_val, alloca);
-    // Remember the old variable binding so that we can restore the binding when
-    // we unrecurse.
-    //old_bindings.push_back((LLVMValueRef)hashtable_get_p(&cg->named_values, var_name));
     hashtable_set(&cg->named_values, var_name, alloca);
-    // Remember this binding.
-    //cg->named_values[var_name] = alloca;
     return 0;
     // KSDbgInfo.emitLocation(this);
 }

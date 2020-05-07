@@ -137,9 +137,9 @@ TEST(testHashtable, TestHashtablePointerKey)
     reset_id_name("a");
     hashtable ht;
     hashtable_init(&ht);
-    type_oper *op1 = create_nullary_type("int");
-    type_oper *op2 = create_nullary_type("double");
-    type_oper *op3 = create_nullary_type("bool");
+    type_oper *op1 = create_nullary_type(TYPE_INT);
+    type_oper *op2 = create_nullary_type(TYPE_DOUBLE);
+    type_oper *op3 = create_nullary_type(TYPE_BOOL);
     hashtable_set_p(&ht, op1, op1);
     hashtable_set_p(&ht, op2, op2); 
     ASSERT_EQ(op1, hashtable_get_p(&ht, op1));

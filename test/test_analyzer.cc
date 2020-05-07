@@ -22,7 +22,7 @@ TEST(testAnalyzer, testIntVariable)
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
-    ASSERT_STREQ("int", string_get(&node->init_value->type->name));
+    ASSERT_EQ(TYPE_INT, node->init_value->type->type);
     ASSERT_EQ(KIND_VAR, node->base.type->kind);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int", string_get(&type_str));
@@ -42,7 +42,7 @@ TEST(testAnalyzer, testDoubleVariable)
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
-    ASSERT_STREQ("double", string_get(&node->init_value->type->name));
+    ASSERT_EQ(TYPE_DOUBLE, node->init_value->type->type);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("double", string_get(&type_str));
     env_free(menv);
@@ -62,7 +62,7 @@ TEST(testAnalyzer, testBoolVariable)
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(&node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
-    ASSERT_STREQ("bool", string_get(&node->init_value->type->name));
+    ASSERT_EQ(TYPE_BOOL, node->init_value->type->type);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("bool", string_get(&type_str));
     env_free(menv);
@@ -118,7 +118,7 @@ TEST(testAnalyzer, testIdentityFunc)
     ASSERT_STREQ("id", string_get(&node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
-    ASSERT_STREQ("->", string_get(&var->base.name));
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     auto result_type = (type_exp*)array_back(&var->args);
     auto from_type = (type_exp*)array_front(&var->args);
@@ -141,7 +141,7 @@ TEST(testAnalyzer, testIntIntFunc)
     ASSERT_STREQ("f", string_get(&node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
-    ASSERT_STREQ("->", string_get(&var->base.name));
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     auto result_type = (type_exp*)array_back(&var->args);
     auto from_type = (type_exp*)array_front(&var->args);
@@ -165,7 +165,7 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
     ASSERT_STREQ("f", string_get(&node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
-    ASSERT_STREQ("->", string_get(&var->base.name));
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     auto result_type = (type_exp*)array_back(&var->args);
     auto from_type = (type_exp*)array_front(&var->args);
@@ -188,7 +188,7 @@ TEST(testAnalyzer, testBoolFunc)
     ASSERT_STREQ("f", string_get(&node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
-    ASSERT_STREQ("->", string_get(&var->base.name));
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("bool -> bool", string_get(&type_str));
@@ -210,7 +210,7 @@ TEST(testAnalyzer, testMultiParamFunc)
     ASSERT_STREQ("avg", string_get(&node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
-    ASSERT_STREQ("->", string_get(&var->base.name));
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(3, array_size(&var->args));
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int * int -> int", string_get(&type_str));
@@ -235,7 +235,7 @@ factorial n =
     ASSERT_STREQ("factorial", string_get(&node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
-    ASSERT_STREQ("->", string_get(&var->base.name));
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
@@ -262,7 +262,7 @@ loopprint n =
     ASSERT_STREQ("loopprint", string_get(&node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
-    ASSERT_STREQ("->", string_get(&var->base.name));
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int -> ()", string_get(&type_str));
@@ -284,9 +284,7 @@ distance x1 y1 x2 y2 =
     menv* m_env = env_new();
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     type_env* env = m_env->type_sys;
-    string sqrt;
-    string_init_chars(&sqrt, "sqrt");
-    type_exp* sqrt_type = retrieve(env, &sqrt);
+    type_exp* sqrt_type = retrieve(env, "sqrt");
     string hello = to_string(sqrt_type);
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -294,7 +292,7 @@ distance x1 y1 x2 y2 =
     ASSERT_STREQ("distance", string_get(&node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
-    ASSERT_STREQ("->", string_get(&var->base.name));
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(5, array_size(&var->args));
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("double * double * double * double -> double", string_get(&type_str));

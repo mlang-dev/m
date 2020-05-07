@@ -37,7 +37,7 @@ type_exp* _analyze_unk(type_env* env, exp_node* node)
     return 0;
 }
 
-type_exp* retrieve(type_env* env, string *name)
+type_exp* retrieve(type_env* env, const char *name)
 {
     return retrieve_type(name, &env->nogens, &env->type_env);
 }
@@ -49,12 +49,12 @@ void set(type_env* env, const char *name, type_exp* type)
 
 type_exp* _analyze_ident(type_env* env, exp_node* ident)
 {
-    return retrieve(env, &((ident_node*)ident)->name);
+    return retrieve(env, string_get(&((ident_node*)ident)->name));
 }
 
 type_exp* _analyze_num(type_env* env, exp_node* node)
 {
-    return retrieve(env, &node->type->name);
+    return retrieve(env, TypeString[node->type->type]);
 }
 
 type_exp* _analyze_var(type_env* env, exp_node* node)
@@ -73,7 +73,7 @@ type_exp* _analyze_var(type_env* env, exp_node* node)
 type_exp* _analyze_call(type_env* env, exp_node* node)
 {
     call_node* call = (call_node*)node;
-    type_exp* fun_type = retrieve(env, &call->callee);
+    type_exp* fun_type = retrieve(env, string_get(&call->callee));
     assert(fun_type);
     array args;
     array_init(&args, sizeof(type_exp*));
@@ -98,7 +98,7 @@ type_exp* _analyze_una(type_env* env, exp_node* node)
     unary_node* unary = (unary_node*)node;
     type_exp* op_type = analyze(env, unary->operand);
     if(string_eq_chars(&unary->op, "!")){
-        type_exp* bool_type = (type_exp*)create_nullary_type("bool");
+        type_exp* bool_type = (type_exp*)create_nullary_type(TYPE_BOOL);
         unify(op_type, bool_type, &env->nogens);
         unary->operand->type = op_type;
     }
@@ -113,7 +113,7 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
     type_exp* result = 0;
     if(unify(lhs_type, rhs_type, &env->nogens)){
         if (_is_pred_op(string_get(&bin->op)))
-            result = (type_exp*)create_nullary_type("bool");
+            result = (type_exp*)create_nullary_type(TYPE_BOOL);
         else
             result = lhs_type;
         return result;
@@ -125,7 +125,7 @@ type_exp* _analyze_cond(type_env* env, exp_node* node)
 {
     condition_node *cond_node = (condition_node*)node;
     type_exp *cond_type = analyze(env, cond_node->condition_node);
-    type_oper *bool_type = create_nullary_type("bool");
+    type_oper *bool_type = create_nullary_type(TYPE_BOOL);
     unify(cond_type, (type_exp*)bool_type, &env->nogens);
     type_exp *then_type = analyze(env, cond_node->then_node);
     type_exp *else_type = analyze(env, cond_node->else_node);
@@ -136,7 +136,7 @@ type_exp* _analyze_cond(type_env* env, exp_node* node)
 type_exp* _analyze_for(type_env* env, exp_node* node)
 {
     for_node *f_node = (for_node*)node;
-    type_exp *int_type = (type_exp*)create_nullary_type("int");
+    type_exp *int_type = (type_exp*)create_nullary_type(TYPE_INT);
     type_exp* start_type = analyze(env, f_node->start);
     type_exp* step_type = analyze(env, f_node->step);
     binary_node* bin = (binary_node*)f_node->end;
@@ -144,7 +144,7 @@ type_exp* _analyze_for(type_env* env, exp_node* node)
     unify(start_type, int_type, &env->nogens);
     unify(step_type, int_type, &env->nogens);
     unify(end_type, int_type, &env->nogens);
-    return (type_exp*)create_nullary_type("()");
+    return (type_exp*)create_nullary_type(TYPE_UNIT);
 }
 
 type_env* type_env_new(void* context)
@@ -157,12 +157,10 @@ type_env* type_env_new(void* context)
     array_init(&args, sizeof(type_exp*));
     size_t types = sizeof(TypeString)/sizeof(TypeString[0]);
     for (size_t i=0; i<types; i++){
-        string type_str;
-        string_init_chars(&type_str, TypeString[i]);
-        type_exp* exp = (type_exp*)create_type_oper(&type_str, &args);
+        type_exp* exp = (type_exp*)create_type_oper(i, &args);
         set(env, TypeString[i], exp);
     }
-    type_exp* double_type = (type_exp*)create_nullary_type("double");
+    type_exp* double_type = (type_exp*)create_nullary_type(TYPE_DOUBLE);
     array double_args;
     array_init(&double_args, sizeof(type_exp*));
     array_push(&double_args, &double_type);

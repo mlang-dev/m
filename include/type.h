@@ -18,26 +18,28 @@ extern "C"{
 
 #define FOREACH_TYPE(ENUM_ITEM) \
     ENUM_ITEM(TYPE_UNK)         \
-    ENUM_ITEM(TYPE_ANY)         \
+    ENUM_ITEM(TYPE_GENERIC)     \
     ENUM_ITEM(TYPE_UNIT)        \
     ENUM_ITEM(TYPE_BOOL)        \
     ENUM_ITEM(TYPE_CHAR)        \
     ENUM_ITEM(TYPE_INT)         \
     ENUM_ITEM(TYPE_DOUBLE)      \
-    ENUM_ITEM(TYPE_FUNCTION)
+    ENUM_ITEM(TYPE_FUNCTION)    \
+    ENUM_ITEM(TYPE_PRODUCT)
 
 enum _Type { FOREACH_TYPE(GENERATE_ENUM) };
 typedef enum _Type Type;
 
 static const char* const TypeString[] = {
     "unkown",
-    "any",
+    "generic",
     "()",
     "bool",
     "char",
     "int",
     "double",
     "->"
+    "*"
 };
 
 #define FOREACH_KIND(ENUM_ITEM) \
@@ -55,12 +57,13 @@ static const char* KindString[] = {
 //type variable or operator
 typedef struct _type_exp {
     Kind kind; //type variable or type operator
-    string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
+    Type type;
 }type_exp;
 
 typedef struct _type_var {
     type_exp base;
     type_exp* instance;
+    string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 }type_var;
 
 typedef struct _type_oper {
@@ -69,14 +72,13 @@ typedef struct _type_oper {
 }type_oper;
 
 type_var* create_type_var();
-type_oper* create_type_oper(string *name, array *args);
-type_oper* create_nullary_type(const char * type);
+type_oper* create_type_oper(Type type, array *args);
+type_oper* create_nullary_type(Type type);
 type_oper* create_type_fun(array *args);
 void type_exp_free(type_exp* type);
 bool occurs_in_type(type_var* var, type_exp* type2);
-type_exp* retrieve_type(string *name, array *nogen, struct hashtable *env); //env pointing to hashtable of (string, type_exp*)
+type_exp* retrieve_type(const char *name, array *nogen, struct hashtable *env); //env pointing to hashtable of (string, type_exp*)
 void set_type(struct hashtable *env, const char *name, type_exp* type);
-string format_type(type_exp* exp);
 bool unify(type_exp* type1, type_exp* type2, array *nogens);
 string to_string(type_exp* type);
 type_exp* prune(type_exp* type);
