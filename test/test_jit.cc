@@ -24,7 +24,7 @@ TEST(testJIT, testNumber)
     auto result = eval_exp(jit, node1);
     auto node2 = *(exp_node**)array_back(&block->nodes);
     result = eval_exp(jit, node2);
-    ASSERT_EQ(10.0, result);
+    ASSERT_EQ(10.0, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -59,7 +59,7 @@ TEST(testJIT, testIdFunc)
     auto node1 = *(exp_node**)array_back(&block->nodes);
     eval_statement(jit, node);
     auto result = eval_exp(jit, node1);
-    ASSERT_EQ(10.0, result);
+    ASSERT_EQ(10.0, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -78,7 +78,7 @@ TEST(testJIT, testSqrtFunc)
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     eval_statement(jit, node);
     auto result = eval_exp(jit, node1);
-    ASSERT_EQ(100.0, result);
+    ASSERT_EQ(100.0, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -100,8 +100,8 @@ TEST(testJIT, testIfFunc)
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     auto node2 = *(exp_node**)array_get(&block->nodes, 2);
     eval_statement(jit, node);
-    ASSERT_EQ(5.0, eval_exp(jit, node1));
-    ASSERT_EQ(0, eval_exp(jit, node2));
+    ASSERT_EQ(5.0, eval_exp(jit, node1).d_value);
+    ASSERT_EQ(0, eval_exp(jit, node2).d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -119,7 +119,7 @@ y
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     eval_statement(jit, node);
-    ASSERT_EQ(100.0, eval_exp(jit, node1));
+    ASSERT_EQ(100.0, eval_exp(jit, node1).d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -140,7 +140,7 @@ y=100
     auto node2 = *(exp_node**)array_get(&block->nodes, 2);
     eval_statement(jit, node);
     eval_statement(jit, node1);
-    ASSERT_EQ(-100.0, eval_exp(jit, node2));
+    ASSERT_EQ(-100.0, eval_exp(jit, node2).d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -162,7 +162,7 @@ if z>99 then -z else z
         eval_statement(jit, node);
     }
     auto node3 = *(exp_node**)array_get(&block->nodes, 3);
-    ASSERT_EQ(-100.0, eval_exp(jit, node3));
+    ASSERT_EQ(-100.0, eval_exp(jit, node3).d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -185,7 +185,7 @@ if z>99 then -z else z
         eval_statement(jit, node);
     }
     auto node3 = *(exp_node**)array_get(&block->nodes, 3);
-    ASSERT_EQ(-100.0, eval_exp(jit, node3));
+    ASSERT_EQ(-100.0, eval_exp(jit, node3).d_value);
     jit_free(jit);
     env_free(env);
 }

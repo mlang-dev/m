@@ -72,21 +72,12 @@ void add_module(JIT *jit, void* module)
     LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
 }
 
-target_address_double find_target_address_double(JIT *jit, const char *symbol)
+void* find_target_address(JIT *jit, const char *symbol)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcJITTargetAddress addr;
     if (LLVMOrcLLJITLookup(j, &addr, symbol)) {
     }
-    return (target_address_double)addr;
-}
-
-target_address_int find_target_address_int(JIT *jit, const char *symbol)
-{
-    LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
-    LLVMOrcJITTargetAddress addr;
-    if (LLVMOrcLLJITLookup(j, &addr, symbol)) {
-    }
-    return (target_address_int)addr;
+    return (void*)addr;
 }
 

@@ -20,7 +20,7 @@ TEST(testJITLogical, testLessThan)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(1, result);
+    ASSERT_EQ(1, result.d_value);
     parser_free(parser);
     env_free(env);
 }
@@ -36,7 +36,7 @@ TEST(testJITLogical, testLessThanWrong)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(0, result);
+    ASSERT_EQ(0, result.d_value);
     parser_free(parser);
     env_free(env);
 }
@@ -52,7 +52,7 @@ TEST(testJITLogical, testGreaterThan)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(1, result);
+    ASSERT_EQ(1, result.d_value);
     parser_free(parser);
     env_free(env);
 }
@@ -68,7 +68,7 @@ TEST(testJITLogical, testGreaterThanWrong)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(0, result);
+    ASSERT_EQ(0, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -84,7 +84,7 @@ TEST(testJITLogical, testEqual)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(1, result);
+    ASSERT_EQ(1, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -100,7 +100,7 @@ TEST(testJITLogical, testEqualNot)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(0, result);
+    ASSERT_EQ(0, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -116,7 +116,7 @@ TEST(testJITLogical, testNotEqualTrue)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(1, result);
+    ASSERT_EQ(1, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -132,7 +132,7 @@ TEST(testJITLogical, testNotEqualFalse)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(0, result);
+    ASSERT_EQ(0, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -148,7 +148,7 @@ TEST(testJITLogical, testLETrueL)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(1, result);
+    ASSERT_EQ(1, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -164,7 +164,7 @@ TEST(testJITLogical, testLETrueE)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(1, result);
+    ASSERT_EQ(1, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -180,7 +180,7 @@ TEST(testJITLogical, testLEFalse)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(0, result);
+    ASSERT_EQ(0, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -196,7 +196,7 @@ TEST(testJITLogical, testGETrueL)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(1, result);
+    ASSERT_EQ(1, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -212,7 +212,7 @@ TEST(testJITLogical, testGETrueE)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(1, result);
+    ASSERT_EQ(1, result.d_value);
     jit_free(jit);
     env_free(env);
 }
@@ -228,7 +228,7 @@ TEST(testJITLogical, testGEFalse)
     block_node* block = parse_block(parser, NULL, NULL, NULL);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(0, result);
+    ASSERT_EQ(0, result.d_value);
     jit_free(jit);
     env_free(env);
 }

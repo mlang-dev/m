@@ -7,7 +7,16 @@
 
 #include "jit.h"
 #include "env.h"
+#include "repl.h"
 
+void _print(eval_result result)
+{
+    if (result.type == TYPE_INT){
+        printf("%d\n", result.i_value);
+    }else if(result.type == TYPE_DOUBLE){
+        printf("%f\n", result.d_value);
+    }
+}
 
 void _add_current_module_to_jit(JIT* jit)
 {
@@ -22,12 +31,11 @@ void _create_jit_module(code_generator *cg)
     string_deinit(&mod_name);
 }
 
-double eval_exp(JIT* jit, exp_node* node)
+eval_result eval_exp(JIT* jit, exp_node* node)
 {
-    // expression: statement or expression evalution
     string fn = make_unique_name("main-fn");
     NodeType node_type = node->node_type;
-    double result = 0.0;
+    eval_result result = {0};
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
     analyze(jit->env->type_sys, node);
     //string node_type_str = to_string(node->type);
@@ -36,10 +44,18 @@ double eval_exp(JIT* jit, exp_node* node)
         void* p_fun = generate_code(jit->cg, node);
         if (p_fun) {
             _add_current_module_to_jit(jit);
-            target_address_double fp = find_target_address_double(jit, string_get(&fn));
+            void *fp = find_target_address(jit, string_get(&fn));
             //LLVMDumpModule(module);
             // keep global variables in the jit
-            result = fp();
+            if (1){//node->type && node->type->type == TYPE_DOUBLE){
+                double (*d_fp)() = (double (*)())fp;
+                result.d_value = d_fp();
+                result.type = TYPE_DOUBLE;
+            } else if(node->type && node->type->type == TYPE_INT){
+                int (*i_fp)() = (int (*)())fp;
+                result.i_value = i_fp();
+                result.type = TYPE_INT;
+            }
             if (node_type != VAR_NODE) {
                 //jit->mjit->removeModule(mk);
             }
@@ -73,9 +89,9 @@ void eval_statement(void* p_jit, exp_node* node)
              * evaluate an expression
              */
             //printf("eval exp\n");
-            double result = eval_exp(jit, node);
+            eval_result result = eval_exp(jit, node);
             if (node->node_type != VAR_NODE)
-                printf("%f\n", result);
+                _print(result);
         }
     }
 exit:

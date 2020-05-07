@@ -166,6 +166,10 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
 
 void* _generate_num_node(code_generator* cg, exp_node* node)
 {
+    if(node->type&&node->type->type == TYPE_INT){
+        return LLVMConstReal(LLVMDoubleTypeInContext((LLVMContextRef)cg->context), ((num_node*)node)->double_val);
+        //return LLVMConstInt(LLVMInt64TypeInContext((LLVMContextRef)cg->context), ((num_node*)node)->double_val, true);
+    }
     return LLVMConstReal(LLVMDoubleTypeInContext((LLVMContextRef)cg->context), ((num_node*)node)->double_val);
 }
 
