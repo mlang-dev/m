@@ -29,7 +29,7 @@ bool _is_pred_op(const char* op)
     return false;
 }
 
-type_exp* _analyze_unk(type_env* env, exp_node* node)
+type_exp* _analyze_unk(type_env* env, struct exp_node* node)
 {
     printf("analyzing unk: %s\n", NodeTypeString[node->node_type]);
     if (!env || !node)
@@ -47,19 +47,19 @@ void set(type_env* env, const char *name, type_exp* type)
      set_type(&env->type_env, name, type);
 }
 
-type_exp* _analyze_ident(type_env* env, exp_node* ident)
+type_exp* _analyze_ident(type_env* env, struct exp_node* ident)
 {
-    return retrieve(env, string_get(&((ident_node*)ident)->name));
+    return retrieve(env, string_get(&((struct ident_node*)ident)->name));
 }
 
-type_exp* _analyze_num(type_env* env, exp_node* node)
+type_exp* _analyze_num(type_env* env, struct exp_node* node)
 {
     return retrieve(env, TypeString[node->annotated_type]);
 }
 
-type_exp* _analyze_var(type_env* env, exp_node* node)
+type_exp* _analyze_var(type_env* env, struct exp_node* node)
 {
-    var_node* var = (var_node*)node;
+    struct var_node* var = (struct var_node*)node;
     type_exp* type = analyze(env, var->init_value);
     if(!type)
         return 0;
@@ -70,15 +70,15 @@ type_exp* _analyze_var(type_env* env, exp_node* node)
     return result_type;
 }
 
-type_exp* _analyze_call(type_env* env, exp_node* node)
+type_exp* _analyze_call(type_env* env, struct exp_node* node)
 {
-    call_node* call = (call_node*)node;
+    struct call_node* call = (struct call_node*)node;
     type_exp* fun_type = retrieve(env, string_get(&call->callee));
     assert(fun_type);
     array args;
     array_init(&args, sizeof(type_exp*));
     for(size_t i = 0; i < array_size(&call->args); i++){
-        exp_node* arg = *(exp_node**)array_get(&call->args, i);
+        struct exp_node* arg = *(struct exp_node**)array_get(&call->args, i);
         type_exp *type = analyze(env, arg);
         array_push(&args, &type);
     }
@@ -93,9 +93,9 @@ type_exp* _analyze_call(type_env* env, exp_node* node)
 }
 
 
-type_exp* _analyze_una(type_env* env, exp_node* node)
+type_exp* _analyze_una(type_env* env, struct exp_node* node)
 {
-    unary_node* unary = (unary_node*)node;
+    struct unary_node* unary = (struct unary_node*)node;
     type_exp* op_type = analyze(env, unary->operand);
     if(string_eq_chars(&unary->op, "!")){
         type_exp* bool_type = (type_exp*)create_nullary_type(TYPE_BOOL);
@@ -105,9 +105,9 @@ type_exp* _analyze_una(type_env* env, exp_node* node)
     return op_type;
 }
 
-type_exp* _analyze_bin(type_env* env, exp_node* node)
+type_exp* _analyze_bin(type_env* env, struct exp_node* node)
 {
-    binary_node* bin = (binary_node*)node;
+    struct binary_node* bin = (struct binary_node*)node;
     type_exp* lhs_type = analyze(env, bin->lhs);
     type_exp* rhs_type = analyze(env, bin->rhs);
     type_exp* result = 0;
@@ -121,9 +121,9 @@ type_exp* _analyze_bin(type_env* env, exp_node* node)
     return result;
 }
 
-type_exp* _analyze_cond(type_env* env, exp_node* node)
+type_exp* _analyze_cond(type_env* env, struct exp_node* node)
 {
-    condition_node *cond_node = (condition_node*)node;
+    struct condition_node *cond_node = (struct condition_node*)node;
     type_exp *cond_type = analyze(env, cond_node->condition_node);
     type_oper *bool_type = create_nullary_type(TYPE_BOOL);
     unify(cond_type, (type_exp*)bool_type, &env->nogens);
@@ -133,13 +133,13 @@ type_exp* _analyze_cond(type_env* env, exp_node* node)
     return then_type;
 }
 
-type_exp* _analyze_for(type_env* env, exp_node* node)
+type_exp* _analyze_for(type_env* env, struct exp_node* node)
 {
-    for_node *f_node = (for_node*)node;
+    struct for_node *f_node = (struct for_node*)node;
     type_exp *int_type = (type_exp*)create_nullary_type(TYPE_INT);
     type_exp* start_type = analyze(env, f_node->start);
     type_exp* step_type = analyze(env, f_node->step);
-    binary_node* bin = (binary_node*)f_node->end;
+    struct binary_node* bin = (struct binary_node*)f_node->end;
     type_exp* end_type = analyze(env, bin->rhs);
     unify(start_type, int_type, &env->nogens);
     unify(step_type, int_type, &env->nogens);
@@ -167,7 +167,7 @@ type_env* type_env_new(void* context)
     array_push(&double_args, &double_type);
     array builtins = get_builtins(context);
     for(size_t i = 0; i < array_size(&builtins); i++){
-        prototype_node* proto = *(prototype_node**)array_get(&builtins, i);
+        struct prototype_node* proto = *(struct prototype_node**)array_get(&builtins, i);
         type_exp* exp = (type_exp*)create_type_fun(&double_args);
         set(env, string_get(&proto->name), exp);
     }
@@ -185,19 +185,19 @@ void type_env_free(type_env* env)
     free(env);
 }
 
-type_exp* _analyze_block(type_env* env, exp_node* node)
+type_exp* _analyze_block(type_env* env, struct exp_node* node)
 {
-    block_node* block = (block_node*)node;
+    struct block_node* block = (struct block_node*)node;
     //std::vector<type_exp*> exps;
     type_exp* exp = 0;
     for (size_t i = 0; i < array_size(&block->nodes); i++) {
-        exp_node *node = *(exp_node**)array_get(&block->nodes, i);
+        struct exp_node *node = *(struct exp_node**)array_get(&block->nodes, i);
         exp = analyze(env, node);//exps.push_back(analyze(env, node));
     }
     return exp;
 }
 
-type_exp* _analyze_proto(type_env* env, exp_node* node)
+type_exp* _analyze_proto(type_env* env, struct exp_node* node)
 {
     printf("analyzing proto: %s\n", NodeTypeString[node->node_type]);
     if (!env || !node)
@@ -205,9 +205,9 @@ type_exp* _analyze_proto(type_env* env, exp_node* node)
     return 0;
 }
 
-type_exp* _analyze_fun(type_env* env, exp_node* node)
+type_exp* _analyze_fun(type_env* env, struct exp_node* node)
 {
-    function_node* fun = (function_node*)node;
+    struct function_node* fun = (struct function_node*)node;
     //# create a new non-generic variable for the binder
     array args;//<type_exp*> args;
     array_init(&args, sizeof(type_exp*));
@@ -221,7 +221,7 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
     }
     type_exp *fun_type = (type_exp*)create_type_var();
     set(env, string_get(&fun->prototype->name), fun_type);
-    type_exp* ret_type = analyze(env, (exp_node*)fun->body); 
+    type_exp* ret_type = analyze(env, (struct exp_node*)fun->body); 
     array_push(&args, &ret_type);
     type_exp* result_type = (type_exp*)create_type_fun(&args);
     unify(fun_type, result_type, &env->nogens);
@@ -230,7 +230,7 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
     return result;
 }
 
-type_exp* (*analyze_fp[])(type_env*, exp_node*) = {
+type_exp* (*analyze_fp[])(type_env*, struct exp_node*) = {
     _analyze_unk,
     _analyze_num,
     _analyze_ident,
@@ -245,7 +245,7 @@ type_exp* (*analyze_fp[])(type_env*, exp_node*) = {
     _analyze_block,
 };
 
-type_exp* analyze(type_env* env, exp_node* node)
+type_exp* analyze(type_env* env, struct exp_node* node)
 {
     type_exp *type = analyze_fp[node->node_type](env, node);
     node->type = type;

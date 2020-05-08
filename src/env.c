@@ -8,15 +8,15 @@
 
 #include "env.h"
 
-menv *env_new()
+struct menv *env_new()
 {
-    menv* env = (menv*)malloc(sizeof(menv));
+    struct menv* env = (struct menv*)malloc(sizeof(*env));
     env->context = LLVMContextCreate();
     env->type_sys = type_env_new(env->context);
     return env;
 }
 
-void env_free(menv* env)
+void env_free(struct menv* env)
 {
     LLVMContextRef context = (LLVMContextRef)env->context;
     LLVMContextDispose(context);

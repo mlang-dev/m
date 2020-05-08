@@ -21,19 +21,19 @@
 extern "C"{
 #endif
 
-typedef struct JIT {    
-    code_generator* cg;
+struct JIT {    
+    struct code_generator* cg;
     void* instance;
-    menv* env;
-}JIT;
+    struct menv* env;
+};
 
-JIT* jit_new(code_generator* cg);
-void jit_free(JIT* jit);
+struct JIT* jit_new(struct code_generator* cg);
+void jit_free(struct JIT* jit);
 
-void add_module(JIT *jit, void* module);
+void add_module(struct JIT *jit, void* module);
 typedef double (*target_address_double)();
 typedef int (*target_address_int)();
-void* find_target_address(JIT *jit, const char *symbol);
+void* find_target_address(struct JIT *jit, const char *symbol);
 
 #ifdef __cplusplus
 }

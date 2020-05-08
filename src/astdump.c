@@ -8,12 +8,12 @@
 #include "clib/string.h"
 
 
-string _dump_block(block_node* node)
+string _dump_block(struct block_node* node)
 {
     string block;
     string_init_chars(&block, "blk: \n");
     for (size_t i = 0; i < array_size(&node->nodes); i++){
-        exp_node* stmt = *(exp_node**)array_get(&node->nodes, i);
+        struct exp_node* stmt = *(struct exp_node**)array_get(&node->nodes, i);
         string str_stmt = dump(stmt);
         string_add_chars(&block,  "  ");
         string_add(&block,  &str_stmt);
@@ -22,7 +22,7 @@ string _dump_block(block_node* node)
     return block;
 }
 
-string _dump_prototype(prototype_node* proto)
+string _dump_prototype(struct prototype_node* proto)
 {
     string joined = string_join(&proto->args, " ");
     string result;
@@ -32,7 +32,7 @@ string _dump_prototype(prototype_node* proto)
     return result;
 }
 
-string _dump_function(function_node* func)
+string _dump_function(struct function_node* func)
 {
     string result = _dump_prototype(func->prototype);
     string_add_chars(&result, "\n");
@@ -41,7 +41,7 @@ string _dump_function(function_node* func)
     return result;
 }
 
-string _dump_var(var_node* var)
+string _dump_var(struct var_node* var)
 {
     string var_str;
     string_init_chars(&var_str, "var: ");
@@ -52,7 +52,7 @@ string _dump_var(var_node* var)
     return var_str;
 }
 
-string _dump_unary(unary_node* unary)
+string _dump_unary(struct unary_node* unary)
 {
     string un;
     string_init_chars(&un, "un: ");
@@ -62,7 +62,7 @@ string _dump_unary(unary_node* unary)
     return un;
 }
 
-string _dump_binary(binary_node* binary)
+string _dump_binary(struct binary_node* binary)
 {
     string lhs_str = dump(binary->lhs);
     string rhs_str = dump(binary->rhs);
@@ -77,12 +77,12 @@ string _dump_binary(binary_node* binary)
     return bin;
 }
 
-string _dump_call(call_node* call)
+string _dump_call(struct call_node* call)
 {
     array args;
     array_string_init(&args);
     for(size_t i = 0; i < array_size(&call->args); i++){
-        string dp = dump(*(exp_node**)array_get(&call->args, i));
+        string dp = dump(*(struct exp_node**)array_get(&call->args, i));
         array_push(&args, &dp);
     }
     string args_str = string_join(&args, " ");
@@ -93,7 +93,7 @@ string _dump_call(call_node* call)
     return result;
 }
 
-string _dump_if(condition_node* cond)
+string _dump_if(struct condition_node* cond)
 {
     string result;
     string_init_chars(&result, "if ");
@@ -110,7 +110,7 @@ string _dump_if(condition_node* cond)
     return result;
 }
 
-string _dump_for(for_node* fornode)
+string _dump_for(struct for_node* fornode)
 {
     string result;
     string_init_chars(&result, "for ");
@@ -124,7 +124,7 @@ string _dump_for(for_node* fornode)
     return result;
 }
 
-string _dump_id(ident_node* idnode)
+string _dump_id(struct ident_node* idnode)
 {
     string str_id;
     string_init_chars(&str_id, "id: ");
@@ -132,7 +132,7 @@ string _dump_id(ident_node* idnode)
     return str_id;
 }
 
-string _dump_number(num_node* node)
+string _dump_number(struct num_node* node)
 {
     string str_num;
     string_init_chars(&str_num, "num: ");
@@ -142,30 +142,30 @@ string _dump_number(num_node* node)
     return str_num;
 }
 
-string dump(exp_node* node)
+string dump(struct exp_node* node)
 {
     if (node->node_type == FUNCTION_NODE)
-        return _dump_function((function_node*)node);
+        return _dump_function((struct function_node*)node);
     else if (node->node_type == PROTOTYPE_NODE)
-        return _dump_prototype((prototype_node*)node);
+        return _dump_prototype((struct prototype_node*)node);
     else if (node->node_type == VAR_NODE)
-        return _dump_var((var_node*)node);
+        return _dump_var((struct var_node*)node);
     else if (node->node_type == UNARY_NODE)
-        return _dump_unary((unary_node*)node);
+        return _dump_unary((struct unary_node*)node);
     else if (node->node_type == BINARY_NODE)
-        return _dump_binary((binary_node*)node);
+        return _dump_binary((struct binary_node*)node);
     else if (node->node_type == CONDITION_NODE)
-        return _dump_if((condition_node*)node);
+        return _dump_if((struct condition_node*)node);
     else if (node->node_type == CALL_NODE)
-        return _dump_call((call_node*)node);
+        return _dump_call((struct call_node*)node);
     else if (node->node_type == FOR_NODE)
-        return _dump_for((for_node*)node);
+        return _dump_for((struct for_node*)node);
     else if (node->node_type == IDENT_NODE)
-        return _dump_id((ident_node*)node);
+        return _dump_id((struct ident_node*)node);
     else if (node->node_type == NUMBER_NODE)
-        return _dump_number((num_node*)node);
+        return _dump_number((struct num_node*)node);
     else if (node->node_type == BLOCK_NODE)
-        return _dump_block((block_node*)node);
+        return _dump_block((struct block_node*)node);
     else {
         string not_supported;
         string_init_chars(&not_supported, "ast->node_type not supported: ");

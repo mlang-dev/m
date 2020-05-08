@@ -44,15 +44,15 @@ void _destroy_jit_instance(void *instance)
 }
 
 
-JIT* jit_new(code_generator* cg)
+struct JIT* jit_new(struct code_generator* cg)
 {
-    JIT* jit = (JIT*)malloc(sizeof(JIT));
+    struct JIT* jit = (struct JIT*)malloc(sizeof(*jit));
     jit->cg = cg;
     jit->instance = _create_jit_instance();
     return jit;
 }
 
-void jit_free(JIT* jit)
+void jit_free(struct JIT* jit)
 {
     if (jit->instance){
         //_destroy_jit_instance(jit->jit);
@@ -63,7 +63,7 @@ void jit_free(JIT* jit)
     free(jit);
 }
 
-void add_module(JIT *jit, void* module)
+void add_module(struct JIT *jit, void* module)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcJITDylibRef jd = LLVMOrcLLJITGetMainJITDylib(j);
@@ -72,7 +72,7 @@ void add_module(JIT *jit, void* module)
     LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
 }
 
-void* find_target_address(JIT *jit, const char *symbol)
+void* find_target_address(struct JIT *jit, const char *symbol)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcJITTargetAddress addr;

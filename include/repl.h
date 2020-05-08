@@ -16,17 +16,17 @@
 extern "C"{
 #endif
 
-typedef struct eval_result{
+struct eval_result{
     Type type;
     union{
         double d_value;
         int i_value;
     };
-}eval_result;
+};
 
-JIT* build_jit(menv* env, parser* parser);
-void eval_statement(void* p_jit, exp_node* node);
-eval_result eval_exp(JIT* jit, exp_node* node);
+struct JIT* build_jit(struct menv* env, struct parser* parser);
+void eval_statement(void* p_jit, struct exp_node* node);
+struct eval_result eval_exp(struct JIT* jit, struct exp_node* node);
 int run_repl();
 
 #ifdef __cplusplus

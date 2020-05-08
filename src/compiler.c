@@ -22,17 +22,17 @@ int compile(const char* fn, object_file_type file_type)
     string filename;
     string_init_chars(&filename, fn);
     string_substr(&filename, '.');
-    menv* env = env_new();
-    parser* parser = parser_new(fn, false, NULL);
-    code_generator* cg = cg_new(env, parser);
+    struct menv* env = env_new();
+    struct parser* parser = parser_new(fn, false, 0);
+    struct code_generator* cg = cg_new(env, parser);
     create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, string_get(&filename));
     generate_runtime_module(cg, &parser->ast->builtins);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
-    analyze(env->type_sys, (exp_node*)block);
+    struct block_node* block = parse_block(parser, 0, 0, 0);
+    analyze(env->type_sys, (struct exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i ++) {
-            exp_node* node = *(exp_node**)array_get(&block->nodes, i);
+            struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
             generate_code(cg, node);
         }
         LLVMModuleRef module = (LLVMModuleRef)cg->module;

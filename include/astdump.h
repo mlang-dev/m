@@ -16,7 +16,7 @@
 extern "C"{
 #endif
 
-string dump(exp_node* node);
+string dump(struct exp_node* node);
 
 #ifdef __cplusplus
 }

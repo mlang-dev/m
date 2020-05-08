@@ -15,13 +15,13 @@
 extern "C" {
 #endif
 
-typedef struct _menv{
+struct menv{
     type_env *type_sys;
     void* context;
-}menv;
+};
 
-menv *env_new();
-void env_free(menv* env);
+struct menv *env_new();
+void env_free(struct menv* env);
 
 #ifdef __cplusplus
 }

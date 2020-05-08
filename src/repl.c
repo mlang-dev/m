@@ -9,7 +9,7 @@
 #include "env.h"
 #include "repl.h"
 
-void _print(eval_result result)
+void _print(struct eval_result result)
 {
     if (result.type == TYPE_INT){
         printf("%d\n", result.i_value);
@@ -18,27 +18,27 @@ void _print(eval_result result)
     }
 }
 
-void _add_current_module_to_jit(JIT* jit)
+void _add_current_module_to_jit(struct JIT* jit)
 {
     add_module(jit, jit->cg->module);
     jit->cg->module = NULL;
 }
 
-void _create_jit_module(code_generator *cg)
+void _create_jit_module(struct code_generator *cg)
 {
     string mod_name = make_unique_name("mjit");
     create_module_and_pass_manager(cg, string_get(&mod_name));
     string_deinit(&mod_name);
 }
 
-eval_result eval_exp(JIT* jit, exp_node* node)
+struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
 {
     string fn = make_unique_name("main-fn");
     NodeType node_type = node->node_type;
     if (!node->type)
         analyze(jit->env->type_sys, node);
     type_exp *type = node->type;
-    eval_result result = {0};
+    struct eval_result result = {0};
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
     analyze(jit->env->type_sys, node);
     //string node_type_str = to_string(node->type);
@@ -71,10 +71,10 @@ eval_result eval_exp(JIT* jit, exp_node* node)
     return result;
 }
 
-void eval_statement(void* p_jit, exp_node* node)
+void eval_statement(void* p_jit, struct exp_node* node)
 {
     if (node) {
-        JIT* jit = (JIT*)p_jit;
+        struct JIT* jit = (struct JIT*)p_jit;
         analyze(jit->env->type_sys, node);
         string type_node_str = to_string(node->type);
         printf("%s\n", string_get(&type_node_str));
@@ -94,7 +94,7 @@ void eval_statement(void* p_jit, exp_node* node)
              * evaluate an expression
              */
             //printf("eval exp\n");
-            eval_result result = eval_exp(jit, node);
+            struct eval_result result = eval_exp(jit, node);
             if (node->node_type != VAR_NODE)
                 _print(result);
         }
@@ -103,10 +103,10 @@ exit:
     fprintf(stderr, "m> ");
 }
 
-JIT* build_jit(menv* env, parser* parser)
+struct JIT* build_jit(struct menv* env, struct parser* parser)
 {
-    code_generator* cg = cg_new(env, parser);
-    JIT* jit = jit_new(cg);
+    struct code_generator* cg = cg_new(env, parser);
+    struct JIT* jit = jit_new(cg);
     jit->env = env;
     //log_info(DEBUG, "creating builtins");
     create_builtins(parser, cg->context);
@@ -123,9 +123,9 @@ JIT* build_jit(menv* env, parser* parser)
 
 int run_repl()
 {
-    menv* env = env_new();
-    parser* parser = parser_new(NULL, true, NULL);
-    JIT* jit = build_jit(env, parser);
+    struct menv* env = env_new();
+    struct parser* parser = parser_new(NULL, true, NULL);
+    struct JIT* jit = build_jit(env, parser);
     printf("m> ");
     parse_block(parser, NULL, &eval_statement, jit);
     printf("bye !\n");

@@ -40,124 +40,124 @@ static const char* NodeTypeString[] = {
     FOREACH_NODETYPE(GENERATE_ENUM_STRING)
 };
 
-typedef struct _exp_node {
+struct exp_node {
     NodeType node_type;
     Type annotated_type;
     type_exp *type; //type annotation
     source_loc loc;
-    struct _exp_node* parent;
-}exp_node;
+    struct exp_node* parent;
+};
 
-typedef struct _block_node {
-    exp_node base;
+struct block_node {
+    struct exp_node base;
     array nodes; //array of exp_node*
-}block_node;
+};
 
-typedef struct _module {
+struct module {
     string name;
-    block_node* block;
+    struct block_node* block;
     file_tokenizer* tokenizer;
-}module;
+};
 
-typedef struct _ast {
+struct ast {
     array builtins; //array of exp_node*
     array modules; //array of module*
-}ast;
+};
 
-typedef struct _num_node {
-    exp_node base;
+struct num_node {
+    struct exp_node base;
     union {
         double double_val;
         int int_val;
     };
-}num_node;
+};
 
-typedef struct _ident_node {
-    exp_node base;
+struct ident_node {
+    struct exp_node base;
     string name;
-}ident_node;
+};
 
-typedef struct _var_node {
-    exp_node base;
+struct var_node {
+    struct exp_node base;
     string var_name;
-    exp_node* init_value;
-}var_node;
+    struct exp_node* init_value;
+};
 
-typedef struct _unary_node {
-    exp_node base;
+struct unary_node {
+    struct exp_node base;
     string op;
-    exp_node* operand;
-}unary_node;
+    struct exp_node* operand;
+};
 
-typedef struct _binary_node {
-    exp_node base;
+struct binary_node {
+    struct exp_node base;
     string op;
-    exp_node *lhs, *rhs;
-}binary_node;
+    struct exp_node *lhs, *rhs;
+};
 
-typedef struct _condition_node {
-    exp_node base;
-    exp_node *condition_node, *then_node, *else_node;
-}condition_node;
+struct condition_node {
+    struct exp_node base;
+    struct exp_node *condition_node, *then_node, *else_node;
+};
 
-typedef struct _for_node {
-    exp_node base;
+struct for_node {
+    struct exp_node base;
     string var_name;
-    exp_node *start, *end, *step, *body;
-}for_node;
+    struct exp_node *start, *end, *step, *body;
+};
 
-typedef struct _call_node {
-    exp_node base;
+struct call_node {
+    struct exp_node base;
     string callee;
     array args; //args: array of exp_node*
-}call_node;
+};
 
-typedef struct _prototype_node {
-    exp_node base;
+struct prototype_node {
+    struct exp_node base;
     string name;
     string op;
     array args; /*array of string*/
     char is_operator;
     unsigned precedence;
-}prototype_node;
+};
 
-typedef struct _function_node {
-    exp_node base;
-    prototype_node* prototype;
-    block_node* body;
-}function_node;
+struct function_node {
+    struct exp_node base;
+    struct prototype_node* prototype;
+    struct block_node* body;
+};
 
-function_node* create_function_node(prototype_node* prototype,
-    block_node* body);
-ident_node* create_ident_node(exp_node* parent, source_loc loc, const char *name);
-num_node* create_double_node(exp_node* parent, source_loc loc, double val);
-num_node* create_int_node(exp_node* parent, source_loc loc, int val);
-num_node* create_bool_node(exp_node* parent, source_loc loc, int val);
-var_node* create_var_node(exp_node* parent, source_loc loc, const char *var_name, exp_node* init_value);
-call_node* create_call_node(exp_node* parent, source_loc loc, const char *callee,
+struct function_node* create_function_node(struct prototype_node* prototype,
+    struct block_node* body);
+struct ident_node* create_ident_node(struct exp_node* parent, source_loc loc, const char *name);
+struct num_node* create_double_node(struct exp_node* parent, source_loc loc, double val);
+struct num_node* create_int_node(struct exp_node* parent, source_loc loc, int val);
+struct num_node* create_bool_node(struct exp_node* parent, source_loc loc, int val);
+struct var_node* create_var_node(struct exp_node* parent, source_loc loc, const char *var_name, struct exp_node* init_value);
+struct call_node* create_call_node(struct exp_node* parent, source_loc loc, const char *callee,
     array *args);
-prototype_node* create_prototype_node(exp_node* parent, source_loc loc,
+struct prototype_node* create_prototype_node(struct exp_node* parent, source_loc loc,
     const char *name,
     array* args,
     bool is_operator,
     unsigned precedence,
     const char *op);
-prototype_node* create_prototype_node_default(exp_node* parent, source_loc loc,
+struct prototype_node* create_prototype_node_default(struct exp_node* parent, source_loc loc,
     const char *name,
     array* args);
 
-condition_node* create_if_node(exp_node* parent, source_loc loc, exp_node* condition, exp_node* then_node,
-    exp_node* else_node);
-unary_node* create_unary_node(exp_node* parent, source_loc loc, const char *op, exp_node* operand);
-binary_node* create_binary_node(exp_node* parent, source_loc loc, const char *op, exp_node* lhs, exp_node* rhs);
-for_node* create_for_node(exp_node* parent, source_loc loc, const char *var_name, exp_node* start,
-    exp_node* end, exp_node* step, exp_node* body);
-block_node* create_block_node(exp_node* parent, array *nodes);
-module* create_module(const char* mod_name, FILE* file);
+struct condition_node* create_if_node(struct exp_node* parent, source_loc loc, struct exp_node* condition, struct exp_node* then_node,
+    struct exp_node* else_node);
+struct unary_node* create_unary_node(struct exp_node* parent, source_loc loc, const char *op, struct exp_node* operand);
+struct binary_node* create_binary_node(struct exp_node* parent, source_loc loc, const char *op, struct exp_node* lhs, struct exp_node* rhs);
+struct for_node* create_for_node(struct exp_node* parent, source_loc loc, const char *var_name, struct exp_node* start,
+    struct exp_node* end, struct exp_node* step, struct exp_node* body);
+struct block_node* create_block_node(struct exp_node* parent, array *nodes);
+struct module* create_module(const char* mod_name, FILE* file);
 
-bool is_unary_op(prototype_node* pnode);
-bool is_binary_op(prototype_node* pnode);
-char get_op_name(prototype_node* pnode);
+bool is_unary_op(struct prototype_node* pnode);
+bool is_binary_op(struct prototype_node* pnode);
+char get_op_name(struct prototype_node* pnode);
 
 #ifdef __cplusplus
 }

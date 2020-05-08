@@ -23,7 +23,7 @@ typedef struct _type_env{
 type_exp* retrieve(type_env* env, const char *name);
 type_env* type_env_new(void* context);
 void type_env_free(type_env* env);
-type_exp* analyze(type_env* env, exp_node* node);
+type_exp* analyze(type_env* env, struct exp_node* node);
 
 #ifdef __cplusplus
 }
