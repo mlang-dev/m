@@ -20,7 +20,7 @@ extern "C"{
 
 struct parser {
     struct hashtable op_precs;
-    token curr_token;
+    struct token curr_token;
     struct ast* ast;
     bool allow_id_as_a_func;
     bool is_repl;
@@ -43,7 +43,7 @@ struct exp_node* parse_exp(struct parser* parser, struct exp_node* parent, struc
 bool is_unary_op(struct prototype_node* pnode);
 bool is_binary_op(struct prototype_node* pnode);
 char get_op_name(struct prototype_node* pnode);
-void queue_token(struct parser* parser, token tkn);
+void queue_token(struct parser* parser, struct token tkn);
 void queue_tokens(struct parser* psr, array* tokens); //array of token
 
 #ifdef __cplusplus

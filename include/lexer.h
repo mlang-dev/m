@@ -47,35 +47,35 @@ static const char* TokenTypeString[] = {
     FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
 };
 
-typedef struct _source_loc {
+struct source_loc {
     int line;
     int col;
-}source_loc;
+};
 
-typedef struct _token {
+struct token {
     TokenType token_type;
     Type type;
-    source_loc loc;
+    struct source_loc loc;
     int int_val;
     union {
         string* ident_str;
         double double_val;
     };
-}token;
+};
 
-typedef struct _file_tokenizer {
+struct file_tokenizer {
     FILE* file;
-    source_loc loc;
-    source_loc tok_loc;
-    token cur_token;
-    token next_token;
+    struct source_loc loc;
+    struct source_loc tok_loc;
+    struct token cur_token;
+    struct token next_token;
     char curr_char[2];
     string ident_str;
-}file_tokenizer;
+};
 
-file_tokenizer* create_tokenizer(FILE* file);
-void destroy_tokenizer(file_tokenizer* tokenizer);
-token* get_token(file_tokenizer* tokenizer);
+struct file_tokenizer* create_tokenizer(FILE* file);
+void destroy_tokenizer(struct file_tokenizer* tokenizer);
+struct token* get_token(struct file_tokenizer* tokenizer);
 
 #ifdef __cplusplus
 }

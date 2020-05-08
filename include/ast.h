@@ -10,13 +10,13 @@
 
 #include <stdio.h>
 
+#include "clib/string.h"
+#include "clib/util.h"
 #include "lexer.h"
 #include "type.h"
-#include "clib/util.h"
-#include "clib/string.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 #define FOREACH_NODETYPE(ENUM_ITEM) \
@@ -43,8 +43,8 @@ static const char* NodeTypeString[] = {
 struct exp_node {
     NodeType node_type;
     Type annotated_type;
-    type_exp *type; //type annotation
-    source_loc loc;
+    type_exp* type; //type annotation
+    struct source_loc loc;
     struct exp_node* parent;
 };
 
@@ -56,7 +56,7 @@ struct block_node {
 struct module {
     string name;
     struct block_node* block;
-    file_tokenizer* tokenizer;
+    struct file_tokenizer* tokenizer;
 };
 
 struct ast {
@@ -112,11 +112,16 @@ struct call_node {
     array args; //args: array of exp_node*
 };
 
+struct fun_param{
+    string name;
+    Type type;
+};
+
 struct prototype_node {
     struct exp_node base;
     string name;
     string op;
-    array args; /*array of string*/
+    array args; /*array of fun_param*/
     char is_operator;
     unsigned precedence;
 };
@@ -129,30 +134,30 @@ struct function_node {
 
 struct function_node* create_function_node(struct prototype_node* prototype,
     struct block_node* body);
-struct ident_node* create_ident_node(struct exp_node* parent, source_loc loc, const char *name);
-struct num_node* create_double_node(struct exp_node* parent, source_loc loc, double val);
-struct num_node* create_int_node(struct exp_node* parent, source_loc loc, int val);
-struct num_node* create_bool_node(struct exp_node* parent, source_loc loc, int val);
-struct var_node* create_var_node(struct exp_node* parent, source_loc loc, const char *var_name, struct exp_node* init_value);
-struct call_node* create_call_node(struct exp_node* parent, source_loc loc, const char *callee,
-    array *args);
-struct prototype_node* create_prototype_node(struct exp_node* parent, source_loc loc,
-    const char *name,
+struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc loc, const char* name);
+struct num_node* create_double_node(struct exp_node* parent, struct source_loc loc, double val);
+struct num_node* create_int_node(struct exp_node* parent, struct source_loc loc, int val);
+struct num_node* create_bool_node(struct exp_node* parent, struct source_loc loc, int val);
+struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* init_value);
+struct call_node* create_call_node(struct exp_node* parent, struct source_loc loc, const char* callee,
+    array* args);
+struct prototype_node* create_prototype_node(struct exp_node* parent, struct source_loc loc,
+    const char* name,
     array* args,
     bool is_operator,
     unsigned precedence,
-    const char *op);
-struct prototype_node* create_prototype_node_default(struct exp_node* parent, source_loc loc,
-    const char *name,
+    const char* op);
+struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc,
+    const char* name,
     array* args);
 
-struct condition_node* create_if_node(struct exp_node* parent, source_loc loc, struct exp_node* condition, struct exp_node* then_node,
+struct condition_node* create_if_node(struct exp_node* parent, struct source_loc loc, struct exp_node* condition, struct exp_node* then_node,
     struct exp_node* else_node);
-struct unary_node* create_unary_node(struct exp_node* parent, source_loc loc, const char *op, struct exp_node* operand);
-struct binary_node* create_binary_node(struct exp_node* parent, source_loc loc, const char *op, struct exp_node* lhs, struct exp_node* rhs);
-struct for_node* create_for_node(struct exp_node* parent, source_loc loc, const char *var_name, struct exp_node* start,
+struct unary_node* create_unary_node(struct exp_node* parent, struct source_loc loc, const char* op, struct exp_node* operand);
+struct binary_node* create_binary_node(struct exp_node* parent, struct source_loc loc, const char* op, struct exp_node* lhs, struct exp_node* rhs);
+struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* start,
     struct exp_node* end, struct exp_node* step, struct exp_node* body);
-struct block_node* create_block_node(struct exp_node* parent, array *nodes);
+struct block_node* create_block_node(struct exp_node* parent, array* nodes);
 struct module* create_module(const char* mod_name, FILE* file);
 
 bool is_unary_op(struct prototype_node* pnode);

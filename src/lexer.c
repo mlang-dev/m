@@ -76,7 +76,7 @@ TokenType get_char_token_type(char keyword)
     return TOKEN_UNK;
 }
 
-static int get_char(file_tokenizer* tokenizer)
+static int get_char(struct file_tokenizer* tokenizer)
 {
     int last_char = getc(tokenizer->file);
     if (is_new_line(last_char)) {
@@ -87,10 +87,10 @@ static int get_char(file_tokenizer* tokenizer)
     return last_char;
 }
 
-file_tokenizer* create_tokenizer(FILE* file)
+struct file_tokenizer* create_tokenizer(FILE* file)
 {
-    file_tokenizer* tokenizer = (file_tokenizer*)malloc(sizeof(file_tokenizer));
-    source_loc loc = {1, 0};
+    struct file_tokenizer* tokenizer = (struct file_tokenizer*)malloc(sizeof(struct file_tokenizer));
+    struct source_loc loc = {1, 0};
     tokenizer->loc = loc;
     tokenizer->next_token.token_type = TOKEN_UNK;
     tokenizer->curr_char[0] = ' ';
@@ -100,21 +100,21 @@ file_tokenizer* create_tokenizer(FILE* file)
     return tokenizer;
 }
 
-void destroy_tokenizer(file_tokenizer* tokenizer)
+void destroy_tokenizer(struct file_tokenizer* tokenizer)
 {
     fclose(tokenizer->file);
     string_deinit(&tokenizer->ident_str);
     free(tokenizer);
 }
 
-token* _tokenize_symbol_type(file_tokenizer* tokenizer, token* t, TokenType token_type)
+struct token* _tokenize_symbol_type(struct file_tokenizer* tokenizer, struct token* t, TokenType token_type)
 {
     t->token_type = token_type;
     t->loc = tokenizer->tok_loc;
     return t;
 }
 
-bool _tokenize_symbol(file_tokenizer* tokenizer, string* symbol)
+bool _tokenize_symbol(struct file_tokenizer* tokenizer, string* symbol)
 {
     bool has_dot = false;
     do {
@@ -127,7 +127,7 @@ bool _tokenize_symbol(file_tokenizer* tokenizer, string* symbol)
     return has_dot;
 }
 
-token* _tokenize_number(file_tokenizer* tokenizer)
+struct token* _tokenize_number(struct file_tokenizer* tokenizer)
 {
     string num_str;
     string_init(&num_str);
@@ -166,7 +166,7 @@ token* _tokenize_number(file_tokenizer* tokenizer)
     return &tokenizer->cur_token;
 }
 
-token* _tokenize_id_keyword(file_tokenizer* tokenizer)
+struct token* _tokenize_id_keyword(struct file_tokenizer* tokenizer)
 {
     string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
     while (isalnum((tokenizer->curr_char[0] = get_char(tokenizer))) || tokenizer->curr_char[0] == '_'){
@@ -185,7 +185,7 @@ token* _tokenize_id_keyword(file_tokenizer* tokenizer)
     return &tokenizer->cur_token;
 }
 
-token* _tokenize_op(file_tokenizer* tokenizer)
+struct token* _tokenize_op(struct file_tokenizer* tokenizer)
 {
     string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
     while (true){
@@ -203,7 +203,7 @@ token* _tokenize_op(file_tokenizer* tokenizer)
     return &tokenizer->cur_token;
 }
 
-token* _tokenize_type(file_tokenizer* tokenizer, TokenType token_type)
+struct token* _tokenize_type(struct file_tokenizer* tokenizer, TokenType token_type)
 {
     string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
     tokenizer->cur_token.loc = tokenizer->tok_loc;
@@ -213,14 +213,14 @@ token* _tokenize_type(file_tokenizer* tokenizer, TokenType token_type)
     return &tokenizer->cur_token;
 }
 
-void _skip_to_line_end(file_tokenizer* tokenizer)
+void _skip_to_line_end(struct file_tokenizer* tokenizer)
 {
     do
         tokenizer->curr_char[0] = get_char(tokenizer);
     while (tokenizer->curr_char[0] != EOF && !is_new_line(tokenizer->curr_char[0]));
 }
 
-token* get_token(file_tokenizer* tokenizer)
+struct token* get_token(struct file_tokenizer* tokenizer)
 {
     // skip spaces
     if (tokenizer->next_token.token_type) {

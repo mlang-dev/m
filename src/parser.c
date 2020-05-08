@@ -49,7 +49,7 @@ bool _is_exp(struct exp_node* node)
     return node->node_type != VAR_NODE && node->node_type != FUNCTION_NODE && node->node_type != PROTOTYPE_NODE;
 }
 
-void queue_token(struct parser* psr, token tkn)
+void queue_token(struct parser* psr, struct token tkn)
 {
     queue_push(&psr->queued_tokens, &tkn);
 }
@@ -57,7 +57,7 @@ void queue_token(struct parser* psr, token tkn)
 void queue_tokens(struct parser* psr, array *tokens)
 {
     for(size_t i=0;i<array_size(tokens); i++){
-        token* tok = (token*)array_get(tokens, i);
+        struct token* tok = (struct token*)array_get(tokens, i);
         queue_push(&psr->queued_tokens, tok);
     }
 }
@@ -94,7 +94,7 @@ struct parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file
         file = file_name ? fopen(file_name, "r") : stdin;
     const char* mod_name = file_name ? file_name : "intepreter_main";
     struct parser* psr = (struct parser*)malloc(sizeof(*psr));
-    queue_init(&psr->queued_tokens, sizeof(token));
+    queue_init(&psr->queued_tokens, sizeof(struct token));
     hashtable_init(&psr->op_precs);
     _build_op_precs(&psr->op_precs);
 
@@ -146,7 +146,7 @@ void parse_next_token(struct parser* parser)
 {
     if (queue_size(&parser->queued_tokens)>0) {
         // cleanup queued tokens, to redo parsing
-        parser->curr_token = *(token*)queue_pop(&parser->queued_tokens);
+        parser->curr_token = *(struct token*)queue_pop(&parser->queued_tokens);
         //log_info(DEBUG, "using queued tokens !");
     } else
         parser->curr_token = *get_token(parser->current_module->tokenizer);
@@ -198,7 +198,7 @@ struct exp_node* _parse_parentheses(struct parser* parser, struct exp_node* pare
     return v;
 }
 
-struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_node* parent, source_loc loc, const char *pid_name, bool is_operator, int precedence)
+struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_node* parent, struct source_loc loc, const char *pid_name, bool is_operator, int precedence)
 {
     if (parser->curr_token.token_type == TOKEN_LPAREN)
         parse_next_token(parser); // skip '('
@@ -266,7 +266,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
 {
     //log_info(DEBUG, "parsing statement:%d, %s", parent, TokenTypeString[parser->curr_token.token_type]);
     struct exp_node* node;
-    source_loc loc = parser->curr_token.loc;
+    struct source_loc loc = parser->curr_token.loc;
     if (parser->curr_token.token_type == TOKEN_EOF)
         return NULL;
     else if (parser->curr_token.token_type == TOKEN_IMPORT)
@@ -278,7 +278,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
     } else if (parser->curr_token.token_type == TOKEN_IDENT) {
         string id_name;
         string_copy(&id_name, parser->curr_token.ident_str);
-        source_loc loc = parser->curr_token.loc;
+        struct source_loc loc = parser->curr_token.loc;
         parse_next_token(parser); // skip identifier
         string op;
         string_init(&op);
@@ -302,7 +302,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
     } else {
         if (parser->curr_token.token_type == TOKEN_LPAREN) {
             array queued;
-            array_init(&queued, sizeof(token));
+            array_init(&queued, sizeof(struct token));
             array_push(&queued, &parser->curr_token);
             parse_next_token(parser); //skip (
             array_push(&queued, &parser->curr_token);
@@ -357,7 +357,7 @@ struct exp_node* _parse_ident(struct parser* parser, struct exp_node* parent)
 {
     string id_name;
     string_copy(&id_name, parser->curr_token.ident_str);
-    source_loc loc = parser->curr_token.loc;
+    struct source_loc loc = parser->curr_token.loc;
 
     parse_next_token(parser); // take identifier
     //log_info(DEBUG, "parsed id: %s, curtoken: %s", id_name.c_str(), TokenTypeString[parser->curr_token.token_type]);
@@ -458,7 +458,7 @@ struct exp_node* parse_exp(struct parser* parser, struct exp_node* parent, struc
 struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent)
 {
     string fun_name;
-    source_loc loc = parser->curr_token.loc;
+    struct source_loc loc = parser->curr_token.loc;
     // SourceLocation FnLoc = CurLoc;
     unsigned proto_type = 0; // 0 = identifier, 1 = unary, 2 = binary.
     unsigned bin_prec = 30;
@@ -591,7 +591,7 @@ struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent)
         || parser->curr_token.token_type == TOKEN_EOS
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
-    source_loc loc = parser->curr_token.loc;
+    struct source_loc loc = parser->curr_token.loc;
     if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.token_type == TOKEN_LPAREN 
         || string_eq_chars(parser->curr_token.ident_str, ",")) {
         return _parse_node(parser, parent);
@@ -612,7 +612,7 @@ struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent)
 /// forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
 struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
 {
-    source_loc loc = parser->curr_token.loc;
+    struct source_loc loc = parser->curr_token.loc;
     parse_next_token(parser); // eat the for.
 
     if (parser->curr_token.token_type != TOKEN_IDENT)
@@ -665,7 +665,7 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
 
 struct exp_node* _parse_if(struct parser* parser, struct exp_node* parent)
 {
-    source_loc loc = parser->curr_token.loc;
+    struct source_loc loc = parser->curr_token.loc;
     parse_next_token(parser); // eat the if.
 
     // condition.
@@ -719,7 +719,7 @@ struct block_node* parse_block(struct parser* parser, struct exp_node* parent, v
             break;
         }
         //log_info(DEBUG, "got token in block: (%d, %d), %s", parser->curr_token.loc.line, parser->curr_token.loc.col, TokenTypeString[parser->curr_token.token_type]);
-        //source_loc loc = parser->curr_token.loc;
+        //struct source_loc loc = parser->curr_token.loc;
         //log_info(DEBUG, "parsing statement in block--: (%d, %d), %d", loc.line, loc.col, parent);
         struct exp_node* node = parse_statement(parser, parent);
         if (node) {
