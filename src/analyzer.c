@@ -54,7 +54,7 @@ type_exp* _analyze_ident(type_env* env, exp_node* ident)
 
 type_exp* _analyze_num(type_env* env, exp_node* node)
 {
-    return retrieve(env, TypeString[node->type->type]);
+    return retrieve(env, TypeString[node->annotated_type]);
 }
 
 type_exp* _analyze_var(type_env* env, exp_node* node)
@@ -225,7 +225,9 @@ type_exp* _analyze_fun(type_env* env, exp_node* node)
     array_push(&args, &ret_type);
     type_exp* result_type = (type_exp*)create_type_fun(&args);
     unify(fun_type, result_type, &env->nogens);
-    return prune(fun_type);
+    type_exp* result = prune(fun_type);
+    fun->prototype->base.type = result;
+    return result;
 }
 
 type_exp* (*analyze_fp[])(type_env*, exp_node*) = {

@@ -42,6 +42,7 @@ static const char* NodeTypeString[] = {
 
 typedef struct _exp_node {
     NodeType node_type;
+    Type annotated_type;
     type_exp *type; //type annotation
     source_loc loc;
     struct _exp_node* parent;

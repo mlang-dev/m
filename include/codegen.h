@@ -34,6 +34,8 @@ void* generate_code(code_generator* cg, exp_node* node);
 void generate_runtime_module(code_generator* cg, array *builtins);
 void* create_target_machine(void* module);
 
+#define is_int_type(type) (false)//(type == TYPE_INT || type == TYPE_BOOL)
+
 #ifdef __cplusplus
 }
 #endif

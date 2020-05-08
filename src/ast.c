@@ -31,6 +31,7 @@ function_node* create_function_node(prototype_node* prototype,
 {
     function_node* node = (function_node*)malloc(sizeof(function_node));
     node->base.type = 0;
+    node->base.annotated_type = 0;
     node->base.node_type = FUNCTION_NODE;
     node->base.parent = (exp_node*)prototype;
     node->base.loc = prototype->base.loc;
@@ -43,6 +44,7 @@ ident_node* create_ident_node(exp_node* parent, source_loc loc, const char *name
 {
     ident_node* node = (ident_node*)malloc(sizeof(ident_node));
     node->base.type = 0;
+    node->base.annotated_type = 0;
     node->base.node_type = IDENT_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -52,11 +54,10 @@ ident_node* create_ident_node(exp_node* parent, source_loc loc, const char *name
 
 num_node* create_double_node(exp_node* parent, source_loc loc, double val)
 {
-    array args;
-    array_init(&args, sizeof(type_exp*));
     num_node* node = (num_node*)malloc(sizeof(num_node));
     node->base.node_type = NUMBER_NODE;
-    node->base.type = (type_exp*)create_type_oper(TYPE_DOUBLE, &args);
+    node->base.annotated_type = TYPE_DOUBLE;
+    node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
     node->double_val = val;
@@ -65,11 +66,10 @@ num_node* create_double_node(exp_node* parent, source_loc loc, double val)
 
 num_node* _create_int_node(exp_node* parent, source_loc loc, int val, Type type)
 {
-    array args;
-    array_init(&args, sizeof(type_exp*));
     num_node* node = (num_node*)malloc(sizeof(num_node));
     node->base.node_type = NUMBER_NODE;
-    node->base.type = (type_exp*)create_type_oper(type, &args);;
+    node->base.annotated_type = type;
+    node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
     node->double_val = val;
@@ -90,6 +90,7 @@ var_node* create_var_node(exp_node* parent, source_loc loc, const char *var_name
 {
     var_node* node = (var_node*)malloc(sizeof(var_node));
     node->base.node_type = VAR_NODE;
+    node->base.annotated_type = 0;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -103,6 +104,7 @@ call_node* create_call_node(exp_node* parent, source_loc loc, const char *callee
 {
     call_node* node = (call_node*)malloc(sizeof(call_node));
     node->base.node_type = CALL_NODE;
+    node->base.annotated_type = 0;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -122,6 +124,7 @@ prototype_node* create_prototype_node(exp_node* parent, source_loc loc, const ch
 {
     prototype_node* node = (prototype_node*)malloc(sizeof(prototype_node));
     node->base.node_type = PROTOTYPE_NODE;
+    node->base.annotated_type = 0;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -138,6 +141,7 @@ condition_node* create_if_node(exp_node* parent, source_loc loc, exp_node* condi
 {
     condition_node* node = (condition_node*)malloc(sizeof(condition_node));
     node->base.node_type = CONDITION_NODE;
+    node->base.annotated_type = 0;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -151,6 +155,7 @@ unary_node* create_unary_node(exp_node* parent, source_loc loc, const char *op, 
 {
     unary_node* node = (unary_node*)malloc(sizeof(unary_node));
     node->base.node_type = UNARY_NODE;
+    node->base.annotated_type = 0;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -163,6 +168,7 @@ binary_node* create_binary_node(exp_node* parent, source_loc loc, const char *op
 {
     binary_node* node = (binary_node*)malloc(sizeof(binary_node));
     node->base.node_type = BINARY_NODE;
+    node->base.annotated_type = 0;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -177,6 +183,7 @@ for_node* create_for_node(exp_node* parent, source_loc loc, const char *var_name
 {
     for_node* node = (for_node*)malloc(sizeof(for_node));
     node->base.node_type = FOR_NODE;
+    node->base.annotated_type = 0;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -190,13 +197,14 @@ for_node* create_for_node(exp_node* parent, source_loc loc, const char *var_name
 
 block_node* create_block_node(exp_node* parent, array *nodes)
 {
-    block_node* block = (block_node*)malloc(sizeof(block_node));
-    block->base.node_type = BLOCK_NODE;
-    block->base.type = 0;
-    block->base.parent = parent;
-    block->base.loc = (*(exp_node**)array_front(nodes))->loc;
-    array_copy(&block->nodes, nodes);
-    return block;
+    block_node* node = (block_node*)malloc(sizeof(block_node));
+    node->base.node_type = BLOCK_NODE;
+    node->base.annotated_type = 0;
+    node->base.type = 0;
+    node->base.parent = parent;
+    node->base.loc = (*(exp_node**)array_front(nodes))->loc;
+    array_copy(&node->nodes, nodes);
+    return node;
 }
 
 module* create_module(const char* mod_name, FILE* file)

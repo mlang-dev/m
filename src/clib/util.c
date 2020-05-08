@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <execinfo.h>
 
 #include "clib/util.h"
 
@@ -112,4 +113,29 @@ string str_format(const char* string_format, ...)
 bool is_new_line(int ch)
 {
     return ch == '\r' || ch == '\n';
+}
+
+void print_backtrace(void)
+{
+    int j, nptrs;
+#define SIZE 100
+    void *buffer[SIZE];
+    char **strings;
+
+   nptrs = backtrace(buffer, SIZE);
+    printf("backtrace() returned %d addresses\n", nptrs);
+
+   /* The call backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO)
+       would produce similar output to the following: */
+
+   strings = backtrace_symbols(buffer, nptrs);
+    if (strings == NULL) {
+        perror("backtrace_symbols");
+        exit(EXIT_FAILURE);
+    }
+
+   for (j = 0; j < nptrs; j++)
+        printf("%s\n", strings[j]);
+
+   free(strings);
 }

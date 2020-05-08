@@ -17,7 +17,7 @@
 
 typedef LLVMValueRef (*binary_op)(LLVMBuilderRef, LLVMValueRef LHS, LLVMValueRef RHS,
                           const char *Name);
-typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef, unsigned Op,
+typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef, unsigned short Op,
                            LLVMValueRef LHS, LLVMValueRef RHS,
                            const char *Name);
 
@@ -28,12 +28,12 @@ struct binary_ops
     binary_op mul;
     binary_op div;
     cmp_op cmp;
-    unsigned cmp_lt;
-    unsigned cmp_gt;
-    unsigned cmp_eq;
-    unsigned cmp_neq;
-    unsigned cmp_le;
-    unsigned cmp_ge;
+    unsigned short cmp_lt;
+    unsigned short cmp_gt;
+    unsigned short cmp_eq;
+    unsigned short cmp_neq;
+    unsigned short cmp_le;
+    unsigned short cmp_ge;
 };
 
 struct binary_ops bin_ops[2] = {
@@ -164,8 +164,7 @@ void _create_argument_allocas(code_generator* cg, prototype_node* node,
 
 void* _generate_num_node(code_generator* cg, exp_node* node)
 {
-    if(0){//node->type&&node->type->type == TYPE_INT){
-//        return LLVMConstReal(LLVMDoubleTypeInContext((LLVMContextRef)cg->context), ((num_node*)node)->double_val);
+    if(node->type&&is_int_type(node->type->type)){
         int value = (int)((num_node*)node)->double_val;
         printf("number node int: %d\n", value);
         return LLVMConstInt(LLVMInt64TypeInContext((LLVMContextRef)cg->context), value, true);
@@ -200,7 +199,7 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
         return 0;
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    bool is_int = bin->base.type && bin->base.type->type==TYPE_INT;
+    bool is_int = bin->lhs->type && is_int_type(bin->lhs->type->type);
     int method_index = is_int ? 0 : 1;
     struct binary_ops *ops = &bin_ops[method_index];
     if (string_eq_chars(&bin->op, "+"))
@@ -213,7 +212,7 @@ void* _generate_binary_node(code_generator* cg, exp_node* node)
         return ops->div(builder, lv, rv, "divtmp");
     else if (string_eq_chars(&bin->op, "<")) {
         lv = ops->cmp(builder, ops->cmp_lt, lv, rv, "cmplttmp");
-        //return lv;
+       // return lv;
         return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
             "booltmp");
     } else if (string_eq_chars(&bin->op, ">")) {
@@ -275,14 +274,27 @@ void* _generate_prototype_node(code_generator* cg, exp_node* node)
     prototype_node *proto = (prototype_node*)node;
     //string *str = (string*)array_get(&proto->args, 0);
     //log_info(DEBUG, "generating prototype node: %s", string_get(str));
- 
     hashtable_set(&cg->protos, string_get(&proto->name), proto);
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    LLVMTypeRef doubles[array_size(&proto->args)];
-    for (unsigned i = 0; i< array_size(&proto->args); i++){
-        doubles[i] = LLVMDoubleTypeInContext(context);
+    LLVMTypeRef arg_types[array_size(&proto->args)];
+    for (size_t i = 0; i< array_size(&proto->args); i++){
+        arg_types[i] = LLVMDoubleTypeInContext(context);
     }
-    LLVMTypeRef ft =  LLVMFunctionType(LLVMDoubleTypeInContext(context), doubles, array_size(&proto->args), false);
+    LLVMTypeRef ret_type = LLVMDoubleTypeInContext(context);
+    type_exp* ret = proto->base.type;
+    if (!ret){
+        //print_backtrace();
+        //assert(false);
+    }
+    /*
+    assert(ret->kind == KIND_OPER);
+    ret = (type_exp*)array_back(&((type_oper*)ret)->args);
+    if(is_int_type(ret->type))
+        ret_type = LLVMInt64TypeInContext(context);
+    else
+        ret_type = LLVMDoubleTypeInContext(context);
+    */
+    LLVMTypeRef ft =  LLVMFunctionType(ret_type, arg_types, array_size(&proto->args), false);
     LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, string_get(&proto->name), ft);
     for (unsigned i = 0; i< LLVMCountParams(fun); i++){
         LLVMValueRef param = LLVMGetParam(fun, i);

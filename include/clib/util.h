@@ -38,6 +38,7 @@ string make_unique_name(const char* root);
 bool is_new_line(int ch);
 string get_id_name();
 void reset_id_name(const char *idname);
+void print_backtrace(void);
 
 #ifdef __cplusplus
 }

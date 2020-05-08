@@ -10,7 +10,7 @@
 TEST(testGeneral, testBuildJit)
 {
     menv* env = env_new();
-    parser* parser = parser_new(NULL, true, NULL);
+    parser* parser = parser_new(0, true, 0);
     JIT* jit = build_jit(env, parser);
     jit_free(jit);
     env_free(env);

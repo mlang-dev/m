@@ -35,6 +35,9 @@ eval_result eval_exp(JIT* jit, exp_node* node)
 {
     string fn = make_unique_name("main-fn");
     NodeType node_type = node->node_type;
+    if (!node->type)
+        analyze(jit->env->type_sys, node);
+    type_exp *type = node->type;
     eval_result result = {0};
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
     analyze(jit->env->type_sys, node);
@@ -47,14 +50,16 @@ eval_result eval_exp(JIT* jit, exp_node* node)
             void *fp = find_target_address(jit, string_get(&fn));
             //LLVMDumpModule(module);
             // keep global variables in the jit
-            if (1){//node->type && node->type->type == TYPE_DOUBLE){
-                double (*d_fp)() = (double (*)())fp;
-                result.d_value = d_fp();
-                result.type = TYPE_DOUBLE;
-            } else if(node->type && node->type->type == TYPE_INT){
+            if(type && is_int_type(type->type)){
                 int (*i_fp)() = (int (*)())fp;
                 result.i_value = i_fp();
                 result.type = TYPE_INT;
+                printf("excuting int result: %d, %d\n", result.i_value, type->type);
+            }
+            else{
+                double (*d_fp)() = (double (*)())fp;
+                result.d_value = d_fp();
+                result.type = TYPE_DOUBLE;
             }
             if (node_type != VAR_NODE) {
                 //jit->mjit->removeModule(mk);

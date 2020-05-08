@@ -40,7 +40,7 @@ prototype_node* _create_for_id(void* pcontext, const char* name)
     array names = string_split(&str_name, '.');
     //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
     source_loc loc = {1, 0};
-    prototype_node* node = create_prototype_node_default(NULL, loc, 
+    prototype_node* node = create_prototype_node_default(0, loc, 
         string_get(STRING_POINTER(array_back(&names))), &args);
     string_deinit(&str_name);
     array_deinit(&names);
@@ -65,7 +65,7 @@ array get_builtins(void* context)
     string_init_chars(&str, "char");
     array_push(&args, &str);
     source_loc loc = {1, 0};
-    prototype_node* proto = create_prototype_node_default(NULL, loc, "print", &args);
+    prototype_node* proto = create_prototype_node_default(0, loc, "print", &args);
     array_push(&builtins, &proto);
     string_deinit(&str);
     //args copied to the prototype node, so not needed to deinit
