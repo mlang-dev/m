@@ -147,7 +147,7 @@ avg x y = (x + y) / 2
     auto func = *(function_node**)array_front(&block->nodes);
     auto body_node = *(exp_node**)array_front(&func->body->nodes);
     ASSERT_STREQ("avg", string_get(&func->prototype->name));
-    ASSERT_STREQ("BINARY_NODE", NodeTypeString[body_node->node_type]);
+    ASSERT_STREQ("BINARY_NODE", node_type_strings[body_node->node_type]);
     parser_free(parser);
 }
 
@@ -182,7 +182,7 @@ TEST(testParser, testSimpleBinaryOperatorOverloadFunction)
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
-    ASSERT_STREQ("FUNCTION_NODE", NodeTypeString[node->node_type]);
+    ASSERT_STREQ("FUNCTION_NODE", node_type_strings[node->node_type]);
     function_node* func = (function_node*)node;
     ASSERT_STREQ("binary|>", string_get(&func->prototype->name));
     parser_free(parser);

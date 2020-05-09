@@ -35,7 +35,7 @@ extern "C" {
 
 enum node_type { FOREACH_NODETYPE(GENERATE_ENUM) };
 
-static const char* NodeTypeString[] = {
+static const char* node_type_strings[] = {
     FOREACH_NODETYPE(GENERATE_ENUM_STRING)
 };
 
@@ -59,7 +59,6 @@ struct module {
 };
 
 struct ast {
-    struct array builtins; //struct array of exp_node*
     struct array modules; //struct array of module*
 };
 

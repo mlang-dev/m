@@ -9,12 +9,13 @@
 #define __MLANG_BUILTIN_H__
 
 #include "ast.h"
+#include "analyzer.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct array get_builtins(void* context);
+struct array get_builtins(struct type_env* type_env, void* context);
 
 #ifdef __cplusplus
 }

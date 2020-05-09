@@ -31,7 +31,7 @@ bool _is_pred_op(const char* op)
 
 struct type_exp* _analyze_unk(struct type_env* env, struct exp_node* node)
 {
-    printf("analyzing unk: %s\n", NodeTypeString[node->node_type]);
+    printf("analyzing unk: %s\n", node_type_strings[node->node_type]);
     if (!env || !node)
         return 0;
     return 0;
@@ -163,9 +163,9 @@ struct type_env* type_env_new(void* context)
     array_init(&double_args, sizeof(struct type_exp*));
     array_push(&double_args, &double_type);
     array_push(&double_args, &double_type);
-    struct array builtins = get_builtins(context);
-    for (size_t i = 0; i < array_size(&builtins); i++) {
-        struct prototype_node* proto = *(struct prototype_node**)array_get(&builtins, i);
+    env->builtins = get_builtins(env, context);
+    for (size_t i = 0; i < array_size(&env->builtins); i++) {
+        struct prototype_node* proto = *(struct prototype_node**)array_get(&env->builtins, i);
         struct type_exp* exp = (struct type_exp*)create_type_fun(&double_args);
         set(env, string_get(&proto->name), exp);
     }
@@ -197,21 +197,30 @@ struct type_exp* _analyze_block(struct type_env* env, struct exp_node* node)
 
 struct type_exp* _analyze_proto(struct type_env* env, struct exp_node* node)
 {
-    printf("analyzing proto: %s\n", NodeTypeString[node->node_type]);
-    if (!env || !node)
-        return 0;
-    return 0;
+    assert(env);
+    struct prototype_node* proto = (struct prototype_node*)node;
+    struct array fun_sig; 
+    array_init(&fun_sig, sizeof(struct type_exp*));
+    for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
+        struct var_node* param = (struct var_node*)array_get(&proto->fun_params, i);
+        assert(param->base.annotated_type);
+        array_push(&fun_sig, &param->base.annotated_type);
+    }   
+    assert(proto->base.annotated_type);
+    array_push(&fun_sig, &proto->base.annotated_type);
+    proto->base.type = (struct type_exp*)create_type_fun(&fun_sig);
+    return proto->base.type;
 }
 
 struct type_exp* _analyze_fun(struct type_env* env, struct exp_node* node)
 {
     struct function_node* fun = (struct function_node*)node;
     //# create a new non-generic variable for the binder
-    struct array args; //<struct type_exp*> args;
-    array_init(&args, sizeof(struct type_exp*));
+    struct array fun_sig; 
+    array_init(&fun_sig, sizeof(struct type_exp*));
     for (size_t i = 0; i < array_size(&fun->prototype->fun_params); i++) {
         struct type_exp* exp = (struct type_exp*)create_type_var();
-        array_push(&args, &exp);
+        array_push(&fun_sig, &exp);
         array_push(&env->nogens, &exp);
         struct var_node* param = (struct var_node*)array_get(&fun->prototype->fun_params, i);
         set(env, string_get(&param->var_name), exp);
@@ -220,8 +229,8 @@ struct type_exp* _analyze_fun(struct type_env* env, struct exp_node* node)
     struct type_exp* fun_type = (struct type_exp*)create_type_var();
     set(env, string_get(&fun->prototype->name), fun_type);
     struct type_exp* ret_type = analyze(env, (struct exp_node*)fun->body);
-    array_push(&args, &ret_type);
-    struct type_exp* result_type = (struct type_exp*)create_type_fun(&args);
+    array_push(&fun_sig, &ret_type);
+    struct type_exp* result_type = (struct type_exp*)create_type_fun(&fun_sig);
     unify(fun_type, result_type, &env->nogens);
     struct type_exp* result = prune(fun_type);
     fun->prototype->base.type = result;

@@ -49,13 +49,14 @@ struct prototype_node* _create_for_id(void* pcontext, const char* name)
     //return 0;
 }
 
-struct array get_builtins(void* context)
+struct array get_builtins(struct type_env* type_env, void* context)
 {
     struct array builtins;
     array_init(&builtins, sizeof(struct exp_node*));
     int builtins_num = ARRAY_SIZE(buiiltin_funs);
     for (int i = 0; i < builtins_num; i++) {
         struct prototype_node* proto = _create_for_id(context, buiiltin_funs[i]);
+        analyze(type_env, (struct exp_node*)proto);
         array_push(&builtins, &proto);
     }
     ARRAY_FUN_PARAM(fun_params);
@@ -64,6 +65,7 @@ struct array get_builtins(void* context)
     array_push(&fun_params, &fun_param);
     struct source_loc loc = { 1, 0 };
     struct prototype_node* proto = create_prototype_node_default(0, loc, "print", &fun_params, (struct type_exp*)create_nullary_type(TYPE_UNIT));
+    analyze(type_env, (struct exp_node*)proto);
     array_push(&builtins, &proto);
     //args copied to the prototype node, so not needed to deinit
     return builtins;

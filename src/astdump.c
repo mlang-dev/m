@@ -167,7 +167,7 @@ string dump(struct exp_node* node)
     else {
         string not_supported;
         string_init_chars(&not_supported, "ast->node_type not supported: ");
-        string_add_chars(&not_supported, NodeTypeString[node->node_type]);
+        string_add_chars(&not_supported, node_type_strings[node->node_type]);
         return not_supported;
     }
 }

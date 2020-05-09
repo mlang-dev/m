@@ -107,11 +107,11 @@ struct JIT* build_jit(struct menv* env, struct parser* parser)
     struct JIT* jit = jit_new(cg);
     jit->env = env;
     //log_info(DEBUG, "creating builtins");
-    create_builtins(parser, cg->context);
+    //create_builtins(parser, cg->context);
     //log_info(DEBUG, "creating jit modules");
     _create_jit_module(cg);
     //log_info(DEBUG, "generating runtime modules");
-    generate_runtime_module(cg, &parser->ast->builtins);
+    generate_runtime_module(cg, &env->type_env->builtins);
     //log_info(DEBUG, "adding to jit");
     _add_current_module_to_jit(jit);
     //log_info(DEBUG, "creating jit modules 2");

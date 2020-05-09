@@ -270,6 +270,7 @@ void* _generate_prototype_node(struct code_generator* cg, struct exp_node* node)
     struct prototype_node* proto = (struct prototype_node*)node;
     //string *str = (string*)array_get(&proto->args, 0);
     //log_info(DEBUG, "generating prototype node: %s", string_get(str));
+    assert(proto->base.type);
     hashtable_set(&cg->protos, string_get(&proto->name), proto);
     LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMTypeRef arg_types[array_size(&proto->fun_params)];
@@ -368,7 +369,7 @@ void* _generate_condition_node(struct code_generator* cg, struct exp_node* node)
     LLVMContextRef context = (LLVMContextRef)cg->context;
     cond_v = LLVMBuildFCmp(builder, LLVMRealONE, cond_v, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0), "ifcond");
 
-    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(builder)); // builder->GetInsertBlock()->getParent();
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(builder)); 
 
     LLVMBasicBlockRef then_bb = LLVMAppendBasicBlockInContext(context, fun, "then");
     LLVMBasicBlockRef else_bb = LLVMCreateBasicBlockInContext(context, "else");

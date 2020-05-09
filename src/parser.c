@@ -98,18 +98,12 @@ struct parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file
 
     struct ast* ast = malloc(sizeof(*ast));
     psr->ast = ast;
-    array_init(&psr->ast->builtins, sizeof(struct exp_node*));
     array_init(&psr->ast->modules, sizeof(struct module*));
     psr->allow_id_as_a_func = true;
     psr->is_repl = is_repl;
     psr->current_module = create_module(mod_name, file);
     array_push(&psr->ast->modules, &psr->current_module);
     return psr;
-}
-
-void create_builtins(struct parser* parser, void* context)
-{
-    parser->ast->builtins = get_builtins(context);
 }
 
 void block_deinit(struct block_node* block)
@@ -330,7 +324,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
         } else {
             //log_info(DEBUG, "starting to parse exp: %s", token_type_strings[parser->curr_token.token_type]);
             node = parse_exp(parser, parent, 0);
-            //log_info(DEBUG, "it's exp: %s", NodeTypeString[node->node_type]);
+            //log_info(DEBUG, "it's exp: %s", node_type_strings[node->node_type]);
         }
     }
     if (node) {
@@ -423,7 +417,7 @@ struct exp_node* _parse_binary(struct parser* parser, struct exp_node* parent, i
         struct exp_node* rhs = _parse_unary(parser, parent);
         if (!rhs)
             return lhs;
-        //log_info(DEBUG, "bin exp: rhs: %s", NodeTypeString[rhs->node_type]);
+        //log_info(DEBUG, "bin exp: rhs: %s", node_type_strings[rhs->node_type]);
         int next_prec = _get_op_precedence(parser);
         if (tok_prec < next_prec) {
             //log_info(DEBUG, "right first %s, %d, %d", token_type_strings[parser->curr_token.token_type], tok_prec, next_prec);
@@ -442,7 +436,7 @@ struct exp_node* parse_exp(struct parser* parser, struct exp_node* parent, struc
         return lhs;
     if (!lhs)
         lhs = _parse_unary(parser, parent);
-    //log_info(DEBUG, "got lhs: %s, %s", NodeTypeString[lhs->node_type], parser->curr_token.ident_str->c_str());
+    //log_info(DEBUG, "got lhs: %s, %s", node_type_strings[lhs->node_type], parser->curr_token.ident_str->c_str());
     if (!lhs || parser->curr_token.token_type == TOKEN_EOS)
         return lhs;
     return _parse_binary(parser, parent, 0, lhs);
@@ -599,7 +593,7 @@ struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent)
     parse_next_token(parser);
     struct exp_node* operand = _parse_unary(parser, parent);
     if (operand) {
-        //log_info(DEBUG, "unary node:%c: %s", opc, NodeTypeString[operand->node_type]);
+        //log_info(DEBUG, "unary node:%c: %s", opc, node_type_strings[operand->node_type]);
         return (struct exp_node*)create_unary_node(parent, loc, string_get(&opc), operand);
     }
     return 0;
@@ -669,7 +663,7 @@ struct exp_node* _parse_if(struct parser* parser, struct exp_node* parent)
     struct exp_node* cond = parse_exp(parser, parent, 0);
     if (!cond)
         return 0;
-    //log_info(DEBUG, "conf: %s, %s", NodeTypeString[cond->node_type], dump(cond).c_str());
+    //log_info(DEBUG, "conf: %s, %s", node_type_strings[cond->node_type], dump(cond).c_str());
     if (parser->curr_token.token_type == TOKEN_THEN) {
         parse_next_token(parser); // eat the then
     }
@@ -683,7 +677,7 @@ struct exp_node* _parse_if(struct parser* parser, struct exp_node* parent)
     while (parser->curr_token.token_type == TOKEN_EOS)
         parse_next_token(parser);
     if (parser->curr_token.token_type != TOKEN_ELSE)
-        return (struct exp_node*)log_info(ERROR, "expected else, got type: %s", NodeTypeString[parser->curr_token.token_type]);
+        return (struct exp_node*)log_info(ERROR, "expected else, got type: %s", node_type_strings[parser->curr_token.token_type]);
 
     parse_next_token(parser);
 

@@ -25,9 +25,8 @@ int compile(const char* fn, enum object_file_type file_type)
     struct menv* env = env_new();
     struct parser* parser = parser_new(fn, false, 0);
     struct code_generator* cg = cg_new(env, parser);
-    create_builtins(parser, cg->context);
     create_module_and_pass_manager(cg, string_get(&filename));
-    generate_runtime_module(cg, &parser->ast->builtins);
+    generate_runtime_module(cg, &env->type_env->builtins);
     struct block_node* block = parse_block(parser, 0, 0, 0);
     analyze(env->type_env, (struct exp_node*)block);
     if (block) {

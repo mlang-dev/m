@@ -18,6 +18,7 @@ extern "C" {
 struct type_env {
     struct hashtable type_env; //hashtable of <string, struct type_exp*>
     struct array nogens; //struct array of struct type_exp*
+    struct array builtins;
 };
 
 struct type_exp* retrieve(struct type_env* env, const char* name);
