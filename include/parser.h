@@ -8,14 +8,14 @@
 #ifndef __MLANG_PARSER_H__
 #define __MLANG_PARSER_H__
 
-#include "clib/queue.h"
 #include "clib/hashtable.h"
+#include "clib/queue.h"
 
 #include "ast.h"
 #include "lexer.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 struct parser {
@@ -25,7 +25,7 @@ struct parser {
     bool allow_id_as_a_func;
     bool is_repl;
     struct module* current_module;
-    struct queue queued_tokens;  //queue of token
+    struct queue queued_tokens; //queue of token
 };
 
 typedef FILE* (*open_file)(const char* file_name);

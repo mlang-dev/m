@@ -3,17 +3,16 @@
  *
  * Built-in functions 
  */
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "builtins.h"
-#include "clib/util.h"
 #include "clib/string.h"
+#include "clib/util.h"
 
 #include "llvm-c/Core.h"
 
-
-const char * buiiltin_funs[] = {
+const char* buiiltin_funs[] = {
     "llvm.sin",
     "llvm.cos",
     "llvm.sqrt",
@@ -22,11 +21,11 @@ const char * buiiltin_funs[] = {
 struct prototype_node* _create_for_id(void* pcontext, const char* name)
 {
     LLVMContextRef context = (LLVMContextRef)pcontext;
-    LLVMTypeRef types[1] = {LLVMDoubleTypeInContext(context)};
+    LLVMTypeRef types[1] = { LLVMDoubleTypeInContext(context) };
     unsigned id = LLVMLookupIntrinsicID(name, strlen(name));
     LLVMTypeRef fun = LLVMIntrinsicGetType(context, id, types, 1);
     size_t param_count = LLVMCountParamTypes(fun);
-    LLVMTypeRef *params = malloc(param_count * sizeof(LLVMTypeRef));
+    LLVMTypeRef* params = malloc(param_count * sizeof(LLVMTypeRef));
     LLVMGetParamTypes(fun, params);
     //;llvm::Intrinsic::getName(id, types);
     struct array args;
@@ -39,8 +38,8 @@ struct prototype_node* _create_for_id(void* pcontext, const char* name)
     string_init_chars(&str_name, name);
     struct array names = string_split(&str_name, '.');
     //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
-    struct source_loc loc = {1, 0};
-    struct prototype_node* node = create_prototype_node_default(0, loc, 
+    struct source_loc loc = { 1, 0 };
+    struct prototype_node* node = create_prototype_node_default(0, loc,
         string_get(STRING_POINTER(array_back(&names))), &args);
     string_deinit(&str_name);
     array_deinit(&names);
@@ -54,9 +53,9 @@ struct array get_builtins(void* context)
 {
     struct array builtins;
     array_init(&builtins, sizeof(struct exp_node*));
-    int builtins_num = sizeof(buiiltin_funs)/sizeof(char*);
+    int builtins_num = ARRAY_SIZE(buiiltin_funs);
     for (int i = 0; i < builtins_num; i++) {
-        struct prototype_node *proto = _create_for_id(context, buiiltin_funs[i]);
+        struct prototype_node* proto = _create_for_id(context, buiiltin_funs[i]);
         array_push(&builtins, &proto);
     }
     struct array args; //struct array of string
@@ -64,7 +63,7 @@ struct array get_builtins(void* context)
     array_string_init(&args);
     string_init_chars(&str, "char");
     array_push(&args, &str);
-    struct source_loc loc = {1, 0};
+    struct source_loc loc = { 1, 0 };
     struct prototype_node* proto = create_prototype_node_default(0, loc, "print", &args);
     array_push(&builtins, &proto);
     //args copied to the prototype node, so not needed to deinit

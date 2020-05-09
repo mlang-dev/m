@@ -3,16 +3,16 @@
  *
  * c util functions
  */
-#include <string.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <execinfo.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "clib/util.h"
 
 static char id_name[512] = "a";
-void reset_id_name(const char *idname)
+void reset_id_name(const char* idname)
 {
     strcpy(id_name, idname);
 }
@@ -30,10 +30,10 @@ void _inc_str(string* id)
     string_push(id, ch);
 }
 
-bool is_all(string *str, char match)
+bool is_all(string* str, char match)
 {
     const char* data = string_get(str);
-    for(size_t i = 0; i<string_size(str); i++){
+    for (size_t i = 0; i < string_size(str); i++) {
         if (data[i] != match)
             return false;
     }
@@ -47,7 +47,7 @@ string get_id_name()
     string new_id_name;
     string_init_chars(&new_id_name, id_name);
     _inc_str(&new_id_name);
-    if (string_back(&new_id_name) == 'a' && is_all(&new_id_name,  'a'))
+    if (string_back(&new_id_name) == 'a' && is_all(&new_id_name, 'a'))
         string_push(&new_id_name, 'a');
     reset_id_name(string_get(&new_id_name));
     string_deinit(&new_id_name);
@@ -119,23 +119,23 @@ void print_backtrace(void)
 {
     int j, nptrs;
 #define SIZE 100
-    void *buffer[SIZE];
-    char **strings;
+    void* buffer[SIZE];
+    char** strings;
 
-   nptrs = backtrace(buffer, SIZE);
+    nptrs = backtrace(buffer, SIZE);
     printf("backtrace() returned %d addresses\n", nptrs);
 
-   /* The call backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO)
+    /* The call backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO)
        would produce similar output to the following: */
 
-   strings = backtrace_symbols(buffer, nptrs);
-    if (strings == NULL) {
+    strings = backtrace_symbols(buffer, nptrs);
+    if (strings == 0) {
         perror("backtrace_symbols");
         exit(EXIT_FAILURE);
     }
 
-   for (j = 0; j < nptrs; j++)
+    for (j = 0; j < nptrs; j++)
         printf("%s\n", strings[j]);
 
-   free(strings);
+    free(strings);
 }

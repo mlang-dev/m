@@ -25,24 +25,23 @@ void* _create_jit_instance()
 
     // Create the JIT instance.
     LLVMOrcLLJITRef jit;
-  
+
     LLVMErrorRef err = LLVMOrcCreateLLJIT(&jit, 0);
     if (err) {
         LLVMShutdown();
-        return NULL;
+        return 0;
     }
     return jit;
 }
 
-void _destroy_jit_instance(void *instance)
+void _destroy_jit_instance(void* instance)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)instance;
     LLVMErrorRef err = LLVMOrcDisposeLLJIT(j);
     if (err) {
-        ;//something bad again
+        ; //something bad again
     }
 }
-
 
 struct JIT* jit_new(struct code_generator* cg)
 {
@@ -54,7 +53,7 @@ struct JIT* jit_new(struct code_generator* cg)
 
 void jit_free(struct JIT* jit)
 {
-    if (jit->instance){
+    if (jit->instance) {
         //_destroy_jit_instance(jit->jit);
         //LLVMShutdown();
     }
@@ -63,7 +62,7 @@ void jit_free(struct JIT* jit)
     free(jit);
 }
 
-void add_module(struct JIT *jit, void* module)
+void add_module(struct JIT* jit, void* module)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcJITDylibRef jd = LLVMOrcLLJITGetMainJITDylib(j);
@@ -72,7 +71,7 @@ void add_module(struct JIT *jit, void* module)
     LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
 }
 
-void* find_target_address(struct JIT *jit, const char *symbol)
+void* find_target_address(struct JIT* jit, const char* symbol)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcJITTargetAddress addr;
@@ -80,4 +79,3 @@ void* find_target_address(struct JIT *jit, const char *symbol)
     }
     return (void*)addr;
 }
-

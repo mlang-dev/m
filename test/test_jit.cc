@@ -9,7 +9,6 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
-
 TEST(testJIT, testNumber)
 {
     char test_code[] = R"(
@@ -19,7 +18,7 @@ TEST(testJIT, testNumber)
     auto parser = create_parser_for_string(test_code);
     menv* env = env_new();
     JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    block_node* block = parse_block(parser, 0, 0, 0);
     auto node1 = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node1);
     auto node2 = *(exp_node**)array_back(&block->nodes);
@@ -37,7 +36,7 @@ TEST(testJIT, testTypeError)
     auto parser = create_parser_for_string(test_code);
     menv* env = env_new();
     JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    block_node* block = parse_block(parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     eval_statement(jit, node);
     ASSERT_EQ(0, node->type);
@@ -54,7 +53,7 @@ TEST(testJIT, testIdFunc)
     auto parser = create_parser_for_string(test_code);
     menv* env = env_new();
     JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    block_node* block = parse_block(parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_back(&block->nodes);
     eval_statement(jit, node);
@@ -73,7 +72,7 @@ TEST(testJIT, testSqrtFunc)
     auto parser = create_parser_for_string(test_code);
     menv* env = env_new();
     JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    block_node* block = parse_block(parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     eval_statement(jit, node);
@@ -95,7 +94,7 @@ TEST(testJIT, testIfFunc)
     auto parser = create_parser_for_string(test_code);
     menv* env = env_new();
     JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    block_node* block = parse_block(parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     auto node2 = *(exp_node**)array_get(&block->nodes, 2);
@@ -115,7 +114,7 @@ y
     auto parser = create_parser_for_string(test_code);
     menv* env = env_new();
     JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    block_node* block = parse_block(parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     eval_statement(jit, node);
@@ -134,7 +133,7 @@ y=100
     auto parser = create_parser_for_string(test_code);
     menv* env = env_new();
     JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    block_node* block = parse_block(parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     auto node2 = *(exp_node**)array_get(&block->nodes, 2);
@@ -156,8 +155,8 @@ if z>99 then -z else z
     auto parser = create_parser_for_string(test_code);
     menv* env = env_new();
     JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
-    for (int i = 0; i < 3; i++){
+    block_node* block = parse_block(parser, 0, 0, 0);
+    for (int i = 0; i < 3; i++) {
         auto node = *(exp_node**)array_get(&block->nodes, i);
         eval_statement(jit, node);
     }
@@ -178,9 +177,9 @@ if z>99 then -z else z
     auto parser = create_parser_for_string(test_code);
     menv* env = env_new();
     JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, NULL, NULL, NULL);
+    block_node* block = parse_block(parser, 0, 0, 0);
     auto end = 3;
-    for (int i = 0; i < end; i++){
+    for (int i = 0; i < end; i++) {
         auto node = *(exp_node**)array_get(&block->nodes, i);
         eval_statement(jit, node);
     }

@@ -5,15 +5,15 @@
  */
 #include <assert.h>
 
-#include "jit.h"
 #include "env.h"
+#include "jit.h"
 #include "repl.h"
 
 void _print(struct eval_result result)
 {
-    if (result.type == TYPE_INT){
+    if (result.type == TYPE_INT) {
         printf("%d\n", result.i_value);
-    }else if(result.type == TYPE_DOUBLE){
+    } else if (result.type == TYPE_DOUBLE) {
         printf("%f\n", result.d_value);
     }
 }
@@ -21,10 +21,10 @@ void _print(struct eval_result result)
 void _add_current_module_to_jit(struct JIT* jit)
 {
     add_module(jit, jit->cg->module);
-    jit->cg->module = NULL;
+    jit->cg->module = 0;
 }
 
-void _create_jit_module(struct code_generator *cg)
+void _create_jit_module(struct code_generator* cg)
 {
     string mod_name = make_unique_name("mjit");
     create_module_and_pass_manager(cg, string_get(&mod_name));
@@ -37,8 +37,8 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
     enum node_type node_type = node->node_type;
     if (!node->type)
         analyze(jit->env->type_env, node);
-    struct type_exp *type = node->type;
-    struct eval_result result = {0};
+    struct type_exp* type = node->type;
+    struct eval_result result = { 0 };
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
     analyze(jit->env->type_env, node);
     //string node_type_str = to_string(node->type);
@@ -47,16 +47,15 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
         void* p_fun = generate_code(jit->cg, node);
         if (p_fun) {
             _add_current_module_to_jit(jit);
-            void *fp = find_target_address(jit, string_get(&fn));
+            void* fp = find_target_address(jit, string_get(&fn));
             //LLVMDumpModule(module);
             // keep global variables in the jit
-            if(type && is_int_type(type->type)){
+            if (type && is_int_type(type->type)) {
                 int (*i_fp)() = (int (*)())fp;
                 result.i_value = i_fp();
                 result.type = TYPE_INT;
                 printf("excuting int result: %d, %d\n", result.i_value, type->type);
-            }
-            else{
+            } else {
                 double (*d_fp)() = (double (*)())fp;
                 result.d_value = d_fp();
                 result.type = TYPE_DOUBLE;
@@ -81,10 +80,9 @@ void eval_statement(void* p_jit, struct exp_node* node)
         string_deinit(&type_node_str);
         if (!node->type)
             goto exit;
-        if (node->node_type == PROTOTYPE_NODE){
+        if (node->node_type == PROTOTYPE_NODE) {
             generate_code(jit->cg, node);
-        }
-        else if (node->node_type == FUNCTION_NODE) {
+        } else if (node->node_type == FUNCTION_NODE) {
             // function definition
             generate_code(jit->cg, node);
             _add_current_module_to_jit(jit);
@@ -124,10 +122,10 @@ struct JIT* build_jit(struct menv* env, struct parser* parser)
 int run_repl()
 {
     struct menv* env = env_new();
-    struct parser* parser = parser_new(NULL, true, NULL);
+    struct parser* parser = parser_new(0, true, 0);
     struct JIT* jit = build_jit(env, parser);
     printf("m> ");
-    parse_block(parser, NULL, &eval_statement, jit);
+    parse_block(parser, 0, &eval_statement, jit);
     printf("bye !\n");
     jit_free(jit);
     env_free(env);

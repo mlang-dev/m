@@ -3,12 +3,12 @@
  *
  * m environment, a top class to store all data for compiling session
  */
-#include <stdlib.h>
 #include "llvm-c/Core.h"
+#include <stdlib.h>
 
 #include "env.h"
 
-struct menv *env_new()
+struct menv* env_new()
 {
     struct menv* env = malloc(sizeof(*env));
     env->context = LLVMContextCreate();

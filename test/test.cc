@@ -1,11 +1,10 @@
-#include "gtest/gtest.h"
+#include "analyzer.h"
+#include "astdump.h"
 #include "parser.h"
 #include "repl.h"
 #include "tutil.h"
-#include "analyzer.h"
+#include "gtest/gtest.h"
 #include <stdio.h>
-#include "astdump.h"
-
 
 TEST(testGeneral, testBuildJit)
 {

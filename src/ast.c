@@ -9,20 +9,20 @@
 
 #include "ast.h"
 
-bool is_unary_op(struct prototype_node* pnode)
+bool is_unary_op(struct prototype_node* node)
 {
-    return pnode->is_operator && array_size(&pnode->args) == 1;
+    return node->is_operator && array_size(&node->args) == 1;
 }
 
-bool is_binary_op(struct prototype_node* pnode)
+bool is_binary_op(struct prototype_node* node)
 {
-    return pnode->is_operator && array_size(&pnode->args) == 2;
+    return node->is_operator && array_size(&node->args) == 2;
 }
 
-char get_op_name(struct prototype_node* pnode)
+char get_op_name(struct prototype_node* node)
 {
-    assert(is_unary_op(pnode) || is_binary_op(pnode));
-    return string_back(&pnode->name);
+    assert(is_unary_op(node) || is_binary_op(node));
+    return string_back(&node->name);
 }
 
 struct function_node* create_function_node(struct prototype_node* prototype,

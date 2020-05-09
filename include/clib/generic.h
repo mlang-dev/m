@@ -9,6 +9,8 @@
 #ifndef __CLIB_GENERIC_H__
 #define __CLIB_GENERIC_H__
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -10,64 +10,64 @@
 
 TEST(testString, testShortInit)
 {
-  string str;
-  string_init_chars(&str, "hello world");
-  ASSERT_EQ(11, string_size(&str));
-  ASSERT_STREQ("hello world", string_get(&str));
-  string_deinit(&str);
+    string str;
+    string_init_chars(&str, "hello world");
+    ASSERT_EQ(11, string_size(&str));
+    ASSERT_STREQ("hello world", string_get(&str));
+    string_deinit(&str);
 }
 
 TEST(testString, testEmptyString)
 {
-  string str;
-  string_init_chars(&str, "");
-  ASSERT_STREQ("", string_get(&str));
-  ASSERT_TRUE(string_eq_chars(&str, ""));
-  string_deinit(&str);
+    string str;
+    string_init_chars(&str, "");
+    ASSERT_STREQ("", string_get(&str));
+    ASSERT_TRUE(string_eq_chars(&str, ""));
+    string_deinit(&str);
 }
 
 TEST(testString, testEmptyString2)
 {
-  string str;
-  string_init(&str);
-  ASSERT_STREQ("", string_get(&str));
-  ASSERT_TRUE(string_eq_chars(&str, ""));
-  string_deinit(&str);
+    string str;
+    string_init(&str);
+    ASSERT_STREQ("", string_get(&str));
+    ASSERT_TRUE(string_eq_chars(&str, ""));
+    string_deinit(&str);
 }
 
 TEST(testString, testLongInit)
 {
-  string str;
-  string_init_chars(&str, "hello world. this is very long string. expected to be dynamically allocated");
-  ASSERT_STREQ("hello world. this is very long string. expected to be dynamically allocated", string_get(&str));
-  string_deinit(&str);
+    string str;
+    string_init_chars(&str, "hello world. this is very long string. expected to be dynamically allocated");
+    ASSERT_STREQ("hello world. this is very long string. expected to be dynamically allocated", string_get(&str));
+    string_deinit(&str);
 }
 
 TEST(testString, testShortAppend)
 {
-  string str;
-  string_init_chars(&str, "hello");
-  string_add_chars(&str, " world!");
-  ASSERT_STREQ("hello world!", string_get(&str));
-  string_deinit(&str);
+    string str;
+    string_init_chars(&str, "hello");
+    string_add_chars(&str, " world!");
+    ASSERT_STREQ("hello world!", string_get(&str));
+    string_deinit(&str);
 }
 
 TEST(testString, testShortAppendToLong)
 {
-  string str;
-  string_init_chars(&str, "hello");
-  string_add_chars(&str, " world!  this will become a very long string. ");
-  ASSERT_STREQ("hello world!  this will become a very long string. ", string_get(&str));
-  string_deinit(&str);
+    string str;
+    string_init_chars(&str, "hello");
+    string_add_chars(&str, " world!  this will become a very long string. ");
+    ASSERT_STREQ("hello world!  this will become a very long string. ", string_get(&str));
+    string_deinit(&str);
 }
 
 TEST(testString, testLongAppendToLong)
 {
-  string str;
-  string_init_chars(&str, "hello world!  this will become a very long string.");
-  string_add_chars(&str, " and more now");
-  ASSERT_STREQ("hello world!  this will become a very long string. and more now", string_get(&str));
-  string_deinit(&str);
+    string str;
+    string_init_chars(&str, "hello world!  this will become a very long string.");
+    string_add_chars(&str, " and more now");
+    ASSERT_STREQ("hello world!  this will become a very long string. and more now", string_get(&str));
+    string_deinit(&str);
 }
 
 TEST(testString, testEq)
@@ -200,7 +200,7 @@ TEST(testString, testJoinMultiLongString)
     string_init(&str);
     string_copy_chars(&str, "this is a second very long string");
     array_push(&arr, &str);
- 
+
     string result = string_join(&arr, ".");
     ASSERT_STREQ(string_get(&result), "this is a very long string.this is a second very long string");
     array_deinit(&arr);

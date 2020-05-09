@@ -4,12 +4,12 @@
  * Compiling from mlang syntax to object file or ir/bitcode
  */
 #include "compiler.h"
-#include "jit.h"
 #include "clib/util.h"
+#include "jit.h"
+#include "llvm-c/BitWriter.h"
 #include "llvm-c/Core.h"
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
-#include "llvm-c/BitWriter.h"
 
 #include "env.h"
 
@@ -31,7 +31,7 @@ int compile(const char* fn, enum object_file_type file_type)
     struct block_node* block = parse_block(parser, 0, 0, 0);
     analyze(env->type_env, (struct exp_node*)block);
     if (block) {
-        for (size_t i = 0; i < array_size(&block->nodes); i ++) {
+        for (size_t i = 0; i < array_size(&block->nodes); i++) {
             struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
             generate_code(cg, node);
         }
@@ -73,14 +73,13 @@ int gof_initialize()
 
 int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, const char* filename)
 {
-    if (LLVMTargetMachineEmitToFile(target_machine, module, (char*)filename, LLVMObjectFile, NULL)) {
+    if (LLVMTargetMachineEmitToFile(target_machine, module, (char*)filename, LLVMObjectFile, 0)) {
         printf("Target machine can't emit an object file\n");
         return 2;
     }
     printf("generated obj file: %s\n", filename);
     return 0;
 }
-
 
 int generate_object_file(LLVMModuleRef module, const char* filename)
 {
@@ -100,6 +99,6 @@ int generate_bitcode_file(LLVMModuleRef module, const char* filename)
 
 int generate_ir_file(LLVMModuleRef module, const char* filename)
 {
-    LLVMPrintModuleToFile(module, filename, NULL);
+    LLVMPrintModuleToFile(module, filename, 0);
     return 0;
 }

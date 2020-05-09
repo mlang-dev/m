@@ -4,19 +4,18 @@
  * AST print functions
  */
 #include "astdump.h"
-#include "clib/util.h"
 #include "clib/string.h"
-
+#include "clib/util.h"
 
 string _dump_block(struct block_node* node)
 {
     string block;
     string_init_chars(&block, "blk: \n");
-    for (size_t i = 0; i < array_size(&node->nodes); i++){
+    for (size_t i = 0; i < array_size(&node->nodes); i++) {
         struct exp_node* stmt = *(struct exp_node**)array_get(&node->nodes, i);
         string str_stmt = dump(stmt);
-        string_add_chars(&block,  "  ");
-        string_add(&block,  &str_stmt);
+        string_add_chars(&block, "  ");
+        string_add(&block, &str_stmt);
         string_add_chars(&block, "\n");
     }
     return block;
@@ -81,7 +80,7 @@ string _dump_call(struct call_node* call)
 {
     struct array args;
     array_string_init(&args);
-    for(size_t i = 0; i < array_size(&call->args); i++){
+    for (size_t i = 0; i < array_size(&call->args); i++) {
         string dp = dump(*(struct exp_node**)array_get(&call->args, i));
         array_push(&args, &dp);
     }
@@ -102,7 +101,7 @@ string _dump_if(struct condition_node* cond)
     string_add(&result, &if_str);
     string_add_chars(&result, "then ");
     string_add(&result, &then_str);
-    if (cond->else_node){
+    if (cond->else_node) {
         string else_str = dump(cond->else_node);
         string_add_chars(&result, " else ");
         string_add(&result, &else_str);

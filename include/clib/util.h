@@ -12,8 +12,8 @@
 extern "C" {
 #endif
 
-#include "clib/string.h"
 #include "clib/array.h"
+#include "clib/string.h"
 
 #define ENABLE_DEBUG_LOG 0
 #define GENERATE_ENUM(ENUM) ENUM,
@@ -37,7 +37,7 @@ string make_unique_name(const char* root);
 //int random(int min, int max);
 bool is_new_line(int ch);
 string get_id_name();
-void reset_id_name(const char *idname);
+void reset_id_name(const char* idname);
 void print_backtrace(void);
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))

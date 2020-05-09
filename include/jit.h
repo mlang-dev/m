@@ -13,15 +13,15 @@
 #ifndef __MLANG_JIT_H__
 #define __MLANG_JIT_H__
 
-#include "codegen.h"
 #include "clib/util.h"
+#include "codegen.h"
 #include "env.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
-struct JIT {    
+struct JIT {
     struct code_generator* cg;
     void* instance;
     struct menv* env;
@@ -30,10 +30,10 @@ struct JIT {
 struct JIT* jit_new(struct code_generator* cg);
 void jit_free(struct JIT* jit);
 
-void add_module(struct JIT *jit, void* module);
+void add_module(struct JIT* jit, void* module);
 typedef double (*target_address_double)();
 typedef int (*target_address_int)();
-void* find_target_address(struct JIT *jit, const char *symbol);
+void* find_target_address(struct JIT* jit, const char* symbol);
 
 #ifdef __cplusplus
 }

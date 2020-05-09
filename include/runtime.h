@@ -17,8 +17,8 @@
 extern "C" {
 #endif
 
-    DLLEXPORT double print(double x);
-    
+DLLEXPORT double print(double x);
+
 #ifdef __cplusplus
 }
 #endif

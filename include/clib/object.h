@@ -8,15 +8,14 @@
 #ifndef __CLIB_OBJECT_H__
 #define __CLIB_OBJECT_H__
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum ctype
-{
+enum ctype {
     //value type
     VALUE_TYPE = 0,
     CHAR,
@@ -31,29 +30,29 @@ enum ctype
     ALL
 };
 
-typedef struct _object{
+typedef struct _object {
     enum ctype type;
     size_t size; //size of data, not the struct size
-    union{
+    union {
         char c_data;
         int i_data;
         float f_data;
         double d_data;
-        void *p_data;
+        void* p_data;
     };
-}object;
+} object;
 
-typedef bool (*object_eq)(object *dest, object *src);
-typedef void (*object_init)(object *dest, object *src); 
+typedef bool (*object_eq)(object* dest, object* src);
+typedef void (*object_init)(object* dest, object* src);
 typedef void (*object_deinit)(object* obj);
-typedef void *(*object_data)(object* obj);
+typedef void* (*object_data)(object* obj);
 
-typedef struct _object_interface{
+typedef struct _object_interface {
     object_eq eq;
     object_init init;
     object_deinit deinit;
     object_data data;
-}object_interface;
+} object_interface;
 
 void register_object_interface(enum ctype type, object_interface interface);
 object_eq get_eq(enum ctype type);

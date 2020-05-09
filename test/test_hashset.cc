@@ -5,17 +5,17 @@
  */
 #include "gtest/gtest.h"
 
-#include "clib/object.h"
 #include "clib/hashset.h"
+#include "clib/object.h"
 #include "clib/string.h"
 
 TEST(testHashset, TestAddAndCheck)
 {
     hashset hs;
     hashset_init(&hs);
-    const char *str1 = "hello hs1";
-    const char *str2 = "hello hs2";
-    const char *str3 = "no existing";
+    const char* str1 = "hello hs1";
+    const char* str2 = "hello hs2";
+    const char* str3 = "no existing";
     hashset_set(&hs, str1);
     hashset_set(&hs, str2);
     ASSERT_EQ(2, hashset_size(&hs));

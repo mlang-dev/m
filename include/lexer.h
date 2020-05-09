@@ -8,10 +8,10 @@
 #ifndef __MLANG_LEXER_H__
 #define __MLANG_LEXER_H__
 
-#include <stdio.h>
-#include "type.h"
-#include "clib/util.h"
 #include "clib/string.h"
+#include "clib/util.h"
+#include "type.h"
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {

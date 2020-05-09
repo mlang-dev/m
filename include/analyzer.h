@@ -12,15 +12,15 @@
 #include "clib/hashtable.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
-struct type_env{
-    struct hashtable type_env;  //hashtable of <string, struct type_exp*>
+struct type_env {
+    struct hashtable type_env; //hashtable of <string, struct type_exp*>
     struct array nogens; //struct array of struct type_exp*
 };
 
-struct type_exp* retrieve(struct type_env* env, const char *name);
+struct type_exp* retrieve(struct type_env* env, const char* name);
 struct type_env* type_env_new(void* context);
 void type_env_free(struct type_env* env);
 struct type_exp* analyze(struct type_env* env, struct exp_node* node);

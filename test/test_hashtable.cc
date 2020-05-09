@@ -7,10 +7,10 @@
 
 #include <string.h>
 
-#include "clib/object.h"
-#include "clib/hashtable.h"
-#include "clib/string.h"
 #include "clib/generic.h"
+#include "clib/hashtable.h"
+#include "clib/object.h"
+#include "clib/string.h"
 #include "clib/util.h"
 #include "type.h"
 
@@ -31,7 +31,7 @@
 //     ASSERT_EQ(100, *((int*)hashtable_get(&ht, &obj1)));
 //     ASSERT_EQ(200, *((int*)hashtable_get(&ht, &obj2)));
 //     ASSERT_FALSE(hashtable_in(&ht, &obj3));
-//     ASSERT_EQ(NULL, hashtable_get(&ht, &obj3));
+//     ASSERT_EQ(0, hashtable_get(&ht, &obj3));
 //     hashtable_deinit(&ht);
 // }
 
@@ -42,7 +42,7 @@ TEST(testHashtable, TestStrGeneric)
     char str1[] = "hello";
     char str2[] = "world";
     char str3[] = "something else";
-    int i = 100, j = 200, k=300;
+    int i = 100, j = 200, k = 300;
     hashtable_set(&ht, str1, &i);
     hashtable_set(&ht, str2, &j);
     ASSERT_EQ(2, hashtable_size(&ht));
@@ -51,7 +51,7 @@ TEST(testHashtable, TestStrGeneric)
     ASSERT_EQ(100, *((int*)hashtable_get(&ht, str1)));
     ASSERT_EQ(200, *((int*)hashtable_get(&ht, str2)));
     ASSERT_FALSE(hashtable_in(&ht, str3));
-    ASSERT_EQ(NULL, hashtable_get(&ht, str3));
+    ASSERT_EQ(0, hashtable_get(&ht, str3));
     hashtable_deinit(&ht);
 }
 
@@ -62,7 +62,7 @@ TEST(testHashtable, TestRemove)
     char str1[] = "hello";
     char str2[] = "world";
     char str3[] = "something else";
-    int i = 100, j = 200, k=300;
+    int i = 100, j = 200, k = 300;
     hashtable_set(&ht, str1, &i);
     hashtable_set(&ht, str2, &j);
     ASSERT_EQ(2, hashtable_size(&ht));
@@ -70,10 +70,10 @@ TEST(testHashtable, TestRemove)
     ASSERT_TRUE(hashtable_in(&ht, str2));
     hashtable_remove(&ht, str1);
     ASSERT_FALSE(hashtable_in(&ht, str1));
-    ASSERT_EQ(NULL, hashtable_get(&ht, str1));
+    ASSERT_EQ(0, hashtable_get(&ht, str1));
     ASSERT_EQ(200, *((int*)hashtable_get(&ht, str2)));
     ASSERT_FALSE(hashtable_in(&ht, str3));
-    ASSERT_EQ(NULL, hashtable_get(&ht, str3));
+    ASSERT_EQ(0, hashtable_get(&ht, str3));
     hashtable_deinit(&ht);
 }
 
@@ -102,7 +102,7 @@ TEST(testHashtable, TestHashtableCollision)
     hashtable_init(&ht);
     int j = 99, k = 100;
     hashtable_set(&ht, "sin", &j);
-    hashtable_set(&ht, "int", &k); 
+    hashtable_set(&ht, "int", &k);
     ASSERT_EQ(99, *(int*)hashtable_get(&ht, "sin"));
     ASSERT_EQ(100, *(int*)hashtable_get(&ht, "int"));
     ASSERT_EQ(2, hashtable_size(&ht));
@@ -118,8 +118,8 @@ TEST(testHashtable, TestHashtableGrowWithCollision)
     int value[20];
     int j = 99, k = 100;
     hashtable_set(&ht, "sin", &j);
-    hashtable_set(&ht, "int", &k); 
-    for(int i = 0; i < 18; i++){
+    hashtable_set(&ht, "int", &k);
+    for (int i = 0; i < 18; i++) {
         value[i] = i;
         string str = get_id_name();
         strcpy(strs[i], string_get(&str));
@@ -137,11 +137,11 @@ TEST(testHashtable, TestHashtablePointerKey)
     reset_id_name("a");
     hashtable ht;
     hashtable_init(&ht);
-    type_oper *op1 = create_nullary_type(TYPE_INT);
-    type_oper *op2 = create_nullary_type(TYPE_DOUBLE);
-    type_oper *op3 = create_nullary_type(TYPE_BOOL);
+    type_oper* op1 = create_nullary_type(TYPE_INT);
+    type_oper* op2 = create_nullary_type(TYPE_DOUBLE);
+    type_oper* op3 = create_nullary_type(TYPE_BOOL);
     hashtable_set_p(&ht, op1, op1);
-    hashtable_set_p(&ht, op2, op2); 
+    hashtable_set_p(&ht, op2, op2);
     ASSERT_EQ(op1, hashtable_get_p(&ht, op1));
     ASSERT_EQ(op2, hashtable_get_p(&ht, op2));
     ASSERT_EQ(0, hashtable_get_p(&ht, op3));

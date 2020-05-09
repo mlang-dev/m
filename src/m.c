@@ -4,13 +4,13 @@
  * mlang driver, command line to run as an intepreter or compiler options
  */
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "compiler.h"
-#include "repl.h"
 #include "clib/array.h"
 #include "clib/object.h"
+#include "compiler.h"
+#include "repl.h"
 
 extern char* optarg;
 extern int optind, opterr, optopt;
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     char* fopt = 0;
     enum object_file_type file_type = FT_OBJECT;
     struct array src_files;
-    array_init(&src_files, sizeof(char *));
+    array_init(&src_files, sizeof(char*));
     while (optind < argc) {
         if ((option = getopt(argc, argv, "f:")) != -1) {
             switch (option) {
@@ -53,19 +53,18 @@ int main(int argc, char* argv[])
             }
         } else {
             array_push(&src_files, &argv[optind]);
-            optind ++;
+            optind++;
         }
     }
     int result = 0;
-    if (!array_size(&src_files)){
+    if (!array_size(&src_files)) {
         result = run_repl();
-    }
-    else {
+    } else {
         if (!file_type)
             file_type = FT_OBJECT;
-        for (size_t i = 0; i < array_size(&src_files); i++){
-            const char * fn = *(const char**)array_get(&src_files, i);
-            if( access( fn, F_OK ) == -1 ) {
+        for (size_t i = 0; i < array_size(&src_files); i++) {
+            const char* fn = *(const char**)array_get(&src_files, i);
+            if (access(fn, F_OK) == -1) {
                 printf("file: %s does not exist\n", fn);
                 exit(1);
             }

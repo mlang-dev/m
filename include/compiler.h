@@ -12,11 +12,11 @@
 extern "C" {
 #endif
 
-enum object_file_type{
-  FT_UNK = 0,
-  FT_BITCODE = 1,
-  FT_IR = 2,
-  FT_OBJECT  = 3
+enum object_file_type {
+    FT_UNK = 0,
+    FT_BITCODE = 1,
+    FT_IR = 2,
+    FT_OBJECT = 3
 };
 
 int compile(const char* fn, enum object_file_type file_type);

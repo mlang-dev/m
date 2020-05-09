@@ -13,15 +13,13 @@
 struct type_var* create_type_var()
 {
     string name = get_id_name();
-    //printf("new id: %s\n", string_get(&name));
     struct type_var* var = malloc(sizeof(*var));
     var->base.kind = KIND_VAR;
     var->name = name;
-    var->instance = NULL;
+    var->instance = 0;
     return var;
 }
 
-//struct array of struct type_exp*
 struct type_oper* create_type_oper(enum type type, struct array* args)
 {
     struct type_oper* oper = malloc(sizeof(*oper));
@@ -38,7 +36,6 @@ struct type_oper* create_nullary_type(enum type type)
     return create_type_oper(type, &args);
 }
 
-//args: struct array of struct type_exp*
 struct type_oper* create_type_fun(struct array* args)
 {
     return create_type_oper(TYPE_FUNCTION, args);
@@ -47,12 +44,6 @@ struct type_oper* create_type_fun(struct array* args)
 void type_exp_free(struct type_exp* type)
 {
     free(type);
-    // if (type->kind == KIND_VAR) {
-    //     //auto var = (struct type_var*)type;
-    //     free(var);
-    // }
-    // auto op = (struct type_oper*)type;
-    // delete op;
 }
 
 struct type_exp* prune(struct type_exp* type)
@@ -94,10 +85,6 @@ bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens)
     type2 = prune(type2);
     if (type1 == type2)
         return true;
-    //log_info(DEBUG, "unify type1 : %d: %s", type1->kind, string_get(&type1->name));
-    //log_info(DEBUG, "unify type2 : %d: %s", type2->kind, string_get(&type2->name));
-
-    //not unify a generic one with no-generic one
     if (type1->kind == KIND_VAR && type2->kind == KIND_VAR) {
         if (_occurs_in_type_list((struct type_var*)type1, nogens) && !_occurs_in_type_list((struct type_var*)type2, nogens))
             return unify(type2, type1, nogens);
@@ -108,10 +95,6 @@ bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens)
         if (occurs_in_type(var, type2) && type1 != type2)
             return false;
         else {
-            // if (type2->kind == KIND_OPER){
-            //     string type2_str = to_string(type2);
-            //     printf("right side is: %s\n", string_get(&type2_str));
-            // }
             var->instance = type2;
         }
     } else {
@@ -125,8 +108,6 @@ bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens)
             for (size_t i = 0; i < array_size(&oper1->args); i++) {
                 if (!unify(*(struct type_exp**)array_get(&oper1->args, i), *(struct type_exp**)array_get(&oper2->args, i), nogens))
                     return false;
-                //string type1_str = to_string(*(struct type_exp**)array_get(&oper1->args, i));
-                //printf("unifyed all args: %zu, %s\n", i, string_get(&type1_str));
             }
         }
     }
@@ -144,7 +125,6 @@ struct type_exp* _freshrec(struct type_exp* type, struct array* nogen, struct ha
     if (type->kind == KIND_VAR) {
         struct type_var* var = (struct type_var*)type;
         if (_is_generic(var, nogen)) {
-            //printf("generic type: %s\n", string_get(&type->name));
             struct type_var* temp = hashtable_get_p(type_vars, var);
             if (!temp) {
                 temp = create_type_var();
@@ -157,12 +137,11 @@ struct type_exp* _freshrec(struct type_exp* type, struct array* nogen, struct ha
     struct type_oper* op = (struct type_oper*)type;
     if (array_size(&op->args) == 0)
         return type;
-    struct array refreshed; //struct array of struct type_exp*
+    struct array refreshed;
     array_init(&refreshed, sizeof(struct type_exp*));
     for (size_t i = 0; i < array_size(&op->args); i++) {
         struct type_exp* arg_type = *(struct type_exp**)array_get(&op->args, i);
-        //printf("fresh type: %p, %zu\n", (void*)arg_type, array_size(&op->args));
-        struct type_exp* new_arg_type = _freshrec(arg_type, nogen, type_vars); //, env);
+        struct type_exp* new_arg_type = _freshrec(arg_type, nogen, type_vars);
         array_push(&refreshed, &new_arg_type);
     }
     return (struct type_exp*)create_type_oper(type->type, &refreshed);
@@ -227,11 +206,9 @@ string to_string(struct type_exp* type)
                 string_add_chars(&typestr, " * ");
             }
             string_add(&typestr, (string*)array_back(&array_type_strs));
-            //printf("hello: %s\n", string_get(&typestr));
             return typestr;
         }
     } else {
-        printf("type kind: %d\n", type->kind);
         assert(false);
     }
 }

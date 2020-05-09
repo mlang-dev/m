@@ -8,12 +8,12 @@
 #ifndef __MLANG_ASTDUMP_H__
 #define __MLANG_ASTDUMP_H__
 
-#include <stdio.h>
 #include "ast.h"
 #include "clib/string.h"
+#include <stdio.h>
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 string dump(struct exp_node* node);

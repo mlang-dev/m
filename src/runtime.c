@@ -3,10 +3,11 @@
  *
  * m language runtime
  */
-#include <stdio.h>
 #include "runtime.h"
+#include <stdio.h>
 
-double print(double x) {
-  printf("%f\n", x);
-  return x;
+double print(double x)
+{
+    printf("%f\n", x);
+    return x;
 }

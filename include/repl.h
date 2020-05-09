@@ -13,12 +13,12 @@
 #include "type.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
-struct eval_result{
+struct eval_result {
     enum type type;
-    union{
+    union {
         double d_value;
         int i_value;
     };

@@ -11,7 +11,7 @@
 #include "ast.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 struct array get_builtins(void* context);

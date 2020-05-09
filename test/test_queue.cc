@@ -12,7 +12,8 @@ TEST(testQueue, TestQueuePushAndPop)
 {
     queue q;
     queue_init(&q, sizeof(int));
-    int i=10; int j=20;
+    int i = 10;
+    int j = 20;
     queue_push(&q, &i);
     queue_push(&q, &j);
 
@@ -23,16 +24,16 @@ TEST(testQueue, TestQueuePushAndPop)
     queue_pop(&q);
     ASSERT_EQ(10, first);
     ASSERT_EQ(20, second);
-    ASSERT_EQ(NULL, queue_back(&q));
+    ASSERT_EQ(0, queue_back(&q));
     queue_deinit(&q);
 }
-
 
 TEST(testQueue, TestQueuePopWithValue)
 {
     queue q;
     queue_init(&q, sizeof(int));
-    int i=10; int j=20;
+    int i = 10;
+    int j = 20;
     queue_push(&q, &i);
     queue_push(&q, &j);
 
@@ -41,10 +42,9 @@ TEST(testQueue, TestQueuePopWithValue)
     int second = *((int*)queue_pop(&q));
     ASSERT_EQ(10, first);
     ASSERT_EQ(20, second);
-    ASSERT_EQ(NULL, queue_front(&q));
-    ASSERT_EQ(NULL, queue_pop(&q));
+    ASSERT_EQ(0, queue_front(&q));
+    ASSERT_EQ(0, queue_pop(&q));
     queue_deinit(&q);
-
 }
 
 TEST(testQueue, TestQueueCircle)
@@ -52,7 +52,7 @@ TEST(testQueue, TestQueueCircle)
     queue q;
     queue_init(&q, sizeof(int));
     ASSERT_EQ(7, q.items.cap);
-    for(int i=0;i<10;i++){
+    for (int i = 0; i < 10; i++) {
         queue_push(&q, &i);
     }
     ASSERT_EQ(7, q.items.cap);
