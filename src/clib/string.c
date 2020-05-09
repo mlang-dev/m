@@ -95,7 +95,7 @@ void string_add(string *str1, string *str2)
     assert(string_size(str1)<1000 && string_size(str2) < 1000);
     size_t len = str1->base.size + str2->base.size;
     if (len>SSO_LENGTH-1){
-        //allocate in dynamic array
+        //allocate in dynamic struct array
         char* data;
         if (str1->cap > SSO_LENGTH){
             //allocated in heap already
@@ -160,7 +160,7 @@ string* string_substr(string *str, char match)
     return 0;
 }
 
-string string_join(array* arr, const char *sep)
+string string_join(struct array* arr, const char *sep)
 {
     string str_sepa;
     string_init_chars(&str_sepa, sep);
@@ -175,9 +175,9 @@ string string_join(array* arr, const char *sep)
     return str;
 }
 
-array string_split(string* str, char sep)
+struct array string_split(string* str, char sep)
 {
-    array arr;
+    struct array arr;
     array_string_init(&arr);
     string sub_str;
     string_init(&sub_str);
@@ -187,7 +187,7 @@ array string_split(string* str, char sep)
         if(data[i] == sep||i==str->base.size-1){
             size_t sub_str_len = data[i] == sep? i-collect_start: i-collect_start + 1;
             string_copy_with_len(&sub_str, &data[collect_start], sub_str_len);
-            array_push(&arr, &sub_str); /*sub_str allocated the heap will be owned by array*/
+            array_push(&arr, &sub_str); /*sub_str allocated the heap will be owned by struct array*/
             collect_start = i+1;
             string_init(&sub_str);
         }

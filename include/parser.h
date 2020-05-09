@@ -25,7 +25,7 @@ struct parser {
     bool allow_id_as_a_func;
     bool is_repl;
     struct module* current_module;
-    queue queued_tokens;  //queue of token
+    struct queue queued_tokens;  //queue of token
 };
 
 typedef FILE* (*open_file)(const char* file_name);
@@ -44,7 +44,7 @@ bool is_unary_op(struct prototype_node* pnode);
 bool is_binary_op(struct prototype_node* pnode);
 char get_op_name(struct prototype_node* pnode);
 void queue_token(struct parser* parser, struct token tkn);
-void queue_tokens(struct parser* psr, array* tokens); //array of token
+void queue_tokens(struct parser* psr, struct array* tokens); //struct array of token
 
 #ifdef __cplusplus
 }

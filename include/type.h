@@ -27,8 +27,7 @@ extern "C"{
     ENUM_ITEM(TYPE_FUNCTION)    \
     ENUM_ITEM(TYPE_PRODUCT)
 
-enum _Type { FOREACH_TYPE(GENERATE_ENUM) };
-typedef enum _Type Type;
+enum type { FOREACH_TYPE(GENERATE_ENUM) };
 
 static const char* const TypeString[] = {
     "unkown",
@@ -47,41 +46,41 @@ static const char* const TypeString[] = {
     ENUM_ITEM(KIND_VAR)         \
     ENUM_ITEM(KIND_OPER)
 
-enum _Kind { FOREACH_KIND(GENERATE_ENUM) };
-typedef enum _Kind Kind; 
+enum kind { FOREACH_KIND(GENERATE_ENUM) };
+
 
 static const char* KindString[] = {
     FOREACH_KIND(GENERATE_ENUM_STRING)
 };
 
 //type variable or operator
-typedef struct _type_exp {
-    Kind kind; //type variable or type operator
-    Type type;
-}type_exp;
+struct type_exp {
+    enum kind kind; //type variable or type operator
+    enum type type;
+};
 
-typedef struct _type_var {
-    type_exp base;
-    type_exp* instance;
+struct type_var {
+    struct type_exp base;
+    struct type_exp* instance;
     string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
-}type_var;
+};
 
-typedef struct _type_oper {
-    type_exp base;
-    array args; //array of type_exp*
-}type_oper;
+struct type_oper {
+    struct type_exp base;
+    struct array args; //struct array of struct type_exp*
+};
 
-type_var* create_type_var();
-type_oper* create_type_oper(Type type, array *args);
-type_oper* create_nullary_type(Type type);
-type_oper* create_type_fun(array *args);
-void type_exp_free(type_exp* type);
-bool occurs_in_type(type_var* var, type_exp* type2);
-type_exp* retrieve_type(const char *name, array *nogen, struct hashtable *env); //env pointing to hashtable of (string, type_exp*)
-void set_type(struct hashtable *env, const char *name, type_exp* type);
-bool unify(type_exp* type1, type_exp* type2, array *nogens);
-string to_string(type_exp* type);
-type_exp* prune(type_exp* type);
+struct type_var* create_type_var();
+struct type_oper* create_type_oper(enum type type, struct array *args);
+struct type_oper* create_nullary_type(enum type type);
+struct type_oper* create_type_fun(struct array *args);
+void type_exp_free(struct type_exp* type);
+bool occurs_in_type(struct type_var* var, struct type_exp* type2);
+struct type_exp* retrieve_type(const char *name, struct array *nogen, struct hashtable *env); //env pointing to hashtable of (string, struct type_exp*)
+void set_type(struct hashtable *env, const char *name, struct type_exp* type);
+bool unify(struct type_exp* type1, struct type_exp* type2, struct array *nogens);
+string to_string(struct type_exp* type);
+struct type_exp* prune(struct type_exp* type);
 
 #ifdef __cplusplus
 }

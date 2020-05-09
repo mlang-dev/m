@@ -16,31 +16,31 @@ extern "C" {
 #include "clib/object.h"
 #include "clib/generic.h"
 
-typedef struct _array{
+struct array{
     object base;
     //bytes array
     size_t cap;
     size_t _element_size; //element size of the array
     free_fun free;
-} array;
+};
 
-array* array_new(size_t element_size);
-void array_string_init(array* a);
-void array_init(array* a, size_t element_size);
-void array_init_fun(array* a, size_t element_size, free_fun free);
-void array_init_size(array *a, size_t element_size, size_t init_size, free_fun free);
-void array_grow(array *a);
-void array_deinit(array *a);
-void array_push(array* a, void* element);
-void array_set(array *a, size_t index, void *element);
-void array_copy(array *dest, array *src);
-void array_copy_size(array *dest, array *src, size_t size);
-void* array_get(array* a, size_t index);
-void* array_data(array *a);
-void* array_back(array *a);
-void* array_front(array *a);
-size_t array_size(array *a);
-void array_free(array* a);
+struct array* array_new(size_t element_size);
+void array_string_init(struct array* arr);
+void array_init(struct array* arr, size_t element_size);
+void array_init_fun(struct array* arr, size_t element_size, free_fun free);
+void array_init_size(struct array *arr, size_t element_size, size_t init_size, free_fun free);
+void array_grow(struct array *arr);
+void array_deinit(struct array *arr);
+void array_push(struct array* arr, void* element);
+void array_set(struct array *arr, size_t index, void *element);
+void array_copy(struct array *dest, struct array *src);
+void array_copy_size(struct array *dest, struct array *src, size_t size);
+void* array_get(struct array* arr, size_t index);
+void* array_data(struct array *arr);
+void* array_back(struct array *arr);
+void* array_front(struct array *arr);
+size_t array_size(struct array *arr);
+void array_free(struct array* arr);
 
 #ifdef __cplusplus
 }

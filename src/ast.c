@@ -64,7 +64,7 @@ struct num_node* create_double_node(struct exp_node* parent, struct source_loc l
     return node;
 }
 
-struct num_node* _create_int_node(struct exp_node* parent, struct source_loc loc, int val, Type type)
+struct num_node* _create_int_node(struct exp_node* parent, struct source_loc loc, int val, enum type type)
 {
     struct num_node* node = malloc(sizeof(*node));
     node->base.node_type = NUMBER_NODE;
@@ -100,7 +100,7 @@ struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc,
 }
 
 struct call_node* create_call_node(struct exp_node* parent, struct source_loc loc, const char *callee,
-    array* args)
+    struct array* args)
 {
     struct call_node* node = malloc(sizeof(*node));
     node->base.node_type = CALL_NODE;
@@ -113,13 +113,13 @@ struct call_node* create_call_node(struct exp_node* parent, struct source_loc lo
     return node;
 }
 
-struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc, const char *name, array* args)
+struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc, const char *name, struct array* args)
 {
     return create_prototype_node(parent, loc, name, args, false, 0, "");
 }
 
 struct prototype_node* create_prototype_node(struct exp_node* parent, struct source_loc loc, const char *name,
-    array* args,
+    struct array* args,
     bool is_operator, unsigned precedence, const char *op)
 {
     struct prototype_node* node = malloc(sizeof(*node));
@@ -195,7 +195,7 @@ struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc,
     return node;
 }
 
-struct block_node* create_block_node(struct exp_node* parent, array *nodes)
+struct block_node* create_block_node(struct exp_node* parent, struct array *nodes)
 {
     struct block_node* node = malloc(sizeof(*node));
     node->base.node_type = BLOCK_NODE;

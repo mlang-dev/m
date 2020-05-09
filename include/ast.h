@@ -33,24 +33,23 @@ extern "C" {
     ENUM_ITEM(FUNCTION_NODE)        \
     ENUM_ITEM(BLOCK_NODE)
 
-enum _NodeType { FOREACH_NODETYPE(GENERATE_ENUM) };
-typedef enum _NodeType NodeType;
+enum node_type { FOREACH_NODETYPE(GENERATE_ENUM) };
 
 static const char* NodeTypeString[] = {
     FOREACH_NODETYPE(GENERATE_ENUM_STRING)
 };
 
 struct exp_node {
-    NodeType node_type;
-    Type annotated_type;
-    type_exp* type; //type annotation
+    enum node_type node_type;
+    enum type annotated_type;
+    struct type_exp* type; //type annotation
     struct source_loc loc;
     struct exp_node* parent;
 };
 
 struct block_node {
     struct exp_node base;
-    array nodes; //array of exp_node*
+    struct array nodes; //struct array of exp_node*
 };
 
 struct module {
@@ -60,8 +59,8 @@ struct module {
 };
 
 struct ast {
-    array builtins; //array of exp_node*
-    array modules; //array of module*
+    struct array builtins; //struct array of exp_node*
+    struct array modules; //struct array of module*
 };
 
 struct num_node {
@@ -109,19 +108,19 @@ struct for_node {
 struct call_node {
     struct exp_node base;
     string callee;
-    array args; //args: array of exp_node*
+    struct array args; //args: struct array of exp_node*
 };
 
 struct fun_param{
     string name;
-    Type type;
+    enum type type;
 };
 
 struct prototype_node {
     struct exp_node base;
     string name;
     string op;
-    array args; /*array of fun_param*/
+    struct array args; /*struct array of fun_param*/
     char is_operator;
     unsigned precedence;
 };
@@ -140,16 +139,16 @@ struct num_node* create_int_node(struct exp_node* parent, struct source_loc loc,
 struct num_node* create_bool_node(struct exp_node* parent, struct source_loc loc, int val);
 struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* init_value);
 struct call_node* create_call_node(struct exp_node* parent, struct source_loc loc, const char* callee,
-    array* args);
+    struct array* args);
 struct prototype_node* create_prototype_node(struct exp_node* parent, struct source_loc loc,
     const char* name,
-    array* args,
+    struct array* args,
     bool is_operator,
     unsigned precedence,
     const char* op);
 struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc,
     const char* name,
-    array* args);
+    struct array* args);
 
 struct condition_node* create_if_node(struct exp_node* parent, struct source_loc loc, struct exp_node* condition, struct exp_node* then_node,
     struct exp_node* else_node);
@@ -157,7 +156,7 @@ struct unary_node* create_unary_node(struct exp_node* parent, struct source_loc 
 struct binary_node* create_binary_node(struct exp_node* parent, struct source_loc loc, const char* op, struct exp_node* lhs, struct exp_node* rhs);
 struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* start,
     struct exp_node* end, struct exp_node* step, struct exp_node* body);
-struct block_node* create_block_node(struct exp_node* parent, array* nodes);
+struct block_node* create_block_node(struct exp_node* parent, struct array* nodes);
 struct module* create_module(const char* mod_name, FILE* file);
 
 bool is_unary_op(struct prototype_node* pnode);

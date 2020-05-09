@@ -17,7 +17,7 @@ extern "C"{
 #endif
 
 struct eval_result{
-    Type type;
+    enum type type;
     union{
         double d_value;
         int i_value;

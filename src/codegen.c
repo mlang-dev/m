@@ -279,14 +279,14 @@ void* _generate_prototype_node(struct code_generator* cg, struct exp_node* node)
         arg_types[i] = LLVMDoubleTypeInContext(context);
     }
     LLVMTypeRef ret_type = LLVMDoubleTypeInContext(context);
-    type_exp* ret = proto->base.type;
+    struct type_exp* ret = proto->base.type;
     if (!ret){
         //print_backtrace();
         //assert(false);
     }
     /*
     assert(ret->kind == KIND_OPER);
-    ret = (type_exp*)array_back(&((type_oper*)ret)->args);
+    ret = (struct type_exp*)array_back(&((type_oper*)ret)->args);
     if(is_int_type(ret->type))
         ret_type = LLVMInt64TypeInContext(context);
     else
@@ -559,7 +559,7 @@ void create_module_and_pass_manager(struct code_generator* cg,
     // fpm->doInitialization();
 }
 
-void generate_runtime_module(struct code_generator* cg, array* builtins)
+void generate_runtime_module(struct code_generator* cg, struct array* builtins)
 {
     for (size_t i = 0; i < array_size(builtins); i++) {
         struct exp_node *node = *(struct exp_node**)array_get(builtins, i);

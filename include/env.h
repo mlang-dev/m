@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 struct menv{
-    type_env *type_sys;
+    struct type_env *type_env;
     void* context;
 };
 

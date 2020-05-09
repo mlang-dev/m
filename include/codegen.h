@@ -31,7 +31,7 @@ struct code_generator* cg_new(struct menv* env, struct parser* parser);
 void cg_free(struct code_generator* cg);
 void create_module_and_pass_manager(struct code_generator* cg, const char* module_name);
 void* generate_code(struct code_generator* cg, struct exp_node* node);
-void generate_runtime_module(struct code_generator* cg, array *builtins);
+void generate_runtime_module(struct code_generator* cg, struct array *builtins);
 void* create_target_machine(void* module);
 
 #define is_int_type(type) (false)//(type == TYPE_INT || type == TYPE_BOOL)

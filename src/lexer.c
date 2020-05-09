@@ -26,13 +26,13 @@ bool is_op_char(char op)
     return false;
 }
 
-typedef struct keyword_token{
+struct keyword_token{
     char keyword[16];
-    TokenType token;
-}keyword_token;
+    enum token_type token;
+};
 
 
-static keyword_token tokens[] = {
+static struct keyword_token tokens[] = {
     { "import", TOKEN_IMPORT },
     { "if", TOKEN_IF },
     { "else", TOKEN_ELSE },
@@ -46,30 +46,30 @@ static keyword_token tokens[] = {
     { "false", TOKEN_FALSE},
 };
 
-TokenType get_token_type(const char* keyword)
+enum token_type get_token_type(const char* keyword)
 {
-    for(size_t i=0; i<sizeof(tokens)/sizeof(keyword_token);i++){
+    for(size_t i=0; i<ARRAY_SIZE(tokens); i++){
         if (strcmp(tokens[i].keyword, keyword) == 0)
             return tokens[i].token;
     }
     return TOKEN_UNK;
 }
 
-typedef struct char_token{
+struct char_token{
     char keyword;
-    TokenType token;
-}char_token;
+    enum token_type token;
+};
 
-static char_token char_tokens[] = {
+static struct char_token char_tokens[] = {
     { '(', TOKEN_LPAREN },
     { ')', TOKEN_RPAREN },
     { '[', TOKEN_LBRACKET },
     { ']', TOKEN_RBRACKET },
 };
 
-TokenType get_char_token_type(char keyword)
+enum token_type get_char_token_type(char keyword)
 {
-    for(size_t i=0; i<sizeof(char_tokens)/sizeof(char_token);i++){
+    for(size_t i=0; i<ARRAY_SIZE(char_tokens);i++){
         if (char_tokens[i].keyword == keyword)
             return char_tokens[i].token;
     }
@@ -107,7 +107,7 @@ void destroy_tokenizer(struct file_tokenizer* tokenizer)
     free(tokenizer);
 }
 
-struct token* _tokenize_symbol_type(struct file_tokenizer* tokenizer, struct token* t, TokenType token_type)
+struct token* _tokenize_symbol_type(struct file_tokenizer* tokenizer, struct token* t, enum token_type token_type)
 {
     t->token_type = token_type;
     t->loc = tokenizer->tok_loc;
@@ -138,7 +138,7 @@ struct token* _tokenize_number(struct file_tokenizer* tokenizer)
         bool met_dot = _tokenize_symbol(tokenizer, &symbol);
         if (!has_dot)
             has_dot = met_dot;
-        TokenType type = get_token_type(string_get(&symbol));
+        enum token_type type = get_token_type(string_get(&symbol));
         if (type) {
             if (string_eq_chars(&num_str, "")) {
                 return _tokenize_symbol_type(tokenizer, &tokenizer->cur_token, type);
@@ -172,7 +172,7 @@ struct token* _tokenize_id_keyword(struct file_tokenizer* tokenizer)
     while (isalnum((tokenizer->curr_char[0] = get_char(tokenizer))) || tokenizer->curr_char[0] == '_'){
         string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
     }
-    TokenType token_type = get_token_type(string_get(&tokenizer->ident_str));
+    enum token_type token_type = get_token_type(string_get(&tokenizer->ident_str));
     tokenizer->cur_token.token_type = token_type != 0 ? token_type : TOKEN_IDENT;
     if (token_type == TOKEN_TRUE || token_type == TOKEN_FALSE){
         tokenizer->cur_token.int_val = token_type == TOKEN_TRUE ? 1 : 0;
@@ -195,7 +195,7 @@ struct token* _tokenize_op(struct file_tokenizer* tokenizer)
         string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
     }
     //auto token_type = tokens[std::string(string_get(&tokenizer->ident_str))];
-    //TokenType token_type = op_chars.count(string_get(&tokenizer->ident_str)[0]) ? TOKEN_OPERATOR : TOKEN_OP;
+    //enum token_type token_type = op_chars.count(string_get(&tokenizer->ident_str)[0]) ? TOKEN_OPERATOR : TOKEN_OP;
     tokenizer->cur_token.token_type = TOKEN_OP;
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
@@ -203,7 +203,7 @@ struct token* _tokenize_op(struct file_tokenizer* tokenizer)
     return &tokenizer->cur_token;
 }
 
-struct token* _tokenize_type(struct file_tokenizer* tokenizer, TokenType token_type)
+struct token* _tokenize_type(struct file_tokenizer* tokenizer, enum token_type token_type)
 {
     string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
     tokenizer->cur_token.loc = tokenizer->tok_loc;
@@ -258,7 +258,7 @@ struct token* get_token(struct file_tokenizer* tokenizer)
             return _tokenize_type(tokenizer, TOKEN_EOF);
     }
 
-    TokenType token_type = get_char_token_type(tokenizer->curr_char[0]);
+    enum token_type token_type = get_char_token_type(tokenizer->curr_char[0]);
     if (!token_type)
         token_type = TOKEN_OP;
     _tokenize_type(tokenizer, token_type);

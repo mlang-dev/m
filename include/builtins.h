@@ -14,7 +14,7 @@
 extern "C"{
 #endif
 
-array get_builtins(void* context);
+struct array get_builtins(void* context);
 
 #ifdef __cplusplus
 }

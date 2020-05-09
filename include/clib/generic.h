@@ -10,19 +10,14 @@
 #define __CLIB_GENERIC_H__
 
 #ifdef __cplusplus
-extern "C"{
-#endif 
+extern "C" {
+#endif
 
-typedef struct _value_ref{
-    void* data;
-    size_t size;
-}value_ref;
+typedef void (*free_fun)(void*);
+typedef void (*copy_fun)(void* dest, void* src, size_t size);
 
-typedef void (*free_fun)(void *);
-typedef void (*copy_fun)(void *dest, void *src, size_t size);
-
-void generic_free(void *p);
-void generic_copy(void *dest, void *src, size_t size);
+void generic_free(void* p);
+void generic_copy(void* dest, void* src, size_t size);
 
 #ifdef __cplusplus
 }

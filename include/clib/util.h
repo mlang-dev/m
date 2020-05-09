@@ -40,6 +40,8 @@ string get_id_name();
 void reset_id_name(const char *idname);
 void print_backtrace(void);
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 #ifdef __cplusplus
 }
 #endif

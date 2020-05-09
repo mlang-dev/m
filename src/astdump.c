@@ -79,7 +79,7 @@ string _dump_binary(struct binary_node* binary)
 
 string _dump_call(struct call_node* call)
 {
-    array args;
+    struct array args;
     array_string_init(&args);
     for(size_t i = 0; i < array_size(&call->args); i++){
         string dp = dump(*(struct exp_node**)array_get(&call->args, i));

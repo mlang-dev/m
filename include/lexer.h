@@ -40,8 +40,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_EOS)
 
-enum _TokenType { FOREACH_TOKENTYPE(GENERATE_ENUM) };
-typedef enum _TokenType TokenType;
+enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 
 static const char* TokenTypeString[] = {
     FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
@@ -53,8 +52,8 @@ struct source_loc {
 };
 
 struct token {
-    TokenType token_type;
-    Type type;
+    enum token_type token_type;
+    enum type type;
     struct source_loc loc;
     int int_val;
     union {

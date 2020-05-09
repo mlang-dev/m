@@ -33,17 +33,8 @@ struct hashtable{
 };
 
 void hashtable_init(struct hashtable *ht);
-// void hashtable_init(hashtable *ht, size_t key_object_size, size_t value_object_size);
-// void hashtable_init_fun(hashtable *ht, size_t key_object_size, size_t value_object_size, 
-// fun key_f, fun value_f);
 void hashtable_deinit(struct hashtable *ht);
-// void hashtable_add(hashtable *ht, void *key, void *value);
-// void hashtable_add_ref(hashtable *ht, value_ref key, value_ref value);
-// void* hashtable_get(hashtable *ht, void *key);
-// void* hashtable_get_ref(hashtable *ht, value_ref key);
 size_t hashtable_size(struct hashtable *ht);
-// bool hashtable_in(hashtable* hs, void *key);
-// bool hashtable_in_ref(hashtable *ht, value_ref key);
 void hashtable_set(struct hashtable *ht, const char *key, void *value);
 void hashtable_set_g(struct hashtable* ht, void* key, size_t key_size, void* value);
 void hashtable_set_p(struct hashtable* ht, void* key, void *value);

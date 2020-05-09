@@ -17,7 +17,7 @@ int generate_object_file(LLVMModuleRef module, const char* filename);
 int generate_bitcode_file(LLVMModuleRef module, const char* filename);
 int generate_ir_file(LLVMModuleRef module, const char* filename);
 
-int compile(const char* fn, object_file_type file_type)
+int compile(const char* fn, enum object_file_type file_type)
 {
     string filename;
     string_init_chars(&filename, fn);
@@ -29,7 +29,7 @@ int compile(const char* fn, object_file_type file_type)
     create_module_and_pass_manager(cg, string_get(&filename));
     generate_runtime_module(cg, &parser->ast->builtins);
     struct block_node* block = parse_block(parser, 0, 0, 0);
-    analyze(env->type_sys, (struct exp_node*)block);
+    analyze(env->type_env, (struct exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i ++) {
             struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);

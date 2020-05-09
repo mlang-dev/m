@@ -16,12 +16,12 @@
 
 #define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col < col && (parser->curr_token.token_type != TOKEN_EOS || parser->is_repl))
 
-typedef struct _op_prec{
+struct op_prec{
     char op[4];
     unsigned int prec;
-}op_prec;
+};
 
-op_prec _op_preces[] = {
+struct op_prec _op_preces[] = {
     { "<", 10 }, { ">", 10 }, { "==", 10 }, { "!=", 10 }, { "<=", 10 }, { ">=", 10 },
     { "+", 20 }, { "-", 20 },
     { "*", 40 }, { "/", 40 }
@@ -54,7 +54,7 @@ void queue_token(struct parser* psr, struct token tkn)
     queue_push(&psr->queued_tokens, &tkn);
 }
 
-void queue_tokens(struct parser* psr, array *tokens)
+void queue_tokens(struct parser* psr, struct array *tokens)
 {
     for(size_t i=0;i<array_size(tokens); i++){
         struct token* tok = (struct token*)array_get(tokens, i);
@@ -64,8 +64,7 @@ void queue_tokens(struct parser* psr, array *tokens)
 
 void _build_op_precs(struct hashtable* op_precs)
 {
-    int num = sizeof(_op_preces) / sizeof(op_prec);
-    for (int i = 0; i < num; i++){
+    for (size_t i = 0; i < ARRAY_SIZE(_op_preces); i++){
         hashtable_set(op_precs, _op_preces[i].op, &_op_preces[i].prec);
     }
 }
@@ -203,7 +202,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
     if (parser->curr_token.token_type == TOKEN_LPAREN)
         parse_next_token(parser); // skip '('
     bool func_definition = false;
-    array args;
+    struct array args;
     array_init(&args, sizeof(struct exp_node*));
     //doesn't allow function inside parameter or argument
     //will be enhanced later
@@ -229,7 +228,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
     parser->allow_id_as_a_func = true;
     //log_info(DEBUG, "is %s a function def: %d, %d", id_name.c_str(), func_definition, is_operator);
     if (func_definition) {
-        array arg_names;
+        struct array arg_names;
         array_string_init(&arg_names);
         for (size_t i = 0; i < array_size(&args); i++) {
             struct ident_node *id = *(struct ident_node**)array_get(&args, i);
@@ -301,7 +300,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
         }
     } else {
         if (parser->curr_token.token_type == TOKEN_LPAREN) {
-            array queued;
+            struct array queued;
             array_init(&queued, sizeof(struct token));
             array_push(&queued, &parser->curr_token);
             parse_next_token(parser); //skip (
@@ -364,7 +363,7 @@ struct exp_node* _parse_ident(struct parser* parser, struct exp_node* parent)
     if (_id_is_a_function_call(parser)) { // pure variable
         // fprintf(stderr, "ident parsed. %s\n", id_name.c_str());
         //(
-        array args;
+        struct array args;
         array_init(&args, sizeof(struct exp_node*));
         while (true) {
             struct exp_node* arg = parse_exp(parser, parent, NULL);
@@ -503,7 +502,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
     bool has_parenthese = parser->curr_token.token_type == TOKEN_LPAREN;
     if (has_parenthese)
         parse_next_token(parser); // skip '('
-    array arg_names;
+    struct array arg_names;
     array_string_init(&arg_names);
     while (parser->curr_token.token_type == TOKEN_IDENT) {
         // fprintf(stderr, "arg names: %s",
@@ -562,10 +561,10 @@ struct exp_node* parse_exp_to_function(struct parser* parser, struct exp_node* e
     if (!exp)
         exp = parse_exp(parser, NULL, NULL);
     if (exp) {
-        array args;
+        struct array args;
         array_string_init(&args);
         struct prototype_node* prototype = create_prototype_node_default(NULL, exp->loc, fn, &args);
-        array nodes;
+        struct array nodes;
         array_init(&nodes, sizeof(struct exp_node*));
         array_push(&nodes, &exp);
         struct block_node* block = create_block_node((struct exp_node*)prototype, &nodes);
@@ -703,7 +702,7 @@ struct exp_node* _parse_if(struct parser* parser, struct exp_node* parent)
 struct block_node* parse_block(struct parser* parser, struct exp_node* parent, void (*fun)(void*, struct exp_node*), void* jit)
 {
     int col = parent ? parent->loc.col : 1;
-    array nodes;
+    struct array nodes;
     array_init(&nodes, sizeof(struct exp_node*));
     while (true) {
         parse_next_token(parser);

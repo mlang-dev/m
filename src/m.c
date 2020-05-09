@@ -28,8 +28,8 @@ int main(int argc, char* argv[])
     int option;
     int fflag = 0;
     char* fopt = 0;
-    object_file_type file_type = FT_OBJECT;
-    array src_files;
+    enum object_file_type file_type = FT_OBJECT;
+    struct array src_files;
     array_init(&src_files, sizeof(char *));
     while (optind < argc) {
         if ((option = getopt(argc, argv, "f:")) != -1) {

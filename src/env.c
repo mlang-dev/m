@@ -12,7 +12,7 @@ struct menv *env_new()
 {
     struct menv* env = malloc(sizeof(*env));
     env->context = LLVMContextCreate();
-    env->type_sys = type_env_new(env->context);
+    env->type_env = type_env_new(env->context);
     return env;
 }
 
@@ -20,6 +20,6 @@ void env_free(struct menv* env)
 {
     LLVMContextRef context = (LLVMContextRef)env->context;
     LLVMContextDispose(context);
-    type_env_free(env->type_sys);
+    type_env_free(env->type_env);
     free(env);
 }

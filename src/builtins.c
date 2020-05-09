@@ -29,7 +29,7 @@ struct prototype_node* _create_for_id(void* pcontext, const char* name)
     LLVMTypeRef *params = malloc(param_count * sizeof(LLVMTypeRef));
     LLVMGetParamTypes(fun, params);
     //;llvm::Intrinsic::getName(id, types);
-    array args;
+    struct array args;
     array_string_init(&args);
     for (size_t i = 0; i < param_count; i++) {
         string arg = str_format("arg%d", i);
@@ -37,7 +37,7 @@ struct prototype_node* _create_for_id(void* pcontext, const char* name)
     }
     string str_name;
     string_init_chars(&str_name, name);
-    array names = string_split(&str_name, '.');
+    struct array names = string_split(&str_name, '.');
     //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
     struct source_loc loc = {1, 0};
     struct prototype_node* node = create_prototype_node_default(0, loc, 
@@ -50,16 +50,16 @@ struct prototype_node* _create_for_id(void* pcontext, const char* name)
     //return 0;
 }
 
-array get_builtins(void* context)
+struct array get_builtins(void* context)
 {
-    array builtins;
+    struct array builtins;
     array_init(&builtins, sizeof(struct exp_node*));
     int builtins_num = sizeof(buiiltin_funs)/sizeof(char*);
     for (int i = 0; i < builtins_num; i++) {
         struct prototype_node *proto = _create_for_id(context, buiiltin_funs[i]);
         array_push(&builtins, &proto);
     }
-    array args; //array of string
+    struct array args; //struct array of string
     string str;
     array_string_init(&args);
     string_init_chars(&str, "char");
