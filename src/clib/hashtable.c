@@ -80,7 +80,7 @@ struct hash_entry* _hash_entry_new(size_t key_size, size_t value_size)
     entry->data.status = HASH_EXIST;
     entry->data.key_size = key_size;
     entry->data.value_size = value_size;
-    entry->data.key_value_pair = (unsigned char*)malloc(key_size + value_size);
+    entry->data.key_value_pair = malloc(key_size + value_size);
     return entry;
 }
 

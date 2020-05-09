@@ -29,7 +29,7 @@ char get_op_name(struct prototype_node* pnode)
 struct function_node* create_function_node(struct prototype_node* prototype,
     struct block_node* body)
 {
-    struct function_node* node = (struct function_node*)malloc(sizeof(*node));
+    struct function_node* node = malloc(sizeof(*node));
     node->base.type = 0;
     node->base.annotated_type = 0;
     node->base.node_type = FUNCTION_NODE;
@@ -42,7 +42,7 @@ struct function_node* create_function_node(struct prototype_node* prototype,
 
 struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc loc, const char *name)
 {
-    struct ident_node* node = (struct ident_node*)malloc(sizeof(*node));
+    struct ident_node* node = malloc(sizeof(*node));
     node->base.type = 0;
     node->base.annotated_type = 0;
     node->base.node_type = IDENT_NODE;
@@ -54,7 +54,7 @@ struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc 
 
 struct num_node* create_double_node(struct exp_node* parent, struct source_loc loc, double val)
 {
-    struct num_node* node = (struct num_node*)malloc(sizeof(*node));
+    struct num_node* node = malloc(sizeof(*node));
     node->base.node_type = NUMBER_NODE;
     node->base.annotated_type = TYPE_DOUBLE;
     node->base.type = 0;
@@ -66,7 +66,7 @@ struct num_node* create_double_node(struct exp_node* parent, struct source_loc l
 
 struct num_node* _create_int_node(struct exp_node* parent, struct source_loc loc, int val, Type type)
 {
-    struct num_node* node = (struct num_node*)malloc(sizeof(*node));
+    struct num_node* node = malloc(sizeof(*node));
     node->base.node_type = NUMBER_NODE;
     node->base.annotated_type = type;
     node->base.type = 0;
@@ -102,7 +102,7 @@ struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc,
 struct call_node* create_call_node(struct exp_node* parent, struct source_loc loc, const char *callee,
     array* args)
 {
-    struct call_node* node = (struct call_node*)malloc(sizeof(*node));
+    struct call_node* node = malloc(sizeof(*node));
     node->base.node_type = CALL_NODE;
     node->base.annotated_type = 0;
     node->base.type = 0;
@@ -122,7 +122,7 @@ struct prototype_node* create_prototype_node(struct exp_node* parent, struct sou
     array* args,
     bool is_operator, unsigned precedence, const char *op)
 {
-    struct prototype_node* node = (struct prototype_node*)malloc(sizeof(*node));
+    struct prototype_node* node = malloc(sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
     node->base.annotated_type = 0;
     node->base.type = 0;
@@ -139,7 +139,7 @@ struct prototype_node* create_prototype_node(struct exp_node* parent, struct sou
 struct condition_node* create_if_node(struct exp_node* parent, struct source_loc loc, struct exp_node* condition, struct exp_node* then_node,
     struct exp_node* else_node)
 {
-    struct condition_node* node = (struct condition_node*)malloc(sizeof(*node));
+    struct condition_node* node = malloc(sizeof(*node));
     node->base.node_type = CONDITION_NODE;
     node->base.annotated_type = 0;
     node->base.type = 0;
@@ -153,7 +153,7 @@ struct condition_node* create_if_node(struct exp_node* parent, struct source_loc
 
 struct unary_node* create_unary_node(struct exp_node* parent, struct source_loc loc, const char *op, struct exp_node* operand)
 {
-    struct unary_node* node = (struct unary_node*)malloc(sizeof(*node));
+    struct unary_node* node = malloc(sizeof(*node));
     node->base.node_type = UNARY_NODE;
     node->base.annotated_type = 0;
     node->base.type = 0;
@@ -166,7 +166,7 @@ struct unary_node* create_unary_node(struct exp_node* parent, struct source_loc 
 
 struct binary_node* create_binary_node(struct exp_node* parent, struct source_loc loc, const char *op, struct exp_node* lhs, struct exp_node* rhs)
 {
-    struct binary_node* node = (struct binary_node*)malloc(sizeof(*node));
+    struct binary_node* node = malloc(sizeof(*node));
     node->base.node_type = BINARY_NODE;
     node->base.annotated_type = 0;
     node->base.type = 0;
@@ -181,7 +181,7 @@ struct binary_node* create_binary_node(struct exp_node* parent, struct source_lo
 struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc, const char *var_name, struct exp_node* start,
     struct exp_node* end, struct exp_node* step, struct exp_node* body)
 {
-    struct for_node* node = (struct for_node*)malloc(sizeof(*node));
+    struct for_node* node = malloc(sizeof(*node));
     node->base.node_type = FOR_NODE;
     node->base.annotated_type = 0;
     node->base.type = 0;
@@ -197,7 +197,7 @@ struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc,
 
 struct block_node* create_block_node(struct exp_node* parent, array *nodes)
 {
-    struct block_node* node = (struct block_node*)malloc(sizeof(*node));
+    struct block_node* node = malloc(sizeof(*node));
     node->base.node_type = BLOCK_NODE;
     node->base.annotated_type = 0;
     node->base.type = 0;
@@ -209,9 +209,9 @@ struct block_node* create_block_node(struct exp_node* parent, array *nodes)
 
 struct module* create_module(const char* mod_name, FILE* file)
 {
-    struct module* mod = (struct module*)malloc(sizeof(*mod));
+    struct module* mod = malloc(sizeof(*mod));
     string_init_chars(&mod->name, mod_name);
-    struct block_node* node = (struct block_node*)malloc(sizeof(*node));
+    struct block_node* node = malloc(sizeof(*node));
     mod->block = node;
     array_init(&mod->block->nodes, sizeof(struct exp_node*));
     mod->tokenizer = create_tokenizer(file);

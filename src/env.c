@@ -10,7 +10,7 @@
 
 struct menv *env_new()
 {
-    struct menv* env = (struct menv*)malloc(sizeof(*env));
+    struct menv* env = malloc(sizeof(*env));
     env->context = LLVMContextCreate();
     env->type_sys = type_env_new(env->context);
     return env;

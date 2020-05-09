@@ -8,6 +8,7 @@
 #include "clib/array.h"
 #include "clib/string.h"
 #include <string.h>
+#include "ast.h"
 
 TEST(testArray, testArrayInitInt)
 {

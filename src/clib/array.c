@@ -18,7 +18,7 @@
 
 array* array_new(size_t element_size)
 {
-    array* a = (array*)malloc(sizeof(array));
+    array* a = malloc(sizeof(*a));
     array_init(a, element_size);
     return a;
 }

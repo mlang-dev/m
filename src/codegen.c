@@ -77,7 +77,7 @@ struct code_generator* cg_new(struct menv* env, struct parser* parser)
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();
-    struct code_generator* cg = (struct code_generator*)malloc(sizeof(*cg));
+    struct code_generator* cg = malloc(sizeof(*cg));
     cg->parser = parser;
     cg->context = env->context;
     cg->builder = LLVMCreateBuilderInContext((LLVMContextRef)env->context);
@@ -166,10 +166,8 @@ void* _generate_num_node(struct code_generator* cg, struct exp_node* node)
 {
     if(node->type&&is_int_type(node->type->type)){
         int value = (int)((struct num_node*)node)->double_val;
-        printf("number node int: %d\n", value);
         return LLVMConstInt(LLVMInt64TypeInContext((LLVMContextRef)cg->context), value, true);
     }
-    printf("number node double: %f\n", ((struct num_node*)node)->double_val);
     return LLVMConstReal(LLVMDoubleTypeInContext((LLVMContextRef)cg->context), ((struct num_node*)node)->double_val);
 }
 

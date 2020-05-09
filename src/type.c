@@ -14,7 +14,7 @@ type_var* create_type_var()
 {
     string name = get_id_name();
     //printf("new id: %s\n", string_get(&name));
-    type_var* var = (type_var*)malloc(sizeof(type_var));
+    type_var* var = malloc(sizeof(*var));
     var->base.kind = KIND_VAR;
     var->name = name;
     var->instance = NULL;
@@ -25,11 +25,11 @@ type_var* create_type_var()
 //array of type_exp*
 type_oper* create_type_oper(Type type, array* args)
 {
-    type_oper* var = (type_oper*)malloc(sizeof(type_oper));
-    var->base.kind = KIND_OPER;
-    var->base.type = type;
-    var->args = *args;
-    return var;
+    type_oper* oper = malloc(sizeof(*oper));
+    oper->base.kind = KIND_OPER;
+    oper->base.type = type;
+    oper->args = *args;
+    return oper;
 }
 
 type_oper* create_nullary_type(Type type)

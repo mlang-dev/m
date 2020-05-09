@@ -26,7 +26,7 @@ struct prototype_node* _create_for_id(void* pcontext, const char* name)
     unsigned id = LLVMLookupIntrinsicID(name, strlen(name));
     LLVMTypeRef fun = LLVMIntrinsicGetType(context, id, types, 1);
     size_t param_count = LLVMCountParamTypes(fun);
-    LLVMTypeRef *params = (LLVMTypeRef*)malloc(param_count * sizeof(LLVMTypeRef));
+    LLVMTypeRef *params = malloc(param_count * sizeof(LLVMTypeRef));
     LLVMGetParamTypes(fun, params);
     //;llvm::Intrinsic::getName(id, types);
     array args;

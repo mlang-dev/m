@@ -149,7 +149,7 @@ type_exp* _analyze_for(type_env* env, struct exp_node* node)
 
 type_env* type_env_new(void* context)
 {
-    type_env* env = (type_env*)malloc(sizeof(type_env));
+    type_env* env = malloc(sizeof(*env));
     memset((void*)env, 0, sizeof(type_env));
     array_init(&env->nogens, sizeof(type_exp*));
     hashtable_init(&env->type_env);

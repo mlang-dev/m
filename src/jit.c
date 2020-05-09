@@ -46,7 +46,7 @@ void _destroy_jit_instance(void *instance)
 
 struct JIT* jit_new(struct code_generator* cg)
 {
-    struct JIT* jit = (struct JIT*)malloc(sizeof(*jit));
+    struct JIT* jit = malloc(sizeof(*jit));
     jit->cg = cg;
     jit->instance = _create_jit_instance();
     return jit;

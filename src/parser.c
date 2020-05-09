@@ -93,12 +93,12 @@ struct parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file
     else
         file = file_name ? fopen(file_name, "r") : stdin;
     const char* mod_name = file_name ? file_name : "intepreter_main";
-    struct parser* psr = (struct parser*)malloc(sizeof(*psr));
+    struct parser* psr = malloc(sizeof(*psr));
     queue_init(&psr->queued_tokens, sizeof(struct token));
     hashtable_init(&psr->op_precs);
     _build_op_precs(&psr->op_precs);
 
-    struct ast *ast = (struct ast*)malloc(sizeof(*ast));
+    struct ast *ast = malloc(sizeof(*ast));
     psr->ast = ast;
     array_init(&psr->ast->builtins, sizeof(struct exp_node*));
     array_init(&psr->ast->modules, sizeof(struct module*));

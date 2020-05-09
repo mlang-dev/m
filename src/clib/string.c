@@ -30,14 +30,14 @@ void _init_str(string *str)
 
 string* string_new(const char* chars)
 {
-    string* str = (string*)malloc(sizeof(string));
+    string* str = malloc(sizeof(*str));
     string_init_chars(str, chars);
     return str;
 }
 
 string* string_new_len(const char* chars, size_t len)
 {
-    string* str = (string*)malloc(sizeof(string));
+    string* str = malloc(sizeof(*str));
     string_copy_with_len(str, chars, len);
     return str;
 }
@@ -67,7 +67,7 @@ void string_init_chars(string* str, const char* chars)
 void string_copy_with_len(string* dest, const char* data, size_t len)
 {
     if (len >= dest->cap) {
-        dest->base.p_data = (char*)malloc(len + 1);
+        dest->base.p_data = malloc(len + 1);
         dest->cap = len + 1;
     }
     char *dest_data = string_get(dest);
@@ -104,7 +104,7 @@ void string_add(string *str1, string *str2)
             memcpy(data + str1->base.size, string_get(str2), str2->base.size+1);
         }else{
             //previously in reserved
-            data = (char *)malloc(len+1);
+            data = malloc(len+1);
             memcpy(data, str1->_reserved, str1->base.size + 1);
             memcpy(data + str1->base.size, string_get(str2), str2->base.size + 1);
         }

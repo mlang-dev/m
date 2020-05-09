@@ -89,7 +89,7 @@ static int get_char(struct file_tokenizer* tokenizer)
 
 struct file_tokenizer* create_tokenizer(FILE* file)
 {
-    struct file_tokenizer* tokenizer = (struct file_tokenizer*)malloc(sizeof(struct file_tokenizer));
+    struct file_tokenizer* tokenizer = malloc(sizeof(*tokenizer));
     struct source_loc loc = {1, 0};
     tokenizer->loc = loc;
     tokenizer->next_token.token_type = TOKEN_UNK;
