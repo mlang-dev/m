@@ -155,7 +155,7 @@ struct type_exp* _freshrec(struct type_exp* type, struct array* nogen, struct ha
             return type;
     }
     struct type_oper* op = (struct type_oper*)type;
-    if(array_size(&op->args)==0)
+    if (array_size(&op->args) == 0)
         return type;
     struct array refreshed; //struct array of struct type_exp*
     array_init(&refreshed, sizeof(struct type_exp*));
@@ -177,7 +177,7 @@ struct type_exp* fresh(struct type_exp* type, struct array* nogen)
     return result;
 }
 
-struct type_exp* retrieve_type(const char * name, struct array* nogen, struct hashtable* env)
+struct type_exp* retrieve_type(const char* name, struct array* nogen, struct hashtable* env)
 {
     struct type_exp* exp = (struct type_exp*)hashtable_get(env, name);
     if (exp) {
@@ -209,7 +209,7 @@ string to_string(struct type_exp* type)
         struct type_oper* oper = (struct type_oper*)type;
         if (array_size(&oper->args) == 0) { /* nullary operator, e.g. builtin types: int, double*/
             string builtin;
-            string_init_chars(&builtin, TypeString[oper->base.type]);
+            string_init_chars(&builtin, type_strings[oper->base.type]);
             return builtin;
         } else {
             struct array array_type_strs;

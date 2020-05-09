@@ -41,8 +41,8 @@ static const char* NodeTypeString[] = {
 
 struct exp_node {
     enum node_type node_type;
-    enum type annotated_type;
-    struct type_exp* type; //type annotation
+    struct type_exp* annotated_type;
+    struct type_exp* type; //type inferred
     struct source_loc loc;
     struct exp_node* parent;
 };
@@ -111,7 +111,7 @@ struct call_node {
     struct array args; //args: struct array of exp_node*
 };
 
-struct fun_param{
+struct fun_param {
     string name;
     enum type type;
 };

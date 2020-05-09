@@ -4,11 +4,10 @@
  * m language ast c code implementation. 
  * 
  */
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "ast.h"
-
 
 bool is_unary_op(struct prototype_node* pnode)
 {
@@ -40,7 +39,7 @@ struct function_node* create_function_node(struct prototype_node* prototype,
     return node;
 }
 
-struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc loc, const char *name)
+struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc loc, const char* name)
 {
     struct ident_node* node = malloc(sizeof(*node));
     node->base.type = 0;
@@ -56,7 +55,7 @@ struct num_node* create_double_node(struct exp_node* parent, struct source_loc l
 {
     struct num_node* node = malloc(sizeof(*node));
     node->base.node_type = NUMBER_NODE;
-    node->base.annotated_type = TYPE_DOUBLE;
+    node->base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_DOUBLE);
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -68,7 +67,7 @@ struct num_node* _create_int_node(struct exp_node* parent, struct source_loc loc
 {
     struct num_node* node = malloc(sizeof(*node));
     node->base.node_type = NUMBER_NODE;
-    node->base.annotated_type = type;
+    node->base.annotated_type = (struct type_exp*)create_nullary_type(type);
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -86,7 +85,7 @@ struct num_node* create_bool_node(struct exp_node* parent, struct source_loc loc
     return _create_int_node(parent, loc, val, TYPE_BOOL);
 }
 
-struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc, const char *var_name, struct exp_node* init_value)
+struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* init_value)
 {
     struct var_node* node = (struct var_node*)malloc(sizeof(*node));
     node->base.node_type = VAR_NODE;
@@ -99,7 +98,7 @@ struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc,
     return node;
 }
 
-struct call_node* create_call_node(struct exp_node* parent, struct source_loc loc, const char *callee,
+struct call_node* create_call_node(struct exp_node* parent, struct source_loc loc, const char* callee,
     struct array* args)
 {
     struct call_node* node = malloc(sizeof(*node));
@@ -113,14 +112,14 @@ struct call_node* create_call_node(struct exp_node* parent, struct source_loc lo
     return node;
 }
 
-struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc, const char *name, struct array* args)
+struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc, const char* name, struct array* args)
 {
     return create_prototype_node(parent, loc, name, args, false, 0, "");
 }
 
-struct prototype_node* create_prototype_node(struct exp_node* parent, struct source_loc loc, const char *name,
+struct prototype_node* create_prototype_node(struct exp_node* parent, struct source_loc loc, const char* name,
     struct array* args,
-    bool is_operator, unsigned precedence, const char *op)
+    bool is_operator, unsigned precedence, const char* op)
 {
     struct prototype_node* node = malloc(sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
@@ -151,7 +150,7 @@ struct condition_node* create_if_node(struct exp_node* parent, struct source_loc
     return node;
 }
 
-struct unary_node* create_unary_node(struct exp_node* parent, struct source_loc loc, const char *op, struct exp_node* operand)
+struct unary_node* create_unary_node(struct exp_node* parent, struct source_loc loc, const char* op, struct exp_node* operand)
 {
     struct unary_node* node = malloc(sizeof(*node));
     node->base.node_type = UNARY_NODE;
@@ -164,7 +163,7 @@ struct unary_node* create_unary_node(struct exp_node* parent, struct source_loc 
     return node;
 }
 
-struct binary_node* create_binary_node(struct exp_node* parent, struct source_loc loc, const char *op, struct exp_node* lhs, struct exp_node* rhs)
+struct binary_node* create_binary_node(struct exp_node* parent, struct source_loc loc, const char* op, struct exp_node* lhs, struct exp_node* rhs)
 {
     struct binary_node* node = malloc(sizeof(*node));
     node->base.node_type = BINARY_NODE;
@@ -178,7 +177,7 @@ struct binary_node* create_binary_node(struct exp_node* parent, struct source_lo
     return node;
 }
 
-struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc, const char *var_name, struct exp_node* start,
+struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* start,
     struct exp_node* end, struct exp_node* step, struct exp_node* body)
 {
     struct for_node* node = malloc(sizeof(*node));
@@ -195,7 +194,7 @@ struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc,
     return node;
 }
 
-struct block_node* create_block_node(struct exp_node* parent, struct array *nodes)
+struct block_node* create_block_node(struct exp_node* parent, struct array* nodes)
 {
     struct block_node* node = malloc(sizeof(*node));
     node->base.node_type = BLOCK_NODE;

@@ -8,12 +8,12 @@
 #ifndef __MLANG_TYPE_H__
 #define __MLANG_TYPE_H__
 
-#include "clib/util.h"
-#include "clib/string.h"
 #include "clib/hashtable.h"
+#include "clib/string.h"
+#include "clib/util.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 #define FOREACH_TYPE(ENUM_ITEM) \
@@ -29,7 +29,7 @@ extern "C"{
 
 enum type { FOREACH_TYPE(GENERATE_ENUM) };
 
-static const char* const TypeString[] = {
+static const char* const type_strings[] = {
     "unkown",
     "generic",
     "()",
@@ -47,7 +47,6 @@ static const char* const TypeString[] = {
     ENUM_ITEM(KIND_OPER)
 
 enum kind { FOREACH_KIND(GENERATE_ENUM) };
-
 
 static const char* KindString[] = {
     FOREACH_KIND(GENERATE_ENUM_STRING)
@@ -71,14 +70,14 @@ struct type_oper {
 };
 
 struct type_var* create_type_var();
-struct type_oper* create_type_oper(enum type type, struct array *args);
+struct type_oper* create_type_oper(enum type type, struct array* args);
 struct type_oper* create_nullary_type(enum type type);
-struct type_oper* create_type_fun(struct array *args);
+struct type_oper* create_type_fun(struct array* args);
 void type_exp_free(struct type_exp* type);
 bool occurs_in_type(struct type_var* var, struct type_exp* type2);
-struct type_exp* retrieve_type(const char *name, struct array *nogen, struct hashtable *env); //env pointing to hashtable of (string, struct type_exp*)
-void set_type(struct hashtable *env, const char *name, struct type_exp* type);
-bool unify(struct type_exp* type1, struct type_exp* type2, struct array *nogens);
+struct type_exp* retrieve_type(const char* name, struct array* nogen, struct hashtable* env); //env pointing to hashtable of (string, struct type_exp*)
+void set_type(struct hashtable* env, const char* name, struct type_exp* type);
+bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens);
 string to_string(struct type_exp* type);
 struct type_exp* prune(struct type_exp* type);
 
