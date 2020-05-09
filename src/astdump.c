@@ -23,10 +23,10 @@ string _dump_block(struct block_node* node)
 
 string _dump_prototype(struct prototype_node* proto)
 {
-    string joined = string_join(&proto->args, " ");
     string result;
     string_init_chars(&result, string_get(&proto->name));
-    string_add(&result, &joined);
+    // string joined = string_join(&proto->args, " ");
+    // string_add(&result, &joined);
     string_add_chars(&result, "=");
     return result;
 }
@@ -78,8 +78,7 @@ string _dump_binary(struct binary_node* binary)
 
 string _dump_call(struct call_node* call)
 {
-    struct array args;
-    array_string_init(&args);
+    ARRAY_STRING(args);
     for (size_t i = 0; i < array_size(&call->args); i++) {
         string dp = dump(*(struct exp_node**)array_get(&call->args, i));
         array_push(&args, &dp);

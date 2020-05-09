@@ -227,18 +227,19 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
     parser->allow_id_as_a_func = true;
     //log_info(DEBUG, "is %s a function def: %d, %d", id_name.c_str(), func_definition, is_operator);
     if (func_definition) {
-        struct array arg_names;
-        array_string_init(&arg_names);
+        ARRAY_FUN_PARAM(fun_params);
+        struct var_node fun_param;
         for (size_t i = 0; i < array_size(&args); i++) {
             struct ident_node* id = *(struct ident_node**)array_get(&args, i);
-            array_push(&arg_names, &id->name);
+            string_copy(&fun_param.var_name, &id->name);
+            array_push(&fun_params, &fun_param);
         }
         if (is_operator) {
-            if (precedence && array_size(&arg_names) != 2) {
+            if (precedence && array_size(&fun_params) != BINARY_PARAM_SIZE) {
                 return (struct exp_node*)log_info(ERROR, "precedence only apply for binary operator");
-            } else if (array_size(&arg_names) != 1 && array_size(&arg_names) != 2)
+            } else if (array_size(&fun_params) != UNARY_PARAM_SIZE && array_size(&fun_params) != BINARY_PARAM_SIZE)
                 return (struct exp_node*)log_info(ERROR, "operator overloading only for unary or binary operator");
-            if (array_size(&arg_names) == 1) {
+            if (array_size(&fun_params) == UNARY_PARAM_SIZE) {
                 string_copy_chars(&id_name, "unary");
                 string_add_chars(&id_name, pid_name);
                 //id_name = "unary" + id_name;
@@ -247,7 +248,8 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
                 string_add_chars(&id_name, pid_name);
             }
         }
-        struct prototype_node* prototype = create_prototype_node(parent, loc, string_get(&id_name), &arg_names, is_operator, precedence, is_operator ? string_get(&id_name) : "");
+        struct prototype_node* prototype = create_prototype_node(parent, loc, string_get(&id_name), &fun_params, 0,
+        is_operator, precedence, is_operator ? string_get(&id_name) : "");
         //log_info(DEBUG, "prototype: %s", id_name.c_str());
         return _parse_function_with_prototype(parser, prototype);
         //log_info(DEBUG, "func: %s", id_name.c_str());
@@ -498,12 +500,13 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
     bool has_parenthese = parser->curr_token.token_type == TOKEN_LPAREN;
     if (has_parenthese)
         parse_next_token(parser); // skip '('
-    struct array arg_names;
-    array_string_init(&arg_names);
+    ARRAY_FUN_PARAM(fun_params);
+    struct var_node fun_param;
     while (parser->curr_token.token_type == TOKEN_IDENT) {
         // fprintf(stderr, "arg names: %s",
         // (*parser->curr_token.ident_str).c_str());
-        array_push(&arg_names, parser->curr_token.ident_str);
+        string_copy(&fun_param.var_name, parser->curr_token.ident_str);
+        array_push(&fun_params, &fun_param);
         parse_next_token(parser);
     }
     if (has_parenthese && parser->curr_token.token_type != TOKEN_RPAREN)
@@ -512,10 +515,10 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
     if (has_parenthese)
         parse_next_token(parser); // eat ')'.
     // Verify right number of names for operator.
-    if (proto_type && array_size(&arg_names) != proto_type)
+    if (proto_type && array_size(&fun_params) != proto_type)
         return (struct exp_node*)log_info(ERROR, "Invalid number of operands for operator");
-    struct exp_node* ret = (struct exp_node*)create_prototype_node(parent, loc, string_get(&fun_name), &arg_names, proto_type != 0,
-        bin_prec, "");
+    struct exp_node* ret = (struct exp_node*)create_prototype_node(parent, loc, string_get(&fun_name), &fun_params, 
+        0, proto_type != 0, bin_prec, "");
     //array_deinit(&arg_names);
     return ret;
 }
@@ -557,14 +560,12 @@ struct exp_node* parse_exp_to_function(struct parser* parser, struct exp_node* e
     if (!exp)
         exp = parse_exp(parser, 0, 0);
     if (exp) {
-        struct array args;
-        array_string_init(&args);
-        struct prototype_node* prototype = create_prototype_node_default(0, exp->loc, fn, &args);
+        ARRAY_FUN_PARAM(fun_params);
+        struct prototype_node* prototype = create_prototype_node_default(0, exp->loc, fn, &fun_params, 0);
         struct array nodes;
         array_init(&nodes, sizeof(struct exp_node*));
         array_push(&nodes, &exp);
         struct block_node* block = create_block_node((struct exp_node*)prototype, &nodes);
-        //array_deinit(&args);
         return _create_fun_node(parser, prototype, block);
     }
     return 0;

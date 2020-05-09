@@ -13,28 +13,12 @@
 
 #include "clib/array.h"
 #include "clib/generic.h"
-#include "clib/string.h"
 
 struct array* array_new(size_t element_size)
 {
     struct array* arr = malloc(sizeof(*arr));
     array_init(arr, element_size);
     return arr;
-}
-
-void array_string_init(struct array* arr)
-{
-    array_init_fun(arr, sizeof(string), string_free_generic);
-}
-
-void array_init(struct array* arr, size_t element_size)
-{
-    array_init_fun(arr, element_size, 0);
-}
-
-void array_init_fun(struct array* arr, size_t element_size, free_fun free)
-{
-    array_init_size(arr, element_size, 7, free);
 }
 
 void array_init_size(struct array* arr, size_t element_size, size_t init_size, free_fun free)
@@ -45,6 +29,16 @@ void array_init_size(struct array* arr, size_t element_size, size_t init_size, f
     arr->cap = init_size;
     arr->base.size = 0;
     arr->free = free;
+}
+
+void array_init(struct array* arr, size_t element_size)
+{
+    array_init_free(arr, element_size, 0);
+}
+
+void array_init_free(struct array* arr, size_t element_size, free_fun free)
+{
+    array_init_size(arr, element_size, 7, free);
 }
 
 void array_copy(struct array* dest, struct array* src)

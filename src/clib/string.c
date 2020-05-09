@@ -178,8 +178,7 @@ string string_join(struct array* arr, const char* sep)
 
 struct array string_split(string* str, char sep)
 {
-    struct array arr;
-    array_string_init(&arr);
+    ARRAY_STRING(arr);
     string sub_str;
     string_init(&sub_str);
     int collect_start = 0;

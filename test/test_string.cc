@@ -163,9 +163,8 @@ TEST(testString, testSplitLongString)
 
 TEST(testString, testJoin)
 {
-    array arr;
     string str;
-    array_string_init(&arr);
+    ARRAY_STRING(arr);
     string_init_chars(&str, "abc");
     array_push(&arr, &str);
     string result = string_join(&arr, ".");
@@ -176,9 +175,8 @@ TEST(testString, testJoin)
 
 TEST(testString, testJoinMultiString)
 {
-    array arr;
     string str;
-    array_string_init(&arr);
+    ARRAY_STRING(arr);
     string_init_chars(&str, "abc");
     array_push(&arr, &str);
     string_copy_chars(&str, "def");
@@ -191,9 +189,8 @@ TEST(testString, testJoinMultiString)
 
 TEST(testString, testJoinMultiLongString)
 {
-    array arr;
     string str;
-    array_string_init(&arr);
+    ARRAY_STRING(arr);
     string_init_chars(&str, "this is a very long string");
     array_push(&arr, &str);
 

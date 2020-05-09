@@ -24,10 +24,8 @@ struct array {
 };
 
 struct array* array_new(size_t element_size);
-void array_string_init(struct array* arr);
 void array_init(struct array* arr, size_t element_size);
-void array_init_fun(struct array* arr, size_t element_size, free_fun free);
-void array_init_size(struct array* arr, size_t element_size, size_t init_size, free_fun free);
+void array_init_free(struct array* arr, size_t element_size, free_fun free);
 void array_grow(struct array* arr);
 void array_deinit(struct array* arr);
 void array_push(struct array* arr, void* element);
@@ -40,6 +38,12 @@ void* array_back(struct array* arr);
 void* array_front(struct array* arr);
 size_t array_size(struct array* arr);
 void array_free(struct array* arr);
+
+#define ARRAY(var, elem_type, elem_deinit_fun) struct array var;     \
+        array_init_free(&var, sizeof(elem_type), elem_deinit_fun)
+
+#define ARRAY_VALUE(var, elem_type) struct array var;     \
+        array_init_free(&var, sizeof(elem_type), 0)
 
 #ifdef __cplusplus
 }

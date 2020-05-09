@@ -28,11 +28,12 @@ struct prototype_node* _create_for_id(void* pcontext, const char* name)
     LLVMTypeRef* params = malloc(param_count * sizeof(LLVMTypeRef));
     LLVMGetParamTypes(fun, params);
     //;llvm::Intrinsic::getName(id, types);
-    struct array args;
-    array_string_init(&args);
+    ARRAY_FUN_PARAM(fun_params);
+    struct var_node fun_param;
     for (size_t i = 0; i < param_count; i++) {
-        string arg = str_format("arg%d", i);
-        array_push(&args, &arg);
+        fun_param.var_name = str_format("arg%d", i);      
+        fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_DOUBLE);
+        array_push(&fun_params, &fun_param);
     }
     string str_name;
     string_init_chars(&str_name, name);
@@ -40,10 +41,9 @@ struct prototype_node* _create_for_id(void* pcontext, const char* name)
     //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
     struct source_loc loc = { 1, 0 };
     struct prototype_node* node = create_prototype_node_default(0, loc,
-        string_get(STRING_POINTER(array_back(&names))), &args);
+        string_get(STRING_POINTER(array_back(&names))), &fun_params, (struct type_exp*)create_nullary_type(TYPE_DOUBLE));
     string_deinit(&str_name);
     array_deinit(&names);
-    //array_deinit(&args);
     free(params);
     return node;
     //return 0;
@@ -58,13 +58,12 @@ struct array get_builtins(void* context)
         struct prototype_node* proto = _create_for_id(context, buiiltin_funs[i]);
         array_push(&builtins, &proto);
     }
-    struct array args; //struct array of string
-    string str;
-    array_string_init(&args);
-    string_init_chars(&str, "char");
-    array_push(&args, &str);
+    ARRAY_FUN_PARAM(fun_params);
+    struct var_node fun_param;
+    string_init_chars(&fun_param.var_name, "char");
+    array_push(&fun_params, &fun_param);
     struct source_loc loc = { 1, 0 };
-    struct prototype_node* proto = create_prototype_node_default(0, loc, "print", &args);
+    struct prototype_node* proto = create_prototype_node_default(0, loc, "print", &fun_params, (struct type_exp*)create_nullary_type(TYPE_UNIT));
     array_push(&builtins, &proto);
     //args copied to the prototype node, so not needed to deinit
     return builtins;

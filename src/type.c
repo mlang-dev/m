@@ -191,8 +191,7 @@ string to_string(struct type_exp* type)
             string_init_chars(&builtin, type_strings[oper->base.type]);
             return builtin;
         } else {
-            struct array array_type_strs;
-            array_string_init(&array_type_strs);
+            ARRAY_STRING(array_type_strs);
             for (size_t i = 0; i < array_size(&oper->args); i++) {
                 string type_str = to_string(*(struct type_exp**)array_get(&oper->args, i));
                 array_push(&array_type_strs, &type_str);

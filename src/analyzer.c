@@ -209,12 +209,12 @@ struct type_exp* _analyze_fun(struct type_env* env, struct exp_node* node)
     //# create a new non-generic variable for the binder
     struct array args; //<struct type_exp*> args;
     array_init(&args, sizeof(struct type_exp*));
-    for (size_t i = 0; i < array_size(&fun->prototype->args); i++) {
+    for (size_t i = 0; i < array_size(&fun->prototype->fun_params); i++) {
         struct type_exp* exp = (struct type_exp*)create_type_var();
         array_push(&args, &exp);
         array_push(&env->nogens, &exp);
-        const char* arg_str = string_get((string*)array_get(&fun->prototype->args, i));
-        set(env, arg_str, exp);
+        struct var_node* param = (struct var_node*)array_get(&fun->prototype->fun_params, i);
+        set(env, string_get(&param->var_name), exp);
         //printf("setting fun arg: %s\n", arg_str);
     }
     struct type_exp* fun_type = (struct type_exp*)create_type_var();

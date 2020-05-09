@@ -25,8 +25,7 @@ TEST(testArray, testArrayInitInt)
 
 TEST(testArray, testArrayOfString)
 {
-    array arr;
-    array_string_init(&arr);
+    ARRAY_STRING(arr);
     string str1;
     string_init_chars(&str1, "hello");
     string str2;
@@ -45,8 +44,7 @@ TEST(testArray, testArrayOfString)
 
 TEST(testArray, testArrayOfLongString)
 {
-    array arr;
-    array_string_init(&arr);
+    ARRAY_STRING(arr);
     string str1;
     string_init_chars(&str1, "hello world. this is a long string allocated in heap");
     string str2;

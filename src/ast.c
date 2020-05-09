@@ -11,12 +11,12 @@
 
 bool is_unary_op(struct prototype_node* node)
 {
-    return node->is_operator && array_size(&node->args) == 1;
+    return node->is_operator && array_size(&node->fun_params) == UNARY_PARAM_SIZE;
 }
 
 bool is_binary_op(struct prototype_node* node)
 {
-    return node->is_operator && array_size(&node->args) == 2;
+    return node->is_operator && array_size(&node->fun_params) == BINARY_PARAM_SIZE;
 }
 
 char get_op_name(struct prototype_node* node)
@@ -112,23 +112,24 @@ struct call_node* create_call_node(struct exp_node* parent, struct source_loc lo
     return node;
 }
 
-struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc, const char* name, struct array* args)
+struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc, const char* name, struct array* args, struct type_exp* ret_type)
 {
-    return create_prototype_node(parent, loc, name, args, false, 0, "");
+    return create_prototype_node(parent, loc, name, args, ret_type, false, 0, "");
 }
 
 struct prototype_node* create_prototype_node(struct exp_node* parent, struct source_loc loc, const char* name,
     struct array* args,
+    struct type_exp* ret_type,
     bool is_operator, unsigned precedence, const char* op)
 {
     struct prototype_node* node = malloc(sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type = ret_type;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
     string_init_chars(&node->name, name);
-    node->args = *args;
+    node->fun_params = *args;
     node->is_operator = is_operator;
     node->precedence = precedence;
     string_init_chars(&node->op, op);

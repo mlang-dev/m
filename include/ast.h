@@ -111,19 +111,22 @@ struct call_node {
     struct array args; //args: struct array of exp_node*
 };
 
-struct fun_param {
-    string name;
-    struct type_exp* type;
-};
+#define ARRAY_FUN_PARAM(var)  ARRAY(var, struct var_node, 0)
 
 struct prototype_node {
     struct exp_node base;
     string name;
     string op;
-    struct array args; /*struct array of fun_param*/
+    struct array fun_params; /*struct array of var_node*/
     char is_operator;
     unsigned precedence;
 };
+
+#define UNARY_PARAM_SIZE 1
+#define UNARY_SIG_SIZE  (UNARY_PARAM_SIZE + 1)
+
+#define BINARY_PARAM_SIZE 2
+#define BINARY_SIG_SIZE (BINARY_PARAM_SIZE + 1)
 
 struct function_node {
     struct exp_node base;
@@ -142,13 +145,14 @@ struct call_node* create_call_node(struct exp_node* parent, struct source_loc lo
     struct array* args);
 struct prototype_node* create_prototype_node(struct exp_node* parent, struct source_loc loc,
     const char* name,
-    struct array* args,
+    struct array* params,
+    struct type_exp* ret_type,
     bool is_operator,
     unsigned precedence,
     const char* op);
 struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc,
     const char* name,
-    struct array* args);
+    struct array* args, struct type_exp* ret_type);
 
 struct condition_node* create_if_node(struct exp_node* parent, struct source_loc loc, struct exp_node* condition, struct exp_node* then_node,
     struct exp_node* else_node);

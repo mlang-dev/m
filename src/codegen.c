@@ -139,7 +139,8 @@ void _create_argument_allocas(struct code_generator* cg, struct prototype_node* 
     LLVMValueRef fun)
 {
     for (unsigned i = 0; i < LLVMCountParams(fun); i++) {
-        LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, string_get((string*)array_get(&node->args, i)));
+        struct var_node* param = (struct var_node*)array_get(&node->fun_params, i);
+        LLVMValueRef alloca = _create_entry_block_alloca(cg, fun, string_get(&param->var_name));
 
         // Create a debug descriptor for the variable.
         /*DIScope *Scope = KSDbgInfo.LexicalBlocks.back();
@@ -155,7 +156,7 @@ void _create_argument_allocas(struct code_generator* cg, struct prototype_node* 
     */
 
         LLVMBuildStore((LLVMBuilderRef)cg->builder, LLVMGetParam(fun, i), alloca);
-        hashtable_set(&cg->named_values, string_get((string*)array_get(&node->args, i)), alloca);
+        hashtable_set(&cg->named_values, string_get(&param->var_name), alloca);
     }
 }
 
@@ -271,8 +272,8 @@ void* _generate_prototype_node(struct code_generator* cg, struct exp_node* node)
     //log_info(DEBUG, "generating prototype node: %s", string_get(str));
     hashtable_set(&cg->protos, string_get(&proto->name), proto);
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    LLVMTypeRef arg_types[array_size(&proto->args)];
-    for (size_t i = 0; i < array_size(&proto->args); i++) {
+    LLVMTypeRef arg_types[array_size(&proto->fun_params)];
+    for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
         arg_types[i] = LLVMDoubleTypeInContext(context);
     }
     LLVMTypeRef ret_type = LLVMDoubleTypeInContext(context);
@@ -289,12 +290,12 @@ void* _generate_prototype_node(struct code_generator* cg, struct exp_node* node)
     else
         ret_type = LLVMDoubleTypeInContext(context);
     */
-    LLVMTypeRef ft = LLVMFunctionType(ret_type, arg_types, array_size(&proto->args), false);
+    LLVMTypeRef ft = LLVMFunctionType(ret_type, arg_types, array_size(&proto->fun_params), false);
     LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, string_get(&proto->name), ft);
     for (unsigned i = 0; i < LLVMCountParams(fun); i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
-        string* arg = (string*)array_get(&proto->args, i);
-        LLVMSetValueName2(param, string_get(arg), arg->base.size);
+        struct var_node* fun_param = (struct var_node*)array_get(&proto->fun_params, i);
+        LLVMSetValueName2(param, string_get(&fun_param->var_name), string_size(&fun_param->var_name));
     }
     return fun;
 }
