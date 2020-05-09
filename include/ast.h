@@ -113,7 +113,7 @@ struct call_node {
 
 struct fun_param {
     string name;
-    enum type type;
+    struct type_exp* type;
 };
 
 struct prototype_node {

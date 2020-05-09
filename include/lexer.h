@@ -42,7 +42,7 @@ extern "C" {
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 
-static const char* TokenTypeString[] = {
+static const char* token_type_strings[] = {
     FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
 };
 

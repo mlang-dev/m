@@ -40,7 +40,7 @@ struct exp_node* _parse_function_with_prototype(struct parser* parser, struct pr
 
 const char* get_ctt(struct parser* parser)
 {
-    return TokenTypeString[parser->curr_token.token_type];
+    return token_type_strings[parser->curr_token.token_type];
 }
 
 bool _is_exp(struct exp_node* node)
@@ -261,7 +261,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
 
 struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
 {
-    //log_info(DEBUG, "parsing statement:%d, %s", parent, TokenTypeString[parser->curr_token.token_type]);
+    //log_info(DEBUG, "parsing statement:%d, %s", parent, token_type_strings[parser->curr_token.token_type]);
     struct exp_node* node;
     struct source_loc loc = parser->curr_token.loc;
     if (parser->curr_token.token_type == TOKEN_EOF)
@@ -326,7 +326,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
             }
             array_deinit(&queued);
         } else {
-            //log_info(DEBUG, "starting to parse exp: %s", TokenTypeString[parser->curr_token.token_type]);
+            //log_info(DEBUG, "starting to parse exp: %s", token_type_strings[parser->curr_token.token_type]);
             node = parse_exp(parser, parent, 0);
             //log_info(DEBUG, "it's exp: %s", NodeTypeString[node->node_type]);
         }
@@ -355,7 +355,7 @@ struct exp_node* _parse_ident(struct parser* parser, struct exp_node* parent)
     struct source_loc loc = parser->curr_token.loc;
 
     parse_next_token(parser); // take identifier
-    //log_info(DEBUG, "parsed id: %s, curtoken: %s", id_name.c_str(), TokenTypeString[parser->curr_token.token_type]);
+    //log_info(DEBUG, "parsed id: %s, curtoken: %s", id_name.c_str(), token_type_strings[parser->curr_token.token_type]);
     if (_id_is_a_function_call(parser)) { // pure variable
         // fprintf(stderr, "ident parsed. %s\n", id_name.c_str());
         //(
@@ -397,7 +397,7 @@ struct exp_node* _parse_node(struct parser* parser, struct exp_node* parent)
     else {
         string error;
         string_init_chars(&error, "unknown token: ");
-        string_add_chars(&error, TokenTypeString[parser->curr_token.token_type]);
+        string_add_chars(&error, token_type_strings[parser->curr_token.token_type]);
         if (parser->curr_token.token_type == TOKEN_OP) {
             string_add_chars(&error, " op: ");
             string_add(&error, parser->curr_token.ident_str);
@@ -414,7 +414,7 @@ struct exp_node* _parse_binary(struct parser* parser, struct exp_node* parent, i
         int tok_prec = _get_op_precedence(parser);
         if (tok_prec < exp_prec)
             return lhs;
-        //log_info(DEBUG, "bin exp: [%s, %c], %d, %s", TokenTypeString[parser->curr_token.token_type], parser->curr_token.op_val, tok_prec, map_to_string(g_op_precedences).c_str());
+        //log_info(DEBUG, "bin exp: [%s, %c], %d, %s", token_type_strings[parser->curr_token.token_type], parser->curr_token.op_val, tok_prec, map_to_string(g_op_precedences).c_str());
         string binary_op;
         string_copy(&binary_op, parser->curr_token.ident_str);
         parse_next_token(parser);
@@ -424,12 +424,12 @@ struct exp_node* _parse_binary(struct parser* parser, struct exp_node* parent, i
         //log_info(DEBUG, "bin exp: rhs: %s", NodeTypeString[rhs->node_type]);
         int next_prec = _get_op_precedence(parser);
         if (tok_prec < next_prec) {
-            //log_info(DEBUG, "right first %s, %d, %d", TokenTypeString[parser->curr_token.token_type], tok_prec, next_prec);
+            //log_info(DEBUG, "right first %s, %d, %d", token_type_strings[parser->curr_token.token_type], tok_prec, next_prec);
             rhs = _parse_binary(parser, parent, tok_prec + 1, rhs);
             if (!rhs)
                 return 0;
         }
-        //log_info(DEBUG, "left first: %s, %d, %d", TokenTypeString[parser->curr_token.token_type], tok_prec, next_prec);
+        //log_info(DEBUG, "left first: %s, %d, %d", token_type_strings[parser->curr_token.token_type], tok_prec, next_prec);
         lhs = (struct exp_node*)create_binary_node(parent, lhs->loc, string_get(&binary_op), lhs, rhs);
     }
 }
@@ -611,7 +611,7 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
     parse_next_token(parser); // eat the for.
 
     if (parser->curr_token.token_type != TOKEN_IDENT)
-        return (struct exp_node*)log_info(ERROR, "expected identifier after for, got %s", TokenTypeString[parser->curr_token.token_type]);
+        return (struct exp_node*)log_info(ERROR, "expected identifier after for, got %s", token_type_strings[parser->curr_token.token_type]);
 
     string id_name;
     string_copy(&id_name, parser->curr_token.ident_str);
@@ -626,7 +626,7 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
         return 0;
     if (parser->curr_token.token_type != TOKEN_RANGE)
         return (struct exp_node*)log_info(ERROR, "expected '..' after for start value got token: %s: %s",
-            TokenTypeString[parser->curr_token.token_type], parser->curr_token.ident_str);
+            token_type_strings[parser->curr_token.token_type], parser->curr_token.ident_str);
     parse_next_token(parser);
 
     //step or end
@@ -713,7 +713,7 @@ struct block_node* parse_block(struct parser* parser, struct exp_node* parent, v
             queue_token(parser, parser->curr_token);
             break;
         }
-        //log_info(DEBUG, "got token in block: (%d, %d), %s", parser->curr_token.loc.line, parser->curr_token.loc.col, TokenTypeString[parser->curr_token.token_type]);
+        //log_info(DEBUG, "got token in block: (%d, %d), %s", parser->curr_token.loc.line, parser->curr_token.loc.col, token_type_strings[parser->curr_token.token_type]);
         //struct source_loc loc = parser->curr_token.loc;
         //log_info(DEBUG, "parsing statement in block--: (%d, %d), %d", loc.line, loc.col, parent);
         struct exp_node* node = parse_statement(parser, parent);
