@@ -13,13 +13,18 @@ FILE* _open_file(const char* file_name)
     return fmemopen(file_content, strlen(file_content), "r");
 }
 
-parser* create_parser_for_string(char* str)
+parser* create_parser_for_string(const char* str)
 {
     return parser_new(str, false, _open_file);
 }
 
-file_tokenizer* create_tokenizer_for_string(char* str)
+menv* create_env_for_string(const char* str)
 {
-    FILE* file = fmemopen(str, strlen(str), "r");
+    return env_new(str, false, _open_file);
+}
+
+file_tokenizer* create_tokenizer_for_string(const char* str)
+{
+    FILE* file = fmemopen((void*)str, strlen(str), "r");
     return create_tokenizer(file);
 }

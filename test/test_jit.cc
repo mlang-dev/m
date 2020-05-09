@@ -15,10 +15,9 @@ TEST(testJIT, testNumber)
   10
   10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node1 = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node1);
     auto node2 = *(exp_node**)array_back(&block->nodes);
@@ -33,10 +32,9 @@ TEST(testJIT, testTypeError)
     char test_code[] = R"(
   10 + 10.0
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     eval_statement(jit, node);
     ASSERT_EQ(0, node->type);
@@ -50,10 +48,9 @@ TEST(testJIT, testIdFunc)
   f x = x
   f 10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_back(&block->nodes);
     eval_statement(jit, node);
@@ -63,16 +60,15 @@ TEST(testJIT, testIdFunc)
     env_free(env);
 }
 
-TEST(testJIT, testSqrtFunc)
+TEST(testJIT, testSquareFunc)
 {
     char test_code[] = R"(
   f x = x * x
   f 10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     eval_statement(jit, node);
@@ -91,10 +87,9 @@ TEST(testJIT, testIfFunc)
   f 5
   f 10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     auto node2 = *(exp_node**)array_get(&block->nodes, 2);
@@ -111,10 +106,9 @@ TEST(testJIT, testGloVarFunc)
 y=100
 y
 )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     eval_statement(jit, node);
@@ -130,10 +124,9 @@ unary- x = 0 - x
 y=100
 -y
 )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     auto node2 = *(exp_node**)array_get(&block->nodes, 2);
@@ -152,10 +145,9 @@ binary>10 x y = y < x
 z = 100
 if z>99 then -z else z
 )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     for (int i = 0; i < 3; i++) {
         auto node = *(exp_node**)array_get(&block->nodes, i);
         eval_statement(jit, node);
@@ -174,10 +166,9 @@ TEST(testJIT, testUnaryBinaryFunc)
 z = 100
 if z>99 then -z else z
 )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto end = 3;
     for (int i = 0; i < end; i++) {
         auto node = *(exp_node**)array_get(&block->nodes, i);

@@ -101,31 +101,29 @@ exit:
     fprintf(stderr, "m> ");
 }
 
-struct JIT* build_jit(struct menv* env, struct parser* parser)
+struct JIT* build_jit(struct menv* env)
 {
-    struct code_generator* cg = cg_new(env, parser);
-    struct JIT* jit = jit_new(cg);
+    struct JIT* jit = jit_new(env->cg);
     jit->env = env;
     //log_info(DEBUG, "creating builtins");
     //create_builtins(parser, cg->context);
     //log_info(DEBUG, "creating jit modules");
-    _create_jit_module(cg);
+    _create_jit_module(env->cg);
     //log_info(DEBUG, "generating runtime modules");
-    generate_runtime_module(cg, &env->type_env->builtins);
+    generate_runtime_module(env->cg, &env->cg->builtins);
     //log_info(DEBUG, "adding to jit");
     _add_current_module_to_jit(jit);
     //log_info(DEBUG, "creating jit modules 2");
-    _create_jit_module(cg);
+    _create_jit_module(env->cg);
     return jit;
 }
 
 int run_repl()
 {
-    struct menv* env = env_new();
-    struct parser* parser = parser_new(0, true, 0);
-    struct JIT* jit = build_jit(env, parser);
+    struct menv* env = env_new(0, true, 0);
+    struct JIT* jit = build_jit(env);
     printf("m> ");
-    parse_block(parser, 0, &eval_statement, jit);
+    parse_block(env->parser, 0, &eval_statement, jit);
     printf("bye !\n");
     jit_free(jit);
     env_free(env);

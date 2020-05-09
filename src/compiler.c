@@ -22,34 +22,29 @@ int compile(const char* fn, enum object_file_type file_type)
     string filename;
     string_init_chars(&filename, fn);
     string_substr(&filename, '.');
-    struct menv* env = env_new();
-    struct parser* parser = parser_new(fn, false, 0);
-    struct code_generator* cg = cg_new(env, parser);
-    create_module_and_pass_manager(cg, string_get(&filename));
-    generate_runtime_module(cg, &env->type_env->builtins);
-    struct block_node* block = parse_block(parser, 0, 0, 0);
+    struct menv* env = env_new(fn, false, 0);
+    create_module_and_pass_manager(env->cg, string_get(&filename));
+    generate_runtime_module(env->cg, &env->cg->builtins);
+    struct block_node* block = parse_block(env->parser, 0, 0, 0);
     analyze(env->type_env, (struct exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
             struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
-            generate_code(cg, node);
+            generate_code(env->cg, node);
         }
-        LLVMModuleRef module = (LLVMModuleRef)cg->module;
         if (file_type == FT_OBJECT) {
             string_add_chars(&filename, ".o");
-            generate_object_file(module, string_get(&filename));
+            generate_object_file(env->cg->module, string_get(&filename));
         } else if (file_type == FT_BITCODE) {
             string_add_chars(&filename, ".bc");
-            generate_bitcode_file(module, string_get(&filename));
+            generate_bitcode_file(env->cg->module, string_get(&filename));
         } else if (file_type == FT_IR) {
             string_add_chars(&filename, ".ir");
-            generate_ir_file(module, string_get(&filename));
+            generate_ir_file(env->cg->module, string_get(&filename));
         }
     } else {
         log_info(INFO, "no statement is found.");
     }
-    cg_free(cg);
-    parser_free(parser);
     env_free(env);
     string_deinit(&filename);
     return 0;

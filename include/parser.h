@@ -31,7 +31,7 @@ struct parser {
 typedef FILE* (*open_file)(const char* file_name);
 typedef void (*exp_executor)(void*, struct exp_node*);
 
-struct parser* parser_new(const char* file_name, bool is_repl, open_file op_file);
+struct parser* parser_new(const char* file_name, bool is_repl, open_file open_file);
 void parser_free(struct parser* parser);
 void parse_next_token(struct parser* parser);
 struct exp_node* parse_exp_to_function(struct parser* parser, struct exp_node* exp, const char* fn);

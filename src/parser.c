@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include "astdump.h"
-#include "builtins.h"
 #include "clib/hashtable.h"
 #include "clib/util.h"
 #include "parser.h"
@@ -83,7 +82,7 @@ int _get_op_prec(struct hashtable* op_precs, const char* op)
     return -1;
 }
 
-struct parser* parser_new(const char* file_name, bool is_repl, FILE* (*open_file)(const char* file_name))
+struct parser* parser_new(const char* file_name, bool is_repl, open_file open_file)
 {
     FILE* file;
     if (open_file)

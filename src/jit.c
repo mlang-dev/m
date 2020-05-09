@@ -57,8 +57,6 @@ void jit_free(struct JIT* jit)
         //_destroy_jit_instance(jit->jit);
         //LLVMShutdown();
     }
-    parser_free(jit->cg->parser);
-    cg_free(jit->cg);
     free(jit);
 }
 

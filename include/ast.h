@@ -132,6 +132,7 @@ struct function_node {
     struct prototype_node* prototype;
     struct block_node* body;
 };
+struct type_exp* get_ret_type(struct function_node* fun_node);
 
 struct function_node* create_function_node(struct prototype_node* prototype,
     struct block_node* body);

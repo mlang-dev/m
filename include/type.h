@@ -25,7 +25,8 @@ extern "C" {
     ENUM_ITEM(TYPE_INT)         \
     ENUM_ITEM(TYPE_DOUBLE)      \
     ENUM_ITEM(TYPE_FUNCTION)    \
-    ENUM_ITEM(TYPE_PRODUCT)
+    ENUM_ITEM(TYPE_PRODUCT)     \
+    ENUM_ITEM(TYPE_TYPES)
 
 enum type { FOREACH_TYPE(GENERATE_ENUM) };
 
@@ -48,7 +49,7 @@ static const char* const type_strings[] = {
 
 enum kind { FOREACH_KIND(GENERATE_ENUM) };
 
-static const char* KindString[] = {
+static const char* kind_strings[] = {
     FOREACH_KIND(GENERATE_ENUM_STRING)
 };
 

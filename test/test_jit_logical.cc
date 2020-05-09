@@ -11,17 +11,15 @@
 
 TEST(testJITLogical, testLessThan)
 {
-    char test_code[] = R"(
+    const char test_code[] = R"(
   10<11
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.d_value);
-    parser_free(parser);
     env_free(env);
 }
 
@@ -30,14 +28,12 @@ TEST(testJITLogical, testLessThanWrong)
     char test_code[] = R"(
   11<10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.d_value);
-    parser_free(parser);
     env_free(env);
 }
 
@@ -46,14 +42,12 @@ TEST(testJITLogical, testGreaterThan)
     char test_code[] = R"(
   11>10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.d_value);
-    parser_free(parser);
     env_free(env);
 }
 
@@ -62,10 +56,9 @@ TEST(testJITLogical, testGreaterThanWrong)
     char test_code[] = R"(
   10>11
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.d_value);
@@ -78,10 +71,9 @@ TEST(testJITLogical, testEqual)
     char test_code[] = R"(
   10==10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.d_value);
@@ -94,10 +86,9 @@ TEST(testJITLogical, testEqualNot)
     char test_code[] = R"(
   10==11
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.d_value);
@@ -110,10 +101,9 @@ TEST(testJITLogical, testNotEqualTrue)
     char test_code[] = R"(
   10!=11
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.d_value);
@@ -126,10 +116,9 @@ TEST(testJITLogical, testNotEqualFalse)
     char test_code[128] = R"(
   10!=10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.d_value);
@@ -142,10 +131,9 @@ TEST(testJITLogical, testLETrueL)
     char test_code[128] = R"(
   9<=10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+     menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.d_value);
@@ -159,9 +147,9 @@ TEST(testJITLogical, testLETrueE)
   10<=10
   )";
     auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.d_value);
@@ -174,10 +162,9 @@ TEST(testJITLogical, testLEFalse)
     char test_code[] = R"(
   11<=10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.d_value);
@@ -190,10 +177,9 @@ TEST(testJITLogical, testGETrueL)
     char test_code[] = R"(
   10>=9
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.d_value);
@@ -206,10 +192,9 @@ TEST(testJITLogical, testGETrueE)
     char test_code[] = R"(
   10>=10
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.d_value);
@@ -222,10 +207,9 @@ TEST(testJITLogical, testGEFalse)
     char test_code[] = R"(
   10>=11
   )";
-    auto parser = create_parser_for_string(test_code);
-    menv* env = env_new();
-    JIT* jit = build_jit(env, parser);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.d_value);

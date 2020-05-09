@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include "analyzer.h"
-#include "builtins.h"
 #include "clib/hash.h"
 
 const char* pred_ops[] = {
@@ -65,7 +64,6 @@ struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
         return 0;
     struct type_exp* result_type = (struct type_exp*)create_type_var();
     unify(result_type, type, &env->nogens);
-    //printf("analyzing var done: %s\n", string_get(&var->var_name));
     set(env, string_get(&var->var_name), result_type);
     return result_type;
 }
@@ -146,7 +144,7 @@ struct type_exp* _analyze_for(struct type_env* env, struct exp_node* node)
     return (struct type_exp*)create_nullary_type(TYPE_UNIT);
 }
 
-struct type_env* type_env_new(void* context)
+struct type_env* type_env_new(struct code_generator* cg)
 {
     struct type_env* env = malloc(sizeof(*env));
     memset((void*)env, 0, sizeof(struct type_env));
@@ -163,11 +161,15 @@ struct type_env* type_env_new(void* context)
     array_init(&double_args, sizeof(struct type_exp*));
     array_push(&double_args, &double_type);
     array_push(&double_args, &double_type);
-    env->builtins = get_builtins(env, context);
-    for (size_t i = 0; i < array_size(&env->builtins); i++) {
-        struct prototype_node* proto = *(struct prototype_node**)array_get(&env->builtins, i);
+    for (size_t i = 0; i < array_size(&cg->builtins); i++) {
+        struct prototype_node* proto = *(struct prototype_node**)array_get(&cg->builtins, i);
         struct type_exp* exp = (struct type_exp*)create_type_fun(&double_args);
         set(env, string_get(&proto->name), exp);
+    }
+
+    for (size_t i = 0; i < array_size(&cg->builtins); i++) {
+        struct prototype_node* proto = *(struct prototype_node**)array_get(&cg->builtins, i);
+        analyze(env, (struct exp_node*)proto);
     }
     return env;
 }

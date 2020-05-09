@@ -5,62 +5,12 @@
  */
 #include <assert.h>
 #include <stdlib.h>
-
-#include "llvm-c/Core.h"
-#include "llvm-c/Target.h"
-#include "llvm-c/TargetMachine.h"
+#include <string.h>
 
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
 #include "codegen.h"
-
-typedef LLVMValueRef (*binary_op)(LLVMBuilderRef, LLVMValueRef LHS, LLVMValueRef RHS,
-    const char* Name);
-typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef, unsigned short Op,
-    LLVMValueRef LHS, LLVMValueRef RHS,
-    const char* Name);
-
-struct binary_ops {
-    binary_op add;
-    binary_op sub;
-    binary_op mul;
-    binary_op div;
-    cmp_op cmp;
-    unsigned short cmp_lt;
-    unsigned short cmp_gt;
-    unsigned short cmp_eq;
-    unsigned short cmp_neq;
-    unsigned short cmp_le;
-    unsigned short cmp_ge;
-};
-
-struct binary_ops bin_ops[2] = {
-    { LLVMBuildFAdd,
-        LLVMBuildFSub,
-        LLVMBuildFMul,
-        LLVMBuildFDiv,
-        (cmp_op)LLVMBuildICmp,
-        LLVMIntSLT,
-        LLVMIntSGT,
-        LLVMIntEQ,
-        LLVMIntNE,
-        LLVMIntSLE,
-        LLVMIntSGE },
-    {
-        LLVMBuildFAdd,
-        LLVMBuildFSub,
-        LLVMBuildFMul,
-        LLVMBuildFDiv,
-        (cmp_op)LLVMBuildFCmp,
-        LLVMRealULT,
-        LLVMRealUGT,
-        LLVMRealUEQ,
-        LLVMRealUNE,
-        LLVMRealULE,
-        LLVMRealUGE,
-    }
-};
 
 void* _generate_global_var_node(struct code_generator* cg, struct var_node* node,
     bool is_external);
@@ -68,21 +18,128 @@ void* _generate_local_var_node(struct code_generator* cg, struct var_node* node)
 void* _generate_prototype_node(struct code_generator* cg, struct exp_node* node);
 void* _generate_block_node(struct code_generator* cg, struct exp_node* block);
 
-struct code_generator* cg_new(struct menv* env, struct parser* parser)
+const char* buiiltin_funs[] = {
+    "llvm.sin",
+    "llvm.cos",
+    "llvm.sqrt",
+};
+
+struct prototype_node* _create_for_id(LLVMContextRef context, const char* name)
 {
+    LLVMTypeRef types[1] = { LLVMDoubleTypeInContext(context) };
+    unsigned id = LLVMLookupIntrinsicID(name, strlen(name));
+    LLVMTypeRef fun = LLVMIntrinsicGetType(context, id, types, 1);
+    size_t param_count = LLVMCountParamTypes(fun);
+    LLVMTypeRef* params = malloc(param_count * sizeof(LLVMTypeRef));
+    LLVMGetParamTypes(fun, params);
+    //;llvm::Intrinsic::getName(id, types);
+    ARRAY_FUN_PARAM(fun_params);
+    struct var_node fun_param;
+    for (size_t i = 0; i < param_count; i++) {
+        fun_param.var_name = str_format("arg%d", i);      
+        fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_DOUBLE);
+        array_push(&fun_params, &fun_param);
+    }
+    string str_name;
+    string_init_chars(&str_name, name);
+    struct array names = string_split(&str_name, '.');
+    //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
+    struct source_loc loc = { 1, 0 };
+    struct prototype_node* node = create_prototype_node_default(0, loc,
+        string_get(STRING_POINTER(array_back(&names))), &fun_params, (struct type_exp*)create_nullary_type(TYPE_DOUBLE));
+    string_deinit(&str_name);
+    array_deinit(&names);
+    free(params);
+    return node;
+    //return 0;
+}
+
+struct array _get_builtins(LLVMContextRef context)
+{
+    struct array builtins;
+    array_init(&builtins, sizeof(struct exp_node*));
+    int builtins_num = ARRAY_SIZE(buiiltin_funs);
+    for (int i = 0; i < builtins_num; i++) {
+        struct prototype_node* proto = _create_for_id(context, buiiltin_funs[i]);
+        //analyze(type_env, (struct exp_node*)proto);
+        array_push(&builtins, &proto);
+    }
+    ARRAY_FUN_PARAM(fun_params);
+    struct var_node fun_param;
+    string_init_chars(&fun_param.var_name, "char");
+    fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_DOUBLE);
+    array_push(&fun_params, &fun_param);
+    struct source_loc loc = { 1, 0 };
+    struct prototype_node* proto = create_prototype_node_default(0, loc, "print", &fun_params, (struct type_exp*)create_nullary_type(TYPE_UNIT));
+    //analyze(type_env, (struct exp_node*)proto);
+    array_push(&builtins, &proto);
+    //args copied to the prototype node, so not needed to deinit
+    return builtins;
+}
+
+struct binary_ops null_ops = { 0 };
+
+struct binary_ops int_ops = { 
+    LLVMBuildAdd,
+    LLVMBuildSub,
+    LLVMBuildMul,
+    LLVMBuildSDiv,
+    (cmp_op)LLVMBuildICmp,
+    LLVMIntSLT,
+    LLVMIntSGT,
+    LLVMIntEQ,
+    LLVMIntNE,
+    LLVMIntSLE,
+    LLVMIntSGE 
+};
+
+struct binary_ops float_ops = {
+    LLVMBuildFAdd,
+    LLVMBuildFSub,
+    LLVMBuildFMul,
+    LLVMBuildFDiv,
+    (cmp_op)LLVMBuildFCmp,
+    LLVMRealULT,
+    LLVMRealUGT,
+    LLVMRealUEQ,
+    LLVMRealUNE,
+    LLVMRealULE,
+    LLVMRealUGE,
+};
+
+void _set_bin_ops(struct code_generator* cg)
+{
+    cg->bin_ops[TYPE_UNK] = float_ops;
+    cg->bin_ops[TYPE_GENERIC] = float_ops;
+    cg->bin_ops[TYPE_UNIT] = float_ops;
+    cg->bin_ops[TYPE_BOOL] = float_ops;
+    cg->bin_ops[TYPE_CHAR] = float_ops;
+    cg->bin_ops[TYPE_INT] = float_ops;
+    cg->bin_ops[TYPE_DOUBLE] = float_ops;
+    cg->bin_ops[TYPE_FUNCTION] = float_ops;
+    cg->bin_ops[TYPE_PRODUCT] = float_ops;
+
+}
+struct code_generator* cg_new(struct parser* parser)
+{
+    LLVMContextRef context = LLVMContextCreate();
     LLVMInitializeCore(LLVMGetGlobalPassRegistry());
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();
     struct code_generator* cg = malloc(sizeof(*cg));
     cg->parser = parser;
-    cg->context = env->context;
-    cg->builder = LLVMCreateBuilderInContext((LLVMContextRef)env->context);
+    cg->context = context;
+    cg->builder = LLVMCreateBuilderInContext(context);
+    cg->builtins = _get_builtins(context);
+    cg->module = 0;
+    _set_bin_ops(cg);
     hashtable_init(&cg->gvs);
     hashtable_init(&cg->protos);
     hashtable_init(&cg->named_values);
     return cg;
 }
+
 
 void cg_free(struct code_generator* cg)
 {
@@ -90,6 +147,8 @@ void cg_free(struct code_generator* cg)
     //delete (llvm::legacy::FunctionPassManager*)cg->fpm;
     if (cg->module)
         LLVMDisposeModule((LLVMModuleRef)cg->module);
+    LLVMContextDispose(cg->context);
+
     hashtable_deinit(&cg->gvs);
     hashtable_deinit(&cg->protos);
     hashtable_deinit(&cg->named_values);
@@ -99,7 +158,7 @@ void cg_free(struct code_generator* cg)
 
 LLVMValueRef _get_function(struct code_generator* cg, const char* name)
 {
-    LLVMValueRef f = LLVMGetNamedFunction((LLVMModuleRef)cg->module, name);
+    LLVMValueRef f = LLVMGetNamedFunction(cg->module, name);
     if (f)
         return f;
 
@@ -112,7 +171,7 @@ LLVMValueRef _get_function(struct code_generator* cg, const char* name)
 
 LLVMValueRef _get_global_variable(struct code_generator* cg, const char* name)
 {
-    LLVMValueRef gv = LLVMGetNamedGlobal((LLVMModuleRef)cg->module, name);
+    LLVMValueRef gv = LLVMGetNamedGlobal(cg->module, name);
     if (gv)
         return gv;
     struct var_node* fgv = (struct var_node*)hashtable_get(&cg->gvs, name); //.find(name);
@@ -130,7 +189,7 @@ LLVMValueRef _create_entry_block_alloca(struct code_generator* cg,
     LLVMBuilderRef builder = LLVMCreateBuilder();
     LLVMBasicBlockRef bb = LLVMGetEntryBasicBlock(fun);
     LLVMPositionBuilder(builder, bb, LLVMGetFirstInstruction(bb));
-    LLVMValueRef alloca = LLVMBuildAlloca(builder, LLVMDoubleTypeInContext((LLVMContextRef)cg->context), var_name);
+    LLVMValueRef alloca = LLVMBuildAlloca(builder, LLVMDoubleTypeInContext(cg->context), var_name);
     LLVMDisposeBuilder(builder);
     return alloca;
 }
@@ -164,9 +223,9 @@ void* _generate_num_node(struct code_generator* cg, struct exp_node* node)
 {
     if (node->type && is_int_type(node->type->type)) {
         int value = (int)((struct num_node*)node)->double_val;
-        return LLVMConstInt(LLVMInt64TypeInContext((LLVMContextRef)cg->context), value, true);
+        return LLVMConstInt(LLVMInt64TypeInContext(cg->context), value, true);
     }
-    return LLVMConstReal(LLVMDoubleTypeInContext((LLVMContextRef)cg->context), ((struct num_node*)node)->double_val);
+    return LLVMConstReal(LLVMDoubleTypeInContext(cg->context), ((struct num_node*)node)->double_val);
 }
 
 void* _generate_ident_node(struct code_generator* cg, struct exp_node* node)
@@ -177,13 +236,13 @@ void* _generate_ident_node(struct code_generator* cg, struct exp_node* node)
     if (!v) {
         LLVMValueRef gVar = _get_global_variable(cg, idname);
         if (gVar) {
-            return LLVMBuildLoad((LLVMBuilderRef)cg->builder, gVar, idname);
+            return LLVMBuildLoad(cg->builder, gVar, idname);
         } else {
             log_info(ERROR, "Unknown variable name: %s", idname);
             return 0;
         }
     }
-    return LLVMBuildLoad((LLVMBuilderRef)cg->builder, v, idname);
+    return LLVMBuildLoad(cg->builder, v, idname);
 }
 
 void* _generate_binary_node(struct code_generator* cg, struct exp_node* node)
@@ -193,43 +252,42 @@ void* _generate_binary_node(struct code_generator* cg, struct exp_node* node)
     LLVMValueRef rv = (LLVMValueRef)generate_code(cg, bin->rhs);
     if (!lv || !rv)
         return 0;
-    LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
-    LLVMContextRef context = (LLVMContextRef)cg->context;
-    bool is_int = bin->lhs->type && is_int_type(bin->lhs->type->type);
-    int method_index = is_int ? 0 : 1;
-    struct binary_ops* ops = &bin_ops[method_index];
+    int type = bin->lhs->type ? bin->lhs->type->type : 0;
+   // string lhs_type = to_string(bin->lhs->type);
+   // printf("cg binary node: %s, %d\n", string_get(&lhs_type), bin->lhs->type->type);
+    struct binary_ops* ops = &cg->bin_ops[type];
     if (string_eq_chars(&bin->op, "+"))
-        return ops->add(builder, lv, rv, "addtmp");
+        return ops->add(cg->builder, lv, rv, "addtmp");
     else if (string_eq_chars(&bin->op, "-"))
-        return ops->sub(builder, lv, rv, "subtmp");
+        return ops->sub(cg->builder, lv, rv, "subtmp");
     else if (string_eq_chars(&bin->op, "*"))
-        return ops->mul(builder, lv, rv, "multmp");
+        return ops->mul(cg->builder, lv, rv, "multmp");
     else if (string_eq_chars(&bin->op, "/"))
-        return ops->div(builder, lv, rv, "divtmp");
+        return ops->div(cg->builder, lv, rv, "divtmp");
     else if (string_eq_chars(&bin->op, "<")) {
-        lv = ops->cmp(builder, ops->cmp_lt, lv, rv, "cmplttmp");
-        // return lv;
-        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+        lv = ops->cmp(cg->builder, ops->cmp_lt, lv, rv, "cmplttmp");
+        //return lv;
+        return LLVMBuildUIToFP(cg->builder, lv, LLVMDoubleTypeInContext(cg->context),
             "booltmp");
     } else if (string_eq_chars(&bin->op, ">")) {
-        lv = ops->cmp(builder, ops->cmp_gt, lv, rv, "cmpgttmp");
-        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+        lv = ops->cmp(cg->builder, ops->cmp_gt, lv, rv, "cmpgttmp");
+        return LLVMBuildUIToFP(cg->builder, lv, LLVMDoubleTypeInContext(cg->context),
             "booltmp");
     } else if (string_eq_chars(&bin->op, "==")) {
-        lv = ops->cmp(builder, ops->cmp_eq, lv, rv, "cmpeqtmp");
-        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+        lv = ops->cmp(cg->builder, ops->cmp_eq, lv, rv, "cmpeqtmp");
+        return LLVMBuildUIToFP(cg->builder, lv, LLVMDoubleTypeInContext(cg->context),
             "booltmp");
     } else if (string_eq_chars(&bin->op, "!=")) {
-        lv = ops->cmp(builder, ops->cmp_neq, lv, rv, "cmpneqtmp");
-        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+        lv = ops->cmp(cg->builder, ops->cmp_neq, lv, rv, "cmpneqtmp");
+        return LLVMBuildUIToFP(cg->builder, lv, LLVMDoubleTypeInContext(cg->context),
             "booltmp");
     } else if (string_eq_chars(&bin->op, "<=")) {
-        lv = ops->cmp(builder, ops->cmp_le, lv, rv, "cmpletmp");
-        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+        lv = ops->cmp(cg->builder, ops->cmp_le, lv, rv, "cmpletmp");
+        return LLVMBuildUIToFP(cg->builder, lv, LLVMDoubleTypeInContext(cg->context),
             "booltmp");
     } else if (string_eq_chars(&bin->op, ">=")) {
-        lv = ops->cmp(builder, ops->cmp_ge, lv, rv, "cmpgetmp");
-        return LLVMBuildUIToFP(builder, lv, LLVMDoubleTypeInContext(context),
+        lv = ops->cmp(cg->builder, ops->cmp_ge, lv, rv, "cmpgetmp");
+        return LLVMBuildUIToFP(cg->builder, lv, LLVMDoubleTypeInContext(cg->context),
             "booltmp");
     } else {
         string f_name;
@@ -238,7 +296,7 @@ void* _generate_binary_node(struct code_generator* cg, struct exp_node* node)
         LLVMValueRef fun = _get_function(cg, string_get(&f_name));
         assert(fun && "binary operator not found!");
         LLVMValueRef ops[2] = { (LLVMValueRef)lv, (LLVMValueRef)rv };
-        return LLVMBuildCall(builder, fun, ops, 2, "binop");
+        return LLVMBuildCall(cg->builder, fun, ops, 2, "binop");
     }
 }
 
@@ -270,27 +328,24 @@ void* _generate_prototype_node(struct code_generator* cg, struct exp_node* node)
     struct prototype_node* proto = (struct prototype_node*)node;
     //string *str = (string*)array_get(&proto->args, 0);
     //log_info(DEBUG, "generating prototype node: %s", string_get(str));
-    assert(proto->base.type);
     hashtable_set(&cg->protos, string_get(&proto->name), proto);
-    LLVMContextRef context = (LLVMContextRef)cg->context;
     LLVMTypeRef arg_types[array_size(&proto->fun_params)];
+    struct type_oper* proto_type = (struct type_oper*)proto->base.type;
+    assert(proto_type->base.kind == KIND_OPER);
+    struct type_exp* ret = (struct type_exp*)array_back(&proto_type->args);
+    assert(ret);
     for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
-        arg_types[i] = LLVMDoubleTypeInContext(context);
+        struct type_exp* type = *(struct type_exp**)array_get(&proto_type->args, i);
+        if(is_int_type(type->type))
+             arg_types[i] = LLVMInt64TypeInContext(cg->context);
+        else
+             arg_types[i] = LLVMDoubleTypeInContext(cg->context);
     }
-    LLVMTypeRef ret_type = LLVMDoubleTypeInContext(context);
-    struct type_exp* ret = proto->base.type;
-    if (!ret) {
-        //print_backtrace();
-        //assert(false);
-    }
-    /*
-    assert(ret->kind == KIND_OPER);
-    ret = (struct type_exp*)array_back(&((type_oper*)ret)->args);
+    LLVMTypeRef ret_type;
     if(is_int_type(ret->type))
-        ret_type = LLVMInt64TypeInContext(context);
+        ret_type = LLVMInt64TypeInContext(cg->context);
     else
-        ret_type = LLVMDoubleTypeInContext(context);
-    */
+        ret_type = LLVMDoubleTypeInContext(cg->context);
     LLVMTypeRef ft = LLVMFunctionType(ret_type, arg_types, array_size(&proto->fun_params), false);
     LLVMValueRef fun = LLVMAddFunction((LLVMModuleRef)cg->module, string_get(&proto->name), ft);
     for (unsigned i = 0; i < LLVMCountParams(fun); i++) {
@@ -303,10 +358,10 @@ void* _generate_prototype_node(struct code_generator* cg, struct exp_node* node)
 
 void* _generate_function_node(struct code_generator* cg, struct exp_node* node)
 {
-    struct function_node* funn = (struct function_node*)node;
+    struct function_node* fun_node = (struct function_node*)node;
     hashtable_clear(&cg->named_values);
     LLVMContextRef context = (LLVMContextRef)cg->context;
-    LLVMValueRef fun = (LLVMValueRef)_generate_prototype_node(cg, (struct exp_node*)funn->prototype);
+    LLVMValueRef fun = (LLVMValueRef)_generate_prototype_node(cg, (struct exp_node*)fun_node->prototype);
     if (!fun)
         return 0;
     // if (is_binary_op(node->prototype)){
@@ -317,14 +372,18 @@ void* _generate_function_node(struct code_generator* cg, struct exp_node* node)
     LLVMBuilderRef builder = (LLVMBuilderRef)cg->builder;
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(context, fun, "entry");
     LLVMPositionBuilderAtEnd(builder, bb);
-    _create_argument_allocas(cg, funn->prototype, fun);
+    _create_argument_allocas(cg, fun_node->prototype, fun);
     LLVMValueRef ret_val;
-    for (size_t i = 0; i < array_size(&funn->body->nodes); i++) {
-        struct exp_node* stmt = *(struct exp_node**)array_get(&funn->body->nodes, i);
+    for (size_t i = 0; i < array_size(&fun_node->body->nodes); i++) {
+        struct exp_node* stmt = *(struct exp_node**)array_get(&fun_node->body->nodes, i);
         ret_val = (LLVMValueRef)generate_code(cg, stmt);
     }
     if (!ret_val) {
-        ret_val = LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0);
+        struct type_exp* ret_type = get_ret_type(fun_node);
+        if (is_int_type(ret_type->type))
+            ret_val = LLVMConstInt(LLVMInt64TypeInContext(context), 0, true);
+        else
+            ret_val = LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0);
     }
     if (ret_val) {
         LLVMBuildRet(builder, ret_val);

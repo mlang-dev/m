@@ -15,6 +15,7 @@ struct type_var* create_type_var()
     string name = get_id_name();
     struct type_var* var = malloc(sizeof(*var));
     var->base.kind = KIND_VAR;
+    var->base.type = 0;
     var->name = name;
     var->instance = 0;
     return var;

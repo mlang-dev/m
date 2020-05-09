@@ -10,7 +10,6 @@ include(GoogleTest)
 
 add_library(mlr 
   type.c
-  builtins.c
   compiler.c
   repl.c
   jit.c

@@ -8,9 +8,8 @@
 
 TEST(testGeneral, testBuildJit)
 {
-    menv* env = env_new();
-    parser* parser = parser_new(0, true, 0);
-    JIT* jit = build_jit(env, parser);
+    menv* env = env_new(0, true, 0);
+    JIT* jit = build_jit(env);
     jit_free(jit);
     env_free(env);
 }
