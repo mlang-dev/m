@@ -18,7 +18,6 @@ type_var* create_type_var()
     var->base.kind = KIND_VAR;
     var->name = name;
     var->instance = NULL;
-    string_deinit(&name);
     return var;
 }
 

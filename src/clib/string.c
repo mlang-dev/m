@@ -14,7 +14,6 @@
 #include "clib/array.h"
 #include "clib/object.h"
 
-fun default_string_fun = {string_copy_generic, string_free_generic};
 
 void _init_str(string *str)  
 {
@@ -188,11 +187,11 @@ array string_split(string* str, char sep)
         if(data[i] == sep||i==str->base.size-1){
             size_t sub_str_len = data[i] == sep? i-collect_start: i-collect_start + 1;
             string_copy_with_len(&sub_str, &data[collect_start], sub_str_len);
-            array_push(&arr, &sub_str);
+            array_push(&arr, &sub_str); /*sub_str allocated the heap will be owned by array*/
             collect_start = i+1;
+            string_init(&sub_str);
         }
     }
-    string_deinit(&sub_str);
     return arr;
 }
 

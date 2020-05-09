@@ -59,8 +59,6 @@ void* string_data_generic(object *obj);
 void string_copy_generic(void *dest, void *src, size_t size);
 void string_free_generic(void *dest);
 
-extern fun default_string_fun;
-
 #ifdef __cplusplus
 }
 #endif

@@ -67,7 +67,6 @@ array get_builtins(void* context)
     struct source_loc loc = {1, 0};
     struct prototype_node* proto = create_prototype_node_default(0, loc, "print", &args);
     array_push(&builtins, &proto);
-    string_deinit(&str);
     //args copied to the prototype node, so not needed to deinit
     return builtins;
 }

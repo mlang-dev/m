@@ -21,14 +21,14 @@ typedef struct _array{
     //bytes array
     size_t cap;
     size_t _element_size; //element size of the array
-    fun f;
+    free_fun free;
 } array;
 
 array* array_new(size_t element_size);
 void array_string_init(array* a);
 void array_init(array* a, size_t element_size);
-void array_init_fun(array* a, size_t element_size, fun f);
-void array_init_size(array *a, size_t element_size, size_t init_size, fun f);
+void array_init_fun(array* a, size_t element_size, free_fun free);
+void array_init_size(array *a, size_t element_size, size_t init_size, free_fun free);
 void array_grow(array *a);
 void array_deinit(array *a);
 void array_push(array* a, void* element);

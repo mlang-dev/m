@@ -18,34 +18,34 @@
 
 array* array_new(size_t element_size)
 {
-    array* a = malloc(sizeof(*a));
-    array_init(a, element_size);
-    return a;
+    array* arr = malloc(sizeof(*arr));
+    array_init(arr, element_size);
+    return arr;
 }
 
-void array_string_init(array *a)
+void array_string_init(array *arr)
 {
-    array_init_fun(a, sizeof(string), default_string_fun);
+    array_init_fun(arr, sizeof(string), string_free_generic);
 }
 
-void array_init(array *a, size_t element_size)
+void array_init(array *arr, size_t element_size)
 {
-    array_init_fun(a, element_size, value_fun);
+    array_init_fun(arr, element_size, 0);
 }
 
-void array_init_fun(array *a, size_t element_size, fun f)
+void array_init_fun(array *arr, size_t element_size, free_fun free)
 {
-    array_init_size(a, element_size, 7, f);
+    array_init_size(arr, element_size, 7, free);
 }
 
-void array_init_size(array *a, size_t element_size, size_t init_size, fun f)
+void array_init_size(array *arr, size_t element_size, size_t init_size, free_fun free)
 {
-    a->_element_size = element_size;
-    a->base.p_data = malloc(init_size * element_size);
-    memset(a->base.p_data, 0, init_size * element_size);
-    a->cap = init_size;
-    a->base.size = 0;
-    a->f = f;
+    arr->_element_size = element_size;
+    arr->base.p_data = malloc(init_size * element_size);
+    memset(arr->base.p_data, 0, init_size * element_size);
+    arr->cap = init_size;
+    arr->base.size = 0;
+    arr->free = free;
 }
 
 void array_copy(array *dest, array *src)
@@ -55,75 +55,75 @@ void array_copy(array *dest, array *src)
 
 void array_copy_size(array *dest, array *src, size_t size)
 {
-    array_init_size(dest, src->_element_size, size, src->f);
+    array_init_size(dest, src->_element_size, size, src->free);
     memcpy(dest->base.p_data, src->base.p_data, size * src->_element_size);
     dest->base.size = size;
 }
 
-void _copy_element_to_array(array *a, size_t index, void *element)
+void _copy_element_to_array(array *arr, size_t index, void *element)
 {
-    //get_init(element->type)(a->base.p_data + (index * a->_element_size), element);
-    a->f.copy((unsigned char*)a->base.p_data + (index * a->_element_size), element, a->_element_size);
+    memcpy((unsigned char*)arr->base.p_data + (index * arr->_element_size), element, arr->_element_size);
 }
 
-void array_push(array* a, void *element)
+void array_push(array* arr, void *element)
 {
-    if (a->base.size == a->cap) {
-        array_grow(a);
+    if (arr->base.size == arr->cap) {
+        array_grow(arr);
     }
-    _copy_element_to_array(a, a->base.size, element);
-    a->base.size ++;
+    _copy_element_to_array(arr, arr->base.size, element);
+    arr->base.size ++;
 }
 
-void array_grow(array *a)
+void array_grow(array *arr)
 {
-    a->cap *= 2;
-    a->base.p_data = realloc(a->base.p_data, a->cap * a->_element_size);
+    arr->cap *= 2;
+    arr->base.p_data = realloc(arr->base.p_data, arr->cap * arr->_element_size);
 }
 
-void array_set(array *a, size_t index, void *element)
+void array_set(array *arr, size_t index, void *element)
 {
-    if(index>a->cap - 1)
+    if(index>arr->cap - 1)
         return;
-    _copy_element_to_array(a, index, element);
+    _copy_element_to_array(arr, index, element);
 }
 
-void* array_get(array *a, size_t index)
+void* array_get(array *arr, size_t index)
 {
-    return (unsigned char*)a->base.p_data + (index * a->_element_size);
+    return (unsigned char*)arr->base.p_data + (index * arr->_element_size);
 }
 
-void* array_data(array* a)
+void* array_data(array* arr)
 {
-    return a->base.p_data;
+    return arr->base.p_data;
 }
 
-void* array_back(array *a)
+void* array_back(array *arr)
 {
-    return array_get(a, a->base.size - 1);
+    return array_get(arr, arr->base.size - 1);
 }
 
-void* array_front(array *a)
+void* array_front(array *arr)
 {
-    return array_get(a, 0);
+    return array_get(arr, 0);
 }
 
-size_t array_size(array *a)
+size_t array_size(array *arr)
 {
-    return a->base.size;
+    return arr->base.size;
 }
 
-void array_free(array* a)
+void array_free(array* arr)
 {
-    array_deinit(a);
-    free(a);
+    array_deinit(arr);
+    free(arr);
 }
 
-void array_deinit(array *a)
+void array_deinit(array *arr)
 {
-    for(size_t i=0;i<a->base.size;i++){
-        if (a->f.free)
-            a->f.free(array_get(a, i));
+    for(size_t i=0;i<arr->base.size;i++){
+        void *elem = array_get(arr, i);
+        if (arr->free && elem)
+            arr->free(elem);
     }
-    free(a->base.p_data);
+    free(arr->base.p_data);
 }

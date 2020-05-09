@@ -12,9 +12,6 @@
 
 #include "clib/generic.h"
 
-fun default_fun = {generic_copy, generic_free};
-fun value_fun = {generic_copy, NULL}; 
-
 void generic_free(void *p)
 {
     free(p);

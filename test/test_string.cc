@@ -196,11 +196,13 @@ TEST(testString, testJoinMultiLongString)
     array_string_init(&arr);
     string_init_chars(&str, "this is a very long string");
     array_push(&arr, &str);
+
+    string_init(&str);
     string_copy_chars(&str, "this is a second very long string");
     array_push(&arr, &str);
+ 
     string result = string_join(&arr, ".");
     ASSERT_STREQ(string_get(&result), "this is a very long string.this is a second very long string");
-    string_deinit(&str);
     array_deinit(&arr);
 }
 
