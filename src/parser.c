@@ -616,6 +616,7 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
     parse_next_token(parser); // eat 'in'.
 
     struct exp_node* start = parse_exp(parser, parent, 0);
+    printf("starting node type: %s\n", node_type_strings[start->node_type]);
     if (start == 0)
         return 0;
     if (parser->curr_token.token_type != TOKEN_RANGE)

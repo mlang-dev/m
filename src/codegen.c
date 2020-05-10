@@ -252,10 +252,8 @@ void* _generate_binary_node(struct code_generator* cg, struct exp_node* node)
     LLVMValueRef rv = (LLVMValueRef)generate_code(cg, bin->rhs);
     if (!lv || !rv)
         return 0;
-    int type = bin->lhs->type ? bin->lhs->type->type : 0;
-   // string lhs_type = to_string(bin->lhs->type);
-   // printf("cg binary node: %s, %d\n", string_get(&lhs_type), bin->lhs->type->type);
-    struct binary_ops* ops = &cg->bin_ops[type];
+    assert(bin->lhs->type);
+    struct binary_ops* ops = &cg->bin_ops[bin->lhs->type->type];
     if (string_eq_chars(&bin->op, "+"))
         return ops->add(cg->builder, lv, rv, "addtmp");
     else if (string_eq_chars(&bin->op, "-"))

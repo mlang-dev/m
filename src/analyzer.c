@@ -132,15 +132,16 @@ struct type_exp* _analyze_cond(struct type_env* env, struct exp_node* node)
 
 struct type_exp* _analyze_for(struct type_env* env, struct exp_node* node)
 {
-    struct for_node* f_node = (struct for_node*)node;
+    struct for_node* for_node = (struct for_node*)node;
     struct type_exp* int_type = (struct type_exp*)create_nullary_type(TYPE_INT);
-    struct type_exp* start_type = analyze(env, f_node->start);
-    struct type_exp* step_type = analyze(env, f_node->step);
-    struct binary_node* bin = (struct binary_node*)f_node->end;
-    struct type_exp* end_type = analyze(env, bin->rhs);
+    struct type_exp* bool_type = (struct type_exp*)create_nullary_type(TYPE_BOOL);
+    set(env, string_get(&for_node->var_name), int_type);
+    struct type_exp* start_type = analyze(env, for_node->start);
+    struct type_exp* step_type = analyze(env, for_node->step);
+    struct type_exp* end_type = analyze(env, for_node->end);
     unify(start_type, int_type, &env->nogens);
     unify(step_type, int_type, &env->nogens);
-    unify(end_type, int_type, &env->nogens);
+    unify(end_type, bool_type, &env->nogens);
     return (struct type_exp*)create_nullary_type(TYPE_UNIT);
 }
 
