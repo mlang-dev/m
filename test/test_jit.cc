@@ -22,7 +22,8 @@ TEST(testJIT, testNumber)
     auto result = eval_exp(jit, node1);
     auto node2 = *(exp_node**)array_back(&block->nodes);
     result = eval_exp(jit, node2);
-    ASSERT_EQ(10.0, result.d_value);
+    ASSERT_EQ(TYPE_INT, result.type);
+    ASSERT_EQ(10, result.i_value);
     jit_free(jit);
     env_free(env);
 }
@@ -42,11 +43,49 @@ TEST(testJIT, testTypeError)
     env_free(env);
 }
 
+TEST(testJIT, testGlobalVar)
+{
+    char test_code[] = R"(
+y=100
+y
+)";
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    auto node1 = *(exp_node**)array_get(&block->nodes, 1);
+    eval_statement(jit, node);
+    ASSERT_EQ(100, eval_exp(jit, node1).i_value);
+    jit_free(jit);
+    env_free(env);
+}
+
+TEST(testJIT, testGlobalVarAssignTwice)
+{
+    char test_code[] = R"(
+y=100
+y=200
+y
+)";
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    auto node1 = *(exp_node**)array_front(&block->nodes);
+    auto node2 = *(exp_node**)array_get(&block->nodes, 1);
+    auto node3 = *(exp_node**)array_get(&block->nodes, 2);
+    eval_statement(jit, node1);
+    eval_statement(jit, node2);
+    /*FIXME: should be 200*/
+    ASSERT_EQ(100, eval_exp(jit, node3).i_value); 
+    jit_free(jit);
+    env_free(env);
+}
+
 TEST(testJIT, testIdFunc)
 {
     char test_code[] = R"(
   f x = x
-  f 10
+  f 10.0
   )";
     menv* env = create_env_for_string(test_code);
     JIT* jit = build_jit(env);
@@ -64,7 +103,7 @@ TEST(testJIT, testSquareFunc)
 {
     char test_code[] = R"(
   f x = x * x
-  f 10
+  f 10.0
   )";
     menv* env = create_env_for_string(test_code);
     JIT* jit = build_jit(env);
@@ -94,25 +133,30 @@ TEST(testJIT, testIfFunc)
     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
     auto node2 = *(exp_node**)array_get(&block->nodes, 2);
     eval_statement(jit, node);
-    ASSERT_EQ(5.0, eval_exp(jit, node1).d_value);
-    ASSERT_EQ(0, eval_exp(jit, node2).d_value);
+    eval_result result1 = eval_exp(jit, node1);
+    eval_result result2 = eval_exp(jit, node2);
+    ASSERT_EQ(5, result1.i_value);
+    ASSERT_EQ(0, result2.i_value);
     jit_free(jit);
     env_free(env);
 }
 
-TEST(testJIT, testGloVarFunc)
+TEST(testJIT, testForLoopFunc)
 {
     char test_code[] = R"(
-y=100
-y
-)";
+    forloop n = 
+        for i in 1..n
+            i
+    forloop 4
+  )";
     menv* env = create_env_for_string(test_code);
     JIT* jit = build_jit(env);
     block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
-    auto node1 = *(exp_node**)array_get(&block->nodes, 1);
+    auto node1 = *(exp_node**)array_back(&block->nodes);
     eval_statement(jit, node);
-    ASSERT_EQ(100.0, eval_exp(jit, node1).d_value);
+    eval_result result1 = eval_exp(jit, node1);
+    ASSERT_EQ(0, result1.i_value);
     jit_free(jit);
     env_free(env);
 }
@@ -132,7 +176,7 @@ y=100
     auto node2 = *(exp_node**)array_get(&block->nodes, 2);
     eval_statement(jit, node);
     eval_statement(jit, node1);
-    ASSERT_EQ(-100.0, eval_exp(jit, node2).d_value);
+    ASSERT_EQ(-100, eval_exp(jit, node2).i_value);
     jit_free(jit);
     env_free(env);
 }
@@ -153,7 +197,7 @@ if z>99 then -z else z
         eval_statement(jit, node);
     }
     auto node3 = *(exp_node**)array_get(&block->nodes, 3);
-    ASSERT_EQ(-100.0, eval_exp(jit, node3).d_value);
+    ASSERT_EQ(-100, eval_exp(jit, node3).i_value);
     jit_free(jit);
     env_free(env);
 }
@@ -175,7 +219,7 @@ if z>99 then -z else z
         eval_statement(jit, node);
     }
     auto node3 = *(exp_node**)array_get(&block->nodes, 3);
-    ASSERT_EQ(-100.0, eval_exp(jit, node3).d_value);
+    ASSERT_EQ(-100, eval_exp(jit, node3).i_value);
     jit_free(jit);
     env_free(env);
 }

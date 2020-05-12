@@ -41,8 +41,6 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
     struct eval_result result = { 0 };
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
     analyze(jit->env->type_env, node);
-    //string node_type_str = to_string(node->type);
-    //printf("%s\n", string_get(&node_type_str));
     if (node) {
         void* p_fun = generate_code(jit->cg, node);
         if (p_fun) {
@@ -50,11 +48,10 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
             void* fp = find_target_address(jit, string_get(&fn));
             //LLVMDumpModule(module);
             // keep global variables in the jit
-            if (type && is_int_type(type->type)) {
+            if (is_int_type(get_type(type))) {
                 int (*i_fp)() = (int (*)())fp;
                 result.i_value = i_fp();
                 result.type = TYPE_INT;
-                printf("excuting int result: %d, %d\n", result.i_value, type->type);
             } else {
                 double (*d_fp)() = (double (*)())fp;
                 result.d_value = d_fp();
@@ -106,7 +103,6 @@ struct JIT* build_jit(struct menv* env)
     struct JIT* jit = jit_new(env->cg);
     jit->env = env;
     //log_info(DEBUG, "creating builtins");
-    //create_builtins(parser, cg->context);
     //log_info(DEBUG, "creating jit modules");
     _create_jit_module(env->cg);
     //log_info(DEBUG, "generating runtime modules");

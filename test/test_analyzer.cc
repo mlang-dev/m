@@ -62,6 +62,24 @@ TEST(testAnalyzer, testBoolVariable)
     env_free(menv);
 }
 
+TEST(testAnalyzer, testCallNode)
+{
+    char test_code[] = "print 10";
+    menv* menv = create_env_for_string(test_code);
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    type_env* env = menv->type_env;
+    analyze(env, (exp_node*)block);
+    auto node = *(call_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_EQ(CALL_NODE, node->base.node_type);
+    if (node->base.type->type != TYPE_INT)
+        assert(false);
+    ASSERT_EQ(TYPE_INT, node->base.type->type);
+    string type_str = to_string(node->base.type);
+    ASSERT_STREQ("int", string_get(&type_str));
+    env_free(menv);
+}
+
 TEST(testAnalyzer, testDoubleIntLiteralError)
 {
     char test_code[] = "x = 11.0 + 10";
@@ -107,10 +125,10 @@ TEST(testAnalyzer, testIdentityFunc)
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    auto result_type = (type_exp*)array_back(&var->args);
-    auto from_type = (type_exp*)array_front(&var->args);
+    auto result_type = *(type_exp**)array_back(&var->args);
+    auto from_type = *(type_exp**)array_front(&var->args);
     string type_str = to_string(node->base.type);
-    ASSERT_STREQ("a -> a", string_get(&type_str));
+    ASSERT_STREQ("a -> a", string_get(&type_str));    
     env_free(menv);
 }
 
@@ -128,8 +146,8 @@ TEST(testAnalyzer, testIntIntFunc)
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    auto result_type = (type_exp*)array_back(&var->args);
-    auto from_type = (type_exp*)array_front(&var->args);
+    auto result_type = *(type_exp**)array_back(&var->args);
+    auto from_type = *(type_exp**)array_front(&var->args);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     env_free(menv);
@@ -149,8 +167,8 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    auto result_type = (type_exp*)array_back(&var->args);
-    auto from_type = (type_exp*)array_front(&var->args);
+    auto result_type = *(type_exp**)array_back(&var->args);
+    auto from_type = *(type_exp**)array_front(&var->args);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("double -> double", string_get(&type_str));
     env_free(menv);
@@ -238,6 +256,11 @@ loopprint n =
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int -> ()", string_get(&type_str));
+    for_node* forn = *(for_node**)array_front(&node->body->nodes);
+    ASSERT_EQ(TYPE_INT, get_type(forn->step->type));
+    ASSERT_EQ(TYPE_INT, get_type(forn->start->type));
+    ASSERT_EQ(TYPE_BOOL, get_type(forn->end->type));
+    ASSERT_EQ(TYPE_INT, get_type(forn->body->type));
     env_free(menv);
 }
 

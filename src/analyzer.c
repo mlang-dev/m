@@ -82,12 +82,13 @@ struct type_exp* _analyze_call(struct type_env* env, struct exp_node* node)
     }
     struct type_exp* result_type = (struct type_exp*)create_type_var();
     array_push(&args, &result_type);
-    //string fun_type_str = to_string(fun_type);
-    //printf("analyzing call: %s, %s\n", string_get(&call->callee), string_get(&fun_type_str));
-    unify((struct type_exp*)create_type_fun(&args), fun_type, &env->nogens);
-    // string result = to_string(result_type);
-    // printf("returning called type: %s\n", string_get(&result));
-    return result_type;
+ //   string fun_type_str = to_string(fun_type);
+ //   printf("analyzing call: %s, %s\n", string_get(&call->callee), string_get(&fun_type_str));
+    struct type_exp* call_fun = (struct type_exp*)create_type_fun(&args);
+    unify(call_fun, fun_type, &env->nogens);
+//    string result = to_string(call_fun);
+//    printf("returning called type: %s, %s\n", string_get(&call->callee), string_get(&result));
+    return prune(result_type);
 }
 
 struct type_exp* _analyze_una(struct type_env* env, struct exp_node* node)
@@ -139,9 +140,16 @@ struct type_exp* _analyze_for(struct type_env* env, struct exp_node* node)
     struct type_exp* start_type = analyze(env, for_node->start);
     struct type_exp* step_type = analyze(env, for_node->step);
     struct type_exp* end_type = analyze(env, for_node->end);
-    unify(start_type, int_type, &env->nogens);
+    struct type_exp* body_type = analyze(env, for_node->body);
+    if(!unify(start_type, int_type, &env->nogens)){
+        printf("failed to unify start type as int: %s, %s\n", kind_strings[start_type->kind], node_type_strings[for_node->start->node_type]);
+    }
     unify(step_type, int_type, &env->nogens);
     unify(end_type, bool_type, &env->nogens);
+    for_node->start->type = start_type;
+    for_node->step->type = step_type;
+    for_node->end->type = end_type;
+    for_node->body->type = body_type;
     return (struct type_exp*)create_nullary_type(TYPE_UNIT);
 }
 
@@ -157,20 +165,10 @@ struct type_env* type_env_new(struct code_generator* cg)
         struct type_exp* exp = (struct type_exp*)create_type_oper(i, &args);
         set(env, type_strings[i], exp);
     }
-    struct type_exp* double_type = (struct type_exp*)create_nullary_type(TYPE_DOUBLE);
-    struct array double_args;
-    array_init(&double_args, sizeof(struct type_exp*));
-    array_push(&double_args, &double_type);
-    array_push(&double_args, &double_type);
-    for (size_t i = 0; i < array_size(&cg->builtins); i++) {
-        struct prototype_node* proto = *(struct prototype_node**)array_get(&cg->builtins, i);
-        struct type_exp* exp = (struct type_exp*)create_type_fun(&double_args);
-        set(env, string_get(&proto->name), exp);
-    }
-
     for (size_t i = 0; i < array_size(&cg->builtins); i++) {
         struct prototype_node* proto = *(struct prototype_node**)array_get(&cg->builtins, i);
         analyze(env, (struct exp_node*)proto);
+        set(env, string_get(&proto->name), proto->base.type);
     }
     return env;
 }
@@ -207,10 +205,12 @@ struct type_exp* _analyze_proto(struct type_env* env, struct exp_node* node)
     for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
         struct var_node* param = (struct var_node*)array_get(&proto->fun_params, i);
         assert(param->base.annotated_type);
+        param->base.type = param->base.annotated_type;
         array_push(&fun_sig, &param->base.annotated_type);
     }   
     assert(proto->base.annotated_type);
     array_push(&fun_sig, &proto->base.annotated_type);
+    //printf("ret type analyzing proto: %p, %p\n", (void*)proto->base.annotated_type, *(void**)array_back(&fun_sig));
     proto->base.type = (struct type_exp*)create_type_fun(&fun_sig);
     return proto->base.type;
 }

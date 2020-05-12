@@ -24,7 +24,7 @@ void print_usage()
 
 int main(int argc, char* argv[])
 {
-    printf("m - 0.0.14\n");
+    printf("m - 0.0.15\n");
     int option;
     int fflag = 0;
     char* fopt = 0;

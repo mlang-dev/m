@@ -6,8 +6,8 @@
 #include "runtime.h"
 #include <stdio.h>
 
-double print(double x)
+int print(int x)
 {
-    printf("%f\n", x);
+    printf("%d\n", x);
     return x;
 }

@@ -616,7 +616,7 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
     parse_next_token(parser); // eat 'in'.
 
     struct exp_node* start = parse_exp(parser, parent, 0);
-    printf("starting node type: %s\n", node_type_strings[start->node_type]);
+    //printf("starting node type: %s\n", node_type_strings[start->node_type]);
     if (start == 0)
         return 0;
     if (parser->curr_token.token_type != TOKEN_RANGE)
@@ -638,7 +638,7 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
         if (end_val == 0)
             return 0;
     } else { //default 1
-        step = (struct exp_node*)create_double_node(parent, parser->curr_token.loc, 1.0);
+        step = (struct exp_node*)create_int_node(parent, parser->curr_token.loc, 1);
     }
     //convert end variable to a logic
     struct exp_node* id_node = (struct exp_node*)create_ident_node(parent, start->loc, string_get(&id_name));

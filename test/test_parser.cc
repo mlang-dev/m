@@ -107,16 +107,20 @@ TEST(testParser, testFacIfCondition)
 TEST(testParser, testForLoop)
 {
     char test_code[] = R"(loopprint n = 
-  for i in 0..n
+  for i in 3..n
     print i
   )";
     auto parser = create_parser_for_string(test_code);
     block_node* block = parse_block(parser, 0, 0, 0);
     auto node = *(function_node**)array_front(&block->nodes);
-    auto body_node = *(exp_node**)array_front(&node->body->nodes);
+    for_node* body_node = *(for_node**)array_front(&node->body->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("loopprint", string_get(&node->prototype->name));
-    ASSERT_EQ(FOR_NODE, body_node->node_type);
+    ASSERT_EQ(FOR_NODE, body_node->base.node_type);
+    ASSERT_EQ(TYPE_INT, body_node->start->annotated_type->type);
+    ASSERT_EQ(TYPE_INT, body_node->step->annotated_type->type);
+    ASSERT_EQ(BINARY_NODE, body_node->end->node_type);
+    ASSERT_EQ(3, ((num_node*)body_node->start)->int_val);
     parser_free(parser);
 }
 

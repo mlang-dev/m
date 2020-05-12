@@ -78,7 +78,7 @@ int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, con
 int generate_object_file(LLVMModuleRef module, const char* filename)
 {
     gof_initialize();
-    LLVMTargetMachineRef target_machine = (LLVMTargetMachineRef)create_target_machine(module);
+    LLVMTargetMachineRef target_machine = create_target_machine(module);
     if (!target_machine)
         return 1;
     return gof_emit_file(module, target_machine, filename);

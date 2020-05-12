@@ -42,7 +42,7 @@ struct function_node* create_function_node(struct prototype_node* prototype,
 struct type_exp* get_ret_type(struct function_node* fun_node)
 {
     struct type_oper* oper = (struct type_oper*)fun_node->base.type;
-    return (struct type_exp*)array_back(&oper->args);
+    return *(struct type_exp**)array_back(&oper->args);
 }
 
 struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc loc, const char* name)
@@ -77,7 +77,7 @@ struct num_node* _create_int_node(struct exp_node* parent, struct source_loc loc
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
-    node->double_val = val;
+    node->int_val = val;
     return node;
 }
 

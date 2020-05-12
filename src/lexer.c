@@ -135,14 +135,12 @@ struct token* _tokenize_number(struct file_tokenizer* tokenizer)
         string symbol;
         string_init(&symbol);
         bool met_dot = _tokenize_symbol(tokenizer, &symbol);
-        if (!has_dot)
-            has_dot = met_dot;
         enum token_type type = get_token_type(string_get(&symbol));
         if (type) {
+            /*valid token like range ..*/
             if (string_eq_chars(&num_str, "")) {
                 return _tokenize_symbol_type(tokenizer, &tokenizer->cur_token, type);
             } else {
-                //log_info(ERROR, "ERROROROR !!!, %s", symbol.c_str());
                 _tokenize_symbol_type(tokenizer, &tokenizer->next_token, type);
                 break;
             }
@@ -151,6 +149,8 @@ struct token* _tokenize_number(struct file_tokenizer* tokenizer)
         }
         string_add_chars(&num_str, tokenizer->curr_char);
         tokenizer->curr_char[0] = get_char(tokenizer);
+        if (!has_dot)
+            has_dot = met_dot;
     } while (isdigit(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '.');
     if (has_dot) {
         tokenizer->cur_token.double_val = strtod(string_get(&num_str), 0);

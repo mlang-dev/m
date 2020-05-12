@@ -24,8 +24,16 @@ typedef LLVMValueRef (*binary_op)(LLVMBuilderRef, LLVMValueRef LHS, LLVMValueRef
 typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef, unsigned short Op,
     LLVMValueRef LHS, LLVMValueRef RHS,
     const char* Name);
+typedef LLVMTypeRef (*get_ir_type)(LLVMContextRef context);
+typedef LLVMValueRef (*get_const)(LLVMContextRef context, void* value);
+typedef LLVMValueRef (*get_zero)(LLVMContextRef context);
+typedef LLVMValueRef (*get_one)(LLVMContextRef context);
 
 struct binary_ops {
+    get_ir_type get_type;
+    get_const get_const;
+    get_zero get_zero;
+    get_one get_one;
     binary_op add;
     binary_op sub;
     binary_op mul;
@@ -56,11 +64,12 @@ struct code_generator {
 struct code_generator* cg_new(struct parser* parser);
 void cg_free(struct code_generator* cg);
 void create_module_and_pass_manager(struct code_generator* cg, const char* module_name);
-void* generate_code(struct code_generator* cg, struct exp_node* node);
+LLVMValueRef generate_code(struct code_generator* cg, struct exp_node* node);
 void generate_runtime_module(struct code_generator* cg, struct array* builtins);
-void* create_target_machine(void* module);
+LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
 
-#define is_int_type(type) ((type == TYPE_INT || type == TYPE_BOOL) && false)
+#define is_int_type(type) ( type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR )
+
 
 #ifdef __cplusplus
 }

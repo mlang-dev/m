@@ -171,6 +171,13 @@ void set_type(struct hashtable* env, const char* name, struct type_exp* type)
     hashtable_set(env, name, type);
 }
 
+enum type get_type(struct type_exp* type)
+{
+    type = prune(type);
+    assert(type && type->type >= 0 && type->type < TYPE_TYPES);
+    return type->type;
+}
+
 string to_string(struct type_exp* type)
 {
     if (!type) {
@@ -201,6 +208,8 @@ string to_string(struct type_exp* type)
             array_copy_size(&subarray, &array_type_strs, array_size(&array_type_strs) - 1);
             string typestr = string_join(&subarray, " * ");
             if (oper->base.type == TYPE_FUNCTION) {
+                if (array_size(&subarray) == 0)
+                    string_add_chars(&typestr, "()");
                 string_add_chars(&typestr, " -> ");
             } else {
                 string_add_chars(&typestr, " * ");
@@ -209,6 +218,7 @@ string to_string(struct type_exp* type)
             return typestr;
         }
     } else {
+        print_backtrace();
         assert(false);
     }
 }

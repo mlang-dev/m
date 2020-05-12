@@ -80,6 +80,7 @@ struct type_exp* retrieve_type(const char* name, struct array* nogen, struct has
 void set_type(struct hashtable* env, const char* name, struct type_exp* type);
 bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens);
 string to_string(struct type_exp* type);
+enum type get_type(struct type_exp* type);
 struct type_exp* prune(struct type_exp* type);
 
 #ifdef __cplusplus
