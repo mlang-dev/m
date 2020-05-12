@@ -252,9 +252,12 @@ LLVMValueRef _get_global_variable(struct code_generator* cg, const char* name)
     LLVMValueRef gv = _get_named_global(cg, name);
     if (gv)
         return gv;
-    struct var_node* fgv = (struct var_node*)hashtable_get(&cg->gvs, name); //.find(name);
-    if (fgv) {
-        return _generate_global_var_node(cg, fgv, true);
+    struct var_node* var = (struct var_node*)hashtable_get(&cg->gvs, name); //.find(name);
+    if (var) {
+        enum type type = get_type(var->base.type);
+        gv = LLVMAddGlobal(cg->module, cg->bin_ops[type].get_type(cg->context), name);
+        LLVMSetExternallyInitialized(gv, true);
+        return gv;
     }
 
     return 0;
@@ -536,18 +539,14 @@ LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_nod
         if (is_external) {
             gVar = LLVMAddGlobal(cg->module, cg->bin_ops[type].get_type(cg->context), var_name);
             LLVMSetExternallyInitialized(gVar, true);
-            LLVMBuildStore(cg->builder, exp, gVar);
-            return gVar;
         } else {
             hashtable_set(&cg->gvs, var_name, node);
             gVar = LLVMAddGlobal(cg->module, cg->bin_ops[type].get_type(cg->context), var_name);
             LLVMSetExternallyInitialized(gVar, true);
             LLVMSetInitializer(gVar, cg->bin_ops[type].get_zero(cg->context));
-            LLVMBuildStore(cg->builder, exp, gVar);
         }
-    }else{
-        LLVMBuildStore(cg->builder, exp, gVar);
     }
+    LLVMBuildStore(cg->builder, exp, gVar);
     return 0;
 }
 

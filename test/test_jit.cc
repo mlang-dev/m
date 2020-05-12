@@ -75,8 +75,7 @@ y
     auto node3 = *(exp_node**)array_get(&block->nodes, 2);
     eval_statement(jit, node1);
     eval_statement(jit, node2);
-    /*FIXME: should be 200*/
-    ASSERT_EQ(100, eval_exp(jit, node3).i_value); 
+    ASSERT_EQ(200, eval_exp(jit, node3).i_value); 
     jit_free(jit);
     env_free(env);
 }
