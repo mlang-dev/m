@@ -13,6 +13,8 @@ void _print(struct eval_result result)
 {
     if (result.type == TYPE_INT) {
         printf("%d\n", result.i_value);
+    } else if (result.type == TYPE_BOOL) {
+        printf("%s\n", boolean_values[result.i_value]);
     } else if (result.type == TYPE_DOUBLE) {
         printf("%f\n", result.d_value);
     }
@@ -48,10 +50,11 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
             void* fp = find_target_address(jit, string_get(&fn));
             //LLVMDumpModule(module);
             // keep global variables in the jit
-            if (is_int_type(get_type(type))) {
+            enum type ret_type = get_type(type);
+            if (is_int_type(ret_type)) {
                 int (*i_fp)() = (int (*)())fp;
                 result.i_value = i_fp();
-                result.type = TYPE_INT;
+                result.type = ret_type;
             } else {
                 double (*d_fp)() = (double (*)())fp;
                 result.d_value = d_fp();

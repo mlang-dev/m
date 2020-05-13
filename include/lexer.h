@@ -75,6 +75,7 @@ struct file_tokenizer {
 struct file_tokenizer* create_tokenizer(FILE* file);
 void destroy_tokenizer(struct file_tokenizer* tokenizer);
 struct token* get_token(struct file_tokenizer* tokenizer);
+extern const char* boolean_values[2];
 
 #ifdef __cplusplus
 }

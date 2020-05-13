@@ -31,6 +31,8 @@ struct keyword_token {
     enum token_type token;
 };
 
+#define TRUE "true"
+#define FALSE "false"
 static struct keyword_token tokens[] = {
     { "import", TOKEN_IMPORT },
     { "if", TOKEN_IF },
@@ -41,8 +43,13 @@ static struct keyword_token tokens[] = {
     { "unary", TOKEN_UNARY },
     { "binary", TOKEN_BINARY },
     { "..", TOKEN_RANGE },
-    { "true", TOKEN_TRUE },
-    { "false", TOKEN_FALSE },
+    { TRUE, TOKEN_TRUE },
+    { FALSE, TOKEN_FALSE },
+};
+
+const char* boolean_values[2] = {
+    FALSE,
+    TRUE,
 };
 
 enum token_type get_token_type(const char* keyword)

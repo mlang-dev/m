@@ -19,7 +19,7 @@ TEST(testJITLogical, testLessThan)
     block_node* block = parse_block(env->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(1, result.i_value);
+    ASSERT_EQ(true, result.i_value);
     env_free(env);
 }
 
