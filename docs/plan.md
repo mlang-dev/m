@@ -4,13 +4,9 @@ layout: default
 
 ### next development plans:
 - operators
-  - unary operator: \+, \-
   - binary operator: \%, **
-  - boolean operator: !, ||, &&
 - basic stack variable types
-  - int
   - char
-  - bool: true, false
   - unit: ()
 - heap types
   - string
@@ -34,5 +30,4 @@ layout: default
   - None: matches None of any option type
   - Some pat: matches Some v if pat matchs the v
   - pat1::pat2
-- type inference system
 - IDE support

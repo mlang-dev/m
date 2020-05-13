@@ -13,13 +13,18 @@ It is under active development, currently it supports following features
   - \*    multiplication
   - /    division
 
-- binary comparison operators:
+- relational operators:
   - == equality
   - \>  greater than
   - \>= greater than or equals
   - \<  less than
   - \<= less than or equals
   - \!= not equal
+
+- logical operators:
+  - || or
+  - && and
+  - ! not
 
 - control flows
   - if..then..else
