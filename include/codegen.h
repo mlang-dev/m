@@ -21,6 +21,7 @@ extern "C" {
 
 typedef LLVMValueRef (*binary_op)(LLVMBuilderRef, LLVMValueRef LHS, LLVMValueRef RHS,
     const char* Name);
+typedef LLVMValueRef (*unary_op)(LLVMBuilderRef, LLVMValueRef v, const char* Name);
 typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef, unsigned short Op,
     LLVMValueRef LHS, LLVMValueRef RHS,
     const char* Name);
@@ -29,7 +30,7 @@ typedef LLVMValueRef (*get_const)(LLVMContextRef context, void* value);
 typedef LLVMValueRef (*get_zero)(LLVMContextRef context);
 typedef LLVMValueRef (*get_one)(LLVMContextRef context);
 
-struct binary_ops {
+struct ops {
     get_ir_type get_type;
     get_const get_const;
     get_zero get_zero;
@@ -45,6 +46,10 @@ struct binary_ops {
     unsigned short cmp_neq;
     unsigned short cmp_le;
     unsigned short cmp_ge;
+    binary_op or_op;
+    binary_op and_op;
+    unary_op not_op;
+    unary_op neg_op;
 };
 
 struct code_generator {
@@ -57,7 +62,7 @@ struct code_generator {
     struct hashtable protos; //hashtable of char*, prototype_node*
     struct hashtable gvs; //hashtable of char* and var_node*
 
-    struct binary_ops bin_ops[TYPE_TYPES];
+    struct ops ops[TYPE_TYPES];
     struct array builtins;
 };
 

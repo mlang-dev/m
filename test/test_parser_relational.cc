@@ -8,7 +8,7 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
-TEST(testParserLogical, testComparisonLessThan)
+TEST(testParserRelational, testComparisonLessThan)
 {
     char test_code[] = "10 < 11";
     auto parser = create_parser_for_string(test_code);
@@ -20,7 +20,7 @@ TEST(testParserLogical, testComparisonLessThan)
     parser_free(parser);
 }
 
-TEST(testParserLogical, testComparisonGreaterThan)
+TEST(testParserRelational, testComparisonGreaterThan)
 {
     char test_code[] = "11 > 10";
     auto parser = create_parser_for_string(test_code);
@@ -31,7 +31,7 @@ TEST(testParserLogical, testComparisonGreaterThan)
     parser_free(parser);
 }
 
-TEST(testParserLogical, testComparisonEqual)
+TEST(testParserRelational, testComparisonEqual)
 {
     char test_code[] = "11==10";
     auto parser = create_parser_for_string(test_code);
@@ -42,7 +42,7 @@ TEST(testParserLogical, testComparisonEqual)
     parser_free(parser);
 }
 
-TEST(testParserLogical, testComparisonGE)
+TEST(testParserRelational, testComparisonGE)
 {
     char test_code[] = "11>=10";
     auto parser = create_parser_for_string(test_code);
@@ -53,7 +53,7 @@ TEST(testParserLogical, testComparisonGE)
     parser_free(parser);
 }
 
-TEST(testParserLogical, testComparisonLE)
+TEST(testParserRelational, testComparisonLE)
 {
     char test_code[] = "11<=10";
     auto parser = create_parser_for_string(test_code);

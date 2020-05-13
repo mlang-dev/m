@@ -20,9 +20,10 @@ struct op_prec {
 };
 
 struct op_prec _op_preces[] = {
-    { "<", 10 }, { ">", 10 }, { "==", 10 }, { "!=", 10 }, { "<=", 10 }, { ">=", 10 },
-    { "+", 20 }, { "-", 20 },
-    { "*", 40 }, { "/", 40 }
+    { "||", 50 }, { "&&", 50 }, { "!", 50 },
+    { "<", 100 }, { ">", 100 }, { "==", 100 }, { "!=", 100 }, { "<=", 100 }, { ">=", 100 },
+    { "+", 200 }, { "-", 200 },
+    { "*", 400 }, { "/", 400 }
 };
 
 int _get_op_precedence(struct parser* parser);
@@ -145,7 +146,7 @@ void parse_next_token(struct parser* parser)
 
 int _get_op_precedence(struct parser* parser)
 {
-    if (parser->curr_token.token_type != TOKEN_OP)
+    if (!IS_OP(parser->curr_token.token_type))
         return -1;
     const char* op = string_get(parser->curr_token.ident_str);
     return _get_op_prec(&parser->op_precs, op);
@@ -274,7 +275,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
         parse_next_token(parser); // skip identifier
         string op;
         string_init(&op);
-        if (parser->curr_token.token_type == TOKEN_OP)
+        if (IS_OP(parser->curr_token.token_type))
             string_copy(&op, parser->curr_token.ident_str);
         //log_info(DEBUG, "id token: %s, %s, %d", id_name.c_str(), op.c_str(), parent);
         if (string_eq_chars(&op, "=")) {
@@ -296,7 +297,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
             array_push(&queued, &parser->curr_token);
             parse_next_token(parser); //skip (
             array_push(&queued, &parser->curr_token);
-            if (parser->curr_token.token_type == TOKEN_OP) { // && op_chars.count(string_get(parser->curr_token.ident_str)[0])
+            if (IS_OP(parser->curr_token.token_type)) { // && op_chars.count(string_get(parser->curr_token.ident_str)[0])
                 //it is operator overloading
                 //log_info(DEBUG, "it is operator overloading: %c: loc: %d, %d", parser->curr_token.op_val, parser->curr_token.loc.line, parser->curr_token.loc.col);
                 string op;
@@ -389,11 +390,13 @@ struct exp_node* _parse_node(struct parser* parser, struct exp_node* parent)
         return _parse_for(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_LPAREN)
         return _parse_parentheses(parser, parent);
+    else if (parser->curr_token.token_type == TOKEN_NOT)
+        return _parse_unary(parser, parent);
     else {
         string error;
         string_init_chars(&error, "unknown token: ");
         string_add_chars(&error, token_type_strings[parser->curr_token.token_type]);
-        if (parser->curr_token.token_type == TOKEN_OP) {
+        if (IS_OP(parser->curr_token.token_type)) {
             string_add_chars(&error, " op: ");
             string_add(&error, parser->curr_token.ident_str);
         }
@@ -462,7 +465,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
         break;
     case TOKEN_UNARY:
         parse_next_token(parser);
-        if (parser->curr_token.token_type != TOKEN_OP)
+        if (!IS_OP(parser->curr_token.token_type))
             return (struct exp_node*)log_info(ERROR, "Expected unary operator");
         string_init_chars(&fun_name, "unary");
         string_add(&fun_name, parser->curr_token.ident_str);
@@ -472,7 +475,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
         break;
     case TOKEN_BINARY:
         parse_next_token(parser);
-        if (parser->curr_token.token_type != TOKEN_OP)
+        if (!IS_OP(parser->curr_token.token_type))
             return (struct exp_node*)log_info(ERROR, "Expected binary operator");
         string_init_chars(&fun_name, "binary");
         string_add(&fun_name, parser->curr_token.ident_str);
@@ -581,7 +584,7 @@ struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent)
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
     struct source_loc loc = parser->curr_token.loc;
-    if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.token_type == TOKEN_LPAREN
+    if (!IS_OP(parser->curr_token.token_type) || parser->curr_token.token_type == TOKEN_LPAREN
         || string_eq_chars(parser->curr_token.ident_str, ",")) {
         return _parse_node(parser, parent);
     }

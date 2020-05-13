@@ -33,7 +33,7 @@ struct keyword_token {
 
 #define TRUE "true"
 #define FALSE "false"
-static struct keyword_token tokens[] = {
+static struct keyword_token keyword_tokens[] = {
     { "import", TOKEN_IMPORT },
     { "if", TOKEN_IF },
     { "else", TOKEN_ELSE },
@@ -42,6 +42,8 @@ static struct keyword_token tokens[] = {
     { "for", TOKEN_FOR },
     { "unary", TOKEN_UNARY },
     { "binary", TOKEN_BINARY },
+    { "||", TOKEN_OR },
+    { "&&", TOKEN_AND },
     { "..", TOKEN_RANGE },
     { TRUE, TOKEN_TRUE },
     { FALSE, TOKEN_FALSE },
@@ -54,9 +56,9 @@ const char* boolean_values[2] = {
 
 enum token_type get_token_type(const char* keyword)
 {
-    for (size_t i = 0; i < ARRAY_SIZE(tokens); i++) {
-        if (strcmp(tokens[i].keyword, keyword) == 0)
-            return tokens[i].token;
+    for (size_t i = 0; i < ARRAY_SIZE(keyword_tokens); i++) {
+        if (strcmp(keyword_tokens[i].keyword, keyword) == 0)
+            return keyword_tokens[i].token;
     }
     return TOKEN_UNK;
 }
@@ -199,8 +201,6 @@ struct token* _tokenize_op(struct file_tokenizer* tokenizer)
             break;
         string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
     }
-    //auto token_type = tokens[std::string(string_get(&tokenizer->ident_str))];
-    //enum token_type token_type = op_chars.count(string_get(&tokenizer->ident_str)[0]) ? TOKEN_OPERATOR : TOKEN_OP;
     tokenizer->cur_token.token_type = TOKEN_OP;
     tokenizer->cur_token.ident_str = &tokenizer->ident_str;
     tokenizer->cur_token.loc = tokenizer->tok_loc;

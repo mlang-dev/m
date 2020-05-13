@@ -20,6 +20,7 @@ extern "C" {
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
     ENUM_ITEM(TOKEN_UNK)             \
     ENUM_ITEM(TOKEN_EOF)             \
+    ENUM_ITEM(TOKEN_EOS)             \
     ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_NUM)             \
     ENUM_ITEM(TOKEN_IMPORT)          \
@@ -38,9 +39,24 @@ extern "C" {
     ENUM_ITEM(TOKEN_LBRACKET)        \
     ENUM_ITEM(TOKEN_RBRACKET)        \
     ENUM_ITEM(TOKEN_OP)              \
-    ENUM_ITEM(TOKEN_EOS)
+    ENUM_ITEM(TOKEN_OR)              \
+    ENUM_ITEM(TOKEN_AND)             \
+    ENUM_ITEM(TOKEN_NOT)             \
+    ENUM_ITEM(TOKEN_NEG)             \
+    ENUM_ITEM(TOKEN_LT)              \
+    ENUM_ITEM(TOKEN_LE)              \
+    ENUM_ITEM(TOKEN_EQ)              \
+    ENUM_ITEM(TOKEN_NEQ)             \
+    ENUM_ITEM(TOKEN_GT)              \
+    ENUM_ITEM(TOKEN_GE)              \
+    ENUM_ITEM(TOKEN_ADD)             \
+    ENUM_ITEM(TOKEN_SUB)             \
+    ENUM_ITEM(TOKEN_MUL)             \
+    ENUM_ITEM(TOKEN_DIV)             
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
+
+#define IS_OP(type)     (type >= TOKEN_OP)
 
 static const char* token_type_strings[] = {
     FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)

@@ -10,7 +10,7 @@
 #include "analyzer.h"
 #include "clib/hash.h"
 
-const char* pred_ops[] = {
+const char* relational_ops[] = {
     "<",
     ">",
     "==",
@@ -19,10 +19,10 @@ const char* pred_ops[] = {
     ">="
 };
 
-bool _is_pred_op(const char* op)
+bool _is_predicate_op(const char* op)
 {
-    for (size_t i = 0; i < sizeof(pred_ops) / sizeof(pred_ops[0]); i++) {
-        if (strcmp(pred_ops[i], op) == 0)
+    for (size_t i = 0; i < ARRAY_SIZE(relational_ops); i++) {
+        if (strcmp(relational_ops[i], op) == 0)
             return true;
     }
     return false;
@@ -110,7 +110,7 @@ struct type_exp* _analyze_bin(struct type_env* env, struct exp_node* node)
     struct type_exp* rhs_type = analyze(env, bin->rhs);
     struct type_exp* result = 0;
     if (unify(lhs_type, rhs_type, &env->nogens)) {
-        if (_is_pred_op(string_get(&bin->op)))
+        if (_is_predicate_op(string_get(&bin->op)))
             result = (struct type_exp*)create_nullary_type(TYPE_BOOL);
         else
             result = lhs_type;

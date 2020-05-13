@@ -173,9 +173,11 @@ add_executable(mtest
   test_util.cc
   test_lexer.cc
   test_parser.cc
+  test_parser_logical.cc
   test_parser_relational.cc
   test_analyzer.cc
   test_jit_relational.cc
+  test_jit_logical.cc
   test_jit.cc
 )
 TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main mlr)

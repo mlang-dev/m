@@ -9,7 +9,7 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
-TEST(testJITLogical, testLessThan)
+TEST(testJITRelational, testLessThan)
 {
     const char test_code[] = R"(
   10<11
@@ -23,7 +23,7 @@ TEST(testJITLogical, testLessThan)
     env_free(env);
 }
 
-TEST(testJITLogical, testLessThanWrong)
+TEST(testJITRelational, testLessThanWrong)
 {
     char test_code[] = R"(
   11<10
@@ -37,7 +37,7 @@ TEST(testJITLogical, testLessThanWrong)
     env_free(env);
 }
 
-TEST(testJITLogical, testGreaterThan)
+TEST(testJITRelational, testGreaterThan)
 {
     char test_code[] = R"(
   11>10
@@ -51,7 +51,7 @@ TEST(testJITLogical, testGreaterThan)
     env_free(env);
 }
 
-TEST(testJITLogical, testGreaterThanWrong)
+TEST(testJITRelational, testGreaterThanWrong)
 {
     char test_code[] = R"(
   10>11
@@ -66,7 +66,7 @@ TEST(testJITLogical, testGreaterThanWrong)
     env_free(env);
 }
 
-TEST(testJITLogical, testEqual)
+TEST(testJITRelational, testEqual)
 {
     char test_code[] = R"(
   10==10
@@ -81,7 +81,7 @@ TEST(testJITLogical, testEqual)
     env_free(env);
 }
 
-TEST(testJITLogical, testEqualNot)
+TEST(testJITRelational, testEqualNot)
 {
     char test_code[] = R"(
   10==11
@@ -96,7 +96,7 @@ TEST(testJITLogical, testEqualNot)
     env_free(env);
 }
 
-TEST(testJITLogical, testNotEqualTrue)
+TEST(testJITRelational, testNotEqualTrue)
 {
     char test_code[] = R"(
   10!=11
@@ -111,7 +111,7 @@ TEST(testJITLogical, testNotEqualTrue)
     env_free(env);
 }
 
-TEST(testJITLogical, testNotEqualFalse)
+TEST(testJITRelational, testNotEqualFalse)
 {
     char test_code[128] = R"(
   10!=10
@@ -126,7 +126,7 @@ TEST(testJITLogical, testNotEqualFalse)
     env_free(env);
 }
 
-TEST(testJITLogical, testLETrueL)
+TEST(testJITRelational, testLETrueL)
 {
     char test_code[128] = R"(
   9<=10
@@ -141,7 +141,7 @@ TEST(testJITLogical, testLETrueL)
     env_free(env);
 }
 
-TEST(testJITLogical, testLETrueE)
+TEST(testJITRelational, testLETrueE)
 {
     char test_code[] = R"(
   10<=10
@@ -157,7 +157,7 @@ TEST(testJITLogical, testLETrueE)
     env_free(env);
 }
 
-TEST(testJITLogical, testLEFalse)
+TEST(testJITRelational, testLEFalse)
 {
     char test_code[] = R"(
   11<=10
@@ -172,7 +172,7 @@ TEST(testJITLogical, testLEFalse)
     env_free(env);
 }
 
-TEST(testJITLogical, testGETrueL)
+TEST(testJITRelational, testGETrueL)
 {
     char test_code[] = R"(
   10>=9
@@ -187,7 +187,7 @@ TEST(testJITLogical, testGETrueL)
     env_free(env);
 }
 
-TEST(testJITLogical, testGETrueE)
+TEST(testJITRelational, testGETrueE)
 {
     char test_code[] = R"(
   10>=10
@@ -202,7 +202,7 @@ TEST(testJITLogical, testGETrueE)
     env_free(env);
 }
 
-TEST(testJITLogical, testGEFalse)
+TEST(testJITRelational, testGEFalse)
 {
     char test_code[] = R"(
   10>=11
