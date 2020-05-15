@@ -22,7 +22,7 @@ It is under active development, currently it supports following features
   - \!= not equal
 
 - logical operators:
-  - \|| or
+  - \|\| or
   - && and
   - ! not
 
