@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <memory.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "clib/string.h"
 #include "clib/util.h"
@@ -55,6 +56,13 @@ const char* boolean_values[2] = {
     TRUE,
 };
 
+void log_error(struct file_tokenizer* tokenizer, const char *msg)
+{
+    char full_msg[512];
+    sprintf(full_msg, "%s:%d:%d: %s", tokenizer->filename, tokenizer->tok_loc.line, tokenizer->tok_loc.col, msg);
+    log_info(ERROR, full_msg);
+}
+
 enum token_type get_token_type(const char* keyword)
 {
     for (size_t i = 0; i < ARRAY_SIZE(keyword_tokens); i++) {
@@ -96,7 +104,7 @@ static int get_char(struct file_tokenizer* tokenizer)
     return last_char;
 }
 
-struct file_tokenizer* create_tokenizer(FILE* file)
+struct file_tokenizer* create_tokenizer(FILE* file, const char* filename)
 {
     struct file_tokenizer* tokenizer = malloc(sizeof(*tokenizer));
     struct source_loc loc = { 1, 0 };
@@ -105,14 +113,15 @@ struct file_tokenizer* create_tokenizer(FILE* file)
     tokenizer->curr_char[0] = ' ';
     tokenizer->curr_char[1] = '\0';
     tokenizer->file = file;
-    string_init(&tokenizer->ident_str);
+    tokenizer->filename = filename;
+    string_init(&tokenizer->str_val);
     return tokenizer;
 }
 
 void destroy_tokenizer(struct file_tokenizer* tokenizer)
 {
     fclose(tokenizer->file);
-    string_deinit(&tokenizer->ident_str);
+    string_deinit(&tokenizer->str_val);
     free(tokenizer);
 }
 
@@ -176,44 +185,62 @@ struct token* _tokenize_number(struct file_tokenizer* tokenizer)
 
 struct token* _tokenize_id_keyword(struct file_tokenizer* tokenizer)
 {
-    string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
+    string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
     while (isalnum((tokenizer->curr_char[0] = get_char(tokenizer))) || tokenizer->curr_char[0] == '_') {
-        string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
+        string_add_chars(&tokenizer->str_val, tokenizer->curr_char);
     }
-    enum token_type token_type = get_token_type(string_get(&tokenizer->ident_str));
+    enum token_type token_type = get_token_type(string_get(&tokenizer->str_val));
     tokenizer->cur_token.token_type = token_type != 0 ? token_type : TOKEN_IDENT;
     if (token_type == TOKEN_TRUE || token_type == TOKEN_FALSE) {
         tokenizer->cur_token.int_val = token_type == TOKEN_TRUE ? 1 : 0;
         tokenizer->cur_token.type = TYPE_BOOL;
     } else
-        tokenizer->cur_token.ident_str = &tokenizer->ident_str;
+        tokenizer->cur_token.str_val = &tokenizer->str_val;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    //log_info(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
+    //log_info(DEBUG, "id: %s, %d", tokenizer->str_val.c_str(), tokenizer->cur_token.token_type);
     return &tokenizer->cur_token;
+}
+
+struct token* _tokenize_char(struct file_tokenizer* tokenizer)
+{
+    tokenizer->cur_token.char_val = get_char(tokenizer);
+    if(get_char(tokenizer) != '\''){
+        log_error(tokenizer, "only one char allowed in character literal");
+        return 0;
+    }
+    tokenizer->cur_token.token_type = TOKEN_CHAR;
+    tokenizer->cur_token.loc = tokenizer->tok_loc;
+    //log_info(DEBUG, "id: %s, %d", tokenizer->str_val.c_str(), tokenizer->cur_token.token_type);
+    return &tokenizer->cur_token;
+}
+
+struct token* _tokenize_string(struct file_tokenizer* tokenizer)
+{
+    (void)tokenizer;
+    return 0;
 }
 
 struct token* _tokenize_op(struct file_tokenizer* tokenizer)
 {
-    string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
+    string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
     while (true) {
         tokenizer->curr_char[0] = get_char(tokenizer);
         if (!is_op_char(tokenizer->curr_char[0]))
             break;
-        string_add_chars(&tokenizer->ident_str, tokenizer->curr_char);
+        string_add_chars(&tokenizer->str_val, tokenizer->curr_char);
     }
     tokenizer->cur_token.token_type = TOKEN_OP;
-    tokenizer->cur_token.ident_str = &tokenizer->ident_str;
+    tokenizer->cur_token.str_val = &tokenizer->str_val;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    //log_info(DEBUG, "id: %s, %d", tokenizer->ident_str.c_str(), tokenizer->cur_token.token_type);
+    //log_info(DEBUG, "id: %s, %d", tokenizer->str_val.c_str(), tokenizer->cur_token.token_type);
     return &tokenizer->cur_token;
 }
 
 struct token* _tokenize_type(struct file_tokenizer* tokenizer, enum token_type token_type)
 {
-    string_copy_chars(&tokenizer->ident_str, tokenizer->curr_char);
+    string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    tokenizer->cur_token.ident_str = &tokenizer->ident_str;
-    //tokenizer->cur_token.op_val = tokenizer->curr_char;
+    tokenizer->cur_token.str_val = &tokenizer->str_val;
     tokenizer->cur_token.token_type = token_type;
     return &tokenizer->cur_token;
 }
@@ -248,6 +275,10 @@ struct token* get_token(struct file_tokenizer* tokenizer)
         _tokenize_type(tokenizer, TOKEN_EOS);
         tokenizer->curr_char[0] = ' '; // replaced with empty space
         return &tokenizer->cur_token;
+    } else if (tokenizer->curr_char[0] == '\'') {
+        return _tokenize_char(tokenizer);
+    } else if (tokenizer->curr_char[0] == '\"') {
+        return _tokenize_string(tokenizer);
     } else if (isalpha(tokenizer->curr_char[0])) {
         return _tokenize_id_keyword(tokenizer);
     } else if (isdigit(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '.') {

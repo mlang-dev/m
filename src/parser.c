@@ -149,7 +149,7 @@ int _get_op_precedence(struct parser* parser)
 {
     if (!IS_OP(parser->curr_token.token_type))
         return -1;
-    const char* op = string_get(parser->curr_token.ident_str);
+    const char* op = string_get(parser->curr_token.str_val);
     return _get_op_prec(&parser->op_precs, op);
 }
 
@@ -217,12 +217,12 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
                     array_push(&args, &arg);
                 }
             }
-            if (string_eq_chars(parser->curr_token.ident_str, "=")) {
+            if (string_eq_chars(parser->curr_token.str_val, "=")) {
                 func_definition = true;
                 break;
             } else if (parser->curr_token.token_type == TOKEN_RPAREN || parser->curr_token.token_type == TOKEN_EOS || parser->curr_token.token_type == TOKEN_EOF)
                 break;
-            else if (string_eq_chars(parser->curr_token.ident_str, ","))
+            else if (string_eq_chars(parser->curr_token.str_val, ","))
                 parse_next_token(parser);
         }
     }
@@ -278,13 +278,13 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
         node = _parse_function_with_prototype(parser, (struct prototype_node*)proto);
     } else if (parser->curr_token.token_type == TOKEN_IDENT) {
         string id_name;
-        string_copy(&id_name, parser->curr_token.ident_str);
+        string_copy(&id_name, parser->curr_token.str_val);
         struct source_loc loc = parser->curr_token.loc;
         parse_next_token(parser); // skip identifier
         string op;
         string_init(&op);
         if (IS_OP(parser->curr_token.token_type))
-            string_copy(&op, parser->curr_token.ident_str);
+            string_copy(&op, parser->curr_token.str_val);
         //log_info(DEBUG, "id token: %s, %s, %d", id_name.c_str(), op.c_str(), parent);
         if (string_eq_chars(&op, "=")) {
             // variable definition
@@ -305,11 +305,11 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
             array_push(&queued, &parser->curr_token);
             parse_next_token(parser); //skip (
             array_push(&queued, &parser->curr_token);
-            if (IS_OP(parser->curr_token.token_type)) { // && op_chars.count(string_get(parser->curr_token.ident_str)[0])
+            if (IS_OP(parser->curr_token.token_type)) { // && op_chars.count(string_get(parser->curr_token.str_val)[0])
                 //it is operator overloading
                 //log_info(DEBUG, "it is operator overloading: %c: loc: %d, %d", parser->curr_token.op_val, parser->curr_token.loc.line, parser->curr_token.loc.col);
                 string op;
-                string_copy(&op, parser->curr_token.ident_str);
+                string_copy(&op, parser->curr_token.str_val);
                 parse_next_token(parser);
                 if (parser->curr_token.token_type != TOKEN_RPAREN)
                     return (struct exp_node*)log_info(ERROR, "expected ')'");
@@ -355,7 +355,7 @@ bool _id_is_a_function_call(struct parser* parser)
 struct exp_node* _parse_ident(struct parser* parser, struct exp_node* parent)
 {
     string id_name;
-    string_copy(&id_name, parser->curr_token.ident_str);
+    string_copy(&id_name, parser->curr_token.str_val);
     struct source_loc loc = parser->curr_token.loc;
 
     parse_next_token(parser); // take identifier
@@ -406,7 +406,7 @@ struct exp_node* _parse_node(struct parser* parser, struct exp_node* parent)
         string_add_chars(&error, token_type_strings[parser->curr_token.token_type]);
         if (IS_OP(parser->curr_token.token_type)) {
             string_add_chars(&error, " op: ");
-            string_add(&error, parser->curr_token.ident_str);
+            string_add(&error, parser->curr_token.str_val);
         }
         parse_next_token(parser);
         return (struct exp_node*)log_info(ERROR, string_get(&error));
@@ -423,7 +423,7 @@ struct exp_node* _parse_binary(struct parser* parser, struct exp_node* parent, i
             return lhs;
         //log_info(DEBUG, "bin exp: [%s, %c], %d, %s", token_type_strings[parser->curr_token.token_type], parser->curr_token.op_val, tok_prec, map_to_string(g_op_precedences).c_str());
         string binary_op;
-        string_copy(&binary_op, parser->curr_token.ident_str);
+        string_copy(&binary_op, parser->curr_token.str_val);
         parse_next_token(parser);
         struct exp_node* rhs = _parse_unary(parser, parent);
         if (!rhs)
@@ -447,7 +447,7 @@ struct exp_node* parse_exp(struct parser* parser, struct exp_node* parent, struc
         return lhs;
     if (!lhs)
         lhs = _parse_unary(parser, parent);
-    //log_info(DEBUG, "got lhs: %s, %s", node_type_strings[lhs->node_type], parser->curr_token.ident_str->c_str());
+    //log_info(DEBUG, "got lhs: %s, %s", node_type_strings[lhs->node_type], parser->curr_token.str_val->c_str());
     if (!lhs || parser->curr_token.token_type == TOKEN_EOS)
         return lhs;
     return _parse_binary(parser, parent, 0, lhs);
@@ -466,7 +466,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
     unsigned bin_prec = 30;
     switch (parser->curr_token.token_type) {
     case TOKEN_IDENT:
-        string_copy(&fun_name, parser->curr_token.ident_str);
+        string_copy(&fun_name, parser->curr_token.str_val);
         proto_type = 0;
         // fprintf(stderr, "ident token in parse prototype: %s\n",
         // fun_name.c_str());
@@ -477,7 +477,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
         if (!IS_OP(parser->curr_token.token_type))
             return (struct exp_node*)log_info(ERROR, "Expected unary operator");
         string_init_chars(&fun_name, "unary");
-        string_add(&fun_name, parser->curr_token.ident_str);
+        string_add(&fun_name, parser->curr_token.str_val);
         //log_info(DEBUG, "finding unary operator: %s", fun_name.c_str());
         proto_type = 1;
         parse_next_token(parser);
@@ -487,7 +487,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
         if (!IS_OP(parser->curr_token.token_type))
             return (struct exp_node*)log_info(ERROR, "Expected binary operator");
         string_init_chars(&fun_name, "binary");
-        string_add(&fun_name, parser->curr_token.ident_str);
+        string_add(&fun_name, parser->curr_token.str_val);
         proto_type = 2;
         parse_next_token(parser);
         // Read the precedence if present.
@@ -510,8 +510,8 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
     struct var_node fun_param;
     while (parser->curr_token.token_type == TOKEN_IDENT) {
         // fprintf(stderr, "arg names: %s",
-        // (*parser->curr_token.ident_str).c_str());
-        string_copy(&fun_param.var_name, parser->curr_token.ident_str);
+        // (*parser->curr_token.str_val).c_str());
+        string_copy(&fun_param.var_name, parser->curr_token.str_val);
         array_push(&fun_params, &fun_param);
         parse_next_token(parser);
     }
@@ -549,7 +549,7 @@ struct exp_node* _parse_function_with_prototype(struct parser* parser,
 
 struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, const char* name)
 {
-    if (string_eq_chars(parser->curr_token.ident_str, "="))
+    if (string_eq_chars(parser->curr_token.str_val, "="))
         parse_next_token(parser); // skip '='
             // token
     struct exp_node* exp = parse_exp(parser, parent, 0);
@@ -595,13 +595,13 @@ struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent)
         return 0;
     struct source_loc loc = parser->curr_token.loc;
     if (!IS_OP(parser->curr_token.token_type) || parser->curr_token.token_type == TOKEN_LPAREN
-        || string_eq_chars(parser->curr_token.ident_str, ",")) {
+        || string_eq_chars(parser->curr_token.str_val, ",")) {
         return _parse_node(parser, parent);
     }
     //log_info(DEBUG, "unary: %c", parser->curr_token.op_val);
     // If this is a unary operator, read it.
     string opc;
-    string_copy(&opc, parser->curr_token.ident_str);
+    string_copy(&opc, parser->curr_token.str_val);
     parse_next_token(parser);
     struct exp_node* operand = _parse_unary(parser, parent);
     if (operand) {
@@ -621,11 +621,11 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
         return (struct exp_node*)log_info(ERROR, "expected identifier after for, got %s", token_type_strings[parser->curr_token.token_type]);
 
     string id_name;
-    string_copy(&id_name, parser->curr_token.ident_str);
+    string_copy(&id_name, parser->curr_token.str_val);
     parse_next_token(parser); // eat identifier.
 
     if (parser->curr_token.token_type != TOKEN_IN)
-        return (struct exp_node*)log_info(ERROR, "expected 'in' after for %s", parser->curr_token.ident_str);
+        return (struct exp_node*)log_info(ERROR, "expected 'in' after for %s", parser->curr_token.str_val);
     parse_next_token(parser); // eat 'in'.
 
     struct exp_node* start = parse_exp(parser, parent, 0);
@@ -634,7 +634,7 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
         return 0;
     if (parser->curr_token.token_type != TOKEN_RANGE)
         return (struct exp_node*)log_info(ERROR, "expected '..' after for start value got token: %s: %s",
-            token_type_strings[parser->curr_token.token_type], parser->curr_token.ident_str);
+            token_type_strings[parser->curr_token.token_type], parser->curr_token.str_val);
     parse_next_token(parser);
 
     //step or end

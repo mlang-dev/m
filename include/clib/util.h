@@ -28,7 +28,9 @@ enum LogLevel {
 };
 
 static const char* LogLevelString[] = {
-    FOREACH_LOGLEVEL(GENERATE_ENUM_STRING)
+    "debug",
+    "info",
+    "error"
 };
 
 void* log_info(enum LogLevel level, const char* string_format, ...);

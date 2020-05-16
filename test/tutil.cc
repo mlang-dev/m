@@ -26,5 +26,5 @@ menv* create_env_for_string(const char* str)
 file_tokenizer* create_tokenizer_for_string(const char* str)
 {
     FILE* file = fmemopen((void*)str, strlen(str), "r");
-    return create_tokenizer(file);
+    return create_tokenizer(file, "");
 }

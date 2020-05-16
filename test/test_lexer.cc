@@ -8,13 +8,14 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
+
 TEST(testLexer, testEqualOp)
 {
     char test_code[] = "==";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
-    ASSERT_STREQ("==", string_get(token->ident_str));
+    ASSERT_STREQ("==", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
 }
 
@@ -24,7 +25,7 @@ TEST(testLexer, testLEOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
-    ASSERT_STREQ("<=", string_get(token->ident_str));
+    ASSERT_STREQ("<=", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
 }
 
@@ -34,7 +35,7 @@ TEST(testLexer, testGEOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
-    ASSERT_STREQ(">=", string_get(token->ident_str));
+    ASSERT_STREQ(">=", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
 }
 
@@ -44,7 +45,7 @@ TEST(testLexer, testNEOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
-    ASSERT_STREQ("!=", string_get(token->ident_str));
+    ASSERT_STREQ("!=", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
 }
 
@@ -173,11 +174,24 @@ TEST(testLexer, testVariadic)
     destroy_tokenizer(tokenizer);
 }
 
-// TEST(testLexer, testCharLiteral)
-// {
-//     char test_code[] = R"('c')";
-//     auto tokenizer = create_tokenizer_for_string(test_code);
-//     auto token = get_token(tokenizer);
-//     ASSERT_EQ(TOKEN_CHAR, token->token_type);
-//     destroy_tokenizer(tokenizer);
-// }
+TEST(testLexer, testCharLiteral)
+{
+    char test_code[] = R"('c')";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_CHAR, token->token_type);
+    ASSERT_EQ('c', token->char_val);
+    destroy_tokenizer(tokenizer);
+}
+
+TEST(testLexer, testCharLiteralWrongFormat)
+{
+    testing::internal::CaptureStderr();
+    char test_code[] = R"('cd')";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(0, token);
+    auto error = testing::internal::GetCapturedStderr();
+    ASSERT_STREQ("error: :1:1: only one char allowed in character literal\n", error.c_str());
+    destroy_tokenizer(tokenizer);
+}

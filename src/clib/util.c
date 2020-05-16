@@ -93,7 +93,10 @@ void* log_info(enum LogLevel level, const char* string_format, ...)
     char format[512];
     sprintf(format, "%s: %s\n", LogLevelString[level], string_format);
     va_start(args, string_format);
-    vfprintf(stderr, format, args);
+    if (level == ERROR)
+        vfprintf(stderr, format, args);
+    else
+        vfprintf(stdout, format, args);
     va_end(args);
     return 0;
 }

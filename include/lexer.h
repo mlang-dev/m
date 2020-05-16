@@ -74,23 +74,25 @@ struct token {
     enum type type;
     struct source_loc loc;
     union {
-        string* ident_str;
+        string* str_val;
         double double_val;
         int int_val;
+        char char_val;
     };
 };
 
 struct file_tokenizer {
     FILE* file;
+    const char* filename;
     struct source_loc loc;
     struct source_loc tok_loc;
     struct token cur_token;
     struct token next_token;
     char curr_char[2];
-    string ident_str;
+    string str_val;
 };
 
-struct file_tokenizer* create_tokenizer(FILE* file);
+struct file_tokenizer* create_tokenizer(FILE* file, const char* filename);
 void destroy_tokenizer(struct file_tokenizer* tokenizer);
 struct token* get_token(struct file_tokenizer* tokenizer);
 extern const char* boolean_values[2];

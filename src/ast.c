@@ -222,6 +222,6 @@ struct module* create_module(const char* mod_name, FILE* file)
     struct block_node* node = malloc(sizeof(*node));
     mod->block = node;
     array_init(&mod->block->nodes, sizeof(struct exp_node*));
-    mod->tokenizer = create_tokenizer(file);
+    mod->tokenizer = create_tokenizer(file, mod_name);
     return mod;
 }
