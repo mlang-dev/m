@@ -6,10 +6,10 @@
 #include "compiler.h"
 #include "clib/util.h"
 #include "jit.h"
-#include "llvm-c/BitWriter.h"
-#include "llvm-c/Core.h"
-#include "llvm-c/Target.h"
-#include "llvm-c/TargetMachine.h"
+#include <llvm-c/BitWriter.h>
+#include <llvm-c/Core.h>
+#include <llvm-c/Target.h>
+#include <llvm-c/TargetMachine.h>
 
 #include "env.h"
 

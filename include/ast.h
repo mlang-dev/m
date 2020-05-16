@@ -119,6 +119,7 @@ struct prototype_node {
     struct array fun_params; /*struct array of var_node*/
     char is_operator;
     unsigned precedence;
+    bool is_variadic;
 };
 
 #define UNARY_PARAM_SIZE 1
@@ -149,10 +150,11 @@ struct prototype_node* create_prototype_node(struct exp_node* parent, struct sou
     struct type_exp* ret_type,
     bool is_operator,
     unsigned precedence,
-    const char* op);
+    const char* op,
+    bool is_variadic);
 struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc,
     const char* name,
-    struct array* args, struct type_exp* ret_type);
+    struct array* args, struct type_exp* ret_type, bool is_variadic);
 
 struct condition_node* create_if_node(struct exp_node* parent, struct source_loc loc, struct exp_node* condition, struct exp_node* then_node,
     struct exp_node* else_node);

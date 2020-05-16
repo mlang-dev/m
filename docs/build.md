@@ -11,12 +11,12 @@ git submodule init
 git submodule update
 ```
 
-## build llvm
+## build llvm/clang
 ```
 cd ./extern/llvm-project
 mkdir build
 cd build
-cmake -DLLVM_ENABLE_RTTI=ON ../llvm
+cmake -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_PROJECTS=clang ../llvm
 cmake --build . -j NN    NN - number of CPU (cores) that you have
 cmake --build . --target install 
 cd ../../../

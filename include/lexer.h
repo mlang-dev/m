@@ -23,6 +23,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_EOS)             \
     ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_NUM)             \
+    ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_IMPORT)          \
     ENUM_ITEM(TOKEN_IF)              \
     ENUM_ITEM(TOKEN_THEN)            \
@@ -38,6 +39,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_RPAREN)          \
     ENUM_ITEM(TOKEN_LBRACKET)        \
     ENUM_ITEM(TOKEN_RBRACKET)        \
+    ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_OR)              \
     ENUM_ITEM(TOKEN_AND)             \
@@ -71,10 +73,10 @@ struct token {
     enum token_type token_type;
     enum type type;
     struct source_loc loc;
-    int int_val;
     union {
         string* ident_str;
         double double_val;
+        int int_val;
     };
 };
 

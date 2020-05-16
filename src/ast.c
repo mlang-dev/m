@@ -118,15 +118,16 @@ struct call_node* create_call_node(struct exp_node* parent, struct source_loc lo
     return node;
 }
 
-struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc, const char* name, struct array* args, struct type_exp* ret_type)
+struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc, const char* name, struct array* args, struct type_exp* ret_type, bool is_variadic)
 {
-    return create_prototype_node(parent, loc, name, args, ret_type, false, 0, "");
+    return create_prototype_node(parent, loc, name, args, ret_type, false, 0, "", is_variadic);
 }
 
 struct prototype_node* create_prototype_node(struct exp_node* parent, struct source_loc loc, const char* name,
     struct array* args,
     struct type_exp* ret_type,
-    bool is_operator, unsigned precedence, const char* op)
+    bool is_operator, unsigned precedence, const char* op,
+    bool is_variadic)
 {
     struct prototype_node* node = malloc(sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
@@ -138,6 +139,7 @@ struct prototype_node* create_prototype_node(struct exp_node* parent, struct sou
     node->fun_params = *args;
     node->is_operator = is_operator;
     node->precedence = precedence;
+    node->is_variadic = is_variadic;
     string_init_chars(&node->op, op);
     return node;
 }

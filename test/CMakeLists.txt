@@ -160,6 +160,7 @@ link_libraries(
   LLVMCFGuard
   z
   curses
+  clang
 )
 
 add_executable(mtest
@@ -179,6 +180,7 @@ add_executable(mtest
   test_jit_relational.cc
   test_jit_logical.cc
   test_jit.cc
+  test_cmodule.cc
 )
 TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main mlr)
 

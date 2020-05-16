@@ -3,7 +3,7 @@
  *
  * m environment, a top class to store all data for compiling session
  */
-#include "llvm-c/Core.h"
+#include <llvm-c/Core.h>
 #include <stdlib.h>
 
 #include "env.h"

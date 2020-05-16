@@ -45,6 +45,7 @@ static struct keyword_token keyword_tokens[] = {
     { "||", TOKEN_OR },
     { "&&", TOKEN_AND },
     { "..", TOKEN_RANGE },
+    { "...", TOKEN_VARIADIC},
     { TRUE, TOKEN_TRUE },
     { FALSE, TOKEN_FALSE },
 };
@@ -166,7 +167,6 @@ struct token* _tokenize_number(struct file_tokenizer* tokenizer)
         tokenizer->cur_token.type = TYPE_DOUBLE;
     } else {
         tokenizer->cur_token.int_val = atoi(string_get(&num_str));
-        tokenizer->cur_token.double_val = atoi(string_get(&num_str));
         tokenizer->cur_token.type = TYPE_INT;
     }
     tokenizer->cur_token.token_type = TOKEN_NUM;

@@ -163,3 +163,21 @@ TEST(testLexer, testMoreDouble)
     ASSERT_EQ(30.12, token->double_val);
     destroy_tokenizer(tokenizer);
 }
+
+TEST(testLexer, testVariadic)
+{
+    char test_code[] = "...";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_VARIADIC, token->token_type);
+    destroy_tokenizer(tokenizer);
+}
+
+// TEST(testLexer, testCharLiteral)
+// {
+//     char test_code[] = R"('c')";
+//     auto tokenizer = create_tokenizer_for_string(test_code);
+//     auto token = get_token(tokenizer);
+//     ASSERT_EQ(TOKEN_CHAR, token->token_type);
+//     destroy_tokenizer(tokenizer);
+// }

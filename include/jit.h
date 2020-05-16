@@ -29,7 +29,6 @@ struct JIT {
 
 struct JIT* jit_new(struct code_generator* cg);
 void jit_free(struct JIT* jit);
-
 void add_module(struct JIT* jit, void* module);
 typedef double (*target_address_double)();
 typedef int (*target_address_int)();

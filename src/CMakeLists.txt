@@ -9,6 +9,16 @@ add_compile_options(-Wall -Wextra -pedantic -Werror)
 include(GoogleTest)
 
 add_library(mlr 
+  clib/object.c
+  clib/array.c
+  clib/string.c
+  clib/queue.c
+  clib/hash.c
+  clib/hashset.c
+  clib/hashtable.c
+  clib/util.c
+  clib/generic.c
+  cmodule.c
   type.c
   compiler.c
   repl.c
@@ -21,15 +31,6 @@ add_library(mlr
   analyzer.c
   codegen.c
   env.c
-  clib/object.c
-  clib/array.c
-  clib/string.c
-  clib/queue.c
-  clib/hash.c
-  clib/hashset.c
-  clib/hashtable.c
-  clib/util.c
-  clib/generic.c
  )
 
 include_directories(
@@ -186,6 +187,7 @@ link_libraries(
   LLVMCFGuard
   z
   curses
+  clang
 )
 
 add_executable(m

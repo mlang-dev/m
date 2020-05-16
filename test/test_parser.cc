@@ -191,3 +191,15 @@ TEST(testParser, testSimpleBinaryOperatorOverloadFunction)
     ASSERT_STREQ("binary|>", string_get(&func->prototype->name));
     parser_free(parser);
 }
+
+TEST(testParser, testVariadicFunction)
+{
+    char test_code[] = "f x ... = 10";
+    auto parser = create_parser_for_string(test_code);
+    block_node* block = parse_block(parser, 0, 0, 0);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    ASSERT_STREQ("FUNCTION_NODE", node_type_strings[node->node_type]);
+    function_node* func = (function_node*)node;
+    ASSERT_EQ(true, func->prototype->is_variadic);
+    parser_free(parser);
+}

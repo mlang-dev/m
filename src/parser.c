@@ -25,6 +25,7 @@ struct op_prec _op_preces[] = {
     { "+", 200 }, { "-", 200 },
     { "*", 400 }, { "/", 400 }
 };
+#define MAX_PRECEDENCE 400
 
 int _get_op_precedence(struct parser* parser);
 struct exp_node* _parse_number(struct parser* parser, struct exp_node* parent);
@@ -195,6 +196,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
     if (parser->curr_token.token_type == TOKEN_LPAREN)
         parse_next_token(parser); // skip '('
     bool func_definition = false;
+    bool is_variadic = false;
     struct array args;
     array_init(&args, sizeof(struct exp_node*));
     //doesn't allow function inside parameter or argument
@@ -205,9 +207,15 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
     parser->allow_id_as_a_func = false;
     if (parser->curr_token.token_type != TOKEN_RPAREN) {
         while (true) {
-            struct exp_node* arg = parse_exp(parser, parent, 0);
-            if (arg) {
-                array_push(&args, &arg);
+            if(parser->curr_token.token_type == TOKEN_VARIADIC){
+                is_variadic = true;
+                parse_next_token(parser);
+            }
+            else{
+                struct exp_node* arg = parse_exp(parser, parent, 0);
+                if (arg) {
+                    array_push(&args, &arg);
+                }
             }
             if (string_eq_chars(parser->curr_token.ident_str, "=")) {
                 func_definition = true;
@@ -243,7 +251,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
             }
         }
         struct prototype_node* prototype = create_prototype_node(parent, loc, string_get(&id_name), &fun_params, 0,
-        is_operator, precedence, is_operator ? string_get(&id_name) : "");
+        is_operator, precedence, is_operator ? string_get(&id_name) : "", is_variadic);
         //log_info(DEBUG, "prototype: %s", id_name.c_str());
         return _parse_function_with_prototype(parser, prototype);
         //log_info(DEBUG, "func: %s", id_name.c_str());
@@ -309,7 +317,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
                 int precedence = 0;
                 if (parser->curr_token.token_type == TOKEN_NUM) {
                     //precedence: parse binary
-                    precedence = parser->curr_token.double_val;
+                    precedence = parser->curr_token.int_val;
                     parse_next_token(parser); //skip it
                     //log_info(DEBUG, "got precedence: %d", precedence);
                 }
@@ -400,6 +408,7 @@ struct exp_node* _parse_node(struct parser* parser, struct exp_node* parent)
             string_add_chars(&error, " op: ");
             string_add(&error, parser->curr_token.ident_str);
         }
+        parse_next_token(parser);
         return (struct exp_node*)log_info(ERROR, string_get(&error));
     }
 }
@@ -483,9 +492,10 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
         parse_next_token(parser);
         // Read the precedence if present.
         if (parser->curr_token.token_type == TOKEN_NUM) {
-            if (parser->curr_token.double_val < 1 || parser->curr_token.double_val > 100)
+            if (parser->curr_token.int_val < 1 || parser->curr_token.int_val > MAX_PRECEDENCE){
                 return (struct exp_node*)log_info(ERROR, "Invalid precedecnce: must be 1..100");
-            bin_prec = (unsigned)parser->curr_token.double_val;
+            }
+            //bin_prec = parser->curr_token.int_val;
             //log_info(DEBUG, "finding binary operator: %s, prec: %d", fun_name.c_str(), bin_prec);
             parse_next_token(parser);
         }
@@ -514,7 +524,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
     if (proto_type && array_size(&fun_params) != proto_type)
         return (struct exp_node*)log_info(ERROR, "Invalid number of operands for operator");
     struct exp_node* ret = (struct exp_node*)create_prototype_node(parent, loc, string_get(&fun_name), &fun_params, 
-        0, proto_type != 0, bin_prec, "");
+        0, proto_type != 0, bin_prec, "", false);
     //array_deinit(&arg_names);
     return ret;
 }
@@ -557,7 +567,7 @@ struct exp_node* parse_exp_to_function(struct parser* parser, struct exp_node* e
         exp = parse_exp(parser, 0, 0);
     if (exp) {
         ARRAY_FUN_PARAM(fun_params);
-        struct prototype_node* prototype = create_prototype_node_default(0, exp->loc, fn, &fun_params, 0);
+        struct prototype_node* prototype = create_prototype_node_default(0, exp->loc, fn, &fun_params, 0, false);
         struct array nodes;
         array_init(&nodes, sizeof(struct exp_node*));
         array_push(&nodes, &exp);

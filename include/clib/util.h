@@ -39,8 +39,10 @@ bool is_new_line(int ch);
 string get_id_name();
 void reset_id_name(const char* idname);
 void print_backtrace(void);
+void join_path(char* destination, const char* path1, const char* path2);
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 
 #ifdef __cplusplus
 }

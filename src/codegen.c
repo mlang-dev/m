@@ -47,7 +47,7 @@ struct prototype_node* _create_for_id(LLVMContextRef context, const char* name)
     //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
     struct source_loc loc = { 1, 0 };
     struct prototype_node* node = create_prototype_node_default(0, loc,
-        string_get(STRING_POINTER(array_back(&names))), &fun_params, (struct type_exp*)create_nullary_type(TYPE_DOUBLE));
+        string_get(STRING_POINTER(array_back(&names))), &fun_params, (struct type_exp*)create_nullary_type(TYPE_DOUBLE), false);
     string_deinit(&str_name);
     array_deinit(&names);
     free(params);
@@ -72,7 +72,7 @@ struct array _get_builtins(LLVMContextRef context)
     array_push(&fun_params, &fun_param);
     struct source_loc loc = { 1, 0 };
     struct prototype_node* proto = create_prototype_node_default(0, loc, "print", &fun_params, 
-        (struct type_exp*)create_nullary_type(TYPE_INT));
+        (struct type_exp*)create_nullary_type(TYPE_INT), false);
     //analyze(type_env, (struct exp_node*)proto);
     array_push(&builtins, &proto);
     //args copied to the prototype node, so not needed to deinit
@@ -470,7 +470,7 @@ LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node
         arg_types[i] = cg->ops[get_type(type_exp)].get_type(cg->context);
     }
     LLVMTypeRef ret_type = cg->ops[rettype].get_type(cg->context);
-    LLVMTypeRef ft = LLVMFunctionType(ret_type, arg_types, array_size(&proto->fun_params), false);
+    LLVMTypeRef ft = LLVMFunctionType(ret_type, arg_types, array_size(&proto->fun_params), proto->is_variadic);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(&proto->name), ft);
     for (unsigned i = 0; i < LLVMCountParams(fun); i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
