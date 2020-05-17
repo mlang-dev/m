@@ -326,9 +326,9 @@ LLVMValueRef _generate_num_node(struct code_generator* cg, struct exp_node* node
     enum type type = get_type(node->type);
     void *value;
     if (is_int_type(type))
-        value = &((struct num_node*)node)->int_val;
+        value = &((struct literal_node*)node)->int_val;
     else
-        value = &((struct num_node*)node)->double_val;
+        value = &((struct literal_node*)node)->double_val;
     return cg->ops[type].get_const(cg->context, value);
 }
 

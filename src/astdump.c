@@ -130,7 +130,7 @@ string _dump_id(struct ident_node* idnode)
     return str_id;
 }
 
-string _dump_number(struct num_node* node)
+string _dump_number(struct literal_node* node)
 {
     string str_num;
     string_init_chars(&str_num, "num: ");
@@ -160,8 +160,8 @@ string dump(struct exp_node* node)
         return _dump_for((struct for_node*)node);
     else if (node->node_type == IDENT_NODE)
         return _dump_id((struct ident_node*)node);
-    else if (node->node_type == NUMBER_NODE)
-        return _dump_number((struct num_node*)node);
+    else if (node->node_type == LITERAL_NODE)
+        return _dump_number((struct literal_node*)node);
     else if (node->node_type == BLOCK_NODE)
         return _dump_block((struct block_node*)node);
     else {

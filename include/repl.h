@@ -21,6 +21,8 @@ struct eval_result {
     union {
         double d_value;
         int i_value;
+        bool b_value;
+        char c_value;
     };
 };
 

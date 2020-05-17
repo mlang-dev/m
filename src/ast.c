@@ -57,38 +57,44 @@ struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc 
     return node;
 }
 
-struct num_node* create_double_node(struct exp_node* parent, struct source_loc loc, double val)
-{
-    struct num_node* node = malloc(sizeof(*node));
-    node->base.node_type = NUMBER_NODE;
-    node->base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_DOUBLE);
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->double_val = val;
-    return node;
-}
 
-struct num_node* _create_int_node(struct exp_node* parent, struct source_loc loc, int val, enum type type)
+struct literal_node* _create_literal_node(struct exp_node* parent, struct source_loc loc, void* val, enum type type)
 {
-    struct num_node* node = malloc(sizeof(*node));
-    node->base.node_type = NUMBER_NODE;
+    struct literal_node* node = malloc(sizeof(*node));
+    node->base.node_type = LITERAL_NODE;
     node->base.annotated_type = (struct type_exp*)create_nullary_type(type);
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
-    node->int_val = val;
+    if (type == TYPE_INT)
+        node->int_val = *(int*)val;
+    else if(type == TYPE_DOUBLE)
+        node->double_val = *(double*)val;
+    else if(type == TYPE_CHAR)
+        node->char_val = *(char*)val;
+    else if(type == TYPE_BOOL)
+        node->bool_val = *(bool*)val;
     return node;
 }
 
-struct num_node* create_int_node(struct exp_node* parent, struct source_loc loc, int val)
+struct literal_node* create_double_node(struct exp_node* parent, struct source_loc loc, double val)
 {
-    return _create_int_node(parent, loc, val, TYPE_INT);
+    return _create_literal_node(parent, loc, &val, TYPE_DOUBLE);
 }
 
-struct num_node* create_bool_node(struct exp_node* parent, struct source_loc loc, int val)
+struct literal_node* create_int_node(struct exp_node* parent, struct source_loc loc, int val)
 {
-    return _create_int_node(parent, loc, val, TYPE_BOOL);
+    return _create_literal_node(parent, loc, &val, TYPE_INT);
+}
+
+struct literal_node* create_bool_node(struct exp_node* parent, struct source_loc loc, bool val)
+{
+    return _create_literal_node(parent, loc, &val, TYPE_BOOL);
+}
+
+struct literal_node* create_char_node(struct exp_node* parent, struct source_loc loc, char val)
+{
+    return _create_literal_node(parent, loc, &val, TYPE_CHAR);
 }
 
 struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* init_value)

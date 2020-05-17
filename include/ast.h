@@ -21,7 +21,7 @@ extern "C" {
 
 #define FOREACH_NODETYPE(ENUM_ITEM) \
     ENUM_ITEM(UNK_NODE)             \
-    ENUM_ITEM(NUMBER_NODE)          \
+    ENUM_ITEM(LITERAL_NODE)          \
     ENUM_ITEM(IDENT_NODE)           \
     ENUM_ITEM(VAR_NODE)             \
     ENUM_ITEM(UNARY_NODE)           \
@@ -62,11 +62,13 @@ struct ast {
     struct array modules; //struct array of module*
 };
 
-struct num_node {
+struct literal_node {
     struct exp_node base;
     union {
         double double_val;
         int int_val;
+        bool bool_val;
+        char char_val;
     };
 };
 
@@ -138,9 +140,10 @@ struct type_exp* get_ret_type(struct function_node* fun_node);
 struct function_node* create_function_node(struct prototype_node* prototype,
     struct block_node* body);
 struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc loc, const char* name);
-struct num_node* create_double_node(struct exp_node* parent, struct source_loc loc, double val);
-struct num_node* create_int_node(struct exp_node* parent, struct source_loc loc, int val);
-struct num_node* create_bool_node(struct exp_node* parent, struct source_loc loc, int val);
+struct literal_node* create_double_node(struct exp_node* parent, struct source_loc loc, double val);
+struct literal_node* create_int_node(struct exp_node* parent, struct source_loc loc, int val);
+struct literal_node* create_bool_node(struct exp_node* parent, struct source_loc loc, bool val);
+struct literal_node* create_char_node(struct exp_node* parent, struct source_loc loc, char val);
 struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* init_value);
 struct call_node* create_call_node(struct exp_node* parent, struct source_loc loc, const char* callee,
     struct array* args);

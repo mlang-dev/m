@@ -14,9 +14,11 @@ void _print(struct eval_result result)
     if (result.type == TYPE_INT) {
         printf("%d\n", result.i_value);
     } else if (result.type == TYPE_BOOL) {
-        printf("%s\n", boolean_values[result.i_value]);
+        printf("%s\n", boolean_values[result.b_value]);
     } else if (result.type == TYPE_DOUBLE) {
         printf("%f\n", result.d_value);
+    } else if (result.type == TYPE_CHAR) {
+        printf("%c\n", result.c_value);
     }
 }
 

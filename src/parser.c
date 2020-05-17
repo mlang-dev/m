@@ -49,6 +49,13 @@ bool _is_exp(struct exp_node* node)
     return node->node_type != VAR_NODE && node->node_type != FUNCTION_NODE && node->node_type != PROTOTYPE_NODE;
 }
 
+void _log_error(struct parser* parser, const char *msg)
+{
+    char full_msg[512];
+    sprintf(full_msg, "%s:%d:%d: %s", string_get(&parser->current_module->name), parser->curr_token.loc.line, parser->curr_token.loc.col, msg);
+    log_info(ERROR, full_msg);
+}
+
 void queue_token(struct parser* psr, struct token tkn)
 {
     queue_push(&psr->queued_tokens, &tkn);
@@ -155,7 +162,7 @@ int _get_op_precedence(struct parser* parser)
 
 struct exp_node* _parse_bool_value(struct parser* parser, struct exp_node* parent)
 {
-    struct num_node* result;
+    struct literal_node* result;
     result = create_bool_node(parent, parser->curr_token.loc,
         parser->curr_token.int_val);
     if (parser->curr_token.token_type != TOKEN_EOS)
@@ -165,7 +172,7 @@ struct exp_node* _parse_bool_value(struct parser* parser, struct exp_node* paren
 
 struct exp_node* _parse_number(struct parser* parser, struct exp_node* parent)
 {
-    struct num_node* result;
+    struct literal_node* result;
     if (parser->curr_token.type == TYPE_INT)
         result = create_int_node(parent, parser->curr_token.loc,
             parser->curr_token.int_val);
