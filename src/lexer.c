@@ -203,21 +203,37 @@ struct token* _tokenize_id_keyword(struct file_tokenizer* tokenizer)
 
 struct token* _tokenize_char(struct file_tokenizer* tokenizer)
 {
-    tokenizer->cur_token.char_val = get_char(tokenizer);
+    char temp = get_char(tokenizer);
+    if (temp == '\''){
+        log_error(tokenizer, "empty char is not allowed in character literal");
+        return 0;
+    }
+    tokenizer->cur_token.char_val = temp;
     if(get_char(tokenizer) != '\''){
         log_error(tokenizer, "only one char allowed in character literal");
         return 0;
     }
     tokenizer->cur_token.token_type = TOKEN_CHAR;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
+    tokenizer->curr_char[0] = get_char(tokenizer);
     //log_info(DEBUG, "id: %s, %d", tokenizer->str_val.c_str(), tokenizer->cur_token.token_type);
     return &tokenizer->cur_token;
 }
 
 struct token* _tokenize_string(struct file_tokenizer* tokenizer)
 {
-    (void)tokenizer;
-    return 0;
+    string_copy_chars(&tokenizer->str_val, "");
+    while (true) {
+        tokenizer->curr_char[0] = get_char(tokenizer);
+        if (tokenizer->curr_char[0] == '"')
+            break;
+        string_add_chars(&tokenizer->str_val, tokenizer->curr_char);
+    }
+    tokenizer->cur_token.token_type = TOKEN_STRING;
+    tokenizer->cur_token.loc = tokenizer->tok_loc;
+    tokenizer->cur_token.str_val = &tokenizer->str_val;
+    tokenizer->curr_char[0] = get_char(tokenizer);
+    return &tokenizer->cur_token;
 }
 
 struct token* _tokenize_op(struct file_tokenizer* tokenizer)
@@ -277,7 +293,7 @@ struct token* get_token(struct file_tokenizer* tokenizer)
         return &tokenizer->cur_token;
     } else if (tokenizer->curr_char[0] == '\'') {
         return _tokenize_char(tokenizer);
-    } else if (tokenizer->curr_char[0] == '\"') {
+    } else if (tokenizer->curr_char[0] == '"') {
         return _tokenize_string(tokenizer);
     } else if (isalpha(tokenizer->curr_char[0])) {
         return _tokenize_id_keyword(tokenizer);

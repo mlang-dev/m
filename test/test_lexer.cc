@@ -184,7 +184,20 @@ TEST(testLexer, testCharLiteral)
     destroy_tokenizer(tokenizer);
 }
 
-TEST(testLexer, testCharLiteralWrongFormat)
+TEST(testLexer, testMultiCharLiteral)
+{
+    char test_code[] = R"('c' 'd')";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_CHAR, token->token_type);
+    ASSERT_EQ('c', token->char_val);
+    token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_CHAR, token->token_type);
+    ASSERT_EQ('d', token->char_val);
+    destroy_tokenizer(tokenizer);
+}
+
+TEST(testLexer, testCharLiteralInvalidNumberOfChars)
 {
     testing::internal::CaptureStderr();
     char test_code[] = R"('cd')";
@@ -193,5 +206,40 @@ TEST(testLexer, testCharLiteralWrongFormat)
     ASSERT_EQ(0, token);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :1:1: only one char allowed in character literal\n", error.c_str());
+    destroy_tokenizer(tokenizer);
+}
+
+TEST(testLexer, testCharLiteralInvalidEmptyChar)
+{
+    testing::internal::CaptureStderr();
+    char test_code[] = R"('')";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(0, token);
+    auto error = testing::internal::GetCapturedStderr();
+    ASSERT_STREQ("error: :1:1: empty char is not allowed in character literal\n", error.c_str());
+    destroy_tokenizer(tokenizer);
+}
+
+TEST(testLexer, testStringLiteral)
+{
+    char test_code[] = R"("hello world!")";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_STRING, token->token_type);
+    ASSERT_STREQ("hello world!", string_get(token->str_val));
+    destroy_tokenizer(tokenizer);
+}
+
+TEST(testLexer, testStringLiteralMulti)
+{
+    char test_code[] = R"("hello" "world")";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_STRING, token->token_type);
+    ASSERT_STREQ("hello", string_get(token->str_val));
+    token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_STRING, token->token_type);
+    ASSERT_STREQ("world", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
 }
