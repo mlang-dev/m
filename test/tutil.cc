@@ -15,12 +15,14 @@ FILE* _open_file(const char* file_name)
 
 parser* create_parser_for_string(const char* str)
 {
-    return parser_new(str, false, _open_file);
+    FILE* file = _open_file(str);    
+    return parser_new("", false, file);
 }
 
 menv* create_env_for_string(const char* str)
 {
-    return env_new(str, false, _open_file);
+    FILE* file = _open_file(str);
+    return env_new("", false, file);
 }
 
 file_tokenizer* create_tokenizer_for_string(const char* str)

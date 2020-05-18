@@ -49,10 +49,10 @@ bool _is_exp(struct exp_node* node)
     return node->node_type != VAR_NODE && node->node_type != FUNCTION_NODE && node->node_type != PROTOTYPE_NODE;
 }
 
-void _log_error(struct parser* parser, const char *msg)
+void _log_error(struct parser* parser, struct source_loc loc,  const char *msg)
 {
     char full_msg[512];
-    sprintf(full_msg, "%s:%d:%d: %s", string_get(&parser->current_module->name), parser->curr_token.loc.line, parser->curr_token.loc.col, msg);
+    sprintf(full_msg, "%s:%d:%d: %s", string_get(&parser->current_module->name), loc.line, loc.col, msg);
     log_info(ERROR, full_msg);
 }
 
@@ -91,12 +91,9 @@ int _get_op_prec(struct hashtable* op_precs, const char* op)
     return -1;
 }
 
-struct parser* parser_new(const char* file_name, bool is_repl, open_file open_file)
+struct parser* parser_new(const char* file_name, bool is_repl, FILE* file)
 {
-    FILE* file;
-    if (open_file)
-        file = open_file(file_name);
-    else
+    if (!file)
         file = file_name ? fopen(file_name, "r") : stdin;
     const char* mod_name = file_name ? file_name : "intepreter_main";
     struct parser* psr = malloc(sizeof(*psr));
@@ -221,6 +218,10 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
             else{
                 struct exp_node* arg = parse_exp(parser, parent, 0);
                 if (arg) {
+                    if(is_variadic){
+                        _log_error(parser, arg->loc, "no parameter allowed after variadic");
+                        return 0;
+                    }
                     array_push(&args, &arg);
                 }
             }
@@ -388,7 +389,7 @@ struct exp_node* _parse_ident(struct parser* parser, struct exp_node* parent)
         array_deinit(&args);
         return exp;
     }
-    return (struct exp_node*)create_ident_node(parent, parser->curr_token.loc, string_get(&id_name));
+    return (struct exp_node*)create_ident_node(parent, loc, string_get(&id_name));
 }
 
 struct exp_node* _parse_node(struct parser* parser, struct exp_node* parent)
