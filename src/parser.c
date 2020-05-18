@@ -167,6 +167,16 @@ struct exp_node* _parse_bool_value(struct parser* parser, struct exp_node* paren
     return (struct exp_node*)result;
 }
 
+struct exp_node* _parse_char(struct parser* parser, struct exp_node* parent)
+{
+    struct literal_node* result;
+    result = create_char_node(parent, parser->curr_token.loc,
+        parser->curr_token.char_val);
+    if (parser->curr_token.token_type != TOKEN_EOS)
+        parse_next_token(parser);
+    return (struct exp_node*)result;
+}
+
 struct exp_node* _parse_number(struct parser* parser, struct exp_node* parent)
 {
     struct literal_node* result;
@@ -400,6 +410,8 @@ struct exp_node* _parse_node(struct parser* parser, struct exp_node* parent)
         return _parse_bool_value(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_NUM)
         return _parse_number(parser, parent);
+    else if (parser->curr_token.token_type == TOKEN_CHAR)
+        return _parse_char(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_IF)
         return _parse_if(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_FOR)

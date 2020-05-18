@@ -60,6 +60,22 @@ TEST(testJIT, testPositiveNumber)
     env_free(env);
 }
 
+TEST(testJIT, testChar)
+{
+    char test_code[] = R"(
+  'c'
+  )";
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    auto node1 = *(exp_node**)array_front(&block->nodes);
+    auto result = eval_exp(jit, node1);
+    ASSERT_EQ(TYPE_CHAR, result.type);
+    ASSERT_EQ('c', result.c_value);
+    jit_free(jit);
+    env_free(env);
+}
+
 TEST(testJIT, testTypeError)
 {
     char test_code[] = R"(
