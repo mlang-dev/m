@@ -53,6 +53,21 @@ TEST(testParser, testChar)
     parser_free(parser);
 }
 
+TEST(testParser, testString)
+{
+    char test_code[] = "x = \"hello world!\"";
+    auto parser = create_parser_for_string(test_code);
+    block_node* block = parse_block(parser, 0, 0, 0);
+    auto node = *(var_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_EQ(VAR_NODE, node->base.node_type);
+    ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
+    struct literal_node* literal = (struct literal_node*)node->init_value;
+    ASSERT_STREQ("hello world!", literal->str_val);
+    parser_free(parser);
+}
+
 TEST(testParser, testBlockVariableNameWithUnderlyingLine)
 {
     char test_code[] = "m_x = 11";

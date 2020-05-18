@@ -6,6 +6,7 @@
  */
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ast.h"
 
@@ -74,6 +75,8 @@ struct literal_node* _create_literal_node(struct exp_node* parent, struct source
         node->char_val = *(char*)val;
     else if(type == TYPE_BOOL)
         node->bool_val = *(bool*)val;
+    else if(type == TYPE_STRING)
+        node->str_val = strdup((const char*)val);
     return node;
 }
 
@@ -95,6 +98,11 @@ struct literal_node* create_bool_node(struct exp_node* parent, struct source_loc
 struct literal_node* create_char_node(struct exp_node* parent, struct source_loc loc, char val)
 {
     return _create_literal_node(parent, loc, &val, TYPE_CHAR);
+}
+
+struct literal_node* create_string_node(struct exp_node* parent, struct source_loc loc, const char* val)
+{
+    return _create_literal_node(parent, loc, (void*)val, TYPE_STRING);
 }
 
 struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* init_value)

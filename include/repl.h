@@ -23,6 +23,7 @@ struct eval_result {
         int i_value;
         bool b_value;
         char c_value;
+        const char* s_value;
     };
 };
 

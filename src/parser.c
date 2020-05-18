@@ -177,6 +177,16 @@ struct exp_node* _parse_char(struct parser* parser, struct exp_node* parent)
     return (struct exp_node*)result;
 }
 
+struct exp_node* _parse_string(struct parser* parser, struct exp_node* parent)
+{
+    struct literal_node* result;
+    result = create_string_node(parent, parser->curr_token.loc,
+        string_get(parser->curr_token.str_val));
+    if (parser->curr_token.token_type != TOKEN_EOS)
+        parse_next_token(parser);
+    return (struct exp_node*)result;
+}
+
 struct exp_node* _parse_number(struct parser* parser, struct exp_node* parent)
 {
     struct literal_node* result;
@@ -412,6 +422,8 @@ struct exp_node* _parse_node(struct parser* parser, struct exp_node* parent)
         return _parse_number(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_CHAR)
         return _parse_char(parser, parent);
+    else if (parser->curr_token.token_type == TOKEN_STRING)
+        return _parse_string(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_IF)
         return _parse_if(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_FOR)

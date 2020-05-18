@@ -79,6 +79,23 @@ TEST(testAnalyzer, testCharVariable)
     env_free(menv);
 }
 
+TEST(testAnalyzer, testStringVariable)
+{
+    char test_code[] = "x = \"hello world!\"";
+    menv* menv = create_env_for_string(test_code);
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    type_env* env = menv->type_env;
+    analyze(env, (exp_node*)block);
+    auto node = *(var_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_EQ(VAR_NODE, node->base.node_type);
+    ASSERT_EQ(TYPE_STRING, node->init_value->type->type);
+    string type_str = to_string(node->base.type);
+    ASSERT_STREQ("string", string_get(&type_str));
+    env_free(menv);
+}
+
 TEST(testAnalyzer, testCallNode)
 {
     char test_code[] = "print 10";

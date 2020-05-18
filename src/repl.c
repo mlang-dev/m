@@ -19,6 +19,8 @@ void _print(struct eval_result result)
         printf("%f\n", result.d_value);
     } else if (result.type == TYPE_CHAR) {
         printf("%c\n", result.c_value);
+    } else if (result.type == TYPE_STRING) {
+        printf("%s\n", result.s_value);
     }
 }
 
@@ -57,10 +59,14 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
                 int (*i_fp)() = (int (*)())fp;
                 result.i_value = i_fp();
                 result.type = ret_type;
-            } else {
+            } else if (ret_type == TYPE_DOUBLE) {
                 double (*d_fp)() = (double (*)())fp;
                 result.d_value = d_fp();
                 result.type = TYPE_DOUBLE;
+            } else if (ret_type == TYPE_STRING) {
+                char* (*s_fp)() = (char* (*)())fp;
+                result.s_value = s_fp();
+                result.type = TYPE_STRING;
             }
             if (node_type != VAR_NODE) {
                 //jit->mjit->removeModule(mk);

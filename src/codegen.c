@@ -95,6 +95,12 @@ LLVMValueRef get_double_const(LLVMContextRef context, void* value)
     return LLVMConstReal(LLVMDoubleTypeInContext(context), *(double*)value);
 }
 
+LLVMValueRef get_str_const(LLVMContextRef context, void* value)
+{
+    const char* str = (const char*)value;
+    return LLVMConstStringInContext(context, str, strlen(str), false);
+}
+
 LLVMValueRef get_int_zero(LLVMContextRef context)
 {
     return LLVMConstInt(LLVMInt64TypeInContext(context), 0, true);
@@ -171,6 +177,28 @@ struct ops int_ops = {
     LLVMBuildNeg,
 };
 
+struct ops str_ops = { 
+    LLVMInt64TypeInContext,
+    get_str_const,
+    get_int_zero,
+    get_int_one,
+    LLVMBuildAdd,
+    LLVMBuildSub,
+    LLVMBuildMul,
+    LLVMBuildSDiv,
+    (cmp_op)LLVMBuildICmp,
+    LLVMIntSLT,
+    LLVMIntSGT,
+    LLVMIntEQ,
+    LLVMIntNE,
+    LLVMIntSLE,
+    LLVMIntSGE,
+    LLVMBuildOr,
+    LLVMBuildAnd,
+    LLVMBuildNot,
+    LLVMBuildNeg,
+};
+
 struct ops double_ops = {
     LLVMDoubleTypeInContext,
     get_double_const,
@@ -202,6 +230,7 @@ void _set_bin_ops(struct code_generator* cg)
     cg->ops[TYPE_CHAR] = int_ops;
     cg->ops[TYPE_INT] = int_ops;
     cg->ops[TYPE_DOUBLE] = double_ops;
+    cg->ops[TYPE_STRING] = str_ops;
     cg->ops[TYPE_FUNCTION] = double_ops;
     cg->ops[TYPE_PRODUCT] = double_ops;
 
@@ -320,15 +349,18 @@ void _create_argument_allocas(struct code_generator* cg, struct prototype_node* 
     }
 }
 
-LLVMValueRef _generate_num_node(struct code_generator* cg, struct exp_node* node)
+LLVMValueRef _generate_literal_node(struct code_generator* cg, struct exp_node* node)
 {
     assert(node->type);
     enum type type = get_type(node->type);
-    void *value;
+    void *value = 0;
     if (is_int_type(type))
         value = &((struct literal_node*)node)->int_val;
-    else
+    else if(type==TYPE_DOUBLE)
         value = &((struct literal_node*)node)->double_val;
+    else if(type==TYPE_STRING){
+        return LLVMBuildGlobalStringPtr(cg->builder, ((struct literal_node*)node)->str_val, "gtemp");
+    }
     return cg->ops[type].get_const(cg->context, value);
 }
 
@@ -695,7 +727,7 @@ LLVMValueRef _generate_unk_node(struct code_generator* cg, struct exp_node* node
 
 LLVMValueRef (*cg_fp[])(struct code_generator*, struct exp_node*) = {
     _generate_unk_node,
-    _generate_num_node,
+    _generate_literal_node,
     _generate_ident_node,
     _generate_var_node,
     _generate_unary_node,

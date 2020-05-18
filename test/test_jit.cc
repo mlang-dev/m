@@ -76,6 +76,22 @@ TEST(testJIT, testChar)
     env_free(env);
 }
 
+TEST(testJIT, testString)
+{
+    char test_code[] = R"(
+  "hello"
+  )";
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    auto node1 = *(exp_node**)array_front(&block->nodes);
+    auto result = eval_exp(jit, node1);
+    ASSERT_EQ(TYPE_STRING, result.type);
+    ASSERT_STREQ("hello", result.s_value);
+    jit_free(jit);
+    env_free(env);
+}
+
 TEST(testJIT, testTypeError)
 {
     char test_code[] = R"(
