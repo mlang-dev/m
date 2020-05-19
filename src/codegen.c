@@ -105,19 +105,28 @@ LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void*
     return LLVMBuildGlobalStringPtr(builder, str, "str.temp");
 }
 
-LLVMValueRef get_int_zero(LLVMContextRef context)
+LLVMValueRef get_int_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
+    (void)builder;
     return LLVMConstInt(LLVMInt64TypeInContext(context), 0, true);
 }
 
-LLVMValueRef get_bool_zero(LLVMContextRef context)
+LLVMValueRef get_bool_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
+    (void)builder;
     return LLVMConstInt(LLVMInt1TypeInContext(context), 0, true);
 }
 
-LLVMValueRef get_double_zero(LLVMContextRef context)
+LLVMValueRef get_double_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
+    (void)builder;
     return LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0);
+}
+
+LLVMValueRef get_str_zero(LLVMContextRef context, LLVMBuilderRef builder)
+{
+    (void)context;
+    return get_str_const(context, builder, "");
 }
 
 LLVMValueRef get_int_one(LLVMContextRef context)
@@ -136,6 +145,11 @@ LLVMValueRef get_double_one(LLVMContextRef context)
 }
 
 struct ops null_ops = { 0 };
+
+LLVMTypeRef get_str_type(LLVMContextRef context)
+{
+    return LLVMPointerType(LLVMInt8TypeInContext(context), 0);
+}
 
 struct ops bool_ops = { 
     LLVMInt1TypeInContext,
@@ -182,9 +196,9 @@ struct ops int_ops = {
 };
 
 struct ops str_ops = { 
-    LLVMInt64TypeInContext,
+    get_str_type,
     get_str_const,
-    get_int_zero,
+    get_str_zero,
     get_int_one,
     LLVMBuildAdd,
     LLVMBuildSub,
@@ -538,7 +552,7 @@ LLVMValueRef _generate_function_node(struct code_generator* cg, struct exp_node*
     if (!ret_val) {
         struct type_exp* ret_type = get_ret_type(fun_node);
         enum type type = get_type(ret_type);
-        ret_val = cg->ops[type].get_zero(cg->context);
+        ret_val = cg->ops[type].get_zero(cg->context, cg->builder);
     }
     assert(ret_val);
     LLVMBuildRet(cg->builder, ret_val);
@@ -556,7 +570,7 @@ LLVMValueRef _generate_condition_node(struct code_generator* cg, struct exp_node
     assert(cond_v);
 
     //cond_v = LLVMBuildFCmp(builder, LLVMRealONE, cond_v, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0), "ifcond");
-    cond_v = LLVMBuildICmp(cg->builder, LLVMIntNE, cond_v, cg->ops[TYPE_INT].get_zero(cg->context), "ifcond");
+    cond_v = LLVMBuildICmp(cg->builder, LLVMIntNE, cond_v, cg->ops[TYPE_INT].get_zero(cg->context, cg->builder), "ifcond");
 
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); 
 
@@ -616,7 +630,7 @@ LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_nod
             hashtable_set(&cg->gvs, var_name, node);
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context), var_name);
             LLVMSetExternallyInitialized(gVar, true);
-            LLVMSetInitializer(gVar, cg->ops[type].get_zero(cg->context));
+            LLVMSetInitializer(gVar, cg->ops[type].get_zero(cg->context, cg->builder));
         }
     }
     LLVMBuildStore(cg->builder, exp, gVar);
@@ -684,7 +698,7 @@ LLVMValueRef _generate_for_node(struct code_generator* cg, struct exp_node* node
     LLVMValueRef cur_var = LLVMBuildLoad(cg->builder, alloca, var_name);
     LLVMValueRef next_var = LLVMBuildAdd(cg->builder, cur_var, step_v, "nextvar");
     LLVMBuildStore(cg->builder, next_var, alloca);
-    end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg->context), "loopcond");
+    end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg->context, cg->builder), "loopcond");
 
     LLVMBasicBlockRef after_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "afterloop");
 

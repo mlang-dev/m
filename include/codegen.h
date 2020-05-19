@@ -27,7 +27,7 @@ typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef, unsigned short Op,
     const char* Name);
 typedef LLVMTypeRef (*get_ir_type)(LLVMContextRef context);
 typedef LLVMValueRef (*get_const)(LLVMContextRef context, LLVMBuilderRef builder, void* value);
-typedef LLVMValueRef (*get_zero)(LLVMContextRef context);
+typedef LLVMValueRef (*get_zero)(LLVMContextRef context, LLVMBuilderRef builder);
 typedef LLVMValueRef (*get_one)(LLVMContextRef context);
 
 struct ops {

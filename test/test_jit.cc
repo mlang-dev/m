@@ -124,22 +124,22 @@ y
     env_free(env);
 }
 
-// TEST(testJIT, testGlobalVarString)
-// {
-//     char test_code[] = R"(
-// y="hello"
-// y
-// )";
-//     menv* env = create_env_for_string(test_code);
-//     JIT* jit = build_jit(env);
-//     block_node* block = parse_block(env->parser, 0, 0, 0);
-//     auto node = *(exp_node**)array_front(&block->nodes);
-//     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
-//     eval_statement(jit, node);
-//     ASSERT_STREQ("hello", eval_exp(jit, node1).s_value);
-//     jit_free(jit);
-//     env_free(env);
-// }
+TEST(testJIT, testGlobalVarString)
+{
+    char test_code[] = R"(
+y="hello"
+y
+)";
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    auto node1 = *(exp_node**)array_get(&block->nodes, 1);
+    eval_statement(jit, node);
+    ASSERT_STREQ("hello", eval_exp(jit, node1).s_value);
+    jit_free(jit);
+    env_free(env);
+}
 
 TEST(testJIT, testGlobalVarAssignTwice)
 {
