@@ -80,25 +80,29 @@ struct array _get_builtins(LLVMContextRef context)
 }
 
 
-LLVMValueRef get_int_const(LLVMContextRef context, void* value)
+LLVMValueRef get_int_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
+    (void)builder;
     return LLVMConstInt(LLVMInt64TypeInContext(context), *(int*)value, true);
 }
 
-LLVMValueRef get_bool_const(LLVMContextRef context, void* value)
+LLVMValueRef get_bool_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
+    (void)builder;
     return LLVMConstInt(LLVMInt1TypeInContext(context), *(int*)value, true);
 }
 
-LLVMValueRef get_double_const(LLVMContextRef context, void* value)
+LLVMValueRef get_double_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
+    (void)builder;
     return LLVMConstReal(LLVMDoubleTypeInContext(context), *(double*)value);
 }
 
-LLVMValueRef get_str_const(LLVMContextRef context, void* value)
+LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
+    (void)context;
     const char* str = (const char*)value;
-    return LLVMConstStringInContext(context, str, strlen(str), false);
+    return LLVMBuildGlobalStringPtr(builder, str, "str.temp");
 }
 
 LLVMValueRef get_int_zero(LLVMContextRef context)
@@ -359,9 +363,9 @@ LLVMValueRef _generate_literal_node(struct code_generator* cg, struct exp_node* 
     else if(type==TYPE_DOUBLE)
         value = &((struct literal_node*)node)->double_val;
     else if(type==TYPE_STRING){
-        return LLVMBuildGlobalStringPtr(cg->builder, ((struct literal_node*)node)->str_val, "gtemp");
+        value = (void*)((struct literal_node*)node)->str_val;
     }
-    return cg->ops[type].get_const(cg->context, value);
+    return cg->ops[type].get_const(cg->context, cg->builder, value);
 }
 
 LLVMValueRef _generate_ident_node(struct code_generator* cg, struct exp_node* node)
@@ -584,6 +588,16 @@ LLVMValueRef _generate_condition_node(struct code_generator* cg, struct exp_node
     return phi_node;
 }
 
+// void test(struct code_generator* cg, const char* str)
+// {
+//   LLVMValueRef str_constant = LLVMConstStringInContext(cg->context, str, strlen(str), false);
+//   LLVMGetTypeOfValue(str_constant)
+//   LLVMValueRef gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context), var_name);
+//   LLVMSetUnnamedAddr(gVar, LLVMGlobalUnnamedAddr);
+//   LLVMSetAlignment(gVar, 1);
+//   return GV;
+// }
+
 LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_node* node,
     bool is_external)
 {
@@ -597,7 +611,7 @@ LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_nod
     if (!gVar) {
         if (is_external) {
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context), var_name);
-            LLVMSetExternallyInitialized(gVar, true);
+            LLVMSetExternallyInitialized(gVar, true);   
         } else {
             hashtable_set(&cg->gvs, var_name, node);
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context), var_name);

@@ -26,7 +26,7 @@ typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef, unsigned short Op,
     LLVMValueRef LHS, LLVMValueRef RHS,
     const char* Name);
 typedef LLVMTypeRef (*get_ir_type)(LLVMContextRef context);
-typedef LLVMValueRef (*get_const)(LLVMContextRef context, void* value);
+typedef LLVMValueRef (*get_const)(LLVMContextRef context, LLVMBuilderRef builder, void* value);
 typedef LLVMValueRef (*get_zero)(LLVMContextRef context);
 typedef LLVMValueRef (*get_one)(LLVMContextRef context);
 
