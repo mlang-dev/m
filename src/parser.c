@@ -291,15 +291,15 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
         //array_deinit(&argNames);
     }
     // function application
-    //log_info(DEBUG, "function application: %s", string_get(&id_name));
     struct exp_node* call_node = (struct exp_node*)create_call_node(parent, loc, string_get(&id_name), &args);
+    //log_info(DEBUG, "function application: %s, %d, %d", string_get(&id_name), call_node->node_type, parser->curr_token.token_type);
     return parse_exp(parser, parent, call_node);
 }
 
 struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
 {
     //log_info(DEBUG, "parsing statement:%d, %s", parent, token_type_strings[parser->curr_token.token_type]);
-    struct exp_node* node;
+    struct exp_node* node = 0;
     struct source_loc loc = parser->curr_token.loc;
     if (parser->curr_token.token_type == TOKEN_EOF)
         return 0;
@@ -318,7 +318,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
         string_init(&op);
         if (IS_OP(parser->curr_token.token_type))
             string_copy(&op, parser->curr_token.str_val);
-        //log_info(DEBUG, "id token: %s, %s, %d", id_name.c_str(), op.c_str(), parent);
+        //log_info(DEBUG, "id token: %s, %s", string_get(&id_name), string_get(&op));
         if (string_eq_chars(&op, "=")) {
             // variable definition
             node = _parse_var(parser, parent, string_get(&id_name));

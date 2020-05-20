@@ -225,7 +225,7 @@ struct block_node* create_block_node(struct exp_node* parent, struct array* node
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = (*(struct exp_node**)array_front(nodes))->loc;
-    array_copy(&node->nodes, nodes);
+    node->nodes = *nodes;
     return node;
 }
 

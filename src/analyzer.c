@@ -28,6 +28,15 @@ bool _is_predicate_op(const char* op)
     return false;
 }
 
+void _log_err(struct type_env* env, struct source_loc loc,  const char *msg)
+{
+    (void)env;
+    char full_msg[512];
+    sprintf(full_msg, "%s:%d:%d: %s", "", loc.line, loc.col, msg);
+    log_info(ERROR, full_msg);
+}
+
+
 struct type_exp* _analyze_unk(struct type_env* env, struct exp_node* node)
 {
     printf("analyzing unk: %s\n", node_type_strings[node->node_type]);
@@ -72,7 +81,15 @@ struct type_exp* _analyze_call(struct type_env* env, struct exp_node* node)
 {
     struct call_node* call = (struct call_node*)node;
     struct type_exp* fun_type = retrieve(env, string_get(&call->callee));
-    assert(fun_type);
+    if (!fun_type){
+        struct source_loc loc = {1, 1};
+        string error;
+        string_copy(&error, &call->callee);
+        string_add_chars(&error, " not defined");
+        _log_err(env, loc, string_get(&error));
+        string_deinit(&error);
+        return 0;
+    }
     struct array args;
     array_init(&args, sizeof(struct type_exp*));
     for (size_t i = 0; i < array_size(&call->args); i++) {
