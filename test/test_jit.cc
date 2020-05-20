@@ -303,3 +303,26 @@ if z>99 then -z else z
     jit_free(jit);
     env_free(env);
 }
+
+TEST(testJIT, testLocalStringFunc)
+{
+    char test_code[] = R"(
+to_string () = 
+  x = "hello"
+  y = x
+  y
+to_string()
+)";
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    auto end = 1;
+    for (int i = 0; i < end; i++) {
+        auto node = *(exp_node**)array_get(&block->nodes, i);
+        eval_statement(jit, node);
+    }
+    auto node1 = *(exp_node**)array_get(&block->nodes, end);
+    ASSERT_STREQ("hello", eval_exp(jit, node1).s_value);
+    jit_free(jit);
+    env_free(env);
+}
