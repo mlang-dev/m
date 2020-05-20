@@ -253,6 +253,11 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
             else if (string_eq_chars(parser->curr_token.str_val, ","))
                 parse_next_token(parser);
         }
+    }else{
+        /*looks we got (), if next one is = then it's definition*/
+        parse_next_token(parser);
+        if (string_eq_chars(parser->curr_token.str_val, "=")) 
+            func_definition = true;
     }
     parser->allow_id_as_a_func = true;
     //log_info(DEBUG, "is %s a function def: %d, %d", id_name.c_str(), func_definition, is_operator);
@@ -286,7 +291,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
         //array_deinit(&argNames);
     }
     // function application
-    //log_info(DEBUG, "function application: %s", id_name.c_str());
+    //log_info(DEBUG, "function application: %s", string_get(&id_name));
     struct exp_node* call_node = (struct exp_node*)create_call_node(parent, loc, string_get(&id_name), &args);
     return parse_exp(parser, parent, call_node);
 }

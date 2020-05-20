@@ -249,3 +249,21 @@ TEST(testParser, testVariadicFunctionInvalidPosition)
     ASSERT_STREQ("error: :1:7: no parameter allowed after variadic\n", error.c_str());
     parser_free(parser);
 }
+
+TEST(testParser, testLocalStringFunc)
+{
+    char test_code[] = R"(
+to_string () = 
+  x = "hello"
+  y = x
+  y
+)";
+    menv* menv = create_env_for_string(test_code);
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    function_node* fun = (function_node*)node;
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("to_string", string_get(&fun->prototype->name));
+   env_free(menv);
+}

@@ -325,3 +325,27 @@ distance x1 y1 x2 y2 =
     ASSERT_STREQ("double * double * double * double -> double", string_get(&type_str));
     env_free(menv);
 }
+
+TEST(testAnalyzer, testLocalStringFunc)
+{
+    char test_code[] = R"(
+to_string () = 
+  x = "hello"
+  y = x
+  y
+)";
+    menv* menv = create_env_for_string(test_code);
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    type_env* env = menv->type_env;
+    analyze(env, (exp_node*)block);
+    auto node = *(function_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("to_string", string_get(&node->prototype->name));
+    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
+    auto var = (type_oper*)node->base.type;
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
+    ASSERT_EQ(1, array_size(&var->args));
+    string type_str = to_string(node->base.type);
+    ASSERT_STREQ("() -> string", string_get(&type_str));
+    env_free(menv);
+}
