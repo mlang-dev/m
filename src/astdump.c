@@ -25,9 +25,13 @@ string _dump_prototype(struct prototype_node* proto)
 {
     string result;
     string_init_chars(&result, string_get(&proto->name));
-    // string joined = string_join(&proto->args, " ");
-    // string_add(&result, &joined);
-    string_add_chars(&result, "=");
+    ARRAY_STRING(args);
+    for(size_t i = 0; i < array_size(&proto->fun_params); i++){
+        struct var_node* var = *(struct var_node**)array_get(&proto->fun_params, i);
+        array_push(&args, &var->var_name);
+    }
+    string joined = string_join(&args, " ");
+    string_add(&result, &joined);
     return result;
 }
 

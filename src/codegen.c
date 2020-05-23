@@ -264,7 +264,8 @@ struct code_generator* cg_new(struct parser* parser)
     cg->parser = parser;
     cg->context = context;
     cg->builder = LLVMCreateBuilderInContext(context);
-    cg->builtins = _get_builtins(context);
+    //cg->builtins = _get_builtins(context);
+    array_init(&cg->builtins, sizeof(struct exp_node*));
     cg->module = 0;
     _set_bin_ops(cg);
     hashtable_init(&cg->gvs);
@@ -485,7 +486,7 @@ LLVMValueRef _generate_call_node(struct code_generator* cg, struct exp_node* nod
 {
     struct call_node* call = (struct call_node*)node;
     LLVMValueRef callee = _get_function(cg, string_get(&call->callee));
-    if (!callee)
+    if(!callee)
         return log_info(ERROR, "Unknown function referenced: %s", string_get(&call->callee));
     if (LLVMCountParams(callee) != array_size(&call->args))
         return log_info(ERROR,

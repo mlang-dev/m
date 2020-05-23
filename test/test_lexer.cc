@@ -243,3 +243,19 @@ TEST(testLexer, testStringLiteralMulti)
     ASSERT_STREQ("world", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
 }
+
+TEST(testLexer, testIdWithStringLiteralMulti)
+{
+    char test_code[] = R"(printf "%s" "hello")";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_IDENT, token->token_type);
+    ASSERT_STREQ("printf", string_get(token->str_val));
+    token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_STRING, token->token_type);
+    ASSERT_STREQ("%s", string_get(token->str_val));
+    token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_STRING, token->token_type);
+    ASSERT_STREQ("hello", string_get(token->str_val));
+    destroy_tokenizer(tokenizer);
+}

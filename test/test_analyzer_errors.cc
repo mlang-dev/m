@@ -18,12 +18,10 @@ no_exist_function_call ()
 )";
     testing::internal::CaptureStderr();
     menv* menv = create_env_for_string(test_code);
-    printf("parsing block\n");
     block_node* block = parse_block(menv->parser, 0, 0, 0);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_env* env = menv->type_env;
-    printf("parsed node: %d, %p\n", node->node_type, (void*)node);
     analyze(env, (exp_node*)block);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :1:1: no_exist_function_call not defined\n", error.c_str());

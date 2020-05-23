@@ -33,7 +33,7 @@ enum type { FOREACH_TYPE(GENERATE_ENUM) };
 
 static const char* const type_strings[] = {
     "unkown",
-    "generic",
+    "...",
     "()",
     "bool",
     "char",

@@ -326,3 +326,24 @@ to_string()
     jit_free(jit);
     env_free(env);
 }
+
+
+TEST(testJIT, testPrintfFunc)
+{
+    char test_code[] = R"(
+printf "%d", 100
+)";
+    testing::internal::CaptureStdout();
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    auto end = 1;
+    for (int i = 0; i < end; i++) {
+        auto node = *(exp_node**)array_get(&block->nodes, i);
+        eval_statement(jit, node);
+    }
+    auto msg = testing::internal::GetCapturedStdout();
+    ASSERT_STREQ("100", msg.c_str());
+    jit_free(jit);
+    env_free(env);
+}

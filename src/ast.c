@@ -155,6 +155,12 @@ struct prototype_node* create_prototype_node(struct exp_node* parent, struct sou
     node->precedence = precedence;
     node->is_variadic = is_variadic;
     string_init_chars(&node->op, op);
+    struct var_node fun_param;
+    if(is_variadic){
+        string_init_chars(&fun_param.var_name, type_strings[TYPE_GENERIC]);
+        fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_GENERIC);
+        array_push(&node->fun_params, &fun_param);
+    }
     return node;
 }
 

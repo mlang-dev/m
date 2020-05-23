@@ -120,3 +120,10 @@ void array_deinit(struct array* arr)
     }
     free(arr->base.p_data);
 }
+
+void array_add(struct array* dest, struct array* src)
+{
+    for(size_t i = 0; i < array_size(src); i++){
+        array_push(dest, array_get(src, i));
+    }
+}

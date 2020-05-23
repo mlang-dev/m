@@ -116,9 +116,9 @@ struct JIT* build_jit(struct menv* env)
     //log_info(DEBUG, "creating builtins");
     //log_info(DEBUG, "creating jit modules");
     _create_jit_module(env->cg);
-    //log_info(DEBUG, "generating runtime modules");
+    log_info(DEBUG, "generating runtime modules");
     generate_runtime_module(env->cg, &env->cg->builtins);
-    //log_info(DEBUG, "adding to jit");
+    log_info(DEBUG, "adding to jit");
     _add_current_module_to_jit(jit);
     //log_info(DEBUG, "creating jit modules 2");
     _create_jit_module(env->cg);

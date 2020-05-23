@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
 struct type_var* create_type_var()
 {
     string name = get_id_name();
@@ -80,6 +82,26 @@ bool occurs_in_type(struct type_var* var, struct type_exp* type2)
     return _occurs_in_type_list(var, &oper->args);
 }
 
+bool _is_variadic(struct array* args)
+{
+    size_t size = array_size(args);
+    if(size > 1){
+        struct type_exp* exp = *(struct type_exp**)array_get(args, size-2);
+        return get_type(exp) == TYPE_GENERIC;
+    }
+    return false;
+}
+
+bool _is_valid_args_size(struct array* args1, struct array* args2)
+{
+    if(_is_variadic(args1)){
+        return array_size(args2) >= array_size(args1) - 1;
+    } else if (_is_variadic(args2)) {
+        return array_size(args1) >= array_size(args2) - 1;
+    }
+    return array_size(args1) == array_size(args2);
+}
+
 bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens)
 {
     type1 = prune(type1);
@@ -104,11 +126,14 @@ bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens)
         } else {
             struct type_oper* oper1 = (struct type_oper*)type1;
             struct type_oper* oper2 = (struct type_oper*)type2;
-            if (type1->type != type2->type || array_size(&oper1->args) != array_size(&oper2->args))
+            if (type1->type != type2->type || !_is_valid_args_size(&oper1->args, &oper2->args))
                 return false;
-            for (size_t i = 0; i < array_size(&oper1->args); i++) {
-                if (!unify(*(struct type_exp**)array_get(&oper1->args, i), *(struct type_exp**)array_get(&oper2->args, i), nogens))
-                    return false;
+            size_t arg_size1 = array_size(&oper1->args);
+            size_t arg_size2 = array_size(&oper2->args);
+            size_t arg_size = MIN(arg_size1, arg_size2);
+            for (size_t i = 0; i < arg_size; i++) {
+                unify(*(struct type_exp**)array_get(&oper1->args, i==arg_size-1? arg_size1-1:i), 
+                *(struct type_exp**)array_get(&oper2->args, i==arg_size-1? arg_size2-1:i), nogens);
             }
         }
     }

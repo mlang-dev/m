@@ -98,16 +98,14 @@ TEST(testAnalyzer, testStringVariable)
 
 TEST(testAnalyzer, testCallNode)
 {
-    char test_code[] = "print 10";
+    char test_code[] = "printf \"hello\"";
     menv* menv = create_env_for_string(test_code);
     block_node* block = parse_block(menv->parser, 0, 0, 0);
     type_env* env = menv->type_env;
-    analyze(env, (exp_node*)block);
+    struct type_exp* result = analyze(env, (exp_node*)block);
     auto node = *(call_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(CALL_NODE, node->base.node_type);
-    if (node->base.type->type != TYPE_INT)
-        assert(false);
     ASSERT_EQ(TYPE_INT, node->base.type->type);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int", string_get(&type_str));
@@ -275,7 +273,7 @@ TEST(testAnalyzer, testForLoopFunc)
 # using for loop
 loopprint n = 
   for i in 0..n
-    print i
+    printf "%d" i
 )";
     menv* menv = create_env_for_string(test_code);
     block_node* block = parse_block(menv->parser, 0, 0, 0);
@@ -347,5 +345,50 @@ to_string () =
     ASSERT_EQ(1, array_size(&var->args));
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("() -> string", string_get(&type_str));
+    env_free(menv);
+}
+
+TEST(testAnalyzer, testVariadicFunc)
+{
+    char test_code[] = R"(
+var_func ... = 0
+)";
+    menv* menv = create_env_for_string(test_code);
+    printf("parsing ...\n");
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    type_env* env = menv->type_env;
+    printf("analyzing ...\n");
+    analyze(env, (exp_node*)block);
+     printf("analyzed ...\n");
+    auto node = *(function_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("var_func", string_get(&node->prototype->name));
+    ASSERT_EQ(true, node->prototype->is_variadic);
+    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
+    auto var = (type_oper*)node->base.type;
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
+    ASSERT_EQ(2, array_size(&var->args));
+    string type_str = to_string(node->base.type);
+    ASSERT_STREQ("... -> int", string_get(&type_str));
+    env_free(menv);
+}
+
+TEST(testAnalyzer, testPrintfFunc)
+{
+    char test_code[] = R"(
+printf "%d" 100
+)";
+    menv* menv = create_env_for_string(test_code);
+    printf("parsing printf call\n");
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    type_env* env = menv->type_env;
+    printf("analyzing printf call\n");
+    analyze(env, (exp_node*)block);
+    printf("analyzed printf call\n");
+    auto node = *(exp_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_EQ(CALL_NODE, node->node_type);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("int", string_get(&type_str));
     env_free(menv);
 }

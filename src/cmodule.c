@@ -18,8 +18,10 @@ enum type _get_type(CXType cxtype)
         type = TYPE_DOUBLE;
     } else if (cxtype.kind == CXType_Bool){
         type = TYPE_BOOL;
-    } else if (cxtype.kind == CXType_Int || cxtype.kind == CXType_UInt || cxtype.kind == CXType_Pointer){
+    } else if (cxtype.kind == CXType_Int || cxtype.kind == CXType_UInt){
         type = TYPE_INT;
+    } else if (cxtype.kind == CXType_Pointer){
+        type = TYPE_STRING;
     } else if (cxtype.kind == CXType_Char_S){
         type = TYPE_CHAR;
     }
@@ -42,6 +44,7 @@ struct prototype_node* create_function_prototype(CXCursor cursor)
     struct type_exp* ret_type = (struct type_exp*)create_nullary_type(type);
     ARRAY_FUN_PARAM(fun_params);
     struct var_node fun_param;
+    fun_param.base.annotated_type = 0;
     int num_args = clang_Cursor_getNumArguments(cursor);
     bool is_variadic = clang_isFunctionTypeVariadic(cur_type);
     for (int i = 0; i < num_args; ++i){
