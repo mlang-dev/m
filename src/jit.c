@@ -66,6 +66,10 @@ void add_module(struct JIT* jit, void* module)
     LLVMOrcJITDylibRef jd = LLVMOrcLLJITGetMainJITDylib(j);
     LLVMOrcThreadSafeContextRef tsc = LLVMOrcCreateNewThreadSafeContext();
     LLVMOrcThreadSafeModuleRef tsm = LLVMOrcCreateNewThreadSafeModule((LLVMModuleRef)module, tsc);
+    LLVMOrcJITDylibDefinitionGeneratorRef dg;
+    LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, '_', 0, 0);
+    LLVMLoadLibraryPermanently("/usr/lib/libstdc++.so");
+    LLVMOrcJITDylibAddGenerator(jd, dg);
     LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
 }
 

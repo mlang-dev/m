@@ -127,3 +127,9 @@ void array_add(struct array* dest, struct array* src)
         array_push(dest, array_get(src, i));
     }
 }
+
+void array_clear(struct array* arr)
+{
+    array_deinit(arr);
+    array_init_free(arr, arr->_element_size, arr->free);
+}

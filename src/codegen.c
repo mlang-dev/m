@@ -12,6 +12,7 @@
 #include "clib/util.h"
 #include "codegen.h"
 #include "type.h"
+#include "llvm-c/Support.h"
 
 LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_node* node,
     bool is_external);
@@ -265,7 +266,7 @@ struct code_generator* cg_new(struct parser* parser)
     cg->context = context;
     cg->builder = LLVMCreateBuilderInContext(context);
     //cg->builtins = _get_builtins(context);
-    array_init(&cg->builtins, sizeof(struct exp_node*));
+    hashset_init(&cg->builtins);
     cg->module = 0;
     _set_bin_ops(cg);
     hashtable_init(&cg->gvs);
@@ -285,6 +286,7 @@ void cg_free(struct code_generator* cg)
     hashtable_deinit(&cg->gvs);
     hashtable_deinit(&cg->protos);
     hashtable_deinit(&cg->named_values);
+    hashset_deinit(&cg->builtins);
     free(cg);
     //LLVMShutdown();
 }
@@ -507,7 +509,11 @@ LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node
     //string *str = (string*)array_get(&proto->args, 0);
     //log_info(DEBUG, "generating prototype node: %s", string_get(&proto->name));
     hashtable_set(&cg->protos, string_get(&proto->name), proto);
-    LLVMTypeRef arg_types[array_size(&proto->fun_params)];
+    size_t param_count = array_size(&proto->fun_params);
+    if(proto->is_variadic)
+        param_count --;
+    assert(param_count>=0);
+    LLVMTypeRef arg_types[param_count];
     struct type_oper* proto_type = (struct type_oper*)proto->base.type;
     assert(proto_type->base.kind == KIND_OPER);
     struct type_exp* ret = *(struct type_exp**)array_back(&proto_type->args);
@@ -515,13 +521,13 @@ LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node
     enum type rettype = get_type(ret);
     //assert(ret && ret->type >= 0 && ret->type < TYPE_TYPES);
     //printf("ret type: %d\n", rettype);
-    for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
+    for (size_t i = 0; i < param_count; i++) {
         struct type_exp* type_exp = *(struct type_exp**)array_get(&proto_type->args, i);
         //assert(type_exp && type_exp->type >= 0 && type_exp->type < TYPE_TYPES);
         arg_types[i] = cg->ops[get_type(type_exp)].get_type(cg->context);
     }
     LLVMTypeRef ret_type = cg->ops[rettype].get_type(cg->context);
-    LLVMTypeRef ft = LLVMFunctionType(ret_type, arg_types, array_size(&proto->fun_params), proto->is_variadic);
+    LLVMTypeRef ft = LLVMFunctionType(ret_type, arg_types, param_count, proto->is_variadic);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(&proto->name), ft);
     for (unsigned i = 0; i < LLVMCountParams(fun); i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
@@ -735,15 +741,9 @@ void create_module_and_pass_manager(struct code_generator* cg,
     cg->module = moduleRef;
 }
 
-void generate_runtime_module(struct code_generator* cg, struct array* builtins)
+void generate_runtime_module(struct code_generator* cg)
 {
-    for (size_t i = 0; i < array_size(builtins); i++) {
-        struct exp_node* node = *(struct exp_node**)array_get(builtins, i);
-        //struct prototype_node* proto = (struct prototype_node*)node;
-        //string proto_str = to_string(proto->base.type);
-        //printf("generating: %s: %s\n", string_get(&proto->name), string_get(&proto_str));
-        generate_code(cg, node);
-    }
+    (void)cg; 
 }
 
 LLVMValueRef _generate_unk_node(struct code_generator* cg, struct exp_node* node)

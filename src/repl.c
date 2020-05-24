@@ -42,11 +42,11 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
     string fn = make_unique_name("main-fn");
     enum node_type node_type = node->node_type;
     if (!node->type)
-        analyze(jit->env->type_env, node);
+        analyze(jit->env->type_env, jit->cg, node);
     struct type_exp* type = node->type;
     struct eval_result result = { 0 };
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
-    analyze(jit->env->type_env, node);
+    analyze(jit->env->type_env, jit->cg, node);
     if (node) {
         void* p_fun = generate_code(jit->cg, node);
         if (p_fun) {
@@ -82,9 +82,9 @@ void eval_statement(void* p_jit, struct exp_node* node)
 {
     if (node) {
         struct JIT* jit = (struct JIT*)p_jit;
-        analyze(jit->env->type_env, node);
+        analyze(jit->env->type_env, jit->cg, node);
         string type_node_str = to_string(node->type);
-        printf("%s\n", string_get(&type_node_str));
+        //printf("%s\n", string_get(&type_node_str));
         string_deinit(&type_node_str);
         if (!node->type)
             goto exit;
@@ -99,7 +99,6 @@ void eval_statement(void* p_jit, struct exp_node* node)
             /*
              * evaluate an expression
              */
-            //printf("eval exp\n");
             struct eval_result result = eval_exp(jit, node);
             if (node->node_type != VAR_NODE)
                 _print(result);
@@ -113,14 +112,9 @@ struct JIT* build_jit(struct menv* env)
 {
     struct JIT* jit = jit_new(env->cg);
     jit->env = env;
-    //log_info(DEBUG, "creating builtins");
-    //log_info(DEBUG, "creating jit modules");
     _create_jit_module(env->cg);
-    log_info(DEBUG, "generating runtime modules");
-    generate_runtime_module(env->cg, &env->cg->builtins);
-    log_info(DEBUG, "adding to jit");
+    generate_runtime_module(env->cg);
     _add_current_module_to_jit(jit);
-    //log_info(DEBUG, "creating jit modules 2");
     _create_jit_module(env->cg);
     return jit;
 }

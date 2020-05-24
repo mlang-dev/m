@@ -39,6 +39,7 @@ void* array_front(struct array* arr);
 size_t array_size(struct array* arr);
 void array_free(struct array* arr);
 void array_add(struct array* dest, struct array* src);
+void array_clear(struct array* arr);
 
 #define ARRAY(var, elem_type, elem_deinit_fun) struct array var;     \
         array_init_free(&var, sizeof(elem_type), elem_deinit_fun)

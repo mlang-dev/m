@@ -13,6 +13,7 @@
 #include <llvm-c/TargetMachine.h>
 
 #include "clib/hashtable.h"
+#include "clib/hashset.h"
 #include "parser.h"
 
 #ifdef __cplusplus
@@ -63,14 +64,14 @@ struct code_generator {
     struct hashtable gvs; //hashtable of char* and var_node*
 
     struct ops ops[TYPE_TYPES];
-    struct array builtins;
+    hashset builtins; //hashtable of char*
 };
 
 struct code_generator* cg_new(struct parser* parser);
 void cg_free(struct code_generator* cg);
 void create_module_and_pass_manager(struct code_generator* cg, const char* module_name);
 LLVMValueRef generate_code(struct code_generator* cg, struct exp_node* node);
-void generate_runtime_module(struct code_generator* cg, struct array* builtins);
+void generate_runtime_module(struct code_generator* cg);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
 
 #define is_int_type(type) ( type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR )

@@ -60,7 +60,8 @@ struct prototype_node* create_function_prototype(CXCursor cursor)
         if (!string_size(&fun_param.var_name)){
             fun_param.var_name = str_format("arg%d", i); 
         }
-        fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(arg_type);       
+        fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(arg_type);   
+        fun_param.base.type = fun_param.base.annotated_type;
         array_push(&fun_params, &fun_param);
     }
     struct source_loc loc = {0, 1};

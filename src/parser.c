@@ -225,7 +225,6 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
     array_init(&args, sizeof(struct exp_node*));
     //doesn't allow function inside parameter or argument
     //will be enhanced later
-    log_info(DEBUG, "function app or def: %s", pid_name);
     string id_name;
     string_init_chars(&id_name, pid_name);
     parser->allow_id_as_a_func = false;
@@ -236,7 +235,6 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
                 parse_next_token(parser);
             }
             else{
-                printf("parsing exp: %s\n", token_type_strings[parser->curr_token.token_type]);
                 struct exp_node* arg = parse_exp(parser, parent, 0);
                 if (arg) {
                     if(is_variadic){
@@ -245,7 +243,6 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
                     }
                     array_push(&args, &arg);
                 }
-                printf("parsed exp: %p, %s\n", (void*)arg, token_type_strings[parser->curr_token.token_type]);
             }
             if (IS_OP(parser->curr_token.token_type) && string_eq_chars(parser->curr_token.str_val, "=")) {
                 func_definition = true;
@@ -262,7 +259,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
             func_definition = true;
     }
     parser->allow_id_as_a_func = true;
-    log_info(DEBUG, "is %s a function def: %d, %d, %zu", string_get(&id_name), func_definition, is_variadic, array_size(&args));
+    //log_info(DEBUG, "is %s a function def: %d, %d, %zu", string_get(&id_name), func_definition, is_variadic, array_size(&args));
     if (func_definition) {
         ARRAY_FUN_PARAM(fun_params);
         struct var_node fun_param;
@@ -286,10 +283,8 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
                 string_add_chars(&id_name, pid_name);
             }
         }
-        log_info(DEBUG, "prototype-0: %s", string_get(&id_name));
         struct prototype_node* prototype = create_prototype_node(parent, loc, string_get(&id_name), &fun_params, 0,
         is_operator, precedence, is_operator ? string_get(&id_name) : "", is_variadic);
-        log_info(DEBUG, "prototype: %s", string_get(&id_name));
         return _parse_function_with_prototype(parser, prototype);
         //log_info(DEBUG, "func: %s", id_name.c_str());
         //array_deinit(&argNames);
@@ -705,8 +700,6 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
     struct block_node* body = parse_block(parser, parent, 0, 0);
     if (body == 0)
         return 0;
-    struct exp_node* b_end = *(struct exp_node**)array_back(&body->nodes);
-    printf("end of exp of for body: %zu, %s\n", array_size(&body->nodes), node_type_strings[b_end->node_type]);
     return (struct exp_node*)create_for_node(parent, loc, string_get(&id_name), start, end, step, (struct exp_node*)body);
 }
 
