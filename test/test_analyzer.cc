@@ -227,7 +227,7 @@ TEST(testAnalyzer, testBoolFunc)
 
 TEST(testAnalyzer, testMultiParamFunc)
 {
-    char test_code[] = "avg x y = (x + y) / 2";
+    char test_code[] = "avg x y = (x + y) / 2.0";
     menv* menv = create_env_for_string(test_code);
     block_node* block = parse_block(menv->parser, 0, 0, 0);
     type_env* env = menv->type_env;
@@ -240,7 +240,7 @@ TEST(testAnalyzer, testMultiParamFunc)
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(3, array_size(&var->args));
     string type_str = to_string(node->base.type);
-    ASSERT_STREQ("int * int -> int", string_get(&type_str));
+    ASSERT_STREQ("double * double -> double", string_get(&type_str));
     env_free(menv);
 }
 

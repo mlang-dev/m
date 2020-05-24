@@ -59,7 +59,7 @@ factorial n =
 # using for loop
 loopprint n = 
   for i in 0..n
-    print i
+    printf "%d" i   # call c stdio printf
 ```
 
 ## useful tools

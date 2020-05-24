@@ -515,8 +515,6 @@ LLVMValueRef _generate_call_node(struct code_generator* cg, struct exp_node* nod
 LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node* node)
 {
     struct prototype_node* proto = (struct prototype_node*)node;
-    //string *str = (string*)array_get(&proto->args, 0);
-    //log_info(DEBUG, "generating prototype node: %s", string_get(&proto->name));
     hashtable_set(&cg->protos, string_get(&proto->name), proto);
     size_t param_count = array_size(&proto->fun_params);
     if(proto->is_variadic)
