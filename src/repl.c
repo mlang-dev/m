@@ -50,9 +50,9 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
     if (node) {
         void* p_fun = generate_code(jit->cg, node);
         if (p_fun) {
+            //LLVMDumpModule(jit->cg->module);
             _add_current_module_to_jit(jit);
             void* fp = find_target_address(jit, string_get(&fn));
-            //LLVMDumpModule(module);
             // keep global variables in the jit
             enum type ret_type = get_type(type);
             if (is_int_type(ret_type)) {

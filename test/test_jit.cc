@@ -327,11 +327,10 @@ to_string()
     env_free(env);
 }
 
-
 TEST(testJIT, testPrintfFunc)
 {
     char test_code[] = R"(
-printf "hello"
+printf "hello\n"
 )";
     menv* env = create_env_for_string(test_code);
     JIT* jit = build_jit(env);
@@ -343,7 +342,27 @@ printf "hello"
         eval_statement(jit, node);
     }
     auto msg = testing::internal::GetCapturedStdout();
-    ASSERT_STREQ("hello5\n", msg.c_str());
+    ASSERT_STREQ("hello\n6\n", msg.c_str());
+    jit_free(jit);
+    env_free(env);
+}
+
+TEST(testJIT, testPrintfMoreParamFunc)
+{
+    char test_code[] = R"(
+printf "hello:%d" 1
+)";
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    testing::internal::CaptureStdout();
+    auto end = 1;
+    for (int i = 0; i < end; i++) {
+        auto node = *(exp_node**)array_get(&block->nodes, i);
+        eval_statement(jit, node);
+    }
+    auto msg = testing::internal::GetCapturedStdout();
+    ASSERT_STREQ("hello:17\n", msg.c_str());
     jit_free(jit);
     env_free(env);
 }

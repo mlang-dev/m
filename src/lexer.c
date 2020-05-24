@@ -224,7 +224,17 @@ struct token* _tokenize_string(struct file_tokenizer* tokenizer)
 {
     string_copy_chars(&tokenizer->str_val, "");
     while (true) {
-        tokenizer->curr_char[0] = get_char(tokenizer);
+        char this_char = get_char(tokenizer);
+        /*escape sequence*/
+        if (tokenizer->curr_char[0] == '\\'){
+            if (this_char == 'n')
+                this_char = 0x0a;
+        }
+        tokenizer->curr_char[0] = this_char;
+        if(this_char == '\\'){
+            /*starting escape sequence*/
+            continue;
+        }
         if (tokenizer->curr_char[0] == '"')
             break;
         string_add_chars(&tokenizer->str_val, tokenizer->curr_char);

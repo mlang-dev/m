@@ -20,6 +20,26 @@ LLVMValueRef _generate_local_var_node(struct code_generator* cg, struct var_node
 LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node* node);
 LLVMValueRef _generate_block_node(struct code_generator* cg, struct exp_node* block);
 
+LLVMTypeRef get_int_type(LLVMContextRef context)
+{
+    return LLVMInt32TypeInContext(context);
+}
+
+LLVMTypeRef get_bool_type(LLVMContextRef context)
+{
+    return LLVMInt1TypeInContext(context);
+}
+
+LLVMTypeRef get_double_type(LLVMContextRef context)
+{
+    return LLVMDoubleTypeInContext(context);
+}
+
+LLVMTypeRef get_str_type(LLVMContextRef context)
+{
+    return LLVMPointerType(LLVMInt8TypeInContext(context), 0);
+}
+
 const char* buiiltin_funs[] = {
     "llvm.sin",
     "llvm.cos",
@@ -28,7 +48,7 @@ const char* buiiltin_funs[] = {
 
 struct prototype_node* _create_for_id(LLVMContextRef context, const char* name)
 {
-    LLVMTypeRef types[1] = { LLVMDoubleTypeInContext(context) };
+    LLVMTypeRef types[1] = { get_double_type(context) };
     unsigned id = LLVMLookupIntrinsicID(name, strlen(name));
     LLVMTypeRef fun = LLVMIntrinsicGetType(context, id, types, 1);
     size_t param_count = LLVMCountParamTypes(fun);
@@ -84,19 +104,19 @@ struct array _get_builtins(LLVMContextRef context)
 LLVMValueRef get_int_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
     (void)builder;
-    return LLVMConstInt(LLVMInt64TypeInContext(context), *(int*)value, true);
+    return LLVMConstInt(get_int_type(context), *(int*)value, true);
 }
 
 LLVMValueRef get_bool_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
     (void)builder;
-    return LLVMConstInt(LLVMInt1TypeInContext(context), *(int*)value, true);
+    return LLVMConstInt(get_bool_type(context), *(int*)value, true);
 }
 
 LLVMValueRef get_double_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
     (void)builder;
-    return LLVMConstReal(LLVMDoubleTypeInContext(context), *(double*)value);
+    return LLVMConstReal(get_double_type(context), *(double*)value);
 }
 
 LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
@@ -109,19 +129,19 @@ LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void*
 LLVMValueRef get_int_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
     (void)builder;
-    return LLVMConstInt(LLVMInt64TypeInContext(context), 0, true);
+    return LLVMConstInt(get_int_type(context), 0, true);
 }
 
 LLVMValueRef get_bool_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
     (void)builder;
-    return LLVMConstInt(LLVMInt1TypeInContext(context), 0, true);
+    return LLVMConstInt(get_bool_type(context), 0, true);
 }
 
 LLVMValueRef get_double_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
     (void)builder;
-    return LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0);
+    return LLVMConstReal(get_double_type(context), 0.0);
 }
 
 LLVMValueRef get_str_zero(LLVMContextRef context, LLVMBuilderRef builder)
@@ -132,28 +152,23 @@ LLVMValueRef get_str_zero(LLVMContextRef context, LLVMBuilderRef builder)
 
 LLVMValueRef get_int_one(LLVMContextRef context)
 {
-    return LLVMConstInt(LLVMInt64TypeInContext(context), 1, true);
+    return LLVMConstInt(get_int_type(context), 1, true);
 }
 
 LLVMValueRef get_bool_one(LLVMContextRef context)
 {
-    return LLVMConstInt(LLVMInt1TypeInContext(context), 1, true);
+    return LLVMConstInt(get_bool_type(context), 1, true);
 }
 
 LLVMValueRef get_double_one(LLVMContextRef context)
 {
-    return LLVMConstReal(LLVMDoubleTypeInContext(context), 1.0);
+    return LLVMConstReal(get_double_type(context), 1.0);
 }
 
 struct ops null_ops = { 0 };
 
-LLVMTypeRef get_str_type(LLVMContextRef context)
-{
-    return LLVMPointerType(LLVMInt8TypeInContext(context), 0);
-}
-
 struct ops bool_ops = { 
-    LLVMInt1TypeInContext,
+    get_bool_type,
     get_bool_const,
     get_bool_zero,
     get_bool_one,
@@ -175,7 +190,7 @@ struct ops bool_ops = {
 };
 
 struct ops int_ops = { 
-    LLVMInt64TypeInContext,
+    get_int_type,
     get_int_const,
     get_int_zero,
     get_int_one,
@@ -219,7 +234,7 @@ struct ops str_ops = {
 };
 
 struct ops double_ops = {
-    LLVMDoubleTypeInContext,
+    get_double_type,
     get_double_const,
     get_double_zero,
     get_double_one,
@@ -488,17 +503,11 @@ LLVMValueRef _generate_call_node(struct code_generator* cg, struct exp_node* nod
 {
     struct call_node* call = (struct call_node*)node;
     LLVMValueRef callee = _get_function(cg, string_get(&call->callee));
-    if(!callee)
-        return log_info(ERROR, "Unknown function referenced: %s", string_get(&call->callee));
-    if (LLVMCountParams(callee) != array_size(&call->args))
-        return log_info(ERROR,
-            "Incorrect number of arguments passed: callee (prototype "
-            "generated in llvm): %lu, calling: %lu",
-            LLVMCountParams(callee), array_size(&call->args));
+    assert(callee);
     LLVMValueRef arg_values[array_size(&call->args)];
     for (size_t i = 0, e = array_size(&call->args); i != e; ++i) {
-        LLVMValueRef ret = generate_code(cg, *(struct exp_node**)array_get(&call->args, i));
-        arg_values[i] = ret;
+        struct exp_node* arg = *(struct exp_node**)array_get(&call->args, i);
+        arg_values[i] = generate_code(cg, arg);
     }
     return LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "calltmp");
 }
@@ -609,16 +618,6 @@ LLVMValueRef _generate_condition_node(struct code_generator* cg, struct exp_node
     return phi_node;
 }
 
-// void test(struct code_generator* cg, const char* str)
-// {
-//   LLVMValueRef str_constant = LLVMConstStringInContext(cg->context, str, strlen(str), false);
-//   LLVMGetTypeOfValue(str_constant)
-//   LLVMValueRef gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context), var_name);
-//   LLVMSetUnnamedAddr(gVar, LLVMGlobalUnnamedAddr);
-//   LLVMSetAlignment(gVar, 1);
-//   return GV;
-// }
-
 LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_node* node,
     bool is_external)
 {
@@ -717,7 +716,7 @@ LLVMValueRef _generate_for_node(struct code_generator* cg, struct exp_node* node
     else
         hashtable_remove(&cg->named_values, var_name);
 
-    return LLVMConstNull(LLVMInt64TypeInContext(cg->context));
+    return LLVMConstNull(cg->ops[TYPE_INT].get_type(cg->context));
 }
 
 LLVMValueRef _generate_block_node(struct code_generator* cg, struct exp_node* node)

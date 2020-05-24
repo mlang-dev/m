@@ -231,6 +231,17 @@ TEST(testLexer, testStringLiteral)
     destroy_tokenizer(tokenizer);
 }
 
+TEST(testLexer, testStringLiteralWithNewLine)
+{
+    char test_code[] = R"("hello\n")";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_STRING, token->token_type);
+    ASSERT_STREQ("hello\n", string_get(token->str_val));
+    ASSERT_EQ(6, strlen(string_get(token->str_val)));
+    destroy_tokenizer(tokenizer);
+}
+
 TEST(testLexer, testStringLiteralMulti)
 {
     char test_code[] = R"("hello" "world")";

@@ -1,7 +1,7 @@
 # using for loop
 loopprint n = 
   for i in 0..n
-    print i
+    printf "%d\n" i
 
 # executable entry function
 main argc argv = 
