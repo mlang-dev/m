@@ -24,7 +24,9 @@ cd ../../../
 ```
 
 ## build mlang
+make sure CPATH env variable is set to folder where c standard headers are found. e.g. /usr/include or /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include
 ```
+export CPATH=/usr/include
 mkdir build
 cd build
 cmake ..
