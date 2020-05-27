@@ -12,6 +12,22 @@
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
+const char* kind_strings[] = {
+    FOREACH_KIND(GENERATE_ENUM_STRING)
+};
+
+const char* const type_strings[] = {
+    "unkown",
+    "...",
+    "()",
+    "bool",
+    "char",
+    "int",
+    "double",
+    "string",
+    "->",
+    "*",
+};
 struct type_var* create_type_var()
 {
     string name = get_id_name();

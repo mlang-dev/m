@@ -31,18 +31,7 @@ extern "C" {
 
 enum type { FOREACH_TYPE(GENERATE_ENUM) };
 
-static const char* const type_strings[] = {
-    "unkown",
-    "...",
-    "()",
-    "bool",
-    "char",
-    "int",
-    "double",
-    "string",
-    "->",
-    "*",
-};
+extern const char* const type_strings[TYPE_TYPES];
 
 #define FOREACH_KIND(ENUM_ITEM) \
     ENUM_ITEM(KIND_UNK)         \
@@ -51,9 +40,7 @@ static const char* const type_strings[] = {
 
 enum kind { FOREACH_KIND(GENERATE_ENUM) };
 
-static const char* kind_strings[] = {
-    FOREACH_KIND(GENERATE_ENUM_STRING)
-};
+extern const char* kind_strings[];
 
 //type variable or operator
 struct type_exp {

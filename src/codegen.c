@@ -167,6 +167,19 @@ LLVMValueRef get_double_one(LLVMContextRef context)
 
 struct ops null_ops = { 0 };
 
+LLVMValueRef int_cmp_op(LLVMBuilderRef builder, unsigned short op, LLVMValueRef lhs, LLVMValueRef rhs,
+    const char* name)
+{
+    return LLVMBuildICmp(builder, op, lhs, rhs, name);
+}
+
+
+LLVMValueRef double_cmp_op(LLVMBuilderRef builder, unsigned short op, LLVMValueRef lhs, LLVMValueRef rhs,
+    const char* name)
+{
+    return LLVMBuildFCmp(builder, op, lhs, rhs, name);
+}
+
 struct ops bool_ops = { 
     get_bool_type,
     get_bool_const,
@@ -176,7 +189,7 @@ struct ops bool_ops = {
     LLVMBuildSub,
     LLVMBuildMul,
     LLVMBuildSDiv,
-    (cmp_op)LLVMBuildICmp,
+    int_cmp_op,
     LLVMIntULT,
     LLVMIntUGT,
     LLVMIntEQ,
@@ -198,7 +211,7 @@ struct ops int_ops = {
     LLVMBuildSub,
     LLVMBuildMul,
     LLVMBuildSDiv,
-    (cmp_op)LLVMBuildICmp,
+    int_cmp_op,
     LLVMIntSLT,
     LLVMIntSGT,
     LLVMIntEQ,
@@ -220,7 +233,7 @@ struct ops str_ops = {
     LLVMBuildSub,
     LLVMBuildMul,
     LLVMBuildSDiv,
-    (cmp_op)LLVMBuildICmp,
+    int_cmp_op,
     LLVMIntSLT,
     LLVMIntSGT,
     LLVMIntEQ,
@@ -242,7 +255,7 @@ struct ops double_ops = {
     LLVMBuildFSub,
     LLVMBuildFMul,
     LLVMBuildFDiv,
-    (cmp_op)LLVMBuildFCmp,
+    double_cmp_op,
     LLVMRealULT,
     LLVMRealUGT,
     LLVMRealUEQ,
@@ -519,7 +532,6 @@ LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node
     size_t param_count = array_size(&proto->fun_params);
     if(proto->is_variadic)
         param_count --;
-    assert(param_count>=0);
     LLVMTypeRef arg_types[param_count];
     struct type_oper* proto_type = (struct type_oper*)proto->base.type;
     assert(proto_type->base.kind == KIND_OPER);

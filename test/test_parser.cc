@@ -243,8 +243,7 @@ TEST(testParser, testVariadicFunctionInvalidPosition)
     testing::internal::CaptureStderr();
     char test_code[] = "f ... x = 10";
     auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    parse_block(parser, 0, 0, 0);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :1:7: no parameter allowed after variadic\n", error.c_str());
     parser_free(parser);

@@ -11,6 +11,12 @@
 
 #include "clib/util.h"
 
+const char* log_level_strings[] = {
+    "debug",
+    "info",
+    "error"
+};
+
 static char id_name[512] = "a";
 void reset_id_name(const char* idname)
 {
@@ -91,7 +97,7 @@ void* log_info(enum LogLevel level, const char* string_format, ...)
 {
     va_list args;
     char format[512];
-    sprintf(format, "%s: %s\n", LogLevelString[level], string_format);
+    sprintf(format, "%s: %s\n", log_level_strings[level], string_format);
     va_start(args, string_format);
     if (level == ERROR)
         vfprintf(stderr, format, args);

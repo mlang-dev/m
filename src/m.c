@@ -27,7 +27,6 @@ int main(int argc, char* argv[])
     printf("m - 0.0.15\n");
     int option;
     int fflag = 0;
-    char* fopt = 0;
     enum object_file_type file_type = FT_OBJECT;
     struct array src_files;
     array_init(&src_files, sizeof(char*));
@@ -44,7 +43,6 @@ int main(int argc, char* argv[])
                 if (fflag || !file_type) {
                     print_usage();
                 }
-                fopt = optarg;
                 fflag = 1;
                 break;
             case '?':

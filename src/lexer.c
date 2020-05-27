@@ -12,6 +12,10 @@
 #include "clib/util.h"
 #include "lexer.h"
 
+const char* token_type_strings[] = {
+    FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
+};
+
 #define CUR_CHAR(tokenizer) tokenizer->curr_char[0]
 
 char op_chars[] = {

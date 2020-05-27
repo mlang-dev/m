@@ -146,7 +146,6 @@ TEST(testJITRelational, testLETrueE)
     char test_code[] = R"(
   10<=10
   )";
-    auto parser = create_parser_for_string(test_code);
     menv* env = create_env_for_string(test_code);
     JIT* jit = build_jit(env);
     block_node* block = parse_block(env->parser, 0, 0, 0);

@@ -61,9 +61,7 @@ enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 
 #define IS_OP(type)     (type >= TOKEN_OP)
 
-static const char* token_type_strings[] = {
-    FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
-};
+extern const char* token_type_strings[];
 
 struct source_loc {
     int line;

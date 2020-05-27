@@ -10,6 +10,10 @@
 
 #include "ast.h"
 
+const char* node_type_strings[] = {
+    FOREACH_NODETYPE(GENERATE_ENUM_STRING)
+};
+
 bool is_unary_op(struct prototype_node* node)
 {
     return node->is_operator && array_size(&node->fun_params) == UNARY_PARAM_SIZE;

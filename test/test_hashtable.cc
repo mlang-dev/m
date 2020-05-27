@@ -42,7 +42,7 @@ TEST(testHashtable, TestStrGeneric)
     char str1[] = "hello";
     char str2[] = "world";
     char str3[] = "something else";
-    int i = 100, j = 200, k = 300;
+    int i = 100, j = 200;
     hashtable_set(&ht, str1, &i);
     hashtable_set(&ht, str2, &j);
     ASSERT_EQ(2, hashtable_size(&ht));
@@ -62,7 +62,7 @@ TEST(testHashtable, TestRemove)
     char str1[] = "hello";
     char str2[] = "world";
     char str3[] = "something else";
-    int i = 100, j = 200, k = 300;
+    int i = 100, j = 200;
     hashtable_set(&ht, str1, &i);
     hashtable_set(&ht, str2, &j);
     ASSERT_EQ(2, hashtable_size(&ht));

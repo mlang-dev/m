@@ -102,7 +102,7 @@ TEST(testAnalyzer, testCallNode)
     menv* menv = create_env_for_string(test_code);
     block_node* block = parse_block(menv->parser, 0, 0, 0);
     type_env* env = menv->type_env;
-    struct type_exp* result = analyze(env, menv->cg, (exp_node*)block);
+    analyze(env, menv->cg, (exp_node*)block);
     auto node = *(call_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(CALL_NODE, node->base.node_type);
@@ -157,8 +157,6 @@ TEST(testAnalyzer, testIdentityFunc)
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    auto result_type = *(type_exp**)array_back(&var->args);
-    auto from_type = *(type_exp**)array_front(&var->args);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("a -> a", string_get(&type_str));    
     env_free(menv);
@@ -178,8 +176,6 @@ TEST(testAnalyzer, testIntIntFunc)
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    auto result_type = *(type_exp**)array_back(&var->args);
-    auto from_type = *(type_exp**)array_front(&var->args);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     env_free(menv);
@@ -199,8 +195,6 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    auto result_type = *(type_exp**)array_back(&var->args);
-    auto from_type = *(type_exp**)array_front(&var->args);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("double -> double", string_get(&type_str));
     env_free(menv);
@@ -309,8 +303,6 @@ distance x1 y1 x2 y2 =
     menv* menv = create_env_for_string(test_code);
     block_node* block = parse_block(menv->parser, 0, 0, 0);
     type_env* env = menv->type_env;
-    type_exp* sqrt_type = retrieve(env, "sqrt");
-    string hello = to_string(sqrt_type);
     analyze(env, menv->cg, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
