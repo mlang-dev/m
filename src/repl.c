@@ -12,15 +12,15 @@
 void _print(struct eval_result result)
 {
     if (result.type == TYPE_INT) {
-        printf("%d\n", result.i_value);
+        printf("%d", result.i_value);
     } else if (result.type == TYPE_BOOL) {
-        printf("%s\n", boolean_values[result.b_value]);
+        printf("%s", boolean_values[result.b_value]);
     } else if (result.type == TYPE_DOUBLE) {
-        printf("%f\n", result.d_value);
+        printf("%f", result.d_value);
     } else if (result.type == TYPE_CHAR) {
-        printf("%c\n", result.c_value);
+        printf("%c", result.c_value);
     } else if (result.type == TYPE_STRING) {
-        printf("%s\n", result.s_value);
+        printf("%s", result.s_value);
     }
 }
 
@@ -84,7 +84,6 @@ void eval_statement(void* p_jit, struct exp_node* node)
         struct JIT* jit = (struct JIT*)p_jit;
         analyze(jit->env->type_env, jit->cg, node);
         string type_node_str = to_string(node->type);
-        //printf("%s\n", string_get(&type_node_str));
         string_deinit(&type_node_str);
         if (!node->type)
             goto exit;
@@ -103,6 +102,7 @@ void eval_statement(void* p_jit, struct exp_node* node)
             if (node->node_type != VAR_NODE)
                 _print(result);
         }
+        printf(":%s\n", string_get(&type_node_str));
     }
 exit:
     fprintf(stderr, "m> ");

@@ -12,7 +12,7 @@
 #include "clib/util.h"
 #include "parser.h"
 
-#define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col < col && (parser->curr_token.token_type != TOKEN_EOS || parser->is_repl))
+#define exit_block(parser, parent, col) (parent && parser->curr_token.loc.col < col && (parser->curr_token.token_type != TOKEN_EOL || parser->is_repl))
 
 struct op_prec {
     char op[4];
@@ -162,7 +162,7 @@ struct exp_node* _parse_bool_value(struct parser* parser, struct exp_node* paren
     struct literal_node* result;
     result = create_bool_node(parent, parser->curr_token.loc,
         parser->curr_token.int_val);
-    if (parser->curr_token.token_type != TOKEN_EOS)
+    if (parser->curr_token.token_type != TOKEN_EOL)
         parse_next_token(parser);
     return (struct exp_node*)result;
 }
@@ -172,7 +172,7 @@ struct exp_node* _parse_char(struct parser* parser, struct exp_node* parent)
     struct literal_node* result;
     result = create_char_node(parent, parser->curr_token.loc,
         parser->curr_token.char_val);
-    if (parser->curr_token.token_type != TOKEN_EOS)
+    if (parser->curr_token.token_type != TOKEN_EOL)
         parse_next_token(parser);
     return (struct exp_node*)result;
 }
@@ -182,7 +182,7 @@ struct exp_node* _parse_string(struct parser* parser, struct exp_node* parent)
     struct literal_node* result;
     result = create_string_node(parent, parser->curr_token.loc,
         string_get(parser->curr_token.str_val));
-    if (parser->curr_token.token_type != TOKEN_EOS)
+    if (parser->curr_token.token_type != TOKEN_EOL)
         parse_next_token(parser);
     return (struct exp_node*)result;
 }
@@ -198,7 +198,7 @@ struct exp_node* _parse_number(struct parser* parser, struct exp_node* parent)
             parser->curr_token.double_val);
     else
         assert(false);
-    if (parser->curr_token.token_type != TOKEN_EOS)
+    if (parser->curr_token.token_type != TOKEN_EOL)
         parse_next_token(parser);
     return (struct exp_node*)result;
 }
@@ -247,7 +247,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
             if (IS_OP(parser->curr_token.token_type) && string_eq_chars(parser->curr_token.str_val, "=")) {
                 func_definition = true;
                 break;
-            } else if (parser->curr_token.token_type == TOKEN_RPAREN || parser->curr_token.token_type == TOKEN_EOS || parser->curr_token.token_type == TOKEN_EOF)
+            } else if (parser->curr_token.token_type == TOKEN_RPAREN || parser->curr_token.token_type == TOKEN_EOL || parser->curr_token.token_type == TOKEN_EOF)
                 break;
             else if (IS_OP(parser->curr_token.token_type) && string_eq_chars(parser->curr_token.str_val, ","))
                 parse_next_token(parser);
@@ -321,7 +321,7 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
         if (string_eq_chars(&op, "=")) {
             // variable definition
             node = _parse_var(parser, parent, string_get(&id_name));
-        } else if (parser->curr_token.token_type == TOKEN_EOS || parser->curr_token.token_type == TOKEN_EOF || _get_op_prec(&parser->op_precs, string_get(&op)) > 0) {
+        } else if (parser->curr_token.token_type == TOKEN_EOL || parser->curr_token.token_type == TOKEN_EOF || _get_op_prec(&parser->op_precs, string_get(&op)) > 0) {
             // just id expression evaluation
             struct exp_node* lhs = (struct exp_node*)create_ident_node(parent, parser->curr_token.loc, string_get(&id_name));
             node = parse_exp(parser, parent, lhs);
@@ -452,7 +452,7 @@ struct exp_node* _parse_node(struct parser* parser, struct exp_node* parent)
 struct exp_node* _parse_binary(struct parser* parser, struct exp_node* parent, int exp_prec, struct exp_node* lhs)
 {
     while (true) {
-        if (parser->curr_token.token_type == TOKEN_EOS)
+        if (parser->curr_token.token_type == TOKEN_EOL)
             return lhs;
         int tok_prec = _get_op_precedence(parser);
         if (tok_prec < exp_prec)
@@ -479,12 +479,12 @@ struct exp_node* _parse_binary(struct parser* parser, struct exp_node* parent, i
 
 struct exp_node* parse_exp(struct parser* parser, struct exp_node* parent, struct exp_node* lhs)
 {
-    if (parser->curr_token.token_type == TOKEN_EOS)
+    if (parser->curr_token.token_type == TOKEN_EOL)
         return lhs;
     if (!lhs)
         lhs = _parse_unary(parser, parent);
     //log_info(DEBUG, "got lhs: %s, %s", node_type_strings[lhs->node_type], parser->curr_token.str_val->c_str());
-    if (!lhs || parser->curr_token.token_type == TOKEN_EOS)
+    if (!lhs || parser->curr_token.token_type == TOKEN_EOL)
         return lhs;
     return _parse_binary(parser, parent, 0, lhs);
 }
@@ -627,7 +627,7 @@ struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent)
 {
     // If the current token is not an operator, it must be a primary expr.
     if (parser->curr_token.token_type == TOKEN_RANGE
-        || parser->curr_token.token_type == TOKEN_EOS
+        || parser->curr_token.token_type == TOKEN_EOL
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
     struct source_loc loc = parser->curr_token.loc;
@@ -694,7 +694,7 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent)
     struct exp_node* id_node = (struct exp_node*)create_ident_node(parent, start->loc, string_get(&id_name));
     //printf("end node: %p, %p\n", (void*)id_node, (void*)end_val);
     struct exp_node* end = (struct exp_node*)create_binary_node(parent, end_val->loc, "<", id_node, end_val);
-    // while (parser->curr_token.token_type == TOKEN_EOS)
+    // while (parser->curr_token.token_type == TOKEN_EOL)
     //     parse_next_token(parser);
 
     struct block_node* body = parse_block(parser, parent, 0, 0);
@@ -717,14 +717,14 @@ struct exp_node* _parse_if(struct parser* parser, struct exp_node* parent)
     if (parser->curr_token.token_type == TOKEN_THEN) {
         parse_next_token(parser); // eat the then
     }
-    while (parser->curr_token.token_type == TOKEN_EOS)
+    while (parser->curr_token.token_type == TOKEN_EOL)
         parse_next_token(parser);
     //log_info(DEBUG, "parsing then exp");
     struct exp_node* then = parse_exp(parser, parent, 0);
     if (then == 0)
         return 0;
 
-    while (parser->curr_token.token_type == TOKEN_EOS)
+    while (parser->curr_token.token_type == TOKEN_EOL)
         parse_next_token(parser);
     if (parser->curr_token.token_type != TOKEN_ELSE)
         return (struct exp_node*)log_info(ERROR, "expected else, got type: %s", node_type_strings[parser->curr_token.token_type]);
@@ -752,7 +752,7 @@ struct block_node* parse_block(struct parser* parser, struct exp_node* parent, v
             queue_token(parser, parser->curr_token);
             break;
         }
-        while (parser->curr_token.token_type == TOKEN_EOS)
+        while (parser->curr_token.token_type == TOKEN_EOL)
             parse_next_token(parser);
         if (exit_block(parser, parent, col)) {
             queue_token(parser, parser->curr_token);

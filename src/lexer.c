@@ -302,7 +302,7 @@ struct token* get_token(struct file_tokenizer* tokenizer)
     if (tokenizer->curr_char[0] == EOF)
         return _tokenize_type(tokenizer, TOKEN_EOF);
     else if (is_new_line(tokenizer->curr_char[0])) {
-        _tokenize_type(tokenizer, TOKEN_EOS);
+        _tokenize_type(tokenizer, TOKEN_EOL);
         tokenizer->curr_char[0] = ' '; // replaced with empty space
         return &tokenizer->cur_token;
     } else if (tokenizer->curr_char[0] == '\'') {

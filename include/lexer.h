@@ -20,7 +20,7 @@ extern "C" {
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
     ENUM_ITEM(TOKEN_UNK)             \
     ENUM_ITEM(TOKEN_EOF)             \
-    ENUM_ITEM(TOKEN_EOS)             \
+    ENUM_ITEM(TOKEN_EOL)             \
     ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_NUM)             \
     ENUM_ITEM(TOKEN_CHAR)            \

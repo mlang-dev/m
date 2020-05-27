@@ -342,7 +342,7 @@ printf "hello\n"
         eval_statement(jit, node);
     }
     auto msg = testing::internal::GetCapturedStdout();
-    ASSERT_STREQ("hello\n6\n", msg.c_str());
+    ASSERT_STREQ("hello\n6:int\n", msg.c_str());
     jit_free(jit);
     env_free(env);
 }
@@ -362,7 +362,7 @@ printf "hello:%d" 1
         eval_statement(jit, node);
     }
     auto msg = testing::internal::GetCapturedStdout();
-    ASSERT_STREQ("hello:17\n", msg.c_str());
+    ASSERT_STREQ("hello:17:int\n", msg.c_str());
     jit_free(jit);
     env_free(env);
 }
