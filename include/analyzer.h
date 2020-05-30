@@ -20,7 +20,7 @@ struct type_env {
     struct hashtable type_env; //hashtable of <string, struct type_exp*>
     struct hashtable builtin_types;
     struct hashtable builtin_nodes;
-    struct array nogens; //struct array of struct type_exp*
+    struct array nongens; //struct array of struct type_exp*
     struct array ref_builtin_names; //referred builtins of string
 };
 

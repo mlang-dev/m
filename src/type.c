@@ -118,17 +118,16 @@ bool _is_valid_args_size(struct array* args1, struct array* args2)
     return array_size(args1) == array_size(args2);
 }
 
-bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens)
+bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nongens)
 {
     type1 = prune(type1);
     type2 = prune(type2);
     if (type1 == type2)
         return true;
     if (type1->kind == KIND_VAR && type2->kind == KIND_VAR) {
-        if (_occurs_in_type_list((struct type_var*)type1, nogens) && !_occurs_in_type_list((struct type_var*)type2, nogens))
-            return unify(type2, type1, nogens);
-    }
-
+        if (_occurs_in_type_list((struct type_var*)type1, nongens) && !_occurs_in_type_list((struct type_var*)type2, nongens))
+            return unify(type2, type1, nongens);
+    } 
     if (type1->kind == KIND_VAR) {
         struct type_var* var = (struct type_var*)type1;
         if (occurs_in_type(var, type2) && type1 != type2)
@@ -138,7 +137,7 @@ bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens)
         }
     } else {
         if (type2->kind == KIND_VAR) {
-            return unify(type2, type1, nogens);
+            return unify(type2, type1, nongens);
         } else {
             struct type_oper* oper1 = (struct type_oper*)type1;
             struct type_oper* oper2 = (struct type_oper*)type2;
@@ -149,24 +148,24 @@ bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nogens)
             size_t arg_size = MIN(arg_size1, arg_size2);
             for (size_t i = 0; i < arg_size; i++) {
                 unify(*(struct type_exp**)array_get(&oper1->args, i==arg_size-1? arg_size1-1:i), 
-                *(struct type_exp**)array_get(&oper2->args, i==arg_size-1? arg_size2-1:i), nogens);
+                *(struct type_exp**)array_get(&oper2->args, i==arg_size-1? arg_size2-1:i), nongens);
             }
         }
     }
     return true;
 }
 
-bool _is_generic(struct type_var* var, struct array* nogen)
+bool _is_generic(struct type_var* var, struct array* nongens)
 {
-    return !_occurs_in_type_list(var, nogen);
+    return !_occurs_in_type_list(var, nongens);
 }
 
-struct type_exp* _freshrec(struct type_exp* type, struct array* nogen, struct hashtable* type_vars)
+struct type_exp* _freshrec(struct type_exp* type, struct array* nongens, struct hashtable* type_vars)
 {
     type = prune(type);
     if (type->kind == KIND_VAR) {
         struct type_var* var = (struct type_var*)type;
-        if (_is_generic(var, nogen)) {
+        if (_is_generic(var, nongens)) {
             struct type_var* temp = hashtable_get_p(type_vars, var);
             if (!temp) {
                 temp = create_type_var();
@@ -183,26 +182,26 @@ struct type_exp* _freshrec(struct type_exp* type, struct array* nogen, struct ha
     array_init(&refreshed, sizeof(struct type_exp*));
     for (size_t i = 0; i < array_size(&op->args); i++) {
         struct type_exp* arg_type = *(struct type_exp**)array_get(&op->args, i);
-        struct type_exp* new_arg_type = _freshrec(arg_type, nogen, type_vars);
+        struct type_exp* new_arg_type = _freshrec(arg_type, nongens, type_vars);
         array_push(&refreshed, &new_arg_type);
     }
     return (struct type_exp*)create_type_oper(type->type, &refreshed);
 }
 
-struct type_exp* fresh(struct type_exp* type, struct array* nogen)
+struct type_exp* fresh(struct type_exp* type, struct array* nongens)
 {
     struct hashtable type_vars;
     hashtable_init(&type_vars);
-    struct type_exp* result = _freshrec(type, nogen, &type_vars);
+    struct type_exp* result = _freshrec(type, nongens, &type_vars);
     hashtable_deinit(&type_vars);
     return result;
 }
 
-struct type_exp* retrieve_type(const char* name, struct array* nogen, struct hashtable* env)
+struct type_exp* retrieve_type(const char* name, struct array* nongens, struct hashtable* env)
 {
     struct type_exp* exp = (struct type_exp*)hashtable_get(env, name);
     if (exp) {
-        return fresh(exp, nogen);
+        return fresh(exp, nongens);
     }
     return 0;
 }
@@ -262,4 +261,47 @@ string to_string(struct type_exp* type)
         print_backtrace();
         assert(false);
     }
+}
+
+bool is_generic(struct type_exp* type)
+{
+    type = prune(type);
+    if (type->kind == KIND_VAR)
+        return true;
+    struct type_oper* op = (struct type_oper*)type;
+    for(size_t i = 0; i < array_size(&op->args); i++){
+        type = prune(*(struct type_exp**)array_get(&op->args, i));
+        if (type->kind == KIND_VAR)
+            return true;
+    }
+    return false;
+}
+
+bool is_any_generic(struct array* types)
+{
+    for(size_t i = 0; i < array_size(types); i++){
+        struct type_exp* exp = *(struct type_exp**)array_get(types, i);
+        if(is_generic(exp))
+            return true;
+    }
+    return false;
+}
+
+string monomorphize(const char* fun_name, struct array* types)
+{
+    string sp;
+    string_init_chars(&sp, "__");
+    string_add_chars(&sp, fun_name);
+    for(size_t i = 0; i < array_size(types); i++){
+        struct type_exp* type = *(struct type_exp**)array_get(types, i);
+        string type_str = to_string(type);
+        string_add(&sp, &type_str);
+        string_add_chars(&sp, "_");
+    }
+    return sp;
+}
+
+struct type_exp* clone(struct type_exp* type)
+{
+    return type;
 }

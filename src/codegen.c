@@ -558,6 +558,8 @@ LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node
 
 LLVMValueRef _generate_function_node(struct code_generator* cg, struct exp_node* node)
 {
+    //if(is_generic(node->type))
+    //    return 0;
     struct function_node* fun_node = (struct function_node*)node;
     hashtable_clear(&cg->named_values);
     LLVMValueRef fun = _generate_prototype_node(cg, (struct exp_node*)fun_node->prototype);

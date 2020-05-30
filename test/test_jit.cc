@@ -179,6 +179,28 @@ TEST(testJIT, testIdFunc)
     env_free(env);
 }
 
+// TEST(testJIT, testIdGenericFunc)
+// {
+//     char test_code[] = R"(
+//   f x = x
+//   f 10.0
+//   f 20
+//   )";
+//     menv* env = create_env_for_string(test_code);
+//     JIT* jit = build_jit(env);
+//     block_node* block = parse_block(env->parser, 0, 0, 0);
+//     auto node = *(exp_node**)array_front(&block->nodes);
+//     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
+//     auto node2 = *(exp_node**)array_back(&block->nodes);
+//     eval_statement(jit, node);
+//     auto result = eval_exp(jit, node1);
+//     ASSERT_EQ(10.0, result.d_value);
+//     result = eval_exp(jit, node2);
+//     ASSERT_EQ(20, result.i_value);
+//     jit_free(jit);
+//     env_free(env);
+// }
+
 TEST(testJIT, testSquareFunc)
 {
     char test_code[] = R"(

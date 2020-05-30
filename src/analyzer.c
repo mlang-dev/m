@@ -51,8 +51,8 @@ struct type_exp* _analyze_unk(struct type_env* env, struct exp_node* node)
 
 struct type_exp* retrieve(struct type_env* env, const char* name)
 {
-    struct type_exp* type = retrieve_type(name, &env->nogens, &env->type_env);
-    return type? type : retrieve_type(name, &env->nogens, &env->builtin_types);
+    struct type_exp* type = retrieve_type(name, &env->nongens, &env->type_env);
+    return type? type : retrieve_type(name, &env->nongens, &env->builtin_types);
 }
 
 void set(struct type_env* env, const char* name, struct type_exp* type)
@@ -87,7 +87,7 @@ struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
     if (!type)
         return 0;
     struct type_exp* result_type = (struct type_exp*)create_type_var();
-    unify(result_type, type, &env->nogens);
+    unify(result_type, type, &env->nongens);
     set(env, string_get(&var->var_name), result_type);
     return result_type;
 }
@@ -112,12 +112,17 @@ struct type_exp* _analyze_call(struct type_env* env, struct exp_node* node)
         struct type_exp* type = _analyze(env, arg);
         array_push(&args, &type);
     }
+    /*monomorphization of generic*/
+    if(is_generic(fun_type)&&(!is_any_generic(&args)&&array_size(&args))){
+        //call->callee = monomorphize(string_get(&call->callee), &args);
+        set(env, string_get(&call->callee), clone(fun_type));
+    }
     struct type_exp* result_type = (struct type_exp*)create_type_var();
     array_push(&args, &result_type);
  //   string fun_type_str = to_string(fun_type);
  //   printf("analyzing call: %s, %s\n", string_get(&call->callee), string_get(&fun_type_str));
     struct type_exp* call_fun = (struct type_exp*)create_type_fun(&args);
-    unify(call_fun, fun_type, &env->nogens);
+    unify(call_fun, fun_type, &env->nongens);
     if(is_builtin(env, string_get(&call->callee))){
         array_push(&env->ref_builtin_names, &call->callee);
     }
@@ -130,7 +135,7 @@ struct type_exp* _analyze_una(struct type_env* env, struct exp_node* node)
     struct type_exp* op_type = _analyze(env, unary->operand);
     if (string_eq_chars(&unary->op, "!")) {
         struct type_exp* bool_type = (struct type_exp*)create_nullary_type(TYPE_BOOL);
-        unify(op_type, bool_type, &env->nogens);
+        unify(op_type, bool_type, &env->nongens);
         unary->operand->type = op_type;
     }
     return op_type;
@@ -142,7 +147,7 @@ struct type_exp* _analyze_bin(struct type_env* env, struct exp_node* node)
     struct type_exp* lhs_type = _analyze(env, bin->lhs);
     struct type_exp* rhs_type = _analyze(env, bin->rhs);
     struct type_exp* result = 0;
-    if (unify(lhs_type, rhs_type, &env->nogens)) {
+    if (unify(lhs_type, rhs_type, &env->nongens)) {
         if (_is_predicate_op(string_get(&bin->op)))
             result = (struct type_exp*)create_nullary_type(TYPE_BOOL);
         else
@@ -157,10 +162,10 @@ struct type_exp* _analyze_cond(struct type_env* env, struct exp_node* node)
     struct condition_node* cond_node = (struct condition_node*)node;
     struct type_exp* cond_type = _analyze(env, cond_node->condition_node);
     struct type_oper* bool_type = create_nullary_type(TYPE_BOOL);
-    unify(cond_type, (struct type_exp*)bool_type, &env->nogens);
+    unify(cond_type, (struct type_exp*)bool_type, &env->nongens);
     struct type_exp* then_type = _analyze(env, cond_node->then_node);
     struct type_exp* else_type = _analyze(env, cond_node->else_node);
-    unify(then_type, else_type, &env->nogens);
+    unify(then_type, else_type, &env->nongens);
     return then_type;
 }
 
@@ -174,11 +179,11 @@ struct type_exp* _analyze_for(struct type_env* env, struct exp_node* node)
     struct type_exp* step_type = _analyze(env, for_node->step);
     struct type_exp* end_type = _analyze(env, for_node->end);
     struct type_exp* body_type = _analyze(env, for_node->body);
-    if(!unify(start_type, int_type, &env->nogens)){
+    if(!unify(start_type, int_type, &env->nongens)){
         printf("failed to unify start type as int: %s, %s\n", kind_strings[start_type->kind], node_type_strings[for_node->start->node_type]);
     }
-    unify(step_type, int_type, &env->nogens);
-    unify(end_type, bool_type, &env->nogens);
+    unify(step_type, int_type, &env->nongens);
+    unify(end_type, bool_type, &env->nongens);
     for_node->start->type = start_type;
     for_node->step->type = step_type;
     for_node->end->type = end_type;
@@ -191,7 +196,7 @@ struct type_env* type_env_new(struct code_generator* cg)
     (void)cg;
     struct type_env* env = malloc(sizeof(*env));
     memset((void*)env, 0, sizeof(struct type_env));
-    array_init(&env->nogens, sizeof(struct type_exp*));
+    array_init(&env->nongens, sizeof(struct type_exp*));
     array_init_free(&env->ref_builtin_names, sizeof(string), string_free_generic);
     hashtable_init(&env->type_env);
     hashtable_init(&env->builtin_types);
@@ -231,7 +236,7 @@ void type_env_free(struct type_env* env)
     hashtable_deinit(&env->builtin_types);
     hashtable_deinit(&env->builtin_nodes);
     array_deinit(&env->ref_builtin_names);
-    array_deinit(&env->nogens);
+    array_deinit(&env->nongens);
     free(env);
 }
 
@@ -279,7 +284,7 @@ struct type_exp* _analyze_fun(struct type_env* env, struct exp_node* node)
         else
             exp = (struct type_exp*)create_type_var();
         array_push(&fun_sig, &exp);
-        array_push(&env->nogens, &exp);
+        array_push(&env->nongens, &exp);
         set(env, string_get(&param->var_name), exp);
         //printf("setting fun arg: %s\n", arg_str);
     }
@@ -288,7 +293,7 @@ struct type_exp* _analyze_fun(struct type_env* env, struct exp_node* node)
     struct type_exp* ret_type = _analyze(env, (struct exp_node*)fun->body);
     array_push(&fun_sig, &ret_type);
     struct type_exp* result_type = (struct type_exp*)create_type_fun(&fun_sig);
-    unify(fun_type, result_type, &env->nogens);
+    unify(fun_type, result_type, &env->nongens);
     struct type_exp* result = prune(fun_type);
     fun->prototype->base.type = result;
     return result;
