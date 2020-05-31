@@ -10,7 +10,6 @@
 #define __MLANG_ENV_H__
 
 #include "analyzer.h"
-#include "codegen.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +18,6 @@ extern "C" {
 struct menv {
     struct type_env* type_env;
     struct parser* parser;
-    struct code_generator* cg;
 };
 
 struct menv* env_new(const char* file_name, bool is_repl, FILE* file);

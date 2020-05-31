@@ -30,24 +30,22 @@ char get_op_name(struct prototype_node* node)
     return string_back(&node->name);
 }
 
-struct function_node* create_function_node(struct prototype_node* prototype,
-    struct block_node* body)
-{
-    struct function_node* node = malloc(sizeof(*node));
-    node->base.type = 0;
-    node->base.annotated_type = 0;
-    node->base.node_type = FUNCTION_NODE;
-    node->base.parent = (struct exp_node*)prototype;
-    node->base.loc = prototype->base.loc;
-    node->prototype = prototype;
-    node->body = body;
-    return node;
-}
-
 struct type_exp* get_ret_type(struct function_node* fun_node)
 {
     struct type_oper* oper = (struct type_oper*)fun_node->base.type;
     return *(struct type_exp**)array_back(&oper->args);
+}
+
+struct block_node* _copy_block_node(struct block_node* orig_node)
+{
+    struct array nodes;
+    array_init(&nodes, sizeof(struct exp_node*));
+    for(size_t i = 0; i < array_size(&orig_node->nodes); i++){
+        struct exp_node* node = copy_node(*(struct exp_node**)array_get(&orig_node->nodes, i));
+        //printf("block node copy: %s\n", node_type_strings[node->node_type]);
+        array_push(&nodes, &node);
+    }
+    return create_block_node(orig_node->base.parent, &nodes);
 }
 
 struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc loc, const char* name)
@@ -62,6 +60,11 @@ struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc 
     return node;
 }
 
+struct ident_node* _copy_ident_node(struct ident_node* orig_node)
+{
+    return create_ident_node(orig_node->base.parent, orig_node->base.loc, 
+    string_get(&orig_node->name));
+}
 
 struct literal_node* _create_literal_node(struct exp_node* parent, struct source_loc loc, void* val, enum type type)
 {
@@ -109,6 +112,12 @@ struct literal_node* create_string_node(struct exp_node* parent, struct source_l
     return _create_literal_node(parent, loc, (void*)val, TYPE_STRING);
 }
 
+struct literal_node* _copy_literal_node(struct literal_node* orig_node)
+{
+    return _create_literal_node(orig_node->base.parent, orig_node->base.loc, &orig_node->char_val, 
+    orig_node->base.annotated_type->type);
+}
+
 struct var_node* create_var_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* init_value)
 {
     struct var_node* node = (struct var_node*)malloc(sizeof(*node));
@@ -133,7 +142,14 @@ struct call_node* create_call_node(struct exp_node* parent, struct source_loc lo
     node->base.loc = loc;
     string_init_chars(&node->callee, callee);
     array_copy(&node->args, args);
+    string_init(&node->specialized_callee);
     return node;
+}
+
+struct call_node* _copy_call_node(struct call_node* orig_node)
+{
+    return create_call_node(orig_node->base.parent, orig_node->base.loc, string_get(&orig_node->callee), 
+    &orig_node->args);
 }
 
 struct prototype_node* create_prototype_node_default(struct exp_node* parent, struct source_loc loc, const char* name, struct array* args, struct type_exp* ret_type, bool is_variadic)
@@ -168,6 +184,50 @@ struct prototype_node* create_prototype_node(struct exp_node* parent, struct sou
     return node;
 }
 
+struct prototype_node* _copy_prototype_node(struct prototype_node* proto)
+{
+    struct prototype_node* node = malloc(sizeof(*node));
+    node->base.node_type = PROTOTYPE_NODE;
+    node->base.annotated_type = proto->base.annotated_type;
+    node->base.type = 0;
+    node->base.parent = proto->base.parent;
+    node->base.loc = proto->base.loc;
+    string_init_chars(&node->name, string_get(&proto->name));
+    node->fun_params = proto->fun_params;
+    node->is_operator = proto->is_operator;
+    node->precedence = proto->precedence;
+    node->is_variadic = proto->is_variadic;
+    string_init_chars(&node->op, string_get(&proto->op));
+    struct var_node fun_param;
+    if(proto->is_variadic){
+        string_init_chars(&fun_param.var_name, type_strings[TYPE_GENERIC]);
+        fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_GENERIC);
+        array_push(&node->fun_params, &fun_param);
+    }
+    return node;
+}
+
+struct function_node* create_function_node(struct prototype_node* prototype,
+    struct block_node* body)
+{
+    struct function_node* node = malloc(sizeof(*node));
+    node->base.type = 0;
+    node->base.annotated_type = 0;
+    node->base.node_type = FUNCTION_NODE;
+    node->base.parent = (struct exp_node*)prototype;
+    node->base.loc = prototype->base.loc;
+    node->prototype = prototype;
+    node->body = body;
+    return node;
+}
+
+struct function_node* _copy_function_node(struct function_node* orig_node)
+{
+    struct prototype_node* proto = _copy_prototype_node(orig_node->prototype);
+    struct block_node* block = _copy_block_node(orig_node->body);
+    return create_function_node(proto, block);
+}
+
 struct condition_node* create_if_node(struct exp_node* parent, struct source_loc loc, struct exp_node* condition, struct exp_node* then_node,
     struct exp_node* else_node)
 {
@@ -183,6 +243,12 @@ struct condition_node* create_if_node(struct exp_node* parent, struct source_loc
     return node;
 }
 
+struct condition_node* _copy_if_node(struct condition_node* orig_node)
+{
+    return create_if_node(orig_node->base.parent, orig_node->base.loc, orig_node->condition_node, 
+    orig_node->then_node, orig_node->else_node);
+}
+
 struct unary_node* create_unary_node(struct exp_node* parent, struct source_loc loc, const char* op, struct exp_node* operand)
 {
     struct unary_node* node = malloc(sizeof(*node));
@@ -194,6 +260,11 @@ struct unary_node* create_unary_node(struct exp_node* parent, struct source_loc 
     string_init_chars(&node->op, op);
     node->operand = operand;
     return node;
+}
+
+struct unary_node* _copy_unary_node(struct unary_node* orig_node){
+    return create_unary_node(orig_node->base.parent, orig_node->base.loc, string_get(&orig_node->op),
+    orig_node->operand);
 }
 
 struct binary_node* create_binary_node(struct exp_node* parent, struct source_loc loc, const char* op, struct exp_node* lhs, struct exp_node* rhs)
@@ -208,6 +279,12 @@ struct binary_node* create_binary_node(struct exp_node* parent, struct source_lo
     node->lhs = lhs;
     node->rhs = rhs;
     return node;
+}
+
+struct binary_node* _copy_binary_node(struct binary_node* orig_node)
+{
+    return create_binary_node(orig_node->base.parent, orig_node->base.loc, string_get(&orig_node->op),
+    orig_node->lhs, orig_node->rhs);
 }
 
 struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* start,
@@ -227,6 +304,12 @@ struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc,
     return node;
 }
 
+struct for_node* _copy_for_node(struct for_node* orig_node)
+{
+    return create_for_node(orig_node->base.parent, orig_node->base.loc, 
+    string_get(&orig_node->var_name), orig_node->start, orig_node->end, orig_node->step, orig_node->body);
+}
+
 struct block_node* create_block_node(struct exp_node* parent, struct array* nodes)
 {
     struct block_node* node = malloc(sizeof(*node));
@@ -239,6 +322,35 @@ struct block_node* create_block_node(struct exp_node* parent, struct array* node
     return node;
 }
 
+struct exp_node* copy_node(struct exp_node* node)
+{
+    switch(node->node_type){
+        case BLOCK_NODE:
+            return (struct exp_node*)_copy_block_node((struct block_node*)node);
+        case PROTOTYPE_NODE:
+            return (struct exp_node*)_copy_prototype_node((struct prototype_node*)node);
+        case FUNCTION_NODE:
+            return (struct exp_node*)_copy_function_node((struct function_node*)node);
+        case IDENT_NODE:
+            return (struct exp_node*)_copy_ident_node((struct ident_node*)node);
+        case LITERAL_NODE:
+            return (struct exp_node*)_copy_literal_node((struct literal_node*)node);
+        case CALL_NODE:
+            return (struct exp_node*)_copy_call_node((struct call_node*)node);
+        case CONDITION_NODE:
+            return (struct exp_node*)_copy_if_node((struct condition_node*)node);
+        case FOR_NODE:
+            return (struct exp_node*)_copy_for_node((struct for_node*)node);
+        case UNARY_NODE:
+            return (struct exp_node*)_copy_unary_node((struct unary_node*)node);
+        case BINARY_NODE:
+            return (struct exp_node*)_copy_binary_node((struct binary_node*)node);
+        default:
+            assert(false);
+    }
+    return 0;
+}
+
 struct module* create_module(const char* mod_name, FILE* file)
 {
     struct module* mod = malloc(sizeof(*mod));
@@ -248,4 +360,20 @@ struct module* create_module(const char* mod_name, FILE* file)
     array_init(&mod->block->nodes, sizeof(struct exp_node*));
     mod->tokenizer = create_tokenizer(file, mod_name);
     return mod;
+}
+
+bool is_recursive(struct call_node* call)
+{
+    struct exp_node* parent = call->base.parent;
+    string* fun_name = 0;
+    while(parent){
+        if(parent->node_type == PROTOTYPE_NODE)
+            fun_name = &((struct prototype_node*)parent)->name;
+        else if(parent->node_type == FUNCTION_NODE)
+            fun_name = &((struct function_node*)parent)->prototype->name;
+        if(fun_name && string_eq(fun_name, &call->callee))
+            return true;
+        parent = parent->parent;
+    }
+    return false;
 }

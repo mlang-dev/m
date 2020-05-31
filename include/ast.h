@@ -108,6 +108,7 @@ struct for_node {
 struct call_node {
     struct exp_node base;
     string callee;
+    string specialized_callee;
     struct array args; //args: struct array of exp_node*
 };
 
@@ -138,6 +139,7 @@ struct type_exp* get_ret_type(struct function_node* fun_node);
 
 struct function_node* create_function_node(struct prototype_node* prototype,
     struct block_node* body);
+struct function_node* copy_function_node(struct function_node* fun, const char* name);
 struct ident_node* create_ident_node(struct exp_node* parent, struct source_loc loc, const char* name);
 struct literal_node* create_double_node(struct exp_node* parent, struct source_loc loc, double val);
 struct literal_node* create_int_node(struct exp_node* parent, struct source_loc loc, int val);
@@ -166,11 +168,13 @@ struct binary_node* create_binary_node(struct exp_node* parent, struct source_lo
 struct for_node* create_for_node(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* start,
     struct exp_node* end, struct exp_node* step, struct exp_node* body);
 struct block_node* create_block_node(struct exp_node* parent, struct array* nodes);
+struct exp_node* copy_node(struct exp_node* node);
 struct module* create_module(const char* mod_name, FILE* file);
 
 bool is_unary_op(struct prototype_node* pnode);
 bool is_binary_op(struct prototype_node* pnode);
 char get_op_name(struct prototype_node* pnode);
+bool is_recursive(struct call_node* call);
 
 #ifdef __cplusplus
 }

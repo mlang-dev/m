@@ -164,8 +164,8 @@ y
 TEST(testJIT, testIdFunc)
 {
     char test_code[] = R"(
-  f x = x
-  f 10.0
+  id x = x
+  id 10.0
   )";
     menv* env = create_env_for_string(test_code);
     JIT* jit = build_jit(env);
@@ -179,33 +179,33 @@ TEST(testJIT, testIdFunc)
     env_free(env);
 }
 
-// TEST(testJIT, testIdGenericFunc)
-// {
-//     char test_code[] = R"(
-//   f x = x
-//   f 10.0
-//   f 20
-//   )";
-//     menv* env = create_env_for_string(test_code);
-//     JIT* jit = build_jit(env);
-//     block_node* block = parse_block(env->parser, 0, 0, 0);
-//     auto node = *(exp_node**)array_front(&block->nodes);
-//     auto node1 = *(exp_node**)array_get(&block->nodes, 1);
-//     auto node2 = *(exp_node**)array_back(&block->nodes);
-//     eval_statement(jit, node);
-//     auto result = eval_exp(jit, node1);
-//     ASSERT_EQ(10.0, result.d_value);
-//     result = eval_exp(jit, node2);
-//     ASSERT_EQ(20, result.i_value);
-//     jit_free(jit);
-//     env_free(env);
-// }
+TEST(testJIT, testIdGenericFunc)
+{
+    char test_code[] = R"(
+  id_g x = x
+  id_g 10.0
+  id_g 20
+  )";
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    auto node1 = *(exp_node**)array_get(&block->nodes, 1);
+    auto node2 = *(exp_node**)array_back(&block->nodes);
+    eval_statement(jit, node);
+    auto result = eval_exp(jit, node1);
+    ASSERT_EQ(10.0, result.d_value);
+    result = eval_exp(jit, node2);
+    ASSERT_EQ(20, result.i_value);
+    jit_free(jit);
+    env_free(env);
+}
 
 TEST(testJIT, testSquareFunc)
 {
     char test_code[] = R"(
-  f x = x * x
-  f 10.0
+  sq x = x * x
+  sq 10.0
   )";
     menv* env = create_env_for_string(test_code);
     JIT* jit = build_jit(env);
@@ -222,11 +222,11 @@ TEST(testJIT, testSquareFunc)
 TEST(testJIT, testIfFunc)
 {
     char test_code[] = R"(
-  f x = 
+  if_f x = 
     if x < 10 then x
     else 0
-  f 5
-  f 10
+  if_f 5
+  if_f 10
   )";
     menv* env = create_env_for_string(test_code);
     JIT* jit = build_jit(env);

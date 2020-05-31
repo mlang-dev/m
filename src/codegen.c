@@ -293,13 +293,13 @@ struct code_generator* cg_new(struct parser* parser)
     cg->parser = parser;
     cg->context = context;
     cg->builder = LLVMCreateBuilderInContext(context);
-    //cg->builtins = _get_builtins(context);
     hashset_init(&cg->builtins);
     cg->module = 0;
     _set_bin_ops(cg);
     hashtable_init(&cg->gvs);
     hashtable_init(&cg->protos);
     hashtable_init(&cg->named_values);
+    hashtable_init(&cg->specialized_nodes);
     return cg;
 }
 
@@ -311,6 +311,7 @@ void cg_free(struct code_generator* cg)
     if (cg->module)
         LLVMDisposeModule(cg->module);
     LLVMContextDispose(cg->context);
+    hashtable_deinit(&cg->specialized_nodes);
     hashtable_deinit(&cg->gvs);
     hashtable_deinit(&cg->protos);
     hashtable_deinit(&cg->named_values);
@@ -512,19 +513,6 @@ LLVMValueRef _generate_binary_node(struct code_generator* cg, struct exp_node* n
     }
 }
 
-LLVMValueRef _generate_call_node(struct code_generator* cg, struct exp_node* node)
-{
-    struct call_node* call = (struct call_node*)node;
-    LLVMValueRef callee = _get_function(cg, string_get(&call->callee));
-    assert(callee);
-    LLVMValueRef arg_values[array_size(&call->args)];
-    for (size_t i = 0, e = array_size(&call->args); i != e; ++i) {
-        struct exp_node* arg = *(struct exp_node**)array_get(&call->args, i);
-        arg_values[i] = generate_code(cg, arg);
-    }
-    return LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "calltmp");
-}
-
 LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node* node)
 {
     struct prototype_node* proto = (struct prototype_node*)node;
@@ -536,13 +524,9 @@ LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node
     struct type_oper* proto_type = (struct type_oper*)proto->base.type;
     assert(proto_type->base.kind == KIND_OPER);
     struct type_exp* ret = *(struct type_exp**)array_back(&proto_type->args);
-    //printf("ret num of types: %zu, %p\n", array_size(&proto_type->args), (void*)ret);
     enum type rettype = get_type(ret);
-    //assert(ret && ret->type >= 0 && ret->type < TYPE_TYPES);
-    //printf("ret type: %d\n", rettype);
     for (size_t i = 0; i < param_count; i++) {
         struct type_exp* type_exp = *(struct type_exp**)array_get(&proto_type->args, i);
-        //assert(type_exp && type_exp->type >= 0 && type_exp->type < TYPE_TYPES);
         arg_types[i] = cg->ops[get_type(type_exp)].get_type(cg->context);
     }
     LLVMTypeRef ret_type = cg->ops[rettype].get_type(cg->context);
@@ -558,17 +542,13 @@ LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node
 
 LLVMValueRef _generate_function_node(struct code_generator* cg, struct exp_node* node)
 {
-    //if(is_generic(node->type))
-    //    return 0;
     struct function_node* fun_node = (struct function_node*)node;
+    if(is_generic(node->type)){
+        return 0;
+    }
     hashtable_clear(&cg->named_values);
     LLVMValueRef fun = _generate_prototype_node(cg, (struct exp_node*)fun_node->prototype);
     assert (fun);
-    // if (is_binary_op(node->prototype)){
-    //   log_info(DEBUG, "found a binary op def ! op:%c, prec: %d", get_op_name(node->prototype), node->prototype->precedence);
-    //   (*cg->parser->op_precedences)[get_op_name(node->prototype)] =
-    //       node->prototype->precedence;
-    // }
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
     LLVMPositionBuilderAtEnd(cg->builder, bb);
     _create_argument_allocas(cg, fun_node->prototype, fun);
@@ -584,10 +564,22 @@ LLVMValueRef _generate_function_node(struct code_generator* cg, struct exp_node*
     }
     assert(ret_val);
     LLVMBuildRet(cg->builder, ret_val);
-    // Function *pfun = (Function*)fun;
-    // ((llvm::legacy::FunctionPassManager*)cg->fpm)->run(*pfun);
-    // llvm::verifyFunction(*pfun);
     return fun;
+}
+
+LLVMValueRef _generate_call_node(struct code_generator* cg, struct exp_node* node)
+{
+    struct call_node* call = (struct call_node*)node;
+    bool req_spec_cg = !string_eq_chars(&call->specialized_callee, "");
+    string* callee_name = req_spec_cg? &call->specialized_callee : &call->callee;
+    LLVMValueRef callee = _get_function(cg, string_get(callee_name));
+    assert(callee);
+    LLVMValueRef arg_values[array_size(&call->args)];
+    for (size_t i = 0, e = array_size(&call->args); i != e; ++i) {
+        struct exp_node* arg = *(struct exp_node**)array_get(&call->args, i);
+        arg_values[i] = generate_code(cg, arg);
+    }
+    return LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "calltmp");
 }
 
 LLVMValueRef _generate_condition_node(struct code_generator* cg, struct exp_node* node)
@@ -597,7 +589,6 @@ LLVMValueRef _generate_condition_node(struct code_generator* cg, struct exp_node
     LLVMValueRef cond_v = generate_code(cg, cond->condition_node);
     assert(cond_v);
 
-    //cond_v = LLVMBuildFCmp(builder, LLVMRealONE, cond_v, LLVMConstReal(LLVMDoubleTypeInContext(context), 0.0), "ifcond");
     cond_v = LLVMBuildICmp(cg->builder, LLVMIntNE, cond_v, cg->ops[TYPE_INT].get_zero(cg->context, cg->builder), "ifcond");
 
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); 

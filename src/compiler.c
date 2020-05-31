@@ -23,23 +23,24 @@ int compile(const char* fn, enum object_file_type file_type)
     string_init_chars(&filename, fn);
     string_substr(&filename, '.');
     struct menv* env = env_new(fn, false, 0);
-    create_module_and_pass_manager(env->cg, string_get(&filename));
+    struct code_generator* cg = env->type_env->cg;
+    create_module_and_pass_manager(cg, string_get(&filename));
     struct block_node* block = parse_block(env->parser, 0, 0, 0);
-    analyze(env->type_env, env->cg, (struct exp_node*)block);
+    analyze(env->type_env, (struct exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
             struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
-            generate_code(env->cg, node);
+            generate_code(cg, node);
         }
         if (file_type == FT_OBJECT) {
             string_add_chars(&filename, ".o");
-            generate_object_file(env->cg->module, string_get(&filename));
+            generate_object_file(cg->module, string_get(&filename));
         } else if (file_type == FT_BITCODE) {
             string_add_chars(&filename, ".bc");
-            generate_bitcode_file(env->cg->module, string_get(&filename));
+            generate_bitcode_file(cg->module, string_get(&filename));
         } else if (file_type == FT_IR) {
             string_add_chars(&filename, ".ir");
-            generate_ir_file(env->cg->module, string_get(&filename));
+            generate_ir_file(cg->module, string_get(&filename));
         }
     } else {
         log_info(INFO, "no statement is found.");

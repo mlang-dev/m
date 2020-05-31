@@ -22,7 +22,7 @@ no_exist_function_call ()
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_env* env = menv->type_env;
-    analyze(env, menv->cg, (exp_node*)block);
+    analyze(env, (exp_node*)block);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :1:1: no_exist_function_call not defined\n", error.c_str());
     env_free(menv);

@@ -28,15 +28,28 @@ const char* const type_strings[] = {
     "->",
     "*",
 };
-struct type_var* create_type_var()
+struct type_var* _create_type_var(string name)
 {
-    string name = get_id_name();
     struct type_var* var = malloc(sizeof(*var));
     var->base.kind = KIND_VAR;
     var->base.type = 0;
     var->name = name;
     var->instance = 0;
     return var;
+}
+
+struct type_var* create_type_var()
+{
+    string name = get_id_name();
+    return _create_type_var(name);
+}
+
+struct type_var* copy_type_var(struct type_var* var)
+{
+    struct type_var* copy_var = _create_type_var(var->name);
+    copy_var->instance = var->instance;
+    copy_var->base.type = var->base.type;
+    return copy_var;
 }
 
 struct type_oper* create_type_oper(enum type type, struct array* args)
@@ -125,14 +138,20 @@ bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nongens
     if (type1 == type2)
         return true;
     if (type1->kind == KIND_VAR && type2->kind == KIND_VAR) {
+        /*type1 is non-generic, type2 is generic*/
         if (_occurs_in_type_list((struct type_var*)type1, nongens) && !_occurs_in_type_list((struct type_var*)type2, nongens))
             return unify(type2, type1, nongens);
+        else {
+            struct type_var* var = (struct type_var*)type1;
+            var->instance = type2;
+        }
     } 
     if (type1->kind == KIND_VAR) {
         struct type_var* var = (struct type_var*)type1;
-        if (occurs_in_type(var, type2) && type1 != type2)
+        if (occurs_in_type(var, type2) && type1 != type2){
+            assert(false);
             return false;
-        else {
+        } else {
             var->instance = type2;
         }
     } else {
@@ -209,6 +228,11 @@ struct type_exp* retrieve_type(const char* name, struct array* nongens, struct h
 void set_type(struct hashtable* env, const char* name, struct type_exp* type)
 {
     hashtable_set(env, name, type);
+}
+
+bool has_type(struct hashtable* env, const char* name)
+{
+    return hashtable_in(env, name);
 }
 
 enum type get_type(struct type_exp* type)
@@ -295,13 +319,31 @@ string monomorphize(const char* fun_name, struct array* types)
     for(size_t i = 0; i < array_size(types); i++){
         struct type_exp* type = *(struct type_exp**)array_get(types, i);
         string type_str = to_string(type);
-        string_add(&sp, &type_str);
         string_add_chars(&sp, "_");
+        string_add(&sp, &type_str);
     }
     return sp;
 }
 
 struct type_exp* clone(struct type_exp* type)
 {
-    return type;
+    type = prune(type);
+    struct type_exp* copy;
+    if (type->kind == KIND_VAR){
+        copy = (struct type_exp*)copy_type_var((struct type_var*)type);
+    }
+    else if(type->kind == KIND_OPER){
+        struct type_oper* oper = (struct type_oper*)type;
+        struct array args;
+        array_init(&args, sizeof(struct type_exp*));
+        for(size_t i = 0; i < array_size(&oper->args); i++){
+            struct type_exp* arg = clone(*(struct type_exp**)array_get(&oper->args, i));
+            array_push(&args, &arg);
+        }
+        copy = (struct type_exp*)create_type_oper(oper->base.type, &args);
+    }
+    else {
+        assert(false);
+    }
+    return copy;
 }

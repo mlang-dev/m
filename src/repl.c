@@ -42,11 +42,11 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
     string fn = make_unique_name("main-fn");
     enum node_type node_type = node->node_type;
     if (!node->type)
-        analyze(jit->env->type_env, jit->cg, node);
+        analyze(jit->env->type_env, node);
     struct type_exp* type = node->type;
     struct eval_result result = { 0 };
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
-    analyze(jit->env->type_env, jit->cg, node);
+    analyze(jit->env->type_env, node);
     if (node) {
         void* p_fun = generate_code(jit->cg, node);
         if (p_fun) {
@@ -82,7 +82,7 @@ void eval_statement(void* p_jit, struct exp_node* node)
 {
     if (node) {
         struct JIT* jit = (struct JIT*)p_jit;
-        analyze(jit->env->type_env, jit->cg, node);
+        analyze(jit->env->type_env, node);
         string type_node_str = to_string(node->type);
         string_deinit(&type_node_str);
         if (!node->type)
@@ -110,12 +110,13 @@ exit:
 
 struct JIT* build_jit(struct menv* env)
 {
-    struct JIT* jit = jit_new(env->cg);
+    struct code_generator* cg = env->type_env->cg;
+    struct JIT* jit = jit_new(cg);
     jit->env = env;
-    _create_jit_module(env->cg);
-    generate_runtime_module(env->cg);
+    _create_jit_module(cg);
+    generate_runtime_module(cg);
     _add_current_module_to_jit(jit);
-    _create_jit_module(env->cg);
+    _create_jit_module(cg);
     return jit;
 }
 

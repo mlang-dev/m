@@ -18,16 +18,18 @@ extern "C" {
 
 struct type_env {
     struct hashtable type_env; //hashtable of <string, struct type_exp*>
+    struct hashtable generic_nodes;/*hashtable of <string, struct exp_node*>*/
     struct hashtable builtin_types;
     struct hashtable builtin_nodes;
     struct array nongens; //struct array of struct type_exp*
     struct array ref_builtin_names; //referred builtins of string
+    struct code_generator* cg;
 };
 
 struct type_exp* retrieve(struct type_env* env, const char* name);
-struct type_env* type_env_new(struct code_generator* cg);
+struct type_env* type_env_new(struct parser* parser);
 void type_env_free(struct type_env* env);
-struct type_exp* analyze(struct type_env* env, struct code_generator* cg, struct exp_node* node);
+struct type_exp* analyze(struct type_env* env, struct exp_node* node);
 bool is_builtin(struct type_env* env, const char* name);
 
 #ifdef __cplusplus

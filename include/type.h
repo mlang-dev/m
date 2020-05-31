@@ -75,6 +75,7 @@ bool is_generic(struct type_exp* type);
 bool is_any_generic(struct array* types);
 string monomorphize(const char* fun_name, struct array* types);
 struct type_exp* clone(struct type_exp* type);
+bool has_type(struct hashtable* env, const char* name);
 
 #ifdef __cplusplus
 }
