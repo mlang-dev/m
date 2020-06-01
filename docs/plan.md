@@ -3,8 +3,9 @@ layout: default
 ---
 
 ### next development plans:
+- debug support
 - operators
-  - binary operator: \%, **
+  - binary operator: **
 - heap types
   - string
   - tuple
@@ -13,7 +14,6 @@ layout: default
   - queue/dequeue
   - map/set
   - RAII memory management
-- c interoperation
 - wasm target support
 - code in browser
 - multiple modules

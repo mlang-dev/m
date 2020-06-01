@@ -189,6 +189,7 @@ struct ops bool_ops = {
     LLVMBuildSub,
     LLVMBuildMul,
     LLVMBuildSDiv,
+    LLVMBuildSRem,
     int_cmp_op,
     LLVMIntULT,
     LLVMIntUGT,
@@ -211,6 +212,7 @@ struct ops int_ops = {
     LLVMBuildSub,
     LLVMBuildMul,
     LLVMBuildSDiv,
+    LLVMBuildSRem,
     int_cmp_op,
     LLVMIntSLT,
     LLVMIntSGT,
@@ -233,6 +235,7 @@ struct ops str_ops = {
     LLVMBuildSub,
     LLVMBuildMul,
     LLVMBuildSDiv,
+    LLVMBuildSRem,
     int_cmp_op,
     LLVMIntSLT,
     LLVMIntSGT,
@@ -255,6 +258,7 @@ struct ops double_ops = {
     LLVMBuildFSub,
     LLVMBuildFMul,
     LLVMBuildFDiv,
+    LLVMBuildFRem,
     double_cmp_op,
     LLVMRealULT,
     LLVMRealUGT,
@@ -470,6 +474,8 @@ LLVMValueRef _generate_binary_node(struct code_generator* cg, struct exp_node* n
         return ops->mul(cg->builder, lv, rv, "multmp");
     else if (string_eq_chars(&bin->op, "/"))
         return ops->div(cg->builder, lv, rv, "divtmp");
+    else if (string_eq_chars(&bin->op, "%"))
+        return ops->rem(cg->builder, lv, rv, "remtmp");
     else if (string_eq_chars(&bin->op, "<")) {
         lv = ops->cmp(cg->builder, ops->cmp_lt, lv, rv, "cmplttmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");

@@ -44,6 +44,22 @@ TEST(testJIT, testNegNumber)
     env_free(env);
 }
 
+TEST(testJIT, testRemainderOp)
+{
+    char test_code[] = R"(
+  10%3
+  )";
+    menv* env = create_env_for_string(test_code);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_block(env->parser, 0, 0, 0);
+    auto node1 = *(exp_node**)array_front(&block->nodes);
+    auto result = eval_exp(jit, node1);
+    ASSERT_EQ(TYPE_INT, result.type);
+    ASSERT_EQ(1, result.i_value);
+    jit_free(jit);
+    env_free(env);
+}
+
 TEST(testJIT, testPositiveNumber)
 {
     char test_code[] = R"(

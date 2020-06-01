@@ -40,6 +40,7 @@ struct ops {
     binary_op sub;
     binary_op mul;
     binary_op div;
+    binary_op rem;
     cmp_op cmp;
     unsigned short cmp_lt;
     unsigned short cmp_gt;

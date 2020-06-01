@@ -222,6 +222,11 @@ struct type_exp* _analyze_binary(struct type_env* env, struct exp_node* node)
         else
             result = lhs_type;
         return result;
+    }else{
+        string error;
+        string_init_chars(&error, "type not same for binary op: ");
+        string_add(&error, &bin->op);
+        _log_err(env, bin->base.loc, string_get(&error));
     }
     return result;
 }
