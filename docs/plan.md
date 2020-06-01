@@ -5,9 +5,6 @@ layout: default
 ### next development plans:
 - operators
   - binary operator: \%, **
-- basic stack variable types
-  - char
-  - unit: ()
 - heap types
   - string
   - tuple

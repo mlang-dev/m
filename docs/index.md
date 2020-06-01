@@ -21,6 +21,14 @@ It is under active development, currently it supports following features
   - \<= less than or equals
   - \!= not equal
 
+- support types:
+  - unit
+  - bool
+  - char
+  - int
+  - double
+  - string (basic stack-based)
+
 - logical operators:
   - \|\| or
   - && and
@@ -31,7 +39,6 @@ It is under active development, currently it supports following features
   - for loop
 
 - operator overload
-  
   for examples
   - binary: ```(|>) x f = f x```
   - unary: ```(!) x = 0 - x```
