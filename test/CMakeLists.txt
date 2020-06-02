@@ -162,6 +162,7 @@ link_libraries(
 add_executable(mtest
   tutil.cc
   test.cc
+  test_math.cc
   test_string.cc
   test_array.cc
   test_queue.cc

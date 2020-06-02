@@ -15,7 +15,7 @@ It is under active development, currently it supports following features
   - \-    subtraction
   - \*    multiplication
   - /     division
-  - %    remainder
+  - %     remainder
 
 - relational operators:
   - == equality

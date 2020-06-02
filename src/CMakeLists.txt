@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 include(GoogleTest)
 
 add_library(mlr 
+  clib/math.c
   clib/object.c
   clib/array.c
   clib/string.c
