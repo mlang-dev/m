@@ -28,6 +28,7 @@ const char* const type_strings[] = {
     "->",
     "*",
 };
+
 struct type_var* _create_type_var(string name)
 {
     struct type_var* var = malloc(sizeof(*var));

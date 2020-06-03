@@ -55,6 +55,25 @@ TEST(testHashtable, TestStrGeneric)
     hashtable_deinit(&ht);
 }
 
+TEST(testHashtable, TestStrInt)
+{
+    hashtable ht;
+    hashtable_init(&ht);
+    char str1[] = "hello";
+    char str2[] = "world";
+    char str3[] = "something else";
+    hashtable_set_int(&ht, str1, 100);
+    hashtable_set_int(&ht, str2, 200);
+    ASSERT_EQ(2, hashtable_size(&ht));
+    ASSERT_TRUE(hashtable_in(&ht, str1));
+    ASSERT_TRUE(hashtable_in(&ht, str2));
+    ASSERT_EQ(100, hashtable_get_int(&ht, str1));
+    ASSERT_EQ(200, hashtable_get_int(&ht, str2));
+    ASSERT_FALSE(hashtable_in(&ht, str3));
+    ASSERT_EQ(0, hashtable_get_int(&ht, str3));
+    hashtable_deinit(&ht);
+}
+
 TEST(testHashtable, TestRemove)
 {
     hashtable ht;

@@ -19,6 +19,7 @@ extern "C" {
 #endif
 
 struct parser {
+    struct hashtable types;
     struct hashtable op_precs;
     struct token curr_token;
     struct ast* ast;

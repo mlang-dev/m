@@ -23,6 +23,22 @@ TEST(testParser, testBlockVariable)
     parser_free(parser);
 }
 
+TEST(testParser, testVariableWithType)
+{
+    char test_code[] = "x:int = 11";
+    auto parser = create_parser_for_string(test_code);
+    block_node* block = parse_block(parser, 0, 0, 0);
+    auto node = *(var_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_EQ(TYPE_INT, node->base.annotated_type->type);
+    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_EQ(VAR_NODE, node->base.node_type);
+    ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
+    struct literal_node* literal = (struct literal_node*)node->init_value;
+    ASSERT_EQ(11, literal->int_val);
+    parser_free(parser);
+}
+
 TEST(testParser, testBool)
 {
     char test_code[] = "x = true";

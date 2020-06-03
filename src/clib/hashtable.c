@@ -135,12 +135,20 @@ void hashtable_remove(struct hashtable* ht, const char* key)
 void hashtable_set(struct hashtable* ht, const char* key, void* value)
 {
     size_t key_size = strlen(key) + 1;
-    hashtable_set_g(ht, (void*)key, key_size, value);
+    hashtable_set_g(ht, (void*)key, key_size, value, 0);
 }
 
-void hashtable_set_g(struct hashtable* ht, void* key, size_t key_size, void* value)
+void hashtable_set_int(struct hashtable* ht, const char* key, int value)
 {
-    size_t value_size = sizeof(value);
+    size_t key_size = strlen(key) + 1;
+    hashtable_set_g(ht, (void*)key, key_size, &value, sizeof(value));
+}
+
+void hashtable_set_g(struct hashtable* ht, void* key, size_t key_size, void* value, size_t value_size)
+{
+    bool copy_value = (bool)value_size;
+    if(!value_size)
+        value_size = sizeof(value);
     _hashtable_grow(ht);
     size_t index = _get_index(ht, (unsigned char*)key, key_size);
     struct hash_head* head = &ht->heads[index];
@@ -152,12 +160,15 @@ void hashtable_set_g(struct hashtable* ht, void* key, size_t key_size, void* val
         ht->size++;
         box = &entry->data;
     }
-    memcpy(box->key_value_pair + key_size, &value, value_size);
+    if(copy_value)
+        memcpy(box->key_value_pair + key_size, value, value_size);
+    else
+        memcpy(box->key_value_pair + key_size, &value, value_size);
 }
 
 void hashtable_set_p(struct hashtable* ht, void* key, void* value)
 {
-    hashtable_set_g(ht, (void*)&key, sizeof(void*), value);
+    hashtable_set_g(ht, (void*)&key, sizeof(void*), value, 0);
 }
 
 void* hashtable_get_p(struct hashtable* ht, void* key)
@@ -177,6 +188,18 @@ void* hashtable_get_g(struct hashtable* ht, void* key, size_t key_size)
     struct hashbox* box = _hashtable_get_hashbox(ht, key, key_size);
     if (box) {
         data = (void**)(box->key_value_pair + key_size);
+        return data ? *data : 0;
+    }
+    return 0;
+}
+
+int hashtable_get_int(struct hashtable* ht, const char* key)
+{
+    size_t key_size = strlen(key) + 1;
+    int* data = 0;
+    struct hashbox* box = _hashtable_get_hashbox(ht, (void*)key, key_size);
+    if (box) {
+        data = (int*)(box->key_value_pair + key_size);
         return data ? *data : 0;
     }
     return 0;

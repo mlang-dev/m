@@ -37,7 +37,7 @@ struct exp_node* _parse_for(struct parser* parser, struct exp_node* parent);
 struct exp_node* _parse_if(struct parser* parser, struct exp_node* parent);
 struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent);
 struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent);
-struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, const char* name);
+struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, const char* name, enum type type);
 struct exp_node* _parse_function_with_prototype(struct parser* parser, struct prototype_node* prototype);
 struct block_node* _parse_block(struct parser* parser, struct exp_node* parent, void (*fun)(void*, struct exp_node*), void* jit);
 
@@ -100,6 +100,10 @@ struct parser* parser_new(const char* file_name, bool is_repl, FILE* file)
     const char* mod_name = file_name ? file_name : "intepreter_main";
     struct parser* parser = malloc(sizeof(*parser));
     queue_init(&parser->queued_tokens, sizeof(struct token));
+    hashtable_init(&parser->types);
+    for(int i=0; i<TYPE_TYPES; i++){
+        hashtable_set_int(&parser->types, type_strings[i], i);
+    }
     hashtable_init(&parser->op_precs);
     _build_op_precs(&parser->op_precs);
 
@@ -124,6 +128,7 @@ void destroy_module(struct module* module)
 
 void parser_free(struct parser* parser)
 {
+    hashtable_deinit(&parser->types);
     for (size_t i = 0; i < array_size(&parser->ast->modules); i++) {
         struct module* it = *(struct module**)array_get(&parser->ast->modules, i);
         destroy_module(it);
@@ -311,9 +316,25 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
         if (IS_OP(parser->curr_token.token_type))
             string_copy(&op, parser->curr_token.str_val);
         //log_info(DEBUG, "id token: %s, %s, %s", string_get(&id_name), string_get(&op), token_type_strings[parser->curr_token.token_type]);
+        enum type type = TYPE_UNK;
+        if (string_eq_chars(&op, ":")) {
+            // type of definition
+            parse_next_token(parser); /* skip ':'*/
+            if (!hashtable_in(&parser->types, string_get(parser->curr_token.str_val))){
+                string error;
+                string_init_chars(&error, "wrong type: ");
+                string_add(&error, parser->curr_token.str_val);
+                _log_error(parser, loc, string_get(&error));
+                return 0;
+            }
+            type = hashtable_get_int(&parser->types, string_get(parser->curr_token.str_val));
+            parse_next_token(parser); /*skip type*/
+            if (IS_OP(parser->curr_token.token_type))
+                string_copy(&op, parser->curr_token.str_val);
+        } 
         if (string_eq_chars(&op, "=")) {
             // variable definition
-            node = _parse_var(parser, parent, string_get(&id_name));
+            node = _parse_var(parser, parent, string_get(&id_name), type);
         } else if (parser->curr_token.token_type == TOKEN_EOL || parser->curr_token.token_type == TOKEN_EOF || _get_op_prec(&parser->op_precs, string_get(&op)) > 0) {
             // just id expression evaluation
             struct exp_node* lhs = (struct exp_node*)ident_node_new(parent, parser->curr_token.loc, string_get(&id_name));
@@ -577,7 +598,7 @@ struct exp_node* _parse_function_with_prototype(struct parser* parser,
     return 0;
 }
 
-struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, const char* name)
+struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, const char* name, enum type type)
 {
     if (string_eq_chars(parser->curr_token.str_val, "="))
         parse_next_token(parser); // skip '='
@@ -586,7 +607,7 @@ struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, cons
     if (exp) {
         // not a function but a value
         //log_info(INFO, "_parse_variable:  %lu!", var_names.size());
-        return (struct exp_node*)var_node_new(parent, parser->curr_token.loc, name, exp);
+        return (struct exp_node*)var_node_new(parent, parser->curr_token.loc, name, type, exp);
     }
     return 0;
 }

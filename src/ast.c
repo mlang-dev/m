@@ -154,11 +154,11 @@ struct literal_node* _copy_literal_node(struct literal_node* orig_node)
     orig_node->base.annotated_type->type);
 }
 
-struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, struct exp_node* init_value)
+struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, struct exp_node* init_value)
 {
     struct var_node* node = (struct var_node*)malloc(sizeof(*node));
     node->base.node_type = VAR_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type = type? (struct type_exp*)create_nullary_type(type) : 0;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -170,7 +170,7 @@ struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, co
 struct var_node* _copy_var_node(struct var_node* orig_node)
 {
     return var_node_new(orig_node->base.parent, orig_node->base.loc, 
-    string_get(&orig_node->var_name), node_copy(orig_node->init_value));
+    string_get(&orig_node->var_name), orig_node->base.type ? orig_node->base.type->type : TYPE_UNK, node_copy(orig_node->init_value));
 }
 
 void _free_var_node(struct var_node* node)
