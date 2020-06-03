@@ -256,6 +256,8 @@ struct prototype_node* _copy_prototype_node(struct prototype_node* proto)
     node->is_variadic = proto->is_variadic;
     string_init_chars(&node->op, string_get(&proto->op));
     struct var_node fun_param;
+    fun_param.base.type = 0;
+    fun_param.base.node_type = VAR_NODE;
     if(proto->is_variadic){
         string_init_chars(&fun_param.var_name, type_strings[TYPE_GENERIC]);
         fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_GENERIC);
@@ -268,7 +270,8 @@ void _free_prototype_node(struct prototype_node* node)
 {
     string_deinit(&node->name);
     string_deinit(&node->op);
-    _free_exp_nodes(&node->fun_params);
+    /*fun_params will be freed in array_deinit*/
+    array_deinit(&node->fun_params);
     _free_exp_node(&node->base);
 }
 
@@ -295,7 +298,7 @@ struct function_node* _copy_function_node(struct function_node* orig_node)
 
 void _free_function_node(struct function_node* node)
 {
-    /*TODO: _free_prototype_node(node->prototype);*/
+    _free_prototype_node(node->prototype);
     _free_block_node(node->body);
     _free_exp_node(&node->base);
 }

@@ -45,6 +45,8 @@ struct prototype_node* create_function_prototype(CXCursor cursor)
     ARRAY_FUN_PARAM(fun_params);
     struct var_node fun_param;
     fun_param.base.annotated_type = 0;
+    fun_param.base.type = 0;
+    fun_param.base.node_type = VAR_NODE;
     int num_args = clang_Cursor_getNumArguments(cursor);
     bool is_variadic = clang_isFunctionTypeVariadic(cur_type);
     for (int i = 0; i < num_args; ++i){
