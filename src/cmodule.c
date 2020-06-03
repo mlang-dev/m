@@ -65,7 +65,7 @@ struct prototype_node* create_function_prototype(CXCursor cursor)
         array_push(&fun_params, &fun_param);
     }
     struct source_loc loc = {0, 1};
-    return create_prototype_node_default(0, loc, string_get(&fun_name), &fun_params, ret_type, is_variadic);
+    return prototype_node_default_new(0, loc, string_get(&fun_name), &fun_params, ret_type, is_variadic);
 }
 
 enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClientData client_data)

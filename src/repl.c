@@ -84,7 +84,6 @@ void eval_statement(void* p_jit, struct exp_node* node)
         struct JIT* jit = (struct JIT*)p_jit;
         analyze(jit->env->type_env, node);
         string type_node_str = to_string(node->type);
-        string_deinit(&type_node_str);
         if (!node->type)
             goto exit;
         if (node->node_type == PROTOTYPE_NODE) {
@@ -103,6 +102,7 @@ void eval_statement(void* p_jit, struct exp_node* node)
                 _print(result);
         }
         printf(":%s\n", string_get(&type_node_str));
+        string_deinit(&type_node_str);
     }
 exit:
     fprintf(stderr, "m> ");

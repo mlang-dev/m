@@ -178,7 +178,7 @@ struct type_exp* _analyze_call(struct type_env* env, struct exp_node* node)
         }
         /*specialized callee*/
         struct exp_node* generic_fun = (struct exp_node*)hashtable_get(&env->generic_nodes, string_get(&call->callee));
-        struct function_node* sp_fun = (struct function_node*)copy_node(generic_fun);
+        struct function_node* sp_fun = (struct function_node*)node_copy(generic_fun);
         sp_fun->prototype->name = call->specialized_callee;
         fun_type = analyze(env, (struct exp_node*)sp_fun);
         hashtable_set(&env->cg->specialized_nodes, string_get(&sp_fun->prototype->name), sp_fun);

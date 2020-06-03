@@ -67,7 +67,7 @@ struct prototype_node* _create_for_id(LLVMContextRef context, const char* name)
     struct array names = string_split(&str_name, '.');
     //log_info(DEBUG, "get func: %d, name: %s", id, names.back().c_str());
     struct source_loc loc = { 1, 0 };
-    struct prototype_node* node = create_prototype_node_default(0, loc,
+    struct prototype_node* node = prototype_node_default_new(0, loc,
         string_get(STRING_POINTER(array_back(&names))), &fun_params, (struct type_exp*)create_nullary_type(TYPE_DOUBLE), false);
     string_deinit(&str_name);
     array_deinit(&names);
@@ -92,7 +92,7 @@ struct array _get_builtins(LLVMContextRef context)
     fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_INT);
     array_push(&fun_params, &fun_param);
     struct source_loc loc = { 1, 0 };
-    struct prototype_node* proto = create_prototype_node_default(0, loc, "print", &fun_params, 
+    struct prototype_node* proto = prototype_node_default_new(0, loc, "print", &fun_params, 
         (struct type_exp*)create_nullary_type(TYPE_INT), false);
     //analyze(type_env, (struct exp_node*)proto);
     array_push(&builtins, &proto);
