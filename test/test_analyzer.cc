@@ -378,3 +378,66 @@ printf "%d" 100
     ASSERT_STREQ("int", string_get(&type_str));
     env_free(menv);
 }
+
+TEST(testAnalyzer, testFunctionTypeAnnotation)
+{
+    char test_code[] = R"(
+    print x:int = printf "%d" x
+)";
+    menv* menv = create_env_for_string(test_code);
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    type_env* env = menv->type_env;
+    analyze(env, (exp_node*)block);
+    auto node = *(function_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("print", string_get(&node->prototype->name));
+    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
+    auto var = (type_oper*)node->base.type;
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
+    ASSERT_EQ(2, array_size(&var->args));
+    string type_str = to_string(node->base.type);
+    ASSERT_STREQ("int -> int", string_get(&type_str));
+    env_free(menv);
+}
+
+TEST(testAnalyzer, testFunctionTypeAnnotationWithParentheses)
+{
+    char test_code[] = R"(
+    prt (x:int) = printf "%d" x
+)";
+    menv* menv = create_env_for_string(test_code);
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    type_env* env = menv->type_env;
+    analyze(env, (exp_node*)block);
+    auto node = *(function_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("prt", string_get(&node->prototype->name));
+    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
+    auto var = (type_oper*)node->base.type;
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
+    ASSERT_EQ(2, array_size(&var->args));
+    string type_str = to_string(node->base.type);
+    ASSERT_STREQ("int -> int", string_get(&type_str));
+    env_free(menv);
+}
+
+TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
+{
+    char test_code[] = R"(
+    prt (x:int):int = printf "%d" x
+)";
+    menv* menv = create_env_for_string(test_code);
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    type_env* env = menv->type_env;
+    analyze(env, (exp_node*)block);
+    auto node = *(function_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("prt", string_get(&node->prototype->name));
+    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
+    auto var = (type_oper*)node->base.type;
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
+    ASSERT_EQ(2, array_size(&var->args));
+    string type_str = to_string(node->base.type);
+    ASSERT_STREQ("int -> int", string_get(&type_str));
+    env_free(menv);
+}

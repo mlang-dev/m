@@ -41,6 +41,13 @@ struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, cons
 struct exp_node* _parse_function_with_prototype(struct parser* parser, struct prototype_node* prototype);
 struct block_node* _parse_block(struct parser* parser, struct exp_node* parent, void (*fun)(void*, struct exp_node*), void* jit);
 
+struct op_type
+{
+    string op;
+    enum type type;
+    bool success;
+};
+
 const char* get_ctt(struct parser* parser)
 {
     return token_type_strings[parser->curr_token.token_type];
@@ -213,10 +220,41 @@ struct exp_node* _parse_parentheses(struct parser* parser, struct exp_node* pare
     return v;
 }
 
+
+struct op_type _parse_op_type(struct parser* parser, struct source_loc loc)
+{
+    struct op_type optype;
+    string_init(&optype.op);
+    optype.type = TYPE_UNK;
+    if (IS_OP(parser->curr_token.token_type)){
+        string_copy(&optype.op, parser->curr_token.str_val);
+        //log_info(DEBUG, "id token: %s, %s", string_get(&optype.op), token_type_strings[parser->curr_token.token_type]);
+    }
+    if (string_eq_chars(&optype.op, ":")) {
+        // type of definition
+        parse_next_token(parser); /* skip ':'*/
+        if (!hashtable_in(&parser->types, string_get(parser->curr_token.str_val))){
+            string error;
+            string_init_chars(&error, "wrong type: ");
+            string_add(&error, parser->curr_token.str_val);
+            _log_error(parser, loc, string_get(&error));
+            optype.success = false;
+            return optype;
+        }
+        optype.type = hashtable_get_int(&parser->types, string_get(parser->curr_token.str_val));
+        parse_next_token(parser); /*skip type*/
+        if (IS_OP(parser->curr_token.token_type))
+            string_copy(&optype.op, parser->curr_token.str_val);
+    } 
+    optype.success = true;
+    return optype;
+}
+
 struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_node* parent, struct source_loc loc, const char* pid_name, bool is_operator, int precedence)
 {
-    if (parser->curr_token.token_type == TOKEN_LPAREN)
+    if (parser->curr_token.token_type == TOKEN_LPAREN){
         parse_next_token(parser); // skip '('
+    }
     bool func_definition = false;
     bool is_variadic = false;
     struct array args;
@@ -226,8 +264,14 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
     string id_name;
     string_init_chars(&id_name, pid_name);
     parser->allow_id_as_a_func = false;
+    struct type_exp* ret_type = 0;
     if (parser->curr_token.token_type != TOKEN_RPAREN) {
         while (true) {
+            // if(parser->curr_token.token_type == TOKEN_RPAREN){
+            //     parse_next_token(parser);
+            //     printf("right parenthese\n");
+            //     continue;
+            // }
             if(parser->curr_token.token_type == TOKEN_VARIADIC){
                 is_variadic = true;
                 parse_next_token(parser);
@@ -239,13 +283,25 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
                         _log_error(parser, arg->loc, "no parameter allowed after variadic");
                         return 0;
                     }
+                    if (arg->node_type == IDENT_NODE){
+                        struct op_type optype = _parse_op_type(parser, arg->loc);
+                        if(optype.type)
+                            arg->annotated_type = (struct type_exp*)create_nullary_type(optype.type);
+                    }
                     array_push(&args, &arg);
+                }
+            }
+            if(parser->curr_token.token_type == TOKEN_RPAREN){
+                parse_next_token(parser);
+                struct op_type optype = _parse_op_type(parser, parser->curr_token.loc);
+                if(optype.type){
+                    ret_type = (struct type_exp*)create_nullary_type(optype.type);
                 }
             }
             if (IS_OP(parser->curr_token.token_type) && string_eq_chars(parser->curr_token.str_val, "=")) {
                 func_definition = true;
                 break;
-            } else if (parser->curr_token.token_type == TOKEN_RPAREN || parser->curr_token.token_type == TOKEN_EOL || parser->curr_token.token_type == TOKEN_EOF)
+            } else if (parser->curr_token.token_type == TOKEN_EOL || parser->curr_token.token_type == TOKEN_EOF)
                 break;
             else if (IS_OP(parser->curr_token.token_type) && string_eq_chars(parser->curr_token.str_val, ","))
                 parse_next_token(parser);
@@ -264,6 +320,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
         fun_param.base.annotated_type = 0;
         for (size_t i = 0; i < array_size(&args); i++) {
             struct ident_node* id = *(struct ident_node**)array_get(&args, i);
+            fun_param.base.annotated_type = id->base.annotated_type;
             string_copy(&fun_param.var_name, &id->name);
             array_push(&fun_params, &fun_param);
         }
@@ -281,7 +338,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
                 string_add_chars(&id_name, pid_name);
             }
         }
-        struct prototype_node* prototype = prototype_node_new(parent, loc, string_get(&id_name), &fun_params, 0,
+        struct prototype_node* prototype = prototype_node_new(parent, loc, string_get(&id_name), &fun_params, ret_type,
         is_operator, precedence, is_operator ? string_get(&id_name) : "", is_variadic);
         return _parse_function_with_prototype(parser, prototype);
         //log_info(DEBUG, "func: %s", id_name.c_str());
@@ -311,31 +368,14 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
         string_copy(&id_name, parser->curr_token.str_val);
         struct source_loc loc = parser->curr_token.loc;
         parse_next_token(parser); // skip identifier
-        string op;
-        string_init(&op);
-        if (IS_OP(parser->curr_token.token_type))
-            string_copy(&op, parser->curr_token.str_val);
-        //log_info(DEBUG, "id token: %s, %s, %s", string_get(&id_name), string_get(&op), token_type_strings[parser->curr_token.token_type]);
-        enum type type = TYPE_UNK;
-        if (string_eq_chars(&op, ":")) {
-            // type of definition
-            parse_next_token(parser); /* skip ':'*/
-            if (!hashtable_in(&parser->types, string_get(parser->curr_token.str_val))){
-                string error;
-                string_init_chars(&error, "wrong type: ");
-                string_add(&error, parser->curr_token.str_val);
-                _log_error(parser, loc, string_get(&error));
-                return 0;
-            }
-            type = hashtable_get_int(&parser->types, string_get(parser->curr_token.str_val));
-            parse_next_token(parser); /*skip type*/
-            if (IS_OP(parser->curr_token.token_type))
-                string_copy(&op, parser->curr_token.str_val);
-        } 
-        if (string_eq_chars(&op, "=")) {
+        struct op_type optype = _parse_op_type(parser, loc);
+        if(!optype.success)
+            return 0;
+        if (string_eq_chars(&optype.op, "=")) {
             // variable definition
-            node = _parse_var(parser, parent, string_get(&id_name), type);
-        } else if (parser->curr_token.token_type == TOKEN_EOL || parser->curr_token.token_type == TOKEN_EOF || _get_op_prec(&parser->op_precs, string_get(&op)) > 0) {
+            node = _parse_var(parser, parent, string_get(&id_name), optype.type);
+        } else if (parser->curr_token.token_type == TOKEN_EOL || parser->curr_token.token_type == TOKEN_EOF || 
+                    _get_op_prec(&parser->op_precs, string_get(&optype.op)) > 0) {
             // just id expression evaluation
             struct exp_node* lhs = (struct exp_node*)ident_node_new(parent, parser->curr_token.loc, string_get(&id_name));
             node = parse_exp(parser, parent, lhs);
@@ -406,7 +446,7 @@ struct exp_node* _parse_ident(struct parser* parser, struct exp_node* parent)
 
     parse_next_token(parser); // take identifier
     //log_info(DEBUG, "parsed id: %s, curtoken: %s", id_name.c_str(), token_type_strings[parser->curr_token.token_type]);
-    if (_id_is_a_function_call(parser)) { // pure variable
+    if (_id_is_a_function_call(parser)) { 
         // fprintf(stderr, "ident parsed. %s\n", id_name.c_str());
         //(
         struct array args;

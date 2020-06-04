@@ -40,7 +40,6 @@ void _log_err(struct type_env* env, struct source_loc loc,  const char *msg)
     log_info(ERROR, full_msg);
 }
 
-
 struct type_exp* _analyze_unk(struct type_env* env, struct exp_node* node)
 {
     printf("analyzing unk: %s\n", node_type_strings[node->node_type]);
@@ -90,6 +89,11 @@ struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
     struct type_exp* type = _analyze(env, var->init_value);
     if (!type)
         return 0;
+    if(var->base.annotated_type && var->init_value->annotated_type 
+        && var->base.annotated_type->type != var->init_value->annotated_type->type){
+        _log_err(env, node->loc, "variable type not matched with literal constant");
+        return 0;
+    }
     struct type_exp* result_type = (struct type_exp*)create_type_var();
     unify(result_type, type, &env->nongens);
     set(env, string_get(&var->var_name), result_type);
