@@ -26,6 +26,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
     ENUM_ITEM(TOKEN_IMPORT)          \
+    ENUM_ITEM(TOKEN_EXTERN)          \
     ENUM_ITEM(TOKEN_IF)              \
     ENUM_ITEM(TOKEN_THEN)            \
     ENUM_ITEM(TOKEN_ELSE)            \

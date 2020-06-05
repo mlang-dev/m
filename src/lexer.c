@@ -40,6 +40,7 @@ struct keyword_token {
 #define FALSE "false"
 static struct keyword_token keyword_tokens[] = {
     { "import", TOKEN_IMPORT },
+    { "extern", TOKEN_EXTERN },
     { "if", TOKEN_IF },
     { "else", TOKEN_ELSE },
     { "then", TOKEN_THEN },

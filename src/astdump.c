@@ -24,14 +24,32 @@ string _dump_block(struct block_node* node)
 string _dump_prototype(struct prototype_node* proto)
 {
     string result;
-    string_init_chars(&result, string_get(&proto->name));
+    string_init(&result);
+    if(proto->is_extern)
+        string_add_chars(&result, "extern ");
+    string_add_chars(&result, string_get(&proto->name));
     ARRAY_STRING(args);
+    string var_str;
+    string_init(&var_str);
     for(size_t i = 0; i < array_size(&proto->fun_params); i++){
-        struct var_node* var = *(struct var_node**)array_get(&proto->fun_params, i);
-        array_push(&args, &var->var_name);
+        struct var_node* var = (struct var_node*)array_get(&proto->fun_params, i);
+        var_str = var->var_name;
+        if(var->base.annotated_type&&var->base.annotated_type->type!=TYPE_GENERIC){
+            string var_type = to_string(var->base.annotated_type);
+            string_add_chars(&var_str, ":");
+            string_add(&var_str, &var_type);
+        }
+        array_push(&args, &var_str);
     }
     string joined = string_join(&args, " ");
+    string_add_chars(&result, "(");
     string_add(&result, &joined);
+    string_add_chars(&result, ")");
+    if(proto->base.annotated_type){
+        var_str = to_string(proto->base.annotated_type);
+        string_add_chars(&result, ":");
+        string_add(&result, &var_str);
+    }
     return result;
 }
 

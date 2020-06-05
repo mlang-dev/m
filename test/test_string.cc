@@ -250,3 +250,11 @@ TEST(testString, testLongStringAddShortString)
     string_deinit(&str1);
     string_deinit(&str2);
 }
+
+TEST(testString, testSubstring)
+{
+    string str1;
+    string_init_chars(&str1, "abc.h");
+    ASSERT_STREQ("abc", string_get(string_substr(&str1, '.')));
+    string_deinit(&str1);
+}

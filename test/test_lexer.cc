@@ -8,6 +8,14 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
+TEST(testLexer, testExternToken)
+{
+    char test_code[] = "extern";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_EXTERN, token->token_type);
+    destroy_tokenizer(tokenizer);
+}
 
 TEST(testLexer, testEqualOp)
 {

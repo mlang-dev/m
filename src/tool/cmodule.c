@@ -10,6 +10,7 @@
 #include "clib/string.h"
 #include "clib/array.h"
 #include "ast.h"
+#include "astdump.h"
 
 enum type _get_type(CXType cxtype)
 {
@@ -67,7 +68,7 @@ struct prototype_node* create_function_prototype(CXCursor cursor)
         array_push(&fun_params, &fun_param);
     }
     struct source_loc loc = {0, 1};
-    return prototype_node_default_new(0, loc, string_get(&fun_name), &fun_params, ret_type, is_variadic);
+    return prototype_node_default_new(0, loc, string_get(&fun_name), &fun_params, ret_type, is_variadic, true);
 }
 
 enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClientData client_data)
@@ -87,12 +88,10 @@ enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClien
     return CXChildVisit_Recurse;
 }
 
-struct array parse_c_file(const char* filename)
+struct array parse_c_file(const char* file_path)
 {
-    char file_path[512];
     struct array prototypes;
     array_init(&prototypes, sizeof(struct prototype_node*));
-    join_path(file_path, getenv("CPATH"), filename);
     CXIndex index = clang_createIndex(0, 0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
         index,
@@ -111,4 +110,27 @@ struct array parse_c_file(const char* filename)
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);
     return prototypes;
+}
+
+void _write_to_file(struct array* codes, const char* mfile)
+{
+    FILE* fp;
+    fp = fopen(mfile, "w");
+    for(size_t i = 0; i < array_size(codes); i++){
+        fprintf(fp, "%s\n", string_get(array_get(codes, i)));
+    }
+    fclose(fp);
+}
+
+bool transpile_2_m(const char* head, const char* mfile)
+{
+    struct array protos = parse_c_file(head);
+    ARRAY_STRING(codes);
+    for(size_t i = 0; i < array_size(&protos); i++){
+        struct exp_node* node = *(struct exp_node**)array_get(&protos, i);
+        string code = dump(node);
+        array_push(&codes, &code);
+    }
+    _write_to_file(&codes, mfile);
+    return true;
 }

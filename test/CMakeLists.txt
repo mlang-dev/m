@@ -173,6 +173,7 @@ add_executable(mtest
   test_parser.cc
   test_parser_logical.cc
   test_parser_relational.cc
+  test_astdump.cc
   test_analyzer.cc
   test_analyzer_errors.cc
   test_jit_relational.cc

@@ -10,7 +10,7 @@
 
 TEST(testCModule, teststdio)
 {
-    struct array funs = parse_c_file("stdio.h");
+    struct array funs = parse_c_file("/usr/include/stdio.h");
 
     ASSERT_EQ(64, array_size(&funs));
 }

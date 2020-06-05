@@ -122,6 +122,7 @@ struct prototype_node {
     char is_operator;
     unsigned precedence;
     bool is_variadic;
+    bool is_extern;
 };
 
 #define UNARY_PARAM_SIZE 1
@@ -156,10 +157,10 @@ struct prototype_node* prototype_node_new(struct exp_node* parent, struct source
     bool is_operator,
     unsigned precedence,
     const char* op,
-    bool is_variadic);
+    bool is_variadic, bool is_external);
 struct prototype_node* prototype_node_default_new(struct exp_node* parent, struct source_loc loc,
     const char* name,
-    struct array* args, struct type_exp* ret_type, bool is_variadic);
+    struct array* args, struct type_exp* ret_type, bool is_variadic, bool is_external);
 
 struct condition_node* if_node_new(struct exp_node* parent, struct source_loc loc, struct exp_node* condition, struct exp_node* then_node,
     struct exp_node* else_node);

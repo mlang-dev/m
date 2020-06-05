@@ -12,7 +12,8 @@
 extern "C" {
 #endif
 
-struct array parse_c_file(const char* fn);
+struct array parse_c_file(const char* file_path);
+bool transpile_2_m(const char* head, const char* mfile);
 
 #ifdef __cplusplus
 }

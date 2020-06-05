@@ -13,7 +13,7 @@ add_library(mlr
   clib/hashtable.c
   clib/util.c
   clib/generic.c
-  cmodule.c
+  tool/cmodule.c
   type.c
   compiler.c
   repl.c
@@ -21,7 +21,6 @@ add_library(mlr
   lexer.c
   ast.c
   parser.c
-  runtime.c
   astdump.c
   analyzer.c
   codegen.c
@@ -187,10 +186,15 @@ link_libraries(
 )
 
 add_executable(m
-  m.c
+  driver/m.c
+)
+
+add_executable(c2m
+  tool/c2m.c
 )
 
 set_target_properties(m PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(m PRIVATE mlr)
 
+target_link_libraries(c2m PRIVATE mlr)

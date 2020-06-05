@@ -209,16 +209,17 @@ void _free_call_node(struct call_node* node)
     _free_exp_node(&node->base);
 }
 
-struct prototype_node* prototype_node_default_new(struct exp_node* parent, struct source_loc loc, const char* name, struct array* args, struct type_exp* ret_type, bool is_variadic)
+struct prototype_node* prototype_node_default_new(struct exp_node* parent, struct source_loc loc, const char* name, struct array* args, 
+struct type_exp* ret_type, bool is_variadic, bool is_external)
 {
-    return prototype_node_new(parent, loc, name, args, ret_type, false, 0, "", is_variadic);
+    return prototype_node_new(parent, loc, name, args, ret_type, false, 0, "", is_variadic, is_external);
 }
 
 struct prototype_node* prototype_node_new(struct exp_node* parent, struct source_loc loc, const char* name,
     struct array* args,
     struct type_exp* ret_type,
     bool is_operator, unsigned precedence, const char* op,
-    bool is_variadic)
+    bool is_variadic, bool is_external)
 {
     struct prototype_node* node = malloc(sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
@@ -231,11 +232,13 @@ struct prototype_node* prototype_node_new(struct exp_node* parent, struct source
     node->is_operator = is_operator;
     node->precedence = precedence;
     node->is_variadic = is_variadic;
+    node->is_extern = is_external;
     string_init_chars(&node->op, op);
     struct var_node fun_param;
     if(is_variadic){
         string_init_chars(&fun_param.var_name, type_strings[TYPE_GENERIC]);
         fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_GENERIC);
+        fun_param.base.type = fun_param.base.annotated_type;
         array_push(&node->fun_params, &fun_param);
     }
     return node;
@@ -254,6 +257,7 @@ struct prototype_node* _copy_prototype_node(struct prototype_node* proto)
     node->is_operator = proto->is_operator;
     node->precedence = proto->precedence;
     node->is_variadic = proto->is_variadic;
+    node->is_extern = proto->is_extern;
     string_init_chars(&node->op, string_get(&proto->op));
     struct var_node fun_param;
     fun_param.base.type = 0;
@@ -303,8 +307,8 @@ void _free_function_node(struct function_node* node)
     _free_exp_node(&node->base);
 }
 
-struct condition_node* if_node_new(struct exp_node* parent, struct source_loc loc, struct exp_node* condition, struct exp_node* then_node,
-    struct exp_node* else_node)
+struct condition_node* if_node_new(struct exp_node* parent, struct source_loc loc, 
+    struct exp_node* condition, struct exp_node* then_node, struct exp_node* else_node)
 {
     struct condition_node* node = malloc(sizeof(*node));
     node->base.node_type = CONDITION_NODE;
