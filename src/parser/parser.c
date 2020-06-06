@@ -124,7 +124,6 @@ struct parser* parser_new(const char* file_name, bool is_repl, FILE* file)
     return parser;
 }
 
-
 void destroy_module(struct module* module)
 {
     destroy_tokenizer(module->tokenizer);
@@ -219,7 +218,6 @@ struct exp_node* _parse_parentheses(struct parser* parser, struct exp_node* pare
     parse_next_token(parser);
     return v;
 }
-
 
 struct op_type _parse_op_type(struct parser* parser, struct source_loc loc)
 {
@@ -854,7 +852,6 @@ struct block_node* _parse_block(struct parser* parser, struct exp_node* parent, 
     }
     return array_size(&nodes) ? block_node_new(parent, &nodes) : 0;
 }
-
 
 struct block_node* parse_block(struct parser* parser, struct exp_node* parent, void (*fun)(void*, struct exp_node*), void* jit)
 {

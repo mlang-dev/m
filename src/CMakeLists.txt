@@ -14,17 +14,17 @@ add_library(mlr
   clib/util.c
   clib/generic.c
   tool/cmodule.c
-  type.c
-  compiler.c
-  repl.c
-  jit.c
-  lexer.c
-  ast.c
-  parser.c
-  astdump.c
-  analyzer.c
-  codegen.c
-  env.c
+  lexer/lexer.c
+  parser/ast.c
+  parser/parser.c
+  parser/astdump.c
+  analyzer/type.c
+  analyzer/analyzer.c
+  analyzer/env.c
+  codegen/codegen.c
+  repl/repl.c
+  repl/jit.c
+  compiler/compiler.c
  )
 
 include_directories(
