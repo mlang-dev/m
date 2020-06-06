@@ -8,10 +8,10 @@
 
 #include "env.h"
 
-struct menv* env_new(const char* file_name, bool is_repl, FILE* file)
+struct menv* env_new(bool is_repl)
 {
     struct menv* env = malloc(sizeof(*env));
-    env->parser = parser_new(file_name, is_repl, file);
+    env->parser = parser_new(is_repl);
     env->type_env = type_env_new(env->parser);
     return env;
 }

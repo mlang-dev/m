@@ -16,8 +16,8 @@
 TEST(testAstDump, testPrototypeNodeDump)
 {
     char test_code[] = "extern printf(format:string ...):int";
-    auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(PROTOTYPE_NODE, node->node_type);
     auto proto = (prototype_node*)node;

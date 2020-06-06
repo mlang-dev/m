@@ -122,10 +122,10 @@ struct JIT* build_jit(struct menv* env)
 
 int run_repl()
 {
-    struct menv* env = env_new(0, true, 0);
+    struct menv* env = env_new(true);
     struct JIT* jit = build_jit(env);
     printf("m> ");
-    parse_block(env->parser, 0, &eval_statement, jit);
+    parse_repl(env->parser, &eval_statement, jit);
     printf("bye !\n");
     jit_free(jit);
     env_free(env);

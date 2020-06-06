@@ -16,8 +16,8 @@ TEST(testAnalyzerError, testNoFunctionFound)
 no_exist_function_call ()
 )";
     testing::internal::CaptureStderr();
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_env* env = menv->type_env;
@@ -33,8 +33,8 @@ TEST(testAnalyzerError, testRemError)
 10+0.3
 )";
     testing::internal::CaptureStderr();
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     type_env* env = menv->type_env;
@@ -50,8 +50,8 @@ TEST(testAnalyzerError, tesTypeMismatch)
 x:int = true
 )";
     testing::internal::CaptureStderr();
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
     type_env* env = menv->type_env;

@@ -13,8 +13,8 @@
 TEST(testAnalyzer, testIntVariable)
 {
     char test_code[] = "x = 11";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
@@ -31,8 +31,8 @@ TEST(testAnalyzer, testIntVariable)
 TEST(testAnalyzer, testDoubleVariable)
 {
     char test_code[] = "x = 11.0";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
@@ -48,8 +48,8 @@ TEST(testAnalyzer, testDoubleVariable)
 TEST(testAnalyzer, testBoolVariable)
 {
     char test_code[] = "x = true";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
@@ -65,8 +65,8 @@ TEST(testAnalyzer, testBoolVariable)
 TEST(testAnalyzer, testCharVariable)
 {
     char test_code[] = "x = 'c'";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
@@ -82,8 +82,8 @@ TEST(testAnalyzer, testCharVariable)
 TEST(testAnalyzer, testStringVariable)
 {
     char test_code[] = "x = \"hello world!\"";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
@@ -99,8 +99,8 @@ TEST(testAnalyzer, testStringVariable)
 TEST(testAnalyzer, testCallNode)
 {
     char test_code[] = "printf \"hello\"";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(call_node**)array_front(&block->nodes);
@@ -115,8 +115,8 @@ TEST(testAnalyzer, testCallNode)
 TEST(testAnalyzer, testDoubleIntLiteralError)
 {
     char test_code[] = "x = 11.0 + 10";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
@@ -132,8 +132,8 @@ TEST(testAnalyzer, testGreaterThan)
     char test_code[] = R"(
   11>10
   )";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     analyze(menv->type_env, (exp_node*)block);
     ASSERT_EQ(BINARY_NODE, node->node_type);
@@ -146,8 +146,8 @@ TEST(testAnalyzer, testIdentityFunc)
 {
     reset_id_name("a");
     char test_code[] = "id x = x";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -165,8 +165,8 @@ TEST(testAnalyzer, testIdentityFunc)
 TEST(testAnalyzer, testIntIntFunc)
 {
     char test_code[] = "f x = x + 10";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -184,8 +184,8 @@ TEST(testAnalyzer, testIntIntFunc)
 TEST(testAnalyzer, testDoubleDoubleFunc)
 {
     char test_code[] = "f x = x + 10.0";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -203,8 +203,8 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
 TEST(testAnalyzer, testBoolFunc)
 {
     char test_code[] = "f x = !x";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -222,8 +222,8 @@ TEST(testAnalyzer, testBoolFunc)
 TEST(testAnalyzer, testMultiParamFunc)
 {
     char test_code[] = "avg x y = (x + y) / 2.0";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -245,8 +245,8 @@ factorial n =
   if n < 2 then n
   else n * factorial (n-1)
 )";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -269,8 +269,8 @@ loopprint n =
   for i in 0..n
     printf "%d" i
 )";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -300,8 +300,8 @@ distance x1 y1 x2 y2 =
   sqrt (xx + yy)
 )";
     reset_id_name("a");
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -324,8 +324,8 @@ to_string () =
   y = x
   y
 )";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -345,8 +345,8 @@ TEST(testAnalyzer, testVariadicFunc)
     char test_code[] = R"(
 var_func ... = 0
 )";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -367,8 +367,8 @@ TEST(testAnalyzer, testPrintfFunc)
     char test_code[] = R"(
 printf "%d" 100
 )";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(exp_node**)array_front(&block->nodes);
@@ -384,8 +384,8 @@ TEST(testAnalyzer, testFunctionTypeAnnotation)
     char test_code[] = R"(
     print x:int = printf "%d" x
 )";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -405,8 +405,8 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithParentheses)
     char test_code[] = R"(
     prt (x:int) = printf "%d" x
 )";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
@@ -426,8 +426,8 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
     char test_code[] = R"(
     prt (x:int):int = printf "%d" x
 )";
-    menv* menv = create_env_for_string(test_code);
-    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
     type_env* env = menv->type_env;
     analyze(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);

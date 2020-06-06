@@ -20,7 +20,7 @@ struct menv {
     struct parser* parser;
 };
 
-struct menv* env_new(const char* file_name, bool is_repl, FILE* file);
+struct menv* env_new(bool is_repl);
 void env_free(struct menv* env);
 
 #ifdef __cplusplus

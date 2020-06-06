@@ -100,11 +100,11 @@ int _get_op_prec(struct hashtable* op_precs, const char* op)
     return -1;
 }
 
-struct parser* parser_new(const char* file_name, bool is_repl, FILE* file)
+struct parser* parser_new(bool is_repl)
 {
-    if (!file)
-        file = file_name ? fopen(file_name, "r") : stdin;
-    const char* mod_name = file_name ? file_name : "intepreter_main";
+    // if (!file)
+    //     file = file_name ? fopen(file_name, "r") : stdin;
+    // const char* mod_name = file_name ? file_name : "intepreter_main";
     struct parser* parser = malloc(sizeof(*parser));
     queue_init(&parser->queued_tokens, sizeof(struct token));
     hashtable_init(&parser->types);
@@ -119,8 +119,9 @@ struct parser* parser_new(const char* file_name, bool is_repl, FILE* file)
     array_init(&parser->ast->modules, sizeof(struct module*));
     parser->allow_id_as_a_func = true;
     parser->is_repl = is_repl;
-    parser->current_module = module_new(mod_name, file);
-    array_push(&parser->ast->modules, &parser->current_module);
+    parser->current_module = 0;
+    //module_new(mod_name, file);
+    //array_push(&parser->ast->modules, &parser->current_module);
     return parser;
 }
 
@@ -857,4 +858,36 @@ struct block_node* parse_block(struct parser* parser, struct exp_node* parent, v
 {
     parser->current_module->block = _parse_block(parser, parent, fun, jit);
     return parser->current_module->block;
+}
+
+struct block_node* parse_file(struct parser* parser, const char* file_name)
+{
+    FILE* file = fopen(file_name, "r");
+    const char* mod_name = file_name;
+    parser->current_module = module_new(mod_name, file);
+    array_push(&parser->ast->modules, &parser->current_module);
+    return parse_block(parser, 0, 0, 0);
+}
+
+struct block_node* parse_file_object(struct parser* parser, const char* mod_name, FILE* file)
+{
+    parser->current_module = module_new(mod_name, file);
+    array_push(&parser->ast->modules, &parser->current_module);
+    return parse_block(parser, 0, 0, 0);
+}
+
+struct block_node* parse_string(struct parser* parser, const char* mod_name, const char* code)
+{
+    FILE* file = fmemopen((void*)code, strlen(code), "r");
+    parser->current_module = module_new(mod_name, file);
+    array_push(&parser->ast->modules, &parser->current_module);
+    return parse_block(parser, 0, 0, 0);
+}
+
+struct block_node* parse_repl(struct parser* parser, void (*fun)(void*, struct exp_node*), void* jit)
+{
+    const char* mod_name = "intepreter_main";
+    parser->current_module = module_new(mod_name, stdin);
+    array_push(&parser->ast->modules, &parser->current_module);
+    return parse_block(parser, 0, fun, jit);
 }

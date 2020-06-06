@@ -3,6 +3,5 @@
 #include "parser.h"
 #include "env.h"
 
-parser* create_parser_for_string(const char* str);
-menv* create_env_for_string(const char* str);
+FILE* open_file_from_string(const char* code);
 file_tokenizer* create_tokenizer_for_string(const char* str);

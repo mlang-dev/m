@@ -12,8 +12,8 @@
 TEST(testParserLogicalOperator, testOrOp)
 {
     char test_code[] = "true || false";
-    auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     auto bin = (binary_node*)node;
@@ -24,8 +24,8 @@ TEST(testParserLogicalOperator, testOrOp)
 TEST(testParserLogicalOperator, testAndOp)
 {
     char test_code[] = "true && false";
-    auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     auto bin = (binary_node*)node;
@@ -36,8 +36,8 @@ TEST(testParserLogicalOperator, testAndOp)
 TEST(testParserLogicalOperator, testNotOp)
 {
     char test_code[] = "! true";
-    auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(UNARY_NODE, node->node_type);
     auto bin = (binary_node*)node;

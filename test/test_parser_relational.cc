@@ -11,8 +11,8 @@
 TEST(testParserRelational, testComparisonLessThan)
 {
     char test_code[] = "10 < 11";
-    auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     auto bin = (binary_node*)node;
@@ -23,8 +23,8 @@ TEST(testParserRelational, testComparisonLessThan)
 TEST(testParserRelational, testComparisonGreaterThan)
 {
     char test_code[] = "11 > 10";
-    auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
     auto node = *(binary_node**)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->base.node_type);
     ASSERT_STREQ(">", string_get(&node->op));
@@ -34,8 +34,8 @@ TEST(testParserRelational, testComparisonGreaterThan)
 TEST(testParserRelational, testComparisonEqual)
 {
     char test_code[] = "11==10";
-    auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
     auto node = *(binary_node**)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->base.node_type);
     ASSERT_STREQ("==", string_get(&node->op));
@@ -45,8 +45,8 @@ TEST(testParserRelational, testComparisonEqual)
 TEST(testParserRelational, testComparisonGE)
 {
     char test_code[] = "11>=10";
-    auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
     auto node = *(binary_node**)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->base.node_type);
     ASSERT_STREQ(">=", string_get(&node->op));
@@ -56,8 +56,8 @@ TEST(testParserRelational, testComparisonGE)
 TEST(testParserRelational, testComparisonLE)
 {
     char test_code[] = "11<=10";
-    auto parser = create_parser_for_string(test_code);
-    block_node* block = parse_block(parser, 0, 0, 0);
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
     auto node = *(binary_node**)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->base.node_type);
     ASSERT_STREQ("<=", string_get(&node->op));

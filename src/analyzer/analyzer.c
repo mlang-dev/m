@@ -287,10 +287,10 @@ struct type_env* type_env_new(struct parser* parser)
         struct type_exp* exp = (struct type_exp*)create_type_oper(i, &args);
         set_builtin(env, type_strings[i], exp);
     }
-    struct array cio_builtins = parse_c_file("/usr/include/stdio.h");
+    struct array cio_builtins   = parse_c_file("/usr/include/stdio.h");
     struct array cmath_builtins = parse_c_file("/usr/include/math.h");
     array_add(&cio_builtins, &cmath_builtins);
-    struct array* builtins = &cio_builtins;//&cg->builtins;
+    struct array* builtins = &cio_builtins;
     for (size_t i = 0; i < array_size(builtins); i++) {
         struct exp_node* node = *(struct exp_node**)array_get(builtins, i);
         assert(node->node_type == PROTOTYPE_NODE);

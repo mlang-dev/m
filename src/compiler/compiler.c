@@ -22,10 +22,10 @@ int compile(const char* fn, enum object_file_type file_type)
     string filename;
     string_init_chars(&filename, fn);
     string_substr(&filename, '.');
-    struct menv* env = env_new(fn, false, 0);
+    struct menv* env = env_new(false);
     struct code_generator* cg = env->type_env->cg;
     create_module_and_pass_manager(cg, string_get(&filename));
-    struct block_node* block = parse_block(env->parser, 0, 0, 0);
+    struct block_node* block = parse_file(env->parser, fn);
     analyze(env->type_env, (struct exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
