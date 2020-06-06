@@ -65,12 +65,14 @@ loopprint n =
 ```
 
 ## useful tools
-* learn llvm IR
+* Learn llvm IR
 
 clang -S -emit-llvm ./examples/test_main.cc
 
-* dump c/c++ header ast
+* Dump c/c++ header ast
 
 clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/runtime.h
 
 * WebKit coding style is adopted here: https://webkit.org/code-style-guidelines/
+
+* ./src/c2m -i/usr/include -o../src/lib stdio.h

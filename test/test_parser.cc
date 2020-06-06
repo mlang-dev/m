@@ -295,3 +295,19 @@ TEST(testParser, testPrototypeNode)
     ASSERT_STREQ("printf", string_get(&proto->name));
     env_free(menv);
 }
+
+TEST(testParser, testPrototypeNodeEmptyArg)
+{
+    char test_code[] = "extern print():int";
+    menv* menv = create_env_for_string(test_code);
+    block_node* block = parse_block(menv->parser, 0, 0, 0);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    ASSERT_EQ(PROTOTYPE_NODE, node->node_type);
+    prototype_node* proto = (prototype_node*)node;
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_EQ(0, array_size(&proto->fun_params));
+    ASSERT_STREQ("print", string_get(&proto->name));
+    string proto_type = to_string(proto->base.annotated_type);
+    ASSERT_STREQ("int", string_get(&proto_type));
+    env_free(menv);
+}
