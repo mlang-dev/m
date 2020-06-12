@@ -1,6 +1,8 @@
 m
 msample
 build/
+embuild/
+release/
 extern/
 .DS_Store
 *.ll

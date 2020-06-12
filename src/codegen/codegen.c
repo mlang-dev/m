@@ -503,7 +503,7 @@ LLVMValueRef _generate_function_node(struct code_generator* cg, struct exp_node*
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
     LLVMPositionBuilderAtEnd(cg->builder, bb);
     _create_argument_allocas(cg, fun_node->prototype, fun);
-    LLVMValueRef ret_val;
+    LLVMValueRef ret_val = 0;
     for (size_t i = 0; i < array_size(&fun_node->body->nodes); i++) {
         struct exp_node* stmt = *(struct exp_node**)array_get(&fun_node->body->nodes, i);
         ret_val = generate_code(cg, stmt);
@@ -676,7 +676,7 @@ LLVMValueRef _generate_for_node(struct code_generator* cg, struct exp_node* node
 LLVMValueRef _generate_block_node(struct code_generator* cg, struct exp_node* node)
 {
     struct block_node* block = (struct block_node*)node;
-    LLVMValueRef codegen;
+    LLVMValueRef codegen = 0;
     for (size_t i = 0; i < array_size(&block->nodes); i++) {
         struct exp_node* exp = *(struct exp_node**)array_get(&block->nodes, i);
         codegen = generate_code(cg, exp);

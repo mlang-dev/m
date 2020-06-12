@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <limits.h>
 
 #include "analyzer.h"
 #include "clib/hash.h"
@@ -102,7 +104,7 @@ struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
 
 struct type_exp* _analyze_proto(struct type_env* env, struct exp_node* node)
 {
-    assert(env);
+    (void)env;
     struct prototype_node* proto = (struct prototype_node*)node;
     struct array fun_sig; 
     array_init(&fun_sig, sizeof(struct type_exp*));
@@ -287,12 +289,21 @@ struct type_env* type_env_new(struct parser* parser)
         struct type_exp* exp = (struct type_exp*)create_type_oper(i, &args);
         set_builtin(env, type_strings[i], exp);
     }
-    struct array cio_builtins   = parse_c_file("/usr/include/stdio.h");
-    struct array cmath_builtins = parse_c_file("/usr/include/math.h");
-    array_add(&cio_builtins, &cmath_builtins);
-    struct array* builtins = &cio_builtins;
-    for (size_t i = 0; i < array_size(builtins); i++) {
-        struct exp_node* node = *(struct exp_node**)array_get(builtins, i);
+    char libpath[PATH_MAX];
+    char* mpath = getenv("MPATH");
+    join_path(libpath, mpath, "/lib/stdio.m");
+    struct block_node* block = parse_file(parser, libpath);
+    struct array builtins;
+    array_init(&builtins, sizeof(struct exp_node*));
+    for(size_t i = 0; i < array_size(&block->nodes); i++){
+        struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
+        array_push(&builtins, &node);
+    }
+    join_path(libpath, mpath, "/lib/math.m");
+    block  = parse_file(parser, libpath);
+    array_add(&builtins, &block->nodes);
+    for (size_t i = 0; i < array_size(&builtins); i++) {
+        struct exp_node* node = *(struct exp_node**)array_get(&builtins, i);
         assert(node->node_type == PROTOTYPE_NODE);
         struct prototype_node* proto = (struct prototype_node*)node;
         _analyze(env, node);

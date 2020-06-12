@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "astdump.h"
 #include "clib/hashtable.h"
@@ -194,7 +195,7 @@ struct exp_node* _parse_string(struct parser* parser, struct exp_node* parent)
 
 struct exp_node* _parse_number(struct parser* parser, struct exp_node* parent)
 {
-    struct literal_node* result;
+    struct literal_node* result = 0;
     if (parser->curr_token.type == TYPE_INT)
         result = int_node_new(parent, parser->curr_token.loc,
             parser->curr_token.int_val);
@@ -561,8 +562,6 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
     case TOKEN_IDENT:
         string_copy(&fun_name, parser->curr_token.str_val);
         proto_type = 0;
-        // fprintf(stderr, "ident token in parse prototype: %s\n",
-        // fun_name.c_str());
         parse_next_token(parser);
         break;
     case TOKEN_UNARY:
@@ -862,7 +861,12 @@ struct block_node* parse_block(struct parser* parser, struct exp_node* parent, v
 
 struct block_node* parse_file(struct parser* parser, const char* file_name)
 {
+    errno = 0;
     FILE* file = fopen(file_name, "r");
+    if(!file){
+        printf("can't open the file: %s errno: %d\n", file_name, errno);
+        return 0;
+    }
     const char* mod_name = file_name;
     parser->current_module = module_new(mod_name, file);
     array_push(&parser->ast->modules, &parser->current_module);

@@ -299,7 +299,6 @@ struct token* get_token(struct file_tokenizer* tokenizer)
     }
 
     tokenizer->tok_loc = tokenizer->loc;
-    //log_info(DEBUG, "skiped spaces: %d, %d, %c", tokenizer->tok_loc.line, tokenizer->tok_loc.col, tokenizer->curr_char);
     if (tokenizer->curr_char[0] == EOF)
         return _tokenize_type(tokenizer, TOKEN_EOF);
     else if (is_new_line(tokenizer->curr_char[0])) {
@@ -310,7 +309,7 @@ struct token* get_token(struct file_tokenizer* tokenizer)
         return _tokenize_char(tokenizer);
     } else if (tokenizer->curr_char[0] == '"') {
         return _tokenize_string(tokenizer);
-    } else if (isalpha(tokenizer->curr_char[0])) {
+    } else if (isalpha(tokenizer->curr_char[0])||tokenizer->curr_char[0] == '_') {
         return _tokenize_id_keyword(tokenizer);
     } else if (isdigit(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '.') {
         return _tokenize_number(tokenizer);

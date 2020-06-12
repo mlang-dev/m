@@ -8,6 +8,16 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
+TEST(testLexer, testUnderlineName)
+{
+    char test_code[] = "__name";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_IDENT, token->token_type);
+    ASSERT_STREQ("__name", string_get(token->str_val));
+    destroy_tokenizer(tokenizer);
+}
+
 TEST(testLexer, testExternToken)
 {
     char test_code[] = "extern";

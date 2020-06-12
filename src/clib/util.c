@@ -3,7 +3,7 @@
  *
  * c util functions
  */
-#include <execinfo.h>
+//#include <execinfo.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -125,7 +125,7 @@ bool is_new_line(int ch)
 }
 
 void print_backtrace(void)
-{
+{/*
     int j, nptrs;
 #define SIZE 100
     void* buffer[SIZE];
@@ -133,9 +133,6 @@ void print_backtrace(void)
 
     nptrs = backtrace(buffer, SIZE);
     printf("backtrace() returned %d addresses\n", nptrs);
-
-    /* The call backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO)
-       would produce similar output to the following: */
 
     strings = backtrace_symbols(buffer, nptrs);
     if (strings == 0) {
@@ -147,6 +144,7 @@ void print_backtrace(void)
         printf("%s\n", strings[j]);
 
     free(strings);
+    */
 }
 
 void join_path(char* destination, const char* path1, const char* path2)

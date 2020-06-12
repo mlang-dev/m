@@ -245,10 +245,11 @@ enum type get_type(struct type_exp* type)
 
 string to_string(struct type_exp* type)
 {
+    string typestr;
+    string_init_chars(&typestr, "");
     if (!type) {
-        string error;
-        string_init_chars(&error, "type mismatch");
-        return error;
+        string_add_chars(&typestr, "type mismatch");
+        return typestr;
     }
     type = prune(type);
     if (type->kind == KIND_VAR) {
@@ -260,9 +261,8 @@ string to_string(struct type_exp* type)
     } else if (type->kind == KIND_OPER) {
         struct type_oper* oper = (struct type_oper*)type;
         if (array_size(&oper->args) == 0) { /* nullary operator, e.g. builtin types: int, double*/
-            string builtin;
-            string_init_chars(&builtin, type_strings[oper->base.type]);
-            return builtin;
+            string_init_chars(&typestr, type_strings[oper->base.type]);
+            return typestr;
         } else {
             ARRAY_STRING(array_type_strs);
             for (size_t i = 0; i < array_size(&oper->args); i++) {
@@ -271,7 +271,7 @@ string to_string(struct type_exp* type)
             }
             struct array subarray;
             array_copy_size(&subarray, &array_type_strs, array_size(&array_type_strs) - 1);
-            string typestr = string_join(&subarray, " * ");
+            typestr = string_join(&subarray, " * ");
             if (oper->base.type == TYPE_FUNCTION) {
                 if (array_size(&subarray) == 0)
                     string_add_chars(&typestr, "()");
@@ -286,6 +286,7 @@ string to_string(struct type_exp* type)
         print_backtrace();
         assert(false);
     }
+    return typestr;
 }
 
 bool is_generic(struct type_exp* type)
@@ -329,7 +330,7 @@ string monomorphize(const char* fun_name, struct array* types)
 struct type_exp* clone(struct type_exp* type)
 {
     type = prune(type);
-    struct type_exp* copy;
+    struct type_exp* copy = 0;
     if (type->kind == KIND_VAR){
         copy = (struct type_exp*)copy_type_var((struct type_var*)type);
     }
