@@ -379,6 +379,23 @@ printf "%d" 100
     env_free(menv);
 }
 
+TEST(testAnalyzer, testStructLikeType)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+)";
+    menv* menv = env_new(false);
+    block_node* block = parse_string(menv->parser, "test", test_code);
+    type_env* env = menv->type_env;
+    analyze(env, (exp_node*)block);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_EQ(TYPE_NODE, node->node_type);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+    env_free(menv);
+}
+
 TEST(testAnalyzer, testFunctionTypeAnnotation)
 {
     char test_code[] = R"(

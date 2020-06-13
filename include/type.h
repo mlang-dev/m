@@ -26,7 +26,7 @@ extern "C" {
     ENUM_ITEM(TYPE_DOUBLE)      \
     ENUM_ITEM(TYPE_STRING)      \
     ENUM_ITEM(TYPE_FUNCTION)    \
-    ENUM_ITEM(TYPE_PRODUCT)     \
+    ENUM_ITEM(TYPE_EXT)         \
     ENUM_ITEM(TYPE_TYPES)
 
 enum type { FOREACH_TYPE(GENERATE_ENUM) };
@@ -46,12 +46,12 @@ extern const char* kind_strings[];
 struct type_exp {
     enum kind kind; //type variable or type operator
     enum type type;
+    string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 };
 
 struct type_var {
     struct type_exp base;
     struct type_exp* instance;
-    string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 };
 
 struct type_oper {
@@ -61,6 +61,7 @@ struct type_oper {
 
 struct type_var* create_type_var();
 struct type_oper* create_type_oper(enum type type, struct array* args);
+struct type_oper* create_type_oper_ext(string type_name, struct array* args);
 struct type_oper* create_nullary_type(enum type type);
 struct type_oper* create_type_fun(struct array* args);
 void type_exp_free(struct type_exp* type);

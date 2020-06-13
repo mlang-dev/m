@@ -88,6 +88,10 @@ struct type_exp* _analyze_num(struct type_env* env, struct exp_node* node)
 struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
 {
     struct var_node* var = (struct var_node*)node;
+    assert(var->base.annotated_type || var->init_value);
+    if(var->base.annotated_type&&!var->init_value){
+        return var->base.annotated_type;
+    }
     struct type_exp* type = _analyze(env, var->init_value);
     if (!type)
         return 0;
@@ -104,8 +108,17 @@ struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
 
 struct type_exp* _analyze_type(struct type_env* env, struct exp_node* node)
 {
-    (void)env; (void)node;
-    return 0;
+    struct type_node* type = (struct type_node*)node;
+    struct array args; 
+    array_init(&args, sizeof(struct type_exp*));
+    for(size_t i = 0; i < array_size(&type->body->nodes); i++){
+        printf("creating type: %zu\n", i);
+        struct type_exp* arg = _analyze_var(env, *(struct exp_node**)array_get(&type->body->nodes, i));
+        array_push(&args, &arg);
+    }
+    struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
+    set(env, string_get(&type->name), result_type);
+    return result_type;
 }
 
 struct type_exp* _analyze_proto(struct type_env* env, struct exp_node* node)

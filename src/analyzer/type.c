@@ -34,7 +34,7 @@ struct type_var* _create_type_var(string name)
     struct type_var* var = malloc(sizeof(*var));
     var->base.kind = KIND_VAR;
     var->base.type = 0;
-    var->name = name;
+    var->base.name = name;
     var->instance = 0;
     return var;
 }
@@ -47,7 +47,7 @@ struct type_var* create_type_var()
 
 struct type_var* copy_type_var(struct type_var* var)
 {
-    struct type_var* copy_var = _create_type_var(var->name);
+    struct type_var* copy_var = _create_type_var(var->base.name);
     copy_var->instance = var->instance;
     copy_var->base.type = var->base.type;
     return copy_var;
@@ -58,6 +58,16 @@ struct type_oper* create_type_oper(enum type type, struct array* args)
     struct type_oper* oper = malloc(sizeof(*oper));
     oper->base.kind = KIND_OPER;
     oper->base.type = type;
+    oper->args = *args;
+    return oper;
+}
+
+struct type_oper* create_type_oper_ext(string type_name, struct array* args)
+{
+    struct type_oper* oper = malloc(sizeof(*oper));
+    oper->base.kind = KIND_OPER;
+    oper->base.type = TYPE_EXT;
+    oper->base.name = type_name;
     oper->args = *args;
     return oper;
 }
@@ -257,12 +267,15 @@ string to_string(struct type_exp* type)
         if (var->instance) {
             return to_string(var->instance);
         } else
-            return var->name;
+            return var->base.name;
     } else if (type->kind == KIND_OPER) {
         struct type_oper* oper = (struct type_oper*)type;
         if (array_size(&oper->args) == 0) { /* nullary operator, e.g. builtin types: int, double*/
             string_init_chars(&typestr, type_strings[oper->base.type]);
             return typestr;
+        }
+        else if (oper->base.type == TYPE_EXT) {
+            return oper->base.name;
         } else {
             ARRAY_STRING(array_type_strs);
             for (size_t i = 0; i < array_size(&oper->args); i++) {

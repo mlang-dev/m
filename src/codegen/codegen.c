@@ -228,7 +228,7 @@ void _set_bin_ops(struct code_generator* cg)
     cg->ops[TYPE_DOUBLE] = double_ops;
     cg->ops[TYPE_STRING] = str_ops;
     cg->ops[TYPE_FUNCTION] = double_ops;
-    cg->ops[TYPE_PRODUCT] = double_ops;
+    cg->ops[TYPE_EXT] = double_ops;
 
 }
 struct code_generator* cg_new(struct parser* parser)
