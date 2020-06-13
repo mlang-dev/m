@@ -24,6 +24,7 @@ struct parser {
     struct token curr_token;
     struct ast* ast;
     bool allow_id_as_a_func;
+    bool id_is_var_decl;
     bool is_repl;
     struct module* current_module;
     struct queue queued_tokens; //queue of token

@@ -315,3 +315,49 @@ TEST(testParser, testPrototypeNodeEmptyArg)
     ASSERT_STREQ("int", string_get(&proto_type));
     parser_free(parser);
 }
+
+TEST(testParser, testStructsType)
+{
+    char test_code[] = R"(
+type Point2D = 
+  x:double
+  y:double
+)";
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_EQ(TYPE_NODE, node->node_type);
+    type_node* type = (type_node*)node;
+    ASSERT_STREQ("Point2D", string_get(&type->name));
+    ASSERT_EQ(2, array_size(&type->body->nodes));
+    struct var_node* var1 = *(struct var_node**)array_front(&type->body->nodes);
+    struct var_node* var2 = *(struct var_node**)array_back(&type->body->nodes); 
+    ASSERT_EQ(VAR_NODE, var1->base.node_type);
+    ASSERT_EQ(VAR_NODE, var2->base.node_type);
+    ASSERT_STREQ("x", string_get(&var1->var_name));
+    ASSERT_STREQ("y", string_get(&var2->var_name));
+    parser_free(parser);
+}
+
+TEST(testParser, testStructsTypeOneLine)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+)";
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_EQ(TYPE_NODE, node->node_type);
+    type_node* type = (type_node*)node;
+    ASSERT_STREQ("Point2D", string_get(&type->name));
+    ASSERT_EQ(2, array_size(&type->body->nodes));
+    struct var_node* var1 = *(struct var_node**)array_front(&type->body->nodes);
+    struct var_node* var2 = *(struct var_node**)array_back(&type->body->nodes); 
+    ASSERT_EQ(VAR_NODE, var1->base.node_type);
+    ASSERT_EQ(VAR_NODE, var2->base.node_type);
+    ASSERT_STREQ("x", string_get(&var1->var_name));
+    ASSERT_STREQ("y", string_get(&var2->var_name));
+    parser_free(parser);
+}

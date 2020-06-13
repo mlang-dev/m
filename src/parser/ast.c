@@ -176,7 +176,37 @@ struct var_node* _copy_var_node(struct var_node* orig_node)
 void _free_var_node(struct var_node* node)
 {
     string_deinit(&node->var_name);
-    node_free(node->init_value);
+    if(node->init_value)
+        node_free(node->init_value);
+    _free_exp_node(&node->base);
+}
+
+
+struct type_node* type_node_new(struct exp_node* parent, struct source_loc loc, string name, struct block_node* body)
+{
+    struct type_node* node = malloc(sizeof(*node));
+    node->base.node_type = TYPE_NODE;
+    node->base.annotated_type = 0;
+    node->base.type = 0;
+    node->base.parent = parent;
+    node->base.loc = loc;
+    node->name = name;
+    node->body = body;
+    return node;
+}
+
+struct type_node* _copy_type_node(struct type_node* orig_node)
+{
+    string name;
+    string_copy(&name, &orig_node->name);
+    return type_node_new(orig_node->base.parent, orig_node->base.loc, 
+        name, _copy_block_node(orig_node->body));
+}
+
+void _free_type_node(struct type_node* node)
+{
+    string_deinit(&node->name);
+    _free_block_node(node->body);
     _free_exp_node(&node->base);
 }
 
@@ -453,6 +483,8 @@ struct exp_node* node_copy(struct exp_node* node)
             return (struct exp_node*)_copy_function_node((struct function_node*)node);
         case VAR_NODE:
             return (struct exp_node*)_copy_var_node((struct var_node*)node);
+        case TYPE_NODE:
+            return (struct exp_node*)_copy_type_node((struct type_node*)node);
         case IDENT_NODE:
             return (struct exp_node*)_copy_ident_node((struct ident_node*)node);
         case LITERAL_NODE:
@@ -490,6 +522,9 @@ void node_free(struct exp_node* node)
             break;
         case VAR_NODE:
             _free_var_node((struct var_node*)node);
+            break;
+        case TYPE_NODE:
+            _free_type_node((struct type_node*)node);
             break;
         case IDENT_NODE:
             _free_ident_node((struct ident_node*)node);

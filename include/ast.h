@@ -19,11 +19,16 @@
 extern "C" {
 #endif
 
+/*
+ * if node type order is changed here, the corresponding order of function pointer 
+ * in codegen.c & analyzer.c shall be changed accordingly.
+ */
 #define FOREACH_NODETYPE(ENUM_ITEM) \
     ENUM_ITEM(UNK_NODE)             \
-    ENUM_ITEM(LITERAL_NODE)          \
+    ENUM_ITEM(LITERAL_NODE)         \
     ENUM_ITEM(IDENT_NODE)           \
     ENUM_ITEM(VAR_NODE)             \
+    ENUM_ITEM(TYPE_NODE)            \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \
     ENUM_ITEM(CONDITION_NODE)       \
@@ -112,6 +117,12 @@ struct call_node {
     struct array args; //args: struct array of exp_node*
 };
 
+struct type_node {
+    struct exp_node base;
+    string name;  /*type name*/
+    struct block_node* body; 
+};
+
 #define ARRAY_FUN_PARAM(var)  ARRAY(var, struct var_node, 0)
 
 struct prototype_node {
@@ -158,6 +169,7 @@ struct prototype_node* prototype_node_new(struct exp_node* parent, struct source
     unsigned precedence,
     const char* op,
     bool is_variadic, bool is_external);
+struct type_node* type_node_new(struct exp_node* parent, struct source_loc loc, string name, struct block_node* body);
 struct prototype_node* prototype_node_default_new(struct exp_node* parent, struct source_loc loc,
     const char* name,
     struct array* args, struct type_exp* ret_type, bool is_variadic, bool is_external);

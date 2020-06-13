@@ -27,6 +27,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_STRING)          \
     ENUM_ITEM(TOKEN_IMPORT)          \
     ENUM_ITEM(TOKEN_EXTERN)          \
+    ENUM_ITEM(TOKEN_TYPE)            \
     ENUM_ITEM(TOKEN_IF)              \
     ENUM_ITEM(TOKEN_THEN)            \
     ENUM_ITEM(TOKEN_ELSE)            \
@@ -56,7 +57,8 @@ extern "C" {
     ENUM_ITEM(TOKEN_ADD)             \
     ENUM_ITEM(TOKEN_SUB)             \
     ENUM_ITEM(TOKEN_MUL)             \
-    ENUM_ITEM(TOKEN_DIV)             
+    ENUM_ITEM(TOKEN_DIV)             \
+    ENUM_ITEM(TOKEN_TOTAL)       
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 
@@ -95,6 +97,7 @@ struct file_tokenizer {
 struct file_tokenizer* create_tokenizer(FILE* file, const char* filename);
 void destroy_tokenizer(struct file_tokenizer* tokenizer);
 struct token* get_token(struct file_tokenizer* tokenizer);
+void init_token(struct token* token);
 extern const char* boolean_values[2];
 
 #ifdef __cplusplus

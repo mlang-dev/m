@@ -41,6 +41,7 @@ struct keyword_token {
 static struct keyword_token keyword_tokens[] = {
     { "import", TOKEN_IMPORT },
     { "extern", TOKEN_EXTERN },
+    { "type", TOKEN_TYPE },
     { "if", TOKEN_IF },
     { "else", TOKEN_ELSE },
     { "then", TOKEN_THEN },
@@ -330,4 +331,12 @@ struct token* get_token(struct file_tokenizer* tokenizer)
     _tokenize_type(tokenizer, token_type);
     tokenizer->curr_char[0] = get_char(tokenizer);
     return &tokenizer->cur_token;
+}
+
+void init_token(struct token* token)
+{
+    token->token_type = TOKEN_UNK;
+    token->loc.line = 0;
+    token->loc.col = 0;
+    token->type = TYPE_UNK;
 }

@@ -102,6 +102,12 @@ struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
     return result_type;
 }
 
+struct type_exp* _analyze_type(struct type_env* env, struct exp_node* node)
+{
+    (void)env; (void)node;
+    return 0;
+}
+
 struct type_exp* _analyze_proto(struct type_env* env, struct exp_node* node)
 {
     (void)env;
@@ -348,6 +354,7 @@ struct type_exp* (*analyze_fp[])(struct type_env*, struct exp_node*) = {
     _analyze_num,
     _analyze_ident,
     _analyze_var,
+    _analyze_type,
     _analyze_unary,
     _analyze_binary,
     _analyze_if,

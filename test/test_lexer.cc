@@ -27,6 +27,15 @@ TEST(testLexer, testExternToken)
     destroy_tokenizer(tokenizer);
 }
 
+TEST(testLexer, testTypeToken)
+{
+    char test_code[] = "type";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_TYPE, token->token_type);
+    destroy_tokenizer(tokenizer);
+}
+
 TEST(testLexer, testEqualOp)
 {
     char test_code[] = "==";
