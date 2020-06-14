@@ -46,6 +46,7 @@ extern const char* node_type_strings[];
 struct exp_node {
     enum node_type node_type;
     struct type_exp* annotated_type;
+    string* annotation;
     struct type_exp* type; //type inferred
     struct source_loc loc;
     struct exp_node* parent;

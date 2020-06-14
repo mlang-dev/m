@@ -179,7 +179,9 @@ TEST(testJIT, testIdFunc) {
   auto node = *(exp_node**)array_front(&block->nodes);
   auto node1 = *(exp_node**)array_back(&block->nodes);
   eval_statement(jit, node);
+  printf("evaling exp\n");
   auto result = eval_exp(jit, node1);
+  printf("evaled exp\n");
   ASSERT_EQ(10.0, result.d_value);
   jit_free(jit);
   env_free(env);

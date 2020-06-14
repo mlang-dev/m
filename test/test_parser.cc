@@ -378,6 +378,6 @@ xy:Point2D = 0.0 0.0
     ASSERT_EQ(VAR_NODE, node->node_type);
     struct var_node* var = (struct var_node*)node;
     ASSERT_STREQ("xy", string_get(&var->var_name));
-    //ASSERT_STREQ("Point2D", string_get(&var->base.annotated_type->name));
+    ASSERT_STREQ("Point2D", string_get(var->base.annotation));
     parser_free(parser);
 }

@@ -105,9 +105,6 @@ int _get_op_prec(struct hashtable* op_precs, const char* op)
 
 struct parser* parser_new(bool is_repl)
 {
-    // if (!file)
-    //     file = file_name ? fopen(file_name, "r") : stdin;
-    // const char* mod_name = file_name ? file_name : "intepreter_main";
     struct parser* parser = malloc(sizeof(*parser));
     queue_init(&parser->queued_tokens, sizeof(struct token));
     hashtable_init(&parser->ext_types);
@@ -126,8 +123,6 @@ struct parser* parser_new(bool is_repl)
     parser->is_repl = is_repl;
     parser->current_module = 0;
     init_token(&parser->curr_token);
-    //module_new(mod_name, file);
-    //array_push(&parser->ast->modules, &parser->current_module);
     return parser;
 }
 
@@ -687,10 +682,10 @@ enum type type, string* ext_type)
     }
     else
         exp = parse_exp(parser, parent, 0);
-    if(strcmp(name, "xy")==0){
-        printf("parsed the xy var. %s, %s\n", node_type_strings[exp->node_type], type_strings[type]);
+    if(strcmp(name, "xy")==0 && ext_type){
+        printf("parsed the xy var. %s, %s, %s\n", node_type_strings[exp->node_type], type_strings[type], string_get(ext_type));
     }
-    return (struct exp_node*)var_node_new(parent, parser->curr_token.loc, name, type, 0, exp);
+    return (struct exp_node*)var_node_new(parent, parser->curr_token.loc, name, type, ext_type, exp);
 }
 
 struct exp_node* parse_exp_to_function(struct parser* parser, struct exp_node* exp, const char* fn)
