@@ -19,7 +19,8 @@ extern "C" {
 #endif
 
 struct parser {
-    struct hashtable types;
+    struct hashtable types; /*hashtable of (string, int)*/
+    struct hashtable ext_types; /*hashtable of (string, exp_node*) for ext types*/
     struct hashtable op_precs;
     struct token curr_token;
     struct ast* ast;

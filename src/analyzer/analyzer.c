@@ -112,13 +112,20 @@ struct type_exp* _analyze_type(struct type_env* env, struct exp_node* node)
     struct array args; 
     array_init(&args, sizeof(struct type_exp*));
     for(size_t i = 0; i < array_size(&type->body->nodes); i++){
-        printf("creating type: %zu\n", i);
+        //printf("creating type: %zu\n", i);
         struct type_exp* arg = _analyze_var(env, *(struct exp_node**)array_get(&type->body->nodes, i));
         array_push(&args, &arg);
     }
     struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
+    //printf("saving type: %s\n", string_get(&type->name));
     set(env, string_get(&type->name), result_type);
     return result_type;
+}
+
+struct type_exp* _analyze_type_value(struct type_env* env, struct exp_node* node)
+{
+    (void)env; (void)node;
+    return 0;
 }
 
 struct type_exp* _analyze_proto(struct type_env* env, struct exp_node* node)
@@ -368,6 +375,7 @@ struct type_exp* (*analyze_fp[])(struct type_env*, struct exp_node*) = {
     _analyze_ident,
     _analyze_var,
     _analyze_type,
+    _analyze_type_value,
     _analyze_unary,
     _analyze_binary,
     _analyze_if,

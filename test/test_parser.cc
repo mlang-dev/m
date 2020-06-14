@@ -344,11 +344,12 @@ TEST(testParser, testStructsTypeOneLine)
 {
     char test_code[] = R"(
 type Point2D = x:double y:double
+xy:Point2D = 0.0 0.0
 )";
     auto parser = parser_new(false);
     block_node* block = parse_string(parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
-    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_EQ(2, array_size(&block->nodes));
     ASSERT_EQ(TYPE_NODE, node->node_type);
     type_node* type = (type_node*)node;
     ASSERT_STREQ("Point2D", string_get(&type->name));
@@ -359,5 +360,24 @@ type Point2D = x:double y:double
     ASSERT_EQ(VAR_NODE, var2->base.node_type);
     ASSERT_STREQ("x", string_get(&var1->var_name));
     ASSERT_STREQ("y", string_get(&var2->var_name));
+    parser_free(parser);
+}
+
+TEST(testParser, testStructsTypeDefAndDecl)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+xy:Point2D = 0.0 0.0
+)";
+    auto parser = parser_new(false);
+    block_node* block = parse_string(parser, "test", test_code);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    ASSERT_EQ(2, array_size(&block->nodes));
+    ASSERT_EQ(TYPE_NODE, node->node_type);
+    node = *(exp_node**)array_back(&block->nodes);
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    struct var_node* var = (struct var_node*)node;
+    ASSERT_STREQ("xy", string_get(&var->var_name));
+    //ASSERT_STREQ("Point2D", string_get(&var->base.annotated_type->name));
     parser_free(parser);
 }

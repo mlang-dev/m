@@ -29,6 +29,7 @@ extern "C" {
     ENUM_ITEM(IDENT_NODE)           \
     ENUM_ITEM(VAR_NODE)             \
     ENUM_ITEM(TYPE_NODE)            \
+    ENUM_ITEM(TYPE_VALUE_NODE)      \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \
     ENUM_ITEM(CONDITION_NODE)       \
@@ -119,8 +120,14 @@ struct call_node {
 
 struct type_node {
     struct exp_node base;
-    string name;  /*type name*/
     struct block_node* body; 
+    string name;  /*type name*/
+};
+
+
+struct type_value_node {
+    struct exp_node base;
+    struct block_node* body; /**/
 };
 
 #define ARRAY_FUN_PARAM(var)  ARRAY(var, struct var_node, 0)
@@ -158,7 +165,7 @@ struct literal_node* int_node_new(struct exp_node* parent, struct source_loc loc
 struct literal_node* bool_node_new(struct exp_node* parent, struct source_loc loc, bool val);
 struct literal_node* char_node_new(struct exp_node* parent, struct source_loc loc, char val);
 struct literal_node* string_node_new(struct exp_node* parent, struct source_loc loc, const char* val);
-struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, struct exp_node* init_value);
+struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, string* ext_type, struct exp_node* init_value);
 struct call_node* call_node_new(struct exp_node* parent, struct source_loc loc, const char* callee,
     struct array* args);
 struct prototype_node* prototype_node_new(struct exp_node* parent, struct source_loc loc,
@@ -170,6 +177,7 @@ struct prototype_node* prototype_node_new(struct exp_node* parent, struct source
     const char* op,
     bool is_variadic, bool is_external);
 struct type_node* type_node_new(struct exp_node* parent, struct source_loc loc, string name, struct block_node* body);
+struct type_value_node* type_value_node_new(struct exp_node* parent, struct source_loc loc, struct block_node* body);
 struct prototype_node* prototype_node_default_new(struct exp_node* parent, struct source_loc loc,
     const char* name,
     struct array* args, struct type_exp* ret_type, bool is_variadic, bool is_external);

@@ -612,6 +612,12 @@ LLVMValueRef _generate_type_node(struct code_generator* cg, struct exp_node* nod
     return 0;
 }
 
+LLVMValueRef _generate_type_value_node(struct code_generator* cg, struct exp_node* node)
+{
+    (void)cg; (void)node;
+    return 0;
+}
+
 LLVMValueRef _generate_local_var_node(struct code_generator* cg, struct var_node* node)
 {
     // fprintf(stderr, "_generate_var_node:1 %lu!, %lu\n", node->var_names.size(),
@@ -719,6 +725,7 @@ LLVMValueRef (*cg_fp[])(struct code_generator*, struct exp_node*) = {
     _generate_ident_node,
     _generate_var_node,
     _generate_type_node,
+    _generate_type_value_node,
     _generate_unary_node,
     _generate_binary_node,
     _generate_condition_node,

@@ -39,7 +39,7 @@ struct exp_node* _parse_type(struct parser* parser, struct exp_node* parent);
 struct exp_node* _parse_if(struct parser* parser, struct exp_node* parent);
 struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent);
 struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent, bool is_external);
-struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, const char* name, enum type type);
+struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, const char* name, enum type type, string* ext_type);
 struct exp_node* _parse_function_with_prototype(struct parser* parser, struct prototype_node* prototype);
 struct block_node* _parse_block(struct parser* parser, struct exp_node* parent, void (*fun)(void*, struct exp_node*), void* jit);
 
@@ -47,6 +47,7 @@ struct op_type
 {
     string op;
     enum type type;
+    string ext_type;
     bool success;
 };
 
@@ -109,6 +110,7 @@ struct parser* parser_new(bool is_repl)
     // const char* mod_name = file_name ? file_name : "intepreter_main";
     struct parser* parser = malloc(sizeof(*parser));
     queue_init(&parser->queued_tokens, sizeof(struct token));
+    hashtable_init(&parser->ext_types);
     hashtable_init(&parser->types);
     for(int i=0; i<TYPE_TYPES; i++){
         hashtable_set_int(&parser->types, type_strings[i], i);
@@ -140,6 +142,7 @@ void destroy_module(struct module* module)
 void parser_free(struct parser* parser)
 {
     hashtable_deinit(&parser->types);
+    hashtable_deinit(&parser->ext_types);
     for (size_t i = 0; i < array_size(&parser->ast->modules); i++) {
         struct module* it = *(struct module**)array_get(&parser->ast->modules, i);
         destroy_module(it);
@@ -228,6 +231,7 @@ struct op_type _parse_op_type(struct parser* parser, struct source_loc loc)
 {
     struct op_type optype;
     string_init(&optype.op);
+    string_init(&optype.ext_type);
     optype.type = TYPE_UNK;
     if (IS_OP(parser->curr_token.token_type)){
         string_copy(&optype.op, parser->curr_token.str_val);
@@ -245,6 +249,7 @@ struct op_type _parse_op_type(struct parser* parser, struct source_loc loc)
             return optype;
         }
         optype.type = hashtable_get_int(&parser->types, string_get(parser->curr_token.str_val));
+        optype.ext_type = *parser->curr_token.str_val;
         parse_next_token(parser); /*skip type*/
         if (IS_OP(parser->curr_token.token_type))
             string_copy(&optype.op, parser->curr_token.str_val);
@@ -382,12 +387,12 @@ struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent)
             return 0;
         if(parser->id_is_var_decl){
             /*id is var decl*/
-            node = (struct exp_node*)var_node_new(parent, loc, string_get(&id_name), optype.type, 0);
-            printf("parsed var: %s\n", string_get(&id_name));
+            node = (struct exp_node*)var_node_new(parent, loc, string_get(&id_name), optype.type, 0, 0);
+            //printf("parsed var: %s\n", string_get(&id_name));
         }
         else if (string_eq_chars(&optype.op, "=")) {
             // variable definition
-            node = _parse_var(parser, parent, string_get(&id_name), optype.type);
+            node = _parse_var(parser, parent, string_get(&id_name), optype.type, &optype.ext_type);
         } else if (parser->curr_token.token_type == TOKEN_EOL || parser->curr_token.token_type == TOKEN_EOF || 
                     _get_op_prec(&parser->op_precs, string_get(&optype.op)) > 0) {
             // just id expression evaluation
@@ -580,7 +585,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
             return (struct exp_node*)log_info(ERROR, "Expected unary operator");
         string_init_chars(&fun_name, "unary");
         string_add(&fun_name, parser->curr_token.str_val);
-        log_info(DEBUG, "finding unary operator: %s", string_get(&fun_name));
+        //log_info(DEBUG, "finding unary operator: %s", string_get(&fun_name));
         proto_type = 1;
         parse_next_token(parser);
         break;
@@ -665,13 +670,27 @@ struct exp_node* _parse_function_with_prototype(struct parser* parser,
     return 0;
 }
 
-struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, const char* name, enum type type)
+struct exp_node* _parse_var(struct parser* parser, struct exp_node* parent, const char* name, 
+enum type type, string* ext_type)
 {
     if (string_eq_chars(parser->curr_token.str_val, "="))
         parse_next_token(parser); // skip '='
             // token
-    struct exp_node* exp = parse_exp(parser, parent, 0);
-    return (struct exp_node*)var_node_new(parent, parser->curr_token.loc, name, type, exp);
+    struct exp_node* exp;
+    if (type == TYPE_EXT){
+        assert(ext_type);
+        struct type_node* type = (struct type_node*)hashtable_get(&parser->ext_types, string_get(ext_type));
+        assert(type);
+        struct block_node* block = _parse_block(parser, parent, 0, 0);
+        assert(array_size(&type->body->nodes) == array_size(&block->nodes));
+        exp = (struct exp_node*)type_value_node_new(parent, parser->curr_token.loc, block);
+    }
+    else
+        exp = parse_exp(parser, parent, 0);
+    if(strcmp(name, "xy")==0){
+        printf("parsed the xy var. %s, %s\n", node_type_strings[exp->node_type], type_strings[type]);
+    }
+    return (struct exp_node*)var_node_new(parent, parser->curr_token.loc, name, type, 0, exp);
 }
 
 struct exp_node* parse_exp_to_function(struct parser* parser, struct exp_node* exp, const char* fn)
@@ -706,10 +725,14 @@ struct exp_node* _parse_type(struct parser* parser, struct exp_node* parent)
     parse_next_token(parser);/*pointing to '='*/
     assert(parser->curr_token.token_type == TOKEN_OP && string_eq_chars(parser->curr_token.str_val, "="));
     parse_next_token(parser);
-    struct block_node* body = _parse_block(parser, parent, 0, 0);
+    struct type_node* type = type_node_new(parent, loc, name, 0);
+    struct block_node* body = _parse_block(parser, &type->base, 0, 0);
+    type->body = body;
     assert(body);
     parser->id_is_var_decl = false;
-    return (struct exp_node*)type_node_new(parent, loc, name, body);
+    hashtable_set_int(&parser->types, string_get(&name), TYPE_EXT);
+    hashtable_set(&parser->ext_types, string_get(&name), type);
+    return (struct exp_node*)type;
 }
 
 struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent)
@@ -837,14 +860,15 @@ struct block_node* _parse_block(struct parser* parser, struct exp_node* parent, 
     while (true) {
         assert(parser->curr_token.token_type && parser->curr_token.token_type < TOKEN_TOTAL);
         // if(parser->curr_token.token_type == TOKEN_EOL)
-        //printf("should have skipped: %s\n", string_get(parser->curr_token.str_val));
         if (exit_block(parser, parent, base_col)) 
             break;
         while (parser->curr_token.token_type == TOKEN_EOL)
             parse_next_token(parser);
-        if (exit_block(parser, parent, base_col)) 
+        if (exit_block(parser, parent, base_col))
             break;
-        //struct source_loc loc = parser->curr_token.loc;
+        // if(parser->curr_token.token_type == TOKEN_IDENT)
+        //     printf("id: %s, %d %d - %d, %p\n", string_get(parser->curr_token.str_val), parser->curr_token.loc.line, 
+        //     parser->curr_token.loc.col, base_col, (void*)parent);
         //log_info(DEBUG, "parsing statement in block--: (%d, %d), %d", loc.line, loc.col, parent);
         struct exp_node* node = parse_statement(parser, parent);
         if (node) {
@@ -856,6 +880,8 @@ struct block_node* _parse_block(struct parser* parser, struct exp_node* parent, 
         }
         if (parser->curr_token.token_type == TOKEN_EOF)
             break;
+        // struct source_loc loc = parser->curr_token.loc;
+        // printf("now at loc: %d, %d\n", loc.line, loc.col);
     }
     return array_size(&nodes) ? block_node_new(parent, &nodes) : 0;
 }

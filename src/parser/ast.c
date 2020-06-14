@@ -154,8 +154,10 @@ struct literal_node* _copy_literal_node(struct literal_node* orig_node)
     orig_node->base.annotated_type->type);
 }
 
-struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, struct exp_node* init_value)
+struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, string* ext_type,
+ struct exp_node* init_value)
 {
+    (void)ext_type;
     struct var_node* node = (struct var_node*)malloc(sizeof(*node));
     node->base.node_type = VAR_NODE;
     node->base.annotated_type = type? (struct type_exp*)create_nullary_type(type) : 0;
@@ -170,7 +172,8 @@ struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, co
 struct var_node* _copy_var_node(struct var_node* orig_node)
 {
     return var_node_new(orig_node->base.parent, orig_node->base.loc, 
-    string_get(&orig_node->var_name), orig_node->base.type ? orig_node->base.type->type : TYPE_UNK, node_copy(orig_node->init_value));
+    string_get(&orig_node->var_name), orig_node->base.type ? orig_node->base.type->type : TYPE_UNK, 0,
+    node_copy(orig_node->init_value));
 }
 
 void _free_var_node(struct var_node* node)
@@ -206,6 +209,30 @@ struct type_node* _copy_type_node(struct type_node* orig_node)
 void _free_type_node(struct type_node* node)
 {
     string_deinit(&node->name);
+    _free_block_node(node->body);
+    _free_exp_node(&node->base);
+}
+
+struct type_value_node* type_value_node_new(struct exp_node* parent, struct source_loc loc, struct block_node* body)
+{
+    struct type_value_node* node = malloc(sizeof(*node));
+    node->base.node_type = TYPE_VALUE_NODE;
+    node->base.annotated_type = 0;
+    node->base.type = 0;
+    node->base.parent = parent;
+    node->base.loc = loc;
+    node->body = body;
+    return node;
+}
+
+struct type_value_node* _copy_type_value_node(struct type_value_node* orig_node)
+{
+    return type_value_node_new(orig_node->base.parent, orig_node->base.loc, 
+        _copy_block_node(orig_node->body));
+}
+
+void _free_type_value_node(struct type_value_node* node)
+{
     _free_block_node(node->body);
     _free_exp_node(&node->base);
 }
@@ -485,6 +512,8 @@ struct exp_node* node_copy(struct exp_node* node)
             return (struct exp_node*)_copy_var_node((struct var_node*)node);
         case TYPE_NODE:
             return (struct exp_node*)_copy_type_node((struct type_node*)node);
+        case TYPE_VALUE_NODE:
+            return (struct exp_node*)_copy_type_value_node((struct type_value_node*)node);
         case IDENT_NODE:
             return (struct exp_node*)_copy_ident_node((struct ident_node*)node);
         case LITERAL_NODE:
@@ -525,6 +554,9 @@ void node_free(struct exp_node* node)
             break;
         case TYPE_NODE:
             _free_type_node((struct type_node*)node);
+            break;
+        case TYPE_VALUE_NODE:
+            _free_type_value_node((struct type_value_node*)node);
             break;
         case IDENT_NODE:
             _free_ident_node((struct ident_node*)node);
