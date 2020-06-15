@@ -192,7 +192,8 @@ struct token* _tokenize_number(struct file_tokenizer* tokenizer)
 struct token* _tokenize_id_keyword(struct file_tokenizer* tokenizer)
 {
     string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
-    while (isalnum((tokenizer->curr_char[0] = get_char(tokenizer))) || tokenizer->curr_char[0] == '_') {
+    while (isalnum((tokenizer->curr_char[0] = get_char(tokenizer))) || 
+        tokenizer->curr_char[0] == '_' || tokenizer->curr_char[0] == '.') {
         string_add_chars(&tokenizer->str_val, tokenizer->curr_char);
     }
     enum token_type token_type = get_token_type(string_get(&tokenizer->str_val));

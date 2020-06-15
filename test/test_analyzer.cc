@@ -458,3 +458,30 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
     ASSERT_STREQ("int -> int", string_get(&type_str));
     env_free(menv);
 }
+
+TEST(testAnalyzer, testStructTypeVariables)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+xy:Point2D = 0.0 0.0
+xy.x
+)";
+    menv* env = env_new(false);
+    block_node* block = parse_string(env->parser, "test", test_code);
+    ASSERT_EQ(3, array_size(&block->nodes));
+    analyze(env->type_env, (exp_node*)block);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+    node = *(exp_node**)array_get(&block->nodes, 1);
+    //type_str = to_string(node->type);
+    //ASSERT_STREQ("Point2D", string_get(&type_str));
+    node = *(exp_node**)array_get(&block->nodes, 2);
+    ASSERT_EQ(IDENT_NODE, node->node_type);
+    struct ident_node* id_node = (struct ident_node*)node;
+    ASSERT_STREQ("xy.x", string_get(&id_node->name));
+    ASSERT_EQ(2, array_size(&id_node->member_accessors));
+    ASSERT_STREQ("xy", string_get((string*)array_front(&id_node->member_accessors)));
+    ASSERT_STREQ("x", string_get((string*)array_back(&id_node->member_accessors)));
+    env_free(env);
+}

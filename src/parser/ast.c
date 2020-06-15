@@ -84,6 +84,7 @@ struct ident_node* ident_node_new(struct exp_node* parent, struct source_loc loc
     node->base.parent = parent;
     node->base.loc = loc;
     string_init_chars(&node->name, name);
+    node->member_accessors = string_split(&node->name, '.');    
     return node;
 }
 
@@ -96,6 +97,7 @@ struct ident_node* _copy_ident_node(struct ident_node* orig_node)
 void _free_ident_node(struct ident_node* node)
 {
     string_deinit(&node->name);
+    array_deinit(&node->member_accessors);
     _free_exp_node(&node->base);
 }
 

@@ -36,6 +36,16 @@ TEST(testLexer, testTypeToken)
     destroy_tokenizer(tokenizer);
 }
 
+TEST(testLexer, testIdentToken)
+{
+    char test_code[] = "x.y";
+    auto tokenizer = create_tokenizer_for_string(test_code);
+    auto token = get_token(tokenizer);
+    ASSERT_EQ(TOKEN_IDENT, token->token_type);
+    ASSERT_STREQ("x.y", string_get(token->str_val));
+    destroy_tokenizer(tokenizer);
+}
+
 TEST(testLexer, testEqualOp)
 {
     char test_code[] = "==";

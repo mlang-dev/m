@@ -672,20 +672,19 @@ enum type type, string* ext_type)
         parse_next_token(parser); // skip '='
             // token
     struct exp_node* exp;
+    struct var_node* var = (struct var_node*)var_node_new(parent, parser->curr_token.loc, name, type, ext_type, 0);
     if (type == TYPE_EXT){
         assert(ext_type);
         struct type_node* type = (struct type_node*)hashtable_get(&parser->ext_types, string_get(ext_type));
         assert(type);
-        struct block_node* block = _parse_block(parser, parent, 0, 0);
+        struct block_node* block = _parse_block(parser, (struct exp_node*)var, 0, 0);
         assert(array_size(&type->body->nodes) == array_size(&block->nodes));
         exp = (struct exp_node*)type_value_node_new(parent, parser->curr_token.loc, block);
     }
     else
-        exp = parse_exp(parser, parent, 0);
-    if(strcmp(name, "xy")==0 && ext_type){
-        printf("parsed the xy var. %s, %s, %s\n", node_type_strings[exp->node_type], type_strings[type], string_get(ext_type));
-    }
-    return (struct exp_node*)var_node_new(parent, parser->curr_token.loc, name, type, ext_type, exp);
+        exp = parse_exp(parser, (struct exp_node*)var, 0);
+    var->init_value = exp;
+    return (struct exp_node*)var;
 }
 
 struct exp_node* parse_exp_to_function(struct parser* parser, struct exp_node* exp, const char* fn)
