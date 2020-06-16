@@ -474,14 +474,13 @@ xy.x
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     node = *(exp_node**)array_get(&block->nodes, 1);
-    //type_str = to_string(node->type);
-    //ASSERT_STREQ("Point2D", string_get(&type_str));
+    type_str = to_string(node->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
     node = *(exp_node**)array_get(&block->nodes, 2);
     ASSERT_EQ(IDENT_NODE, node->node_type);
     struct ident_node* id_node = (struct ident_node*)node;
     ASSERT_STREQ("xy.x", string_get(&id_node->name));
-    ASSERT_EQ(2, array_size(&id_node->member_accessors));
-    ASSERT_STREQ("xy", string_get((string*)array_front(&id_node->member_accessors)));
-    ASSERT_STREQ("x", string_get((string*)array_back(&id_node->member_accessors)));
+    type_str = to_string(node->type);
+    ASSERT_STREQ("double", string_get(&type_str));
     env_free(env);
 }

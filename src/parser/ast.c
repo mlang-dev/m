@@ -632,3 +632,14 @@ bool is_recursive(struct call_node* call)
     }
     return false;
 }
+
+int find_member_index(struct type_node* type_node, const char* member)
+{
+    for(size_t i = 0; i < array_size(&type_node->body->nodes); i++){
+        struct var_node* var = *(struct var_node**)array_get(&type_node->body->nodes, i);
+        if(string_eq_chars(&var->var_name, member)){
+            return i;
+        }
+    }
+    return -1;
+}

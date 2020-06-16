@@ -57,6 +57,7 @@ struct type_var {
 struct type_oper {
     struct type_exp base;
     struct array args; //struct array of struct type_exp*
+    struct hashtable m_args; /*hashtable of char*, and type_exp* */
 };
 
 struct type_var* create_type_var();

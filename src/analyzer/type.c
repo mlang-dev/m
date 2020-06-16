@@ -59,6 +59,7 @@ struct type_oper* create_type_oper(enum type type, struct array* args)
     oper->base.kind = KIND_OPER;
     oper->base.type = type;
     oper->args = *args;
+    hashtable_init(&oper->m_args);
     return oper;
 }
 
@@ -190,6 +191,16 @@ bool _is_generic(struct type_var* var, struct array* nongens)
     return !_occurs_in_type_list(var, nongens);
 }
 
+bool _all_is_oper(struct array* arr)
+{
+    for(size_t i = 0; i < array_size(arr); i++){
+        struct type_exp* type = (struct type_exp*)array_get(arr, i);
+        if(type->kind != KIND_OPER)
+            return false;
+    }
+    return true;
+}
+
 struct type_exp* _freshrec(struct type_exp* type, struct array* nongens, struct hashtable* type_vars)
 {
     type = prune(type);
@@ -206,7 +217,7 @@ struct type_exp* _freshrec(struct type_exp* type, struct array* nongens, struct 
             return type;
     }
     struct type_oper* op = (struct type_oper*)type;
-    if (array_size(&op->args) == 0)
+    if (array_size(&op->args) == 0 || _all_is_oper(&op->args))
         return type;
     struct array refreshed;
     array_init(&refreshed, sizeof(struct type_exp*));
@@ -215,6 +226,8 @@ struct type_exp* _freshrec(struct type_exp* type, struct array* nongens, struct 
         struct type_exp* new_arg_type = _freshrec(arg_type, nongens, type_vars);
         array_push(&refreshed, &new_arg_type);
     }
+    if(type->type == TYPE_EXT)
+        return (struct type_exp*)create_type_oper_ext(type->name, &refreshed);
     return (struct type_exp*)create_type_oper(type->type, &refreshed);
 }
 

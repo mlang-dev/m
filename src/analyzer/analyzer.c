@@ -75,9 +75,28 @@ bool is_builtin(struct type_env* env, const char* name)
 {
     return hashtable_in(&env->builtin_types, name);
 }
-struct type_exp* _analyze_ident(struct type_env* env, struct exp_node* ident)
+struct type_exp* _analyze_ident(struct type_env* env, struct exp_node* node)
 {
-    return retrieve(env, string_get(&((struct ident_node*)ident)->name));
+    struct ident_node* ident = (struct ident_node*)node;
+    struct type_exp* type = 0;
+    for(size_t i = 0; i < array_size(&ident->member_accessors); i++){
+        string* id = (string*)array_get(&ident->member_accessors, i);
+        if(i==0){
+            type = retrieve(env, string_get(id));
+        }else{
+            assert(type);
+            struct type_oper* oper = (struct type_oper*)type;
+            struct type_node* type_node = (struct type_node*)hashtable_get(&env->type_nodes, string_get(&oper->base.name));
+            int index = find_member_index(type_node, string_get(id));
+            if (index < 0){
+                _log_err(env, node->loc, "%s member not matched.");
+                return 0;
+            }
+            type = *(struct type_exp**)array_get(&oper->args, index);
+        }
+    }
+    //struct type_exp* type = retrieve(env, string_get(&ident->name));
+    return type;
 }
 
 struct type_exp* _analyze_num(struct type_env* env, struct exp_node* node)
@@ -88,13 +107,21 @@ struct type_exp* _analyze_num(struct type_env* env, struct exp_node* node)
 struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
 {
     struct var_node* var = (struct var_node*)node;
+    struct type_exp* type;
     assert(var->base.annotated_type || var->init_value);
-    if(var->base.annotated_type&&!var->init_value){
-        return var->base.annotated_type;
+    if(var->base.annotated_type&&var->base.annotated_type->type == TYPE_EXT){
+        assert(var->base.annotation);
+        type = retrieve(env, string_get(var->base.annotation));
+        set(env, string_get(&var->var_name), type);
+        return type;
     }
-    struct type_exp* type = _analyze(env, var->init_value);
-    if (!type)
-        return 0;
+    else if(var->base.annotated_type && !var->init_value){
+        type = var->base.annotated_type;
+        set(env, string_get(&var->var_name), type);
+        return type;
+    }
+    type = _analyze(env, var->init_value);
+    if(!type) return 0;
     if(var->base.annotated_type && var->init_value->annotated_type 
         && var->base.annotated_type->type != var->init_value->annotated_type->type){
         _log_err(env, node->loc, "variable type not matched with literal constant");
@@ -117,8 +144,9 @@ struct type_exp* _analyze_type(struct type_env* env, struct exp_node* node)
         array_push(&args, &arg);
     }
     struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
-    //printf("saving type: %s\n", string_get(&type->name));
+    assert(string_eq(&type->name, &result_type->name));
     set(env, string_get(&type->name), result_type);
+    hashtable_set(&env->type_nodes, string_get(&type->name), node);
     return result_type;
 }
 
@@ -308,6 +336,7 @@ struct type_env* type_env_new(struct parser* parser)
     hashtable_init(&env->builtin_types);
     hashtable_init(&env->builtin_nodes);
     hashtable_init(&env->generic_nodes);
+    hashtable_init(&env->type_nodes);
     struct array args;
     array_init(&args, sizeof(struct type_exp*));
     /*nullary type: builtin default types*/
@@ -352,6 +381,7 @@ void type_env_free(struct type_env* env)
     hashtable_deinit(&env->builtin_types);
     hashtable_deinit(&env->builtin_nodes);
     hashtable_deinit(&env->generic_nodes);
+    hashtable_deinit(&env->type_nodes);
     array_deinit(&env->ref_builtin_names);
     array_deinit(&env->nongens);
     cg_free(env->cg);
