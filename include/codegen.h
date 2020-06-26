@@ -67,6 +67,9 @@ struct code_generator {
     struct ops ops[TYPE_TYPES];
     hashset builtins; //hashtable of char*
     struct hashtable specialized_nodes;/*hashtable of <string, struct exp_node*>*/
+    struct hashtable ext_types; /*hashtable of <string, struct LLVMTypeRef*/
+    struct hashtable ext_nodes; /*hashtable of <string type name, struct type_node*/
+    struct hashtable ext_vars;  /*hashtable of <string variable, string struct type*/
 };
 
 struct code_generator* cg_new(struct parser* parser);

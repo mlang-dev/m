@@ -95,7 +95,6 @@ struct type_exp* _analyze_ident(struct type_env* env, struct exp_node* node)
             type = *(struct type_exp**)array_get(&oper->args, index);
         }
     }
-    //struct type_exp* type = retrieve(env, string_get(&ident->name));
     return type;
 }
 
@@ -113,6 +112,7 @@ struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
         assert(var->base.annotation);
         type = retrieve(env, string_get(var->base.annotation));
         set(env, string_get(&var->var_name), type);
+        analyze(env, var->init_value);
         return type;
     }
     else if(var->base.annotated_type && !var->init_value){
@@ -152,7 +152,11 @@ struct type_exp* _analyze_type(struct type_env* env, struct exp_node* node)
 
 struct type_exp* _analyze_type_value(struct type_env* env, struct exp_node* node)
 {
-    (void)env; (void)node;
+    struct type_value_node* type_value = (struct type_value_node*)node;
+    for(size_t i = 0; i < array_size(&type_value->body->nodes); i++){
+        //printf("creating type: %zu\n", i);
+        analyze(env, *(struct exp_node**)array_get(&type_value->body->nodes, i));
+    }
     return 0;
 }
 

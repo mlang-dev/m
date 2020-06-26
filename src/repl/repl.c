@@ -59,7 +59,7 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
                 int (*i_fp)() = (int (*)())fp;
                 result.i_value = i_fp();
                 result.type = ret_type;
-            } else if (ret_type == TYPE_DOUBLE) {
+            } else if (ret_type == TYPE_DOUBLE||ret_type==TYPE_EXT) {
                 double (*d_fp)() = (double (*)())fp;
                 result.d_value = d_fp();
                 result.type = TYPE_DOUBLE;
@@ -81,6 +81,7 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
 void eval_statement(void* p_jit, struct exp_node* node)
 {
     if (node) {
+        //printf("node->type: %s\n", node_type_strings[node->node_type]);
         struct JIT* jit = (struct JIT*)p_jit;
         analyze(jit->env->type_env, node);
         string type_node_str = to_string(node->type);
@@ -88,9 +89,10 @@ void eval_statement(void* p_jit, struct exp_node* node)
             goto exit;
         if (node->node_type == PROTOTYPE_NODE) {
             generate_code(jit->cg, node);
-        } else if (node->node_type == FUNCTION_NODE) {
+        } else if (node->node_type == FUNCTION_NODE||node->node_type == TYPE_NODE) {
             // function definition
             generate_code(jit->cg, node);
+            //LLVMDumpModule(jit->cg->module);
             _add_current_module_to_jit(jit);
             _create_jit_module(jit->cg);
         } else {

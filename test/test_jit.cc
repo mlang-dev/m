@@ -385,25 +385,71 @@ printf "hello:%d" 1
   env_free(env);
 }
 
-// TEST(testJIT, testProductType) {
-//   char test_code[] = R"(
-// type Point2D = x:double y:double
-// x:Point2D = 10.0 20.0
-// x.x
-// x.y
-// )";
-//   menv* env = env_new(false);
-//   JIT* jit = build_jit(env);
-//   block_node* block = parse_string(env->parser, "test", test_code);
-//   auto end = 2;
-//   for (int i = 0; i < end; i++) {
-//     auto node = *(exp_node**)array_get(&block->nodes, i);
-//     eval_statement(jit, node);
-//   }
-//   auto node3 = *(exp_node**)array_get(&block->nodes, 2);
-//   ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
-//   auto node4 = *(exp_node**)array_get(&block->nodes, 3);
-//   ASSERT_EQ(20.0, eval_exp(jit, node4).d_value);
-//   jit_free(jit);
-//   env_free(env);
-// }
+TEST(testJIT, testProductType) {
+  char test_code[] = R"(
+type Point2D = x:double y:double
+xy:Point2D = 10.0 20.0
+xy.x
+xy.y
+)";
+  menv* env = env_new(false);
+  JIT* jit = build_jit(env);
+  block_node* block = parse_string(env->parser, "test", test_code);
+  auto end = 2;
+  for (int i = 0; i < end; i++) {
+    auto node = *(exp_node**)array_get(&block->nodes, i);
+    eval_statement(jit, node);
+  }
+  auto node3 = *(exp_node**)array_get(&block->nodes, 2);
+  ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
+  auto node4 = *(exp_node**)array_get(&block->nodes, 3);
+  ASSERT_EQ(20.0, eval_exp(jit, node4).d_value);
+  jit_free(jit);
+  env_free(env);
+}
+
+TEST(testJIT, testProductTypeIntType) {
+  char test_code[] = R"(
+type Point2D = x:int y:int
+xy:Point2D = 10 20
+xy.x
+xy.y
+)";
+  menv* env = env_new(false);
+  JIT* jit = build_jit(env);
+  block_node* block = parse_string(env->parser, "test", test_code);
+  auto end = 2;
+  for (int i = 0; i < end; i++) {
+    auto node = *(exp_node**)array_get(&block->nodes, i);
+    eval_statement(jit, node);
+  }
+  auto node3 = *(exp_node**)array_get(&block->nodes, 2);
+  ASSERT_EQ(10, eval_exp(jit, node3).i_value);
+  auto node4 = *(exp_node**)array_get(&block->nodes, 3);
+  ASSERT_EQ(20, eval_exp(jit, node4).i_value);
+  jit_free(jit);
+  env_free(env);
+}
+
+TEST(testJIT, testProductTypeMixedType) {
+  char test_code[] = R"(
+type Point2D = x:double y:int
+xy:Point2D = 10.0 20
+xy.x
+xy.y
+)";
+  menv* env = env_new(false);
+  JIT* jit = build_jit(env);
+  block_node* block = parse_string(env->parser, "test", test_code);
+  auto end = 2;
+  for (int i = 0; i < end; i++) {
+    auto node = *(exp_node**)array_get(&block->nodes, i);
+    eval_statement(jit, node);
+  }
+  auto node3 = *(exp_node**)array_get(&block->nodes, 2);
+  ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
+  auto node4 = *(exp_node**)array_get(&block->nodes, 3);
+  ASSERT_EQ(20, eval_exp(jit, node4).i_value);
+  jit_free(jit);
+  env_free(env);
+}

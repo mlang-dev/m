@@ -249,6 +249,9 @@ struct code_generator* cg_new(struct parser* parser)
     hashtable_init(&cg->protos);
     hashtable_init(&cg->named_values);
     hashtable_init(&cg->specialized_nodes);
+    hashtable_init(&cg->ext_types);
+    hashtable_init(&cg->ext_nodes);
+    hashtable_init(&cg->ext_vars);
     return cg;
 }
 
@@ -265,6 +268,9 @@ void cg_free(struct code_generator* cg)
     hashtable_deinit(&cg->protos);
     hashtable_deinit(&cg->named_values);
     hashset_deinit(&cg->builtins);
+    hashtable_deinit(&cg->ext_types);
+    hashtable_deinit(&cg->ext_nodes);
+    hashtable_deinit(&cg->ext_vars);
     free(cg);
     //LLVMShutdown();
 }
@@ -274,11 +280,9 @@ LLVMValueRef _get_function(struct code_generator* cg, const char* name)
     LLVMValueRef f = LLVMGetNamedFunction(cg->module, name);
     if (f)
         return f;
-
     struct exp_node* fp = (struct exp_node*)hashtable_get(&cg->protos, name);
-    if (fp)
+    if(fp)
         return _generate_prototype_node(cg, fp);
-
     return 0;
 }
 
@@ -292,11 +296,16 @@ LLVMValueRef _get_global_variable(struct code_generator* cg, const char* name)
     LLVMValueRef gv = _get_named_global(cg, name);
     if (gv)
         return gv;
-    struct var_node* var = (struct var_node*)hashtable_get(&cg->gvs, name); //.find(name);
+    struct var_node* var = (struct var_node*)hashtable_get(&cg->gvs, name); 
     if (var) {
-        enum type type = get_type(var->base.type);
-        gv = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context), name);
-        LLVMSetExternallyInitialized(gv, true);
+        enum type en_type = get_type(var->base.type);
+        LLVMTypeRef type;
+        if (en_type == TYPE_EXT){
+            type = hashtable_get(&cg->ext_types, string_get(&var->base.type->name));
+        }else{
+            type = cg->ops[en_type].get_type(cg->context);
+        }
+        gv = LLVMAddGlobal(cg->module, type, name);
         return gv;
     }
 
@@ -363,18 +372,26 @@ LLVMValueRef _generate_literal_node(struct code_generator* cg, struct exp_node* 
     return cg->ops[type].get_const(cg->context, cg->builder, value);
 }
 
+/*xy->TypeNode*/
 LLVMValueRef _generate_ident_node(struct code_generator* cg, struct exp_node* node)
 {
     struct ident_node* ident = (struct ident_node*)node;
-    const char* idname = string_get(&ident->name);
+    const char* idname = string_get((string*)array_get(&ident->member_accessors, 0));
     LLVMValueRef v = (LLVMValueRef)hashtable_get(&cg->named_values, idname);
     if (!v) {
-        LLVMValueRef gVar = _get_global_variable(cg, idname);
-        assert(gVar);
-        return LLVMBuildLoad(cg->builder, gVar, idname);
+        v = _get_global_variable(cg, idname);
     }
-    enum type id_type = get_type(ident->base.type);
-    return LLVMBuildLoad2(cg->builder, cg->ops[id_type].get_type(cg->context),  v, idname);
+    if(array_size(&ident->member_accessors) > 1){
+        char tempname[64];
+        string* type_name = hashtable_get(&cg->ext_vars, idname);
+        struct type_node* type_node = (struct type_node*)hashtable_get(&cg->ext_nodes, string_get(type_name));
+        const char* member_name = string_get((string*)array_get(&ident->member_accessors, 1));
+        int index = find_member_index(type_node, member_name);
+        sprintf(tempname, "temp%d", index);
+        v = LLVMBuildStructGEP(cg->builder, v, index, tempname);
+        //LLVMBuildStore(cg->builder, LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0) ,v);
+    }
+    return LLVMBuildLoad(cg->builder, v, string_get(&ident->name));
 }
 
 LLVMValueRef _generate_unary_node(struct code_generator* cg, struct exp_node* node)
@@ -572,9 +589,54 @@ LLVMValueRef _generate_condition_node(struct code_generator* cg, struct exp_node
     return phi_node;
 }
 
+LLVMValueRef _get_zero_value_ext_type(struct code_generator* cg, struct type_oper* type_ext)
+{
+    size_t element_count = array_size(&type_ext->args);
+    LLVMValueRef values[element_count];
+    for(size_t i = 0; i < element_count; i++){
+        enum type type = get_type(*(struct type_exp**)array_get(&type_ext->args, i));
+        //values[i] = LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0 * (i+1));
+        values[i] = cg->ops[type].get_zero(cg->context, cg->builder);
+    }
+    return LLVMConstStructInContext(cg->context, values, element_count, false);
+}
+
+LLVMValueRef _generate_global_var_type_node(struct code_generator* cg, struct var_node* node,
+    bool is_external)
+{
+    const char* var_name = string_get(&node->var_name);
+    LLVMValueRef gVar = _get_named_global(cg, var_name);
+    assert(node->base.type);
+    LLVMTypeRef type = (LLVMTypeRef)hashtable_get(&cg->ext_types, string_get(&node->base.type->name));// LLVMStructCreateNamed(cg->context, string_get(&node->base.type->name));
+    if (hashtable_in(&cg->gvs, var_name) && !gVar && !is_external)
+        is_external = true;
+    if (!gVar) {
+        if (is_external) {
+            gVar = LLVMAddGlobal(cg->module, type, var_name);
+        } else {
+            hashtable_set(&cg->gvs, var_name, node);
+            gVar = LLVMAddGlobal(cg->module, type, var_name);
+            LLVMSetInitializer(gVar, _get_zero_value_ext_type(cg, (struct type_oper*)node->base.type));
+        }
+    }
+    struct type_value_node* values = (struct type_value_node*)node->init_value;
+    char tempname[64];
+    for(size_t i = 0; i<array_size(&values->body->nodes); i++){
+        struct exp_node* arg = *(struct exp_node**)array_get(&values->body->nodes, i);
+        LLVMValueRef exp = generate_code(cg, arg);
+        sprintf(tempname, "temp%zu", i);
+        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, gVar, i, tempname);
+        LLVMBuildStore(cg->builder, exp, member);
+    }
+    hashtable_set(&cg->ext_vars, var_name, &node->base.type->name);
+    return 0;
+}
+
 LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_node* node,
     bool is_external)
 {
+    if (node->base.type->type == TYPE_EXT)
+        return _generate_global_var_type_node(cg, node, is_external);
     const char* var_name = string_get(&node->var_name);
     LLVMValueRef gVar = _get_named_global(cg, var_name);//LLVMGetNamedGlobal(cg->module, var_name);
     LLVMValueRef exp = generate_code(cg, node->init_value);
@@ -608,13 +670,25 @@ LLVMValueRef _generate_var_node(struct code_generator* cg, struct exp_node* node
 
 LLVMValueRef _generate_type_node(struct code_generator* cg, struct exp_node* node)
 {
-    (void)cg; (void)node;
+    struct type_node* type = (struct type_node*)node;
+    LLVMTypeRef struct_type = LLVMStructCreateNamed(cg->context, string_get(&type->name));
+    unsigned int member_count = array_size(&type->body->nodes);
+    LLVMTypeRef members[member_count];
+    for(size_t i = 0; i < member_count; i++){
+        struct exp_node* var = *(struct exp_node**)array_get(&type->body->nodes, i);
+        members[i] = cg->ops[var->annotated_type->type].get_type(cg->context);
+    }
+    LLVMStructSetBody(struct_type, members, member_count, false);
+    hashtable_set(&cg->ext_types, string_get(&type->name), struct_type);
+    hashtable_set(&cg->ext_nodes, string_get(&type->name), node);
     return 0;
 }
 
 LLVMValueRef _generate_type_value_node(struct code_generator* cg, struct exp_node* node)
 {
     (void)cg; (void)node;
+    //struct type_value_node* type_values = (struct type_value_node*)node;
+    assert(false);
     return 0;
 }
 
