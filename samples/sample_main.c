@@ -1,14 +1,8 @@
 #include <stdio.h>
 
-struct Point2D {
-    double x;
-    double y;
-};
-extern struct Point2D xy;
-extern void test();
+extern double test();
 
 int main() {
-    test();
-    printf("hello: %f", xy.x);
+    printf("hello: %f", test());
     return 0;
 }

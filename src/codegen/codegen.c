@@ -389,7 +389,6 @@ LLVMValueRef _generate_ident_node(struct code_generator* cg, struct exp_node* no
         int index = find_member_index(type_node, member_name);
         sprintf(tempname, "temp%d", index);
         v = LLVMBuildStructGEP(cg->builder, v, index, tempname);
-        //LLVMBuildStore(cg->builder, LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0) ,v);
     }
     return LLVMBuildLoad(cg->builder, v, string_get(&ident->name));
 }
@@ -692,8 +691,36 @@ LLVMValueRef _generate_type_value_node(struct code_generator* cg, struct exp_nod
     return 0;
 }
 
+LLVMValueRef _generate_local_var_type_node(struct code_generator* cg, struct var_node* node)
+{
+    // fprintf(stderr, "_generate_var_node:1 %lu!, %lu\n", node->var_names.size(),
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
+    // fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());
+    const char* var_name = string_get(&node->var_name);
+    // log_info(DEBUG, "local var cg: %s", var_name.c_str());
+    assert(node->init_value);
+    LLVMTypeRef type = (LLVMTypeRef)hashtable_get(&cg->ext_types, string_get(&node->base.type->name));
+    LLVMValueRef alloca = _create_entry_block_alloca(type, fun, var_name);
+    struct type_value_node* values = (struct type_value_node*)node->init_value;
+    char tempname[64];
+    for(size_t i = 0; i<array_size(&values->body->nodes); i++){
+        struct exp_node* arg = *(struct exp_node**)array_get(&values->body->nodes, i);
+        LLVMValueRef exp = generate_code(cg, arg);
+        sprintf(tempname, "temp%zu", i);
+        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, i, tempname);
+        LLVMBuildStore(cg->builder, exp, member);
+    }
+    hashtable_set(&cg->named_values, var_name, alloca);
+    /*TODO: local & global sharing the same hashtable now*/
+    hashtable_set(&cg->ext_vars, var_name, &node->base.type->name);
+    return 0;
+    // KSDbgInfo.emitLocation(this);
+}
+
 LLVMValueRef _generate_local_var_node(struct code_generator* cg, struct var_node* node)
 {
+    if (node->base.type->type == TYPE_EXT)
+        return _generate_local_var_type_node(cg, node);
     // fprintf(stderr, "_generate_var_node:1 %lu!, %lu\n", node->var_names.size(),
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
     // fprintf(stderr, "_generate_var_node:2 %lu!\n", node->var_names.size());

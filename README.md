@@ -67,7 +67,7 @@ loopprint n =
 ## useful tools
 * Learn llvm IR
 
-clang -S -emit-llvm ./examples/test_main.cc
+clang -S -emit-llvm ./samples/sample_main.c ./samples/sample_test.c
 
 * Dump c/c++ header ast
 

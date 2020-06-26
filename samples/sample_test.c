@@ -3,8 +3,8 @@ struct Point2D{
     double y;
 };
 
-struct Point2D xy = {0.0, 0.0};
-void test() 
+double test() 
 {
-    xy.x = 10.0;
+    struct Point2D xy = {10.0, 0.0};
+    return xy.x;
 }

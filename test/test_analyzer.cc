@@ -484,3 +484,30 @@ xy.x
     ASSERT_STREQ("double", string_get(&type_str));
     env_free(env);
 }
+
+TEST(testAnalyzer, testStructTypeLocalVariables)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+getx()=
+    xy:Point2D = 10.0 0.0
+    xy.x
+getx()
+)";
+    menv* env = env_new(false);
+    block_node* block = parse_string(env->parser, "test", test_code);
+    ASSERT_EQ(3, array_size(&block->nodes));
+    analyze(env->type_env, (exp_node*)block);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+    /*fun definition*/
+    node = *(exp_node**)array_get(&block->nodes, 1);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("() -> double", string_get(&type_str));
+    node = *(exp_node**)array_get(&block->nodes, 2);
+    ASSERT_EQ(CALL_NODE, node->node_type);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("double", string_get(&type_str));
+    env_free(env);
+}
