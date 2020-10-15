@@ -454,48 +454,24 @@ xy.y
     env_free(env);
 }
 
-TEST(testJIT, testProductTypeMixedTypeLocalVariable) {
-    char test_code[] = R"(
-type Point2D = x:double y:int
-getx()=
-    xy:Point2D = 10.0 20
-    xy.x
-getx()
-)";
-    menv* env = env_new(false);
-    JIT* jit = build_jit(env);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    auto end = 2;
-    for (int i = 0; i < end; i++) {
-        auto node = *(exp_node**)array_get(&block->nodes, i);
-        eval_statement(jit, node);
-    }
-    auto node3 = *(exp_node**)array_get(&block->nodes, 2);
-    ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
-    jit_free(jit);
-    env_free(env);
-}
-
-TEST(testJIT, testProductTypeReturnVariable) {
-    char test_code[] = R"(
-type Point2D = x:double y:int
-get()=
-    xy:Point2D = 10.0 20
-    xy
-z = get()
-)";
-    menv* env = env_new(false);
-    JIT* jit = build_jit(env);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    auto end = 3;
-    for (int i = 0; i < end; i++) {
-        auto node = *(exp_node**)array_get(&block->nodes, i);
-        printf("evaluating %d\n", i);
-        eval_statement(jit, node);
-        printf("evaluated %d\n", i);
-    }
-    //auto node3 = *(exp_node**)array_get(&block->nodes, 2);
-    //ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
-    jit_free(jit);
-    env_free(env);
-}
+// TEST(testJIT, testProductTypeMixedTypeLocalVariable) {
+//     char test_code[] = R"(
+// type Point2D = x:double y:int
+// getx()=
+//     xy:Point2D = 10.0 20
+//     xy.x
+// getx()
+// )";
+//     menv* env = env_new(false);
+//     JIT* jit = build_jit(env);
+//     block_node* block = parse_string(env->parser, "test", test_code);
+//     auto end = 2;
+//     for (int i = 0; i < end; i++) {
+//         auto node = *(exp_node**)array_get(&block->nodes, i);
+//         eval_statement(jit, node);
+//     }
+//     auto node3 = *(exp_node**)array_get(&block->nodes, 2);
+//     ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
+//     jit_free(jit);
+//     env_free(env);
+// }
