@@ -167,6 +167,7 @@ struct literal_node* double_node_new(struct exp_node* parent, struct source_loc 
 struct literal_node* int_node_new(struct exp_node* parent, struct source_loc loc, int val);
 struct literal_node* bool_node_new(struct exp_node* parent, struct source_loc loc, bool val);
 struct literal_node* char_node_new(struct exp_node* parent, struct source_loc loc, char val);
+struct literal_node* unit_node_new(struct exp_node* parent, struct source_loc loc);
 struct literal_node* string_node_new(struct exp_node* parent, struct source_loc loc, const char* val);
 struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, string* ext_type, struct exp_node* init_value);
 struct call_node* call_node_new(struct exp_node* parent, struct source_loc loc, const char* callee,

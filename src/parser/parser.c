@@ -212,8 +212,14 @@ struct exp_node* _parse_number(struct parser* parser, struct exp_node* parent)
 
 struct exp_node* _parse_parentheses(struct parser* parser, struct exp_node* parent)
 {
+    struct exp_node* v;
     parse_next_token(parser);
-    struct exp_node* v = parse_exp(parser, parent, 0);
+    if(parser->curr_token.token_type == TOKEN_RPAREN){
+        v = (struct exp_node*)unit_node_new(parent, parser->curr_token.loc);
+        parse_next_token(parser);
+        return v;
+    }
+    v = parse_exp(parser, parent, 0);
     if (!v)
         return 0;
     if (parser->curr_token.token_type != TOKEN_RPAREN)
@@ -467,13 +473,11 @@ struct exp_node* _parse_ident(struct parser* parser, struct exp_node* parent)
         array_init(&args, sizeof(struct exp_node*));
         while (true) {
             struct exp_node* arg = parse_exp(parser, parent, 0);
-            if (arg)
+            assert(arg);
+            if(!(arg->node_type == LITERAL_NODE && arg->annotated_type->type == TYPE_UNIT))
                 array_push(&args, &arg);
-            else
-                return 0;
             if (!_id_is_a_function_call(parser))
                 break;
-
             parse_next_token(parser);
         }
         parse_next_token(parser);
@@ -681,8 +685,9 @@ enum type type, string* ext_type)
         assert(array_size(&type->body->nodes) == array_size(&block->nodes));
         exp = (struct exp_node*)type_value_node_new(parent, parser->curr_token.loc, block);
     }
-    else
+    else{
         exp = parse_exp(parser, (struct exp_node*)var, 0);
+    }
     var->init_value = exp;
     return (struct exp_node*)var;
 }
@@ -741,7 +746,7 @@ struct exp_node* _parse_unary(struct parser* parser, struct exp_node* parent)
         || string_eq_chars(parser->curr_token.str_val, ",")) {
         return _parse_node(parser, parent);
     }
-    //log_info(DEBUG, "unary: %c", parser->curr_token.op_val);
+    //log_info(DEBUG, "unary: %c", parser->curr_token.char_val);
     // If this is a unary operator, read it.
     string opc;
     string_copy(&opc, parser->curr_token.str_val);

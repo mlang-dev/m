@@ -230,7 +230,6 @@ struct type_exp* _analyze_call(struct type_env* env, struct exp_node* node)
         struct type_exp* type = _analyze(env, arg);
         array_push(&args, &type);
     }
-
     /*monomorphization of generic*/
     struct exp_node* specialized_node = 0;
     if(is_generic(fun_type)&&(!is_any_generic(&args)&&array_size(&args))&&!is_recursive(call)){

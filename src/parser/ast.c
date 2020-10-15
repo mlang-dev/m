@@ -150,6 +150,11 @@ struct literal_node* char_node_new(struct exp_node* parent, struct source_loc lo
     return _create_literal_node(parent, loc, &val, TYPE_CHAR);
 }
 
+struct literal_node* unit_node_new(struct exp_node* parent, struct source_loc loc)
+{
+    return _create_literal_node(parent, loc, 0, TYPE_UNIT);
+}
+
 struct literal_node* string_node_new(struct exp_node* parent, struct source_loc loc, const char* val)
 {
     return _create_literal_node(parent, loc, (void*)val, TYPE_STRING);
