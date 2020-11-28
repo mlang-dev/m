@@ -87,5 +87,6 @@
         "__cxx_version": "cpp",
         "variant": "cpp",
         "version": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }

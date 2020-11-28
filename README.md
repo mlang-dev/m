@@ -17,20 +17,20 @@ git submodule update
 cd ./extern/llvm-project
 mkdir build
 cd build
-cmake -DLLVM_ENABLE_RTTI=ON ../llvm
+cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang ../llvm
 cmake --build . -j NN    NN - number of CPU (cores) that you have
 cmake --build . --target install 
 cd ../../../
 ```
 
 ## build mlang
-make sure MPATH env variable is set to the src folder of mlang e.g. /Users/lwang/dev/m/src
+make sure MPATH env variable is set to the src folder of mlang e.g. ~/dev/m/src
 ```
-export MPATH=/Users/lwang/dev/m/src
+export MPATH=~/dev/m/src
 mkdir build
 cd build
 cmake ..
-make
+cmake --build .
 ```
 
 ## using m REPL:
@@ -75,4 +75,7 @@ clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/runtime.h
 
 * WebKit coding style is adopted here: https://webkit.org/code-style-guidelines/
 
+re-generate stdio.m/math.m lib files
+
 * ./src/c2m -i/usr/include -o../src/lib stdio.h
+* ./src/c2m -i/usr/include -o../src/lib math.h

@@ -353,7 +353,7 @@ string monomorphize(const char* fun_name, struct array* types)
     return sp;
 }
 
-struct type_exp* clone(struct type_exp* type)
+struct type_exp* clone_type(struct type_exp* type)
 {
     type = prune(type);
     struct type_exp* copy = 0;
@@ -365,7 +365,7 @@ struct type_exp* clone(struct type_exp* type)
         struct array args;
         array_init(&args, sizeof(struct type_exp*));
         for(size_t i = 0; i < array_size(&oper->args); i++){
-            struct type_exp* arg = clone(*(struct type_exp**)array_get(&oper->args, i));
+            struct type_exp* arg = clone_type(*(struct type_exp**)array_get(&oper->args, i));
             array_push(&args, &arg);
         }
         copy = (struct type_exp*)create_type_oper(oper->base.type, &args);

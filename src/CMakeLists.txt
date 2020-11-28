@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.16)
 
 include(GoogleTest)
 
+find_package(LLVM REQUIRED CONFIG)
+execute_process(COMMAND llvm-config --libs all
+                OUTPUT_VARIABLE llvm_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+message(STATUS "Found LLVM libraries ${llvm_libraries}")
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
+
+
 add_library(mlr 
   clib/math.c
   clib/object.c
@@ -27,6 +37,7 @@ add_library(mlr
   compiler/compiler.c
  )
 
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
   /usr/local/include
@@ -34,155 +45,6 @@ include_directories(
 
 link_directories(
   /usr/local/lib
-  /usr/local/Cellar/gcc/9.3.0_1/lib/gcc
-)
-
-link_libraries(
-  LLVMXRay
-  LLVMWindowsManifest
-  LLVMTextAPI
-  LLVMTableGen
-  LLVMSymbolize
-  LLVMDebugInfoPDB
-  LLVMOrcJIT
-  LLVMOrcError
-  LLVMJITLink
-  LLVMObjectYAML
-  LLVMMCA
-  LLVMLTO
-  LLVMPasses
-  LLVMObjCARCOpts
-  LLVMLineEditor
-  LLVMLibDriver
-  LLVMInterpreter
-  LLVMFuzzMutate
-  LLVMMCJIT
-  LLVMExecutionEngine
-  LLVMRuntimeDyld
-  LLVMDlltoolDriver
-  LLVMOption
-  LLVMDebugInfoGSYM
-  LLVMCoverage
-  LLVMCoroutines
-  LLVMXCoreDisassembler
-  LLVMXCoreCodeGen
-  LLVMXCoreDesc
-  LLVMXCoreInfo
-  LLVMX86Disassembler
-  LLVMX86AsmParser
-  LLVMX86CodeGen
-  LLVMX86Desc
-  LLVMX86Utils
-  LLVMX86Info
-  LLVMWebAssemblyDisassembler
-  LLVMWebAssemblyCodeGen
-  LLVMWebAssemblyDesc
-  LLVMWebAssemblyAsmParser
-  LLVMWebAssemblyInfo
-  LLVMSparcDisassembler
-  LLVMSparcCodeGen
-  LLVMSparcAsmParser
-  LLVMSparcDesc
-  LLVMSparcInfo
-  LLVMRISCVDisassembler
-  LLVMRISCVCodeGen
-  LLVMRISCVAsmParser
-  LLVMRISCVDesc
-  LLVMRISCVUtils
-  LLVMRISCVInfo
-  LLVMPowerPCDisassembler
-  LLVMPowerPCCodeGen
-  LLVMPowerPCAsmParser
-  LLVMPowerPCDesc
-  LLVMPowerPCInfo
-  LLVMNVPTXCodeGen
-  LLVMNVPTXDesc
-  LLVMNVPTXInfo
-  LLVMMSP430Disassembler
-  LLVMMSP430CodeGen
-  LLVMMSP430AsmParser
-  LLVMMSP430Desc
-  LLVMMSP430Info
-  LLVMMipsDisassembler
-  LLVMMipsCodeGen
-  LLVMMipsAsmParser
-  LLVMMipsDesc
-  LLVMMipsInfo
-  LLVMLanaiDisassembler
-  LLVMLanaiCodeGen
-  LLVMLanaiAsmParser
-  LLVMLanaiDesc
-  LLVMLanaiInfo
-  LLVMHexagonDisassembler
-  LLVMHexagonCodeGen
-  LLVMHexagonAsmParser
-  LLVMHexagonDesc
-  LLVMHexagonInfo
-  LLVMBPFDisassembler
-  LLVMBPFCodeGen
-  LLVMBPFAsmParser
-  LLVMBPFDesc
-  LLVMBPFInfo
-  LLVMARMDisassembler
-  LLVMARMCodeGen
-  LLVMARMAsmParser
-  LLVMARMDesc
-  LLVMARMUtils
-  LLVMARMInfo
-  LLVMAMDGPUDisassembler
-  LLVMAMDGPUCodeGen
-  LLVMMIRParser
-  LLVMipo
-  LLVMInstrumentation
-  LLVMVectorize
-  LLVMLinker
-  LLVMIRReader
-  LLVMAsmParser
-  LLVMAMDGPUAsmParser
-  LLVMAMDGPUDesc
-  LLVMAMDGPUUtils
-  LLVMAMDGPUInfo
-  LLVMAArch64Disassembler
-  LLVMMCDisassembler
-  LLVMAArch64CodeGen
-  LLVMGlobalISel
-  LLVMSelectionDAG
-  LLVMAsmPrinter
-  LLVMDebugInfoDWARF
-  LLVMCodeGen
-  LLVMTarget
-  LLVMScalarOpts
-  LLVMInstCombine
-  LLVMAggressiveInstCombine
-  LLVMTransformUtils
-  LLVMBitWriter
-  LLVMAnalysis
-  LLVMProfileData
-  LLVMObject
-  LLVMBitReader
-  LLVMBitstreamReader
-  LLVMRemarks
-  LLVMAArch64AsmParser
-  LLVMMCParser
-  LLVMAArch64Desc
-  LLVMMC
-  LLVMDebugInfoCodeView
-  LLVMDebugInfoMSF
-  LLVMBinaryFormat
-  LLVMAArch64Utils
-  LLVMAArch64Info
-  LLVMDemangle
-  LLVMCore
-  LLVMSupport
-  LLVMSystemZDisassembler
-  LLVMSystemZCodeGen
-  LLVMSystemZAsmParser
-  LLVMSystemZDesc
-  LLVMSystemZInfo
-  LLVMCFGuard
-  z
-  curses
-  clang
 )
 
 add_executable(m
@@ -195,6 +57,14 @@ add_executable(c2m
 
 set_target_properties(m PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(m PRIVATE mlr)
+target_link_libraries(m PRIVATE 
+  mlr
+  ${llvm_libraries}
+  pthread
+  dl
+)
 
-target_link_libraries(c2m PRIVATE mlr)
+target_link_libraries(c2m PRIVATE 
+  mlr 
+  clang
+)
