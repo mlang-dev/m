@@ -384,7 +384,7 @@ printf "hello:%d" 1
   jit_free(jit);
   env_free(env);
 }
-
+/*
 TEST(testJIT, testProductType) {
   char test_code[] = R"(
 type Point2D = x:double y:double
@@ -453,7 +453,7 @@ xy.y
     jit_free(jit);
     env_free(env);
 }
-
+*/
 // TEST(testJIT, testProductTypeMixedTypeLocalVariable) {
 //     char test_code[] = R"(
 // type Point2D = x:double y:int

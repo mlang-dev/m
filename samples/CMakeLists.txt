@@ -15,16 +15,16 @@ add_custom_command(
   PRE_BUILD
   COMMAND m ${CMAKE_CURRENT_SOURCE_DIR}/sample_lib.m
   COMMAND m ${CMAKE_CURRENT_SOURCE_DIR}/sample.m
-  COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/libc.dylib -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
+  # MacOS COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/libc.dylib -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
+  COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/x86_64-linux-gnu/libc.so -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
 )
 
-TARGET_LINK_LIBRARIES(msample mlr sample_lib.o)
+TARGET_LINK_LIBRARIES(msample PRIVATE mlr ${CMAKE_CURRENT_SOURCE_DIR}/sample_lib.o)
 
 add_custom_command(
   TARGET msample
   POST_BUILD
   COMMAND msample
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/sample
 )
 
 

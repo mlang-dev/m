@@ -67,8 +67,13 @@ void add_module(struct JIT* jit, void* module)
     LLVMOrcThreadSafeContextRef tsc = LLVMOrcCreateNewThreadSafeContext();
     LLVMOrcThreadSafeModuleRef tsm = LLVMOrcCreateNewThreadSafeModule((LLVMModuleRef)module, tsc);
     LLVMOrcJITDylibDefinitionGeneratorRef dg;
-    LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, '_', 0, 0);
-    LLVMLoadLibraryPermanently("/usr/lib/libstdc++.so");
+    #ifdef __APPLE__ //MacOS
+        LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, '_', 0, 0); 
+        LLVMLoadLibraryPermanently("/usr/lib/libstdc++.so"); 
+    #else //Linux
+        LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, 0, 0, 0); 
+        LLVMLoadLibraryPermanently("/usr/lib/x86_64-linux-gnu/libstdc++.so.6"); 
+    #endif
     LLVMOrcJITDylibAddGenerator(jd, dg);
     LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
 }

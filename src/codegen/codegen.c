@@ -860,7 +860,7 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
     const char* cpu = "generic";
     const char* features = "";
     LLVMCodeGenOptLevel opt = LLVMCodeGenLevelDefault;
-    LLVMRelocMode rm = LLVMRelocDefault;
+    LLVMRelocMode rm = LLVMRelocPIC;// LLVMRelocDefault;
     LLVMCodeModel cm = LLVMCodeModelDefault;
     LLVMTargetMachineRef target_machine = LLVMCreateTargetMachine(target, target_triple, cpu, features, opt, rm, cm);
     LLVMSetModuleDataLayout(module, LLVMCreateTargetDataLayout(target_machine));
