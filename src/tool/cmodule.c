@@ -99,7 +99,7 @@ struct array parse_c_file(const char* file_path)
         0, 0,
         CXTranslationUnit_None);
     if (unit == 0) {
-        printf("Unable to parse translation unit. Quitting.\n");
+        printf("Unable to parse translation unit for %s. Quitting.\n", file_path);
         return prototypes;
     }
     CXCursor cursor = clang_getTranslationUnitCursor(unit);

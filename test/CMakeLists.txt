@@ -3,11 +3,15 @@ cmake_minimum_required(VERSION 3.16)
 project(mtest, VERSION 0.0.9 LANGUAGES CXX)
 
 find_package(LLVM REQUIRED CONFIG)
-execute_process(COMMAND llvm-config --libs all
+execute_process(COMMAND llvm-config --libs
                 OUTPUT_VARIABLE llvm_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND llvm-config --system-libs
+                OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(REPLACE " -llibxml2.tbd" "" sys_libraries ${sys_libraries})
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found LLVM libraries ${llvm_libraries}")
+message(STATUS "Found SYS libraries ${sys_libraries}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
@@ -44,6 +48,7 @@ add_executable(mtest
 )
 TARGET_LINK_LIBRARIES(mtest gtest gmock gtest_main mlr
   ${llvm_libraries}
+  ${sys_libraries}
   clang
   pthread
   dl

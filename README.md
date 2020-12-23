@@ -4,6 +4,11 @@ m is a succinct & expressive programming language, where efficiency and elegance
 
 It's written in c but requires c++ linker due to llvm being implemented in c++.
 
+[Googletest](https://github.com/google/googletest) framework is used for unit tests.
+
+## prerequisites
+cmake, git
+
 ## get source codes
 ```
 git clone https://github.com/ligangwang/m
@@ -73,7 +78,7 @@ clang -S -emit-llvm ./samples/sample_main.c ./samples/sample_test.c
 
 clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/runtime.h
 
-* WebKit coding style is adopted here: https://webkit.org/code-style-guidelines/
+* [WebKit coding](https://webkit.org/code-style-guidelines/) style is adopted here.
 
 re-generate stdio.m/math.m lib files
 
