@@ -7,7 +7,10 @@ It's written in c but requires c++ linker due to llvm being implemented in c++.
 [Googletest](https://github.com/google/googletest) framework is used for unit tests.
 
 ## prerequisites
-cmake, git
+cmake
+git
+GNU make or visual studio building tool
+c++ compiler: gcc/clang/vc++ 
 
 ## get source codes
 ```
@@ -22,8 +25,8 @@ git submodule update
 cd ./extern/llvm-project
 mkdir build
 cd build
-cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang ../llvm
-cmake --build . -j NN    NN - number of CPU (cores) that you have
+cmake -Thost=x64 -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang ../llvm
+cmake --build . --config Release -j NN    NN - number of CPU (cores) that you have
 cmake --build . --target install 
 cd ../../../
 ```
