@@ -47,10 +47,16 @@ add_executable(mtest
   test_jit.cc
   test_cmodule.cc
 )
+
+if(WIN32)
+  set(clang_lib libclang)
+else()
+  set(clang_lib clang)
+endif(WIN32)
 TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
   ${llvm_libraries}
   ${sys_libraries}
-  clang
+  ${clang_lib}
 )
 
 enable_testing()

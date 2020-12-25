@@ -5,10 +5,9 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <limits.h>
-
+#include "sys.h"
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"

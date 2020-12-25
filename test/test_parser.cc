@@ -77,9 +77,7 @@ TEST(testParser, testString)
 {
     char test_code[] = "x = \"hello world!\"";
     auto parser = parser_new(false);
-    printf("start parsing ...\n");
     block_node* block = parse_string(parser, "test", test_code);
-    printf("parsed ...\n");
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(&node->var_name));

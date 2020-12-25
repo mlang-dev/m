@@ -79,7 +79,13 @@ add_custom_command(
   # COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/x86_64-linux-gnu/libc.so -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
 )
 
+if(WIN32)
+  set(clang_lib libclang)
+else()
+  set(clang_lib clang)
+endif(WIN32)
+
 target_link_libraries(c2m PRIVATE 
   mlr 
-  clang
+  ${clang_lib}
 )
