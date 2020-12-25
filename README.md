@@ -50,9 +50,13 @@ cmake --build . --config Release
 
 ## using m REPL:
 ./src/m
+or on Windows
+.\src\Release\m
 
 ## using m compiler: 
 ./src/m ./samples/sample_lib.m
+or on Windows
+.\src\Release\m ./samples/sample_lib.m
 
 ## c calls m functions:
 clang++ ./samples/sample_main.cc ./samples/sample_lib.o ./runtime.o -o ./sample
