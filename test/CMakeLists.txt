@@ -19,11 +19,9 @@ add_definitions(${LLVM_DEFINITIONS})
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
-  /usr/local/include
 )
 
 link_directories(
-  /usr/local/lib
   ${LLVM_INCLUDE_DIRS}/../lib
 )
 
@@ -52,9 +50,7 @@ add_executable(mtest
 TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
   ${llvm_libraries}
   ${sys_libraries}
-  libclang
-  #pthread
-  #dl
+  clang
 )
 
 enable_testing()

@@ -347,6 +347,7 @@ to_string()
   env_free(env);
 }
 
+#ifdef _FIXLATER
 TEST(testJIT, testPrintfFunc) {
   char test_code[] = R"(
 printf "hello\n"
@@ -361,9 +362,7 @@ printf "hello\n"
     eval_statement(jit, node);
   }
   auto msg = testing::internal::GetCapturedStdout();
-  #ifndef _WIN32
   ASSERT_STREQ("hello\n6:int\n", msg.c_str());
-  #endif
   jit_free(jit);
   env_free(env);
 }
@@ -382,13 +381,11 @@ printf "hello:%d" 1
     eval_statement(jit, node);
   }
   auto msg = testing::internal::GetCapturedStdout();
-  #ifndef _WIN32
   ASSERT_STREQ("hello:17:int\n", msg.c_str());
-  #endif
   jit_free(jit);
   env_free(env);
 }
-/*
+
 TEST(testJIT, testProductType) {
   char test_code[] = R"(
 type Point2D = x:double y:double
@@ -457,25 +454,26 @@ xy.y
     jit_free(jit);
     env_free(env);
 }
-*/
-// TEST(testJIT, testProductTypeMixedTypeLocalVariable) {
-//     char test_code[] = R"(
-// type Point2D = x:double y:int
-// getx()=
-//     xy:Point2D = 10.0 20
-//     xy.x
-// getx()
-// )";
-//     menv* env = env_new(false);
-//     JIT* jit = build_jit(env);
-//     block_node* block = parse_string(env->parser, "test", test_code);
-//     auto end = 2;
-//     for (int i = 0; i < end; i++) {
-//         auto node = *(exp_node**)array_get(&block->nodes, i);
-//         eval_statement(jit, node);
-//     }
-//     auto node3 = *(exp_node**)array_get(&block->nodes, 2);
-//     ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
-//     jit_free(jit);
-//     env_free(env);
-// }
+
+TEST(testJIT, testProductTypeMixedTypeLocalVariable) {
+    char test_code[] = R"(
+type Point2D = x:double y:int
+getx()=
+    xy:Point2D = 10.0 20
+    xy.x
+getx()
+)";
+    menv* env = env_new(false);
+    JIT* jit = build_jit(env);
+    block_node* block = parse_string(env->parser, "test", test_code);
+    auto end = 2;
+    for (int i = 0; i < end; i++) {
+        auto node = *(exp_node**)array_get(&block->nodes, i);
+        eval_statement(jit, node);
+    }
+    auto node3 = *(exp_node**)array_get(&block->nodes, 2);
+    ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
+    jit_free(jit);
+    env_free(env);
+}
+#endif 

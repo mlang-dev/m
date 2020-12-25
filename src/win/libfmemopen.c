@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include <stdio.h>
 #include <windows.h>
 #include <share.h>
@@ -32,3 +33,4 @@ FILE* fmemopen(void *buf, size_t len, const char *type)
 	rewind(file);
   	return file;
 }
+#endif /*_WIN32 */
