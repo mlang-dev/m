@@ -8,12 +8,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
-
 #include "analyzer.h"
 #include "clib/hash.h"
 #include "cmodule.h"
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
+
 
 struct type_exp* _analyze(struct type_env* env, struct exp_node* node);
 const char* relational_ops[] = {

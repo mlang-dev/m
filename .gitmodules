@@ -1,6 +1,7 @@
 [submodule "extern/googletest"]
 	path = extern/googletest
 	url = https://github.com/google/googletest
+	branch = v1.10.x
 [submodule "extern/llvm-project"]
 	path = extern/llvm-project
 	url = https://github.com/llvm/llvm-project.git

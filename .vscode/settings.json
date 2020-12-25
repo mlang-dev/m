@@ -86,7 +86,11 @@
         "unordered_set": "cpp",
         "__cxx_version": "cpp",
         "variant": "cpp",
-        "version": "cpp"
+        "version": "cpp",
+        "__memory": "c",
+        "regex": "c",
+        "scoped_allocator": "c",
+        "future": "cpp"
     },
     "cmake.configureOnOpen": false
 }

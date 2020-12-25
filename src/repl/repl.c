@@ -92,7 +92,7 @@ void eval_statement(void* p_jit, struct exp_node* node)
         } else if (node->node_type == FUNCTION_NODE||node->node_type == TYPE_NODE) {
             // function definition
             generate_code(jit->cg, node);
-            LLVMDumpModule(jit->cg->module);
+            //LLVMDumpModule(jit->cg->module);
             _add_current_module_to_jit(jit);
             _create_jit_module(jit->cg);
         } else {
@@ -103,7 +103,7 @@ void eval_statement(void* p_jit, struct exp_node* node)
             if (node->node_type != VAR_NODE)
                 _print(result);
         }
-        printf(":%s\n", string_get(&type_node_str));
+        //printf(":%s\n", string_get(&type_node_str));
         string_deinit(&type_node_str);
     }
 exit:

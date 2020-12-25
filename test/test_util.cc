@@ -31,7 +31,7 @@ TEST(testUtil, testMoreLetters)
     ASSERT_STREQ("zzzz", get_id_name()._reserved);
     ASSERT_STREQ("aaaaa", get_id_name()._reserved);
 }
-
+#ifndef _WIN32
 TEST(testUtil, testJoinPath)
 {
     char path[64];
@@ -45,7 +45,7 @@ TEST(testUtil, testJoinPath2)
     join_path(path, "/usr/local/include/", "stdio.h");
     ASSERT_STREQ("/usr/local/include/stdio.h", path);
 }
-
+#endif
 TEST(testUtil, testJoinPathEmpty)
 {
     char path[64];

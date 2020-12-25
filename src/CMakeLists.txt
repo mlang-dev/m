@@ -3,18 +3,20 @@ cmake_minimum_required(VERSION 3.16)
 include(GoogleTest)
 
 find_package(LLVM REQUIRED CONFIG)
-execute_process(COMMAND llvm-config --libs
+message(STATUS "Found LLVM BIN ${LLVM_TOOLS_BINARY_DIR}")
+execute_process(COMMAND llvm-config --libnames
                 OUTPUT_VARIABLE llvm_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --system-libs
                 OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
 string(REPLACE " -llibxml2.tbd" "" sys_libraries ${sys_libraries})
+string(REPLACE " " ";" llvm_libraries ${llvm_libraries})
+string(REPLACE " " ";" sys_libraries ${sys_libraries})
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found LLVM libraries ${llvm_libraries}")
-message(STATUS "Found SYS libraries ${sys_libraries}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+message(STATUS "Found SYS libraries ${sys_libraries}") 
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
-
 
 add_library(mlr 
   clib/math.c
@@ -39,6 +41,8 @@ add_library(mlr
   repl/repl.c
   repl/jit.c
   compiler/compiler.c
+  getopt.c
+  libfmemopen.c
  )
 
 
@@ -48,7 +52,7 @@ include_directories(
 )
 
 link_directories(
-  /usr/local/lib
+  ${LLVM_INCLUDE_DIRS}/../lib
 )
 
 add_executable(m
@@ -65,8 +69,8 @@ target_link_libraries(m PRIVATE
   mlr
   ${llvm_libraries}
   ${sys_libraries}
-  pthread
-  dl
+  #pthread
+  #dl
  )
 
 add_custom_command(
@@ -80,5 +84,5 @@ add_custom_command(
 
 target_link_libraries(c2m PRIVATE 
   mlr 
-  clang
+  libclang
 )

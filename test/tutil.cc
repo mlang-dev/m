@@ -3,9 +3,11 @@
  *
  * Utility functions for testing
  */
+#include <stdio.h>
 #include <string.h>
 
 #include "tutil.h"
+#include "libfmemopen.h"
 
 FILE* open_file_from_string(const char* code)
 {

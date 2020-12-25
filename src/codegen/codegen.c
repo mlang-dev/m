@@ -492,7 +492,7 @@ LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node
     size_t param_count = array_size(&proto->fun_params);
     if(proto->is_variadic)
         param_count --;
-    LLVMTypeRef arg_types[param_count];
+    LLVMTypeRef* arg_types = malloc(param_count*sizeof(LLVMTypeRef));
     struct type_oper* proto_type = (struct type_oper*)proto->base.type;
     assert(proto_type->base.kind == KIND_OPER);
     struct type_exp* ret = *(struct type_exp**)array_back(&proto_type->args);
@@ -508,6 +508,7 @@ LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node
         struct var_node* fun_param = (struct var_node*)array_get(&proto->fun_params, i);
         LLVMSetValueName2(param, string_get(&fun_param->var_name), string_size(&fun_param->var_name));
     }
+    free(arg_types);
     return fun;
 }
 
@@ -545,12 +546,14 @@ LLVMValueRef _generate_call_node(struct code_generator* cg, struct exp_node* nod
     string* callee_name = req_spec_cg? &call->specialized_callee : &call->callee;
     LLVMValueRef callee = _get_function(cg, string_get(callee_name));
     assert(callee);
-    LLVMValueRef arg_values[array_size(&call->args)];
+    LLVMValueRef* arg_values = malloc(array_size(&call->args)*sizeof(LLVMValueRef));
     for (size_t i = 0, e = array_size(&call->args); i != e; ++i) {
         struct exp_node* arg = *(struct exp_node**)array_get(&call->args, i);
         arg_values[i] = generate_code(cg, arg);
     }
-    return LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "calltmp");
+    LLVMValueRef value = LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "calltmp");
+    free(arg_values);
+    return value;
 }
 
 LLVMValueRef _generate_condition_node(struct code_generator* cg, struct exp_node* node)
@@ -595,13 +598,15 @@ LLVMValueRef _generate_condition_node(struct code_generator* cg, struct exp_node
 LLVMValueRef _get_zero_value_ext_type(struct code_generator* cg, struct type_oper* type_ext)
 {
     size_t element_count = array_size(&type_ext->args);
-    LLVMValueRef values[element_count];
+    LLVMValueRef* values = malloc(element_count * sizeof(LLVMValueRef));
     for(size_t i = 0; i < element_count; i++){
         enum type type = get_type(*(struct type_exp**)array_get(&type_ext->args, i));
         //values[i] = LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0 * (i+1));
         values[i] = cg->ops[type].get_zero(cg->context, cg->builder);
     }
-    return LLVMConstStructInContext(cg->context, values, element_count, false);
+    LLVMValueRef value = LLVMConstStructInContext(cg->context, values, element_count, false);
+    free(values);
+    return value;
 }
 
 LLVMValueRef _generate_global_var_type_node(struct code_generator* cg, struct var_node* node,
@@ -677,16 +682,17 @@ LLVMValueRef _generate_type_node(struct code_generator* cg, struct exp_node* nod
     struct type_node* type = (struct type_node*)node;
     LLVMTypeRef struct_type = LLVMStructCreateNamed(cg->context, string_get(&type->name));
     unsigned int member_count = array_size(&type->body->nodes);
-    LLVMTypeRef members[member_count];
+    LLVMTypeRef* members = malloc(member_count*sizeof(LLVMTypeRef));
     for(size_t i = 0; i < member_count; i++){
         struct exp_node* var = *(struct exp_node**)array_get(&type->body->nodes, i);
         members[i] = cg->ops[var->annotated_type->type].get_type(cg->context);
     }
-    LLVMStructSetBody(struct_type, members, member_count, false);
+    LLVMStructSetBody(struct_type, members, member_count, false);   
     hashtable_set(&cg->ext_types, string_get(&type->name), struct_type);
     hashtable_set(&cg->ext_nodes, string_get(&type->name), node);
+    free(members);
     return 0;
-}
+}       
 
 LLVMValueRef _generate_type_value_node(struct code_generator* cg, struct exp_node* node)
 {

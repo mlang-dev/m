@@ -298,7 +298,7 @@ struct token* get_token(struct file_tokenizer* tokenizer)
         if (is_new_line(tokenizer->curr_char[0]))
             break;
         tokenizer->curr_char[0] = get_char(tokenizer);
-    }
+     }
 
     tokenizer->tok_loc = tokenizer->loc;
     if (tokenizer->curr_char[0] == EOF)

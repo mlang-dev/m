@@ -10,7 +10,7 @@
 
 TEST(testCModule, teststdio)
 {
-    #ifndef __MACH__
+    #ifdef __linux__
         struct array funs = parse_c_file("/usr/include/stdio.h");
         size_t funs_size = array_size(&funs);
         ASSERT_GE(100, funs_size);

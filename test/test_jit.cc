@@ -361,7 +361,9 @@ printf "hello\n"
     eval_statement(jit, node);
   }
   auto msg = testing::internal::GetCapturedStdout();
+  #ifndef _WIN32
   ASSERT_STREQ("hello\n6:int\n", msg.c_str());
+  #endif
   jit_free(jit);
   env_free(env);
 }
@@ -380,7 +382,9 @@ printf "hello:%d" 1
     eval_statement(jit, node);
   }
   auto msg = testing::internal::GetCapturedStdout();
+  #ifndef _WIN32
   ASSERT_STREQ("hello:17:int\n", msg.c_str());
+  #endif
   jit_free(jit);
   env_free(env);
 }

@@ -12,6 +12,7 @@
 #include "clib/hashtable.h"
 #include "clib/util.h"
 #include "parser.h"
+#include "libfmemopen.h"
 
 #define exit_block(parser, parent, base_col) (parent && parser->curr_token.loc.col < base_col && (parser->curr_token.token_type != TOKEN_EOL || parser->is_repl))
 
@@ -916,9 +917,7 @@ struct block_node* parse_file_object(struct parser* parser, const char* mod_name
 struct block_node* parse_string(struct parser* parser, const char* mod_name, const char* code)
 {
     FILE* file = fmemopen((void*)code, strlen(code), "r");
-    parser->current_module = module_new(mod_name, file);
-    array_push(&parser->ast->modules, &parser->current_module);
-    return parse_block(parser, 0, 0, 0);
+    return parse_file_object(parser, mod_name, file); 
 }
 
 struct block_node* parse_repl(struct parser* parser, void (*fun)(void*, struct exp_node*), void* jit)

@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
-add_compile_options(-Wall -Wextra -Werror)
 
+ 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
 add_subdirectory(extern/googletest)
