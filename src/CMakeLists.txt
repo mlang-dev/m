@@ -41,14 +41,13 @@ add_library(mlr
   repl/repl.c
   repl/jit.c
   compiler/compiler.c
-  getopt.c
-  libfmemopen.c
+  win/getopt.c
+  win/libfmemopen.c
  )
 
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
-  /usr/local/include
 )
 
 link_directories(
@@ -69,8 +68,6 @@ target_link_libraries(m PRIVATE
   mlr
   ${llvm_libraries}
   ${sys_libraries}
-  #pthread
-  #dl
  )
 
 add_custom_command(
@@ -84,5 +81,5 @@ add_custom_command(
 
 target_link_libraries(c2m PRIVATE 
   mlr 
-  libclang
+  clang
 )
