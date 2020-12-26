@@ -6,8 +6,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <limits.h>
+#include "sys.h"
 #include "analyzer.h"
 #include "clib/hash.h"
 #include "cmodule.h"

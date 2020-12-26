@@ -5,8 +5,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-
+#include "sys.h"
 #include "clib/array.h"
 #include "clib/object.h"
 #include "compiler.h"
