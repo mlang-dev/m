@@ -6,14 +6,14 @@ It's written in c but requires c++ linker due to llvm being implemented in c++.
 
 [Googletest](https://github.com/google/googletest) framework is used for unit tests.
 
-The code is able to be compiled on Windows/MacOS/Linux.
+The code is able to be compiled on Windows/macOS/Linux.
 
 It's been tested on following platforms:
 MacOS 10.15.7
 Ubuntu 20.04
 Windows 10
 
-## prerequisites
+## prerequisites 
 Source Code Version Control: git
 Build system generator: cmake
 Build system: GNU make (Unix-like system) or MSBuild (Windows)
@@ -47,16 +47,13 @@ cd build
 cmake ..
 cmake --build . --config Release
 ```
+The build system will build m executable under ./src for MacOS/Linux, or .\src\Release under Windows
 
 ## using m REPL:
 ./src/m
-or on Windows
-.\src\Release\m
 
 ## using m compiler: 
 ./src/m ./samples/sample_lib.m
-or on Windows
-.\src\Release\m ./samples/sample_lib.m
 
 ## c calls m functions:
 clang++ ./samples/sample_main.cc ./samples/sample_lib.o ./runtime.o -o ./sample
