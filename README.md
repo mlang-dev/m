@@ -9,7 +9,7 @@ It's written in c but requires c++ linker due to llvm being implemented in c++.
 The code is able to be compiled on Windows/macOS/Linux.
 
 It's been tested on following platforms:
-MacOS 10.15.7
+macOS 10.15.7
 Ubuntu 20.04
 Windows 10
 
@@ -47,7 +47,7 @@ cd build
 cmake ..
 cmake --build . --config Release
 ```
-The build system will build m executable under ./src for MacOS/Linux, or .\src\Release under Windows
+The build system will build m executable under ./src for macOS/Linux, or .\src\Release under Windows
 
 ## using m REPL:
 ./src/m
