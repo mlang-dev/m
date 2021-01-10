@@ -1,6 +1,6 @@
 # m
 
-m is a succinct & expressive programming language, where efficiency and elegance meet. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction whenever possible.
+m is a succinct & expressive programming language, where efficiency and elegance meet. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction to its maximum. [llvm](https://github.com/llvm/llvm-project) is used as m's backend implementation.
 
 It's written in c but requires c++ linker due to llvm being implemented in c++.
 
