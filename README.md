@@ -4,20 +4,20 @@ m is a succinct & expressive programming language, where efficiency and elegance
 
 It's written in c but requires c++ linker due to llvm being implemented in c++.
 
-[Googletest](https://github.com/google/googletest) framework is used for unit tests.
+[Googletest](https://github.com/google/googletest) framework is used for unit tests.  [WebKit coding](https://webkit.org/code-style-guidelines/) coding style is adopted here.
 
 The code is able to be compiled on Windows/macOS/Linux.
 
 It's been tested on following platforms:
-macOS 10.15.7
-Ubuntu 20.04
-Windows 10
+* macOS 10.15.7
+* Ubuntu 20.04
+* Windows 10
 
 ## prerequisites 
-Source Code Version Control: git
-Build system generator: cmake
-Build system: GNU make (Unix-like system) or MSBuild (Windows)
-Compiler: c++ compilers: gcc/clang/vc++(Visual Studio with C++) 
+* Source code version control: git
+* Build system generator: cmake
+* Build system: GNU make (Unix-like system) or MSBuild (Windows)
+* Compiler: c++ compilers: gcc/clang/vc++(Visual Studio with C++) 
 
 ## get source codes
 ```
@@ -47,7 +47,7 @@ cd build
 cmake ..
 cmake --build . --config Release
 ```
-The build system will build m executable under ./src for macOS/Linux, or .\src\Release under Windows
+The build system will build m executable under ./src on macOS/Linux, or .\src\Release on Windows
 
 ## using m REPL:
 ./src/m
@@ -82,16 +82,23 @@ loopprint n =
 
 ## useful tools
 * Learn llvm IR
-
+```
 clang -S -emit-llvm ./samples/sample_main.c ./samples/sample_test.c
+```
+
+* clang RVO (return value optimization)
+```
+clang -S -emit-llvm ./test/test_rvo.c
+```
 
 * Dump c/c++ header ast
+```
+clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/test-ccompiler.h
+```
 
-clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/runtime.h
 
-* [WebKit coding](https://webkit.org/code-style-guidelines/) style is adopted here.
-
-re-generate stdio.m/math.m lib files
-
-* ./src/c2m -i/usr/include -o../src/lib stdio.h
-* ./src/c2m -i/usr/include -o../src/lib math.h
+* Generate stdio.m/math.m lib files
+```
+./src/c2m -i/usr/include -o../src/lib stdio.h
+./src/c2m -i/usr/include -o../src/lib math.h
+```
