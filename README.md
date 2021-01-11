@@ -1,19 +1,46 @@
-# m
+# m (mlang)
+m is a succinct & expressive programming language, where efficiency and elegance meet. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction to its maximum. It supports native C data type without introducing reference count and GC overheads like Python and other languages do. Like c, m has fixed-length data allocated in stack and variable-length data allocated in heap. Like C the stack memory is automatically released when it is out of scope, unlike C the heap memory is released when its owner is out of scope statiscally by m compiler, which is similar like what Rust does and m programmer does not explicitly need to release heap memory.
 
-m is a succinct & expressive programming language, where efficiency and elegance meet. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction to its maximum. [llvm](https://github.com/llvm/llvm-project) is used as m's backend implementation.
+Another goal of m language design is to eanble native calls between functions written in m and c language to maximize reuse of existing high performance libraries written in C.
 
-It's written in c but requires c++ linker due to llvm being implemented in c++.
+The mlang is written in c but requires c++ linker due to llvm being implemented in c++. 
 
-[Googletest](https://github.com/google/googletest) framework is used for unit tests.  [WebKit coding](https://webkit.org/code-style-guidelines/) coding style is adopted here.
-
-The code is able to be compiled on Windows/macOS/Linux.
-
-It's been tested on following platforms:
+The code is able to be compiled on Windows/macOS/Linux, which has been tested on following platforms:
 * macOS 10.15.7
 * Ubuntu 20.04
 * Windows 10
 
-## prerequisites 
+## dependencies
+
+[Googletest](https://github.com/google/googletest) framework is used for unit tests.
+
+[llvm](https://github.com/llvm/llvm-project) is used as m's backend implementation.
+
+[WebKit coding](https://webkit.org/code-style-guidelines/) coding style is adopted here.
+
+## m syntax
+```
+# comment line: defines a one-line function
+avg x y = (x + y) / 2
+
+# defines a distance function
+distance x1 y1 x2 y2 = 
+  xx = (x1-x2) * (x1-x2)
+  yy = (y1-y2) * (y1-y2)
+  sqrt (xx + yy) # call c std sqrt math function
+
+# factorial function with recursive call
+factorial n = 
+  if n < 2 then n
+  else n * factorial (n-1)
+
+# using for loop
+loopprint n = 
+  for i in 0..n
+    printf "%d" i   # call c std io printf function
+```
+
+## prerequisites to build m
 * Source code version control: git
 * Build system generator: cmake
 * Build system: GNU make (Unix-like system) or MSBuild (Windows)
@@ -49,36 +76,15 @@ cmake --build . --config Release
 ```
 The build system will build m executable under ./src on macOS/Linux, or .\src\Release on Windows
 
-## using m REPL:
+## using m REPL
 ./src/m
 
-## using m compiler: 
+## using m compiler
 ./src/m ./samples/sample_lib.m
+
 
 ## c calls m functions:
 clang++ ./samples/sample_main.cc ./samples/sample_lib.o ./runtime.o -o ./sample
-
-## m syntax
-```
-# comment line: defines a one-line function
-avg x y = (x + y) / 2
-
-# defines a distance function
-distance x1 y1 x2 y2 = 
-  xx = (x1-x2) * (x1-x2)
-  yy = (y1-y2) * (y1-y2)
-  sqrt (xx + yy)
-
-# factorial function with recursive call
-factorial n = 
-  if n < 2 then n
-  else n * factorial (n-1)
-
-# using for loop
-loopprint n = 
-  for i in 0..n
-    printf "%d" i   # call c stdio printf
-```
 
 ## useful tools
 * Learn llvm IR
