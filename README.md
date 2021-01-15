@@ -1,9 +1,18 @@
 # m (mlang)
-m is a succinct & expressive programming language, where efficiency and elegance meet. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction to its maximum. It supports native C data type without introducing reference count and GC overheads like Python and other languages do. Like c, m has fixed-length data allocated in stack and variable-length data allocated in heap, the stack memory is automatically released when it is out of scope. Unlike C the heap memory is released when its owner is out of scope statiscally by m compiler, which is similar like what Rust does and m programmer does not need to explicitly release heap memory. This avoids the cost of garbage collections.
+m is a succinct & expressive programming language, where elegant language construction is achieved without sacrificing C level of execution efficiency. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction to its maximum. It's a static-typed language with type inference, which means most of time types of variables are not required to be annotated. m supports native C data type without introducing reference count and GC overheads like Python and other languages do. Like C, m has fixed-length data allocated in stack and variable-length data allocated in heap, the stack memory is automatically released when it is out of scope. Unlike C the heap memory is released when its owner is out of scope statiscally by m compiler, which is similar like what Rust does and m programmer does not need to explicitly release heap memory. This avoids the cost of garbage collections.
 
-Another goal of m language design is to eanble native calls between functions written in m and c language to maximize reuse of existing high performance libraries written in C.
+Another goal of m language design is to eanble native calls between functions written in m and C language to maximize reuse of existing high performance libraries written in C.
 
-The mlang is written in c but requires c++ linker due to llvm being implemented in c++. 
+In summary the followings are design characteristics of m:
+* Zero-overhead abstraction
+* Static typed with type inference
+* Generic
+* Imperative & functional paradigms
+* Object with Interface support (but no inheritance)
+* Memory management with ownership
+* Succinct and mathmatics-friendly language constructions
+
+The mlang is written in C but requires C++ linker due to llvm being implemented in C++. 
 
 The code is able to be compiled on Windows/macOS/Linux, which has been tested on following platforms:
 * macOS 10.15.7
@@ -77,14 +86,20 @@ cmake --build . --config Release
 The build system will build m executable under ./src on macOS/Linux, or .\src\Release on Windows
 
 ## using m REPL
+```
 ./src/m
+```
 
 ## using m compiler
+```
 ./src/m ./samples/sample_lib.m
+```
+The above command using m compiler generates an object file "sample_lib.o" under the same folder, which will be used to be compiled with C code in the following example.
 
-
-## c calls m functions:
+## c calls m functions
+```
 clang++ ./samples/sample_main.cc ./samples/sample_lib.o ./runtime.o -o ./sample
+```
 
 ## useful tools
 * Learn llvm IR
