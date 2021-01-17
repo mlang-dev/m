@@ -347,7 +347,6 @@ to_string()
   env_free(env);
 }
 
-#ifdef _FIXLATER
 TEST(testJIT, testPrintfFunc) {
   char test_code[] = R"(
 printf "hello\n"
@@ -380,7 +379,7 @@ printf "hello:%d" 1
     auto node = *(exp_node**)array_get(&block->nodes, i);
     eval_statement(jit, node);
   }
-  auto msg = testing::internal::GetCapturedStdout();
+  auto msg = testing::internal::GetCapturedStdout(); 
   ASSERT_STREQ("hello:17:int\n", msg.c_str());
   jit_free(jit);
   env_free(env);
@@ -476,4 +475,3 @@ getx()
     jit_free(jit);
     env_free(env);
 }
-#endif 

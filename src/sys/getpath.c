@@ -3,11 +3,11 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include "sys.h"
 #ifdef __APPLE__
 #include <libproc.h>
-#endif
-#include "sys.h"
-#ifdef _WIN32
+char SEP = '/';
+#elif defined(_WIN32)
 #include <windows.h>
 char SEP = '\\';
 #elif defined(__linux__)

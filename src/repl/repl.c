@@ -103,7 +103,7 @@ void eval_statement(void* p_jit, struct exp_node* node)
             if (node->node_type != VAR_NODE)
                 _print(result);
         }
-        //printf(":%s\n", string_get(&type_node_str));
+        printf(":%s\n", string_get(&type_node_str));
         string_deinit(&type_node_str);
     }
 exit:
