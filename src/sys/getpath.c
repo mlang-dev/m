@@ -2,10 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
+#ifdef __APPLE__
 #include <libproc.h>
+#endif
 #include <unistd.h>
 
-char exec_path[PROC_PIDPATHINFO_MAXSIZE];
+char exec_path[PATH_MAX];
 
 char SEP = '/';
 
@@ -20,17 +23,21 @@ static void reduce(char *dir)
 
 
 char* get_exec_path(){
+    #if defined(__APPLE__)
     int ret;
     pid_t pid; 
-
     pid = getpid();
     ret = proc_pidpath (pid, exec_path, sizeof(exec_path));
     if ( ret <= 0 ) {
         fprintf(stderr, "PID %d: proc_pidpath ();\n", pid);
         fprintf(stderr, "    %s\n", strerror(errno));
     } else {
-        reduce(exec_path);
         //printf("proc %d: %s\n", pid, exec_path);
     }
+    #elif defined(__linux__)
+    readlink("/proc/self/exe", exec_path, PATH_MAX);    
+    #elif defined(_WIN32)
+    #endif
+    reduce(exec_path);
     return exec_path;
 }
