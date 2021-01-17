@@ -6,11 +6,15 @@
 #ifdef __APPLE__
 #include <libproc.h>
 #endif
-#include <unistd.h>
+#include "sys.h"
+#ifdef _WIN32
+#include <windows.h>
+char SEP = '\\';
+#elif
+char SEP = '/';
+#endif
 
 char exec_path[PATH_MAX];
-
-char SEP = '/';
 
 static void reduce(char *dir)
 {
@@ -21,10 +25,9 @@ static void reduce(char *dir)
     dir[i] = '\0';
 }
 
-
 char* get_exec_path(){
-    #if defined(__APPLE__)
     int ret;
+    #if defined(__APPLE__)
     pid_t pid; 
     pid = getpid();
     ret = proc_pidpath (pid, exec_path, sizeof(exec_path));
@@ -37,6 +40,14 @@ char* get_exec_path(){
     #elif defined(__linux__)
     readlink("/proc/self/exe", exec_path, PATH_MAX);    
     #elif defined(_WIN32)
+        TCHAR buffer[MAX_PATH];
+        ret = GetModuleFileName(NULL, buffer, sizeof(buffer));
+        if (ret == 0){
+            fprintf(stderr, "failed to get exec_path\n");
+        }else{
+            wcstombs(exec_path, buffer, sizeof(exec_path));
+           //    wprintf("get exec path wsprintf: %s\n", exec_path);
+        }
     #endif
     reduce(exec_path);
     return exec_path;

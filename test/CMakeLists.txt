@@ -17,8 +17,6 @@ message(STATUS "Found SYS libraries ${sys_libraries}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-file(COPY ${CMAKE_SOURCE_DIR}/src/lib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib/)
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
 )
@@ -55,6 +53,7 @@ if(WIN32)
 else()
   set(clang_lib clang)
 endif(WIN32)
+
 TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
   ${llvm_libraries}
   ${sys_libraries}
@@ -64,6 +63,15 @@ TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
 enable_testing()
 include(GoogleTest)
 gtest_discover_tests(mtest)
+if(WIN32)
+add_custom_command(
+  TARGET mtest PRE_BUILD
+  COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/src/lib" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/lib"
+)
+else()
+file(COPY ${CMAKE_SOURCE_DIR}/src/lib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib/)
+endif(WIN32)
+
 add_custom_command(
   TARGET mtest
   POST_BUILD

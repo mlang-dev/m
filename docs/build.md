@@ -23,9 +23,7 @@ cd ../../../
 ```
 
 ## build mlang
-make sure MPATH env variable is set to the src folder of mlang e.g. /Users/lwang/dev/m/src
 ```
-export CPATH=/Users/lwang/dev/m/src
 mkdir build
 cd build
 cmake ..
