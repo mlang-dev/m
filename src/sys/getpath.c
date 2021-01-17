@@ -10,8 +10,9 @@
 #ifdef _WIN32
 #include <windows.h>
 char SEP = '\\';
-#elif
+#else
 char SEP = '/';
+#include <linux/limits.h>
 #endif
 
 char exec_path[PATH_MAX];
@@ -38,7 +39,7 @@ char* get_exec_path(){
         //printf("proc %d: %s\n", pid, exec_path);
     }
     #elif defined(__linux__)
-    readlink("/proc/self/exe", exec_path, PATH_MAX);    
+    readlink("/proc/self/exe", exec_path, sizeof(exec_path));    
     #elif defined(_WIN32)
         TCHAR buffer[MAX_PATH];
         ret = GetModuleFileName(NULL, buffer, sizeof(buffer));

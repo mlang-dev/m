@@ -88,7 +88,7 @@ add_custom_command(
   COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/lib" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/lib"
 )
 else()
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lib DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib/)
 endif(WIN32)
 
 add_custom_command(
