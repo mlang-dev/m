@@ -17,6 +17,8 @@ message(STATUS "Found SYS libraries ${sys_libraries}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
+file(COPY ${CMAKE_SOURCE_DIR}/src/lib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib/)
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
 )

@@ -3,3 +3,5 @@
 #else
 #include <unistd.h>
 #endif
+
+char* get_exec_path();

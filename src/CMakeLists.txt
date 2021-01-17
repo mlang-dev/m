@@ -43,6 +43,7 @@ add_library(mlr
   compiler/compiler.c
   win/getopt.c
   win/libfmemopen.c
+  sys/getpath.c
  )
 
 
@@ -69,6 +70,8 @@ target_link_libraries(m PRIVATE
   ${llvm_libraries}
   ${sys_libraries}
  )
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib/)
 
 add_custom_command(
   TARGET m

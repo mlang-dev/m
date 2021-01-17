@@ -174,6 +174,9 @@ void join_path(char* destination, const char* path1, const char* path2)
         strcpy(destination, path1);
         if(append_directory_separator)
             strcat(destination, directory_separator);
+        if(strncmp(path2, directory_separator, 1) == 0){
+            path2++;
+        }
         strcat(destination, path2);
     }
 }

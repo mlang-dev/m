@@ -348,7 +348,7 @@ struct type_env* type_env_new(struct parser* parser)
         set_builtin(env, type_strings[i], exp);
     }
     char libpath[PATH_MAX];
-    char* mpath = getenv("MPATH");
+    char* mpath = get_exec_path();// getenv("MPATH");
     //printf("mpath is: %s\n", mpath);
     join_path(libpath, mpath, "/lib/stdio.m");
     struct block_node* block = parse_file(parser, libpath);
