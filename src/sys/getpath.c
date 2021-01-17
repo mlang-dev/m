@@ -10,9 +10,11 @@
 #ifdef _WIN32
 #include <windows.h>
 char SEP = '\\';
-#else
+#elif defined(__linux__)
 char SEP = '/';
 #include <linux/limits.h>
+#else
+char SEP = '/';
 #endif
 
 char exec_path[PATH_MAX];
