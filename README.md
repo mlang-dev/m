@@ -53,7 +53,7 @@ loopprint n =
 * Source code version control: git
 * Build system generator: cmake
 * Build system: GNU make (Unix-like system) or MSBuild (Windows)
-* Compiler: c++ compilers: gcc/clang/vc++(Visual Studio with C++) 
+* Compiler: c++ compilers: gcc/clang/vc++(Visual Studio Community Edition with Desktop Developement with C++) 
 
 ## get source codes
 ```
@@ -69,10 +69,10 @@ cd ./extern/llvm-project
 mkdir build
 cd build
 cmake -Thost=x64 -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang ../llvm
-cmake --build . --config Release -j NN    NN - number of CPU (cores) that you have
-cmake --build . --target install 
+cmake --build . --config Release -j NN --target install   (Run under Administrator, NN - number of CPU (cores) that you have)
 cd ../../../
 ```
+On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be added to the Path environment variable. 
 
 ## build mlang
 ```

@@ -347,6 +347,8 @@ to_string()
   env_free(env);
 }
 
+#ifndef _WIN32
+//TODO: printf not captured in CaptureStdout()
 TEST(testJIT, testPrintfFunc) {
   char test_code[] = R"(
 printf "hello\n"
@@ -384,6 +386,7 @@ printf "hello:%d" 1
   jit_free(jit);
   env_free(env);
 }
+#endif
 
 TEST(testJIT, testProductType) {
   char test_code[] = R"(
