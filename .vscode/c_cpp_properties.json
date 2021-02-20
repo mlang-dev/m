@@ -22,6 +22,22 @@
             "configurationProvider": "vector-of-bool.cmake-tools"
         },
         {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/include/clib",
+                "${workspaceFolder}/extern/googletest/googletest/include",
+                "${workspaceFolder}/extern/googletest/googlemock/include",
+                "/usr/local/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "configurationProvider": "vector-of-bool.cmake-tools"
+        },
+        {
             "name": "Win32",
             "includePath": [
                 "C:\\Program Files (x86)\\LLVM\\include",
