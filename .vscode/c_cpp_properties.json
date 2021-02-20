@@ -20,7 +20,29 @@
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64",
             "configurationProvider": "vector-of-bool.cmake-tools"
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Program Files (x86)\\LLVM\\include",
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/include/clib",
+                "${workspaceFolder}/extern/googletest/googletest/include",
+                "${workspaceFolder}/extern/googletest/googlemock/include",
+                "C:\\Program Files (x86)\\Windows Kits\\10\\include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.18362.0",
+            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
         }
+
     ],
     "version": 4
 }

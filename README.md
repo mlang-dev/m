@@ -14,10 +14,11 @@ In summary the followings are design characteristics of m:
 
 The mlang is written in C but requires C++ linker due to llvm being implemented in C++. 
 
-The code is able to be compiled on Windows/macOS/Linux, which has been tested on following platforms:
+The code is still under developement but is able to be compiled on Windows/macOS/Linux, which has been tested on following platforms:
 * macOS 10.15.7
 * Ubuntu 20.04
 * Windows 10
+
 
 ## dependencies
 
