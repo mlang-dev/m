@@ -19,7 +19,7 @@ void symboltable_deinit(symboltable* symbol_table){
     hashtable_deinit(symbol_table);
 }
 
-void symboltable_add(symboltable* symbol_table, symbol symbol, void* data){
+void symboltable_push(symboltable* symbol_table, symbol symbol, void* data){
     struct link_list *ll = hashtable_get_p(symbol_table, symbol);
     if(!ll){
         ll = malloc(sizeof(*ll));

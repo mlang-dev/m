@@ -32,9 +32,9 @@ list_head(link_list, link_list_entry);
 
 void symboltable_init(symboltable* symbol_table);
 void symboltable_deinit(symboltable* symbol_table);
-void symboltable_add(symboltable* symbol_table, symbol symbol, void* data);
-void* symboltable_get(symboltable* symbol_table, symbol symbol);
+void symboltable_push(symboltable* symbol_table, symbol symbol, void* data);
 void symboltable_pop(symboltable* symbol_table, symbol symbol);
+void* symboltable_get(symboltable* symbol_table, symbol symbol);
 
 #ifdef __cplusplus
 }

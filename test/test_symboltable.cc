@@ -24,10 +24,10 @@ TEST(testSymboltable, TestSymboltableSameKeyMultipleValues)
     symboltable_init(&st);
     symbol symbol = to_symbol(&symbols, "hello");
     type_oper* op1 = create_nullary_type(TYPE_INT);
-    symboltable_add(&st, symbol, op1);
+    symboltable_push(&st, symbol, op1);
     ASSERT_EQ(op1, symboltable_get(&st, symbol));
     type_oper* op2 = create_nullary_type(TYPE_DOUBLE);
-    symboltable_add(&st, symbol, op2);
+    symboltable_push(&st, symbol, op2);
     ASSERT_EQ(op2, symboltable_get(&st, symbol));
     symboltable_pop(&st, symbol);
     ASSERT_EQ(op1, symboltable_get(&st, symbol));
