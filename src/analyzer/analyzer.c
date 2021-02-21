@@ -15,7 +15,7 @@
 #include "clib/hashtable.h"
 
 
-struct type_exp* _analyze(struct type_env* env, struct exp_node* node);
+struct type_exp* _analyze(struct env* env, struct exp_node* node);
 const char* relational_ops[] = {
     "<",
     ">",
@@ -34,7 +34,7 @@ bool _is_predicate_op(const char* op)
     return false;
 }
 
-void _log_err(struct type_env* env, struct source_loc loc,  const char *msg)
+void _log_err(struct env* env, struct source_loc loc,  const char *msg)
 {
     (void)env;
     char full_msg[512];
@@ -42,7 +42,7 @@ void _log_err(struct type_env* env, struct source_loc loc,  const char *msg)
     log_info(ERROR, full_msg);
 }
 
-struct type_exp* _analyze_unk(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_unk(struct env* env, struct exp_node* node)
 {
     printf("analyzing unk: %s\n", node_type_strings[node->node_type]);
     if (!env || !node)
@@ -50,32 +50,32 @@ struct type_exp* _analyze_unk(struct type_env* env, struct exp_node* node)
     return 0;
 }
 
-struct type_exp* retrieve(struct type_env* env, const char* name)
+struct type_exp* retrieve(struct env* env, const char* name)
 {
     struct type_exp* type = retrieve_type(name, &env->nongens, &env->type_env);
     return type? type : retrieve_type(name, &env->nongens, &env->builtin_types);
 }
 
-void set(struct type_env* env, const char* name, struct type_exp* type)
+void set(struct env* env, const char* name, struct type_exp* type)
 {
     set_type(&env->type_env, name, type);
 }
 
-bool has(struct type_env* env, const char* name)
+bool has(struct env* env, const char* name)
 {
     return has_type(&env->type_env, name);
 }
 
-void set_builtin(struct type_env* env, const char* name, struct type_exp* type)
+void set_builtin(struct env* env, const char* name, struct type_exp* type)
 {
     set_type(&env->builtin_types, name, type);
 }
 
-bool is_builtin(struct type_env* env, const char* name)
+bool is_builtin(struct env* env, const char* name)
 {
     return hashtable_in(&env->builtin_types, name);
 }
-struct type_exp* _analyze_ident(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
 {
     struct ident_node* ident = (struct ident_node*)node;
     struct type_exp* type = 0;
@@ -98,12 +98,12 @@ struct type_exp* _analyze_ident(struct type_env* env, struct exp_node* node)
     return type;
 }
 
-struct type_exp* _analyze_num(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_num(struct env* env, struct exp_node* node)
 {
     return retrieve(env, type_strings[node->annotated_type->type]);
 }
 
-struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
 {
     struct var_node* var = (struct var_node*)node;
     struct type_exp* type;
@@ -133,7 +133,7 @@ struct type_exp* _analyze_var(struct type_env* env, struct exp_node* node)
     return result_type;
 }
 
-struct type_exp* _analyze_type(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
 {
     struct type_node* type = (struct type_node*)node;
     struct array args; 
@@ -150,7 +150,7 @@ struct type_exp* _analyze_type(struct type_env* env, struct exp_node* node)
     return result_type;
 }
 
-struct type_exp* _analyze_type_value(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_type_value(struct env* env, struct exp_node* node)
 {
     struct type_value_node* type_value = (struct type_value_node*)node;
     for(size_t i = 0; i < array_size(&type_value->body->nodes); i++){
@@ -160,7 +160,7 @@ struct type_exp* _analyze_type_value(struct type_env* env, struct exp_node* node
     return 0;
 }
 
-struct type_exp* _analyze_proto(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_proto(struct env* env, struct exp_node* node)
 {
     (void)env;
     struct prototype_node* proto = (struct prototype_node*)node;
@@ -179,7 +179,7 @@ struct type_exp* _analyze_proto(struct type_env* env, struct exp_node* node)
     return proto->base.type;
 }
 
-struct type_exp* _analyze_fun(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_fun(struct env* env, struct exp_node* node)
 {
     struct function_node* fun = (struct function_node*)node;
     //# create a new non-generic variable for the binder
@@ -210,7 +210,7 @@ struct type_exp* _analyze_fun(struct type_env* env, struct exp_node* node)
     return result;
 }
 
-struct type_exp* _analyze_call(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
 {
     struct call_node* call = (struct call_node*)node;
     struct type_exp* fun_type = retrieve(env, string_get(&call->callee));
@@ -261,7 +261,7 @@ struct type_exp* _analyze_call(struct type_env* env, struct exp_node* node)
     return prune(result_type);
 }
 
-struct type_exp* _analyze_unary(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_unary(struct env* env, struct exp_node* node)
 {
     struct unary_node* unary = (struct unary_node*)node;
     struct type_exp* op_type = _analyze(env, unary->operand);
@@ -273,7 +273,7 @@ struct type_exp* _analyze_unary(struct type_env* env, struct exp_node* node)
     return op_type;
 }
 
-struct type_exp* _analyze_binary(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_binary(struct env* env, struct exp_node* node)
 {
     struct binary_node* bin = (struct binary_node*)node;
     struct type_exp* lhs_type = _analyze(env, bin->lhs);
@@ -294,7 +294,7 @@ struct type_exp* _analyze_binary(struct type_env* env, struct exp_node* node)
     return result;
 }
 
-struct type_exp* _analyze_if(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_if(struct env* env, struct exp_node* node)
 {
     struct condition_node* cond_node = (struct condition_node*)node;
     struct type_exp* cond_type = _analyze(env, cond_node->condition_node);
@@ -306,7 +306,7 @@ struct type_exp* _analyze_if(struct type_env* env, struct exp_node* node)
     return then_type;
 }
 
-struct type_exp* _analyze_for(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_for(struct env* env, struct exp_node* node)
 {
     struct for_node* for_node = (struct for_node*)node;
     struct type_exp* int_type = (struct type_exp*)create_nullary_type(TYPE_INT);
@@ -328,73 +328,7 @@ struct type_exp* _analyze_for(struct type_env* env, struct exp_node* node)
     return (struct type_exp*)create_nullary_type(TYPE_UNIT);
 }
 
-struct type_env* type_env_new(struct parser* parser)
-{
-    struct type_env* env = malloc(sizeof(*env));
-    memset((void*)env, 0, sizeof(struct type_env));
-    array_init(&env->nongens, sizeof(struct type_exp*));
-    array_init_free(&env->ref_builtin_names, sizeof(string), string_free_generic);
-    env->cg = cg_new(parser);
-    hashtable_init(&env->symbols);
-    hashtable_init(&env->type_env);
-    hashtable_init(&env->builtin_types);
-    hashtable_init(&env->builtin_nodes);
-    hashtable_init(&env->generic_nodes);
-    hashtable_init(&env->type_nodes);
-    struct array args;
-    array_init(&args, sizeof(struct type_exp*));
-    /*nullary type: builtin default types*/
-    for (size_t i = 0; i < ARRAY_SIZE(type_strings); i++) {
-        struct type_exp* exp = (struct type_exp*)create_type_oper(i, &args);
-        set_builtin(env, type_strings[i], exp);
-    }
-    char libpath[PATH_MAX];
-    char* mpath = get_exec_path();
-    //printf("mpath is: %s\n", mpath);
-    join_path(libpath, mpath, "/lib/stdio.m");
-    struct block_node* block = parse_file(parser, libpath);
-    struct array builtins;
-    array_init(&builtins, sizeof(struct exp_node*));
-    for(size_t i = 0; i < array_size(&block->nodes); i++){
-        struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
-        array_push(&builtins, &node);
-    }
-    join_path(libpath, mpath, "/lib/math.m");
-    block  = parse_file(parser, libpath);
-    array_add(&builtins, &block->nodes);
-    for (size_t i = 0; i < array_size(&builtins); i++) {
-        struct exp_node* node = *(struct exp_node**)array_get(&builtins, i);
-        assert(node->node_type == PROTOTYPE_NODE);
-        struct prototype_node* proto = (struct prototype_node*)node;
-        _analyze(env, node);
-        set_builtin(env, string_get(&proto->name), proto->base.type);
-        hashtable_set(&env->builtin_nodes, string_get(&proto->name), node);
-        //string type = to_string(proto->base.type);
-        //printf("parsed builtins: %s, %s\n", string_get(&proto->name), string_get(&type));
-    }
-    return env;
-}
-
-void type_env_free(struct type_env* env)
-{
-    // for (int i = 0; i < env->type_env.buckets.cap; i++) {
-    //     hashbox* box = (hashbox*)array_get(&env->type_env.buckets, i);
-    //     if (box->status)
-    //         type_exp_free(*(struct type_exp**)hashbox_get_value(box));
-    // }
-    hashtable_deinit(&env->type_nodes);
-    hashtable_deinit(&env->generic_nodes);
-    hashtable_deinit(&env->builtin_nodes);
-    hashtable_deinit(&env->builtin_types);
-    hashtable_deinit(&env->type_env);
-    hashtable_deinit(&env->symbols);
-    array_deinit(&env->ref_builtin_names);
-    array_deinit(&env->nongens);
-    cg_free(env->cg);
-    free(env);
-}
-
-struct type_exp* _analyze_block(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze_block(struct env* env, struct exp_node* node)
 {
     struct block_node* block = (struct block_node*)node;
     struct type_exp* exp = 0;
@@ -405,7 +339,7 @@ struct type_exp* _analyze_block(struct type_env* env, struct exp_node* node)
     return exp;
 }
 
-struct type_exp* (*analyze_fp[])(struct type_env*, struct exp_node*) = {
+struct type_exp* (*analyze_fp[])(struct env*, struct exp_node*) = {
     _analyze_unk,
     _analyze_num,
     _analyze_ident,
@@ -422,14 +356,14 @@ struct type_exp* (*analyze_fp[])(struct type_env*, struct exp_node*) = {
     _analyze_block,
 };
 
-struct type_exp* _analyze(struct type_env* env, struct exp_node* node)
+struct type_exp* _analyze(struct env* env, struct exp_node* node)
 {
     struct type_exp* type = analyze_fp[node->node_type](env, node);
     node->type = type;
     return type;
 }
 
-struct type_exp* analyze(struct type_env* env, struct exp_node* node)
+struct type_exp* analyze(struct env* env, struct exp_node* node)
 {
     struct type_exp* type = _analyze(env, node);
     struct code_generator* cg = env->cg;

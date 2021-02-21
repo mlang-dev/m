@@ -66,10 +66,10 @@ int compile(const char* fn, enum object_file_type file_type)
     string_init_chars(&filename, fn);
     string_substr(&filename, '.');
     struct env* env = env_new(false);
-    struct code_generator* cg = env->type_env->cg;
+    struct code_generator* cg = env->cg;
     create_module_and_pass_manager(cg, string_get(&filename));
     struct block_node* block = parse_file(env->parser, fn);
-    analyze(env->type_env, (struct exp_node*)block);
+    analyze(env, (struct exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
             struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);

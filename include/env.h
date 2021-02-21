@@ -16,7 +16,15 @@ extern "C" {
 #endif
 
 struct env {
-    struct type_env* type_env;
+    struct hashtable symbols; //hashtable of <string, symbol(string*)>
+    struct hashtable type_env; //hashtable of <string, struct type_exp*>
+    struct hashtable type_nodes;  /*hashtable of <string, struct exp_node*> */
+    struct hashtable generic_nodes;/*hashtable of <string, struct exp_node*>*/
+    struct hashtable builtin_types;
+    struct hashtable builtin_nodes;
+    struct array nongens; //struct array of struct type_exp*
+    struct array ref_builtin_names; //referred builtins of string
+    struct code_generator* cg;
     struct parser* parser;
 };
 

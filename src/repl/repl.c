@@ -42,11 +42,11 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
     string fn = make_unique_name("main-fn");
     enum node_type node_type = node->node_type;
     if (!node->type)
-        analyze(jit->env->type_env, node);
+        analyze(jit->env, node);
     struct type_exp* type = node->type;
     struct eval_result result = { 0 };
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
-    analyze(jit->env->type_env, node);
+    analyze(jit->env, node);
     if (node) {
         void* p_fun = generate_code(jit->cg, node);
         if (p_fun) {
@@ -83,7 +83,7 @@ void eval_statement(void* p_jit, struct exp_node* node)
     if (node) {
         //printf("node->type: %s\n", node_type_strings[node->node_type]);
         struct JIT* jit = (struct JIT*)p_jit;
-        analyze(jit->env->type_env, node);
+        analyze(jit->env, node);
         string type_node_str = to_string(node->type);
         if (!node->type)
             goto exit;
@@ -112,7 +112,7 @@ exit:
 
 struct JIT* build_jit(struct env* env)
 {
-    struct code_generator* cg = env->type_env->cg;
+    struct code_generator* cg = env->cg;
     struct JIT* jit = jit_new(cg);
     jit->env = env;
     _create_jit_module(cg);
