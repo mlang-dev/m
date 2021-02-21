@@ -15,13 +15,13 @@
 extern "C" {
 #endif
 
-struct menv {
+struct env {
     struct type_env* type_env;
     struct parser* parser;
 };
 
-struct menv* env_new(bool is_repl);
-void env_free(struct menv* env);
+struct env* env_new(bool is_repl);
+void env_free(struct env* env);
 
 #ifdef __cplusplus
 }

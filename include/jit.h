@@ -24,7 +24,7 @@ extern "C" {
 struct JIT {
     struct code_generator* cg;
     void* instance;
-    struct menv* env;
+    struct env* env;
 };
 
 struct JIT* jit_new(struct code_generator* cg);

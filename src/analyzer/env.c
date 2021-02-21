@@ -8,15 +8,15 @@
 
 #include "env.h"
 
-struct menv* env_new(bool is_repl)
+struct env* env_new(bool is_repl)
 {
-    struct menv* env = malloc(sizeof(*env));
+    struct env* env = malloc(sizeof(*env));
     env->parser = parser_new(is_repl);
     env->type_env = type_env_new(env->parser);
     return env;
 }
 
-void env_free(struct menv* env)
+void env_free(struct env* env)
 {
     type_env_free(env->type_env);
     parser_free(env->parser);

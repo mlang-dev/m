@@ -27,7 +27,7 @@ struct eval_result {
     };
 };
 
-struct JIT* build_jit(struct menv* env);
+struct JIT* build_jit(struct env* env);
 void eval_statement(void* p_jit, struct exp_node* node);
 struct eval_result eval_exp(struct JIT* jit, struct exp_node* node);
 int run_repl();

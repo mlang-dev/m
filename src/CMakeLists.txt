@@ -33,6 +33,8 @@ add_library(mlr
   clib/object.c
   clib/array.c
   clib/string.c
+  clib/symbol.c
+  clib/symboltable.c
   clib/queue.c
   clib/hash.c
   clib/hashset.c

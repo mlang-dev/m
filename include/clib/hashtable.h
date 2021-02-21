@@ -39,6 +39,7 @@ void hashtable_set_g(struct hashtable* ht, void* key, size_t key_size, void* val
 void hashtable_set_p(struct hashtable* ht, void* key, void* value);
 void* hashtable_get(struct hashtable* ht, const char* key);
 void* hashtable_get_g(struct hashtable* ht, void* key, size_t key_size);
+//hashtable with key as pointer
 void* hashtable_get_p(struct hashtable* ht, void* key);
 int hashtable_get_int(struct hashtable* ht, const char* key);
 void hashtable_set_int(struct hashtable* ht, const char* key, int value);

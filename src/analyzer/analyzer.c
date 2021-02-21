@@ -335,6 +335,7 @@ struct type_env* type_env_new(struct parser* parser)
     array_init(&env->nongens, sizeof(struct type_exp*));
     array_init_free(&env->ref_builtin_names, sizeof(string), string_free_generic);
     env->cg = cg_new(parser);
+    hashtable_init(&env->symbols);
     hashtable_init(&env->type_env);
     hashtable_init(&env->builtin_types);
     hashtable_init(&env->builtin_nodes);
@@ -381,11 +382,12 @@ void type_env_free(struct type_env* env)
     //     if (box->status)
     //         type_exp_free(*(struct type_exp**)hashbox_get_value(box));
     // }
-    hashtable_deinit(&env->type_env);
-    hashtable_deinit(&env->builtin_types);
-    hashtable_deinit(&env->builtin_nodes);
-    hashtable_deinit(&env->generic_nodes);
     hashtable_deinit(&env->type_nodes);
+    hashtable_deinit(&env->generic_nodes);
+    hashtable_deinit(&env->builtin_nodes);
+    hashtable_deinit(&env->builtin_types);
+    hashtable_deinit(&env->type_env);
+    hashtable_deinit(&env->symbols);
     array_deinit(&env->ref_builtin_names);
     array_deinit(&env->nongens);
     cg_free(env->cg);

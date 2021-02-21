@@ -14,7 +14,7 @@ TEST(testJITLogical, testOrTrueTrue)
     const char test_code[] = R"(
   true || true
   )";
-    menv* env = env_new(false);
+    env* env = env_new(false);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
@@ -28,7 +28,7 @@ TEST(testJITLogical, testOrTrueFalse)
     const char test_code[] = R"(
   true || false
   )";
-    menv* env = env_new(false);
+    env* env = env_new(false);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
@@ -42,7 +42,7 @@ TEST(testJITLogical, testOrFalseFalse)
     const char test_code[] = R"(
   false || false
   )";
-    menv* env = env_new(false);
+    env* env = env_new(false);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
@@ -56,7 +56,7 @@ TEST(testJITLogical, testAndTrueTrue)
     const char test_code[] = R"(
   true && true
   )";
-    menv* env = env_new(false);
+    env* env = env_new(false);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
@@ -70,7 +70,7 @@ TEST(testJITLogical, testAndTrueFalse)
     const char test_code[] = R"(
   true && false
   )";
-    menv* env = env_new(false);
+    env* env = env_new(false);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
@@ -84,7 +84,7 @@ TEST(testJITLogical, testAndFalseFalse)
     const char test_code[] = R"(
   false && false
   )";
-    menv* env = env_new(false);
+    env* env = env_new(false);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
@@ -98,7 +98,7 @@ TEST(testJITLogical, testNotFalse)
     const char test_code[] = R"(
   ! false
   )";
-    menv* env = env_new(false);
+    env* env = env_new(false);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
@@ -112,7 +112,7 @@ TEST(testJITLogical, testNotTrue)
     const char test_code[] = R"(
   ! true
   )";
-    menv* env = env_new(false);
+    env* env = env_new(false);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);

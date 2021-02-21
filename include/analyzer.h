@@ -17,6 +17,7 @@ extern "C" {
 #endif
 
 struct type_env {
+    struct hashtable symbols; //hashtable of <string, symbol(string*)>
     struct hashtable type_env; //hashtable of <string, struct type_exp*>
     struct hashtable type_nodes;  /*hashtable of <string, struct exp_node*> */
     struct hashtable generic_nodes;/*hashtable of <string, struct exp_node*>*/

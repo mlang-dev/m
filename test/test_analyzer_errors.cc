@@ -9,6 +9,7 @@
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
+#include "env.h"
 
 TEST(testAnalyzerError, testNoFunctionFound)
 {
@@ -16,15 +17,15 @@ TEST(testAnalyzerError, testNoFunctionFound)
 no_exist_function_call ()
 )";
     testing::internal::CaptureStderr();
-    menv* menv = env_new(false);
-    block_node* block = parse_string(menv->parser, "test", test_code);
+    env* env = env_new(false);
+    block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
-    type_env* env = menv->type_env;
-    analyze(env, (exp_node*)block);
+    type_env* type_env = env->type_env;
+    analyze(type_env, (exp_node*)block);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :1:1: no_exist_function_call not defined\n", error.c_str());
-    env_free(menv);
+    env_free(env);
 }
 
 TEST(testAnalyzerError, testRemError)
@@ -33,15 +34,15 @@ TEST(testAnalyzerError, testRemError)
 10+0.3
 )";
     testing::internal::CaptureStderr();
-    menv* menv = env_new(false);
-    block_node* block = parse_string(menv->parser, "test", test_code);
+    env* env = env_new(false);
+    block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
-    type_env* env = menv->type_env;
-    analyze(env, (exp_node*)block);
+    type_env* type_env = env->type_env;
+    analyze(type_env, (exp_node*)block);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :2:1: type not same for binary op: +\n", error.c_str());
-    env_free(menv);
+    env_free(env);
 }
 
 TEST(testAnalyzerError, tesTypeMismatch)
@@ -50,13 +51,13 @@ TEST(testAnalyzerError, tesTypeMismatch)
 x:int = true
 )";
     testing::internal::CaptureStderr();
-    menv* menv = env_new(false);
-    block_node* block = parse_string(menv->parser, "test", test_code);
+    env* env = env_new(false);
+    block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
-    type_env* env = menv->type_env;
-    analyze(env, (exp_node*)block);
+    type_env* type_env = env->type_env;
+    analyze(type_env, (exp_node*)block);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :2:1: variable type not matched with literal constant\n", error.c_str());
-    env_free(menv);
+    env_free(env);
 }

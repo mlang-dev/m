@@ -65,7 +65,7 @@ int compile(const char* fn, enum object_file_type file_type)
     string filename;
     string_init_chars(&filename, fn);
     string_substr(&filename, '.');
-    struct menv* env = env_new(false);
+    struct env* env = env_new(false);
     struct code_generator* cg = env->type_env->cg;
     create_module_and_pass_manager(cg, string_get(&filename));
     struct block_node* block = parse_file(env->parser, fn);

@@ -90,7 +90,8 @@
         "__memory": "c",
         "regex": "c",
         "scoped_allocator": "c",
-        "future": "cpp"
+        "future": "cpp",
+        "symboltable.h": "c"
     },
     "cmake.configureOnOpen": false
 }

@@ -110,7 +110,7 @@ exit:
     fprintf(stderr, "m> ");
 }
 
-struct JIT* build_jit(struct menv* env)
+struct JIT* build_jit(struct env* env)
 {
     struct code_generator* cg = env->type_env->cg;
     struct JIT* jit = jit_new(cg);
@@ -124,7 +124,7 @@ struct JIT* build_jit(struct menv* env)
 
 int run_repl()
 {
-    struct menv* env = env_new(true);
+    struct env* env = env_new(true);
     struct JIT* jit = build_jit(env);
     printf("m> ");
     parse_repl(env->parser, &eval_statement, jit);
