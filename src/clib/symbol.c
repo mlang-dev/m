@@ -8,7 +8,7 @@
  * improvement in symbol table(hash for the pointer or integer is fast then string)
  */
 
-#include "clib\symbol.h"
+#include "clib/symbol.h"
 
 symbol to_symbol(symbols* symbols, const char* name){
     symbol sym = (symbol)hashtable_get(symbols, name);

@@ -29,6 +29,14 @@ TEST(testSymboltable, TestSymboltableSameKeyMultipleValues)
     type_oper* op2 = create_nullary_type(TYPE_DOUBLE);
     symboltable_add(&st, symbol, op2);
     ASSERT_EQ(op2, symboltable_get(&st, symbol));
+    symboltable_pop(&st, symbol);
+    ASSERT_EQ(op1, symboltable_get(&st, symbol));
+    symboltable_pop(&st, symbol);
+    ASSERT_EQ(NULL, symboltable_get(&st, symbol));
+
+    //over pop, still fine
+    symboltable_pop(&st, symbol);
+    ASSERT_EQ(NULL, symboltable_get(&st, symbol));
     symboltable_deinit(&st);
     hashtable_deinit(&symbols);
     type_exp_free((type_exp*)op1);
