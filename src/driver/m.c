@@ -23,7 +23,7 @@ void print_usage()
 
 int main(int argc, char* argv[])
 {
-    printf("m - 0.0.16\n");
+    printf("m - 0.0.17\n");
     //printf("from location: %s\n", get_exec_path());
     int option;
     int fflag = 0;

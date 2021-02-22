@@ -14,6 +14,11 @@
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
 
+void _set_builtin(struct env* env, const char* name, struct type_exp* type)
+{
+    //printf("set builtin type name with type_exp: %s\n", name);
+    set_type(&env->builtin_tenv, name, type);
+}
 
 struct env* env_new(bool is_repl)
 {
@@ -34,7 +39,7 @@ struct env* env_new(bool is_repl)
     /*nullary type: builtin default types*/
     for (size_t i = 0; i < ARRAY_SIZE(type_strings); i++) {
         struct type_exp* exp = (struct type_exp*)create_type_oper(i, &args);
-        set_builtin(env, type_strings[i], exp);
+        _set_builtin(env, type_strings[i], exp);
     }
     char libpath[PATH_MAX];
     char* mpath = get_exec_path();
@@ -53,8 +58,8 @@ struct env* env_new(bool is_repl)
         struct exp_node* node = *(struct exp_node**)array_get(&builtins, i);
         assert(node->node_type == PROTOTYPE_NODE);
         struct prototype_node* proto = (struct prototype_node*)node;
-        _analyze(env, node);
-        set_builtin(env, string_get(&proto->name), proto->base.type);
+        analyze(env, node);
+        _set_builtin(env, string_get(&proto->name), proto->base.type);
         hashtable_set(&env->builtin_venv, string_get(&proto->name), node);
         //string type = to_string(proto->base.type);
         //printf("parsed builtins: %s, %s\n", string_get(&proto->name), string_get(&type));

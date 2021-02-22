@@ -19,6 +19,7 @@ extern "C" {
 
 
 struct type_exp* retrieve(struct env* env, const char* name);
+struct type_exp* analyze_and_generate_code(struct env* env, struct exp_node* node);
 struct type_exp* analyze(struct env* env, struct exp_node* node);
 bool is_builtin(struct env* env, const char* name);
 

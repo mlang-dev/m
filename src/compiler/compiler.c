@@ -69,7 +69,7 @@ int compile(const char* fn, enum object_file_type file_type)
     struct code_generator* cg = env->cg;
     create_module_and_pass_manager(cg, string_get(&filename));
     struct block_node* block = parse_file(env->parser, fn);
-    analyze(env, (struct exp_node*)block);
+    analyze_and_generate_code(env, (struct exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
             struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
