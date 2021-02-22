@@ -17,12 +17,15 @@ extern "C" {
 
 struct env {
     struct hashtable symbols; //hashtable of <string, symbol(string*)>
-    struct hashtable type_env; //hashtable of <string, struct type_exp*>
-    struct hashtable type_nodes;  /*hashtable of <string, struct exp_node*> */
-    struct hashtable generic_nodes;/*hashtable of <string, struct exp_node*>*/
-    struct hashtable builtin_types;
-    struct hashtable builtin_nodes;
-    struct array nongens; //struct array of struct type_exp*
+
+    struct hashtable tenv; //type env: hashtable of <string, struct type_exp, right now including types and values*>
+    struct hashtable venv;  /*value env: hashtable of <string, struct exp_node*> */
+
+    struct hashtable builtin_tenv; /*builtin types: symbol to type_exp* map. right now including types and values*/
+    struct hashtable builtin_venv; /*builtin values: symbol to type_exp*, only used for codegen right now*/
+    struct hashtable generic_venv;/*generic value env: hashtable of <string, struct exp_node*>*/
+
+    struct array nongens; //struct array of struct type_exp*, non generic
     struct array ref_builtin_names; //referred builtins of string
     struct code_generator* cg;
     struct parser* parser;

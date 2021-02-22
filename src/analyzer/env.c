@@ -24,11 +24,11 @@ struct env* env_new(bool is_repl)
     array_init_free(&env->ref_builtin_names, sizeof(string), string_free_generic);
     env->cg = cg_new(env->parser);
     hashtable_init(&env->symbols);
-    hashtable_init(&env->type_env);
-    hashtable_init(&env->builtin_types);
-    hashtable_init(&env->builtin_nodes);
-    hashtable_init(&env->generic_nodes);
-    hashtable_init(&env->type_nodes);
+    hashtable_init(&env->tenv);
+    hashtable_init(&env->builtin_tenv);
+    hashtable_init(&env->venv);
+    hashtable_init(&env->builtin_venv);
+    hashtable_init(&env->generic_venv);
     struct array args;
     array_init(&args, sizeof(struct type_exp*));
     /*nullary type: builtin default types*/
@@ -55,7 +55,7 @@ struct env* env_new(bool is_repl)
         struct prototype_node* proto = (struct prototype_node*)node;
         _analyze(env, node);
         set_builtin(env, string_get(&proto->name), proto->base.type);
-        hashtable_set(&env->builtin_nodes, string_get(&proto->name), node);
+        hashtable_set(&env->builtin_venv, string_get(&proto->name), node);
         //string type = to_string(proto->base.type);
         //printf("parsed builtins: %s, %s\n", string_get(&proto->name), string_get(&type));
     }
@@ -64,16 +64,16 @@ struct env* env_new(bool is_repl)
 
 void env_free(struct env* env)
 {
-    // for (int i = 0; i < env->type_env.buckets.cap; i++) {
-    //     hashbox* box = (hashbox*)array_get(&env->type_env.buckets, i);
+    // for (int i = 0; i < env->tenv.buckets.cap; i++) {
+    //     hashbox* box = (hashbox*)array_get(&env->tenv.buckets, i);
     //     if (box->status)
     //         type_exp_free(*(struct type_exp**)hashbox_get_value(box));
     // }
-    hashtable_deinit(&env->type_nodes);
-    hashtable_deinit(&env->generic_nodes);
-    hashtable_deinit(&env->builtin_nodes);
-    hashtable_deinit(&env->builtin_types);
-    hashtable_deinit(&env->type_env);
+    hashtable_deinit(&env->venv);
+    hashtable_deinit(&env->generic_venv);
+    hashtable_deinit(&env->builtin_venv);
+    hashtable_deinit(&env->builtin_tenv);
+    hashtable_deinit(&env->tenv);
     hashtable_deinit(&env->symbols);
     array_deinit(&env->ref_builtin_names);
     array_deinit(&env->nongens);

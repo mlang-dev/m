@@ -511,13 +511,20 @@ z = getx()
     node = *(exp_node**)array_get(&block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> Point2D", string_get(&type_str));
+
+    /*variable node*/
     node = *(exp_node**)array_get(&block->nodes, 2);
     ASSERT_EQ(VAR_NODE, node->node_type);
     struct var_node* var = (struct var_node*)node;
+
+    /*initial value is a call expression*/
     ASSERT_EQ(CALL_NODE, var->init_value->node_type);
     type_str = to_string(var->init_value->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     type_str = to_string(var->base.type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
+
+    /*verify variable xy in inner function is out of scope*/
+    //ASSERT_EQ(0, hashtable_get(&env->tenv, "xy"));
     env_free(env);
 }
