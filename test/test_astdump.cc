@@ -12,8 +12,11 @@
 #include "parser.h"
 #include "tutil.h"
 #include "astdump.h"
+#include "test_base.h"
 
-TEST(testAstDump, testPrototypeNodeDump)
+class testAstDump : public TestBase {};
+
+TEST_F(testAstDump, testPrototypeNodeDump)
 {
     char test_code[] = "extern printf(format:string ...):int";
     auto parser = parser_new(false);

@@ -614,7 +614,9 @@ void node_free(struct exp_node* node)
 struct module* module_new(const char* mod_name, FILE* file)
 {
     struct module* mod = malloc(sizeof(*mod));
-    string_init_chars(&mod->name, mod_name);
+    //printf("new module: %s\n", mod_name);
+    mod->name = to_symbol(mod_name);
+    //printf("got new module: %s\n", mod_name);
     struct block_node* node = malloc(sizeof(*node));
     mod->block = node;
     array_init(&mod->block->nodes, sizeof(struct exp_node*));

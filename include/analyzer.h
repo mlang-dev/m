@@ -9,7 +9,6 @@
 #define __MLANG_ANALYZER_H__
 
 #include "ast.h"
-#include "clib/hashtable.h"
 #include "codegen.h"
 #include "env.h"
 

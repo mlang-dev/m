@@ -8,6 +8,7 @@
 #include "env.h"
 #include "jit.h"
 #include "repl.h"
+#include "analyzer.h"
 
 void _print(struct eval_result result)
 {

@@ -21,9 +21,10 @@ extern "C" {
 #endif
 
 typedef string *symbol;
-typedef struct hashtable symbols;
 
-symbol to_symbol(symbols *symbols, const char* name);
+symbol to_symbol(const char* name);
+void symbols_init();
+void symbols_deinit();
 
 #ifdef __cplusplus
 }

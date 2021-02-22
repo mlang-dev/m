@@ -7,8 +7,11 @@
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
+#include "test_base.h"
 
-TEST(testParserRelational, testComparisonLessThan)
+class testParserRelational : public TestBase {};
+
+TEST_F(testParserRelational, testComparisonLessThan)
 {
     char test_code[] = "10 < 11";
     auto parser = parser_new(false);
@@ -20,7 +23,7 @@ TEST(testParserRelational, testComparisonLessThan)
     parser_free(parser);
 }
 
-TEST(testParserRelational, testComparisonGreaterThan)
+TEST_F(testParserRelational, testComparisonGreaterThan)
 {
     char test_code[] = "11 > 10";
     auto parser = parser_new(false);
@@ -31,7 +34,7 @@ TEST(testParserRelational, testComparisonGreaterThan)
     parser_free(parser);
 }
 
-TEST(testParserRelational, testComparisonEqual)
+TEST_F(testParserRelational, testComparisonEqual)
 {
     char test_code[] = "11==10";
     auto parser = parser_new(false);
@@ -42,7 +45,7 @@ TEST(testParserRelational, testComparisonEqual)
     parser_free(parser);
 }
 
-TEST(testParserRelational, testComparisonGE)
+TEST_F(testParserRelational, testComparisonGE)
 {
     char test_code[] = "11>=10";
     auto parser = parser_new(false);
@@ -53,7 +56,7 @@ TEST(testParserRelational, testComparisonGE)
     parser_free(parser);
 }
 
-TEST(testParserRelational, testComparisonLE)
+TEST_F(testParserRelational, testComparisonLE)
 {
     char test_code[] = "11<=10";
     auto parser = parser_new(false);

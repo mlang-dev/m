@@ -9,15 +9,16 @@
 #ifndef __MLANG_ENV_H__
 #define __MLANG_ENV_H__
 
-#include "analyzer.h"
+#include "clib/hashtable.h"
+#include "clib/array.h"
+#include "codegen.h"
+#include "parser.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct env {
-    struct hashtable symbols; //hashtable of <string, symbol(string*)>
-
     struct hashtable tenv; //type env: hashtable of <string, struct type_exp, right now including types and values*>
     struct hashtable venv;  /*value env: hashtable of <string, struct exp_node*> */
 

@@ -7,9 +7,11 @@
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
+#include "test_base.h"
 
+class testParserLogicalOperator : public TestBase {};
 
-TEST(testParserLogicalOperator, testOrOp)
+TEST_F(testParserLogicalOperator, testOrOp)
 {
     char test_code[] = "true || false";
     auto parser = parser_new(false);
@@ -21,7 +23,7 @@ TEST(testParserLogicalOperator, testOrOp)
     parser_free(parser);
 }
 
-TEST(testParserLogicalOperator, testAndOp)
+TEST_F(testParserLogicalOperator, testAndOp)
 {
     char test_code[] = "true && false";
     auto parser = parser_new(false);
@@ -33,7 +35,7 @@ TEST(testParserLogicalOperator, testAndOp)
     parser_free(parser);
 }
 
-TEST(testParserLogicalOperator, testNotOp)
+TEST_F(testParserLogicalOperator, testNotOp)
 {
     char test_code[] = "! true";
     auto parser = parser_new(false);

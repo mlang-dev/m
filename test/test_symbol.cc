@@ -17,26 +17,20 @@
 
 TEST(testSymbol, TestSymbolEqualsWithTheSameStringKey)
 {
-    hashtable symbols;
-    hashtable_init(&symbols);
+    symbols_init();
     char str1[] = "hello";
     char str2[] = "world";
-    symbol symbol1 = to_symbol(&symbols, str1);
-    symbol symbol2 = to_symbol(&symbols, str2);
-    ASSERT_EQ(2, hashtable_size(&symbols));
-    ASSERT_TRUE(hashtable_in(&symbols, str1));
-    ASSERT_TRUE(hashtable_in(&symbols, str2));
-    ASSERT_EQ(symbol1, to_symbol(&symbols, "hello"));
-    ASSERT_EQ(symbol2, to_symbol(&symbols, "world"));
-    hashtable_deinit(&symbols);
+    symbol symbol1 = to_symbol(str1);
+    symbol symbol2 = to_symbol(str2);
+    ASSERT_EQ(symbol1, to_symbol("hello"));
+    ASSERT_EQ(symbol2, to_symbol("world"));
+    symbols_deinit();
 }
 
 TEST(testSymbol, TestSymbolSupportMultipleValuesForTheSameKey)
 {
-    hashtable symbols;
-    hashtable_init(&symbols);
-    symbol symbol1 = to_symbol(&symbols, "hello");
-    ASSERT_EQ(1, hashtable_size(&symbols));
-    ASSERT_EQ(symbol1, to_symbol(&symbols, "hello"));
-    hashtable_deinit(&symbols);
+    symbols_init();
+    symbol symbol1 = to_symbol("hello");
+    ASSERT_EQ(symbol1, to_symbol("hello"));
+    symbols_deinit();
 }

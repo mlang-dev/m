@@ -18,11 +18,10 @@
 
 TEST(testSymboltable, TestSymboltableSameKeyMultipleValues)
 {
-    symbols symbols;
+    symbols_init();
     symboltable st;
-    hashtable_init(&symbols);
     symboltable_init(&st);
-    symbol symbol = to_symbol(&symbols, "hello");
+    symbol symbol = to_symbol("hello");
     type_oper* op1 = create_nullary_type(TYPE_INT);
     symboltable_push(&st, symbol, op1);
     ASSERT_EQ(op1, symboltable_get(&st, symbol));
@@ -38,7 +37,7 @@ TEST(testSymboltable, TestSymboltableSameKeyMultipleValues)
     symboltable_pop(&st, symbol);
     ASSERT_EQ(NULL, symboltable_get(&st, symbol));
     symboltable_deinit(&st);
-    hashtable_deinit(&symbols);
     type_exp_free((type_exp*)op1);
     type_exp_free((type_exp*)op2);
+    symbols_deinit();
 }

@@ -13,6 +13,7 @@
 #include "cmodule.h"
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
+#include "analyzer.h"
 
 void _set_builtin(struct env* env, const char* name, struct type_exp* type)
 {
@@ -28,7 +29,7 @@ struct env* env_new(bool is_repl)
     array_init(&env->nongens, sizeof(struct type_exp*));
     array_init_free(&env->ref_builtin_names, sizeof(string), string_free_generic);
     env->cg = cg_new(env->parser);
-    hashtable_init(&env->symbols);
+    symbols_init();
     hashtable_init(&env->tenv);
     hashtable_init(&env->builtin_tenv);
     hashtable_init(&env->venv);
@@ -79,7 +80,7 @@ void env_free(struct env* env)
     hashtable_deinit(&env->builtin_venv);
     hashtable_deinit(&env->builtin_tenv);
     hashtable_deinit(&env->tenv);
-    hashtable_deinit(&env->symbols);
+    symbols_deinit();
     array_deinit(&env->ref_builtin_names);
     array_deinit(&env->nongens);
     cg_free(env->cg);

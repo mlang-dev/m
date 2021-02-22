@@ -10,8 +10,8 @@
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
-
 #include "env.h"
+#include "analyzer.h"
 
 int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, const char* filename)
 {

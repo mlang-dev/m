@@ -7,8 +7,14 @@
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
+#include "test_base.h"
 
-TEST(testParser, testBlockVariable)
+class testParser : public TestBase {
+ 
+};
+
+
+TEST_F(testParser, testBlockVariable)
 {
     char test_code[] = "x = 11";
     auto parser = parser_new(false);
@@ -24,7 +30,7 @@ TEST(testParser, testBlockVariable)
     parser_free(parser);
 }
 
-TEST(testParser, testVariableWithType)
+TEST_F(testParser, testVariableWithType)
 {
     char test_code[] = "x:int = 11";
     auto parser = parser_new(false);
@@ -41,7 +47,7 @@ TEST(testParser, testVariableWithType)
     parser_free(parser);
 }
 
-TEST(testParser, testBool)
+TEST_F(testParser, testBool)
 {
     char test_code[] = "x = true";
     auto parser = parser_new(false);
@@ -57,7 +63,7 @@ TEST(testParser, testBool)
     parser_free(parser);
 }
 
-TEST(testParser, testChar)
+TEST_F(testParser, testChar)
 {
     char test_code[] = "x = 'c'";
     auto parser = parser_new(false);
@@ -73,7 +79,7 @@ TEST(testParser, testChar)
     parser_free(parser);
 }
 
-TEST(testParser, testString)
+TEST_F(testParser, testString)
 {
     char test_code[] = "x = \"hello world!\"";
     auto parser = parser_new(false);
@@ -88,7 +94,7 @@ TEST(testParser, testString)
     parser_free(parser);
 }
 
-TEST(testParser, testBlockVariableNameWithUnderlyingLine)
+TEST_F(testParser, testBlockVariableNameWithUnderlyingLine)
 {
     char test_code[] = "m_x = 11";
     auto parser = parser_new(false);
@@ -101,7 +107,7 @@ TEST(testParser, testBlockVariableNameWithUnderlyingLine)
     parser_free(parser);
 }
 
-TEST(testParser, testBlockIdFunction)
+TEST_F(testParser, testBlockIdFunction)
 {
     char test_code[] = R"(
 f x = x
@@ -117,7 +123,7 @@ f 10
     parser_free(parser);
 }
 
-TEST(testParser, testBlockBinaryFunction)
+TEST_F(testParser, testBlockBinaryFunction)
 {
     char test_code[] = "f x = x * x";
     auto parser = parser_new(false);
@@ -130,7 +136,7 @@ TEST(testParser, testBlockBinaryFunction)
     parser_free(parser);
 }
 
-TEST(testParser, testBlockBinaryFunctionName)
+TEST_F(testParser, testBlockBinaryFunctionName)
 {
     char test_code[] = "f_sq x = x * x";
     auto parser = parser_new(false);
@@ -143,7 +149,7 @@ TEST(testParser, testBlockBinaryFunctionName)
     parser_free(parser);
 }
 
-TEST(testParser, testFacIfCondition)
+TEST_F(testParser, testFacIfCondition)
 {
     char test_code[] = R"(fac n = 
     if n< 2 n
@@ -158,7 +164,7 @@ TEST(testParser, testFacIfCondition)
     parser_free(parser);
 }
 
-TEST(testParser, testForLoop)
+TEST_F(testParser, testForLoop)
 {
     char test_code[] = R"(loopprint n = 
   for i in 3..n
@@ -178,7 +184,7 @@ TEST(testParser, testForLoop)
     parser_free(parser);
 }
 
-TEST(testParser, testVariableInFunction)
+TEST_F(testParser, testVariableInFunction)
 {
     char test_code[] = R"(distance x1 y1 x2 y2 = 
   xx = (x1-x2) * (x1-x2)
@@ -195,7 +201,7 @@ TEST(testParser, testVariableInFunction)
     parser_free(parser);
 }
 
-TEST(testParser, testAvgFunction)
+TEST_F(testParser, testAvgFunction)
 {
     char test_code[] = R"(
 avg x y = (x + y) / 2
@@ -209,7 +215,7 @@ avg x y = (x + y) / 2
     parser_free(parser);
 }
 
-TEST(testParser, testUnaryOperatorOverloadFunction)
+TEST_F(testParser, testUnaryOperatorOverloadFunction)
 {
     char test_code[] = R"((|>) x = 0 - x # unary operator overloading
   )";
@@ -222,7 +228,7 @@ TEST(testParser, testUnaryOperatorOverloadFunction)
     parser_free(parser);
 }
 
-TEST(testParser, testSimpleUnaryOperatorOverloadFunction)
+TEST_F(testParser, testSimpleUnaryOperatorOverloadFunction)
 {
     char test_code[] = "unary|> x = 0 - x # unary operator overloading";
     auto parser = parser_new(false);
@@ -234,7 +240,7 @@ TEST(testParser, testSimpleUnaryOperatorOverloadFunction)
     parser_free(parser);
 }
 
-TEST(testParser, testSimpleBinaryOperatorOverloadFunction)
+TEST_F(testParser, testSimpleBinaryOperatorOverloadFunction)
 {
     char test_code[] = "(|>)10 x y = y < x # binary operator overloading";
     auto parser = parser_new(false);
@@ -246,7 +252,7 @@ TEST(testParser, testSimpleBinaryOperatorOverloadFunction)
     parser_free(parser);
 }
 
-TEST(testParser, testVariadicFunction)
+TEST_F(testParser, testVariadicFunction)
 {
     char test_code[] = "f x ... = 10";
     auto parser = parser_new(false);
@@ -258,7 +264,7 @@ TEST(testParser, testVariadicFunction)
     parser_free(parser);
 }
 
-TEST(testParser, testVariadicFunctionInvalidPosition)
+TEST_F(testParser, testVariadicFunctionInvalidPosition)
 {
     testing::internal::CaptureStderr();
     char test_code[] = "f ... x = 10";
@@ -269,7 +275,7 @@ TEST(testParser, testVariadicFunctionInvalidPosition)
     parser_free(parser);
 }
 
-TEST(testParser, testLocalStringFunc)
+TEST_F(testParser, testLocalStringFunc)
 {
     char test_code[] = R"(
 to_string () = 
@@ -287,7 +293,7 @@ to_string () =
     parser_free(parser);
 }
 
-TEST(testParser, testPrototypeNode)
+TEST_F(testParser, testPrototypeNode)
 {
     char test_code[] = "extern printf(format:string ...):int";
     auto parser = parser_new(false);
@@ -300,7 +306,7 @@ TEST(testParser, testPrototypeNode)
     parser_free(parser);
 }
 
-TEST(testParser, testPrototypeNodeEmptyArg)
+TEST_F(testParser, testPrototypeNodeEmptyArg)
 {
     char test_code[] = "extern print():int";
     auto parser = parser_new(false);
@@ -316,7 +322,7 @@ TEST(testParser, testPrototypeNodeEmptyArg)
     parser_free(parser);
 }
 
-TEST(testParser, testStructsType)
+TEST_F(testParser, testStructsType)
 {
     char test_code[] = R"(
 type Point2D = 
@@ -340,7 +346,7 @@ type Point2D =
     parser_free(parser);
 }
 
-TEST(testParser, testStructsTypeOneLine)
+TEST_F(testParser, testStructsTypeOneLine)
 {
     char test_code[] = R"(
 type Point2D = x:double y:double
@@ -363,7 +369,7 @@ xy:Point2D = 0.0 0.0
     parser_free(parser);
 }
 
-TEST(testParser, testStructsTypeDefAndDecl)
+TEST_F(testParser, testStructsTypeDefAndDecl)
 {
     char test_code[] = R"(
 type Point2D = x:double y:double

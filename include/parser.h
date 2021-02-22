@@ -39,7 +39,6 @@ void parse_next_token(struct parser* parser);
 struct exp_node* parse_exp_to_function(struct parser* parser, struct exp_node* exp, const char* fn);
 struct exp_node* parse_import(struct parser* parser, struct exp_node* parent);
 struct exp_node* parse_statement(struct parser* parser, struct exp_node* parent);
-//struct block_node* parse_block(struct parser* parser, struct exp_node* parent, exp_executor exp_exe, void* jit);
 struct exp_node* parse_exp(struct parser* parser, struct exp_node* parent, struct exp_node* lhs);
 bool is_unary_op(struct prototype_node* pnode);
 bool is_binary_op(struct prototype_node* pnode);

@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #include "clib/string.h"
+#include "clib/symbol.h"
 #include "clib/util.h"
 #include "lexer.h"
 #include "type.h"
@@ -46,7 +47,7 @@ extern const char* node_type_strings[];
 struct exp_node {
     enum node_type node_type;
     struct type_exp* annotated_type;
-    string* annotation;
+    symbol annotation;
     struct type_exp* type; //type inferred
     struct source_loc loc;
     struct exp_node* parent;
@@ -58,7 +59,7 @@ struct block_node {
 };
 
 struct module {
-    string name;
+    symbol name;
     struct block_node* block;
     struct file_tokenizer* tokenizer;
 };

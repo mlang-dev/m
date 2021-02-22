@@ -65,7 +65,7 @@ bool _is_exp(struct exp_node* node)
 void _log_error(struct parser* parser, struct source_loc loc,  const char *msg)
 {
     char full_msg[512];
-    sprintf(full_msg, "%s:%d:%d: %s", string_get(&parser->current_module->name), loc.line, loc.col, msg);
+    sprintf(full_msg, "%s:%d:%d: %s", string_get(parser->current_module->name), loc.line, loc.col, msg);
     log_info(ERROR, full_msg);
 }
 
@@ -127,11 +127,10 @@ struct parser* parser_new(bool is_repl)
     return parser;
 }
 
-void destroy_module(struct module* module)
+void module_free(struct module* module)
 {
     destroy_tokenizer(module->tokenizer);
     node_free((struct exp_node*)module->block);
-    string_deinit(&module->name);
     free(module);
 }
 
@@ -141,7 +140,7 @@ void parser_free(struct parser* parser)
     hashtable_deinit(&parser->ext_types);
     for (size_t i = 0; i < array_size(&parser->ast->modules); i++) {
         struct module* it = *(struct module**)array_get(&parser->ast->modules, i);
-        destroy_module(it);
+        module_free(it);
     }
     free(parser->ast);
     free(parser);
