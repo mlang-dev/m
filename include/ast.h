@@ -94,13 +94,13 @@ struct var_node {
 
 struct unary_node {
     struct exp_node base;
-    string op;
+    symbol op;
     struct exp_node* operand;
 };
 
 struct binary_node {
     struct exp_node base;
-    string op;
+    symbol op;
     struct exp_node *lhs, *rhs;
 };
 
@@ -139,7 +139,7 @@ struct type_value_node {
 struct prototype_node {
     struct exp_node base;
     string name;
-    string op;
+    symbol op;
     struct array fun_params; /*struct array of var_node*/
     char is_operator;
     unsigned precedence;

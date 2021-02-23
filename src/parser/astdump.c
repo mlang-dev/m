@@ -77,7 +77,7 @@ string _dump_unary(struct unary_node* unary)
 {
     string un;
     string_init_chars(&un, "un: ");
-    string_add(&un, &unary->op);
+    string_add(&un, unary->op);
     string str_op = dump(unary->operand);
     string_add(&un, &str_op);
     return un;
@@ -89,7 +89,7 @@ string _dump_binary(struct binary_node* binary)
     string rhs_str = dump(binary->rhs);
     string bin;
     string_init_chars(&bin, "bin:");
-    string_add(&bin, &binary->op);
+    string_add(&bin, binary->op);
     string_add_chars(&bin, "[");
     string_add(&bin, &lhs_str);
     string_add_chars(&bin, ",");

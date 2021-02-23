@@ -305,7 +305,7 @@ struct prototype_node* prototype_node_new(struct exp_node* parent, struct source
     node->precedence = precedence;
     node->is_variadic = is_variadic;
     node->is_extern = is_external;
-    string_init_chars(&node->op, op);
+    node->op = to_symbol(op);
     struct var_node fun_param;
     if(is_variadic){
         fun_param.var_name = to_symbol(type_strings[TYPE_GENERIC]);
@@ -332,7 +332,7 @@ struct prototype_node* _copy_prototype_node(struct prototype_node* proto)
     node->precedence = proto->precedence;
     node->is_variadic = proto->is_variadic;
     node->is_extern = proto->is_extern;
-    string_init_chars(&node->op, string_get(&proto->op));
+    node->op = proto->op;
     struct var_node fun_param;
     fun_param.base.type = 0;
     fun_param.base.node_type = VAR_NODE;
@@ -348,7 +348,6 @@ struct prototype_node* _copy_prototype_node(struct prototype_node* proto)
 void _free_prototype_node(struct prototype_node* node)
 {
     string_deinit(&node->name);
-    string_deinit(&node->op);
     /*fun_params will be freed in array_deinit*/
     array_deinit(&node->fun_params);
     _free_exp_node(&node->base);
@@ -425,18 +424,19 @@ struct unary_node* unary_node_new(struct exp_node* parent, struct source_loc loc
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init_chars(&node->op, op);
+    node->op = to_symbol(op);
     node->operand = operand;
     return node;
 }
 
-struct unary_node* _copy_unary_node(struct unary_node* orig_node){
-    return unary_node_new(orig_node->base.parent, orig_node->base.loc, string_get(&orig_node->op),
+struct unary_node* _copy_unary_node(struct unary_node* orig_node)
+{
+    return unary_node_new(orig_node->base.parent, orig_node->base.loc, string_get(orig_node->op),
     orig_node->operand);
 }
 
-void _free_unary_node(struct unary_node* node){
-    string_deinit(&node->op);
+void _free_unary_node(struct unary_node* node)
+{
     node_free(node->operand);
     _free_exp_node(&node->base);
 }
@@ -450,7 +450,7 @@ struct binary_node* binary_node_new(struct exp_node* parent, struct source_loc l
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init_chars(&node->op, op);
+    node->op = to_symbol(op);
     node->lhs = lhs;
     node->rhs = rhs;
     return node;
@@ -458,13 +458,12 @@ struct binary_node* binary_node_new(struct exp_node* parent, struct source_loc l
 
 struct binary_node* _copy_binary_node(struct binary_node* orig_node)
 {
-    return binary_node_new(orig_node->base.parent, orig_node->base.loc, string_get(&orig_node->op),
+    return binary_node_new(orig_node->base.parent, orig_node->base.loc, string_get(orig_node->op),
     orig_node->lhs, orig_node->rhs);
 }
 
 void _free_binary_node(struct binary_node* node)
 {
-    string_deinit(&node->op);
     if(node->lhs)
         node_free(node->lhs);
     if(node->rhs)

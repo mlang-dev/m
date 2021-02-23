@@ -403,17 +403,17 @@ LLVMValueRef _generate_unary_node(struct code_generator* cg, struct exp_node* no
     struct unary_node* unary = (struct unary_node*)node;
     LLVMValueRef operand_v = generate_code(cg, unary->operand);
     assert(operand_v);
-    if (string_eq_chars(&unary->op, "+"))
+    if (string_eq_chars(unary->op, "+"))
         return operand_v;
-    else if (string_eq_chars(&unary->op, "-")){
+    else if (string_eq_chars(unary->op, "-")){
         return cg->ops->neg_op(cg->builder, operand_v, "negtmp");
-    } else if (string_eq_chars(&unary->op, "!")){
+    } else if (string_eq_chars(unary->op, "!")){
         LLVMValueRef ret = cg->ops->not_op(cg->builder, operand_v, "nottmp");
         return LLVMBuildZExt(cg->builder, ret, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
     }
     string fname;
     string_init_chars(&fname, "unary");
-    string_add(&fname, &unary->op);
+    string_add(&fname, unary->op);
     LLVMValueRef fun = _get_function(cg, string_get(&fname));
     if (fun == 0)
         return log_info(ERROR, "Unknown unary operator");
@@ -432,52 +432,52 @@ LLVMValueRef _generate_binary_node(struct code_generator* cg, struct exp_node* n
     assert(lv && rv);
     assert(LLVMTypeOf(lv) == LLVMTypeOf(rv));
     struct ops* ops = &cg->ops[prune(bin->lhs->type)->type];
-    if (string_eq_chars(&bin->op, "+"))
+    if (string_eq_chars(bin->op, "+"))
         return ops->add(cg->builder, lv, rv, "addtmp");
-    else if (string_eq_chars(&bin->op, "-"))
+    else if (string_eq_chars(bin->op, "-"))
         return ops->sub(cg->builder, lv, rv, "subtmp");
-    else if (string_eq_chars(&bin->op, "*"))
+    else if (string_eq_chars(bin->op, "*"))
         return ops->mul(cg->builder, lv, rv, "multmp");
-    else if (string_eq_chars(&bin->op, "/"))
+    else if (string_eq_chars(bin->op, "/"))
         return ops->div(cg->builder, lv, rv, "divtmp");
-    else if (string_eq_chars(&bin->op, "%"))
+    else if (string_eq_chars(bin->op, "%"))
         return ops->rem(cg->builder, lv, rv, "remtmp");
-    else if (string_eq_chars(&bin->op, "<")) {
+    else if (string_eq_chars(bin->op, "<")) {
         lv = ops->cmp(cg->builder, ops->cmp_lt, lv, rv, "cmplttmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
         return lv;
-    } else if (string_eq_chars(&bin->op, ">")) {
+    } else if (string_eq_chars(bin->op, ">")) {
         lv = ops->cmp(cg->builder, ops->cmp_gt, lv, rv, "cmpgttmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
         return lv;
-    } else if (string_eq_chars(&bin->op, "==")) {
+    } else if (string_eq_chars(bin->op, "==")) {
         lv = ops->cmp(cg->builder, ops->cmp_eq, lv, rv, "cmpeqtmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
         return lv;
-    } else if (string_eq_chars(&bin->op, "!=")) {
+    } else if (string_eq_chars(bin->op, "!=")) {
         lv = ops->cmp(cg->builder, ops->cmp_neq, lv, rv, "cmpneqtmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
         return lv;
-    } else if (string_eq_chars(&bin->op, "<=")) {
+    } else if (string_eq_chars(bin->op, "<=")) {
         lv = ops->cmp(cg->builder, ops->cmp_le, lv, rv, "cmpletmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
         return lv;
-    } else if (string_eq_chars(&bin->op, ">=")) {
+    } else if (string_eq_chars(bin->op, ">=")) {
         lv = ops->cmp(cg->builder, ops->cmp_ge, lv, rv, "cmpgetmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
         return lv;
-    } else if (string_eq_chars(&bin->op, "||")) {
+    } else if (string_eq_chars(bin->op, "||")) {
         lv = ops->or_op(cg->builder, lv, rv, "ortmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
         return lv;
-    } else if (string_eq_chars(&bin->op, "&&")) {
+    } else if (string_eq_chars(bin->op, "&&")) {
         lv = ops->and_op(cg->builder, lv, rv, "andtmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
         return lv;
     } else {
         string f_name;
         string_init_chars(&f_name, "binary");
-        string_add(&f_name, &bin->op);
+        string_add(&f_name, bin->op);
         LLVMValueRef fun = _get_function(cg, string_get(&f_name));
         assert(fun && "binary operator not found!");
         LLVMValueRef ops[2] = { lv, rv };

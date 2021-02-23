@@ -263,7 +263,7 @@ struct type_exp* _analyze_unary(struct env* env, struct exp_node* node)
 {
     struct unary_node* unary = (struct unary_node*)node;
     struct type_exp* op_type = analyze(env, unary->operand);
-    if (string_eq_chars(&unary->op, "!")) {
+    if (string_eq_chars(unary->op, "!")) {
         struct type_exp* bool_type = (struct type_exp*)create_nullary_type(TYPE_BOOL);
         unify(op_type, bool_type, &env->nongens);
         unary->operand->type = op_type;
@@ -278,7 +278,7 @@ struct type_exp* _analyze_binary(struct env* env, struct exp_node* node)
     struct type_exp* rhs_type = analyze(env, bin->rhs);
     struct type_exp* result = 0;
     if (unify(lhs_type, rhs_type, &env->nongens)) {
-        if (_is_predicate_op(string_get(&bin->op)))
+        if (_is_predicate_op(string_get(bin->op)))
             result = (struct type_exp*)create_nullary_type(TYPE_BOOL);
         else
             result = lhs_type;
@@ -286,7 +286,7 @@ struct type_exp* _analyze_binary(struct env* env, struct exp_node* node)
     }else{
         string error;
         string_init_chars(&error, "type not same for binary op: ");
-        string_add(&error, &bin->op);
+        string_add(&error, bin->op);
         _log_err(env, bin->base.loc, string_get(&error));
     }
     return result;

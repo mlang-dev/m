@@ -652,7 +652,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
 struct exp_node* _create_fun_node(struct parser* parser, struct prototype_node* prototype, struct block_node* block)
 {
     if (is_binary_op(prototype)) {
-        _set_op_prec(&parser->op_precs, string_get(&prototype->op), prototype->precedence);
+        _set_op_prec(&parser->op_precs, string_get(prototype->op), prototype->precedence);
     }
     return (struct exp_node*)function_node_new(prototype, block);
 }
