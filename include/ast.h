@@ -88,7 +88,7 @@ struct ident_node {
 
 struct var_node {
     struct exp_node base;
-    string var_name;
+    symbol var_name;
     struct exp_node* init_value;
 };
 

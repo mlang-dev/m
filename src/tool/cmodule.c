@@ -58,10 +58,11 @@ struct prototype_node* create_function_prototype(CXCursor cursor)
         }
         CXCursor arg_cursor = clang_Cursor_getArgument(cursor, i);
         CXString cx_arg_name = clang_getCursorSpelling(arg_cursor);
-        string_init_chars(&fun_param.var_name, clang_getCString(cx_arg_name));
+        fun_param.var_name = to_symbol(clang_getCString(cx_arg_name));
         clang_disposeString(cx_arg_name);
-        if (!string_size(&fun_param.var_name)){
-            fun_param.var_name = str_format("arg%d", i); 
+        if (!string_size(fun_param.var_name)){
+            string format = str_format("arg%d", i);
+            fun_param.var_name = to_symbol(string_get(&format)); 
         }
         fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(arg_type);   
         fun_param.base.type = fun_param.base.annotated_type;

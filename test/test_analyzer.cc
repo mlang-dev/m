@@ -19,7 +19,7 @@ TEST(testAnalyzer, testIntVariable)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(TYPE_INT, node->init_value->type->type);
     ASSERT_EQ(KIND_VAR, node->base.type->kind);
@@ -36,7 +36,7 @@ TEST(testAnalyzer, testDoubleVariable)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(TYPE_DOUBLE, node->init_value->type->type);
     string type_str = to_string(node->base.type);
@@ -52,7 +52,7 @@ TEST(testAnalyzer, testBoolVariable)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(TYPE_BOOL, node->init_value->type->type);
     string type_str = to_string(node->base.type);
@@ -68,7 +68,7 @@ TEST(testAnalyzer, testCharVariable)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(TYPE_CHAR, node->init_value->type->type);
     string type_str = to_string(node->base.type);
@@ -84,7 +84,7 @@ TEST(testAnalyzer, testStringVariable)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(TYPE_STRING, node->init_value->type->type);
     string type_str = to_string(node->base.type);
@@ -115,7 +115,7 @@ TEST(testAnalyzer, testDoubleIntLiteralError)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(0, node->base.type);
     env_free(env);

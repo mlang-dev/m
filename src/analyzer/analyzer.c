@@ -108,13 +108,13 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
     if(var->base.annotated_type&&var->base.annotated_type->type == TYPE_EXT){
         assert(var->base.annotation);
         type = retrieve(env, string_get(var->base.annotation));
-        set(env, string_get(&var->var_name), type);
+        set(env, string_get(var->var_name), type);
         analyze_and_generate_code(env, var->init_value);
         return type;
     }
     else if(var->base.annotated_type && !var->init_value){
         type = var->base.annotated_type;
-        set(env, string_get(&var->var_name), type);
+        set(env, string_get(var->var_name), type);
         return type;
     }
     type = analyze(env, var->init_value);
@@ -126,7 +126,7 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
     }
     struct type_exp* result_type = (struct type_exp*)create_type_var();
     unify(result_type, type, &env->nongens);
-    set(env, string_get(&var->var_name), result_type);
+    set(env, string_get(var->var_name), result_type);
     return result_type;
 }
 
@@ -192,7 +192,7 @@ struct type_exp* _analyze_fun(struct env* env, struct exp_node* node)
             exp = (struct type_exp*)create_type_var();
         array_push(&fun_sig, &exp);
         array_push(&env->nongens, &exp);
-        set(env, string_get(&param->var_name), exp);
+        set(env, string_get(param->var_name), exp);
     }
     struct type_exp* fun_type = (struct type_exp*)create_type_var();
     set(env, string_get(&fun->prototype->name), fun_type);

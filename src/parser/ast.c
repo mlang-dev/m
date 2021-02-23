@@ -176,7 +176,7 @@ struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, co
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init_chars(&node->var_name, var_name);
+    node->var_name = to_symbol(var_name);
     node->init_value = init_value;
     return node;
 }
@@ -184,13 +184,12 @@ struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, co
 struct var_node* _copy_var_node(struct var_node* orig_node)
 {
     return var_node_new(orig_node->base.parent, orig_node->base.loc, 
-    string_get(&orig_node->var_name), orig_node->base.type ? orig_node->base.type->type : TYPE_UNK, 0,
+    string_get(orig_node->var_name), orig_node->base.type ? orig_node->base.type->type : TYPE_UNK, 0,
     node_copy(orig_node->init_value));
 }
 
 void _free_var_node(struct var_node* node)
 {
-    string_deinit(&node->var_name);
     if(node->init_value)
         node_free(node->init_value);
     _free_exp_node(&node->base);
@@ -309,7 +308,7 @@ struct prototype_node* prototype_node_new(struct exp_node* parent, struct source
     string_init_chars(&node->op, op);
     struct var_node fun_param;
     if(is_variadic){
-        string_init_chars(&fun_param.var_name, type_strings[TYPE_GENERIC]);
+        fun_param.var_name = to_symbol(type_strings[TYPE_GENERIC]);
         fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_GENERIC);
         fun_param.base.annotation = string_new(type_strings[TYPE_GENERIC]);
         fun_param.base.type = fun_param.base.annotated_type;
@@ -338,7 +337,7 @@ struct prototype_node* _copy_prototype_node(struct prototype_node* proto)
     fun_param.base.type = 0;
     fun_param.base.node_type = VAR_NODE;
     if(proto->is_variadic){
-        string_init_chars(&fun_param.var_name, type_strings[TYPE_GENERIC]);
+        fun_param.var_name = to_symbol(type_strings[TYPE_GENERIC]);
         fun_param.base.annotated_type = (struct type_exp*)create_nullary_type(TYPE_GENERIC);
         fun_param.base.annotation = string_new(type_strings[TYPE_GENERIC]);
         array_push(&node->fun_params, &fun_param);
@@ -643,7 +642,7 @@ int find_member_index(struct type_node* type_node, const char* member)
 {
     for(size_t i = 0; i < array_size(&type_node->body->nodes); i++){
         struct var_node* var = *(struct var_node**)array_get(&type_node->body->nodes, i);
-        if(string_eq_chars(&var->var_name, member)){
+        if(string_eq_chars((string*)var->var_name, member)){
             return i;
         }
     }

@@ -33,7 +33,7 @@ string _dump_prototype(struct prototype_node* proto)
     string_init(&var_str);
     for(size_t i = 0; i < array_size(&proto->fun_params); i++){
         struct var_node* var = (struct var_node*)array_get(&proto->fun_params, i);
-        var_str = var->var_name;
+        string_copy(&var_str, var->var_name);
         if(var->base.annotated_type&&var->base.annotated_type->type!=TYPE_GENERIC){
             string var_type = to_string(var->base.annotated_type);
             string_add_chars(&var_str, ":");
@@ -66,7 +66,7 @@ string _dump_var(struct var_node* var)
 {
     string var_str;
     string_init_chars(&var_str, "var: ");
-    string_add(&var_str, &var->var_name);
+    string_add(&var_str, var->var_name);
     string_add_chars(&var_str, "=");
     string init_value = dump(var->init_value);
     string_add(&var_str, &init_value);

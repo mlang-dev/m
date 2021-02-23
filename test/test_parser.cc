@@ -22,7 +22,7 @@ TEST_F(testParser, testBlockVariable)
     block_node* block = parse_file_object(parser, "test", file);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node* literal = (struct literal_node*)node->init_value;
@@ -39,7 +39,7 @@ TEST_F(testParser, testVariableWithType)
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(TYPE_INT, node->base.annotated_type->type);
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node* literal = (struct literal_node*)node->init_value;
@@ -55,7 +55,7 @@ TEST_F(testParser, testBool)
     block_node* block = parse_file_object(parser, "test", file);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node* literal = (struct literal_node*)node->init_value;
@@ -71,7 +71,7 @@ TEST_F(testParser, testChar)
     block_node* block = parse_file_object(parser, "test", file);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node* literal = (struct literal_node*)node->init_value;
@@ -86,7 +86,7 @@ TEST_F(testParser, testString)
     block_node* block = parse_string(parser, "test", test_code);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("x", string_get(&node->var_name));
+    ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node* literal = (struct literal_node*)node->init_value;
@@ -101,7 +101,7 @@ TEST_F(testParser, testBlockVariableNameWithUnderlyingLine)
     block_node* block = parse_string(parser, "test", test_code);
     auto node = *(var_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("m_x", string_get(&node->var_name));
+    ASSERT_STREQ("m_x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     parser_free(parser);
@@ -341,8 +341,8 @@ type Point2D =
     struct var_node* var2 = *(struct var_node**)array_back(&type->body->nodes); 
     ASSERT_EQ(VAR_NODE, var1->base.node_type);
     ASSERT_EQ(VAR_NODE, var2->base.node_type);
-    ASSERT_STREQ("x", string_get(&var1->var_name));
-    ASSERT_STREQ("y", string_get(&var2->var_name));
+    ASSERT_STREQ("x", string_get(var1->var_name));
+    ASSERT_STREQ("y", string_get(var2->var_name));
     parser_free(parser);
 }
 
@@ -364,8 +364,8 @@ xy:Point2D = 0.0 0.0
     struct var_node* var2 = *(struct var_node**)array_back(&type->body->nodes); 
     ASSERT_EQ(VAR_NODE, var1->base.node_type);
     ASSERT_EQ(VAR_NODE, var2->base.node_type);
-    ASSERT_STREQ("x", string_get(&var1->var_name));
-    ASSERT_STREQ("y", string_get(&var2->var_name));
+    ASSERT_STREQ("x", string_get(var1->var_name));
+    ASSERT_STREQ("y", string_get(var2->var_name));
     parser_free(parser);
 }
 
@@ -384,7 +384,7 @@ xy.x
     node = *(exp_node**)array_get(&block->nodes, 1);
     ASSERT_EQ(VAR_NODE, node->node_type);
     struct var_node* var = (struct var_node*)node;
-    ASSERT_STREQ("xy", string_get(&var->var_name));
+    ASSERT_STREQ("xy", string_get(var->var_name));
     ASSERT_STREQ("Point2D", string_get(var->base.annotation));
     ASSERT_EQ(TYPE_EXT, var->base.annotated_type->type);
     node = *(exp_node**)array_get(&block->nodes, 2);

@@ -330,7 +330,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
         for (size_t i = 0; i < array_size(&args); i++) {
             struct ident_node* id = *(struct ident_node**)array_get(&args, i);
             fun_param.base.annotated_type = id->base.annotated_type;
-            string_copy(&fun_param.var_name, id->name);
+            fun_param.var_name = id->name;
             array_push(&fun_params, &fun_param);
         }
         if (is_operator) {
@@ -616,7 +616,7 @@ struct exp_node* _parse_prototype(struct parser* parser, struct exp_node* parent
     struct var_node fun_param;
     struct op_type optype;
     while (parser->curr_token.token_type == TOKEN_IDENT) {
-        string_copy(&fun_param.var_name, parser->curr_token.str_val);
+        fun_param.var_name = to_symbol(string_get(parser->curr_token.str_val));
         parse_next_token(parser);
         optype = _parse_op_type(parser, parser->curr_token.loc);
         fun_param.base.annotated_type = 0;
