@@ -395,7 +395,7 @@ LLVMValueRef _generate_ident_node(struct code_generator* cg, struct exp_node* no
         sprintf(tempname, "temp%d", index);
         v = LLVMBuildStructGEP(cg->builder, v, index, tempname);
     }
-    return LLVMBuildLoad(cg->builder, v, string_get(&ident->name));
+    return LLVMBuildLoad(cg->builder, v, string_get(ident->name));
 }
 
 LLVMValueRef _generate_unary_node(struct code_generator* cg, struct exp_node* node)

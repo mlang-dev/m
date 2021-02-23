@@ -330,7 +330,7 @@ struct exp_node* _parse_function_app_or_def(struct parser* parser, struct exp_no
         for (size_t i = 0; i < array_size(&args); i++) {
             struct ident_node* id = *(struct ident_node**)array_get(&args, i);
             fun_param.base.annotated_type = id->base.annotated_type;
-            string_copy(&fun_param.var_name, &id->name);
+            string_copy(&fun_param.var_name, id->name);
             array_push(&fun_params, &fun_param);
         }
         if (is_operator) {

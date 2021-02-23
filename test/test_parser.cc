@@ -390,7 +390,7 @@ xy.x
     node = *(exp_node**)array_get(&block->nodes, 2);
     ASSERT_EQ(IDENT_NODE, node->node_type);
     struct ident_node* id_node = (struct ident_node*)node;
-    ASSERT_STREQ("xy.x", string_get(&id_node->name));
+    ASSERT_STREQ("xy.x", string_get(id_node->name));
     ASSERT_EQ(2, array_size(&id_node->member_accessors));
     ASSERT_STREQ("xy", string_get((string*)array_front(&id_node->member_accessors)));
     ASSERT_STREQ("x", string_get((string*)array_back(&id_node->member_accessors)));

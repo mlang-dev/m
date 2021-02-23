@@ -458,7 +458,7 @@ xy.x
     node = *(exp_node**)array_get(&block->nodes, 2);
     ASSERT_EQ(IDENT_NODE, node->node_type);
     struct ident_node* id_node = (struct ident_node*)node;
-    ASSERT_STREQ("xy.x", string_get(&id_node->name));
+    ASSERT_STREQ("xy.x", string_get(id_node->name));
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
     env_free(env);

@@ -81,7 +81,7 @@ struct literal_node {
 
 struct ident_node {
     struct exp_node base;
-    string name;
+    symbol name;
      /*if id is x.y, x is variable of object, y is member of the object*/
     struct array member_accessors;
 };

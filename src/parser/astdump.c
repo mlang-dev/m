@@ -148,7 +148,7 @@ string _dump_id(struct ident_node* idnode)
 {
     string str_id;
     string_init_chars(&str_id, "id: ");
-    string_add(&str_id, &idnode->name);
+    string_add(&str_id, idnode->name);
     return str_id;
 }
 
