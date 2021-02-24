@@ -145,7 +145,7 @@ TEST(testAnalyzer, testIdentityFunc)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("id", string_get(&node->prototype->name));
+    ASSERT_STREQ("id", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -163,7 +163,7 @@ TEST(testAnalyzer, testIntIntFunc)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("f", string_get(&node->prototype->name));
+    ASSERT_STREQ("f", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -181,7 +181,7 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("f", string_get(&node->prototype->name));
+    ASSERT_STREQ("f", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -199,7 +199,7 @@ TEST(testAnalyzer, testBoolFunc)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("f", string_get(&node->prototype->name));
+    ASSERT_STREQ("f", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -217,7 +217,7 @@ TEST(testAnalyzer, testMultiParamFunc)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("avg", string_get(&node->prototype->name));
+    ASSERT_STREQ("avg", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -239,7 +239,7 @@ factorial n =
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("factorial", string_get(&node->prototype->name));
+    ASSERT_STREQ("factorial", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -262,7 +262,7 @@ loopprint n =
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("loopprint", string_get(&node->prototype->name));
+    ASSERT_STREQ("loopprint", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -292,7 +292,7 @@ distance x1 y1 x2 y2 =
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("distance", string_get(&node->prototype->name));
+    ASSERT_STREQ("distance", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -315,7 +315,7 @@ to_string () =
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("to_string", string_get(&node->prototype->name));
+    ASSERT_STREQ("to_string", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -335,7 +335,7 @@ var_func ... = 0
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("var_func", string_get(&node->prototype->name));
+    ASSERT_STREQ("var_func", string_get(node->prototype->name));
     ASSERT_EQ(true, node->prototype->is_variadic);
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
@@ -388,7 +388,7 @@ TEST(testAnalyzer, testFunctionTypeAnnotation)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("print", string_get(&node->prototype->name));
+    ASSERT_STREQ("print", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -408,7 +408,7 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithParentheses)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("prt", string_get(&node->prototype->name));
+    ASSERT_STREQ("prt", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
@@ -428,7 +428,7 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
     analyze_and_generate_code(env, (exp_node*)block);
     auto node = *(function_node**)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("prt", string_get(&node->prototype->name));
+    ASSERT_STREQ("prt", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
     auto var = (type_oper*)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);

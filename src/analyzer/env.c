@@ -60,10 +60,10 @@ struct env* env_new(bool is_repl)
         assert(node->node_type == PROTOTYPE_NODE);
         struct prototype_node* proto = (struct prototype_node*)node;
         analyze(env, node);
-        _set_builtin(env, string_get(&proto->name), proto->base.type);
-        hashtable_set(&env->builtin_venv, string_get(&proto->name), node);
+        _set_builtin(env, string_get(proto->name), proto->base.type);
+        hashtable_set(&env->builtin_venv, string_get(proto->name), node);
         //string type = to_string(proto->base.type);
-        //printf("parsed builtins: %s, %s\n", string_get(&proto->name), string_get(&type));
+        //printf("parsed builtins: %s, %s\n", string_get(proto->name), string_get(&type));
     }
     return env;
 }

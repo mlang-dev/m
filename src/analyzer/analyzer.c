@@ -83,7 +83,7 @@ struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
         }else{
             assert(type);
             struct type_oper* oper = (struct type_oper*)type;
-            struct type_node* type_node = (struct type_node*)hashtable_get(&env->venv, string_get(&oper->base.name));
+            struct type_node* type_node = (struct type_node*)hashtable_get(&env->venv, string_get(oper->base.name));
             int index = find_member_index(type_node, string_get(id));
             if (index < 0){
                 _log_err(env, node->loc, "%s member not matched.");
@@ -141,10 +141,10 @@ struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
         array_push(&args, &arg);
     }
     struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
-    assert(string_eq(&type->name, &result_type->name));
-    set(env, string_get(&type->name), result_type);
-    //printf("set type name: %s\n", string_get(&type->name));
-    hashtable_set(&env->venv, string_get(&type->name), node);
+    assert(string_eq(type->name, result_type->name));
+    set(env, string_get(type->name), result_type);
+    //printf("set type name: %s\n", string_get(type->name));
+    hashtable_set(&env->venv, string_get(type->name), node);
     return result_type;
 }
 
@@ -195,7 +195,7 @@ struct type_exp* _analyze_fun(struct env* env, struct exp_node* node)
         set(env, string_get(param->var_name), exp);
     }
     struct type_exp* fun_type = (struct type_exp*)create_type_var();
-    set(env, string_get(&fun->prototype->name), fun_type);
+    set(env, string_get(fun->prototype->name), fun_type);
     struct type_exp* ret_type = analyze(env, (struct exp_node*)fun->body);
     array_push(&fun_sig, &ret_type);
     struct type_exp* result_type = (struct type_exp*)create_type_fun(&fun_sig);
@@ -203,7 +203,7 @@ struct type_exp* _analyze_fun(struct env* env, struct exp_node* node)
     struct type_exp* result = prune(fun_type);
     fun->prototype->base.type = result;
     if(is_generic(result)){
-        hashtable_set(&env->generic_venv, string_get(&fun->prototype->name), node);
+        hashtable_set(&env->generic_venv, string_get(fun->prototype->name), node);
     }
     return result;
 }
@@ -211,11 +211,11 @@ struct type_exp* _analyze_fun(struct env* env, struct exp_node* node)
 struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
 {
     struct call_node* call = (struct call_node*)node;
-    struct type_exp* fun_type = retrieve(env, string_get(&call->callee));
+    struct type_exp* fun_type = retrieve(env, string_get(call->callee));
     if (!fun_type){
         struct source_loc loc = {1, 1};
         string error;
-        string_copy(&error, &call->callee);
+        string_copy(&error, call->callee);
         string_add_chars(&error, " not defined");
         _log_err(env, loc, string_get(&error));
         string_deinit(&error);
@@ -231,27 +231,28 @@ struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
     /*monomorphization of generic*/
     struct exp_node* specialized_node = 0;
     if(is_generic(fun_type)&&(!is_any_generic(&args)&&array_size(&args))&&!is_recursive(call)){
-        call->specialized_callee = monomorphize(string_get(&call->callee), &args);
-        if(has_type(&env->tenv, string_get(&call->specialized_callee))){
-            fun_type = retrieve(env, string_get(&call->specialized_callee));
+        string sp_callee = monomorphize(string_get(call->callee), &args);
+        call->specialized_callee = to_symbol(string_get(&sp_callee));
+        if(has_type(&env->tenv, string_get(call->specialized_callee))){
+            fun_type = retrieve(env, string_get(call->specialized_callee));
             struct type_oper* fun_op = (struct type_oper*)fun_type;
             return *(struct type_exp**)array_back(&fun_op->args);
         }
         /*specialized callee*/
-        struct exp_node* generic_fun = (struct exp_node*)hashtable_get(&env->generic_venv, string_get(&call->callee));
+        struct exp_node* generic_fun = (struct exp_node*)hashtable_get(&env->generic_venv, string_get(call->callee));
         struct function_node* sp_fun = (struct function_node*)node_copy(generic_fun);
         sp_fun->prototype->name = call->specialized_callee;
         fun_type = analyze_and_generate_code(env, (struct exp_node*)sp_fun);
-        hashtable_set(&env->cg->specialized_nodes, string_get(&sp_fun->prototype->name), sp_fun);
-        set(env, string_get(&call->specialized_callee), fun_type);
+        hashtable_set(&env->cg->specialized_nodes, string_get(sp_fun->prototype->name), sp_fun);
+        set(env, string_get(call->specialized_callee), fun_type);
         specialized_node = (struct exp_node*)sp_fun;
     }
     struct type_exp* result_type = (struct type_exp*)create_type_var();
     array_push(&args, &result_type);
     struct type_exp* call_fun = (struct type_exp*)create_type_fun(&args);
     unify(call_fun, fun_type, &env->nongens);
-    if(is_builtin(env, string_get(&call->callee))){
-        array_push(&env->ref_builtin_names, &call->callee);
+    if(is_builtin(env, string_get(call->callee))){
+        array_push(&env->ref_builtin_names, call->callee);
     }
     if(specialized_node){
         generate_code(env->cg, specialized_node);
@@ -309,7 +310,7 @@ struct type_exp* _analyze_for(struct env* env, struct exp_node* node)
     struct for_node* for_node = (struct for_node*)node;
     struct type_exp* int_type = (struct type_exp*)create_nullary_type(TYPE_INT);
     struct type_exp* bool_type = (struct type_exp*)create_nullary_type(TYPE_BOOL);
-    set(env, string_get(&for_node->var_name), int_type);
+    set(env, string_get(for_node->var_name), int_type);
     struct type_exp* start_type = analyze(env, for_node->start);
     struct type_exp* step_type = analyze(env, for_node->step);
     struct type_exp* end_type = analyze(env, for_node->end);

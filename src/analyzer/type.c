@@ -29,7 +29,7 @@ const char* const type_strings[] = {
     "*",
 };
 
-struct type_var* _create_type_var(string name)
+struct type_var* _create_type_var(symbol name)
 {
     struct type_var* var = malloc(sizeof(*var));
     var->base.kind = KIND_VAR;
@@ -42,7 +42,8 @@ struct type_var* _create_type_var(string name)
 struct type_var* create_type_var()
 {
     string name = get_id_name();
-    return _create_type_var(name);
+    symbol type_name = to_symbol(string_get(&name));
+    return _create_type_var(type_name);
 }
 
 struct type_var* copy_type_var(struct type_var* var)
@@ -63,7 +64,7 @@ struct type_oper* create_type_oper(enum type type, struct array* args)
     return oper;
 }
 
-struct type_oper* create_type_oper_ext(string type_name, struct array* args)
+struct type_oper* create_type_oper_ext(symbol type_name, struct array* args)
 {
     struct type_oper* oper = malloc(sizeof(*oper));
     oper->base.kind = KIND_OPER;
@@ -279,8 +280,10 @@ string to_string(struct type_exp* type)
         struct type_var* var = (struct type_var*)type;
         if (var->instance) {
             return to_string(var->instance);
-        } else
-            return var->base.name;
+        } else {
+            string_copy(&typestr, var->base.name);
+            return typestr;
+        }
     } else if (type->kind == KIND_OPER) {
         struct type_oper* oper = (struct type_oper*)type;
         if (array_size(&oper->args) == 0) { /* nullary operator, e.g. builtin types: int, double*/
@@ -288,7 +291,8 @@ string to_string(struct type_exp* type)
             return typestr;
         }
         else if (oper->base.type == TYPE_EXT) {
-            return oper->base.name;
+            string_copy(&typestr, oper->base.name);
+            return typestr;
         } else {
             ARRAY_STRING(array_type_strs);
             for (size_t i = 0; i < array_size(&oper->args); i++) {

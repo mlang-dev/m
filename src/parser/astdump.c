@@ -27,7 +27,7 @@ string _dump_prototype(struct prototype_node* proto)
     string_init(&result);
     if(proto->is_extern)
         string_add_chars(&result, "extern ");
-    string_add_chars(&result, string_get(&proto->name));
+    string_add_chars(&result, string_get(proto->name));
     ARRAY_STRING(args);
     string var_str;
     string_init(&var_str);
@@ -107,7 +107,7 @@ string _dump_call(struct call_node* call)
     }
     string args_str = string_join(&args, " ");
     string result;
-    string_init_chars(&result, string_get(&call->callee));
+    string_init_chars(&result, string_get(call->callee));
     string_add_chars(&result, " ");
     string_add(&result, &args_str);
     return result;
@@ -134,7 +134,7 @@ string _dump_for(struct for_node* fornode)
 {
     string result;
     string_init_chars(&result, "for ");
-    string_add(&result, &fornode->var_name);
+    string_add(&result, fornode->var_name);
     string_add_chars(&result, " in ");
     string str_start = dump(fornode->start);
     string str_end = dump(fornode->end);

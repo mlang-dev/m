@@ -11,6 +11,7 @@
 #include "clib/hashtable.h"
 #include "clib/string.h"
 #include "clib/util.h"
+#include "clib/symbol.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +47,7 @@ extern const char* kind_strings[];
 struct type_exp {
     enum kind kind; //type variable or type operator
     enum type type;
-    string name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
+    symbol name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 };
 
 struct type_var {
@@ -62,7 +63,7 @@ struct type_oper {
 
 struct type_var* create_type_var();
 struct type_oper* create_type_oper(enum type type, struct array* args);
-struct type_oper* create_type_oper_ext(string type_name, struct array* args);
+struct type_oper* create_type_oper_ext(symbol type_name, struct array* args);
 struct type_oper* create_nullary_type(enum type type);
 struct type_oper* create_type_fun(struct array* args);
 void type_exp_free(struct type_exp* type);

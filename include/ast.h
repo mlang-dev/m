@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 
-#include "clib/string.h"
 #include "clib/symbol.h"
 #include "clib/util.h"
 #include "lexer.h"
@@ -111,21 +110,21 @@ struct condition_node {
 
 struct for_node {
     struct exp_node base;
-    string var_name;
+    symbol var_name;
     struct exp_node *start, *end, *step, *body;
 };
 
 struct call_node {
     struct exp_node base;
-    string callee;
-    string specialized_callee;
+    symbol callee;
+    symbol specialized_callee;
     struct array args; //args: struct array of exp_node*
 };
 
 struct type_node {
     struct exp_node base;
     struct block_node* body; 
-    string name;  /*type name*/
+    symbol name;  /*type name*/
 };
 
 
@@ -138,7 +137,7 @@ struct type_value_node {
 
 struct prototype_node {
     struct exp_node base;
-    string name;
+    symbol name;
     symbol op;
     struct array fun_params; /*struct array of var_node*/
     char is_operator;
@@ -170,7 +169,7 @@ struct literal_node* bool_node_new(struct exp_node* parent, struct source_loc lo
 struct literal_node* char_node_new(struct exp_node* parent, struct source_loc loc, char val);
 struct literal_node* unit_node_new(struct exp_node* parent, struct source_loc loc);
 struct literal_node* string_node_new(struct exp_node* parent, struct source_loc loc, const char* val);
-struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, string* ext_type, struct exp_node* init_value);
+struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, symbol ext_type, struct exp_node* init_value);
 struct call_node* call_node_new(struct exp_node* parent, struct source_loc loc, const char* callee,
     struct array* args);
 struct prototype_node* prototype_node_new(struct exp_node* parent, struct source_loc loc,
@@ -181,7 +180,7 @@ struct prototype_node* prototype_node_new(struct exp_node* parent, struct source
     unsigned precedence,
     const char* op,
     bool is_variadic, bool is_external);
-struct type_node* type_node_new(struct exp_node* parent, struct source_loc loc, string name, struct block_node* body);
+struct type_node* type_node_new(struct exp_node* parent, struct source_loc loc, symbol name, struct block_node* body);
 struct type_value_node* type_value_node_new(struct exp_node* parent, struct source_loc loc, struct block_node* body);
 struct prototype_node* prototype_node_default_new(struct exp_node* parent, struct source_loc loc,
     const char* name,

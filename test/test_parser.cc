@@ -118,7 +118,7 @@ f 10
     auto node = *(function_node**)array_front(&block->nodes);
     auto body_node = *(exp_node**)array_front(&node->body->nodes);
     ASSERT_EQ(2, array_size(&block->nodes));
-    ASSERT_STREQ("f", string_get(&node->prototype->name));
+    ASSERT_STREQ("f", string_get(node->prototype->name));
     ASSERT_EQ(IDENT_NODE, body_node->node_type);
     parser_free(parser);
 }
@@ -131,7 +131,7 @@ TEST_F(testParser, testBlockBinaryFunction)
     auto node = *(function_node**)array_front(&block->nodes);
     auto body_node = *(exp_node**)array_front(&node->body->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("f", string_get(&node->prototype->name));
+    ASSERT_STREQ("f", string_get(node->prototype->name));
     ASSERT_EQ(BINARY_NODE, body_node->node_type);
     parser_free(parser);
 }
@@ -144,7 +144,7 @@ TEST_F(testParser, testBlockBinaryFunctionName)
     auto node = *(function_node**)array_front(&block->nodes);
     auto body_node = *(exp_node**)array_front(&node->body->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("f_sq", string_get(&node->prototype->name));
+    ASSERT_STREQ("f_sq", string_get(node->prototype->name));
     ASSERT_EQ(BINARY_NODE, body_node->node_type);
     parser_free(parser);
 }
@@ -159,7 +159,7 @@ TEST_F(testParser, testFacIfCondition)
     auto node = *(function_node**)array_front(&block->nodes);
     auto body_node = *(exp_node**)array_front(&node->body->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("fac", string_get(&node->prototype->name));
+    ASSERT_STREQ("fac", string_get(node->prototype->name));
     ASSERT_EQ(CONDITION_NODE, body_node->node_type);
     parser_free(parser);
 }
@@ -175,7 +175,7 @@ TEST_F(testParser, testForLoop)
     auto node = *(function_node**)array_front(&block->nodes);
     for_node* body_node = *(for_node**)array_front(&node->body->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("loopprint", string_get(&node->prototype->name));
+    ASSERT_STREQ("loopprint", string_get(node->prototype->name));
     ASSERT_EQ(FOR_NODE, body_node->base.node_type);
     ASSERT_EQ(TYPE_INT, body_node->start->annotated_type->type);
     ASSERT_EQ(TYPE_INT, body_node->step->annotated_type->type);
@@ -196,7 +196,7 @@ TEST_F(testParser, testVariableInFunction)
     auto node = *(function_node**)array_front(&block->nodes);
     auto body = *(exp_node**)array_front(&node->body->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("distance", string_get(&node->prototype->name));
+    ASSERT_STREQ("distance", string_get(node->prototype->name));
     ASSERT_EQ(VAR_NODE, body->node_type);
     parser_free(parser);
 }
@@ -210,7 +210,7 @@ avg x y = (x + y) / 2
     block_node* block = parse_string(parser, "test", test_code);
     auto func = *(function_node**)array_front(&block->nodes);
     auto body_node = *(exp_node**)array_front(&func->body->nodes);
-    ASSERT_STREQ("avg", string_get(&func->prototype->name));
+    ASSERT_STREQ("avg", string_get(func->prototype->name));
     ASSERT_STREQ("BINARY_NODE", node_type_strings[body_node->node_type]);
     parser_free(parser);
 }
@@ -224,7 +224,7 @@ TEST_F(testParser, testUnaryOperatorOverloadFunction)
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(FUNCTION_NODE, node->node_type);
     function_node* func = (function_node*)node;
-    ASSERT_STREQ("unary|>", string_get(&func->prototype->name));
+    ASSERT_STREQ("unary|>", string_get(func->prototype->name));
     parser_free(parser);
 }
 
@@ -236,7 +236,7 @@ TEST_F(testParser, testSimpleUnaryOperatorOverloadFunction)
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_EQ(FUNCTION_NODE, node->node_type);
     function_node* func = (function_node*)node;
-    ASSERT_STREQ("unary|>", string_get(&func->prototype->name));
+    ASSERT_STREQ("unary|>", string_get(func->prototype->name));
     parser_free(parser);
 }
 
@@ -248,7 +248,7 @@ TEST_F(testParser, testSimpleBinaryOperatorOverloadFunction)
     auto node = *(exp_node**)array_front(&block->nodes);
     ASSERT_STREQ("FUNCTION_NODE", node_type_strings[node->node_type]);
     function_node* func = (function_node*)node;
-    ASSERT_STREQ("binary|>", string_get(&func->prototype->name));
+    ASSERT_STREQ("binary|>", string_get(func->prototype->name));
     parser_free(parser);
 }
 
@@ -289,7 +289,7 @@ to_string () =
     ASSERT_EQ(FUNCTION_NODE, node->node_type);
     function_node* fun = (function_node*)node;
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("to_string", string_get(&fun->prototype->name));
+    ASSERT_STREQ("to_string", string_get(fun->prototype->name));
     parser_free(parser);
 }
 
@@ -302,7 +302,7 @@ TEST_F(testParser, testPrototypeNode)
     ASSERT_EQ(PROTOTYPE_NODE, node->node_type);
     prototype_node* proto = (prototype_node*)node;
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("printf", string_get(&proto->name));
+    ASSERT_STREQ("printf", string_get(proto->name));
     parser_free(parser);
 }
 
@@ -316,7 +316,7 @@ TEST_F(testParser, testPrototypeNodeEmptyArg)
     prototype_node* proto = (prototype_node*)node;
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(0, array_size(&proto->fun_params));
-    ASSERT_STREQ("print", string_get(&proto->name));
+    ASSERT_STREQ("print", string_get(proto->name));
     string proto_type = to_string(proto->base.annotated_type);
     ASSERT_STREQ("int", string_get(&proto_type));
     parser_free(parser);
@@ -335,7 +335,7 @@ type Point2D =
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(TYPE_NODE, node->node_type);
     type_node* type = (type_node*)node;
-    ASSERT_STREQ("Point2D", string_get(&type->name));
+    ASSERT_STREQ("Point2D", string_get(type->name));
     ASSERT_EQ(2, array_size(&type->body->nodes));
     struct var_node* var1 = *(struct var_node**)array_front(&type->body->nodes);
     struct var_node* var2 = *(struct var_node**)array_back(&type->body->nodes); 
@@ -358,7 +358,7 @@ xy:Point2D = 0.0 0.0
     ASSERT_EQ(2, array_size(&block->nodes));
     ASSERT_EQ(TYPE_NODE, node->node_type);
     type_node* type = (type_node*)node;
-    ASSERT_STREQ("Point2D", string_get(&type->name));
+    ASSERT_STREQ("Point2D", string_get(type->name));
     ASSERT_EQ(2, array_size(&type->body->nodes));
     struct var_node* var1 = *(struct var_node**)array_front(&type->body->nodes);
     struct var_node* var2 = *(struct var_node**)array_back(&type->body->nodes); 

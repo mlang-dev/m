@@ -27,7 +27,7 @@ bool is_binary_op(struct prototype_node* node)
 char get_op_name(struct prototype_node* node)
 {
     assert(is_unary_op(node) || is_binary_op(node));
-    return string_back(&node->name);
+    return string_back(node->name);
 }
 
 struct type_exp* get_ret_type(struct function_node* fun_node)
@@ -165,7 +165,7 @@ struct literal_node* _copy_literal_node(struct literal_node* orig_node)
     orig_node->base.annotated_type->type);
 }
 
-struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, string* ext_type,
+struct var_node* var_node_new(struct exp_node* parent, struct source_loc loc, const char* var_name, enum type type, symbol ext_type,
  struct exp_node* init_value)
 {
     (void)ext_type;
@@ -196,7 +196,7 @@ void _free_var_node(struct var_node* node)
 }
 
 
-struct type_node* type_node_new(struct exp_node* parent, struct source_loc loc, string name, struct block_node* body)
+struct type_node* type_node_new(struct exp_node* parent, struct source_loc loc, symbol name, struct block_node* body)
 {
     struct type_node* node = malloc(sizeof(*node));
     node->base.node_type = TYPE_NODE;
@@ -212,15 +212,12 @@ struct type_node* type_node_new(struct exp_node* parent, struct source_loc loc, 
 
 struct type_node* _copy_type_node(struct type_node* orig_node)
 {
-    string name;
-    string_copy(&name, &orig_node->name);
     return type_node_new(orig_node->base.parent, orig_node->base.loc, 
-        name, _copy_block_node(orig_node->body));
+        orig_node->name, _copy_block_node(orig_node->body));
 }
 
 void _free_type_node(struct type_node* node)
 {
-    string_deinit(&node->name);
     _free_block_node(node->body);
     _free_exp_node(&node->base);
 }
@@ -260,22 +257,20 @@ struct call_node* call_node_new(struct exp_node* parent, struct source_loc loc, 
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init_chars(&node->callee, callee);
+    node->callee = to_symbol(callee);
     array_copy(&node->args, args);
-    string_init(&node->specialized_callee);
+    node->specialized_callee = NULL;
     return node;
 }
 
 struct call_node* _copy_call_node(struct call_node* orig_node)
 {
-    return call_node_new(orig_node->base.parent, orig_node->base.loc, string_get(&orig_node->callee), 
+    return call_node_new(orig_node->base.parent, orig_node->base.loc, string_get(orig_node->callee), 
     &orig_node->args);
 }
 
 void _free_call_node(struct call_node* node)
 {
-    string_deinit(&node->callee);
-    string_deinit(&node->specialized_callee);
     _free_exp_nodes(&node->args);
     _free_exp_node(&node->base);
 }
@@ -299,7 +294,7 @@ struct prototype_node* prototype_node_new(struct exp_node* parent, struct source
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init_chars(&node->name, name);
+    node->name = to_symbol(name);
     node->fun_params = *args;
     node->is_operator = is_operator;
     node->precedence = precedence;
@@ -326,7 +321,7 @@ struct prototype_node* _copy_prototype_node(struct prototype_node* proto)
     node->base.type = 0;
     node->base.parent = proto->base.parent;
     node->base.loc = proto->base.loc;
-    string_init_chars(&node->name, string_get(&proto->name));
+    node->name = proto->name;
     node->fun_params = proto->fun_params;
     node->is_operator = proto->is_operator;
     node->precedence = proto->precedence;
@@ -347,7 +342,6 @@ struct prototype_node* _copy_prototype_node(struct prototype_node* proto)
 
 void _free_prototype_node(struct prototype_node* node)
 {
-    string_deinit(&node->name);
     /*fun_params will be freed in array_deinit*/
     array_deinit(&node->fun_params);
     _free_exp_node(&node->base);
@@ -481,7 +475,7 @@ struct for_node* for_node_new(struct exp_node* parent, struct source_loc loc, co
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
-    string_init_chars(&node->var_name, var_name);
+    node->var_name = to_symbol(var_name);
     node->start = start;
     node->end = end;
     node->step = step;
@@ -492,12 +486,11 @@ struct for_node* for_node_new(struct exp_node* parent, struct source_loc loc, co
 struct for_node* _copy_for_node(struct for_node* orig_node)
 {
     return for_node_new(orig_node->base.parent, orig_node->base.loc, 
-    string_get(&orig_node->var_name), orig_node->start, orig_node->end, orig_node->step, orig_node->body);
+    string_get(orig_node->var_name), orig_node->start, orig_node->end, orig_node->step, orig_node->body);
 }
 
 void _free_for_node(struct for_node* node)
 {
-    string_deinit(&node->var_name);
     if(node->start)
         node_free(node->start);
     if(node->end)
@@ -624,13 +617,13 @@ struct module* module_new(const char* mod_name, FILE* file)
 bool is_recursive(struct call_node* call)
 {
     struct exp_node* parent = call->base.parent;
-    string* fun_name = 0;
+    symbol fun_name = 0;
     while(parent){
         if(parent->node_type == PROTOTYPE_NODE)
-            fun_name = &((struct prototype_node*)parent)->name;
+            fun_name = ((struct prototype_node*)parent)->name;
         else if(parent->node_type == FUNCTION_NODE)
-            fun_name = &((struct function_node*)parent)->prototype->name;
-        if(fun_name && string_eq(fun_name, &call->callee))
+            fun_name = ((struct function_node*)parent)->prototype->name;
+        if(fun_name && string_eq(fun_name, call->callee))
             return true;
         parent = parent->parent;
     }

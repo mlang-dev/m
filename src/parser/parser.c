@@ -718,8 +718,7 @@ struct exp_node* _parse_type(struct parser* parser, struct exp_node* parent)
 {
     struct source_loc loc = parser->curr_token.loc;
     parse_next_token(parser);/*eat type keyword*/
-    string name;
-    string_copy(&name, parser->curr_token.str_val);
+    symbol name = to_symbol(string_get(parser->curr_token.str_val));
     parser->id_is_var_decl = true;
     parse_next_token(parser);/*pointing to '='*/
     assert(parser->curr_token.token_type == TOKEN_OP && string_eq_chars(parser->curr_token.str_val, "="));
@@ -729,8 +728,8 @@ struct exp_node* _parse_type(struct parser* parser, struct exp_node* parent)
     type->body = body;
     assert(body);
     parser->id_is_var_decl = false;
-    hashtable_set_int(&parser->types, string_get(&name), TYPE_EXT);
-    hashtable_set(&parser->ext_types, string_get(&name), type);
+    hashtable_set_int(&parser->types, string_get(name), TYPE_EXT);
+    hashtable_set(&parser->ext_types, string_get(name), type);
     return (struct exp_node*)type;
 }
 
