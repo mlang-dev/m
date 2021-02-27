@@ -1,8 +1,10 @@
 ---
-layout: default
+layout: page
+title: Code
+permalink: /code/
 ---
 
-## m syntax
+## m code snipts
 ```
 # comment line: defines a one-line function
 avg x y = (x + y) / 2

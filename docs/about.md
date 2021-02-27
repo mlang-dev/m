@@ -1,5 +1,7 @@
 ---
-layout: default
+layout: page
+title: About
+permalink: /about/
 ---
 
 # m
@@ -46,7 +48,8 @@ It is under active development, currently it supports following features
   - binary: ```(|>) x f = f x```
   - unary: ```(!) x = 0 - x```
   
-  ### next development plans:
+
+# next development plans
 - debug support
 - operators
   - binary operator: **
