@@ -10,3 +10,4 @@ extern/
 *.o
 *.a
 *.bc
+*.lock
