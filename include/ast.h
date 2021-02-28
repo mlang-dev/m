@@ -127,7 +127,6 @@ struct type_node {
     symbol name;  /*type name*/
 };
 
-
 struct type_value_node {
     struct exp_node base;
     struct block_node* body; /**/

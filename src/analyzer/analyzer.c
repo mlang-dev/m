@@ -143,7 +143,7 @@ struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
     struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
     assert(string_eq(type->name, result_type->name));
     set(env, string_get(type->name), result_type);
-    //printf("set type name: %s\n", string_get(type->name));
+    printf("set type name: %s\n", string_get(type->name));
     hashtable_set(&env->venv, string_get(type->name), node);
     return result_type;
 }
