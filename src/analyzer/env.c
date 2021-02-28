@@ -31,8 +31,9 @@ struct env* env_new(bool is_repl)
     env->cg = cg_new(env->parser);
     symbols_init();
     hashtable_init(&env->tenv);
-    hashtable_init(&env->builtin_tenv);
     hashtable_init(&env->venv);
+    hashtable_init(&env->builtin_tenv);
+    hashtable_init(&env->ext_type_env);
     hashtable_init(&env->builtin_venv);
     hashtable_init(&env->generic_venv);
     struct array args;
@@ -70,15 +71,11 @@ struct env* env_new(bool is_repl)
 
 void env_free(struct env* env)
 {
-    // for (int i = 0; i < env->tenv.buckets.cap; i++) {
-    //     hashbox* box = (hashbox*)array_get(&env->tenv.buckets, i);
-    //     if (box->status)
-    //         type_exp_free(*(struct type_exp**)hashbox_get_value(box));
-    // }
-    hashtable_deinit(&env->venv);
+    hashtable_deinit(&env->ext_type_env);
     hashtable_deinit(&env->generic_venv);
     hashtable_deinit(&env->builtin_venv);
     hashtable_deinit(&env->builtin_tenv);
+    hashtable_deinit(&env->venv);
     hashtable_deinit(&env->tenv);
     symbols_deinit();
     array_deinit(&env->ref_builtin_names);

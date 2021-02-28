@@ -525,6 +525,6 @@ z = getx()
     ASSERT_STREQ("Point2D", string_get(&type_str));
 
     /*verify variable xy in inner function is out of scope*/
-    //ASSERT_EQ(0, hashtable_get(&env->tenv, "xy"));
+    //ASSERT_EQ(0, hashtable_get(&env->venv, "xy"));
     env_free(env);
 }

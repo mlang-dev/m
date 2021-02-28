@@ -49,21 +49,27 @@ struct type_exp* _analyze_unk(struct env* env, struct exp_node* node)
     return 0;
 }
 
-struct type_exp* retrieve(struct env* env, const char* name)
+struct type_exp* retrieve_ext_type(struct env* env, const char* name)
 {
     struct type_exp* type = retrieve_type(name, &env->nongens, &env->tenv);
     return type? type : retrieve_type(name, &env->nongens, &env->builtin_tenv);
 }
 
+struct type_exp* retrieve(struct env* env, const char* name)
+{
+    struct type_exp* type = retrieve_type(name, &env->nongens, &env->venv);
+    return type? type : retrieve_type(name, &env->nongens, &env->builtin_tenv);
+}
+
 void set(struct env* env, const char* name, struct type_exp* type)
 {
-    //printf("set type name with type_exp: %s\n", name);
-    set_type(&env->tenv, name, type);
+    //printf("set type name with type_exp: %s, %p\n", name, type);
+    set_type(&env->venv, name, type);
 }
 
 bool has(struct env* env, const char* name)
 {
-    return has_type(&env->tenv, name);
+    return has_type(&env->venv, name);
 }
 
 
@@ -83,7 +89,7 @@ struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
         }else{
             assert(type);
             struct type_oper* oper = (struct type_oper*)type;
-            struct type_node* type_node = (struct type_node*)hashtable_get(&env->venv, string_get(oper->base.name));
+            struct type_node* type_node = (struct type_node*)hashtable_get(&env->ext_type_env, string_get(oper->base.name));
             int index = find_member_index(type_node, string_get(id));
             if (index < 0){
                 _log_err(env, node->loc, "%s member not matched.");
@@ -107,7 +113,7 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
     assert(var->base.annotated_type || var->init_value);
     if(var->base.annotated_type&&var->base.annotated_type->type == TYPE_EXT){
         assert(var->base.annotation);
-        type = retrieve(env, string_get(var->base.annotation));
+        type = retrieve_ext_type(env, string_get(var->base.annotation));
         set(env, string_get(var->var_name), type);
         analyze_and_generate_code(env, var->init_value);
         return type;
@@ -142,9 +148,8 @@ struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
     }
     struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
     assert(string_eq(type->name, result_type->name));
-    set(env, string_get(type->name), result_type);
-    printf("set type name: %s\n", string_get(type->name));
-    hashtable_set(&env->venv, string_get(type->name), node);
+    set_type(&env->tenv, string_get(type->name), result_type);
+    hashtable_set(&env->ext_type_env, string_get(type->name), node);
     return result_type;
 }
 
@@ -233,7 +238,7 @@ struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
     if(is_generic(fun_type)&&(!is_any_generic(&args)&&array_size(&args))&&!is_recursive(call)){
         string sp_callee = monomorphize(string_get(call->callee), &args);
         call->specialized_callee = to_symbol(string_get(&sp_callee));
-        if(has_type(&env->tenv, string_get(call->specialized_callee))){
+        if(has_type(&env->venv, string_get(call->specialized_callee))){
             fun_type = retrieve(env, string_get(call->specialized_callee));
             struct type_oper* fun_op = (struct type_oper*)fun_type;
             return *(struct type_exp**)array_back(&fun_op->args);

@@ -19,8 +19,20 @@ extern "C" {
 #endif
 
 struct env {
-    struct hashtable tenv; //type env: hashtable of <string, struct type_exp, right now including types and values*>
-    struct hashtable venv;  /*value env: hashtable of <string, struct exp_node*> */
+    /* value type env: hashtable of <string, struct type_exp>*>
+     * binding variable name to type expression
+     */
+    struct hashtable venv; 
+
+    /* type env: hashtable of <string, struct type_exp>*>
+     * binding type name to type expression
+     */
+    struct hashtable tenv;
+
+    /*new type env: hashtable of <string, struct exp_node （type_node)*> 
+     * example: type Point2D = x:int y:int
+     */
+    struct hashtable ext_type_env;  
 
     struct hashtable builtin_tenv; /*builtin types: symbol to type_exp* map. right now including types and values*/
     struct hashtable builtin_venv; /*builtin values: symbol to type_exp*, only used for codegen right now*/
