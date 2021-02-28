@@ -93,5 +93,10 @@
         "future": "cpp",
         "symboltable.h": "c"
     },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/extern/*/**": true
+    },
     "cmake.configureOnOpen": false
 }
