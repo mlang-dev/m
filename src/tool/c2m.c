@@ -11,6 +11,8 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
+#include "clib/symbol.h"
+
 #include "cmodule.h"
 #include "astdump.h"
 
@@ -21,6 +23,7 @@ int main(int argc, char* argv[])
 {
     int option;
     printf("c2m - 0.0.16\n");
+    symbols_init();
     struct array src_files;
     array_init(&src_files, sizeof(char*));
     char* input_folder = 0;
@@ -67,5 +70,6 @@ int main(int argc, char* argv[])
         }
     }
     array_deinit(&src_files);
+    symbols_deinit();
     return result;
 }

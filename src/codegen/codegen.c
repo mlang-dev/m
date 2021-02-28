@@ -595,7 +595,7 @@ LLVMValueRef _generate_condition_node(struct code_generator* cg, struct exp_node
     return phi_node;
 }
 
-LLVMValueRef _get_zero_value_ext_type(struct code_generator* cg, struct type_oper* type_ext)
+LLVMValueRef _get_zero_value_ext_type(struct code_generator* cg, LLVMTypeRef type, struct type_oper* type_ext)
 {
     size_t element_count = array_size(&type_ext->args);
     LLVMValueRef* values = malloc(element_count * sizeof(LLVMValueRef));
@@ -604,7 +604,7 @@ LLVMValueRef _get_zero_value_ext_type(struct code_generator* cg, struct type_ope
         //values[i] = LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0 * (i+1));
         values[i] = cg->ops[type].get_zero(cg->context, cg->builder);
     }
-    LLVMValueRef value = LLVMConstStructInContext(cg->context, values, element_count, false);
+    LLVMValueRef value = LLVMConstNamedStruct(type, values, element_count);
     free(values);
     return value;
 }
@@ -624,7 +624,7 @@ LLVMValueRef _generate_global_var_type_node(struct code_generator* cg, struct va
         } else {
             hashtable_set(&cg->gvs, var_name, node);
             gVar = LLVMAddGlobal(cg->module, type, var_name);
-            LLVMSetInitializer(gVar, _get_zero_value_ext_type(cg, (struct type_oper*)node->base.type));
+            LLVMSetInitializer(gVar, _get_zero_value_ext_type(cg, type, (struct type_oper*)node->base.type));
         }
     }
     //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
@@ -644,8 +644,9 @@ LLVMValueRef _generate_global_var_type_node(struct code_generator* cg, struct va
 LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_node* node,
     bool is_external)
 {
-    if (node->base.type->type == TYPE_EXT)
+    if (node->base.type->type == TYPE_EXT){
         return _generate_global_var_type_node(cg, node, is_external);
+    }
     const char* var_name = string_get(node->var_name);
     LLVMValueRef gVar = _get_named_global(cg, var_name);//LLVMGetNamedGlobal(cg->module, var_name);
     LLVMValueRef exp = generate_code(cg, node->init_value);
