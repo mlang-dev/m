@@ -6,6 +6,7 @@
  */
 #include "type.h"
 #include "clib/hashtable.h"
+#include "clib/symboltable.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +18,7 @@ const char* kind_strings[] = {
 };
 
 const char* const type_strings[] = {
-    "unkown",
+    "<unkown>",
     "...",
     "()",
     "bool",
@@ -241,24 +242,20 @@ struct type_exp* fresh(struct type_exp* type, struct array* nongens)
     return result;
 }
 
-struct type_exp* retrieve_symbol_type(struct hashtable* env, struct array* nongens, symbol name)
+struct type_exp* get_symbol_type(symboltable* st, struct array* nongens, symbol name)
 {
-    struct type_exp* exp = (struct type_exp*)hashtable_get_p(env, name);
+    struct type_exp* exp = (struct type_exp*)symboltable_get(st, name);
     if (exp) {
         return fresh(exp, nongens);
     }
     return 0;
 }
 
-void set_symbol_type(struct hashtable* env, symbol name, struct type_exp* type)
+void push_symbol_type(symboltable* st, symbol name, struct type_exp* type)
 {
-    hashtable_set_p(env, name, type);
+    symboltable_push(st, name, type);
 }
 
-bool has_type(struct hashtable* env, symbol name)
-{
-    return hashtable_in_p(env, name);
-}
 
 enum type get_type(struct type_exp* type)
 {

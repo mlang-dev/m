@@ -9,7 +9,7 @@
 #ifndef __MLANG_ENV_H__
 #define __MLANG_ENV_H__
 
-#include "clib/hashtable.h"
+#include "clib/symboltable.h"
 #include "clib/array.h"
 #include "codegen.h"
 #include "parser.h"
@@ -20,16 +20,16 @@ extern "C" {
 
 struct env {
     /* 
-     *  value type env: hashtable of <symbol, struct type_exp>*>
+     *  value type env: symboltable of <symbol, struct type_exp>*>
      *  binding variable name to type expression
      */
-    struct hashtable venv; 
+    struct symboltable venv; 
 
     /* 
-     *  type env: hashtable of <symbol, struct type_exp>*>
+     *  type env: symboltable of <symbol, struct type_exp>*>
      *  binding type name to type expression
      */
-    struct hashtable tenv;
+    struct symboltable tenv;
 
     /* 
      *  new type AST def: hashtable of <symbol, struct exp_node （type_node)*> 
@@ -63,6 +63,8 @@ struct env {
 
 struct env* env_new(bool is_repl);
 void env_free(struct env* env);
+void enter_scope(symboltable* st);
+void leave_scope(symboltable* st);
 
 #ifdef __cplusplus
 }

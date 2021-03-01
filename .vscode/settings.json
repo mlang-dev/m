@@ -91,7 +91,8 @@
         "regex": "c",
         "scoped_allocator": "c",
         "future": "cpp",
-        "symboltable.h": "c"
+        "symboltable.h": "c",
+        "hashtable.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

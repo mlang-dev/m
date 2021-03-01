@@ -15,6 +15,21 @@
 #include "clib/hashtable.h"
 #include "analyzer.h"
 
+symbol g_scope_marker = 0;
+
+void enter_scope(symboltable* st)
+{
+    symboltable_push(st, g_scope_marker, 0);
+}
+
+void leave_scope(symboltable* st)
+{
+    symbol s;
+    do {
+        s = symboltable_pop(st);
+        assert(s);
+    } while (s!=g_scope_marker);
+}
 
 struct env* env_new(bool is_repl)
 {
@@ -25,18 +40,19 @@ struct env* env_new(bool is_repl)
     array_init(&env->used_builtin_names, sizeof(symbol));
     env->cg = cg_new(env->parser);
     symbols_init();
-    hashtable_init(&env->tenv);
-    hashtable_init(&env->venv);
+    symboltable_init(&env->tenv);
+    symboltable_init(&env->venv);
     hashtable_init(&env->ext_type_ast);
     hashtable_init(&env->builtin_ast);
     hashtable_init(&env->generic_ast);
+    g_scope_marker = to_symbol("<enter_scope_marker>");
     struct array args;
     array_init(&args, sizeof(struct type_exp*));
     /*nullary type: builtin default types*/
     for (size_t i = 0; i < ARRAY_SIZE(type_strings); i++) {
         struct type_exp* exp = (struct type_exp*)create_type_oper(i, &args);
         symbol type_symbol = to_symbol(type_strings[i]);
-        set_symbol_type(&env->tenv, type_symbol, exp);
+        push_symbol_type(&env->tenv, type_symbol, exp);
     }
     char libpath[PATH_MAX];
     char* mpath = get_exec_path();
@@ -56,7 +72,7 @@ struct env* env_new(bool is_repl)
         assert(node->node_type == PROTOTYPE_NODE);
         struct prototype_node* proto = (struct prototype_node*)node;
         analyze(env, node);
-        set_symbol_type(&env->venv, proto->name, proto->base.type);
+        push_symbol_type(&env->venv, proto->name, proto->base.type);
         hashtable_set_p(&env->builtin_ast, proto->name, node);
         //string type = to_string(proto->base.type);
     }
@@ -68,8 +84,8 @@ void env_free(struct env* env)
     hashtable_deinit(&env->ext_type_ast);
     hashtable_deinit(&env->generic_ast);
     hashtable_deinit(&env->builtin_ast);
-    hashtable_deinit(&env->venv);
-    hashtable_deinit(&env->tenv);
+    symboltable_deinit(&env->venv);
+    symboltable_deinit(&env->tenv);
     symbols_deinit();
     array_deinit(&env->used_builtin_names);
     array_deinit(&env->nongens);

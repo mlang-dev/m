@@ -21,21 +21,53 @@ TEST(testSymboltable, TestSymboltableSameKeyMultipleValues)
     symbols_init();
     symboltable st;
     symboltable_init(&st);
-    symbol symbol = to_symbol("hello");
+    symbol s = to_symbol("hello");
     type_oper* op1 = create_nullary_type(TYPE_INT);
-    symboltable_push(&st, symbol, op1);
-    ASSERT_EQ(op1, symboltable_get(&st, symbol));
+    symboltable_push(&st, s, op1);
+    ASSERT_EQ(op1, symboltable_get(&st, s));
     type_oper* op2 = create_nullary_type(TYPE_DOUBLE);
-    symboltable_push(&st, symbol, op2);
-    ASSERT_EQ(op2, symboltable_get(&st, symbol));
-    symboltable_pop(&st, symbol);
-    ASSERT_EQ(op1, symboltable_get(&st, symbol));
-    symboltable_pop(&st, symbol);
-    ASSERT_EQ(NULL, symboltable_get(&st, symbol));
+    symboltable_push(&st, s, op2);
+    ASSERT_EQ(op2, symboltable_get(&st, s));
+    symbol s1 = symboltable_pop(&st);
+    ASSERT_EQ(s, s1);
+    ASSERT_EQ(op1, symboltable_get(&st, s));
+    symboltable_pop(&st);
+    ASSERT_EQ(NULL, symboltable_get(&st, s));
 
     //over pop, still fine
-    symboltable_pop(&st, symbol);
-    ASSERT_EQ(NULL, symboltable_get(&st, symbol));
+    s1 = symboltable_pop(&st);
+    ASSERT_EQ(NULL, s1);
+    ASSERT_EQ(NULL, symboltable_get(&st, s));
+    symboltable_deinit(&st);
+    type_exp_free((type_exp*)op1);
+    type_exp_free((type_exp*)op2);
+    symbols_deinit();
+}
+
+TEST(testSymboltable, TestSymboltableMultipleKeys)
+{
+    symbols_init();
+    symboltable st;
+    symboltable_init(&st);
+    symbol s1 = to_symbol("hello");
+    type_oper* op1 = create_nullary_type(TYPE_INT);
+    symboltable_push(&st, s1, op1);
+    ASSERT_EQ(op1, symboltable_get(&st, s1));
+    symbol s2 = to_symbol("world");
+    type_oper* op2 = create_nullary_type(TYPE_DOUBLE);
+    symboltable_push(&st, s2, op2);
+    ASSERT_EQ(op1, symboltable_get(&st, s1));
+    ASSERT_EQ(op2, symboltable_get(&st, s2));
+    symbol s = symboltable_pop(&st);
+    ASSERT_EQ(s2, s);
+    ASSERT_EQ(false, has_symbol(&st, s2));
+    s = symboltable_pop(&st);
+    ASSERT_EQ(s1, s);
+    ASSERT_EQ(false, has_symbol(&st, s1));
+    //over pop, still fine
+    s1 = symboltable_pop(&st);
+    ASSERT_EQ(NULL, s1);
+    ASSERT_EQ(NULL, symboltable_get(&st, s));
     symboltable_deinit(&st);
     type_exp_free((type_exp*)op1);
     type_exp_free((type_exp*)op2);

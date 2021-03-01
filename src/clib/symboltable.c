@@ -11,43 +11,80 @@
 #include "clib/symbol.h"
 #include "clib/symboltable.h"
 
-void symboltable_init(symboltable* symbol_table){
-    hashtable_init(symbol_table);
+void symboltable_init(symboltable* st){
+    hashtable_init(&st->ht);
+    st->symbols.first = NULL;
 }
 
-void symboltable_deinit(symboltable* symbol_table){
-    hashtable_deinit(symbol_table);
+void symboltable_deinit(symboltable* st){
+    hashtable_deinit(&st->ht);
 }
 
-void symboltable_push(symboltable* symbol_table, symbol symbol, void* data){
-    struct link_list *ll = hashtable_get_p(symbol_table, symbol);
-    if(!ll){
-        ll = malloc(sizeof(*ll));
-        ll->first = NULL;
-        hashtable_set_p(symbol_table, symbol, ll);
-    }
+void _add_to_head(struct link_list* ll, void* data)
+{
     struct link_list_entry* entry = malloc(sizeof(*entry));
     entry->data = data;
     entry->list.next = NULL;
     list_insert_head(ll, entry, list);
 }
 
-void* symboltable_get(symboltable* symbol_table, symbol symbol){
-    struct link_list* ll = hashtable_get_p(symbol_table, symbol);
+void* _remove_from_head(struct link_list* ll)
+{
+    void* data = 0;
+    if (!ll){
+        return data;
+    }
+    if(ll->first){
+        struct link_list_entry* first = ll->first;
+        data = first->data;
+        list_remove_head(ll, list);
+        free(first);
+    }
+    return data;
+}
+
+void _symboltable_remove(symboltable* st, symbol s)
+{
+    struct link_list* ll = hashtable_get_p(st, s);
+    _remove_from_head(ll);
+}
+
+void symboltable_push(symboltable* st, symbol s, void* data)
+{
+    struct link_list *ll = hashtable_get_p(st, s);
+    if(!ll){
+        ll = malloc(sizeof(*ll));
+        ll->first = NULL;
+        hashtable_set_p(st, s, ll);
+    }
+    _add_to_head(ll, data);
+    /* add the symbol to symbols stack*/
+    _add_to_head(&st->symbols, s);
+    //printf("push symbol: %s\n", string_get(s));
+}
+
+symbol symboltable_pop(symboltable* st)
+{
+    symbol s = _remove_from_head(&st->symbols);
+    if(!s){
+        return s;
+    }
+    _symboltable_remove(st, s);
+    //printf("pop symbol: %s\n", string_get(s));
+    return s;
+}
+
+void* symboltable_get(symboltable* st, symbol s)
+{
+    struct link_list* ll = hashtable_get_p(st, s);
     if (!ll||!ll->first){
         return NULL;
     }
     return ll->first->data;
 }
 
-void symboltable_pop(symboltable* symbol_table, symbol symbol){
-    struct link_list* ll = hashtable_get_p(symbol_table, symbol);
-    if (!ll){
-        return;
-    }
-    if(ll->first){
-        struct link_list_entry* first = ll->first;
-        list_remove_head(ll, list);
-        free(first);
-    }
+bool has_symbol(symboltable* st, symbol s)
+{
+    struct link_list* ll = hashtable_get_p(st, s);
+    return ll && ll->first;
 }

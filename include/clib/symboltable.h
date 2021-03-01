@@ -21,8 +21,6 @@
 extern "C" {
 #endif
 
-typedef struct hashtable symboltable;
-
 struct link_list_entry {
     list_entry(link_list_entry) list;
     void* data;
@@ -30,11 +28,18 @@ struct link_list_entry {
 
 list_head(link_list, link_list_entry);
 
-void symboltable_init(symboltable* symbol_table);
-void symboltable_deinit(symboltable* symbol_table);
-void symboltable_push(symboltable* symbol_table, symbol symbol, void* data);
-void symboltable_pop(symboltable* symbol_table, symbol symbol);
-void* symboltable_get(symboltable* symbol_table, symbol symbol);
+typedef struct symboltable{
+    struct hashtable ht;    
+    struct link_list symbols;
+} symboltable;
+
+void symboltable_init(symboltable* st);
+void symboltable_deinit(symboltable* st);
+void symboltable_push(symboltable* st, symbol s, void* data);
+symbol symboltable_pop(symboltable* st);
+void* symboltable_get(symboltable* st, symbol s);
+bool has_symbol(symboltable* st, symbol s);
+
 
 #ifdef __cplusplus
 }
