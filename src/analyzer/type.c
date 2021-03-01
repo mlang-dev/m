@@ -250,9 +250,23 @@ struct type_exp* retrieve_type(const char* name, struct array* nongens, struct h
     return 0;
 }
 
+struct type_exp* retrieve_symbol_type(struct hashtable* env, struct array* nongens, symbol name)
+{
+    struct type_exp* exp = (struct type_exp*)hashtable_get_p(env, name);
+    if (exp) {
+        return fresh(exp, nongens);
+    }
+    return 0;
+}
+
 void set_type(struct hashtable* env, const char* name, struct type_exp* type)
 {
     hashtable_set(env, name, type);
+}
+
+void set_symbol_type(struct hashtable* env, symbol name, struct type_exp* type)
+{
+    hashtable_set_p(env, name, type);
 }
 
 bool has_type(struct hashtable* env, const char* name)

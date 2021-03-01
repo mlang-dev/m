@@ -49,9 +49,9 @@ struct type_exp* _analyze_unk(struct env* env, struct exp_node* node)
     return 0;
 }
 
-struct type_exp* retrieve_type_with_type_name(struct env* env, const char* name)
+struct type_exp* retrieve_type_with_type_name(struct env* env, symbol name)
 {
-    return retrieve_type(name, &env->nongens, &env->tenv);
+    return retrieve_symbol_type(&env->tenv, &env->nongens, name);
 }
 
 struct type_exp* retrieve_type_for_var_name(struct env* env, const char* name)
@@ -96,7 +96,8 @@ struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
 
 struct type_exp* _analyze_num(struct env* env, struct exp_node* node)
 {
-    return retrieve_type_with_type_name(env, type_strings[node->annotated_type->type]);
+    symbol symbol_type = to_symbol(type_strings[node->annotated_type->type]);
+    return retrieve_type_with_type_name(env, symbol_type);
 }
 
 struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
@@ -106,7 +107,7 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
     assert(var->base.annotated_type || var->init_value);
     if(var->base.annotated_type&&var->base.annotated_type->type == TYPE_EXT){
         assert(var->base.annotation);
-        type = retrieve_type_with_type_name(env, string_get(var->base.annotation));
+        type = retrieve_type_with_type_name(env, var->base.annotation);
         set_type(&env->venv, string_get(var->var_name), type);
         analyze_and_generate_code(env, var->init_value);
         return type;
@@ -129,6 +130,7 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
     return result_type;
 }
 
+
 struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
 {
     struct type_node* type = (struct type_node*)node;
@@ -140,8 +142,8 @@ struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
         array_push(&args, &arg);
     }
     struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
-    assert(string_eq(type->name, result_type->name));
-    set_type(&env->tenv, string_get(type->name), result_type);
+    assert(type->name == result_type->name);
+    set_symbol_type(&env->tenv, type->name, result_type);
     hashtable_set(&env->ext_type_ast, string_get(type->name), node);
     return result_type;
 }
