@@ -17,8 +17,12 @@
 
 void _set_builtin(struct env* env, const char* name, struct type_exp* type)
 {
-    //printf("set builtin type name with type_exp: %s\n", name);
     set_type(&env->builtin_tenv, name, type);
+}
+
+void _set_builtin_value(struct env* env, const char* name, struct type_exp* type)
+{
+    set_type(&env->builtin_venv, name, type);
 }
 
 struct env* env_new(bool is_repl)
@@ -33,9 +37,10 @@ struct env* env_new(bool is_repl)
     hashtable_init(&env->tenv);
     hashtable_init(&env->venv);
     hashtable_init(&env->builtin_tenv);
-    hashtable_init(&env->ext_type_env);
     hashtable_init(&env->builtin_venv);
-    hashtable_init(&env->generic_venv);
+    hashtable_init(&env->ext_type_ast);
+    hashtable_init(&env->builtin_ast);
+    hashtable_init(&env->generic_ast);
     struct array args;
     array_init(&args, sizeof(struct type_exp*));
     /*nullary type: builtin default types*/
@@ -61,18 +66,18 @@ struct env* env_new(bool is_repl)
         assert(node->node_type == PROTOTYPE_NODE);
         struct prototype_node* proto = (struct prototype_node*)node;
         analyze(env, node);
-        _set_builtin(env, string_get(proto->name), proto->base.type);
-        hashtable_set(&env->builtin_venv, string_get(proto->name), node);
+        _set_builtin_value(env, string_get(proto->name), proto->base.type);
+        hashtable_set(&env->builtin_ast, string_get(proto->name), node);
         //string type = to_string(proto->base.type);
-        //printf("parsed builtins: %s, %s\n", string_get(proto->name), string_get(&type));
     }
     return env;
 }
 
 void env_free(struct env* env)
 {
-    hashtable_deinit(&env->ext_type_env);
-    hashtable_deinit(&env->generic_venv);
+    hashtable_deinit(&env->ext_type_ast);
+    hashtable_deinit(&env->generic_ast);
+    hashtable_deinit(&env->builtin_ast);
     hashtable_deinit(&env->builtin_venv);
     hashtable_deinit(&env->builtin_tenv);
     hashtable_deinit(&env->venv);

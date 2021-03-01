@@ -29,17 +29,20 @@ struct env {
      */
     struct hashtable tenv;
 
-    /*new type env: hashtable of <string, struct exp_node （type_node)*> 
+    /*new type ast def: hashtable of <string, struct exp_node （type_node)*> 
      * example: type Point2D = x:int y:int
      */
-    struct hashtable ext_type_env;  
+    struct hashtable ext_type_ast;  
 
-    struct hashtable builtin_tenv; /*builtin types: symbol to type_exp* map. right now including types and values*/
-    struct hashtable builtin_venv; /*builtin values: symbol to type_exp*, only used for codegen right now*/
-    struct hashtable generic_venv;/*generic value env: hashtable of <string, struct exp_node*>*/
+    struct hashtable builtin_tenv; /*builtin types: symbol to type_exp* map. */
+    struct hashtable builtin_venv; /*builtin values: symbol to type_exp* map*/
 
-    struct array nongens; //struct array of struct type_exp*, non generic
+    struct hashtable builtin_ast; /*builtin values: symbol to type_exp*, only used for codegen right now*/
+
+    struct hashtable generic_ast;/*generic value env: hashtable of <string, struct exp_node*>*/
+    struct array nongens; //struct array of struct type_exp*, specialized (non generic)
     struct array ref_builtin_names; //referred builtins of string
+
     struct code_generator* cg;
     struct parser* parser;
 };

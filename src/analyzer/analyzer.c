@@ -58,7 +58,7 @@ struct type_exp* retrieve_ext_type(struct env* env, const char* name)
 struct type_exp* retrieve(struct env* env, const char* name)
 {
     struct type_exp* type = retrieve_type(name, &env->nongens, &env->venv);
-    return type? type : retrieve_type(name, &env->nongens, &env->builtin_tenv);
+    return type? type : retrieve_type(name, &env->nongens, &env->builtin_venv);
 }
 
 void set(struct env* env, const char* name, struct type_exp* type)
@@ -75,7 +75,7 @@ bool has(struct env* env, const char* name)
 
 bool is_builtin(struct env* env, const char* name)
 {
-    return hashtable_in(&env->builtin_venv, name);
+    return hashtable_in(&env->builtin_ast, name);
 }
 
 struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
@@ -89,7 +89,7 @@ struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
         }else{
             assert(type);
             struct type_oper* oper = (struct type_oper*)type;
-            struct type_node* type_node = (struct type_node*)hashtable_get(&env->ext_type_env, string_get(oper->base.name));
+            struct type_node* type_node = (struct type_node*)hashtable_get(&env->ext_type_ast, string_get(oper->base.name));
             int index = find_member_index(type_node, string_get(id));
             if (index < 0){
                 _log_err(env, node->loc, "%s member not matched.");
@@ -103,7 +103,7 @@ struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
 
 struct type_exp* _analyze_num(struct env* env, struct exp_node* node)
 {
-    return retrieve(env, type_strings[node->annotated_type->type]);
+    return retrieve_ext_type(env, type_strings[node->annotated_type->type]);
 }
 
 struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
@@ -149,7 +149,7 @@ struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
     struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
     assert(string_eq(type->name, result_type->name));
     set_type(&env->tenv, string_get(type->name), result_type);
-    hashtable_set(&env->ext_type_env, string_get(type->name), node);
+    hashtable_set(&env->ext_type_ast, string_get(type->name), node);
     return result_type;
 }
 
@@ -208,7 +208,7 @@ struct type_exp* _analyze_fun(struct env* env, struct exp_node* node)
     struct type_exp* result = prune(fun_type);
     fun->prototype->base.type = result;
     if(is_generic(result)){
-        hashtable_set(&env->generic_venv, string_get(fun->prototype->name), node);
+        hashtable_set(&env->generic_ast, string_get(fun->prototype->name), node);
     }
     return result;
 }
@@ -244,7 +244,7 @@ struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
             return *(struct type_exp**)array_back(&fun_op->args);
         }
         /*specialized callee*/
-        struct exp_node* generic_fun = (struct exp_node*)hashtable_get(&env->generic_venv, string_get(call->callee));
+        struct exp_node* generic_fun = (struct exp_node*)hashtable_get(&env->generic_ast, string_get(call->callee));
         struct function_node* sp_fun = (struct function_node*)node_copy(generic_fun);
         sp_fun->prototype->name = call->specialized_callee;
         fun_type = analyze_and_generate_code(env, (struct exp_node*)sp_fun);
@@ -374,7 +374,7 @@ struct type_exp* analyze_and_generate_code(struct env* env, struct exp_node* nod
     if(array_size(&env->ref_builtin_names)){
         for(size_t i = 0; i < array_size(&env->ref_builtin_names); i++){
             const char* built_name = string_get((string*)array_get(&env->ref_builtin_names, i));
-            struct exp_node* node = hashtable_get(&env->builtin_venv, built_name);
+            struct exp_node* node = hashtable_get(&env->builtin_ast, built_name);
             if(!hashset_in(&cg->builtins, built_name)){
                 hashset_set(&cg->builtins, built_name);
                 generate_code(cg, node);
