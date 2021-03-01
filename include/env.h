@@ -26,13 +26,13 @@ struct env {
     struct hashtable venv; 
 
     /* 
-     *  type env: hashtable of <string, struct type_exp>*>
+     *  type env: hashtable of <symbol, struct type_exp>*>
      *  binding type name to type expression
      */
     struct hashtable tenv;
 
     /* 
-     *  new type AST def: hashtable of <string, struct exp_node （type_node)*> 
+     *  new type AST def: hashtable of <symbol, struct exp_node （type_node)*> 
      *      example: type Point2D = x:int y:int
      */
     struct hashtable ext_type_ast;  

@@ -82,7 +82,7 @@ struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
         }else{
             assert(type);
             struct type_oper* oper = (struct type_oper*)type;
-            struct type_node* type_node = (struct type_node*)hashtable_get(&env->ext_type_ast, string_get(oper->base.name));
+            struct type_node* type_node = (struct type_node*)hashtable_get_p(&env->ext_type_ast, oper->base.name);
             int index = find_member_index(type_node, string_get(id));
             if (index < 0){
                 _log_err(env, node->loc, "%s member not matched.");
@@ -144,7 +144,7 @@ struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
     struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
     assert(type->name == result_type->name);
     set_symbol_type(&env->tenv, type->name, result_type);
-    hashtable_set(&env->ext_type_ast, string_get(type->name), node);
+    hashtable_set_p(&env->ext_type_ast, type->name, node);
     return result_type;
 }
 
