@@ -15,15 +15,6 @@
 #include "clib/hashtable.h"
 #include "analyzer.h"
 
-void _set_builtin(struct env* env, const char* name, struct type_exp* type)
-{
-    set_type(&env->builtin_tenv, name, type);
-}
-
-void _set_builtin_value(struct env* env, const char* name, struct type_exp* type)
-{
-    set_type(&env->builtin_venv, name, type);
-}
 
 struct env* env_new(bool is_repl)
 {
@@ -36,8 +27,6 @@ struct env* env_new(bool is_repl)
     symbols_init();
     hashtable_init(&env->tenv);
     hashtable_init(&env->venv);
-    hashtable_init(&env->builtin_tenv);
-    hashtable_init(&env->builtin_venv);
     hashtable_init(&env->ext_type_ast);
     hashtable_init(&env->builtin_ast);
     hashtable_init(&env->generic_ast);
@@ -46,7 +35,7 @@ struct env* env_new(bool is_repl)
     /*nullary type: builtin default types*/
     for (size_t i = 0; i < ARRAY_SIZE(type_strings); i++) {
         struct type_exp* exp = (struct type_exp*)create_type_oper(i, &args);
-        _set_builtin(env, type_strings[i], exp);
+        set_type(&env->tenv, type_strings[i], exp);
     }
     char libpath[PATH_MAX];
     char* mpath = get_exec_path();
@@ -66,7 +55,7 @@ struct env* env_new(bool is_repl)
         assert(node->node_type == PROTOTYPE_NODE);
         struct prototype_node* proto = (struct prototype_node*)node;
         analyze(env, node);
-        _set_builtin_value(env, string_get(proto->name), proto->base.type);
+        set_type(&env->venv, string_get(proto->name), proto->base.type);
         hashtable_set(&env->builtin_ast, string_get(proto->name), node);
         //string type = to_string(proto->base.type);
     }
@@ -78,8 +67,6 @@ void env_free(struct env* env)
     hashtable_deinit(&env->ext_type_ast);
     hashtable_deinit(&env->generic_ast);
     hashtable_deinit(&env->builtin_ast);
-    hashtable_deinit(&env->builtin_venv);
-    hashtable_deinit(&env->builtin_tenv);
     hashtable_deinit(&env->venv);
     hashtable_deinit(&env->tenv);
     symbols_deinit();

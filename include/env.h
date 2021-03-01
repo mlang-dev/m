@@ -34,9 +34,6 @@ struct env {
      */
     struct hashtable ext_type_ast;  
 
-    struct hashtable builtin_tenv; /*builtin types: symbol to type_exp* map. */
-    struct hashtable builtin_venv; /*builtin values: symbol to type_exp* map*/
-
     struct hashtable builtin_ast; /*builtin values: symbol to type_exp*, only used for codegen right now*/
 
     struct hashtable generic_ast;/*generic value env: hashtable of <string, struct exp_node*>*/
