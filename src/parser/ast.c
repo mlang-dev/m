@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "clib/array.h"
 #include "ast.h"
 
 const char* node_type_strings[] = {
@@ -71,6 +71,17 @@ void _free_block_node(struct block_node* node)
     _free_exp_node(&node->base);
 }
 
+struct array to_symbol_array(struct array arr)
+{
+    struct array symbols;
+    array_init(&symbols, sizeof(symbol*));
+    for(size_t i = 0; i < array_size(&arr); i++){
+        symbol symbol = to_symbol(string_get((string*)array_get(&arr, i)));
+        array_push(&symbols, &symbol);
+    }
+    return symbols;
+}
+
 struct ident_node* ident_node_new(struct exp_node* parent, struct source_loc loc, const char* name)
 {
     struct ident_node* node = malloc(sizeof(*node));
@@ -80,8 +91,8 @@ struct ident_node* ident_node_new(struct exp_node* parent, struct source_loc loc
     node->base.node_type = IDENT_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
-    node->name = to_symbol(name);
-    node->member_accessors = string_split(node->name, '.');    
+    node->name = to_symbol(name);    
+    node->member_accessors = to_symbol_array(string_split(node->name, '.'));
     return node;
 }
 

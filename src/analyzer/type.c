@@ -241,15 +241,6 @@ struct type_exp* fresh(struct type_exp* type, struct array* nongens)
     return result;
 }
 
-struct type_exp* retrieve_type(const char* name, struct array* nongens, struct hashtable* env)
-{
-    struct type_exp* exp = (struct type_exp*)hashtable_get(env, name);
-    if (exp) {
-        return fresh(exp, nongens);
-    }
-    return 0;
-}
-
 struct type_exp* retrieve_symbol_type(struct hashtable* env, struct array* nongens, symbol name)
 {
     struct type_exp* exp = (struct type_exp*)hashtable_get_p(env, name);
@@ -259,19 +250,14 @@ struct type_exp* retrieve_symbol_type(struct hashtable* env, struct array* nonge
     return 0;
 }
 
-void set_type(struct hashtable* env, const char* name, struct type_exp* type)
-{
-    hashtable_set(env, name, type);
-}
-
 void set_symbol_type(struct hashtable* env, symbol name, struct type_exp* type)
 {
     hashtable_set_p(env, name, type);
 }
 
-bool has_type(struct hashtable* env, const char* name)
+bool has_type(struct hashtable* env, symbol name)
 {
-    return hashtable_in(env, name);
+    return hashtable_in_p(env, name);
 }
 
 enum type get_type(struct type_exp* type)

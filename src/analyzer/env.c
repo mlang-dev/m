@@ -56,7 +56,7 @@ struct env* env_new(bool is_repl)
         assert(node->node_type == PROTOTYPE_NODE);
         struct prototype_node* proto = (struct prototype_node*)node;
         analyze(env, node);
-        set_type(&env->venv, string_get(proto->name), proto->base.type);
+        set_symbol_type(&env->venv, proto->name, proto->base.type);
         hashtable_set_p(&env->builtin_ast, proto->name, node);
         //string type = to_string(proto->base.type);
     }

@@ -54,15 +54,9 @@ struct type_exp* retrieve_type_with_type_name(struct env* env, symbol name)
     return retrieve_symbol_type(&env->tenv, &env->nongens, name);
 }
 
-struct type_exp* retrieve_type_for_var_name(struct env* env, const char* name)
+struct type_exp* retrieve_type_for_var_name(struct env* env, symbol name)
 {
-    return retrieve_type(name, &env->nongens, &env->venv);
-}
-
-
-bool has(struct env* env, const char* name)
-{
-    return has_type(&env->venv, name);
+    return retrieve_symbol_type(&env->venv, &env->nongens, name);
 }
 
 struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
@@ -70,9 +64,9 @@ struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
     struct ident_node* ident = (struct ident_node*)node;
     struct type_exp* type = 0;
     for(size_t i = 0; i < array_size(&ident->member_accessors); i++){
-        string* id = (string*)array_get(&ident->member_accessors, i);
+        symbol id = *((symbol*)array_get(&ident->member_accessors, i));
         if(i==0){
-            type = retrieve_type_for_var_name(env, string_get(id));
+            type = retrieve_type_for_var_name(env, id);
         }else{
             assert(type);
             struct type_oper* oper = (struct type_oper*)type;
@@ -102,13 +96,13 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
     if(var->base.annotated_type&&var->base.annotated_type->type == TYPE_EXT){
         assert(var->base.annotation);
         type = retrieve_type_with_type_name(env, var->base.annotation);
-        set_type(&env->venv, string_get(var->var_name), type);
+        set_symbol_type(&env->venv, var->var_name, type);
         analyze_and_generate_code(env, var->init_value);
         return type;
     }
     else if(var->base.annotated_type && !var->init_value){
         type = var->base.annotated_type;
-        set_type(&env->venv, string_get(var->var_name), type);
+        set_symbol_type(&env->venv, var->var_name, type);
         return type;
     }
     type = analyze(env, var->init_value);
@@ -120,7 +114,7 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
     }
     struct type_exp* result_type = (struct type_exp*)create_type_var();
     unify(result_type, type, &env->nongens);
-    set_type(&env->venv, string_get(var->var_name), result_type);
+    set_symbol_type(&env->venv, var->var_name, result_type);
     return result_type;
 }
 
@@ -186,10 +180,10 @@ struct type_exp* _analyze_fun(struct env* env, struct exp_node* node)
             exp = (struct type_exp*)create_type_var();
         array_push(&fun_sig, &exp);
         array_push(&env->nongens, &exp);
-        set_type(&env->venv, string_get(param->var_name), exp);
+        set_symbol_type(&env->venv, param->var_name, exp);
     }
     struct type_exp* fun_type = (struct type_exp*)create_type_var();
-    set_type(&env->venv, string_get(fun->prototype->name), fun_type);
+    set_symbol_type(&env->venv, fun->prototype->name, fun_type);
     struct type_exp* ret_type = analyze(env, (struct exp_node*)fun->body);
     array_push(&fun_sig, &ret_type);
     struct type_exp* result_type = (struct type_exp*)create_type_fun(&fun_sig);
@@ -205,7 +199,7 @@ struct type_exp* _analyze_fun(struct env* env, struct exp_node* node)
 struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
 {
     struct call_node* call = (struct call_node*)node;
-    struct type_exp* fun_type = retrieve_type_for_var_name(env, string_get(call->callee));
+    struct type_exp* fun_type = retrieve_type_for_var_name(env, call->callee);
     if (!fun_type){
         struct source_loc loc = {1, 1};
         string error;
@@ -227,8 +221,8 @@ struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
     if(is_generic(fun_type)&&(!is_any_generic(&args)&&array_size(&args))&&!is_recursive(call)){
         string sp_callee = monomorphize(string_get(call->callee), &args);
         call->specialized_callee = to_symbol(string_get(&sp_callee));
-        if(has_type(&env->venv, string_get(call->specialized_callee))){
-            fun_type = retrieve_type_for_var_name(env, string_get(call->specialized_callee));
+        if(has_type(&env->venv, call->specialized_callee)){
+            fun_type = retrieve_type_for_var_name(env, call->specialized_callee);
             struct type_oper* fun_op = (struct type_oper*)fun_type;
             return *(struct type_exp**)array_back(&fun_op->args);
         }
@@ -238,7 +232,7 @@ struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
         sp_fun->prototype->name = call->specialized_callee;
         fun_type = analyze_and_generate_code(env, (struct exp_node*)sp_fun);
         hashtable_set(&env->cg->specialized_nodes, string_get(sp_fun->prototype->name), sp_fun);
-        set_type(&env->venv, string_get(call->specialized_callee), fun_type);
+        set_symbol_type(&env->venv, call->specialized_callee, fun_type);
         specialized_node = (struct exp_node*)sp_fun;
     }
     struct type_exp* result_type = (struct type_exp*)create_type_var();
@@ -304,7 +298,7 @@ struct type_exp* _analyze_for(struct env* env, struct exp_node* node)
     struct for_node* for_node = (struct for_node*)node;
     struct type_exp* int_type = (struct type_exp*)create_nullary_type(TYPE_INT);
     struct type_exp* bool_type = (struct type_exp*)create_nullary_type(TYPE_BOOL);
-    set_type(&env->venv, string_get(for_node->var_name), int_type);
+    set_symbol_type(&env->venv, for_node->var_name, int_type);
     struct type_exp* start_type = analyze(env, for_node->start);
     struct type_exp* step_type = analyze(env, for_node->step);
     struct type_exp* end_type = analyze(env, for_node->end);

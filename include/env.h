@@ -20,7 +20,7 @@ extern "C" {
 
 struct env {
     /* 
-     *  value type env: hashtable of <string, struct type_exp>*>
+     *  value type env: hashtable of <symbol, struct type_exp>*>
      *  binding variable name to type expression
      */
     struct hashtable venv; 

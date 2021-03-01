@@ -68,9 +68,7 @@ struct type_oper* create_nullary_type(enum type type);
 struct type_oper* create_type_fun(struct array* args);
 void type_exp_free(struct type_exp* type);
 bool occurs_in_type(struct type_var* var, struct type_exp* type2);
-struct type_exp* retrieve_type(const char* name, struct array* nongens, struct hashtable* env); //env pointing to hashtable of (string, struct type_exp*)
 struct type_exp* retrieve_symbol_type(struct hashtable* env, struct array* nongens, symbol name);
-void set_type(struct hashtable* env, const char* name, struct type_exp* type);
 void set_symbol_type(struct hashtable* env, symbol name, struct type_exp* type);
 bool unify(struct type_exp* type1, struct type_exp* type2, struct array* nongens);
 string to_string(struct type_exp* type);
@@ -80,7 +78,7 @@ bool is_generic(struct type_exp* type);
 bool is_any_generic(struct array* types);
 string monomorphize(const char* fun_name, struct array* types);
 struct type_exp* clone_type(struct type_exp* type);
-bool has_type(struct hashtable* env, const char* name);
+bool has_type(struct hashtable* env, symbol name);
 
 #ifdef __cplusplus
 }

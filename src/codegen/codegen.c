@@ -381,7 +381,8 @@ LLVMValueRef _generate_literal_node(struct code_generator* cg, struct exp_node* 
 LLVMValueRef _generate_ident_node(struct code_generator* cg, struct exp_node* node)
 {
     struct ident_node* ident = (struct ident_node*)node;
-    const char* idname = string_get((string*)array_get(&ident->member_accessors, 0));
+    symbol id = *((symbol*)array_get(&ident->member_accessors, 0));
+    const char* idname = string_get(id);
     LLVMValueRef v = (LLVMValueRef)hashtable_get(&cg->named_values, idname);
     if (!v) {
         v = _get_global_variable(cg, idname);
@@ -390,7 +391,8 @@ LLVMValueRef _generate_ident_node(struct code_generator* cg, struct exp_node* no
         char tempname[64];
         string* type_name = hashtable_get(&cg->ext_vars, idname);
         struct type_node* type_node = (struct type_node*)hashtable_get(&cg->ext_nodes, string_get(type_name));
-        const char* member_name = string_get((string*)array_get(&ident->member_accessors, 1));
+        symbol attr = *((symbol*)array_get(&ident->member_accessors, 1));
+        const char* member_name = string_get(attr);
         int index = find_member_index(type_node, member_name);
         sprintf(tempname, "temp%d", index);
         v = LLVMBuildStructGEP(cg->builder, v, index, tempname);
