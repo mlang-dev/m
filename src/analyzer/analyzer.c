@@ -65,12 +65,6 @@ bool has(struct env* env, const char* name)
     return has_type(&env->venv, name);
 }
 
-
-bool is_builtin(struct env* env, const char* name)
-{
-    return hashtable_in(&env->builtin_ast, name);
-}
-
 struct type_exp* _analyze_ident(struct env* env, struct exp_node* node)
 {
     struct ident_node* ident = (struct ident_node*)node;
@@ -251,8 +245,8 @@ struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
     array_push(&args, &result_type);
     struct type_exp* call_fun = (struct type_exp*)create_type_fun(&args);
     unify(call_fun, fun_type, &env->nongens);
-    if(is_builtin(env, string_get(call->callee))){
-        array_push(&env->used_builtin_names, call->callee);
+    if(hashtable_in_p(&env->builtin_ast, call->callee)){
+        array_push(&env->used_builtin_names, &call->callee);
     }
     if(specialized_node){
         generate_code(env->cg, specialized_node);
@@ -368,10 +362,11 @@ struct type_exp* analyze_and_generate_code(struct env* env, struct exp_node* nod
     struct code_generator* cg = env->cg;
     if(array_size(&env->used_builtin_names)){
         for(size_t i = 0; i < array_size(&env->used_builtin_names); i++){
-            const char* built_name = string_get((string*)array_get(&env->used_builtin_names, i));
-            struct exp_node* node = hashtable_get(&env->builtin_ast, built_name);
-            if(!hashset_in(&cg->builtins, built_name)){
-                hashset_set(&cg->builtins, built_name);
+            symbol built_name = *((symbol*)array_get(&env->used_builtin_names, i));
+            struct exp_node* node = hashtable_get_p(&env->builtin_ast, built_name);
+            const char* built_name_str = string_get(built_name);
+            if(!hashset_in(&cg->builtins, built_name_str)){
+                hashset_set(&cg->builtins, built_name_str);
                 generate_code(cg, node);
             }
         }

@@ -22,7 +22,7 @@ struct env* env_new(bool is_repl)
     memset((void*)env, 0, sizeof(*env));
     env->parser = parser_new(is_repl);
     array_init(&env->nongens, sizeof(struct type_exp*));
-    array_init_free(&env->used_builtin_names, sizeof(string), string_free_generic);
+    array_init(&env->used_builtin_names, sizeof(symbol));
     env->cg = cg_new(env->parser);
     symbols_init();
     hashtable_init(&env->tenv);
@@ -57,7 +57,7 @@ struct env* env_new(bool is_repl)
         struct prototype_node* proto = (struct prototype_node*)node;
         analyze(env, node);
         set_type(&env->venv, string_get(proto->name), proto->base.type);
-        hashtable_set(&env->builtin_ast, string_get(proto->name), node);
+        hashtable_set_p(&env->builtin_ast, proto->name, node);
         //string type = to_string(proto->base.type);
     }
     return env;

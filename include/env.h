@@ -43,7 +43,7 @@ struct env {
     struct hashtable builtin_ast; 
 
     /* 
-     *  generic value ASTs: hashtable of <string, struct exp_node*>
+     *  generic value ASTs: hashtable of <symbol, struct exp_node*>
      */
     struct hashtable generic_ast;
 
@@ -53,7 +53,7 @@ struct env {
     struct array nongens; 
 
     /*
-     *  used builtins of string, needs to be codegened by adding to the module
+     *  used builtins of symbol, needs to be codegened by adding to the module
      */
     struct array used_builtin_names; 
 

@@ -11,6 +11,7 @@
 #include "ast.h"
 #include "codegen.h"
 #include "env.h"
+#include "clib/symbol.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +21,6 @@ extern "C" {
 struct type_exp* retrieve_type_for_var_name(struct env* env, const char* name);
 struct type_exp* analyze_and_generate_code(struct env* env, struct exp_node* node);
 struct type_exp* analyze(struct env* env, struct exp_node* node);
-bool is_builtin(struct env* env, const char* name);
 
 #ifdef __cplusplus
 }
