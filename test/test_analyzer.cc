@@ -524,10 +524,8 @@ z = getx()
     type_str = to_string(var->base.type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
 
-    printf("checking has symbol\n");
     /*verify variable xy in inner function is out of scope*/
     symbol xy = to_symbol("xy");
     ASSERT_EQ(false, has_symbol(&env->venv, xy));
-    printf("checking has symbol done\n");
     env_free(env);
 }
