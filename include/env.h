@@ -38,7 +38,9 @@ struct env {
 
     struct hashtable generic_ast;/*generic value env: hashtable of <string, struct exp_node*>*/
     struct array nongens; //struct array of struct type_exp*, specialized (non generic)
-    struct array ref_builtin_names; //referred builtins of string
+
+    /*used builtins of string, needs to be codegened by adding to the module*/
+    struct array used_builtin_names; 
 
     struct code_generator* cg;
     struct parser* parser;

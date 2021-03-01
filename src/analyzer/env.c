@@ -22,7 +22,7 @@ struct env* env_new(bool is_repl)
     memset((void*)env, 0, sizeof(*env));
     env->parser = parser_new(is_repl);
     array_init(&env->nongens, sizeof(struct type_exp*));
-    array_init_free(&env->ref_builtin_names, sizeof(string), string_free_generic);
+    array_init_free(&env->used_builtin_names, sizeof(string), string_free_generic);
     env->cg = cg_new(env->parser);
     symbols_init();
     hashtable_init(&env->tenv);
@@ -70,7 +70,7 @@ void env_free(struct env* env)
     hashtable_deinit(&env->venv);
     hashtable_deinit(&env->tenv);
     symbols_deinit();
-    array_deinit(&env->ref_builtin_names);
+    array_deinit(&env->used_builtin_names);
     array_deinit(&env->nongens);
     cg_free(env->cg);
     parser_free(env->parser);
