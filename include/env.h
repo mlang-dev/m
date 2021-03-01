@@ -19,27 +19,42 @@ extern "C" {
 #endif
 
 struct env {
-    /* value type env: hashtable of <string, struct type_exp>*>
-     * binding variable name to type expression
+    /* 
+     *  value type env: hashtable of <string, struct type_exp>*>
+     *  binding variable name to type expression
      */
     struct hashtable venv; 
 
-    /* type env: hashtable of <string, struct type_exp>*>
-     * binding type name to type expression
+    /* 
+     *  type env: hashtable of <string, struct type_exp>*>
+     *  binding type name to type expression
      */
     struct hashtable tenv;
 
-    /*new type ast def: hashtable of <string, struct exp_node （type_node)*> 
-     * example: type Point2D = x:int y:int
+    /* 
+     *  new type AST def: hashtable of <string, struct exp_node （type_node)*> 
+     *      example: type Point2D = x:int y:int
      */
     struct hashtable ext_type_ast;  
 
-    struct hashtable builtin_ast; /*builtin values: symbol to type_exp*, only used for codegen right now*/
+    /* 
+     *  builtin ASTs: symbol to exp_node*, only used for codegen
+     */
+    struct hashtable builtin_ast; 
 
-    struct hashtable generic_ast;/*generic value env: hashtable of <string, struct exp_node*>*/
-    struct array nongens; //struct array of struct type_exp*, specialized (non generic)
+    /* 
+     *  generic value ASTs: hashtable of <string, struct exp_node*>
+     */
+    struct hashtable generic_ast;
 
-    /*used builtins of string, needs to be codegened by adding to the module*/
+    /* 
+     *  struct array of struct type_exp*, specialized (non generic) 
+     */
+    struct array nongens; 
+
+    /*
+     *  used builtins of string, needs to be codegened by adding to the module
+     */
     struct array used_builtin_names; 
 
     struct code_generator* cg;
