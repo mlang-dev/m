@@ -13,9 +13,9 @@
  * 
  */
 
-unsigned int hash(unsigned char* data, size_t len)
+unsigned int hash(unsigned char *data, size_t len)
 {
-    const char* str = (const char*)data;
+    const char *str = (const char *)data;
     unsigned int hash = len;
     unsigned int i = 0;
     for (i = 0; i < len; ++str, ++i) {
@@ -24,12 +24,12 @@ unsigned int hash(unsigned char* data, size_t len)
     return hash;
 }
 
-void* hashbox_get_key(struct hashbox* box)
+void *hashbox_get_key(struct hashbox *box)
 {
     return box->key_value_pair;
 }
 
-void* hashbox_get_value(struct hashbox* box)
+void *hashbox_get_value(struct hashbox *box)
 {
     return box->key_value_pair + box->key_size;
 }

@@ -14,7 +14,7 @@
 #include "clib/object.h"
 #include "clib/string.h"
 
-void _init_str(string* str)
+void _init_str(string *str)
 {
     object_interface string_interface = {
         string_eq_generic, string_init_generic,
@@ -27,67 +27,67 @@ void _init_str(string* str)
     str->cap = SSO_LENGTH;
 }
 
-string* string_new(const char* chars)
+string *string_new(const char *chars)
 {
-    string* str = malloc(sizeof(*str));
+    string *str = malloc(sizeof(*str));
     string_init_chars(str, chars);
     return str;
 }
 
-string* string_new_len(const char* chars, size_t len)
+string *string_new_len(const char *chars, size_t len)
 {
-    string* str = malloc(sizeof(*str));
+    string *str = malloc(sizeof(*str));
     string_copy_with_len(str, chars, len);
     return str;
 }
 
-string make_string(const char* chars)
+string make_string(const char *chars)
 {
     string str;
     string_init_chars(&str, chars);
     return str;
 }
 
-char* string_get(string* str)
+char *string_get(string *str)
 {
     return str->cap <= SSO_LENGTH ? str->_reserved : str->base.p_data;
 }
 
-void string_init(string* str)
+void string_init(string *str)
 {
     string_init_chars(str, "");
 }
 
-void string_init_chars(string* str, const char* chars)
+void string_init_chars(string *str, const char *chars)
 {
     _init_str(str);
     string_copy_chars(str, chars);
 }
 
-void string_copy_with_len(string* dest, const char* data, size_t len)
+void string_copy_with_len(string *dest, const char *data, size_t len)
 {
     if (len >= dest->cap) {
         dest->base.p_data = malloc(len + 1);
         dest->cap = len + 1;
     }
-    char* dest_data = string_get(dest);
+    char *dest_data = string_get(dest);
     memcpy(dest_data, data, len);
     dest_data[len] = '\0';
     dest->base.size = len;
 }
 
-void string_copy_chars(string* dest, const char* chars)
+void string_copy_chars(string *dest, const char *chars)
 {
     string_copy_with_len(dest, chars, strlen(chars));
 }
 
-void string_copy(string* dest, string* src)
+void string_copy(string *dest, string *src)
 {
     string_init(dest);
     string_copy_with_len(dest, string_get(src), src->base.size);
 }
 
-void string_add(string* str1, string* str2)
+void string_add(string *str1, string *str2)
 {
     //
     if (!string_size(str2))
@@ -97,10 +97,10 @@ void string_add(string* str1, string* str2)
     size_t len = str1->base.size + str2->base.size;
     if (len > SSO_LENGTH - 1) {
         //allocate in dynamic struct array
-        char* data;
+        char *data;
         if (str1->cap > SSO_LENGTH) {
             //allocated in heap already
-            data = (char*)realloc(str1->base.p_data, len + 1);
+            data = (char *)realloc(str1->base.p_data, len + 1);
             memcpy(data + str1->base.size, string_get(str2), str2->base.size + 1);
         } else {
             //previously in reserved
@@ -117,7 +117,7 @@ void string_add(string* str1, string* str2)
     str1->base.size = len;
 }
 
-void string_add_chars(string* str1, const char* chars)
+void string_add_chars(string *str1, const char *chars)
 {
     string str2;
     string_init_chars(&str2, chars);
@@ -125,7 +125,7 @@ void string_add_chars(string* str1, const char* chars)
     string_deinit(&str2);
 }
 
-bool string_eq(string* str1, string* str2)
+bool string_eq(string *str1, string *str2)
 {
     if (str1->base.size != str2->base.size) {
         return false;
@@ -133,7 +133,7 @@ bool string_eq(string* str1, string* str2)
     return strcmp(string_get(str1), string_get(str2)) == 0;
 }
 
-bool string_eq_chars(string* str1, const char* chars)
+bool string_eq_chars(string *str1, const char *chars)
 {
     string str2;
     string_init_chars(&str2, chars);
@@ -142,15 +142,15 @@ bool string_eq_chars(string* str1, const char* chars)
     return result;
 }
 
-void string_deinit(string* str)
+void string_deinit(string *str)
 {
     if (str->base.p_data)
         free(str->base.p_data);
 }
 
-string* string_substr(string* str, char match)
+string *string_substr(string *str, char match)
 {
-    char* data = string_get(str);
+    char *data = string_get(str);
     for (int i = str->base.size - 1; i >= 0; i--) {
         if (data[i] == match) {
             data[i] = '\0';
@@ -161,14 +161,14 @@ string* string_substr(string* str, char match)
     return 0;
 }
 
-string string_join(struct array* arr, const char* sep)
+string string_join(struct array *arr, const char *sep)
 {
     string str_sepa;
     string_init_chars(&str_sepa, sep);
     string str;
     string_init(&str);
     for (size_t i = 0; i < array_size(arr); i++) {
-        string_add(&str, (string*)array_get(arr, i));
+        string_add(&str, (string *)array_get(arr, i));
         if (i < array_size(arr) - 1)
             string_add(&str, &str_sepa);
     }
@@ -176,13 +176,13 @@ string string_join(struct array* arr, const char* sep)
     return str;
 }
 
-struct array string_split(string* str, char sep)
+struct array string_split(string *str, char sep)
 {
     ARRAY_STRING(arr);
     string sub_str;
     string_init(&sub_str);
     int collect_start = 0;
-    char* data = string_get(str);
+    char *data = string_get(str);
     for (size_t i = 0; i < str->base.size; i++) {
         if (data[i] == sep || i == str->base.size - 1) {
             size_t sub_str_len = data[i] == sep ? i - collect_start : i - collect_start + 1;
@@ -195,32 +195,32 @@ struct array string_split(string* str, char sep)
     return arr;
 }
 
-void string_free(string* str)
+void string_free(string *str)
 {
     string_deinit(str);
     free(str);
 }
 
-char string_back(string* str)
+char string_back(string *str)
 {
     if (str->base.size == 0)
         return '\0';
-    char* data = string_get(str);
+    char *data = string_get(str);
     return data[str->base.size - 1];
 }
 
-char string_pop(string* str)
+char string_pop(string *str)
 {
     if (str->base.size == 0)
         return '\0';
-    char* data = string_get(str);
+    char *data = string_get(str);
     char back = data[str->base.size - 1];
     data[str->base.size - 1] = '\0';
     str->base.size--;
     return back;
 }
 
-void string_push(string* str, char ch)
+void string_push(string *str, char ch)
 {
     char temp[2];
     temp[0] = ch;
@@ -228,41 +228,41 @@ void string_push(string* str, char ch)
     string_add_chars(str, temp);
 }
 
-size_t string_size(string* str)
+size_t string_size(string *str)
 {
     return str->base.size;
 }
 
 //generic interfaces
-void string_init_generic(object* dest, object* src)
+void string_init_generic(object *dest, object *src)
 {
-    string_copy((string*)dest, (string*)src);
+    string_copy((string *)dest, (string *)src);
 }
 
-void string_copy_generic(void* dest, void* src, size_t size)
+void string_copy_generic(void *dest, void *src, size_t size)
 {
     if (!size)
         return;
-    string_copy((string*)dest, (string*)src);
+    string_copy((string *)dest, (string *)src);
 }
 
-void string_deinit_generic(object* dest)
+void string_deinit_generic(object *dest)
 {
-    string_deinit((string*)dest);
+    string_deinit((string *)dest);
 }
 
-void string_free_generic(void* dest)
+void string_free_generic(void *dest)
 {
-    string_deinit((string*)dest);
+    string_deinit((string *)dest);
 }
 
-bool string_eq_generic(object* str1, object* str2)
+bool string_eq_generic(object *str1, object *str2)
 {
     assert(str1->type == STRING && str2->type == STRING);
-    return string_eq((string*)str1, (string*)str2);
+    return string_eq((string *)str1, (string *)str2);
 }
 
-void* string_data_generic(object* obj)
+void *string_data_generic(object *obj)
 {
-    return string_get((string*)obj);
+    return string_get((string *)obj);
 }

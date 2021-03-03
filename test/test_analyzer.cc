@@ -470,6 +470,27 @@ x
     env_free(env);
 }
 
+TEST(testAnalyzer, testRedefinitionInTheSameScropeIsNotAllowed)
+{
+    char test_code[] = R"(
+x = 10.0
+x = 10
+)";
+    env* env = env_new(false);
+    block_node* block = parse_string(env->parser, "test", test_code);
+    ASSERT_EQ(2, array_size(&block->nodes));
+    analyze_and_generate_code(env, (exp_node*)block);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("double", string_get(&type_str));
+    /*fun definition*/
+    node = *(exp_node**)array_get(&block->nodes, 1);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("type mismatch", string_get(&type_str));
+    env_free(env);
+}
+
+
 TEST(testAnalyzer, testStructTypeVariables)
 {
     char test_code[] = R"(

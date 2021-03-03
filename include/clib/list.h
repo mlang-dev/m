@@ -15,12 +15,12 @@ extern "C" {
 
 #define list_head(name, type) \
     struct name {             \
-        struct type* first;   \
+        struct type *first;   \
     }
 
 #define list_entry(type)   \
     struct {               \
-        struct type* next; \
+        struct type *next; \
     }
 
 #define list_insert_head(head, element, field) \

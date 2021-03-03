@@ -12,12 +12,12 @@
 
 #include "clib/generic.h"
 
-void generic_free(void* p)
+void generic_free(void *p)
 {
     free(p);
 }
 
-void generic_copy(void* dest, void* src, size_t size)
+void generic_copy(void *dest, void *src, size_t size)
 {
     memcpy(dest, src, size);
 }

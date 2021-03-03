@@ -38,14 +38,14 @@ typedef struct _object {
         int i_data;
         float f_data;
         double d_data;
-        void* p_data;
+        void *p_data;
     };
 } object;
 
-typedef bool (*object_eq)(object* dest, object* src);
-typedef void (*object_init)(object* dest, object* src);
-typedef void (*object_deinit)(object* obj);
-typedef void* (*object_data)(object* obj);
+typedef bool (*object_eq)(object *dest, object *src);
+typedef void (*object_init)(object *dest, object *src);
+typedef void (*object_deinit)(object *obj);
+typedef void *(*object_data)(object *obj);
 
 typedef struct _object_interface {
     object_eq eq;

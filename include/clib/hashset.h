@@ -20,11 +20,11 @@ extern "C" {
 
 typedef struct hashtable hashset;
 
-void hashset_init(hashset* hs);
-void hashset_deinit(hashset* hs);
-void hashset_set(hashset* hs, const char* key_data);
-size_t hashset_size(hashset* hs);
-bool hashset_in(hashset* hs, const char* key_data);
+void hashset_init(hashset *hs);
+void hashset_deinit(hashset *hs);
+void hashset_set(hashset *hs, const char *key_data);
+size_t hashset_size(hashset *hs);
+bool hashset_in(hashset *hs, const char *key_data);
 
 #ifdef __cplusplus
 }

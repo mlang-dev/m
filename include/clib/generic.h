@@ -15,11 +15,11 @@
 extern "C" {
 #endif
 
-typedef void (*free_fun)(void*);
-typedef void (*copy_fun)(void* dest, void* src, size_t size);
+typedef void (*free_fun)(void *);
+typedef void (*copy_fun)(void *dest, void *src, size_t size);
 
-void generic_free(void* p);
-void generic_copy(void* dest, void* src, size_t size);
+void generic_free(void *p);
+void generic_copy(void *dest, void *src, size_t size);
 
 #ifdef __cplusplus
 }

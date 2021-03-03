@@ -90,3 +90,15 @@ bool has_symbol(symboltable *st, symbol s)
     struct link_list *ll = hashtable_get_p(st, s);
     return ll && ll->first;
 }
+
+bool has_symbol_in_scope(symboltable *st, symbol s, symbol end_s)
+{
+    struct link_list_entry *entry;
+    list_foreach(entry, &st->symbols, list){
+        if (entry->data == end_s)
+            break;
+        else if(entry->data == s)
+            return true;
+    }
+    return false;
+}

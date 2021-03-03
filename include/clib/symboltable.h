@@ -30,6 +30,10 @@ list_head(link_list, link_list_entry);
 
 typedef struct symboltable {
     struct hashtable ht;
+    /*
+     * TODO: symbols are a stack data structure, we might need a version with array implementation 
+     * for performance improvement with more effective memory cache
+     */
     struct link_list symbols;
 } symboltable;
 
@@ -39,6 +43,7 @@ void symboltable_push(symboltable *st, symbol s, void *data);
 symbol symboltable_pop(symboltable *st);
 void *symboltable_get(symboltable *st, symbol s);
 bool has_symbol(symboltable *st, symbol s);
+bool has_symbol_in_scope(symboltable *st, symbol s, symbol end_s);
 
 #ifdef __cplusplus
 }

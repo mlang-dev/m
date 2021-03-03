@@ -11,19 +11,19 @@
 
 #include "clib/util.h"
 
-const char* log_level_strings[] = {
+const char *log_level_strings[] = {
     "debug",
     "info",
     "error"
 };
 
 static char id_name[512] = "a";
-void reset_id_name(const char* idname)
+void reset_id_name(const char *idname)
 {
     strcpy(id_name, idname);
 }
 
-void _inc_str(string* id)
+void _inc_str(string *id)
 {
     if (!string_size(id))
         return;
@@ -36,9 +36,9 @@ void _inc_str(string* id)
     string_push(id, ch);
 }
 
-bool is_all(string* str, char match)
+bool is_all(string *str, char match)
 {
-    const char* data = string_get(str);
+    const char *data = string_get(str);
     for (size_t i = 0; i < string_size(str); i++) {
         if (data[i] != match)
             return false;
@@ -68,7 +68,7 @@ int get_random(int min, int max)
     return min + (rand() % (max - min + 1));
 }
 
-string make_unique_name(const char* name)
+string make_unique_name(const char *name)
 {
     if (!alpha_nums_init) {
         char c = '0';
@@ -93,7 +93,7 @@ string make_unique_name(const char* name)
     return name_str;
 }
 
-void* log_info(enum LogLevel level, const char* string_format, ...)
+void *log_info(enum LogLevel level, const char *string_format, ...)
 {
     va_list args;
     char format[512];
@@ -107,7 +107,7 @@ void* log_info(enum LogLevel level, const char* string_format, ...)
     return 0;
 }
 
-string str_format(const char* string_format, ...)
+string str_format(const char *string_format, ...)
 {
     va_list args;
     char data[512];
@@ -125,7 +125,7 @@ bool is_new_line(int ch)
 }
 
 void print_backtrace(void)
-{/*
+{ /*
     int j, nptrs;
 #define SIZE 100
     void* buffer[SIZE];
@@ -147,34 +147,33 @@ void print_backtrace(void)
     */
 }
 
-void join_path(char* destination, const char* path1, const char* path2)
+void join_path(char *destination, const char *path1, const char *path2)
 {
-    if(path1 == 0 && path2 == 0) {
-        strcpy(destination, "");;
-    }
-    else if(path2 == 0 || strlen(path2) == 0) {
+    if (path1 == 0 && path2 == 0) {
+        strcpy(destination, "");
+        ;
+    } else if (path2 == 0 || strlen(path2) == 0) {
         strcpy(destination, path1);
-    }
-    else if(path1 == 0 || strlen(path1) == 0) {
+    } else if (path1 == 0 || strlen(path1) == 0) {
         strcpy(destination, path2);
-    } 
-    else {
+    } else {
         char directory_separator[] = "/";
 #ifdef WIN32
         directory_separator[0] = '\\';
 #endif
         const char *last_char = path1;
-        while(*last_char != '\0')
-            last_char++;       
-        if(last_char != path1) last_char--; 
+        while (*last_char != '\0')
+            last_char++;
+        if (last_char != path1)
+            last_char--;
         int append_directory_separator = 0;
-        if(strcmp(last_char, directory_separator) != 0) {
+        if (strcmp(last_char, directory_separator) != 0) {
             append_directory_separator = 1;
         }
         strcpy(destination, path1);
-        if(append_directory_separator)
+        if (append_directory_separator)
             strcat(destination, directory_separator);
-        if(strncmp(path2, directory_separator, 1) == 0){
+        if (strncmp(path2, directory_separator, 1) == 0) {
             path2++;
         }
         strcat(destination, path2);

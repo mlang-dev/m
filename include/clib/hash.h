@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-unsigned int hash(unsigned char* str, size_t len);
+unsigned int hash(unsigned char *str, size_t len);
 
 #define HASH_EMPTY 0
 #define HASH_EXIST 1
@@ -24,11 +24,11 @@ struct hashbox {
     unsigned int status : 2; //00: empty  01: occupied  10: deleted with open addressing hash
     unsigned int key_size : 15;
     unsigned int value_size : 15;
-    unsigned char* key_value_pair;
+    unsigned char *key_value_pair;
 };
 
-void* hashbox_get_key(struct hashbox* box);
-void* hashbox_get_value(struct hashbox* box);
+void *hashbox_get_key(struct hashbox *box);
+void *hashbox_get_value(struct hashbox *box);
 
 #ifdef __cplusplus
 }

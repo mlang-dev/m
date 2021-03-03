@@ -13,6 +13,7 @@
 #include "cmodule.h"
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
+#include "clib/symboltable.h"
 
 
 const char* relational_ops[] = {
@@ -112,12 +113,19 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
         _log_err(env, node->loc, "variable type not matched with literal constant");
         return 0;
     }
-    struct type_exp* result_type = (struct type_exp*)create_type_var();
-    unify(result_type, type, &env->nongens);
-    push_symbol_type(&env->venv, var->var_name, result_type);
-    return result_type;
+    struct type_exp* var_type;
+    if (has_symbol_in_scope(&env->venv, var->var_name, env->scope_marker))
+        var_type = retrieve_type_for_var_name(env, var->var_name);
+    else
+        var_type = (struct type_exp*)create_type_var();
+    bool unified = unify(var_type, type, &env->nongens);
+    if (!unified){
+        _log_err(env, node->loc, "variable type not matched with literal constant");
+        return 0;
+    }
+    push_symbol_type(&env->venv, var->var_name, var_type);
+    return var_type;
 }
-
 
 struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
 {
@@ -319,13 +327,13 @@ struct type_exp* _analyze_for(struct env* env, struct exp_node* node)
 struct type_exp* _analyze_block(struct env* env, struct exp_node* node)
 {
     struct block_node* block = (struct block_node*)node;
-    enter_scope(&env->venv);
+    enter_scope(env);
     struct type_exp* exp = 0;
     for (size_t i = 0; i < array_size(&block->nodes); i++) {
         struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
         exp = analyze(env, node); 
     }
-    leave_scope(&env->venv);
+    leave_scope(env);
     return exp;
 }
 

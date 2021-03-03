@@ -11,31 +11,31 @@
 
 #include "clib/object.h"
 
-bool obj_eq(object* dest, object* src);
-void obj_init(object* dest, object* src);
-void obj_deinit(object* obj);
-void* obj_data(object* obj);
+bool obj_eq(object *dest, object *src);
+void obj_init(object *dest, object *src);
+void obj_deinit(object *obj);
+void *obj_data(object *obj);
 
 object_interface default_object_interface = { obj_eq, obj_init, obj_deinit, obj_data };
 object_interface object_interfaces[ALL];
 
-void obj_init(object* dest, object* src)
+void obj_init(object *dest, object *src)
 {
     *dest = *src;
 }
 
-void obj_deinit(object* obj)
+void obj_deinit(object *obj)
 {
     if (!obj)
         return;
 }
 
-void* obj_data(object* obj)
+void *obj_data(object *obj)
 {
     return &obj->c_data;
 }
 
-bool obj_eq(object* dest, object* src)
+bool obj_eq(object *dest, object *src)
 {
     if (dest->type != src->type || dest->size != src->size)
         return false;
