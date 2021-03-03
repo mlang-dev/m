@@ -26,9 +26,7 @@ The code is still under developement but is able to be compiled on Windows/macOS
 
 [llvm](https://github.com/llvm/llvm-project) is used as m's backend implementation.
 
-[WebKit coding](https://webkit.org/code-style-guidelines/) coding style is adopted here.
-
-## m code snipts
+## m code snippets
 ```
 # comment line: defines a one-line function
 avg x y = (x + y) / 2
@@ -69,11 +67,13 @@ git submodule update
 cd ./extern/llvm-project
 mkdir build
 cd build
-cmake -Thost=x64 -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang ../llvm
+cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang ../llvm (note: add -Thost=x64 on Windows platform)
 cmake --build . --config Release -j NN --target install   (Run under Administrator, NN - number of CPU (cores) that you have)
 cd ../../../
 ```
-On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be added to the Path environment variable. 
+Replace Release to Debug in above commands if debug build is desired.
+
+On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be added to the Path environment variable so that "llvm-config" command is able to be executed in cmake. 
 
 ## build mlang
 ```

@@ -14,8 +14,8 @@
 #include <stddef.h>
 
 #include "clib/hashtable.h"
-#include "clib/symbol.h"
 #include "clib/list.h"
+#include "clib/symbol.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,23 +23,22 @@ extern "C" {
 
 struct link_list_entry {
     list_entry(link_list_entry) list;
-    void* data;
+    void *data;
 };
 
 list_head(link_list, link_list_entry);
 
-typedef struct symboltable{
-    struct hashtable ht;    
+typedef struct symboltable {
+    struct hashtable ht;
     struct link_list symbols;
 } symboltable;
 
-void symboltable_init(symboltable* st);
-void symboltable_deinit(symboltable* st);
-void symboltable_push(symboltable* st, symbol s, void* data);
-symbol symboltable_pop(symboltable* st);
-void* symboltable_get(symboltable* st, symbol s);
-bool has_symbol(symboltable* st, symbol s);
-
+void symboltable_init(symboltable *st);
+void symboltable_deinit(symboltable *st);
+void symboltable_push(symboltable *st, symbol s, void *data);
+symbol symboltable_pop(symboltable *st);
+void *symboltable_get(symboltable *st, symbol s);
+bool has_symbol(symboltable *st, symbol s);
 
 #ifdef __cplusplus
 }

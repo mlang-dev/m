@@ -4,7 +4,7 @@ title: Code
 permalink: /code/
 ---
 
-## m code snipts
+## m code snippets
 ```
 # comment line: defines a one-line function
 avg x y = (x + y) / 2
