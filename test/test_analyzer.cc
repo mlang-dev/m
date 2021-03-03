@@ -438,6 +438,38 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
     env_free(env);
 }
 
+TEST(testAnalyzer, testVariableWithScope)
+{
+    char test_code[] = R"(
+x = 10
+getx()=
+    x = 1.3
+    x
+getx()
+x
+)";
+    env* env = env_new(false);
+    block_node* block = parse_string(env->parser, "test", test_code);
+    ASSERT_EQ(4, array_size(&block->nodes));
+    analyze_and_generate_code(env, (exp_node*)block);
+    auto node = *(exp_node**)array_front(&block->nodes);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("int", string_get(&type_str));
+    /*fun definition*/
+    node = *(exp_node**)array_get(&block->nodes, 1);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("() -> double", string_get(&type_str));
+    node = *(exp_node**)array_get(&block->nodes, 2);
+    ASSERT_EQ(CALL_NODE, node->node_type);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("double", string_get(&type_str));
+    node = *(exp_node**)array_get(&block->nodes, 3);
+    ASSERT_EQ(IDENT_NODE, node->node_type);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("int", string_get(&type_str));
+    env_free(env);
+}
+
 TEST(testAnalyzer, testStructTypeVariables)
 {
     char test_code[] = R"(
