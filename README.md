@@ -63,11 +63,12 @@ git submodule update
 ```
 
 ## build llvm
+Note: You can skip building llvm from source but just install binary (version 11.0) from [llvm site](https://releases.llvm.org/)
 ```
 cd ./extern/llvm-project
 mkdir build
 cd build
-cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=clang ../llvm (note: add -Thost=x64 on Windows platform)
+cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;lld" ../llvm (note: add -Thost=x64 on Windows platform)
 cmake --build . --config Release -j NN --target install   (Run under Administrator, NN - number of CPU (cores) that you have)
 cd ../../../
 ```
@@ -122,3 +123,13 @@ clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/test-ccompiler.h
 ./src/c2m -i/usr/include -o../src/lib stdio.h
 ./src/c2m -i/usr/include -o../src/lib math.h
 ```
+
+ld link to executable command
+```
+ld -o helloworld -dynamic-linker /lib64/ld-linux-x86-64.so.2 /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o -lc helloworld.o /usr/lib/x86_64-linux-gnu/crtn.o
+```
+crt1.0 _start entry point for ELF binary
+
+crti.o, initialization code
+
+crtn.o, finalization code

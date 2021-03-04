@@ -5,19 +5,19 @@
  */
 #include "analyzer.h"
 #include "codegen.h"
+#include "env.h"
 #include "parser.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
-#include "env.h"
 #include <stdio.h>
 
 TEST(testAnalyzer, testIntVariable)
 {
     char test_code[] = "x = 11";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(var_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(var_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
@@ -31,10 +31,10 @@ TEST(testAnalyzer, testIntVariable)
 TEST(testAnalyzer, testDoubleVariable)
 {
     char test_code[] = "x = 11.0";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(var_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(var_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
@@ -47,10 +47,10 @@ TEST(testAnalyzer, testDoubleVariable)
 TEST(testAnalyzer, testBoolVariable)
 {
     char test_code[] = "x = true";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(var_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(var_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
@@ -63,10 +63,10 @@ TEST(testAnalyzer, testBoolVariable)
 TEST(testAnalyzer, testCharVariable)
 {
     char test_code[] = "x = 'c'";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(var_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(var_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
@@ -79,10 +79,10 @@ TEST(testAnalyzer, testCharVariable)
 TEST(testAnalyzer, testStringVariable)
 {
     char test_code[] = "x = \"hello world!\"";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(var_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(var_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
@@ -95,10 +95,10 @@ TEST(testAnalyzer, testStringVariable)
 TEST(testAnalyzer, testCallNode)
 {
     char test_code[] = "printf \"hello\"";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(call_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(call_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(CALL_NODE, node->base.node_type);
     ASSERT_EQ(TYPE_INT, node->base.type->type);
@@ -110,10 +110,10 @@ TEST(testAnalyzer, testCallNode)
 TEST(testAnalyzer, testDoubleIntLiteralError)
 {
     char test_code[] = "x = 11.0 + 10";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(var_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(var_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
@@ -126,10 +126,10 @@ TEST(testAnalyzer, testGreaterThan)
     char test_code[] = R"(
   11>10
   )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node**)array_front(&block->nodes);
-    analyze_and_generate_code(env, (exp_node*)block);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    auto node = *(exp_node **)array_front(&block->nodes);
+    analyze_and_generate_code(env, (exp_node *)block);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("bool", string_get(&type_str));
@@ -140,32 +140,32 @@ TEST(testAnalyzer, testIdentityFunc)
 {
     reset_id_name("a");
     char test_code[] = "id x = x";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("id", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
-    ASSERT_STREQ("a -> a", string_get(&type_str));    
+    ASSERT_STREQ("a -> a", string_get(&type_str));
     env_free(env);
 }
 
 TEST(testAnalyzer, testIntIntFunc)
 {
     char test_code[] = "f x = x + 10";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("f", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -176,14 +176,14 @@ TEST(testAnalyzer, testIntIntFunc)
 TEST(testAnalyzer, testDoubleDoubleFunc)
 {
     char test_code[] = "f x = x + 10.0";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("f", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -194,14 +194,14 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
 TEST(testAnalyzer, testBoolFunc)
 {
     char test_code[] = "f x = !x";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("f", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -212,14 +212,14 @@ TEST(testAnalyzer, testBoolFunc)
 TEST(testAnalyzer, testMultiParamFunc)
 {
     char test_code[] = "avg x y = (x + y) / 2.0";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("avg", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(3, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -234,14 +234,14 @@ factorial n =
   if n < 2 then n
   else n * factorial (n-1)
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("factorial", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -257,19 +257,19 @@ loopprint n =
   for i in 0..n
     printf "%d" i
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int -> ()", string_get(&type_str));
-    for_node* forn = *(for_node**)array_front(&node->body->nodes);
+    for_node *forn = *(for_node **)array_front(&node->body->nodes);
     ASSERT_EQ(TYPE_INT, get_type(forn->step->type));
     ASSERT_EQ(TYPE_INT, get_type(forn->start->type));
     ASSERT_EQ(TYPE_BOOL, get_type(forn->end->type));
@@ -287,14 +287,14 @@ distance x1 y1 x2 y2 =
   sqrt (xx + yy)
 )";
     reset_id_name("a");
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("distance", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(5, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -310,14 +310,14 @@ to_string () =
   y = x
   y
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("to_string", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(1, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -330,15 +330,15 @@ TEST(testAnalyzer, testVariadicFunc)
     char test_code[] = R"(
 var_func ... = 0
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("var_func", string_get(node->prototype->name));
     ASSERT_EQ(true, node->prototype->is_variadic);
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -351,10 +351,10 @@ TEST(testAnalyzer, testPrintfFunc)
     char test_code[] = R"(
 printf "%d" 100
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(CALL_NODE, node->node_type);
     string type_str = to_string(node->type);
@@ -367,10 +367,10 @@ TEST(testAnalyzer, testStructLikeType)
     char test_code[] = R"(
 type Point2D = x:double y:double
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(TYPE_NODE, node->node_type);
     string type_str = to_string(node->type);
@@ -383,14 +383,14 @@ TEST(testAnalyzer, testFunctionTypeAnnotation)
     char test_code[] = R"(
     print x:int = printf "%d" x
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("print", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -403,14 +403,14 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithParentheses)
     char test_code[] = R"(
     prt (x:int) = printf "%d" x
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("prt", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -423,14 +423,14 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
     char test_code[] = R"(
     prt (x:int):int = printf "%d" x
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(function_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(function_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("prt", string_get(node->prototype->name));
     ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper*)node->base.type;
+    auto var = (type_oper *)node->base.type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
@@ -448,22 +448,22 @@ getx()=
 getx()
 x
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(4, array_size(&block->nodes));
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
     /*fun definition*/
-    node = *(exp_node**)array_get(&block->nodes, 1);
+    node = *(exp_node **)array_get(&block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> double", string_get(&type_str));
-    node = *(exp_node**)array_get(&block->nodes, 2);
+    node = *(exp_node **)array_get(&block->nodes, 2);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
-    node = *(exp_node**)array_get(&block->nodes, 3);
+    node = *(exp_node **)array_get(&block->nodes, 3);
     ASSERT_EQ(IDENT_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
@@ -476,20 +476,19 @@ TEST(testAnalyzer, testRedefinitionInTheSameScropeIsNotAllowed)
 x = 10.0
 x = 10
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(2, array_size(&block->nodes));
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
     /*fun definition*/
-    node = *(exp_node**)array_get(&block->nodes, 1);
+    node = *(exp_node **)array_get(&block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("type mismatch", string_get(&type_str));
     env_free(env);
 }
-
 
 TEST(testAnalyzer, testStructTypeVariables)
 {
@@ -498,19 +497,19 @@ type Point2D = x:double y:double
 xy:Point2D = 0.0 0.0
 xy.x
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(3, array_size(&block->nodes));
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
-    node = *(exp_node**)array_get(&block->nodes, 1);
+    node = *(exp_node **)array_get(&block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
-    node = *(exp_node**)array_get(&block->nodes, 2);
+    node = *(exp_node **)array_get(&block->nodes, 2);
     ASSERT_EQ(IDENT_NODE, node->node_type);
-    struct ident_node* id_node = (struct ident_node*)node;
+    struct ident_node *id_node = (struct ident_node *)node;
     ASSERT_STREQ("xy.x", string_get(id_node->name));
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
@@ -526,18 +525,18 @@ getx()=
     xy.x
 getx()
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(3, array_size(&block->nodes));
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     /*fun definition*/
-    node = *(exp_node**)array_get(&block->nodes, 1);
+    node = *(exp_node **)array_get(&block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> double", string_get(&type_str));
-    node = *(exp_node**)array_get(&block->nodes, 2);
+    node = *(exp_node **)array_get(&block->nodes, 2);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
@@ -553,22 +552,22 @@ getx()=
     xy
 z = getx()
 )";
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(3, array_size(&block->nodes));
-    analyze_and_generate_code(env, (exp_node*)block);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    analyze_and_generate_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     /*fun definition*/
-    node = *(exp_node**)array_get(&block->nodes, 1);
+    node = *(exp_node **)array_get(&block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> Point2D", string_get(&type_str));
 
     /*variable node*/
-    node = *(exp_node**)array_get(&block->nodes, 2);
+    node = *(exp_node **)array_get(&block->nodes, 2);
     ASSERT_EQ(VAR_NODE, node->node_type);
-    struct var_node* var = (struct var_node*)node;
+    struct var_node *var = (struct var_node *)node;
 
     /*initial value is a call expression*/
     ASSERT_EQ(CALL_NODE, var->init_value->node_type);
