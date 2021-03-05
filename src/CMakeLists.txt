@@ -67,7 +67,7 @@ link_directories(
 )
 
 add_executable(m
-  driver/m.c
+  driver/m.cc
 )
 
 add_executable(c2m
