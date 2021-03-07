@@ -63,17 +63,17 @@ git submodule update
 ```
 
 ## build llvm
-Note: You can skip building llvm from source but just install binary (version 11.0) from [llvm site](https://releases.llvm.org/)
+Note: You can skip building llvm from source but just install binary (version 11.0) from [llvm site](https://releases.llvm.org/). 
+
+Replace Release to Debug in following commands if debug build is desired.
 ```
 cd ./extern/llvm-project
 mkdir build
 cd build
-cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;lld" ../llvm (note: add -Thost=x64 on Windows platform)
+cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;lld" ../llvm
 cmake --build . --config Release -j NN --target install   (Run under Administrator, NN - number of CPU (cores) that you have)
 cd ../../../
 ```
-Replace Release to Debug in above commands if debug build is desired.
-
 On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be added to the Path environment variable so that "llvm-config" command is able to be executed in cmake. 
 
 ## build mlang
