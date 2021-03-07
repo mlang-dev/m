@@ -10,7 +10,7 @@
 #include "clib/object.h"
 #include "compiler.h"
 #include "repl.h"
-#include "lld/Common/Driver.h"
+#include "ld.h"
 
 extern char* optarg;
 extern int optind, opterr, optopt;
