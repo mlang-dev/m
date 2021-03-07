@@ -6,14 +6,12 @@
 #include <stdlib.h>
 
 #include "jit.h"
+#include <llvm-c/LLJIT.h>
 #include <llvm-c/Core.h>
-#include <llvm-c/Error.h>
 #include <llvm-c/Initialization.h>
-#include <llvm-c/Orc.h>
 #include <llvm-c/Support.h>
-#include <llvm-c/Target.h>
-
 #include "clib/util.h"
+
 
 void* _create_jit_instance()
 {
@@ -66,7 +64,7 @@ void add_module(struct JIT* jit, void* module)
     LLVMOrcJITDylibRef jd = LLVMOrcLLJITGetMainJITDylib(j);
     LLVMOrcThreadSafeContextRef tsc = LLVMOrcCreateNewThreadSafeContext();
     LLVMOrcThreadSafeModuleRef tsm = LLVMOrcCreateNewThreadSafeModule((LLVMModuleRef)module, tsc);
-    LLVMOrcJITDylibDefinitionGeneratorRef dg;
+    LLVMOrcDefinitionGeneratorRef dg;
     #ifdef __APPLE__ //MacOS
         LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, '_', 0, 0); 
         LLVMLoadLibraryPermanently("/usr/lib/libstdc++.so"); 

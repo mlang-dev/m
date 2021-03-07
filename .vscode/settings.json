@@ -92,7 +92,8 @@
         "scoped_allocator": "c",
         "future": "cpp",
         "symboltable.h": "c",
-        "hashtable.h": "c"
+        "hashtable.h": "c",
+        "lljit.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
