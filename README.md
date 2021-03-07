@@ -65,7 +65,7 @@ git submodule update
 ## build llvm
 Note: You can skip building llvm from source but just install binary (version 11.0) from [llvm site](https://releases.llvm.org/). 
 
-Replace Release to Debug in following commands if debug build is desired.
+Replace "Release" with "Debug" in following commands if Debug build is desired.
 ```
 cd ./extern/llvm-project
 mkdir build
