@@ -81,7 +81,14 @@ target_link_libraries(m PRIVATE
   mlr
   ${llvm_libraries}
   ${sys_libraries}
- )
+  lldCommon
+  lldCOFF
+  lldDriver
+  lldELF
+  lldMachO2
+  lldMinGW
+  lldWasm
+)
 
 message(STATUS "${CMAKE_BUILD_TYPE} COPY ${CMAKE_CURRENT_SOURCE_DIR}/lib DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib")
 
