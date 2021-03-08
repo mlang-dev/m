@@ -1,1 +1,1 @@
-int ld(int argc, char* argv[]);
+int ld(int argc, const char* argv[]);

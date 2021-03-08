@@ -67,6 +67,7 @@ link_directories(
 )
 
 add_executable(m
+  driver/ld.cc
   driver/m.cc
 )
 

@@ -1,6 +1,6 @@
 #include <lld/Common/Driver.h>
 
-int ld(int argc, char* argv[])
+int ld(int argc, const char* argv[])
 {
     lld::SafeReturn result;
     llvm::raw_ostream &stdoutOS = llvm::outs();

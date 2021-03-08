@@ -17,7 +17,7 @@ extern int optind, opterr, optopt;
 
 void print_usage()
 {
-    printf("Usage as a compiler: m -f ir|bc|ob src file\n");
+    printf("Usage as a compiler: m -o output file -f ir|bc|ob src file\n");
     printf("Usage as a repl: m\n");
     exit(2);
 }
@@ -31,8 +31,12 @@ int main(int argc, char* argv[])
     enum object_file_type file_type = FT_OBJECT;
     struct array src_files;
     array_init(&src_files, sizeof(char*));
+    struct array ld_options;
+    const char* ld_cmd = "ld";
+    array_init(&ld_options, sizeof(char*));
+    array_push(&ld_options, &ld_cmd);
     while (optind < argc) {
-        if ((option = getopt(argc, argv, "f:")) != -1) {
+        if ((option = getopt(argc, argv, "fo:")) != -1) {
             switch (option) {
             case 'f':
                 if (strcmp(optarg, "bc") == 0)
@@ -45,6 +49,10 @@ int main(int argc, char* argv[])
                     print_usage();
                 }
                 fflag = 1;
+                break;
+            case 'o':
+                array_push(&ld_options, &argv[optind]);
+                array_push(&ld_options, &optarg);
                 break;
             case '?':
             default:
@@ -67,11 +75,17 @@ int main(int argc, char* argv[])
                 printf("file: %s does not exist\n", fn);
                 exit(1);
             }
-
             result = compile(fn, file_type);
             break;
         }
     }
+    //do linker
+    if (file_type == FT_OBJECT){
+        int ld_argc = array_size(&ld_options);
+        const char** ld_argv = (const char**)array_get(&ld_options, 0);
+        //result = ld(ld_argc, ld_argv);
+    }
     array_deinit(&src_files);
+    array_deinit(&ld_options);
     return result;
 }

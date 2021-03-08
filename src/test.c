@@ -1,9 +1,11 @@
-#include <stdio.h>
-#include <assert.h>
-#include <ctype.h>
-
-int main()
+#include<stdio.h>
+int main(int argc, const char *argv[])
 {
-    
-    printf("ok:%d\n", isalpha('_'));
+    int i;
+    printf("%d\n",argc);
+    for(i=0;i<argc;i++)
+    {
+        printf("%s\n", argv[i]);
+    }
+    return 0;
 }
