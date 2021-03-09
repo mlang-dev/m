@@ -79,12 +79,8 @@ set_target_properties(m PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(m PRIVATE 
   mlr
-  ${llvm_libraries}
-  ${sys_libraries}
-  lldCore
-  lldCommon
-  lldCOFF
   lldDriver
+  lldCOFF
   lldELF
   lldMachO
   lldMachO2
@@ -92,6 +88,10 @@ target_link_libraries(m PRIVATE
   lldWasm
   lldYAML
   lldReaderWriter
+  lldCommon
+  lldCore
+  ${llvm_libraries}
+  ${sys_libraries}
 )
 
 message(STATUS "${CMAKE_BUILD_TYPE} COPY ${CMAKE_CURRENT_SOURCE_DIR}/lib DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib")
