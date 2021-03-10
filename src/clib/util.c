@@ -179,3 +179,15 @@ void join_path(char *destination, const char *path1, const char *path2)
         strcat(destination, path2);
     }
 }
+
+char* get_basename(char *filename)
+{
+    char *end = filename + strlen(filename);
+    while (end > filename && *end != '.') {
+        --end;
+    }
+    if (end > filename) {
+        *end = '\0';
+    }
+    return filename;
+}

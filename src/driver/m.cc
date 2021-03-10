@@ -32,9 +32,28 @@ int main(int argc, char* argv[])
     struct array src_files;
     array_init(&src_files, sizeof(char*));
     struct array ld_options;
-    const char* ld_cmd = "ld";
     array_init(&ld_options, sizeof(char*));
+    bool use_ld = false;
+#ifdef __APPLE__
+    const char* ld_cmd = "ld64.lld.darwinnew";
+    const char *finalization = "-lSystem";
     array_push(&ld_options, &ld_cmd);
+#elif defined(_WIN32)
+    const char* ld_cmd = "link";
+#elif defined(__linux__)
+    const char* ld_cmd = "ld.lld";
+    const char *dynamic_link = "-dynamic-linker"; //only elf 
+    const char *libc = "/lib64/ld-linux-x86-64.so.2";
+    const char *start_entry = "/usr/lib/x86_64-linux-gnu/crt1.o";
+    const char *initialization = "/usr/lib/x86_64-linux-gnu/crti.o";
+    const char *finalization = "/usr/lib/x86_64-linux-gnu/crtn.o";
+    array_push(&ld_options, &ld_cmd);
+    array_push(&ld_options, &dynamic_link);
+    array_push(&ld_options, &libc);
+    array_push(&ld_options, &start_entry);
+    array_push(&ld_options, &initialization);
+#endif
+    const char* output = "-o";
     while (optind < argc) {
         if ((option = getopt(argc, argv, "fo:")) != -1) {
             switch (option) {
@@ -51,8 +70,9 @@ int main(int argc, char* argv[])
                 fflag = 1;
                 break;
             case 'o':
-                array_push(&ld_options, &argv[optind]);
+                array_push(&ld_options, &output);
                 array_push(&ld_options, &optarg);
+                use_ld = true;
                 break;
             case '?':
             default:
@@ -76,15 +96,21 @@ int main(int argc, char* argv[])
                 exit(1);
             }
             result = compile(fn, file_type);
+            char* basename = get_basename((char*)fn);
+            char* obj_name = strcat(basename, ".o");
+            array_push(&ld_options, &obj_name);
             break;
         }
     }
     //do linker
-    if (file_type == FT_OBJECT){
+#ifdef __APPLE__
+    if (file_type == FT_OBJECT && use_ld){
+        array_push(&ld_options, &finalization);
         int ld_argc = array_size(&ld_options);
         const char** ld_argv = (const char**)array_get(&ld_options, 0);
-        //result = ld(ld_argc, ld_argv);
+        result = ld(ld_argc, ld_argv);
     }
+#endif
     array_deinit(&src_files);
     array_deinit(&ld_options);
     return result;
