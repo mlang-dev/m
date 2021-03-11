@@ -19,7 +19,7 @@ int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, con
         printf("Target machine can't emit an object file\n");
         return 2;
     }
-    printf("generated obj file: %s\n", filename);
+    //printf("generated obj file: %s\n", filename);
     return 0;
 }
 

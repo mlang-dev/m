@@ -24,7 +24,6 @@ void print_usage()
 
 int main(int argc, char* argv[])
 {
-    printf("m - 0.0.17\n");
     //printf("from location: %s\n", get_exec_path());
     int option;
     int fflag = 0;
@@ -42,14 +41,18 @@ int main(int argc, char* argv[])
     const char* ld_cmd = "link";
 #elif defined(__linux__)
     const char* ld_cmd = "ld.lld";
+    const char *libcpath = "-L/usr/lib/x86_64-linux-gnu";
+    const char *libc = "-lc";
     const char *dynamic_link = "-dynamic-linker"; //only elf 
-    const char *libc = "/lib64/ld-linux-x86-64.so.2";
+    const char *libld = "/lib64/ld-linux-x86-64.so.2";
     const char *start_entry = "/usr/lib/x86_64-linux-gnu/crt1.o";
     const char *initialization = "/usr/lib/x86_64-linux-gnu/crti.o";
     const char *finalization = "/usr/lib/x86_64-linux-gnu/crtn.o";
     array_push(&ld_options, &ld_cmd);
-    array_push(&ld_options, &dynamic_link);
+    array_push(&ld_options, &libcpath);
     array_push(&ld_options, &libc);
+    array_push(&ld_options, &dynamic_link);
+    array_push(&ld_options, &libld);
     array_push(&ld_options, &start_entry);
     array_push(&ld_options, &initialization);
 #endif
@@ -85,6 +88,7 @@ int main(int argc, char* argv[])
     }
     int result = 0;
     if (!array_size(&src_files)) {
+        printf("m - 0.0.17\n");
         result = run_repl();
     } else {
         if (!file_type)
@@ -103,7 +107,7 @@ int main(int argc, char* argv[])
         }
     }
     //do linker
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)  
     if (file_type == FT_OBJECT && use_ld){
         array_push(&ld_options, &finalization);
         int ld_argc = array_size(&ld_options);
