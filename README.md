@@ -124,7 +124,12 @@ clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/test-ccompiler.h
 ./src/c2m -i/usr/include -o../src/lib math.h
 ```
 
-* ld link to executable command. crt1.0: _start entry point for ELF, crti.o: initialization, crtn.o: finalization
+* ld link to executable command. Unix-like system crt1.0: _start entry point for ELF, crti.o: initialization, crtn.o: finalization
 ```
 ld -o helloworld -dynamic-linker /lib64/ld-linux-x86-64.so.2 /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o -lc helloworld.o /usr/lib/x86_64-linux-gnu/crtn.o
+```
+* MSVC link
+```
+link /ENTRY:main helloworld.o legacy_stdio_definitions.lib ucrt.lib
+link /ENTRY:main  legacy_stdio_definitions.lib ucrt.lib helloworld.o 
 ```

@@ -203,8 +203,18 @@ static unsigned inTestVerbosity() {
 }
 
 int ld(int argc, const char **argv) {
+  #ifdef _WIN32
+    int old_argc = argc;
+    const char ** old_argv = (const char**)malloc(argc*sizeof(const char*));
+    memcpy(old_argv, argv, argc*sizeof(const char*));
+  #endif
+
   InitLLVM x(argc, argv);
 
+  #ifdef _WIN32
+    argc = old_argc;
+    argv = old_argv;
+  #endif
   // Not running in lit tests, just take the shortest codepath with global
   // exception handling and no memory cleanup on exit.
   if (!inTestVerbosity())
@@ -230,5 +240,8 @@ int ld(int argc, const char **argv) {
       return r.ret;
     }
   }
+  #ifdef _WIN32
+    free(old_argv);
+  #endif
   return *mainRet;
 }

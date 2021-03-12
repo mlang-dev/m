@@ -38,7 +38,18 @@ int main(int argc, char* argv[])
     const char *finalization = "-lSystem";
     array_push(&ld_options, &ld_cmd);
 #elif defined(_WIN32)
-    const char* ld_cmd = "link";
+    char output[PATH_MAX];
+    char* output_str = &output[0];
+    strcpy(output, "/OUT:");
+    const char *ld_cmd = "link.exe";
+    const char *entry_main = "/ENTRY:main";
+    const char *libstdio = "legacy_stdio_definitions.lib";
+    const char *libc = "ucrtd.lib";
+    const char *finalization = NULL;
+    array_push(&ld_options, &ld_cmd);
+    array_push(&ld_options, &entry_main);
+    array_push(&ld_options, &libstdio);
+    array_push(&ld_options, &libc);
 #elif defined(__linux__)
     const char* ld_cmd = "ld.lld";
     const char *libcpath = "-L/usr/lib/x86_64-linux-gnu";
@@ -56,7 +67,6 @@ int main(int argc, char* argv[])
     array_push(&ld_options, &start_entry);
     array_push(&ld_options, &initialization);
 #endif
-    const char* output = "-o";
     while (optind < argc) {
         if ((option = getopt(argc, argv, "fo:")) != -1) {
             switch (option) {
@@ -73,8 +83,14 @@ int main(int argc, char* argv[])
                 fflag = 1;
                 break;
             case 'o':
+            #ifdef _WIN32
+                strcat(output, optarg);
+                array_push(&ld_options, &output_str);
+            #else
+                const char* output = "-o";
                 array_push(&ld_options, &output);
                 array_push(&ld_options, &optarg);
+            #endif
                 use_ld = true;
                 break;
             case '?':
@@ -107,14 +123,17 @@ int main(int argc, char* argv[])
         }
     }
     //do linker
-#if defined(__APPLE__) || defined(__linux__)  
     if (file_type == FT_OBJECT && use_ld){
-        array_push(&ld_options, &finalization);
+        if(finalization)
+            array_push(&ld_options, &finalization);
         int ld_argc = array_size(&ld_options);
+        for(int i = 0; i<ld_argc; i++){
+            const char *ldu = *(const char**)array_get(&ld_options, i);
+            printf("%d, %s\n", i, ldu);
+        }
         const char** ld_argv = (const char**)array_get(&ld_options, 0);
         result = ld(ld_argc, ld_argv);
     }
-#endif
     array_deinit(&src_files);
     array_deinit(&ld_options);
     return result;
