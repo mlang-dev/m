@@ -130,6 +130,5 @@ ld -o helloworld -dynamic-linker /lib64/ld-linux-x86-64.so.2 /usr/lib/x86_64-lin
 ```
 * MSVC link
 ```
-link /ENTRY:main helloworld.o legacy_stdio_definitions.lib ucrt.lib
 link /ENTRY:main  legacy_stdio_definitions.lib ucrt.lib helloworld.o 
 ```

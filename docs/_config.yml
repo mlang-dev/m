@@ -65,9 +65,9 @@ panelbear_analytics: XXXXXXXXX # panelbear analytics site ID
 # Blog
 # -----------------------------------------------------------------------------
 
-blog_name: updates  # your blog must have a name for it to show up in the nav bar
-blog_description: updates about mlang
-permalink: /update/:year/:title/
+blog_name: coding in m  # your blog must have a name for it to show up in the nav bar
+blog_description:
+permalink: /blog/:year/:title/
 
 # Pagination
 pagination:

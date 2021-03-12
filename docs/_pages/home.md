@@ -1,6 +1,6 @@
 ---
-layout: about
-title: about
+layout: home
+title: home
 permalink: /
 description: #<a href="#">Affiliations</a>. Address. Contacts. Moto. Etc.
 
@@ -16,8 +16,8 @@ news: true  # includes a list of news items
 social: true  # includes social icons at the bottom of the page
 ---
 
-m code snippets:
-{% highlight ocaml %}
+code snippets:s
+```
 # comment line: defines a one-line function
 avg x y = (x + y) / 2
 
@@ -25,7 +25,7 @@ avg x y = (x + y) / 2
 distance x1 y1 x2 y2 = 
   xx = (x1-x2) * (x1-x2)
   yy = (y1-y2) * (y1-y2)
-  sqrt (xx + yy) # call c std sqrt math function
+  sqrt (xx + yy)
 
 # factorial function with recursive call
 factorial n = 
@@ -35,9 +35,8 @@ factorial n =
 # using for loop
 loopprint n = 
   for i in 0..n
-    printf "%d" i   # call c std io printf function
-{% endhighlight %}
-
+    print i
+```
 
 
 [github]: https://github.com/ligangwang/m
