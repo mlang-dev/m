@@ -16,7 +16,7 @@ news: true  # includes a list of news items
 social: true  # includes social icons at the bottom of the page
 ---
 
-code snippets:s
+code snippets:
 ```
 # comment line: defines a one-line function
 avg x y = (x + y) / 2
