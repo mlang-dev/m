@@ -18,6 +18,9 @@ social: true  # includes social icons at the bottom of the page
 
 code snippets:
 ```
+# hello world
+main () = printf "hello world !\n"
+
 # comment line: defines a one-line function
 avg x y = (x + y) / 2
 
@@ -37,6 +40,3 @@ loopprint n =
   for i in 0..n
     print i
 ```
-
-
-[github]: https://github.com/ligangwang/m

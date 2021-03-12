@@ -127,10 +127,6 @@ int main(int argc, char* argv[])
         if(finalization)
             array_push(&ld_options, &finalization);
         int ld_argc = array_size(&ld_options);
-        for(int i = 0; i<ld_argc; i++){
-            const char *ldu = *(const char**)array_get(&ld_options, i);
-            printf("%d, %s\n", i, ldu);
-        }
         const char** ld_argv = (const char**)array_get(&ld_options, 0);
         result = ld(ld_argc, ld_argv);
     }

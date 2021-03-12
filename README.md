@@ -28,6 +28,9 @@ The code is still under developement but is able to be compiled on Windows/macOS
 
 ## m code snippets
 ```
+# hello world !
+main () = printf "hello world !\n"
+
 # comment line: defines a one-line function
 avg x y = (x + y) / 2
 

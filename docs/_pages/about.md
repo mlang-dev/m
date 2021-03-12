@@ -1,9 +1,11 @@
 ---
-layout: post
-title:  "about m(mlang)"
-date:   2021-02-27 10:58:28 -0500
-categories: updates
+layout: page
+title: about
+permalink: /about/
+description: 
+nav: true
 ---
+
 m is a succinct & expressive programming language, where elegant language construction is achieved without sacrificing C level of execution efficiency. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction to its maximum. It's a static-typed language with type inference, which means most of time types of variables are not required to be annotated. m supports native C data type without introducing reference count and GC overheads like Python and other high-level languages do. Like C, m supports memory allocations on stack and heap, the stack memory is automatically released when it is out of scope. Unlike C the heap memory release instruction is automatically inserted where its owner on the stack is out of scope statically at compile time by m, which is similar like what Rust does and m programmer does not need to explicitly release heap memory. This design avoids the non-deterministic garbage collections and is tailored for real-time system programming.
 
 Another goal of m language design is to eanble native calls between functions written in m and C language to maximize reuse of existing high performance libraries written in C/C++.
@@ -24,27 +26,3 @@ The code is still under developement but is able to be compiled on Windows/macOS
 * Ubuntu 20.04
 * Windows 10
 
-m code snippets:
-{% highlight ocaml %}
-# comment line: defines a one-line function
-avg x y = (x + y) / 2
-
-# defines a distance function
-distance x1 y1 x2 y2 = 
-  xx = (x1-x2) * (x1-x2)
-  yy = (y1-y2) * (y1-y2)
-  sqrt (xx + yy) # call c std sqrt math function
-
-# factorial function with recursive call
-factorial n = 
-  if n < 2 then n
-  else n * factorial (n-1)
-
-# using for loop
-loopprint n = 
-  for i in 0..n
-    printf "%d" i   # call c std io printf function
-{% endhighlight %}
-
-
-[github]: https://github.com/ligangwang/m
