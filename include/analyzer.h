@@ -9,7 +9,7 @@
 #define __MLANG_ANALYZER_H__
 
 #include "ast.h"
-#include "codegen.h"
+#include "codegen/codegen.h"
 #include "env.h"
 #include "clib/symbol.h"
 

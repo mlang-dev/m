@@ -1,20 +1,16 @@
+/*
+ * jit.h
+ * 
+ * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * header file for jit.c
+ */
 
-//===- KaleidoscopeJIT.h - A simple JIT for Kaleidoscope --------*- C++ -*-===//
-//
-// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
-// See https://llvm.org/LICENSE.txt for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//===----------------------------------------------------------------------===//
-//
-// Contains a simple JIT definition for use in the kaleidoscope tutorials.
-//
-//===----------------------------------------------------------------------===//
 #ifndef __MLANG_JIT_H__
 #define __MLANG_JIT_H__
 
 #include "clib/util.h"
-#include "codegen.h"
+#include "codegen/codegen.h"
 #include "env.h"
 
 #ifdef __cplusplus

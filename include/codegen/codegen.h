@@ -3,7 +3,7 @@
  * 
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for IR codegen
+ * header file for LLVM IR codegen
  */
 #ifndef __MLANG_CODEGEN_H__
 #define __MLANG_CODEGEN_H__
@@ -86,4 +86,4 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
 }
 #endif
 
-#endif
+#endif //__MLANG_CODEGEN_H__

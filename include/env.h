@@ -11,7 +11,7 @@
 
 #include "clib/array.h"
 #include "clib/symboltable.h"
-#include "codegen.h"
+#include "codegen/codegen.h"
 #include "parser.h"
 
 #ifdef __cplusplus

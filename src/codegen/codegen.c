@@ -10,9 +10,9 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
-#include "codegen.h"
+#include "codegen/codegen.h"
 #include "type.h"
-#include "llvm-c/Support.h"
+#include <llvm-c/Support.h>
 
 LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_node* node,
     bool is_external);

@@ -4,7 +4,7 @@
  * Unit tests for type inference and semantic analsysis
  */
 #include "analyzer.h"
-#include "codegen.h"
+#include "codegen/codegen.h"
 #include "env.h"
 #include "parser.h"
 #include "tutil.h"
