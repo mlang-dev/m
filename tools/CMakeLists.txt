@@ -28,36 +28,6 @@ endif(WIN32)
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-add_library(mlr 
-  clib/math.c
-  clib/object.c
-  clib/array.c
-  clib/string.c
-  clib/symbol.c
-  clib/symboltable.c
-  clib/queue.c
-  clib/hash.c
-  clib/hashset.c
-  clib/hashtable.c
-  clib/util.c
-  clib/generic.c
-  tool/cmodule.c
-  lexer/lexer.c
-  parser/ast.c
-  parser/parser.c
-  parser/astdump.c
-  analyzer/type.c
-  analyzer/analyzer.c
-  analyzer/env.c
-  codegen/codegen.c
-  repl/repl.c
-  repl/jit.c
-  compiler/compiler.c
-  win/getopt.c
-  win/libfmemopen.c
-  sys/getpath.c
- )
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
 )
@@ -72,7 +42,7 @@ add_executable(m
 )
 
 add_executable(c2m
-  tool/c2m.c
+  c2m/c2m.c
 )
 
 set_target_properties(m PROPERTIES LINKER_LANGUAGE CXX)
@@ -94,15 +64,15 @@ target_link_libraries(m PRIVATE
   ${sys_libraries}
 )
 
-message(STATUS "${CMAKE_BUILD_TYPE} COPY ${CMAKE_CURRENT_SOURCE_DIR}/lib DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib")
+message(STATUS "${CMAKE_BUILD_TYPE} COPY ${CMAKE_SOURCE_DIR}/mlib DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib")
 
 if(WIN32)
 add_custom_command(
   TARGET m PRE_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/lib" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/lib"
+  COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/mlib" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/mlib"
 )
 else()
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib/)
+file(COPY ${CMAKE_SOURCE_DIR}/mlib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib/)
 endif(WIN32)
 
 add_custom_command(

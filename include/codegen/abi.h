@@ -64,4 +64,16 @@ bool is_padding_type(ArgPassKind pass_kind);
 
 bool is_coerce_to_type(ArgPassKind pass_kind);
 
+struct abi_arg_info classify_return_type(struct type_exp *typ);
+
+struct abi_arg_info classify_argument_type(struct type_exp *typ);
+
+struct abi_arg_info  classify_type(struct type_exp *typ);
+
+bool update_free_reg(struct type_exp *typ);
+
+bool should_aggregate_use_direct(struct type_exp *typ);
+
+bool should_primitive_use_in_reg(struct type_exp *typ);
+
 #endif //__MLANG_ABI_H__

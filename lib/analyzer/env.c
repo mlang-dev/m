@@ -54,7 +54,7 @@ struct env *env_new(bool is_repl)
     }
     char libpath[PATH_MAX];
     char *mpath = get_exec_path();
-    join_path(libpath, mpath, "/lib/stdio.m");
+    join_path(libpath, mpath, "/mlib/stdio.m");
     struct block_node *block = parse_file(env->parser, libpath);
     struct array builtins;
     array_init(&builtins, sizeof(struct exp_node *));
@@ -62,7 +62,7 @@ struct env *env_new(bool is_repl)
         struct exp_node *node = *(struct exp_node **)array_get(&block->nodes, i);
         array_push(&builtins, &node);
     }
-    join_path(libpath, mpath, "/lib/math.m");
+    join_path(libpath, mpath, "/mlib/math.m");
     block = parse_file(env->parser, libpath);
     array_add(&builtins, &block->nodes);
     for (size_t i = 0; i < array_size(&builtins); i++) {

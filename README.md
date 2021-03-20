@@ -123,8 +123,8 @@ clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/test-ccompiler.h
 
 * Generate stdio.m/math.m lib files
 ```
-./src/c2m -i/usr/include -o../src/lib stdio.h
-./src/c2m -i/usr/include -o../src/lib math.h
+./src/c2m -i/usr/include -o../mlib stdio.h
+./src/c2m -i/usr/include -o../mlib math.h
 ```
 
 * ld link to executable command. Unix-like system crt1.0: _start entry point for ELF, crti.o: initialization, crtn.o: finalization

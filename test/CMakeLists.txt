@@ -68,10 +68,10 @@ gtest_discover_tests(mtest)
 if(WIN32)
 add_custom_command(
   TARGET mtest PRE_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/src/lib" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/lib"
+  COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/mlib" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/mlib"
 )
 else()
-file(COPY ${CMAKE_SOURCE_DIR}/src/lib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib/)
+file(COPY ${CMAKE_SOURCE_DIR}/mlib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib/)
 endif(WIN32)
 
 add_custom_command(

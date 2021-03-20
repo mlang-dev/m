@@ -10,7 +10,8 @@ project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
 
 add_subdirectory(extern/googletest)
-add_subdirectory(src)
+add_subdirectory(lib)
+add_subdirectory(tools)
 add_subdirectory(test)
 add_subdirectory(samples)
 
