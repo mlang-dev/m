@@ -5,13 +5,13 @@
  */
 #include "gtest/gtest.h"
 
-#include "ast.h"
+#include "parser/ast.h"
 #include "clib/array.h"
 #include "clib/string.h"
 #include <string.h>
-#include "parser.h"
+#include "parser/parser.h"
 #include "tutil.h"
-#include "astdump.h"
+#include "parser/astdump.h"
 #include "test_base.h"
 
 class testAstDump : public TestBase {};

@@ -5,7 +5,7 @@
  */
 #include "gtest/gtest.h"
 
-#include "ast.h"
+#include "parser/ast.h"
 #include "clib/array.h"
 #include "clib/string.h"
 #include <string.h>

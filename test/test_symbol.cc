@@ -12,7 +12,7 @@
 #include "clib/object.h"
 #include "clib/string.h"
 #include "clib/util.h"
-#include "type.h"
+#include "sema/type.h"
 #include "clib/symbol.h"
 
 TEST(testSymbol, TestSymbolEqualsWithTheSameStringKey)

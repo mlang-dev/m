@@ -3,13 +3,13 @@
  *
  * Unit tests for type inference and semantic analsysis
  */
-#include "analyzer.h"
+#include "sema/analyzer.h"
 #include "codegen/codegen.h"
-#include "parser.h"
+#include "parser/parser.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
-#include "env.h"
+#include "sema/env.h"
 
 TEST(testAnalyzerError, testNoFunctionFound)
 {

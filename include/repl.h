@@ -8,9 +8,9 @@
 #ifndef __MLANG_REPL_H__
 #define __MLANG_REPL_H__
 
-#include "env.h"
+#include "sema/env.h"
 #include "jit.h"
-#include "type.h"
+#include "sema/type.h"
 
 #ifdef __cplusplus
 extern "C" {

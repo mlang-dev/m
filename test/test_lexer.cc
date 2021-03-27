@@ -3,7 +3,7 @@
  *
  * Unit tests for lexer
  */
-#include "lexer.h"
+#include "lexer/lexer.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>

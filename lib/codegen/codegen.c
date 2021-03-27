@@ -11,7 +11,7 @@
 #include "clib/object.h"
 #include "clib/util.h"
 #include "codegen/codegen.h"
-#include "type.h"
+#include "sema/type.h"
 #include <llvm-c/Support.h>
 
 LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_node* node,
@@ -544,8 +544,7 @@ LLVMValueRef _generate_function_node(struct code_generator* cg, struct exp_node*
 LLVMValueRef _generate_call_node(struct code_generator* cg, struct exp_node* node)
 {
     struct call_node* call = (struct call_node*)node;
-    bool req_spec_cg = call->specialized_callee != NULL; //!string_eq_chars(call->specialized_callee, "");
-    symbol callee_name = req_spec_cg? call->specialized_callee : call->callee;
+    symbol callee_name = call->specialized_callee? call->specialized_callee : call->callee;
     LLVMValueRef callee = _get_function(cg, string_get(callee_name));
     assert(callee);
     LLVMValueRef* arg_values = malloc(array_size(&call->args)*sizeof(LLVMValueRef));

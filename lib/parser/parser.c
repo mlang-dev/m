@@ -8,10 +8,10 @@
 #include <string.h>
 #include <errno.h>
 
-#include "astdump.h"
+#include "parser/astdump.h"
 #include "clib/hashtable.h"
 #include "clib/util.h"
-#include "parser.h"
+#include "parser/parser.h"
 #include "libfmemopen.h"
 
 #define exit_block(parser, parent, base_col) (parent && parser->curr_token.loc.col < base_col && (parser->curr_token.token_type != TOKEN_EOL || parser->is_repl))

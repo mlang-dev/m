@@ -14,7 +14,7 @@
 
 #include "clib/hashtable.h"
 #include "clib/hashset.h"
-#include "parser.h"
+#include "parser/parser.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,7 +60,7 @@ struct code_generator {
     struct parser* parser;
     struct hashtable named_values; //hashtable of string, void*
     LLVMModuleRef module;
-    //void* fpm;
+
     struct hashtable protos; //hashtable of char*, prototype_node*
     struct hashtable gvs; //hashtable of char* and var_node*
 

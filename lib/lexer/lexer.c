@@ -10,7 +10,7 @@
 
 #include "clib/string.h"
 #include "clib/util.h"
-#include "lexer.h"
+#include "lexer/lexer.h"
 
 const char* token_type_strings[] = {
     FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)

@@ -14,7 +14,7 @@
 #include "clib/symbol.h"
 
 #include "cmodule.h"
-#include "astdump.h"
+#include "parser/astdump.h"
 
 extern char* optarg;
 extern int optind, opterr, optopt;

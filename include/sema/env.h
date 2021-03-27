@@ -12,7 +12,8 @@
 #include "clib/array.h"
 #include "clib/symboltable.h"
 #include "codegen/codegen.h"
-#include "parser.h"
+#include "parser/parser.h"
+#include "codegen/target_info.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,6 +61,11 @@ struct env {
     symbol scope_marker;
     struct code_generator *cg;
     struct parser *parser;
+
+
+    /*hashtable of symbol and type_info*/
+    struct hashtable type_infos; 
+    struct target_info *target_info;
 };
 
 struct env *env_new(bool is_repl);

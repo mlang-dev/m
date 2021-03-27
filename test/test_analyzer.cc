@@ -3,10 +3,10 @@
  *
  * Unit tests for type inference and semantic analsysis
  */
-#include "analyzer.h"
+#include "sema/analyzer.h"
 #include "codegen/codegen.h"
-#include "env.h"
-#include "parser.h"
+#include "sema/env.h"
+#include "parser/parser.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
@@ -374,6 +374,7 @@ type Point2D = x:double y:double
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(TYPE_NODE, node->node_type);
     string type_str = to_string(node->type);
+    ASSERT_EQ(TYPE_EXT, node->type->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     env_free(env);
 }

@@ -3,7 +3,7 @@
  *
  * Unit tests for parser logical operators
  */
-#include "parser.h"
+#include "parser/parser.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>

@@ -8,7 +8,8 @@
 #include <string.h>
 #include <limits.h>
 #include "sys.h"
-#include "analyzer.h"
+#include "sema/analyzer.h"
+#include "sema/ext_type_size_info.h"
 #include "clib/hash.h"
 #include "cmodule.h"
 #include "clib/hashset.h"
@@ -137,7 +138,7 @@ struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
         struct type_exp* arg = _analyze_var(env, *(struct exp_node**)array_get(&type->body->nodes, i));
         array_push(&args, &arg);
     }
-    struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
+    struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args, type);
     assert(type->name == result_type->name);
     push_symbol_type(&env->tenv, type->name, result_type);
     hashtable_set_p(&env->ext_type_ast, type->name, node);
@@ -378,4 +379,20 @@ struct type_exp* analyze_and_generate_code(struct env* env, struct exp_node* nod
         array_clear(&env->used_builtin_names);
     }
     return type;
+}
+
+struct type_size_info get_type_size_info(struct env *env, struct type_exp *type)
+{
+    if (hashtable_in_p(&env->type_infos, type->name))
+        return *(struct type_size_info*)hashtable_get_p(&env->type_infos, type->name);
+    struct type_size_info ti;
+    if (type->type == TYPE_EXT){
+        struct type_node *tn = hashtable_get_p(&env->ext_type_ast, type->name);
+        assert(tn);
+        ti = create_ext_type_size_info(tn);
+    }
+    else
+        ti = create_builtin_type_size_info(type);
+    hashtable_set_p(&env->type_infos, type->name, &ti);
+    return ti;
 }

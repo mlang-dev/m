@@ -4,7 +4,7 @@
  * m language type inference algorithms. 
  * references: http://lucacardelli.name/Papers/BasicTypechecking.pdf
  */
-#include "type.h"
+#include "sema/type.h"
 #include "clib/hashtable.h"
 #include "clib/symboltable.h"
 #include <assert.h>
@@ -61,17 +61,18 @@ struct type_oper* create_type_oper(enum type type, struct array* args)
     oper->base.kind = KIND_OPER;
     oper->base.type = type;
     oper->args = *args;
-    hashtable_init(&oper->m_args);
+    oper->ast_node = 0;
     return oper;
 }
 
-struct type_oper* create_type_oper_ext(symbol type_name, struct array* args)
+struct type_oper* create_type_oper_ext(symbol type_name, struct array* args, struct exp_node *ast_node)
 {
     struct type_oper* oper = malloc(sizeof(*oper));
     oper->base.kind = KIND_OPER;
     oper->base.type = TYPE_EXT;
     oper->base.name = type_name;
     oper->args = *args;
+    oper->ast_node = ast_node;
     return oper;
 }
 
@@ -229,7 +230,7 @@ struct type_exp* _freshrec(struct type_exp* type, struct array* nongens, struct 
         array_push(&refreshed, &new_arg_type);
     }
     if(type->type == TYPE_EXT)
-        return (struct type_exp*)create_type_oper_ext(type->name, &refreshed);
+        return (struct type_exp*)create_type_oper_ext(type->name, &refreshed, 0);
     return (struct type_exp*)create_type_oper(type->type, &refreshed);
 }
 
@@ -375,4 +376,40 @@ struct type_exp* clone_type(struct type_exp* type)
         assert(false);
     }
     return copy;
+}
+
+struct type_size_info create_builtin_type_size_info(struct type_exp *type)
+{
+    
+    struct type_size_info ti;
+    ti.width = 0;
+    ti.align = 8;
+    ti.align_required = false;
+    switch (type->type){
+        case TYPE_UNIT:
+            ti.width = 0;
+            ti.align = 8;
+            break;
+        case TYPE_CHAR:
+            ti.width = 8;
+            ti.align = 8;
+            break;
+        case TYPE_BOOL:
+            ti.width = 8;
+            ti.align = 8;
+            break;
+        case TYPE_INT:
+            ti.width = 32;
+            ti.align = 32;
+            break;
+        case TYPE_DOUBLE:
+            ti.width = 64;
+            ti.align = 64;
+            break;
+        case TYPE_STRING:
+            ti.width = 64; //FIXME: or 32 depending on pointer size (32arch or 64arch)
+            ti.align = 64; 
+            break;
+    }
+    return ti;
 }

@@ -1,4 +1,18 @@
+/*
+ * abi_ir_arg.h
+ * 
+ * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * header file defining interface mapping from abi arg infos lowing to ir args
+ */
+#ifndef __MLANG_ABI_IR_ARG_H__
+#define __MLANG_ABI_IR_ARG_H__
+
 #include "clib/array.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct ir_arg_range{
     unsigned padding_arg_index;
@@ -7,7 +21,7 @@ struct ir_arg_range{
     unsigned number_of_args;
 };
 
-struct cg_arg_info{
+struct ir_arg_info{
     unsigned sret_arg_no;
     unsigned total_ir_args;
 
@@ -15,4 +29,8 @@ struct cg_arg_info{
     struct array args;
 };
 
-struct cg_arg_info map_from_ast_call(struct call_node *call);
+#ifdef __cplusplus
+}
+#endif
+
+#endif

@@ -8,7 +8,7 @@
 #ifndef __MLANG_ASTDUMP_H__
 #define __MLANG_ASTDUMP_H__
 
-#include "ast.h"
+#include "parser/ast.h"
 #include "clib/string.h"
 #include <stdio.h>
 

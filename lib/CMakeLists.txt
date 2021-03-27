@@ -46,9 +46,14 @@ add_library(mlr
   parser/ast.c
   parser/parser.c
   parser/astdump.c
-  analyzer/type.c
-  analyzer/analyzer.c
-  analyzer/env.c
+  sema/type.c
+  sema/analyzer.c
+  sema/env.c
+  sema/ext_type_size_info.c
+  codegen/abi_arg_info.c
+  codegen/ast_abi_arg.c
+  codegen/target_info.c
+  codegen/x86_64_abi.c
   codegen/codegen.c
   repl/repl.c
   repl/jit.c

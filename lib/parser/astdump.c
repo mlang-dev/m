@@ -3,7 +3,7 @@
  *
  * AST print functions
  */
-#include "astdump.h"
+#include "parser/astdump.h"
 #include "clib/string.h"
 #include "clib/util.h"
 

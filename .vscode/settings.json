@@ -93,7 +93,15 @@
         "future": "cpp",
         "symboltable.h": "c",
         "hashtable.h": "c",
-        "lljit.h": "c"
+        "lljit.h": "c",
+        "sys.h": "c",
+        "x86_64_abi.h": "c",
+        "ast_abi_arg.h": "c",
+        "abi_arg_info.h": "c",
+        "jit.h": "c",
+        "repl.h": "c",
+        "ext_type_size_info.h": "c",
+        "targetmachine.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

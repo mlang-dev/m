@@ -3,8 +3,8 @@
  *
  * m environment, a top class to store all data for compiling session
  */
-#include "env.h"
-#include "analyzer.h"
+#include "sema/env.h"
+#include "sema/analyzer.h"
 #include "clib/hash.h"
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
@@ -43,6 +43,8 @@ struct env *env_new(bool is_repl)
     hashtable_init(&env->ext_type_ast);
     hashtable_init(&env->builtin_ast);
     hashtable_init(&env->generic_ast);
+    hashtable_init(&env->type_infos);
+    env->target_info = ti_new();
     env->scope_marker = to_symbol("<enter_scope_marker>");
     struct array args;
     array_init(&args, sizeof(struct type_exp *));
@@ -79,6 +81,8 @@ struct env *env_new(bool is_repl)
 
 void env_free(struct env *env)
 {
+    ti_free(env->target_info);
+    hashtable_deinit(&env->type_infos);
     hashtable_deinit(&env->ext_type_ast);
     hashtable_deinit(&env->generic_ast);
     hashtable_deinit(&env->builtin_ast);

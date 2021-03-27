@@ -11,7 +11,7 @@
 
 #include "clib/util.h"
 #include "codegen/codegen.h"
-#include "env.h"
+#include "sema/env.h"
 
 #ifdef __cplusplus
 extern "C" {

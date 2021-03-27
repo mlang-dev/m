@@ -9,8 +9,8 @@
 #include <clang-c/Index.h>
 #include "clib/string.h"
 #include "clib/array.h"
-#include "ast.h"
-#include "astdump.h"
+#include "parser/ast.h"
+#include "parser/astdump.h"
 
 enum type _get_type(CXType cxtype)
 {

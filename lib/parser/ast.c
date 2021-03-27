@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "clib/array.h"
-#include "ast.h"
+#include "parser/ast.h"
 
 const char* node_type_strings[] = {
     FOREACH_NODETYPE(GENERATE_ENUM_STRING)
