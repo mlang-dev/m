@@ -6,8 +6,8 @@
 #include <assert.h>
 
 #include "sema/env.h"
-#include "jit.h"
-#include "repl.h"
+#include "compiler/jit.h"
+#include "compiler/repl.h"
 #include "sema/analyzer.h"
 
 void _print(struct eval_result result)

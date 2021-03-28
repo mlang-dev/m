@@ -11,7 +11,7 @@
 #include "sema/analyzer.h"
 #include "sema/ext_type_size_info.h"
 #include "clib/hash.h"
-#include "cmodule.h"
+#include "tool/cmodule.h"
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
 #include "clib/symboltable.h"

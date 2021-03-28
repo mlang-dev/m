@@ -9,7 +9,7 @@
 #define __MLANG_REPL_H__
 
 #include "sema/env.h"
-#include "jit.h"
+#include "compiler/jit.h"
 #include "sema/type.h"
 
 #ifdef __cplusplus

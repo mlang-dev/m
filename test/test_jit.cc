@@ -7,7 +7,7 @@
 
 #include "gtest/gtest.h"
 #include "parser/parser.h"
-#include "repl.h"
+#include "compiler/repl.h"
 #include "tutil.h"
 
 TEST(testJIT, testNumber) {

@@ -8,7 +8,7 @@
 #include "clib/hash.h"
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
-#include "cmodule.h"
+#include "tool/cmodule.h"
 #include "sys.h"
 #include <assert.h>
 #include <limits.h>

@@ -3,9 +3,9 @@
  *
  * Compiling from mlang syntax to object file or ir/bitcode
  */
-#include "compiler.h"
+#include "compiler/compiler.h"
 #include "clib/util.h"
-#include "jit.h"
+#include "compiler/jit.h"
 #include <llvm-c/BitWriter.h>
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>

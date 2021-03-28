@@ -13,7 +13,7 @@
 #include "clib/util.h"
 #include "clib/symbol.h"
 
-#include "cmodule.h"
+#include "tool/cmodule.h"
 #include "parser/astdump.h"
 
 extern char* optarg;

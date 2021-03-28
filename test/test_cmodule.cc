@@ -4,7 +4,7 @@
  * Unit tests for cmodule
  */
 #include "tutil.h"
-#include "cmodule.h"
+#include "tool/cmodule.h"
 #include "clib/symbol.h"
 #include "gtest/gtest.h"
 #include <stdio.h>

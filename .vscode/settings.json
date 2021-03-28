@@ -101,7 +101,10 @@
         "jit.h": "c",
         "repl.h": "c",
         "ext_type_size_info.h": "c",
-        "targetmachine.h": "c"
+        "targetmachine.h": "c",
+        "stdlib.h": "c",
+        "target.h": "c",
+        "core.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
