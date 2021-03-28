@@ -6,6 +6,7 @@
 
 //x86_64-pc-windows-msvc
 //x86_64-apple-darwin19.6.0
+//x86_64-unknown-linux-gnu
 enum Arch _parse_arch(string* arch)
 {
     const char *a = string_get(arch);
