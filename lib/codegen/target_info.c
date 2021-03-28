@@ -98,11 +98,20 @@ void _parse_triple(struct target_info *ti)
         ti->sub_arch = _parse_subarch(arch);
         if (item_num > 1)
             ti->vendor = _parse_vendor(array_get(&ar, 1));
+        else
+            ti->vendor = VENDOR_NONE;
         if (item_num > 2)
             ti->os = _parse_os(array_get(&ar, 2));
-        if (item_num > 3)
+        else
+            ti->os = OS_NONE;
+        if (item_num > 3){
             ti->env = _parse_env(array_get(&ar, 3));
             ti->oft = _parse_oft(array_get(&ar, 3));
+        }
+        else{
+            ti->env = ENV_NONE;
+            ti->oft = OFT_NONE;
+        }
     }
     string_deinit(&str);
 }

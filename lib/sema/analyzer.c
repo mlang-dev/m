@@ -9,7 +9,6 @@
 #include <limits.h>
 #include "sys.h"
 #include "sema/analyzer.h"
-#include "sema/ext_type_size_info.h"
 #include "clib/hash.h"
 #include "tool/cmodule.h"
 #include "clib/hashset.h"
@@ -379,20 +378,4 @@ struct type_exp* analyze_and_generate_code(struct env* env, struct exp_node* nod
         array_clear(&env->used_builtin_names);
     }
     return type;
-}
-
-struct type_size_info get_type_size_info(struct env *env, struct type_exp *type)
-{
-    if (hashtable_in_p(&env->type_infos, type->name))
-        return *(struct type_size_info*)hashtable_get_p(&env->type_infos, type->name);
-    struct type_size_info ti;
-    if (type->type == TYPE_EXT){
-        struct type_node *tn = hashtable_get_p(&env->ext_type_ast, type->name);
-        assert(tn);
-        ti = create_ext_type_size_info(tn);
-    }
-    else
-        ti = create_builtin_type_size_info(type);
-    hashtable_set_p(&env->type_infos, type->name, &ti);
-    return ti;
 }

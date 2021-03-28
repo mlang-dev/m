@@ -12,7 +12,7 @@ enum Class {
     MEMORY //This class consists of types that will be passed and returned in memory via the stack.
 };
 
-void _classify(struct type_exp* te, uint64_t offset_base, enum Class *low, enum Class *high)
+void _classify(struct code_generator *cg, struct type_exp* te, uint64_t offset_base, enum Class *low, enum Class *high)
 {
     enum Class *current;
     *low = *high = NO_CLASS;
@@ -33,22 +33,22 @@ void _classify(struct type_exp* te, uint64_t offset_base, enum Class *low, enum 
     //TODO: vector, complex, int type with specified bitwidth, constant array
     else if (te->type == TYPE_EXT) {
         //struct type, TargetInfo.cpp 3016
-        //struct type_size_info = get_type_size_info();
+        struct type_size_info tsi = get_type_size_info(cg, te);
         
     }
 }
 
-struct abi_arg_info _classify_return_type(struct exp_node *exp)
+struct abi_arg_info _classify_return_type(struct code_generator *cg, struct exp_node *exp)
 {
     enum Class low, high;
-    _classify(exp->type, 0, &low, &high);
+    _classify(cg, exp->type, 0, &low, &high);
 }
 
 ///compute abi info
-void x86_64_update_abi_info(struct cg_fun_args *fa)
+void x86_64_update_abi_info(struct code_generator *cg, struct cg_fun_args *fa)
 {
     unsigned free_int_regs = 6;
     unsigned free_sse_regs = 8;
     unsigned needed_int, needed_sse;
-    fa->ret.info = _classify_return_type(fa->ret.node);
+    fa->ret.info = _classify_return_type(cg, fa->ret.node);
 }

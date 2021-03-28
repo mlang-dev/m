@@ -15,6 +15,7 @@
 #include "clib/hashtable.h"
 #include "clib/hashset.h"
 #include "parser/parser.h"
+#include "codegen/target_info.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,6 +71,12 @@ struct code_generator {
     struct hashtable ext_types; /*hashtable of <string, struct LLVMTypeRef*/
     struct hashtable ext_nodes; /*hashtable of <string type name, struct type_node*/
     struct hashtable ext_vars;  /*hashtable of <string variable, string struct type*/
+
+    /// hashtable of symbol and type_info
+    struct hashtable type_infos; 
+
+    /// target info
+    struct target_info *target_info;
 };
 
 struct code_generator* cg_new(struct parser* parser);
@@ -78,6 +85,7 @@ void create_module_and_pass_manager(struct code_generator* cg, const char* modul
 LLVMValueRef generate_code(struct code_generator* cg, struct exp_node* node);
 void generate_runtime_module(struct code_generator* cg);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
+struct type_size_info get_type_size_info(struct code_generator *cg, struct type_exp *type);
 
 #define is_int_type(type) ( type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR )
 

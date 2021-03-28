@@ -230,7 +230,7 @@ struct type_exp* _freshrec(struct type_exp* type, struct array* nongens, struct 
         array_push(&refreshed, &new_arg_type);
     }
     if(type->type == TYPE_EXT)
-        return (struct type_exp*)create_type_oper_ext(type->name, &refreshed, 0);
+        return (struct type_exp*)create_type_oper_ext(type->name, &refreshed, op->ast_node);
     return (struct type_exp*)create_type_oper(type->type, &refreshed);
 }
 
