@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #ifdef _WIN32
 #include "win/unistd.h" 
 #else

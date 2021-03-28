@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     while (optind < argc) {
         if ((option = getopt(argc, argv, "fo:")) != -1) {
             switch (option) {
-            case 'f':
+            case 'f': {
                 if (strcmp(optarg, "bc") == 0)
                     file_type = FT_BITCODE;
                 else if (strcmp(optarg, "ob") == 0)
@@ -82,7 +82,8 @@ int main(int argc, char* argv[])
                 }
                 fflag = 1;
                 break;
-            case 'o':
+            }
+            case 'o': {
             #ifdef _WIN32
                 strcat(output, optarg);
                 array_push(&ld_options, &output_str);
@@ -93,6 +94,7 @@ int main(int argc, char* argv[])
             #endif
                 use_ld = true;
                 break;
+            }
             case '?':
             default:
                 break;

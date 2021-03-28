@@ -98,7 +98,7 @@ struct target_info {
     char* target_triple;
     enum Arch arch;
     enum SubArch sub_arch;
-    enum vendor vendor;
+    enum Vendor vendor;
     enum OS os;
     enum Env env;
     enum ObjectFormatType oft;
