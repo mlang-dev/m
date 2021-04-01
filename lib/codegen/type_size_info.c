@@ -1,9 +1,9 @@
 #include <assert.h>
-#include "codegen/type_size_info.h"
 #include "codegen/codegen.h"
+#include "codegen/type_size_info.h"
 #include "sys.h"
 
-inline uint64_t _align_to(uint64_t field_offset, uint64_t align)
+uint64_t _align_to(uint64_t field_offset, uint64_t align)
 {
     return (field_offset + align - 1) / align * align;
 }

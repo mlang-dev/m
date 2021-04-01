@@ -137,7 +137,7 @@ struct type_exp* _analyze_type(struct env* env, struct exp_node* node)
         struct type_exp* arg = _analyze_var(env, *(struct exp_node**)array_get(&type->body->nodes, i));
         array_push(&args, &arg);
     }
-    struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args, type);
+    struct type_exp* result_type = (struct type_exp*)create_type_oper_ext(type->name, &args);
     assert(type->name == result_type->name);
     push_symbol_type(&env->tenv, type->name, result_type);
     hashtable_set_p(&env->ext_type_ast, type->name, node);
