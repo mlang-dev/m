@@ -49,7 +49,7 @@ add_library(mlr
   sema/type.c
   sema/analyzer.c
   sema/env.c
-  sema/ext_type_size_info.c
+  codegen/type_size_info.c
   codegen/abi_arg_info.c
   codegen/ast_abi_arg.c
   codegen/target_info.c

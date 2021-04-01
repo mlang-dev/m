@@ -11,9 +11,9 @@
 #include "clib/object.h"
 #include "clib/util.h"
 #include "codegen/codegen.h"
-#include "codegen/ext_type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
+#include "codegen/type_size_info.h"
 
 LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_node* node,
     bool is_external);
@@ -253,7 +253,7 @@ struct code_generator* cg_new(struct parser* parser)
     hashtable_init(&cg->ext_types);
     hashtable_init(&cg->ext_nodes);
     hashtable_init(&cg->ext_vars);
-    hashtable_init(&cg->type_infos);
+    hashtable_init_with_value_size(&cg->type_infos, sizeof(struct type_size_info));
     cg->target_info = ti_new();
     return cg;
 }
@@ -878,19 +878,4 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
     LLVMTargetMachineRef target_machine = LLVMCreateTargetMachine(target, target_triple, cpu, features, opt, rm, cm);
     LLVMSetModuleDataLayout(module, LLVMCreateTargetDataLayout(target_machine));
     return target_machine;
-}
-
-struct type_size_info get_type_size_info(struct code_generator *cg, struct type_exp *type)
-{
-    if (hashtable_in_p(&cg->type_infos, type->name))
-        return *(struct type_size_info*)hashtable_get_p(&cg->type_infos, type->name);
-    struct type_size_info ti;
-    if (type->type == TYPE_EXT){
-        struct type_oper *to = (struct type_oper*)type;
-        ti = create_ext_type_size_info(to->ast_node);
-    }
-    else
-        ti = create_builtin_type_size_info(type);
-    hashtable_set_p(&cg->type_infos, type->name, &ti);
-    return ti;
 }

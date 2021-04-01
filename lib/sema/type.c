@@ -55,37 +55,33 @@ struct type_var* copy_type_var(struct type_var* var)
     return copy_var;
 }
 
-struct type_oper* create_type_oper(enum type type, struct array* args)
+struct type_oper* create_type_oper(symbol type_name, enum type type, struct array* args)
 {
     struct type_oper* oper = malloc(sizeof(*oper));
     oper->base.kind = KIND_OPER;
     oper->base.type = type;
+    oper->base.name = type_name;
     oper->args = *args;
-    oper->ast_node = 0;
     return oper;
 }
 
-struct type_oper* create_type_oper_ext(symbol type_name, struct array* args, struct exp_node *ast_node)
+struct type_oper* create_type_oper_ext(symbol type_name, struct array* args)
 {
-    struct type_oper* oper = malloc(sizeof(*oper));
-    oper->base.kind = KIND_OPER;
-    oper->base.type = TYPE_EXT;
-    oper->base.name = type_name;
-    oper->args = *args;
-    oper->ast_node = ast_node;
-    return oper;
+    return create_type_oper(type_name, TYPE_EXT, args);
 }
 
 struct type_oper* create_nullary_type(enum type type)
 {
     struct array args;
     array_init(&args, sizeof(struct type_exp*));
-    return create_type_oper(type, &args);
+    symbol type_name = to_symbol(type_strings[type]);
+    return create_type_oper(type_name, type, &args);
 }
 
 struct type_oper* create_type_fun(struct array* args)
 {
-    return create_type_oper(TYPE_FUNCTION, args);
+    symbol type_name = to_symbol(type_strings[TYPE_FUNCTION]);
+    return create_type_oper(type_name, TYPE_FUNCTION, args);
 }
 
 void type_exp_free(struct type_exp* type)
@@ -229,9 +225,10 @@ struct type_exp* _freshrec(struct type_exp* type, struct array* nongens, struct 
         struct type_exp* new_arg_type = _freshrec(arg_type, nongens, type_vars);
         array_push(&refreshed, &new_arg_type);
     }
-    if(type->type == TYPE_EXT)
-        return (struct type_exp*)create_type_oper_ext(type->name, &refreshed, op->ast_node);
-    return (struct type_exp*)create_type_oper(type->type, &refreshed);
+    if(type->type == TYPE_EXT){
+        return (struct type_exp*)create_type_oper_ext(type->name, &refreshed);
+    }
+    return (struct type_exp*)create_type_oper(type->name, type->type, &refreshed);
 }
 
 struct type_exp* fresh(struct type_exp* type, struct array* nongens)
@@ -370,46 +367,10 @@ struct type_exp* clone_type(struct type_exp* type)
             struct type_exp* arg = clone_type(*(struct type_exp**)array_get(&oper->args, i));
             array_push(&args, &arg);
         }
-        copy = (struct type_exp*)create_type_oper(oper->base.type, &args);
+        copy = (struct type_exp*)create_type_oper(oper->base.name, oper->base.type, &args);
     }
     else {
         assert(false);
     }
     return copy;
-}
-
-struct type_size_info create_builtin_type_size_info(struct type_exp *type)
-{
-    
-    struct type_size_info ti;
-    ti.width = 0;
-    ti.align = 8;
-    ti.align_required = false;
-    switch (type->type){
-        case TYPE_UNIT:
-            ti.width = 0;
-            ti.align = 8;
-            break;
-        case TYPE_CHAR:
-            ti.width = 8;
-            ti.align = 8;
-            break;
-        case TYPE_BOOL:
-            ti.width = 8;
-            ti.align = 8;
-            break;
-        case TYPE_INT:
-            ti.width = 32;
-            ti.align = 32;
-            break;
-        case TYPE_DOUBLE:
-            ti.width = 64;
-            ti.align = 64;
-            break;
-        case TYPE_STRING:
-            ti.width = 64; //FIXME: or 32 depending on pointer size (32arch or 64arch)
-            ti.align = 64; 
-            break;
-    }
-    return ti;
 }

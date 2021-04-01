@@ -45,13 +45,6 @@ enum kind { FOREACH_KIND(GENERATE_ENUM) };
 
 extern const char* kind_strings[];
 
-//type size info
-struct type_size_info {
-    uint64_t width;
-    unsigned align;
-    bool align_required;
-};
-
 //type variable or operator
 struct type_exp {
     enum kind kind; //type variable or type operator
@@ -67,12 +60,11 @@ struct type_var {
 struct type_oper {
     struct type_exp base;
     struct array args; //struct array of struct type_exp*
-    struct exp_node *ast_node;
 };
 
 struct type_var* create_type_var();
-struct type_oper* create_type_oper(enum type type, struct array* args);
-struct type_oper* create_type_oper_ext(symbol type_name, struct array* args, struct exp_node *ast_node);
+struct type_oper* create_type_oper(symbol type_name, enum type type, struct array* args);
+struct type_oper* create_type_oper_ext(symbol type_name, struct array* args);
 struct type_oper* create_nullary_type(enum type type);
 struct type_oper* create_type_fun(struct array* args);
 void type_exp_free(struct type_exp* type);
@@ -87,7 +79,6 @@ bool is_generic(struct type_exp* type);
 bool is_any_generic(struct array* types);
 string monomorphize(const char* fun_name, struct array* types);
 struct type_exp* clone_type(struct type_exp* type);
-struct type_size_info create_builtin_type_size_info(struct type_exp *type);
 
 #ifdef __cplusplus
 }

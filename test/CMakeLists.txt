@@ -18,6 +18,7 @@ include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
 include_directories(
+  ${CMAKE_SOURCE_DIR}/test
   ${CMAKE_SOURCE_DIR}/include
 )
 
@@ -48,6 +49,7 @@ add_executable(mtest
   test_jit_logical.cc
   test_jit.cc
   test_cmodule.cc
+  codegen/test_type_size_info.cc
 )
 
 if(WIN32)

@@ -11,11 +11,13 @@
 #include "clib/symbol.h"
 
 #include <stdlib.h>
+#include <assert.h>
 
 struct hashtable *g_symbols = NULL;
 
 symbol to_symbol(const char *name)
 {
+    assert(g_symbols);
     symbol sym = (symbol)hashtable_get(g_symbols, name);
     if (!sym) {
         sym = string_new(name);

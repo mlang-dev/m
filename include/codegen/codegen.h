@@ -85,7 +85,6 @@ void create_module_and_pass_manager(struct code_generator* cg, const char* modul
 LLVMValueRef generate_code(struct code_generator* cg, struct exp_node* node);
 void generate_runtime_module(struct code_generator* cg);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
-struct type_size_info get_type_size_info(struct code_generator *cg, struct type_exp *type);
 
 #define is_int_type(type) ( type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR )
 

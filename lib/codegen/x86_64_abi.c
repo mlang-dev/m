@@ -1,5 +1,5 @@
 #include "codegen/x86_64_abi.h"
-#include "sema/analyzer.h"
+#include "codegen/type_size_info.h"
 
 enum Class {
     INTEGER,  //This class consists of integral types that fit into one of the general purpose registers.

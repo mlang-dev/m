@@ -48,9 +48,9 @@ struct env *env_new(bool is_repl)
     array_init(&args, sizeof(struct type_exp *));
     /*nullary type: builtin default types*/
     for (size_t i = 0; i < ARRAY_SIZE(type_strings); i++) {
-        struct type_exp *exp = (struct type_exp *)create_type_oper(i, &args);
-        symbol type_symbol = to_symbol(type_strings[i]);
-        push_symbol_type(&env->tenv, type_symbol, exp);
+        symbol type_name = to_symbol(type_strings[i]);
+        struct type_exp *exp = (struct type_exp *)create_type_oper(type_name, i, &args);
+        push_symbol_type(&env->tenv, type_name, exp);
     }
     char libpath[PATH_MAX];
     char *mpath = get_exec_path();

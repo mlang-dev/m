@@ -13,6 +13,8 @@
 #include "clib/string.h"
 #include "clib/util.h"
 #include "sema/type.h"
+#include "clib/symbol.h"
+#include "codegen/type_size_info.h"
 
 // TEST(testHashtable, TestAddAndGet)
 // {
@@ -153,6 +155,7 @@ TEST(testHashtable, TestHashtableGrowWithCollision)
 
 TEST(testHashtable, TestHashtablePointerKey)
 {
+    symbols_init();
     reset_id_name("a");
     hashtable ht;
     hashtable_init(&ht);
@@ -169,4 +172,22 @@ TEST(testHashtable, TestHashtablePointerKey)
     type_exp_free((type_exp*)op1);
     type_exp_free((type_exp*)op2);
     type_exp_free((type_exp*)op3);
+    symbols_deinit();
+}
+
+TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
+{
+    symbols_init();
+    hashtable ht;
+    hashtable_init_with_value_size(&ht, sizeof(struct type_size_info));
+    struct type_size_info tsi;
+    tsi.width = 64;
+    tsi.align = 64;
+    symbol type_name = to_symbol("double");
+    hashtable_set_p(&ht, type_name, &tsi);
+    struct type_size_info *result = (struct type_size_info *)hashtable_get_p(&ht, type_name);
+    ASSERT_EQ(64, result->width);
+    ASSERT_EQ(64, result->align);
+    hashtable_deinit(&ht);
+    symbols_deinit();
 }

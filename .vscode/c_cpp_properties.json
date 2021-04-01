@@ -4,6 +4,7 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/include",
+                "${workspaceFolder}/test",
                 "${workspaceFolder}/extern/googletest/googletest/include",
                 "${workspaceFolder}/extern/googletest/googlemock/include",
                 "/usr/local/include"
@@ -23,6 +24,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/include",
+                "${workspaceFolder}/test",
                 "${workspaceFolder}/extern/googletest/googletest/include",
                 "${workspaceFolder}/extern/googletest/googlemock/include",
                 "/usr/local/include"
@@ -39,6 +41,7 @@
             "includePath": [
                 "C:\\Program Files (x86)\\LLVM\\include",
                 "${workspaceFolder}\\include",
+                "${workspaceFolder}\\test",
                 "${workspaceFolder}\\extern\\googletest\\googletest\\include",
                 "${workspaceFolder}\\extern\\googletest\\googlemock\\include",
                 "C:\\Program Files (x86)\\Windows Kits\\10\\include"

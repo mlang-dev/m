@@ -29,9 +29,11 @@ struct hashtable {
     struct hash_head *heads;
     size_t size;
     size_t cap;
+    size_t value_size;
 };
 
 void hashtable_init(struct hashtable *ht);
+void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size);
 void hashtable_deinit(struct hashtable *ht);
 size_t hashtable_size(struct hashtable *ht);
 void hashtable_set(struct hashtable *ht, const char *key, void *value);

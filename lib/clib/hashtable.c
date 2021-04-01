@@ -21,8 +21,14 @@ bool match_entry(struct hash_entry *entry, const char *key, size_t key_size)
 
 void hashtable_init(struct hashtable *ht)
 {
+    hashtable_init_with_value_size(ht, 0);
+}
+
+void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size)
+{
     ht->cap = 19;
     ht->size = 0;
+    ht->value_size = value_size;
     ht->heads = calloc(ht->cap, sizeof(struct hash_head));
 }
 
@@ -168,7 +174,7 @@ void hashtable_set_g(struct hashtable *ht, void *key, size_t key_size, void *val
 
 void hashtable_set_p(struct hashtable *ht, void *key, void *value)
 {
-    hashtable_set_g(ht, (void *)&key, sizeof(void *), value, 0);
+    hashtable_set_g(ht, (void *)&key, sizeof(void *), value, ht->value_size);
 }
 
 void *hashtable_get_p(struct hashtable *ht, void *key)
@@ -187,7 +193,12 @@ void *hashtable_get_g(struct hashtable *ht, void *key, size_t key_size)
     void **data;
     struct hashbox *box = _hashtable_get_hashbox(ht, key, key_size);
     if (box) {
-        data = (void **)(box->key_value_pair + key_size);
+        if(ht->value_size){
+            return box->key_value_pair + key_size;
+        }
+        else{
+            data = (void **)(box->key_value_pair + key_size);
+        }
         return data ? *data : 0;
     }
     return 0;
