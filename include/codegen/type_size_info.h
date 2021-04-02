@@ -33,9 +33,15 @@ struct struct_layout {
     struct array field_offsets; //field offsets in bits
 };
 
-struct type_size_info get_type_size_info(struct code_generator *cg, struct type_exp *type);
+struct type_size_info get_type_size_info(struct type_exp *type);
+uint64_t get_type_size(struct type_exp *type);
+uint64_t get_type_align(struct type_exp *type);
+struct struct_layout* layout_struct(struct type_oper *to);
 struct struct_layout *sl_new();
 void sl_free(struct struct_layout *sl);
+void tsi_init();
+void tsi_deinit();
+uint64_t align_to(uint64_t field_offset, uint64_t align);
 
 #ifdef __cplusplus
 }

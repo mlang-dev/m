@@ -5,10 +5,11 @@
  *
  * header file defining interface mapping from abi arg infos lowing to ir args
  */
-#ifndef __MLANG_ABI_IR_ARG_H__
-#define __MLANG_ABI_IR_ARG_H__
+#ifndef __MLANG_CG_CALL_H__
+#define __MLANG_CG_CALL_H__
 
 #include "clib/array.h"
+#include <llvm-c/Core.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,6 +29,13 @@ struct ir_arg_info{
     /*map ast arg into ir arg range, array of struct ir_arg_range*/
     struct array args;
 };
+
+struct address{
+    LLVMValueRef pointer;
+    unsigned alignment;
+};
+
+struct address zero_address();
 
 #ifdef __cplusplus
 }

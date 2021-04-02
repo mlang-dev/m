@@ -33,7 +33,7 @@ add_executable(mtest
   test_symboltable.cc
   test_math.cc
   test_string.cc
-  test_array.cc
+  clib/test_array.cc
   test_queue.cc
   test_hashtable.cc
   test_hashset.cc

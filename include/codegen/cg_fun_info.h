@@ -21,12 +21,14 @@ struct ast_abi_arg {
     struct abi_arg_info info;
 };
 
-struct cg_fun_args {
+struct cg_fun_info {
     struct ast_abi_arg ret;
     struct array args; //array of ast_abi_arg
+    bool is_chain_call;
+    unsigned required_args;
 };
 
-struct cg_fun_args *create_cg_fun_args(struct call_node *call);
+struct cg_fun_info *create_cg_fun_info(struct call_node *call);
 
 #ifdef __cplusplus
 }

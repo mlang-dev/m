@@ -374,3 +374,8 @@ struct type_exp* clone_type(struct type_exp* type)
     }
     return copy;
 }
+
+bool is_promotable_int(struct type_exp* type)
+{
+    return type->type == TYPE_CHAR || type->type == TYPE_CHAR;
+}

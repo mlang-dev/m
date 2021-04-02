@@ -104,7 +104,13 @@
         "targetmachine.h": "c",
         "stdlib.h": "c",
         "target.h": "c",
-        "core.h": "c"
+        "core.h": "c",
+        "any": "c",
+        "compare": "c",
+        "xmemory": "c",
+        "xtr1common": "c",
+        "xutility": "c",
+        "__functional_base_03": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

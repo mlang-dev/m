@@ -15,11 +15,19 @@
 #include <llvm-c/Support.h>
 #include "codegen/type_size_info.h"
 
+struct code_generator* g_cg = 0;
+
 LLVMValueRef _generate_global_var_node(struct code_generator* cg, struct var_node* node,
     bool is_external);
 LLVMValueRef _generate_local_var_node(struct code_generator* cg, struct var_node* node);
 LLVMValueRef _generate_prototype_node(struct code_generator* cg, struct exp_node* node);
 LLVMValueRef _generate_block_node(struct code_generator* cg, struct exp_node* block);
+
+LLVMContextRef get_llvm_context()
+{
+    if (!g_cg) return 0;
+    return g_cg->context;
+}
 
 LLVMTypeRef get_int_type(LLVMContextRef context)
 {
@@ -253,8 +261,9 @@ struct code_generator* cg_new(struct parser* parser)
     hashtable_init(&cg->ext_types);
     hashtable_init(&cg->ext_nodes);
     hashtable_init(&cg->ext_vars);
-    hashtable_init_with_value_size(&cg->type_infos, sizeof(struct type_size_info));
     cg->target_info = ti_new();
+    tsi_init();
+    g_cg = cg;
     return cg;
 }
 
@@ -265,6 +274,7 @@ void cg_free(struct code_generator* cg)
     if (cg->module)
         LLVMDisposeModule(cg->module);
     LLVMContextDispose(cg->context);
+    tsi_deinit();
     ti_free(cg->target_info);
     hashtable_deinit(&cg->specialized_nodes);
     hashtable_deinit(&cg->gvs);
@@ -274,8 +284,8 @@ void cg_free(struct code_generator* cg)
     hashtable_deinit(&cg->ext_types);
     hashtable_deinit(&cg->ext_nodes);
     hashtable_deinit(&cg->ext_vars);
-    hashtable_deinit(&cg->type_infos);
     free(cg);
+    g_cg = 0;
     //LLVMShutdown();
 }
 
@@ -878,4 +888,22 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
     LLVMTargetMachineRef target_machine = LLVMCreateTargetMachine(target, target_triple, cpu, features, opt, rm, cm);
     LLVMSetModuleDataLayout(module, LLVMCreateTargetDataLayout(target_machine));
     return target_machine;
+}
+
+LLVMTypeRef get_llvm_type(struct type_exp *type)
+{
+    assert(g_cg);
+    return _get_llvm_type(g_cg, type);
+}
+
+LLVMTargetDataRef get_llvm_data_layout()
+{
+    assert(g_cg);
+    return LLVMGetModuleDataLayout(g_cg->module);
+}
+
+enum OS get_os()
+{
+    assert(g_cg);
+    return g_cg->target_info->os;
 }

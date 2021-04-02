@@ -51,7 +51,7 @@ add_library(mlr
   sema/env.c
   codegen/type_size_info.c
   codegen/abi_arg_info.c
-  codegen/ast_abi_arg.c
+  codegen/cg_fun_info.c
   codegen/target_info.c
   codegen/x86_64_abi.c
   codegen/codegen.c

@@ -21,7 +21,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSize)
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     analyze(env, node);
-    struct type_size_info tsi = get_type_size_info(env->cg, node->type);
+    struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(128, tsi.width);
     ASSERT_EQ(64, tsi.align);
     env_free(env);
@@ -34,7 +34,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeCharDouble)
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     analyze(env, node);
-    struct type_size_info tsi = get_type_size_info(env->cg, node->type);
+    struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(128, tsi.width);
     ASSERT_EQ(64, tsi.align);
     env_free(env);
@@ -47,7 +47,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeCharChar)
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     analyze(env, node);
-    struct type_size_info tsi = get_type_size_info(env->cg, node->type);
+    struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(16, tsi.width);
     ASSERT_EQ(8, tsi.align);
     env_free(env);
@@ -60,7 +60,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeBoolChar)
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     analyze(env, node);
-    struct type_size_info tsi = get_type_size_info(env->cg, node->type);
+    struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(16, tsi.width);
     ASSERT_EQ(8, tsi.align);
     env_free(env);
@@ -73,7 +73,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeCharInt)
     block_node* block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node**)array_front(&block->nodes);
     analyze(env, node);
-    struct type_size_info tsi = get_type_size_info(env->cg, node->type);
+    struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(64, tsi.width);
     ASSERT_EQ(32, tsi.align);
     env_free(env);

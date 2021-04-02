@@ -79,6 +79,7 @@ bool is_generic(struct type_exp* type);
 bool is_any_generic(struct array* types);
 string monomorphize(const char* fun_name, struct array* types);
 struct type_exp* clone_type(struct type_exp* type);
+bool is_promotable_int(struct type_exp* type);
 
 #ifdef __cplusplus
 }

@@ -12,11 +12,13 @@
 #include "sema/type.h"
 
 enum ArgKind{
-    Direct = 0, 
+    AK_DIRECT = 0, 
+    AK_EXTEND = 1,
     /// Indirect pass argument via hidden pointer with 
     ///
-    Indirect = 1, 
-    Expand = 2, //Aggregate Types
+    AK_INDIRECT = 2, 
+    AK_EXPAND = 3, //Aggregate Types
+    AK_IGNORE = 4,
 };
 
 struct abi_arg_info
@@ -41,7 +43,16 @@ struct abi_arg_info
     bool sign_ext;  //Extend
 };
 
-struct abi_arg_info create_direct(LLVMTypeRef type, unsigned direct_offset, LLVMTypeRef padding_type, bool can_be_flattened);
-struct abi_arg_info create_indirect(unsigned indirect_align, bool indirect_byval, bool indirect_realign, LLVMTypeRef padding_type);
+
+struct abi_arg_info create_expand(bool padding_inreg, LLVMTypeRef padding_type);
+
+struct abi_arg_info create_direct_type_offset(LLVMTypeRef type, unsigned offset);
+struct abi_arg_info create_direct_type(LLVMTypeRef type);
+struct abi_arg_info create_direct();
+struct abi_arg_info create_extend(struct type_exp *ret_type, LLVMTypeRef llvm_type);
+struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type);
+struct abi_arg_info create_indirect_result(struct type_exp *ret_type, unsigned free_int_regs);
+struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type);
+struct abi_arg_info create_ignore();
 
 #endif //__MLANG_ABI_ARG_INFO_H__
