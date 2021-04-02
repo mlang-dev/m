@@ -29,26 +29,26 @@ link_directories(
 add_executable(mtest
   test.cc
   tutil.cc
-  test_symbol.cc
-  test_symboltable.cc
-  test_math.cc
-  test_string.cc
+  clib/test_symbol.cc
+  clib/test_symboltable.cc
+  clib/test_math.cc
+  clib/test_string.cc
   clib/test_array.cc
-  test_queue.cc
-  test_hashtable.cc
-  test_hashset.cc
-  test_util.cc
-  test_lexer.cc
-  test_parser.cc
-  test_parser_logical.cc
-  test_parser_relational.cc
-  test_astdump.cc
-  test_analyzer.cc
-  test_analyzer_errors.cc
-  test_jit_relational.cc
-  test_jit_logical.cc
-  test_jit.cc
-  test_cmodule.cc
+  clib/test_queue.cc
+  clib/test_hashtable.cc
+  clib/test_hashset.cc
+  clib/test_util.cc
+  lexer/test_lexer.cc
+  parser/test_parser.cc
+  parser/test_parser_logical.cc
+  parser/test_parser_relational.cc
+  parser/test_astdump.cc
+  sema/test_analyzer.cc
+  sema/test_analyzer_errors.cc
+  compiler/test_jit_relational.cc
+  compiler/test_jit_logical.cc
+  compiler/test_jit.cc
+  tool/test_cmodule.cc
   codegen/test_type_size_info.cc
 )
 

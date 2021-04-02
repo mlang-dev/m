@@ -55,8 +55,8 @@ add_library(mlr
   codegen/target_info.c
   codegen/x86_64_abi.c
   codegen/codegen.c
-  repl/repl.c
-  repl/jit.c
+  compiler/repl.c
+  compiler/jit.c
   compiler/compiler.c
   win/getopt.c
   win/libfmemopen.c
