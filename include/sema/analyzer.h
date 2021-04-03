@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 struct type_exp* retrieve_type_for_var_name(struct env* env, symbol name);
-struct type_exp* analyze_and_generate_code(struct env* env, struct exp_node* node);
+struct type_exp* analyze_and_generate_builtin_codes(struct env* env, struct exp_node* node);
 struct type_exp* analyze(struct env* env, struct exp_node* node);
 
 #ifdef __cplusplus

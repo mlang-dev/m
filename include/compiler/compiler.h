@@ -20,6 +20,8 @@ enum object_file_type {
 };
 
 int compile(const char* fn, enum object_file_type file_type);
+char* emit_ir_string(struct env *env, struct block_node* block, const char *module_name);
+void free_ir_string(char *ir_string);
 
 #ifdef __cplusplus
 }

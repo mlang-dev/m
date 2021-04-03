@@ -1,7 +1,7 @@
 #include "codegen/cg_fun_info.h"
 #include "sys.h"
 
-struct cg_fun_info *create_cg_fun_info(struct call_node *call)
+struct cg_fun_info *get_cg_fun_info(struct call_node *call)
 {
     struct cg_fun_info *fi;
     MALLOC(fi, sizeof(*fi));

@@ -3,23 +3,6 @@
 #include "codegen/type_size_info.h"
 #include "sys.h"
 
-struct hashtable *g_type_size_infos = NULL;
-
-void tsi_init()
-{
-    g_type_size_infos = malloc(sizeof(*g_type_size_infos));
-    hashtable_init_with_value_size(g_type_size_infos, sizeof(struct type_size_info));
-}
-
-void tsi_deinit()
-{
-    if (!g_type_size_infos)
-        return;
-    hashtable_deinit(g_type_size_infos);
-    free(g_type_size_infos);
-    g_type_size_infos = NULL;
-}
-
 uint64_t align_to(uint64_t field_offset, uint64_t align)
 {
     return (field_offset + align - 1) / align * align;
@@ -137,8 +120,9 @@ struct type_size_info _create_builtin_type_size_info(struct type_exp *type)
 
 struct type_size_info get_type_size_info(struct type_exp *type)
 {
-    if (hashtable_in_p(g_type_size_infos, type->name)){
-        return *(struct type_size_info*)hashtable_get_p(g_type_size_infos, type->name);
+    struct hashtable *type_size_infos = get_type_size_infos();
+    if (hashtable_in_p(type_size_infos, type->name)){
+        return *(struct type_size_info*)hashtable_get_p(type_size_infos, type->name);
     }
     struct type_size_info ti;
     if (type->type == TYPE_EXT){
@@ -148,7 +132,7 @@ struct type_size_info get_type_size_info(struct type_exp *type)
     else{
         ti = _create_builtin_type_size_info(type);
     }
-    hashtable_set_p(g_type_size_infos, type->name, &ti);
+    hashtable_set_p(type_size_infos, type->name, &ti);
     return ti;
 }
 

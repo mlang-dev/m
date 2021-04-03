@@ -14,6 +14,7 @@
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 #include "codegen/type_size_info.h"
+#include "codegen/cg_fun_info.h"
 
 struct code_generator* g_cg = 0;
 
@@ -261,8 +262,9 @@ struct code_generator* cg_new(struct parser* parser)
     hashtable_init(&cg->ext_types);
     hashtable_init(&cg->ext_nodes);
     hashtable_init(&cg->ext_vars);
+    hashtable_init_with_value_size(&cg->type_size_infos, sizeof(struct type_size_info));
+    hashtable_init_with_value_size(&cg->cg_fun_infos, sizeof(struct cg_fun_info));
     cg->target_info = ti_new();
-    tsi_init();
     g_cg = cg;
     return cg;
 }
@@ -274,8 +276,13 @@ void cg_free(struct code_generator* cg)
     if (cg->module)
         LLVMDisposeModule(cg->module);
     LLVMContextDispose(cg->context);
-    tsi_deinit();
     ti_free(cg->target_info);
+    for (unsigned i = 0; i < array_size(&cg->cg_fun_infos); i++){
+        struct cg_fun_info *fi = (struct cg_fun_info*)array_get(&cg->cg_fun_infos, i);
+        array_deinit(&fi->args);
+    }
+    hashtable_deinit(&cg->cg_fun_infos);
+    hashtable_deinit(&cg->type_size_infos);
     hashtable_deinit(&cg->specialized_nodes);
     hashtable_deinit(&cg->gvs);
     hashtable_deinit(&cg->protos);
@@ -828,11 +835,11 @@ LLVMValueRef _generate_block_node(struct code_generator* cg, struct exp_node* no
 void create_module_and_pass_manager(struct code_generator* cg,
     const char* module_name)
 {
-    LLVMModuleRef moduleRef = LLVMModuleCreateWithNameInContext(module_name, cg->context);
-    LLVMTargetMachineRef target_marchine = create_target_machine(moduleRef);
+    LLVMModuleRef module = LLVMModuleCreateWithNameInContext(module_name, cg->context);
+    LLVMTargetMachineRef target_marchine = create_target_machine(module);
     LLVMTargetDataRef data_layout = LLVMCreateTargetDataLayout(target_marchine);
-    LLVMSetModuleDataLayout(moduleRef, data_layout);
-    cg->module = moduleRef;
+    LLVMSetModuleDataLayout(module, data_layout);
+    cg->module = module;
 }
 
 void generate_runtime_module(struct code_generator* cg)
@@ -906,4 +913,10 @@ enum OS get_os()
 {
     assert(g_cg);
     return g_cg->target_info->os;
+}
+
+struct hashtable *get_type_size_infos()
+{
+    assert(g_cg);
+    return &g_cg->type_size_infos;
 }

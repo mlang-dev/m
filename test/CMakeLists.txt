@@ -50,6 +50,7 @@ add_executable(mtest
   compiler/test_jit.cc
   tool/test_cmodule.cc
   codegen/test_type_size_info.cc
+  codegen/test_codegen.cc
 )
 
 if(WIN32)

@@ -98,7 +98,7 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
         assert(var->base.annotation);
         type = retrieve_type_with_type_name(env, var->base.annotation);
         push_symbol_type(&env->venv, var->var_name, type);
-        analyze_and_generate_code(env, var->init_value);
+        analyze_and_generate_builtin_codes(env, var->init_value);
         return type;
     }
     else if(var->base.annotated_type && !var->init_value){
@@ -149,7 +149,7 @@ struct type_exp* _analyze_type_value(struct env* env, struct exp_node* node)
     struct type_value_node* type_value = (struct type_value_node*)node;
     for(size_t i = 0; i < array_size(&type_value->body->nodes); i++){
         //printf("creating type: %zu\n", i);
-        analyze_and_generate_code(env, *(struct exp_node**)array_get(&type_value->body->nodes, i));
+        analyze_and_generate_builtin_codes(env, *(struct exp_node**)array_get(&type_value->body->nodes, i));
     }
     return 0;
 }
@@ -239,7 +239,7 @@ struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
         struct exp_node* generic_fun = (struct exp_node*)hashtable_get(&env->generic_ast, string_get(call->callee));
         struct function_node* sp_fun = (struct function_node*)node_copy(generic_fun);
         sp_fun->prototype->name = call->specialized_callee;
-        fun_type = analyze_and_generate_code(env, (struct exp_node*)sp_fun);
+        fun_type = analyze_and_generate_builtin_codes(env, (struct exp_node*)sp_fun);
         hashtable_set(&env->cg->specialized_nodes, string_get(sp_fun->prototype->name), sp_fun);
         push_symbol_type(&env->venv, call->specialized_callee, fun_type);
         specialized_node = (struct exp_node*)sp_fun;
@@ -361,7 +361,7 @@ struct type_exp* analyze(struct env* env, struct exp_node* node)
     return type;
 }
 
-struct type_exp* analyze_and_generate_code(struct env* env, struct exp_node* node)
+struct type_exp* analyze_and_generate_builtin_codes(struct env* env, struct exp_node* node)
 {
     struct type_exp* type = analyze(env, node);
     struct code_generator* cg = env->cg;

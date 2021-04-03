@@ -60,16 +60,16 @@ int generate_ir_file(LLVMModuleRef module, const char* filename)
     return 0;
 }
 
-int compile(const char* fn, enum object_file_type file_type)
+int compile(const char* source_file, enum object_file_type file_type)
 {
     string filename;
-    string_init_chars(&filename, fn);
+    string_init_chars(&filename, source_file);
     string_substr(&filename, '.');
     struct env* env = env_new(false);
     struct code_generator* cg = env->cg;
     create_module_and_pass_manager(cg, string_get(&filename));
-    struct block_node* block = parse_file(env->parser, fn);
-    analyze_and_generate_code(env, (struct exp_node*)block);
+    struct block_node* block = parse_file(env->parser, source_file);
+    analyze_and_generate_builtin_codes(env, (struct exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
             struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
@@ -92,3 +92,21 @@ int compile(const char* fn, enum object_file_type file_type)
     string_deinit(&filename);
     return 0;
 }
+
+char* emit_ir_string(struct env *env, struct block_node* block, const char *module_name)
+{
+    if (!block) return 0;
+    create_module_and_pass_manager(env->cg, module_name);
+    analyze(env, (struct exp_node*)block);
+    for (size_t i = 0; i < array_size(&block->nodes); i++) {
+        struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
+        generate_code(env->cg, node);
+    }
+    return LLVMPrintModuleToString(env->cg->module);
+}
+
+void free_ir_string(char *ir_string)
+{
+    LLVMDisposeMessage(ir_string);
+}
+
