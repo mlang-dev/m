@@ -34,7 +34,7 @@ void _add_current_module_to_jit(struct JIT* jit)
 void _create_jit_module(struct code_generator* cg)
 {
     string mod_name = make_unique_name("mjit");
-    create_module_and_pass_manager(cg, string_get(&mod_name));
+    create_ir_module(cg, string_get(&mod_name));
     string_deinit(&mod_name);
 }
 
@@ -49,7 +49,7 @@ struct eval_result eval_exp(struct JIT* jit, struct exp_node* node)
     node = parse_exp_to_function(jit->cg->parser, node, string_get(&fn));
     analyze_and_generate_builtin_codes(jit->env, node);
     if (node) {
-        void* p_fun = generate_code(jit->cg, node);
+        void* p_fun = emit_ir_code(jit->cg, node);
         if (p_fun) {
             //LLVMDumpModule(jit->cg->module);
             _add_current_module_to_jit(jit);
@@ -89,10 +89,10 @@ void eval_statement(void* p_jit, struct exp_node* node)
         if (!node->type)
             goto exit;
         if (node->node_type == PROTOTYPE_NODE) {
-            generate_code(jit->cg, node);
+            emit_ir_code(jit->cg, node);
         } else if (node->node_type == FUNCTION_NODE||node->node_type == TYPE_NODE) {
             // function definition
-            generate_code(jit->cg, node);
+            emit_ir_code(jit->cg, node);
             //LLVMDumpModule(jit->cg->module);
             _add_current_module_to_jit(jit);
             _create_jit_module(jit->cg);

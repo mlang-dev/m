@@ -67,13 +67,13 @@ int compile(const char* source_file, enum object_file_type file_type)
     string_substr(&filename, '.');
     struct env* env = env_new(false);
     struct code_generator* cg = env->cg;
-    create_module_and_pass_manager(cg, string_get(&filename));
+    create_ir_module(cg, string_get(&filename));
     struct block_node* block = parse_file(env->parser, source_file);
     analyze_and_generate_builtin_codes(env, (struct exp_node*)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
             struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
-            generate_code(cg, node);
+            emit_ir_code(cg, node);
         }
         if (file_type == FT_OBJECT) {
             string_add_chars(&filename, ".o");
@@ -93,15 +93,11 @@ int compile(const char* source_file, enum object_file_type file_type)
     return 0;
 }
 
-char* emit_ir_string(struct env *env, struct block_node* block, const char *module_name)
+char* emit_ir_string(struct env *env, struct exp_node* ast_node)
 {
-    if (!block) return 0;
-    create_module_and_pass_manager(env->cg, module_name);
-    analyze(env, (struct exp_node*)block);
-    for (size_t i = 0; i < array_size(&block->nodes); i++) {
-        struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
-        generate_code(env->cg, node);
-    }
+    if (!ast_node) return 0;
+    analyze(env, ast_node);
+    emit_ir_code(env->cg, ast_node);
     return LLVMPrintModuleToString(env->cg->module);
 }
 

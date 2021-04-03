@@ -14,12 +14,13 @@ class testCodeGenerator : public TestBase {};
 
 TEST_F(testCodeGenerator, testStructTypeDefIR)
 {
-    //type Point2D = x:double y:double
-    char test_code[] = "type Point2D = x:double y:double";
+    char test_code[] = "m = 10";
     env* env = env_new(false);
+    create_ir_module(env->cg, "test_ir");
     block_node* block = parse_string(env->parser, "test", test_code);
-    char *ir_string = emit_ir_string(env, block, "test_ir");
+    char *ir_string = emit_ir_string(env, &block->base);
     printf("%s", ir_string);
     free_ir_string(ir_string);
     env_free(env);
 }
+

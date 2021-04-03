@@ -80,8 +80,8 @@ struct code_generator {
 
 struct code_generator* cg_new(struct parser* parser);
 void cg_free(struct code_generator* cg);
-void create_module_and_pass_manager(struct code_generator* cg, const char* module_name);
-LLVMValueRef generate_code(struct code_generator* cg, struct exp_node* node);
+void create_ir_module(struct code_generator* cg, const char* module_name);
+LLVMValueRef emit_ir_code(struct code_generator* cg, struct exp_node* node);
 void generate_runtime_module(struct code_generator* cg);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
 LLVMContextRef get_llvm_context();

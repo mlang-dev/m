@@ -5,12 +5,12 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include "sys.h"
 #include "clib/array.h"
 #include "clib/object.h"
 #include "compiler/compiler.h"
 #include "compiler/repl.h"
 #include "compiler/ld.h"
+#include "sys.h"
 
 extern char* optarg;
 extern int optind, opterr, optopt;
@@ -25,7 +25,7 @@ void print_usage()
 int main(int argc, char* argv[])
 {
     //printf("from location: %s\n", get_exec_path());
-    int option;
+    int c;
     int fflag = 0;
     enum object_file_type file_type = FT_OBJECT;
     struct array src_files;
@@ -68,8 +68,8 @@ int main(int argc, char* argv[])
     array_push(&ld_options, &initialization);
 #endif
     while (optind < argc) {
-        if ((option = getopt(argc, argv, "fo:")) != -1) {
-            switch (option) {
+        if ((c = getopt(argc, argv, "f:o:")) != -1) {
+            switch (c) {
             case 'f': {
                 if (strcmp(optarg, "bc") == 0)
                     file_type = FT_BITCODE;
@@ -117,6 +117,7 @@ int main(int argc, char* argv[])
                 printf("file: %s does not exist\n", fn);
                 exit(1);
             }
+            printf("compiling to type: %d\n", file_type);
             result = compile(fn, file_type);
             char* basename = get_basename((char*)fn);
             char* obj_name = strcat(basename, ".o");

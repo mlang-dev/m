@@ -10,4 +10,5 @@ extern/
 *.o
 *.a
 *.bc
+*.ir
 *.lock

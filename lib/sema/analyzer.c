@@ -252,7 +252,7 @@ struct type_exp* _analyze_call(struct env* env, struct exp_node* node)
         array_push(&env->used_builtin_names, &call->callee);
     }
     if(specialized_node){
-        generate_code(env->cg, specialized_node);
+        emit_ir_code(env->cg, specialized_node);
     }
     return prune(result_type);
 }
@@ -372,7 +372,7 @@ struct type_exp* analyze_and_generate_builtin_codes(struct env* env, struct exp_
             const char* built_name_str = string_get(built_name);
             if(!hashset_in(&cg->builtins, built_name_str)){
                 hashset_set(&cg->builtins, built_name_str);
-                generate_code(cg, node);
+                emit_ir_code(cg, node);
             }
         }
         array_clear(&env->used_builtin_names);

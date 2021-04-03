@@ -15,7 +15,7 @@ TEST(testJIT, testNumber) {
   10
   10
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node1 = *(exp_node**)array_front(&block->nodes);
@@ -32,7 +32,7 @@ TEST(testJIT, testNegNumber) {
   char test_code[] = R"(
   -10
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node1 = *(exp_node**)array_front(&block->nodes);
@@ -47,7 +47,7 @@ TEST(testJIT, testRemainderOp) {
   char test_code[] = R"(
   10%3
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node1 = *(exp_node**)array_front(&block->nodes);
@@ -62,7 +62,7 @@ TEST(testJIT, testPositiveNumber) {
   char test_code[] = R"(
   +10
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node1 = *(exp_node**)array_front(&block->nodes);
@@ -77,7 +77,7 @@ TEST(testJIT, testChar) {
   char test_code[] = R"(
   'c'
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node1 = *(exp_node**)array_front(&block->nodes);
@@ -92,7 +92,7 @@ TEST(testJIT, testString) {
   char test_code[] = R"(
   "hello"
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node1 = *(exp_node**)array_front(&block->nodes);
@@ -107,7 +107,7 @@ TEST(testJIT, testTypeError) {
   char test_code[] = R"(
   10 + 10.0
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node = *(exp_node**)array_front(&block->nodes);
@@ -122,7 +122,7 @@ TEST(testJIT, testGlobalVar) {
 y=100
 y
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node = *(exp_node**)array_front(&block->nodes);
@@ -138,7 +138,7 @@ TEST(testJIT, testGlobalVarString) {
 y="hello"
 y
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node = *(exp_node**)array_front(&block->nodes);
@@ -155,7 +155,7 @@ y=100
 y=200
 y
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node1 = *(exp_node**)array_front(&block->nodes);
@@ -173,7 +173,7 @@ TEST(testJIT, testIdFunc) {
   id x = x
   id 10.0
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node = *(exp_node**)array_front(&block->nodes);
@@ -191,7 +191,7 @@ TEST(testJIT, testIdGenericFunc) {
   id_g 10.0
   id_g 20
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node = *(exp_node**)array_front(&block->nodes);
@@ -211,7 +211,7 @@ TEST(testJIT, testSquareFunc) {
   sq x = x * x
   sq 10.0
   )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node = *(exp_node**)array_front(&block->nodes);
@@ -271,7 +271,7 @@ unary- x = 0 - x
 y=100
 -y
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto node = *(exp_node**)array_front(&block->nodes);
@@ -291,7 +291,7 @@ binary>10 x y = y < x
 z = 100
 if z>99 then -z else z
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   for (int i = 0; i < 3; i++) {
@@ -311,7 +311,7 @@ TEST(testJIT, testUnaryBinaryFunc) {
 z = 100
 if z>99 then -z else z
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto end = 3;
@@ -353,7 +353,7 @@ TEST(testJIT, testPrintfFunc) {
   char test_code[] = R"(
 printf "hello\n"
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto end = 1;
@@ -372,7 +372,7 @@ TEST(testJIT, testPrintfMoreParamFunc) {
   char test_code[] = R"(
 printf "hello:%d" 1
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   testing::internal::CaptureStdout();
@@ -395,7 +395,7 @@ xy:Point2D = 10.0 20.0
 xy.x
 xy.y
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto end = 2;
@@ -418,7 +418,7 @@ xy:Point2D = 10 20
 xy.x
 xy.y
 )";
-  env* env = env_new(false);
+  env* env = env_new(true);
   JIT* jit = build_jit(env);
   block_node* block = parse_string(env->parser, "test", test_code);
   auto end = 2;
@@ -441,7 +441,7 @@ xy:Point2D = 10.0 20
 xy.x
 xy.y
 )";
-    env* env = env_new(false);
+    env* env = env_new(true);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto end = 2;
@@ -465,7 +465,7 @@ getx()=
     xy.x
 getx()
 )";
-    env* env = env_new(false);
+    env* env = env_new(true);
     JIT* jit = build_jit(env);
     block_node* block = parse_string(env->parser, "test", test_code);
     auto end = 2;
