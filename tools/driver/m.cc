@@ -117,7 +117,6 @@ int main(int argc, char* argv[])
                 printf("file: %s does not exist\n", fn);
                 exit(1);
             }
-            printf("compiling to type: %d\n", file_type);
             result = compile(fn, file_type);
             char* basename = get_basename((char*)fn);
             char* obj_name = strcat(basename, ".o");

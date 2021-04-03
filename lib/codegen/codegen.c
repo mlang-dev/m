@@ -684,8 +684,15 @@ LLVMValueRef _emit_global_var_node(struct code_generator* cg, struct var_node* n
         } else {
             hashtable_set(&cg->gvs, var_name, node);
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context), var_name);
-            LLVMSetExternallyInitialized(gVar, true);
-            LLVMSetInitializer(gVar, cg->ops[type].get_zero(cg->context, cg->builder));
+            LLVMSetExternallyInitialized(gVar, false);
+            if(cg->parser->is_repl) 
+                // REPL treated as the global variable initialized as zero and 
+                // then updated with any expression
+                LLVMSetInitializer(gVar, cg->ops[type].get_zero(cg->context, cg->builder));
+            else{
+                //TODO: We need to assert exp has to be a constant value
+                LLVMSetInitializer(gVar, exp);
+            }
         }
     }
     if (cg->parser->is_repl)

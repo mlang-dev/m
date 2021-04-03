@@ -1,1 +1,1 @@
-extern int m;
+char m = 10;
