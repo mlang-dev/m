@@ -8,6 +8,9 @@
 #ifndef __MLANG_COMPILER_H__
 #define __MLANG_COMPILER_H__
 
+#include "parser/ast.h"
+#include "sema/env.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

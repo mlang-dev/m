@@ -201,7 +201,7 @@ LLVMTypeRef _get_x86_64_byval_arg_pair(LLVMTypeRef low, LLVMTypeRef high, LLVMTa
     LLVMTypeRef pair[2];
     pair[0] = low;
     pair[1] = high;
-    return LLVMStructType(get_llvm_context(), pair, 2, false);
+    return LLVMStructType(pair, 2, false);
 }
 
 struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
@@ -209,6 +209,7 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
     enum Class low, high;
     _classify(ret_type, 0, &low, &high);
     LLVMTypeRef result_type = 0;
+    LLVMTypeRef complex[2];
     switch(low){
     case NO_CLASS:
         if (high == NO_CLASS)
@@ -240,10 +241,9 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
     // part of the value is returned in %st0 and the imaginary part in
     // %st1.
     case COMPLEX_X87:
-        LLVMTypeRef complex[2];
         complex[0] = LLVMX86FP80TypeInContext(get_llvm_context());
         complex[1] = LLVMX86FP80TypeInContext(get_llvm_context());
-        result_type = LLVMStructType(get_llvm_context(), complex, 2, false);
+        result_type = LLVMStructType(complex, 2, false);
         break;
     }
 
