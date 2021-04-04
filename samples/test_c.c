@@ -1,6 +1,6 @@
 struct Point2D {
-    double x;
-    double y;
+    int x;
+    int y;
 };
 
-struct Point2D point = {10.0, 20.0};
+struct Point2D point = {10, 20};

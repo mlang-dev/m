@@ -708,9 +708,22 @@ LLVMValueRef _get_zero_value_ext_type(struct code_generator* cg, LLVMTypeRef typ
     size_t element_count = array_size(&type_ext->args);
     LLVMValueRef* values = malloc(element_count * sizeof(LLVMValueRef));
     for(size_t i = 0; i < element_count; i++){
-        enum type type = get_type(*(struct type_exp**)array_get(&type_ext->args, i));
+        enum type element_type = get_type(*(struct type_exp**)array_get(&type_ext->args, i));
         //values[i] = LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0 * (i+1));
-        values[i] = cg->ops[type].get_zero(cg->context, cg->builder);
+        values[i] = cg->ops[element_type].get_zero(cg->context, cg->builder);
+    }
+    LLVMValueRef value = LLVMConstNamedStruct(type, values, element_count);
+    free(values);
+    return value;
+}
+
+LLVMValueRef _get_const_value_ext_type(struct code_generator* cg, LLVMTypeRef type, struct type_value_node* struct_values)
+{
+    size_t element_count = array_size(&struct_values->body->nodes);
+    LLVMValueRef* values = malloc(element_count * sizeof(LLVMValueRef));
+    for(size_t i = 0; i < element_count; i++){
+        struct exp_node* arg = *(struct exp_node**)array_get(&struct_values->body->nodes, i);
+        values[i] = emit_ir_code(cg, arg);
     }
     LLVMValueRef value = LLVMConstNamedStruct(type, values, element_count);
     free(values);
@@ -732,11 +745,16 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator* cg, struct var_no
         } else {
             hashtable_set(&cg->gvs, var_name, node);
             gVar = LLVMAddGlobal(cg->module, type, var_name);
-            LLVMSetInitializer(gVar, _get_zero_value_ext_type(cg, type, (struct type_oper*)node->base.type));
+            LLVMValueRef init_value;
+            if (node->init_value)
+                init_value = _get_const_value_ext_type(cg, type, (struct type_value_node*)node->init_value);
+            else
+                init_value = _get_zero_value_ext_type(cg, type, (struct type_oper*)node->base.type);
+            LLVMSetInitializer(gVar, init_value);
         }
     }
     hashtable_set(&cg->ext_vars, var_name, node->base.type->name);
-    if(!cg->parser->is_repl||!node->init_value)
+    if(!cg->parser->is_repl)
         return 0;
     //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
     struct type_value_node* values = (struct type_value_node*)node->init_value;

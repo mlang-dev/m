@@ -99,24 +99,46 @@ TEST_F(testCGVar, testGlobalVarString)
     env_free(env);
 }
 
-// TEST_F(testCGVar, testGlobalVarStruct)
-// {
-//     char module_ir[1024];
-//     char test_code[] = R"(
-// type Point2D = x:double y:double
-// point:Point2D
-// )";
-//     env* env = env_new(false);
-//     create_ir_module(env->cg, module_name);
-//     const char *expected_ir = R"(
-// %Point2D = type { double, double }
+TEST_F(testCGVar, testGlobalVarStruct)
+{
+    char module_ir[1024];
+    char test_code[] = R"(
+type Point2D = x:double y:double
+point:Point2D
+)";
+    env* env = env_new(false);
+    create_ir_module(env->cg, module_name);
+    const char *expected_ir = R"(
+%Point2D = type { double, double }
 
-// @point = global %Point2D zeroinitializer
-// )";
-//     make_module_ir(env->cg->module, module_name, expected_ir, module_ir);
-//     block_node* block = parse_string(env->parser, "test", test_code);
-//     char *ir_string = emit_ir_string(env, &block->base);
-//     ASSERT_STREQ(module_ir, ir_string);
-//     free_ir_string(ir_string);
-//     env_free(env);
-// }
+@point = global %Point2D zeroinitializer
+)";
+    make_module_ir(env->cg->module, module_name, expected_ir, module_ir);
+    block_node* block = parse_string(env->parser, "test", test_code);
+    char *ir_string = emit_ir_string(env, &block->base);
+    ASSERT_STREQ(module_ir, ir_string);
+    free_ir_string(ir_string);
+    env_free(env);
+}
+
+TEST_F(testCGVar, testGlobalVarStructInitializer)
+{
+    char module_ir[1024];
+    char test_code[] = R"(
+type Point2D = x:int y:int
+point:Point2D = 10 20
+)";
+    env* env = env_new(false);
+    create_ir_module(env->cg, module_name);
+    const char *expected_ir = R"(
+%Point2D = type { i32, i32 }
+
+@point = global %Point2D { i32 10, i32 20 }
+)";
+    make_module_ir(env->cg->module, module_name, expected_ir, module_ir);
+    block_node* block = parse_string(env->parser, "test", test_code);
+    char *ir_string = emit_ir_string(env, &block->base);
+    ASSERT_STREQ(module_ir, ir_string);
+    free_ir_string(ir_string);
+    env_free(env);
+}
