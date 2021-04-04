@@ -1,3 +1,1 @@
-#include <stdbool.h>
-
-bool m = true;
+char *m = "10.0";

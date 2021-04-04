@@ -88,6 +88,7 @@ LLVMContextRef get_llvm_context();
 LLVMTypeRef get_llvm_type(struct type_exp *type);
 LLVMTargetDataRef get_llvm_data_layout();
 enum OS get_os();
+LLVMModuleRef get_llvm_module();
 struct hashtable *get_type_size_infos();
 #define is_int_type(type) ( type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR )
 

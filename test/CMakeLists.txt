@@ -27,8 +27,8 @@ link_directories(
 )
 
 add_executable(mtest
-  test.cc
   tutil.cc
+  test.cc
   clib/test_symbol.cc
   clib/test_symboltable.cc
   clib/test_math.cc

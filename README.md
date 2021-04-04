@@ -105,6 +105,10 @@ clang++ ./samples/sample_main.cc ./samples/sample_lib.o ./runtime.o -o ./sample
 ```
 
 ## useful tools
+* m commands
+```
+./tools/Debug/m -fir ../samples/test.m
+```
 * Learn llvm IR
 ```
 clang -S -emit-llvm ./samples/sample_main.c ./samples/sample_test.c

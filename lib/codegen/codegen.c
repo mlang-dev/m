@@ -76,7 +76,7 @@ LLVMValueRef get_bool_const(LLVMContextRef context, LLVMBuilderRef builder, void
 LLVMValueRef get_char_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
     (void)builder;
-    return LLVMConstInt(get_char_type(context), *(int*)value, true);
+    return LLVMConstInt(get_char_type(context), *(char*)value, true);
 }
 
 
@@ -88,9 +88,22 @@ LLVMValueRef get_double_const(LLVMContextRef context, LLVMBuilderRef builder, vo
 
 LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
-    (void)context;
     const char* str = (const char*)value;
-    return LLVMBuildGlobalStringPtr(builder, str, "str.temp");
+
+    //implementation of LLVMBuildGlobalString, except of way of getting module
+    uint64_t size = strlen(str);
+    LLVMValueRef str_const = LLVMConstStringInContext(context, str, size, 0);
+    LLVMValueRef str_value = LLVMAddGlobal(get_llvm_module(), LLVMTypeOf(str_const), "");
+    LLVMSetInitializer(str_value, str_const);
+    LLVMSetGlobalConstant(str_value, true);
+    LLVMSetLinkage(str_value, LLVMPrivateLinkage);
+    LLVMSetUnnamedAddr(str_value, true);
+    LLVMSetAlignment(str_value, 1);
+
+    //converting GlobalVariable to a pointer 
+    LLVMValueRef zero = LLVMConstInt( LLVMInt32TypeInContext(context), 0, false);
+    LLVMValueRef indexes[2] = { zero, zero };
+    return LLVMBuildInBoundsGEP2(builder, LLVMGlobalGetValueType(str_value), str_value, indexes, 2, "");
 }
 
 LLVMValueRef get_int_zero(LLVMContextRef context, LLVMBuilderRef builder)
@@ -279,7 +292,7 @@ void _set_bin_ops(struct code_generator* cg)
     cg->ops[TYPE_GENERIC] = double_ops;
     cg->ops[TYPE_UNIT] = double_ops;
     cg->ops[TYPE_BOOL] = bool_ops;
-    cg->ops[TYPE_CHAR] = int_ops;
+    cg->ops[TYPE_CHAR] = char_ops;
     cg->ops[TYPE_INT] = int_ops;
     cg->ops[TYPE_DOUBLE] = double_ops;
     cg->ops[TYPE_STRING] = str_ops;
@@ -435,7 +448,9 @@ LLVMValueRef _emit_literal_node(struct code_generator* cg, struct exp_node* node
     assert(node->type);
     enum type type = get_type(node->type);
     void *value = 0;
-    if (is_int_type(type))
+    if(type == TYPE_CHAR)
+        value = &((struct literal_node*)node)->char_val;
+    else if (is_int_type(type))
         value = &((struct literal_node*)node)->int_val;
     else if(type==TYPE_DOUBLE)
         value = &((struct literal_node*)node)->double_val;
@@ -973,4 +988,10 @@ struct hashtable *get_type_size_infos()
 {
     assert(g_cg);
     return &g_cg->type_size_infos;
+}
+
+LLVMModuleRef get_llvm_module()
+{
+    assert(g_cg);
+    return g_cg->module;
 }
