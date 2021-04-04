@@ -98,7 +98,8 @@ struct type_exp* _analyze_var(struct env* env, struct exp_node* node)
         assert(var->base.annotation);
         type = retrieve_type_with_type_name(env, var->base.annotation);
         push_symbol_type(&env->venv, var->var_name, type);
-        analyze_and_generate_builtin_codes(env, var->init_value);
+        if(var->init_value)
+            analyze_and_generate_builtin_codes(env, var->init_value);
         return type;
     }
     else if(var->base.annotated_type && !var->init_value){

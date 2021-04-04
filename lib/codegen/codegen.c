@@ -286,6 +286,29 @@ struct ops double_ops = {
     LLVMBuildNeg,
 };
 
+struct ops ext_ops = {
+    get_double_type,
+    get_double_const,
+    get_int_zero,
+    get_int_one,
+    LLVMBuildFAdd,
+    LLVMBuildFSub,
+    LLVMBuildFMul,
+    LLVMBuildFDiv,
+    LLVMBuildFRem,
+    int_cmp_op,
+    LLVMRealULT,
+    LLVMRealUGT,
+    LLVMRealUEQ,
+    LLVMRealUNE,
+    LLVMRealULE,
+    LLVMRealUGE,
+    LLVMBuildOr,
+    LLVMBuildAnd,
+    LLVMBuildNot,
+    LLVMBuildNeg,
+};
+
 void _set_bin_ops(struct code_generator* cg)
 {
     cg->ops[TYPE_UNK] = double_ops;
@@ -297,7 +320,7 @@ void _set_bin_ops(struct code_generator* cg)
     cg->ops[TYPE_DOUBLE] = double_ops;
     cg->ops[TYPE_STRING] = str_ops;
     cg->ops[TYPE_FUNCTION] = double_ops;
-    cg->ops[TYPE_EXT] = double_ops;
+    cg->ops[TYPE_EXT] = ext_ops;
 
 }
 struct code_generator* cg_new(struct parser* parser)
@@ -469,6 +492,7 @@ LLVMValueRef _emit_ident_node(struct code_generator* cg, struct exp_node* node)
     LLVMValueRef v = (LLVMValueRef)hashtable_get(&cg->named_values, idname);
     if (!v) {
         v = _get_global_variable(cg, idname);
+        assert(v);
     }
     if(array_size(&ident->member_accessors) > 1){
         char tempname[64];
@@ -711,6 +735,9 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator* cg, struct var_no
             LLVMSetInitializer(gVar, _get_zero_value_ext_type(cg, type, (struct type_oper*)node->base.type));
         }
     }
+    hashtable_set(&cg->ext_vars, var_name, node->base.type->name);
+    if(!cg->parser->is_repl||!node->init_value)
+        return 0;
     //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
     struct type_value_node* values = (struct type_value_node*)node->init_value;
     char tempname[64];
@@ -721,7 +748,6 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator* cg, struct var_no
         LLVMValueRef member = LLVMBuildStructGEP(cg->builder, gVar, i, tempname);
         LLVMBuildStore(cg->builder, exp, member);
     }
-    hashtable_set(&cg->ext_vars, var_name, node->base.type->name);
     return 0;
 }
 

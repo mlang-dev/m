@@ -30,6 +30,5 @@ void make_module_ir(LLVMModuleRef module, const char *module_name, const char *i
 source_filename = "%s"
 target datalayout = "%s"
 target triple = "%s"
-%s
-)", module_name, module_name, LLVMGetDataLayoutStr(module), LLVMGetDefaultTargetTriple(), ir_string);
+%s)", module_name, module_name, LLVMGetDataLayoutStr(module), LLVMGetDefaultTargetTriple(), ir_string);
 }

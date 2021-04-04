@@ -10,7 +10,7 @@
 
 #include "clib/hashtable.h"
 #include "clib/queue.h"
-
+#include "clib/symboltable.h"
 #include "parser/ast.h"
 #include "lexer/lexer.h"
 
@@ -23,6 +23,9 @@ struct parser {
     struct hashtable types; /*hashtable of (string, int)*/
     struct hashtable ext_types; /*hashtable of (string, exp_node*) for ext types*/
     struct hashtable op_precs;
+
+    struct symboltable vars; /*symbol table of */
+
     struct token curr_token;
     struct ast* ast;
     bool allow_id_as_a_func;

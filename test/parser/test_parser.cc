@@ -9,10 +9,38 @@
 #include <stdio.h>
 #include "test_base.h"
 
-class testParser : public TestBase {
- 
-};
+class testParser : public TestBase {};
 
+TEST_F(testParser, testStructVarDecl)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+point:Point2D
+)";;
+    auto parser = parser_new(false);
+    FILE* file = open_file_from_string(test_code);
+    block_node* block = parse_file_object(parser, "test", file);
+    auto node = *(var_node**)array_back(&block->nodes);
+    ASSERT_EQ(2, array_size(&block->nodes));
+    ASSERT_STREQ("point", string_get(node->var_name));
+    ASSERT_EQ(VAR_NODE, node->base.node_type);
+    ASSERT_EQ(0, node->init_value);
+    parser_free(parser);
+}
+
+TEST_F(testParser, testVarDecl)
+{
+    char test_code[] = "x:int";
+    auto parser = parser_new(false);
+    FILE* file = open_file_from_string(test_code);
+    block_node* block = parse_file_object(parser, "test", file);
+    auto node = *(var_node**)array_front(&block->nodes);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    ASSERT_STREQ("x", string_get(node->var_name));
+    ASSERT_EQ(VAR_NODE, node->base.node_type);
+    ASSERT_EQ(0, node->init_value);
+    parser_free(parser);
+}
 
 TEST_F(testParser, testBlockVariable)
 {
