@@ -35,6 +35,11 @@ LLVMTypeRef get_int_type(LLVMContextRef context)
     return LLVMInt32TypeInContext(context);
 }
 
+LLVMTypeRef get_char_type(LLVMContextRef context)
+{
+    return LLVMInt8TypeInContext(context);
+}
+
 LLVMTypeRef get_bool_type(LLVMContextRef context)
 {
     return LLVMInt1TypeInContext(context);
@@ -68,6 +73,13 @@ LLVMValueRef get_bool_const(LLVMContextRef context, LLVMBuilderRef builder, void
     return LLVMConstInt(get_bool_type(context), *(int*)value, true);
 }
 
+LLVMValueRef get_char_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
+{
+    (void)builder;
+    return LLVMConstInt(get_char_type(context), *(int*)value, true);
+}
+
+
 LLVMValueRef get_double_const(LLVMContextRef context, LLVMBuilderRef builder, void* value)
 {
     (void)builder;
@@ -93,6 +105,12 @@ LLVMValueRef get_bool_zero(LLVMContextRef context, LLVMBuilderRef builder)
     return LLVMConstInt(get_bool_type(context), 0, true);
 }
 
+LLVMValueRef get_char_zero(LLVMContextRef context, LLVMBuilderRef builder)
+{
+    (void)builder;
+    return LLVMConstInt(get_char_type(context), 0, true);
+}
+
 LLVMValueRef get_double_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
     (void)builder;
@@ -113,6 +131,11 @@ LLVMValueRef get_int_one(LLVMContextRef context)
 LLVMValueRef get_bool_one(LLVMContextRef context)
 {
     return LLVMConstInt(get_bool_type(context), 1, true);
+}
+
+LLVMValueRef get_char_one(LLVMContextRef context)
+{
+    return LLVMConstInt(get_char_type(context), 1, true);
 }
 
 LLVMValueRef get_double_one(LLVMContextRef context)
@@ -152,6 +175,29 @@ struct ops bool_ops = {
     LLVMIntNE,
     LLVMIntULE,
     LLVMIntUGE,
+    LLVMBuildOr,
+    LLVMBuildAnd,
+    LLVMBuildNot,
+    LLVMBuildNeg,
+};
+
+struct ops char_ops = { 
+    get_char_type,
+    get_char_const,
+    get_char_zero,
+    get_char_one,
+    LLVMBuildAdd,
+    LLVMBuildSub,
+    LLVMBuildMul,
+    LLVMBuildSDiv,
+    LLVMBuildSRem,
+    int_cmp_op,
+    LLVMIntSLT,
+    LLVMIntSGT,
+    LLVMIntEQ,
+    LLVMIntNE,
+    LLVMIntSLE,
+    LLVMIntSGE,
     LLVMBuildOr,
     LLVMBuildAnd,
     LLVMBuildNot,
