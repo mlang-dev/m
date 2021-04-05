@@ -155,7 +155,7 @@ LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
     LLVMTargetDataRef dl = get_llvm_data_layout();
     LLVMTypeKind tk = LLVMGetTypeKind(ir_type);
     if (ir_offset == 0) {
-        unsigned int_width = LLVMGetIntTypeWidth(ir_type);
+        unsigned int_width = tk == LLVMIntegerTypeKind ? LLVMGetIntTypeWidth(ir_type) : 0;
         if((tk == LLVMPointerTypeKind && LLVMPointerSize(dl) == 8)
         ||int_width == 64){
             return ir_type;
@@ -348,7 +348,7 @@ struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free
 }
 
 ///compute abi info
-void x86_64_update_abi_info(struct cg_fun_info *fi)
+void x86_64_update_abi_info(struct fun_info *fi)
 {
     unsigned free_int_regs = 6;
     unsigned free_sse_regs = 8;

@@ -1,5 +1,10 @@
-char f(char x)
+struct Point2D{
+    double x;
+    double y;
+};
+
+double f(struct Point2D xy)
 {
-    return x;
+    return xy.x;
 }
 

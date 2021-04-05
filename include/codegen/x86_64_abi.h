@@ -1,3 +1,3 @@
-#include "codegen/cg_fun_info.h"
+#include "codegen/fun_info.h"
 
-void x86_64_update_abi_info(struct cg_fun_info *fi);
+void x86_64_update_abi_info(struct fun_info *fi);

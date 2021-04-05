@@ -75,7 +75,7 @@ struct code_generator {
     /// target info
     struct target_info *target_info;
     struct hashtable type_size_infos; /*hashtable of <symbol, struct type_size_info>*/
-    struct hashtable cg_fun_infos;    /*hashtable of <symbol, struct cg_fun_info>*/
+    struct hashtable fun_infos;    /*hashtable of <symbol, struct fun_info>*/
 };
 
 struct code_generator* cg_new(struct parser* parser);
@@ -90,6 +90,7 @@ LLVMTargetDataRef get_llvm_data_layout();
 enum OS get_os();
 LLVMModuleRef get_llvm_module();
 struct hashtable *get_type_size_infos();
+struct hashtable *get_fun_infos();
 #define is_int_type(type) ( type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR )
 
 

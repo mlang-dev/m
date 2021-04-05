@@ -14,7 +14,7 @@
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 #include "codegen/type_size_info.h"
-#include "codegen/cg_fun_info.h"
+#include "codegen/fun_info.h"
 
 struct code_generator* g_cg = 0;
 
@@ -345,7 +345,7 @@ struct code_generator* cg_new(struct parser* parser)
     hashtable_init(&cg->ext_nodes);
     hashtable_init(&cg->ext_vars);
     hashtable_init_with_value_size(&cg->type_size_infos, sizeof(struct type_size_info));
-    hashtable_init_with_value_size(&cg->cg_fun_infos, sizeof(struct cg_fun_info));
+    hashtable_init_with_value_size(&cg->fun_infos, sizeof(struct fun_info));
     cg->target_info = ti_new();
     g_cg = cg;
     return cg;
@@ -359,11 +359,9 @@ void cg_free(struct code_generator* cg)
         LLVMDisposeModule(cg->module);
     LLVMContextDispose(cg->context);
     ti_free(cg->target_info);
-    for (unsigned i = 0; i < array_size(&cg->cg_fun_infos); i++){
-        struct cg_fun_info *fi = (struct cg_fun_info*)array_get(&cg->cg_fun_infos, i);
-        array_deinit(&fi->args);
-    }
-    hashtable_deinit(&cg->cg_fun_infos);
+    //TODO: fixme memory leak, need to array_deinit for args array in fun_info
+    hashtable_iterate(&cg->fun_infos, clear_fun_info);
+    hashtable_deinit(&cg->fun_infos);
     hashtable_deinit(&cg->type_size_infos);
     hashtable_deinit(&cg->specialized_nodes);
     hashtable_deinit(&cg->gvs);
@@ -651,6 +649,8 @@ LLVMValueRef _emit_function_node(struct code_generator* cg, struct exp_node* nod
 LLVMValueRef _emit_call_node(struct code_generator* cg, struct exp_node* node)
 {
     struct call_node* call = (struct call_node*)node;
+    struct fun_info *fi = get_fun_info(call);
+    assert(fi);
     symbol callee_name = call->specialized_callee? call->specialized_callee : call->callee;
     LLVMValueRef callee = _get_function(cg, string_get(callee_name));
     assert(callee);
@@ -1038,4 +1038,10 @@ LLVMModuleRef get_llvm_module()
 {
     assert(g_cg);
     return g_cg->module;
+}
+
+struct hashtable *get_fun_infos()
+{
+    assert(g_cg);
+    return &g_cg->fun_infos;
 }

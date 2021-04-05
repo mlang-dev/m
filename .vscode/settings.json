@@ -111,7 +111,8 @@
         "xtr1common": "c",
         "xutility": "c",
         "__functional_base_03": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "fun_info.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

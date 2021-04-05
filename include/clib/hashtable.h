@@ -50,6 +50,9 @@ bool hashtable_in_g(struct hashtable *ht, void *key, size_t key_size);
 bool hashtable_in_p(struct hashtable *ht, void *key);
 void hashtable_clear(struct hashtable *ht);
 void hashtable_remove(struct hashtable *ht, const char *key);
+typedef void (*on_hash_entry)(struct hash_entry*);
+void hashtable_iterate(struct hashtable *ht, on_hash_entry on_entry);
+
 
 #ifdef __cplusplus
 }

@@ -11,6 +11,7 @@
 
 #include "codegen/abi_arg_info.h"
 #include "parser/ast.h"
+#include "clib/hashtable.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,14 +22,17 @@ struct ast_abi_arg {
     struct abi_arg_info info;
 };
 
-struct cg_fun_info {
+struct fun_info {
     struct ast_abi_arg ret;
     struct array args; //array of ast_abi_arg
     bool is_chain_call;
     unsigned required_args;
 };
 
-struct cg_fun_info *get_cg_fun_info(struct call_node *call);
+struct fun_info *get_fun_info(struct call_node *call);
+
+//TODO: implement with more elegant way 
+void clear_fun_info(struct hash_entry* entry);
 
 #ifdef __cplusplus
 }

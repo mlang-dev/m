@@ -98,7 +98,7 @@ void _hash_entry_free(struct hash_entry *entry)
     free(entry);
 }
 
-void hashtable_clear(struct hashtable *ht)
+void hashtable_iterate(struct hashtable *ht, on_hash_entry on_entry)
 {
     struct hash_head *head;
     struct hash_entry *entry, *next;
@@ -107,11 +107,16 @@ void hashtable_clear(struct hashtable *ht)
         entry = head->first;
         while (entry) {
             next = entry->list.next;
-            _hash_entry_free(entry);
+            on_entry(entry);
             entry = next;
         }
         head->first = 0;
     }
+}
+
+void hashtable_clear(struct hashtable *ht)
+{
+    hashtable_iterate(ht, _hash_entry_free);
 }
 
 void hashtable_remove(struct hashtable *ht, const char *key)
