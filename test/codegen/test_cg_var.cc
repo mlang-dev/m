@@ -13,19 +13,6 @@
 
 class testCGVar : public TestBase {};
 
-void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)
-{
-    char module_ir[1024];
-    env* env = env_new(false);
-    create_ir_module(env->cg, module_name);
-    make_module_ir(env->cg->module, module_name, ir_code, module_ir);
-    block_node* block = parse_string(env->parser, "test", m_code);
-    char *ir_string = emit_ir_string(env, &block->base);
-    ASSERT_STREQ(module_ir, ir_string);
-    free_ir_string(ir_string);
-    env_free(env);
-}
-
 TEST_F(testCGVar, testGlobalVarInt)
 {
     const char test_code[] = "m = 10";

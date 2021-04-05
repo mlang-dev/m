@@ -1,6 +1,5 @@
-struct Point2D {
-    int x;
-    int y;
-};
+char f(char x)
+{
+    return x;
+}
 
-struct Point2D point = {10, 20};

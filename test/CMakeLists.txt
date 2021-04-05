@@ -51,6 +51,7 @@ add_executable(mtest
   tool/test_cmodule.cc
   codegen/test_type_size_info.cc
   codegen/test_cg_var.cc
+  codegen/test_cg_call.cc
 )
 
 if(WIN32)
