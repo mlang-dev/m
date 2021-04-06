@@ -9,16 +9,16 @@
 #ifndef __MLANG_AST_ABI_ARG_H__
 #define __MLANG_AST_ABI_ARG_H__
 
-#include "codegen/abi_arg_info.h"
-#include "parser/ast.h"
 #include "clib/hashtable.h"
+#include "codegen/abi_arg_info.h"
+#include "sema/type.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct ast_abi_arg {
-    struct exp_node *node;
+    struct type_exp *type;
     struct abi_arg_info info;
 };
 
@@ -29,10 +29,10 @@ struct fun_info {
     unsigned required_args;
 };
 
-struct fun_info *get_fun_info(struct call_node *call);
+struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type);
 
-//TODO: implement with more elegant way 
-void clear_fun_info(struct hash_entry* entry);
+//TODO: implement with more elegant way
+void clear_fun_info(struct hash_entry *entry);
 
 #ifdef __cplusplus
 }

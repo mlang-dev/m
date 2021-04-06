@@ -1,12 +1,12 @@
-#include "codegen/codegen.h"
 #include "codegen/x86_64_abi.h"
+#include "codegen/codegen.h"
 #include "codegen/type_size_info.h"
 #include <assert.h>
 #include <llvm-c/Core.h>
 
 enum Class {
-    INTEGER,  //This class consists of integral types that fit into one of the general purpose registers.
-    SSE,  // The class consists of types that fit into a vector register.
+    INTEGER, //This class consists of integral types that fit into one of the general purpose registers.
+    SSE, // The class consists of types that fit into a vector register.
     SSEUP, //The class consists of types that fit into a vector register and can be passed and returned in the upper bytes of it.
     X87, //These classes consists of types that will be returned via the x87 FPU.
     X87UP,
@@ -40,43 +40,43 @@ enum Class _merge(enum Class accum, enum Class field)
     return SSE;
 }
 
-void _classify(struct type_exp* te, uint64_t offset_base, enum Class *low, enum Class *high)
+void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum Class *high)
 {
     enum Class *current;
     *low = *high = NO_CLASS;
     current = offset_base < 64 ? low : high;
     *current = MEMORY;
-    if (te->type < TYPE_EXT){
+    if (te->type < TYPE_EXT) {
         //builtin types
-        if (te->type == TYPE_UNIT){
+        if (te->type == TYPE_UNIT) {
             *current = NO_CLASS;
         } //else if (te->type == TYPE_INT128 or UINT128) { *low = *high = INTEGER;}
-        else if (te->type == TYPE_BOOL || te->type == TYPE_STRING){
+        else if (te->type == TYPE_BOOL || te->type == TYPE_STRING) {
             *current = INTEGER;
-        }
-        else if (te->type == TYPE_DOUBLE){
+        } else if (te->type == TYPE_DOUBLE) {
             *current = SSE;
-        }//TODO: LONG_DOUBLE
+        } //TODO: LONG_DOUBLE
     } /*else if pointer then make current pointing to INTEGER*/
     //TODO: vector, complex, int type with specified bitwidth, constant array
     else if (te->type == TYPE_EXT) {
-        struct type_oper *to = (struct type_oper*)te;
+        struct type_oper *to = (struct type_oper *)te;
         struct type_size_info tsi = get_type_size_info(te);
         uint64_t size = tsi.width;
         if (size > 512)
             return;
         struct struct_layout *sl = layout_struct(to);
         *current = NO_CLASS;
-        for(int i = 0; i < array_size(&sl->field_offsets); i++){
-            uint64_t offset = offset_base + *(uint64_t*)array_get(&sl->field_offsets, i);
-            struct type_exp *field_type = (struct type_exp *)array_get(&to->args, i);
+        for (int i = 0; i < array_size(&sl->field_offsets); i++) {
+            uint64_t offset = offset_base + *(uint64_t *)array_get(&sl->field_offsets, i);
+            struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);
             uint64_t field_type_size = get_type_size(field_type);
-            if (size > 128 && size != field_type_size){
+            assert(field_type_size);
+            if (size > 128 && size != field_type_size) {
                 *low = MEMORY;
                 _post_merge(size, low, high);
                 return;
             }
-            if (offset % field_type_size){
+            if (offset % field_type_size) {
                 *low = MEMORY;
                 _post_merge(size, low, high);
                 return;
@@ -97,17 +97,17 @@ void _classify(struct type_exp* te, uint64_t offset_base, enum Class *low, enum 
 bool _bits_contain_no_user_data(struct type_exp *type, unsigned start_bit, unsigned end_bit)
 {
     unsigned type_size_bits = get_type_size(type);
-    if(type_size_bits <= start_bit)
+    if (type_size_bits <= start_bit)
         return true;
 
     //TODO: for array type
     //record type
     if (type->type == TYPE_EXT) {
-        struct type_oper *to = (struct type_oper*)type;
-        struct struct_layout * sl = layout_struct(to);
-        for(unsigned i = 0; i < array_size(&to->args); i++){
-            unsigned field_offset = *(uint64_t*)array_get(&sl->field_offsets, i);
-            if(field_offset >= end_bit)
+        struct type_oper *to = (struct type_oper *)type;
+        struct struct_layout *sl = layout_struct(to);
+        for (unsigned i = 0; i < array_size(&to->args); i++) {
+            unsigned field_offset = *(uint64_t *)array_get(&sl->field_offsets, i);
+            if (field_offset >= end_bit)
                 break;
             unsigned field_start = field_offset < start_bit ? start_bit - field_offset : 0;
             if (_bits_contain_no_user_data(array_get(&to->args, i), field_start, end_bit - field_offset))
@@ -123,14 +123,14 @@ bool _contains_float_at_offset(LLVMTypeRef ir_type, unsigned ir_offset)
 {
     LLVMTargetDataRef dl = get_llvm_data_layout();
     LLVMTypeKind tk = LLVMGetTypeKind(ir_type);
-    if (ir_offset == 0 && tk==LLVMFloatTypeKind)
+    if (ir_offset == 0 && tk == LLVMFloatTypeKind)
         return true;
-    if (tk==LLVMStructTypeKind){
-        unsigned field_index = LLVMOffsetOfElement(dl,  ir_type, ir_offset);
-        ir_offset -= LLVMElementAtOffset(dl, ir_type, field_index);
+    if (tk == LLVMStructTypeKind) {
+        unsigned field_index = LLVMElementAtOffset(dl, ir_type, ir_offset);
+        ir_offset -= LLVMOffsetOfElement(dl, ir_type, field_index);
         return _contains_float_at_offset(LLVMStructGetTypeAtIndex(ir_type, field_index), ir_offset);
     }
-    if (tk==LLVMArrayTypeKind){
+    if (tk == LLVMArrayTypeKind) {
         LLVMTypeRef element_type = LLVMGetElementType(ir_type);
         unsigned element_size = LLVMABISizeOfType(dl, element_type);
         ir_offset -= ir_offset / element_size * element_size;
@@ -141,11 +141,10 @@ bool _contains_float_at_offset(LLVMTypeRef ir_type, unsigned ir_offset)
 
 LLVMTypeRef _get_sse_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, struct type_exp *source_type, unsigned source_offset)
 {
-    if(_bits_contain_no_user_data(source_type, source_offset*8+32, source_offset*8+64))
+    if (_bits_contain_no_user_data(source_type, source_offset * 8 + 32, source_offset * 8 + 64))
         return LLVMFloatTypeInContext(get_llvm_context());
-    
-    if(_contains_float_at_offset(ir_type, ir_offset) && 
-        _contains_float_at_offset(ir_type, ir_offset + 4))
+
+    if (_contains_float_at_offset(ir_type, ir_offset) && _contains_float_at_offset(ir_type, ir_offset + 4))
         return LLVMVectorType(LLVMFloatTypeInContext(get_llvm_context()), 2);
     return LLVMDoubleTypeInContext(get_llvm_context());
 }
@@ -156,22 +155,20 @@ LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
     LLVMTypeKind tk = LLVMGetTypeKind(ir_type);
     if (ir_offset == 0) {
         unsigned int_width = tk == LLVMIntegerTypeKind ? LLVMGetIntTypeWidth(ir_type) : 0;
-        if((tk == LLVMPointerTypeKind && LLVMPointerSize(dl) == 8)
-        ||int_width == 64){
+        if ((tk == LLVMPointerTypeKind && LLVMPointerSize(dl) == 8)
+            || int_width == 64) {
             return ir_type;
         }
 
-        if (int_width == 8 || int_width == 16 || int_width == 32 || 
-        (tk == LLVMPointerTypeKind && LLVMPointerSize(dl) != 8)){
+        if (int_width == 8 || int_width == 16 || int_width == 32 || (tk == LLVMPointerTypeKind && LLVMPointerSize(dl) != 8)) {
             unsigned bit_width = tk == LLVMPointerTypeKind ? 32 : int_width;
-            if(_bits_contain_no_user_data(source_type, source_offset*8+bit_width, source_offset*8+64))
+            if (_bits_contain_no_user_data(source_type, source_offset * 8 + bit_width, source_offset * 8 + 64))
                 return ir_type;
         }
-        
     }
-    if(tk == LLVMStructTypeKind){
-        if (ir_offset < LLVMSizeOfTypeInBits(dl, ir_type) / 8){
-            unsigned field_index = LLVMOffsetOfElement(dl,  ir_type, ir_offset);
+    if (tk == LLVMStructTypeKind) {
+        if (ir_offset < LLVMSizeOfTypeInBits(dl, ir_type) / 8) {
+            unsigned field_index = LLVMOffsetOfElement(dl, ir_type, ir_offset);
             ir_offset -= LLVMElementAtOffset(dl, ir_type, field_index);
             return _get_int_type_at_offset(LLVMStructGetTypeAtIndex(ir_type, field_index), ir_offset, source_type, source_offset);
         }
@@ -180,7 +177,7 @@ LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
 
     //
     uint64_t type_size_bytes = get_type_size(source_type) / 8;
-    uint64_t bit_width = ((type_size_bytes-source_offset) < 8 ? type_size_bytes-source_offset : 8) * 8;
+    uint64_t bit_width = ((type_size_bytes - source_offset) < 8 ? type_size_bytes - source_offset : 8) * 8;
     return LLVMIntTypeInContext(get_llvm_context(), bit_width);
 }
 
@@ -191,7 +188,7 @@ LLVMTypeRef _get_x86_64_byval_arg_pair(LLVMTypeRef low, LLVMTypeRef high, LLVMTa
     unsigned low_size = LLVMABISizeOfType(dl, low);
     unsigned high_align = LLVMABIAlignmentOfType(dl, high);
     unsigned high_start = align_to(low_size, high_align);
-    if (high_start != 8){
+    if (high_start != 8) {
         if (LLVMGetTypeKind(low) == LLVMFloatTypeKind)
             low = LLVMDoubleTypeInContext(get_llvm_context());
         else {
@@ -210,7 +207,7 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
     _classify(ret_type, 0, &low, &high);
     LLVMTypeRef result_type = 0;
     LLVMTypeRef complex[2];
-    switch(low){
+    switch (low) {
     case NO_CLASS:
         if (high == NO_CLASS)
             return create_ignore();
@@ -221,8 +218,8 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
         return create_indirect_return_result(ret_type);
     case INTEGER:
         result_type = _get_int_type_at_offset(get_llvm_type(ret_type), 0, ret_type, 0);
-        if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind){
-            if(is_promotable_int(ret_type))
+        if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
+            if (is_promotable_int(ret_type))
                 return create_extend(ret_type, 0);
         }
         break;
@@ -248,7 +245,7 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
     }
 
     LLVMTypeRef high_part = 0;
-    switch(high){
+    switch (high) {
     case MEMORY:
     case X87:
         assert(false);
@@ -269,7 +266,7 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
         //TODO: vector type
         break;
     case X87UP:
-        if(low != X87){
+        if (low != X87) {
             high_part = _get_sse_type_at_offset(get_llvm_type(ret_type), 8, ret_type, 8);
             if (low == NO_CLASS)
                 return create_direct_type_offset(high_part, 8);
@@ -277,7 +274,7 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
         break;
     }
 
-    if(high_part)
+    if (high_part)
         result_type = _get_x86_64_byval_arg_pair(result_type, high_part, get_llvm_data_layout());
     return create_direct_type(result_type);
 }
@@ -290,7 +287,7 @@ struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free
     *needed_int = 0;
     *needed_sse = 0;
     LLVMTypeRef result_type = 0;
-    switch(low){
+    switch (low) {
     case NO_CLASS:
         if (high == NO_CLASS)
             return create_ignore();
@@ -303,39 +300,40 @@ struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free
     case X87UP:
         assert(false);
     case INTEGER:
-        ++needed_int;
+        ++(*needed_int);
         result_type = _get_int_type_at_offset(get_llvm_type(type), 0, type, 0);
-        if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind){
-            if(is_promotable_int(type))
+        if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
+            if (is_promotable_int(type))
                 return create_extend(type, 0);
         }
         break;
     case SSE: {
         LLVMTypeRef ir_type = get_llvm_type(type);
         result_type = _get_sse_type_at_offset(ir_type, 0, type, 0);
-        ++needed_sse;
+        ++(*needed_sse);
     }
     }
 
     LLVMTypeRef high_part = 0;
-    switch(high){
+    switch (high) {
     case MEMORY:
     case X87:
     case COMPLEX_X87:
         assert(false);
-    case NO_CLASS: break;
+    case NO_CLASS:
+        break;
     case INTEGER:
-        ++needed_int;
+        ++(*needed_int);
         high_part = _get_int_type_at_offset(get_llvm_type(type), 8, type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(high_part, 8);
         break;
     case X87UP:
     case SSE:
-        high_part = _get_sse_type_at_offset(get_llvm_type(type), 8 , type, 8);
+        high_part = _get_sse_type_at_offset(get_llvm_type(type), 8, type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(high_part, 8);
-        ++needed_sse;
+        ++(*needed_sse);
         break;
     case SSEUP:
         //TODO: vector type
@@ -343,7 +341,7 @@ struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free
     }
     if (high_part)
         result_type = _get_x86_64_byval_arg_pair(result_type, high_part, get_llvm_data_layout());
-    
+
     return create_direct_type(result_type);
 }
 
@@ -353,23 +351,22 @@ void x86_64_update_abi_info(struct fun_info *fi)
     unsigned free_int_regs = 6;
     unsigned free_sse_regs = 8;
     unsigned needed_int, needed_sse;
-    fi->ret.info = _classify_return_type(fi->ret.node->type);
+    fi->ret.info = _classify_return_type(fi->ret.type);
     if (fi->ret.info.kind == AK_INDIRECT)
         --free_int_regs;
     if (fi->is_chain_call)
         ++free_int_regs;
     unsigned required_args = fi->required_args;
-    for(unsigned arg_no = 0; arg_no < array_size(&fi->args); arg_no++){
+    for (unsigned arg_no = 0; arg_no < array_size(&fi->args); arg_no++) {
         bool is_named_arg = arg_no < required_args;
         struct ast_abi_arg *arg = array_get(&fi->args, arg_no);
-        arg->info = _classify_argument_type(arg->node->type, free_int_regs, &needed_int, &needed_sse);
+        arg->info = _classify_argument_type(arg->type, free_int_regs, &needed_int, &needed_sse);
 
-        if(free_int_regs >= needed_int && free_sse_regs >= needed_sse){
+        if (free_int_regs >= needed_int && free_sse_regs >= needed_sse) {
             free_int_regs -= needed_int;
             free_sse_regs -= needed_sse;
-        }
-        else {
-            arg->info = create_indirect_result(arg->node->type, free_int_regs);
+        } else {
+            arg->info = create_indirect_result(arg->type, free_int_regs);
         }
     }
 }

@@ -1,6 +1,6 @@
 #include "codegen/abi_arg_info.h"
-#include "codegen/type_size_info.h"
 #include "codegen/codegen.h"
+#include "codegen/type_size_info.h"
 
 struct abi_arg_info _create_direct(LLVMTypeRef type, unsigned direct_offset, LLVMTypeRef padding_type, bool can_be_flattened)
 {
@@ -63,8 +63,8 @@ struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type)
 
 struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type)
 {
-    if(ret_type->type < TYPE_EXT){
-        if(is_promotable_int(ret_type))
+    if (ret_type->type < TYPE_EXT) {
+        if (is_promotable_int(ret_type))
             return create_extend(ret_type, 0);
         else
             return create_direct();
@@ -74,8 +74,8 @@ struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type)
 
 struct abi_arg_info create_indirect_result(struct type_exp *type, unsigned free_int_regs)
 {
-    if(type->type < TYPE_EXT){
-        if(is_promotable_int(type))
+    if (type->type < TYPE_EXT) {
+        if (is_promotable_int(type))
             return create_extend(type, 0);
         else
             return create_direct();
@@ -91,12 +91,10 @@ struct abi_arg_info create_indirect_result(struct type_exp *type, unsigned free_
     return _create_indirect(align_bytes, true, false, 0);
 }
 
-
 struct abi_arg_info create_direct()
 {
     return _create_direct(0, 0, 0, true);
 }
-
 
 struct abi_arg_info create_direct_type_offset(LLVMTypeRef type, unsigned offset)
 {
