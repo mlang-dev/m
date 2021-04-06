@@ -11,10 +11,10 @@
 #include "clib/hashtable.h"
 #include "clib/object.h"
 #include "clib/string.h"
-#include "clib/util.h"
-#include "sema/type.h"
 #include "clib/symbol.h"
+#include "clib/util.h"
 #include "codegen/type_size_info.h"
+#include "sema/type.h"
 
 // TEST(testHashtable, TestAddAndGet)
 // {
@@ -50,8 +50,8 @@ TEST(testHashtable, TestStrGeneric)
     ASSERT_EQ(2, hashtable_size(&ht));
     ASSERT_TRUE(hashtable_in(&ht, str1));
     ASSERT_TRUE(hashtable_in(&ht, str2));
-    ASSERT_EQ(100, *((int*)hashtable_get(&ht, str1)));
-    ASSERT_EQ(200, *((int*)hashtable_get(&ht, str2)));
+    ASSERT_EQ(100, *((int *)hashtable_get(&ht, str1)));
+    ASSERT_EQ(200, *((int *)hashtable_get(&ht, str2)));
     ASSERT_FALSE(hashtable_in(&ht, str3));
     ASSERT_EQ(0, hashtable_get(&ht, str3));
     hashtable_deinit(&ht);
@@ -60,7 +60,7 @@ TEST(testHashtable, TestStrGeneric)
 TEST(testHashtable, TestStrInt)
 {
     hashtable ht;
-    hashtable_init(&ht);
+    hashtable_init_with_value_size(&ht, sizeof(int), 0);
     char str1[] = "hello";
     char str2[] = "world";
     char str3[] = "something else";
@@ -92,7 +92,7 @@ TEST(testHashtable, TestRemove)
     hashtable_remove(&ht, str1);
     ASSERT_FALSE(hashtable_in(&ht, str1));
     ASSERT_EQ(0, hashtable_get(&ht, str1));
-    ASSERT_EQ(200, *((int*)hashtable_get(&ht, str2)));
+    ASSERT_EQ(200, *((int *)hashtable_get(&ht, str2)));
     ASSERT_FALSE(hashtable_in(&ht, str3));
     ASSERT_EQ(0, hashtable_get(&ht, str3));
     hashtable_deinit(&ht);
@@ -124,8 +124,8 @@ TEST(testHashtable, TestHashtableCollision)
     int j = 99, k = 100;
     hashtable_set(&ht, "sin", &j);
     hashtable_set(&ht, "int", &k);
-    ASSERT_EQ(99, *(int*)hashtable_get(&ht, "sin"));
-    ASSERT_EQ(100, *(int*)hashtable_get(&ht, "int"));
+    ASSERT_EQ(99, *(int *)hashtable_get(&ht, "sin"));
+    ASSERT_EQ(100, *(int *)hashtable_get(&ht, "int"));
     ASSERT_EQ(2, hashtable_size(&ht));
     hashtable_deinit(&ht);
 }
@@ -146,10 +146,10 @@ TEST(testHashtable, TestHashtableGrowWithCollision)
         strcpy(strs[i], string_get(&str));
         hashtable_set(&ht, strs[i], &value[i]);
     }
-    ASSERT_EQ(0, *(int*)hashtable_get(&ht, strs[0]));
-    ASSERT_EQ(10, *(int*)hashtable_get(&ht, strs[10]));
-    ASSERT_EQ(99, *(int*)hashtable_get(&ht, "sin"));
-    ASSERT_EQ(100, *(int*)hashtable_get(&ht, "int"));
+    ASSERT_EQ(0, *(int *)hashtable_get(&ht, strs[0]));
+    ASSERT_EQ(10, *(int *)hashtable_get(&ht, strs[10]));
+    ASSERT_EQ(99, *(int *)hashtable_get(&ht, "sin"));
+    ASSERT_EQ(100, *(int *)hashtable_get(&ht, "int"));
     hashtable_deinit(&ht);
 }
 
@@ -159,9 +159,9 @@ TEST(testHashtable, TestHashtablePointerKey)
     reset_id_name("a");
     hashtable ht;
     hashtable_init(&ht);
-    type_oper* op1 = create_nullary_type(TYPE_INT);
-    type_oper* op2 = create_nullary_type(TYPE_DOUBLE);
-    type_oper* op3 = create_nullary_type(TYPE_BOOL);
+    type_oper *op1 = create_nullary_type(TYPE_INT);
+    type_oper *op2 = create_nullary_type(TYPE_DOUBLE);
+    type_oper *op3 = create_nullary_type(TYPE_BOOL);
     hashtable_set_p(&ht, op1, op1);
     hashtable_set_p(&ht, op2, op2);
     ASSERT_EQ(op1, hashtable_get_p(&ht, op1));
@@ -169,9 +169,9 @@ TEST(testHashtable, TestHashtablePointerKey)
     ASSERT_EQ(0, hashtable_get_p(&ht, op3));
     ASSERT_EQ(2, hashtable_size(&ht));
     hashtable_deinit(&ht);
-    type_exp_free((type_exp*)op1);
-    type_exp_free((type_exp*)op2);
-    type_exp_free((type_exp*)op3);
+    type_exp_free((type_exp *)op1);
+    type_exp_free((type_exp *)op2);
+    type_exp_free((type_exp *)op3);
     symbols_deinit();
 }
 
@@ -179,7 +179,7 @@ TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
 {
     symbols_init();
     hashtable ht;
-    hashtable_init_with_value_size(&ht, sizeof(struct type_size_info));
+    hashtable_init_with_value_size(&ht, sizeof(struct type_size_info), 0);
     struct type_size_info tsi;
     tsi.width = 64;
     tsi.align = 64;

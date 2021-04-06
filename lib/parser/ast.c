@@ -282,6 +282,11 @@ void _free_call_node(struct call_node *node)
     _free_exp_node(&node->base);
 }
 
+symbol get_callee(struct call_node *call)
+{
+    return call->specialized_callee ? call->specialized_callee : call->callee;
+}
+
 struct prototype_node *prototype_node_default_new(struct exp_node *parent, struct source_loc loc, const char *name, struct array *args,
     struct type_exp *ret_type, bool is_variadic, bool is_external)
 {

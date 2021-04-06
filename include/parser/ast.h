@@ -201,6 +201,7 @@ bool is_unary_op(struct prototype_node *pnode);
 bool is_binary_op(struct prototype_node *pnode);
 char get_op_name(struct prototype_node *pnode);
 bool is_recursive(struct call_node *call);
+symbol get_callee(struct call_node *call);
 int find_member_index(struct type_node *type_node, const char *member);
 
 #ifdef __cplusplus

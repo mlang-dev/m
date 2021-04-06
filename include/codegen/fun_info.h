@@ -29,10 +29,10 @@ struct fun_info {
     unsigned required_args;
 };
 
-struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type);
+void fun_info_init(struct fun_info *fi);
+void fun_info_deinit(struct fun_info *fi);
 
-//TODO: implement with more elegant way
-void clear_fun_info(struct hash_entry *entry);
+struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,8 @@
+
 #ifndef __libfmemopen_windows
 #define __libfmemopen_windows
+
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {

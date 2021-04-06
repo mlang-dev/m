@@ -30,10 +30,11 @@ struct hashtable {
     size_t size;
     size_t cap;
     size_t value_size;
+    free_fun free_element;
 };
 
 void hashtable_init(struct hashtable *ht);
-void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size);
+void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size, free_fun free_element);
 void hashtable_deinit(struct hashtable *ht);
 size_t hashtable_size(struct hashtable *ht);
 void hashtable_set(struct hashtable *ht, const char *key, void *value);
@@ -50,9 +51,6 @@ bool hashtable_in_g(struct hashtable *ht, void *key, size_t key_size);
 bool hashtable_in_p(struct hashtable *ht, void *key);
 void hashtable_clear(struct hashtable *ht);
 void hashtable_remove(struct hashtable *ht, const char *key);
-typedef void (*on_hash_entry)(struct hash_entry*);
-void hashtable_iterate(struct hashtable *ht, on_hash_entry on_entry);
-
 
 #ifdef __cplusplus
 }

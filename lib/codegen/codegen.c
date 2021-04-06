@@ -342,8 +342,8 @@ struct code_generator *cg_new(struct parser *parser)
     hashtable_init(&cg->ext_types);
     hashtable_init(&cg->ext_nodes);
     hashtable_init(&cg->ext_vars);
-    hashtable_init_with_value_size(&cg->type_size_infos, sizeof(struct type_size_info));
-    hashtable_init_with_value_size(&cg->fun_infos, sizeof(struct fun_info));
+    hashtable_init_with_value_size(&cg->type_size_infos, sizeof(struct type_size_info), 0);
+    hashtable_init_with_value_size(&cg->fun_infos, sizeof(struct fun_info), (free_fun)fun_info_deinit);
     cg->target_info = ti_new();
     g_cg = cg;
     return cg;
@@ -357,8 +357,6 @@ void cg_free(struct code_generator *cg)
         LLVMDisposeModule(cg->module);
     LLVMContextDispose(cg->context);
     ti_free(cg->target_info);
-    //TODO: fixme memory leak, need to array_deinit for args array in fun_info
-    hashtable_iterate(&cg->fun_infos, clear_fun_info);
     hashtable_deinit(&cg->fun_infos);
     hashtable_deinit(&cg->type_size_infos);
     hashtable_deinit(&cg->specialized_nodes);

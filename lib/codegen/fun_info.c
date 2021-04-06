@@ -3,6 +3,17 @@
 #include "codegen/x86_64_abi.h"
 #include "sys.h"
 
+void fun_info_init(struct fun_info *fi)
+{
+    fi->is_chain_call = false;
+    array_init(&fi->args, sizeof(struct ast_abi_arg));
+}
+
+void fun_info_deinit(struct fun_info *fi)
+{
+    array_deinit(&fi->args);
+}
+
 struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type)
 {
     struct hashtable *fun_infos = get_fun_infos();
@@ -10,8 +21,7 @@ struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type)
     if (result)
         return result;
     struct fun_info fi;
-    fi.is_chain_call = false;
-    array_init(&fi.args, sizeof(struct ast_abi_arg));
+    fun_info_init(&fi);
     fi.ret.type = &fun_type->base;
     struct ast_abi_arg aa;
     for (unsigned i = 0; i < array_size(&fun_type->args); i++) {
@@ -21,11 +31,4 @@ struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type)
     x86_64_update_abi_info(&fi);
     hashtable_set_p(fun_infos, fun_name, &fi);
     return (struct fun_info *)hashtable_get_p(fun_infos, fun_name);
-}
-
-//TODO: fixme with better implementation
-void clear_fun_info(struct hash_entry *entry)
-{
-    struct fun_info *fi = (struct fun_info *)(entry->data.key_value_pair + sizeof(void *));
-    array_deinit(&fi->args);
 }

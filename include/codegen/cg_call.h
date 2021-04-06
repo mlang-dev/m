@@ -9,20 +9,23 @@
 #define __MLANG_CG_CALL_H__
 
 #include "clib/array.h"
+#include "parser/ast.h"
 #include <llvm-c/Core.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct ir_arg_range{
+const unsigned InvalidIndex = ~0U;
+
+struct ir_arg_range {
     unsigned padding_arg_index;
     //[first_arg_index, first_arg_index + number_of_args]
     unsigned first_arg_index;
     unsigned number_of_args;
 };
 
-struct ir_arg_info{
+struct ir_arg_info {
     unsigned sret_arg_no;
     unsigned total_ir_args;
 
@@ -30,12 +33,13 @@ struct ir_arg_info{
     struct array args;
 };
 
-struct address{
+struct address {
     LLVMValueRef pointer;
     unsigned alignment;
 };
 
 struct address zero_address();
+void emit_call(struct call_node *call);
 
 #ifdef __cplusplus
 }
