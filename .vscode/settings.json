@@ -113,7 +113,8 @@
         "__functional_base_03": "c",
         "unistd.h": "c",
         "fun_info.h": "c",
-        "libfmemopen.h": "c"
+        "libfmemopen.h": "c",
+        "xlocale": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

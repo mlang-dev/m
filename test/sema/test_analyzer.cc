@@ -3,10 +3,10 @@
  *
  * Unit tests for type inference and semantic analsysis
  */
-#include "sema/analyzer.h"
 #include "codegen/codegen.h"
-#include "sema/env.h"
 #include "parser/parser.h"
+#include "sema/analyzer.h"
+#include "sema/env.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
@@ -64,6 +64,7 @@ TEST(testAnalyzer, testCharVariable)
 {
     char test_code[] = "x = 'c'";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(var_node **)array_front(&block->nodes);
@@ -80,6 +81,7 @@ TEST(testAnalyzer, testStringVariable)
 {
     char test_code[] = "x = \"hello world!\"";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(var_node **)array_front(&block->nodes);
@@ -96,6 +98,7 @@ TEST(testAnalyzer, testCallNode)
 {
     char test_code[] = "printf \"hello\"";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(call_node **)array_front(&block->nodes);
@@ -111,6 +114,7 @@ TEST(testAnalyzer, testDoubleIntLiteralError)
 {
     char test_code[] = "x = 11.0 + 10";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(var_node **)array_front(&block->nodes);
@@ -127,6 +131,7 @@ TEST(testAnalyzer, testGreaterThan)
   11>10
   )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
@@ -141,6 +146,7 @@ TEST(testAnalyzer, testIdentityFunc)
     reset_id_name("a");
     char test_code[] = "id x = x";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -159,6 +165,7 @@ TEST(testAnalyzer, testIntIntFunc)
 {
     char test_code[] = "f x = x + 10";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -177,6 +184,7 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
 {
     char test_code[] = "f x = x + 10.0";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -195,6 +203,7 @@ TEST(testAnalyzer, testBoolFunc)
 {
     char test_code[] = "f x = !x";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -213,6 +222,7 @@ TEST(testAnalyzer, testMultiParamFunc)
 {
     char test_code[] = "avg x y = (x + y) / 2.0";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -235,6 +245,7 @@ factorial n =
   else n * factorial (n-1)
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -258,6 +269,7 @@ loopprint n =
     printf "%d" i
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -288,6 +300,7 @@ distance x1 y1 x2 y2 =
 )";
     reset_id_name("a");
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -311,6 +324,7 @@ to_string () =
   y
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -331,6 +345,7 @@ TEST(testAnalyzer, testVariadicFunc)
 var_func ... = 0
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -352,6 +367,7 @@ TEST(testAnalyzer, testPrintfFunc)
 printf "%d" 100
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(exp_node **)array_front(&block->nodes);
@@ -368,6 +384,7 @@ TEST(testAnalyzer, testStructLikeType)
 type Point2D = x:double y:double
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(exp_node **)array_front(&block->nodes);
@@ -385,6 +402,7 @@ TEST(testAnalyzer, testFunctionTypeAnnotation)
     print x:int = printf "%d" x
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -405,6 +423,7 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithParentheses)
     prt (x:int) = printf "%d" x
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -425,6 +444,7 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
     prt (x:int):int = printf "%d" x
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
     auto node = *(function_node **)array_front(&block->nodes);
@@ -450,6 +470,7 @@ getx()
 x
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(4, array_size(&block->nodes));
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
@@ -478,6 +499,7 @@ x = 10.0
 x = 10
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(2, array_size(&block->nodes));
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
@@ -499,6 +521,7 @@ xy:Point2D = 0.0 0.0
 xy.x
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(3, array_size(&block->nodes));
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
@@ -527,6 +550,7 @@ getx()=
 getx()
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(3, array_size(&block->nodes));
     analyze_and_generate_builtin_codes(env, (exp_node *)block);
@@ -554,6 +578,7 @@ getx()=
 z = getx()
 )";
     env *env = env_new(false);
+    create_ir_module(env->cg, "test");
     block_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(3, array_size(&block->nodes));
     analyze_and_generate_builtin_codes(env, (exp_node *)block);

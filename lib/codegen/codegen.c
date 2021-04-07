@@ -31,27 +31,48 @@ LLVMContextRef get_llvm_context()
     return g_cg->context;
 }
 
-LLVMTypeRef get_int_type(LLVMContextRef context)
+LLVMTypeRef get_int_type(LLVMContextRef context, struct type_ext *type)
 {
     return LLVMInt32TypeInContext(context);
 }
 
-LLVMTypeRef get_char_type(LLVMContextRef context)
+LLVMTypeRef get_char_type(LLVMContextRef context, struct type_ext *type)
 {
     return LLVMInt8TypeInContext(context);
 }
 
-LLVMTypeRef get_bool_type(LLVMContextRef context)
+LLVMTypeRef get_bool_type(LLVMContextRef context, struct type_ext *type)
 {
     return LLVMInt1TypeInContext(context);
 }
 
-LLVMTypeRef get_double_type(LLVMContextRef context)
+LLVMTypeRef get_double_type(LLVMContextRef context, struct type_ext *type)
 {
     return LLVMDoubleTypeInContext(context);
 }
 
-LLVMTypeRef get_str_type(LLVMContextRef context)
+LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
+{
+    assert(type_exp->type == TYPE_EXT);
+    assert(g_cg);
+    LLVMTypeRef struct_type = hashtable_get(&g_cg->ext_types, string_get(type_exp->name));
+    if (struct_type)
+        return struct_type;
+    struct type_oper *type = (struct type_oper *)type_exp;
+    struct_type = LLVMStructCreateNamed(context, string_get(type->base.name));
+    unsigned int member_count = array_size(&type->args);
+    LLVMTypeRef *members = malloc(member_count * sizeof(LLVMTypeRef));
+    for (size_t i = 0; i < member_count; i++) {
+        struct type_exp *field_type = *(struct type_exp **)array_get(&type->args, i);
+        members[i] = get_llvm_type(field_type);
+    }
+    LLVMStructSetBody(struct_type, members, member_count, false);
+    hashtable_set(&g_cg->ext_types, string_get(type->base.name), struct_type);
+    free(members);
+    return struct_type;
+}
+
+LLVMTypeRef get_str_type(LLVMContextRef context, struct type_ext *type)
 {
     return LLVMPointerType(LLVMInt8TypeInContext(context), 0);
 }
@@ -65,25 +86,25 @@ const char *buiiltin_funs[] = {
 LLVMValueRef get_int_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
     (void)builder;
-    return LLVMConstInt(get_int_type(context), *(int *)value, true);
+    return LLVMConstInt(get_int_type(context, 0), *(int *)value, true);
 }
 
 LLVMValueRef get_bool_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
     (void)builder;
-    return LLVMConstInt(get_bool_type(context), *(int *)value, true);
+    return LLVMConstInt(get_bool_type(context, 0), *(int *)value, true);
 }
 
 LLVMValueRef get_char_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
     (void)builder;
-    return LLVMConstInt(get_char_type(context), *(char *)value, true);
+    return LLVMConstInt(get_char_type(context, 0), *(char *)value, true);
 }
 
 LLVMValueRef get_double_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
     (void)builder;
-    return LLVMConstReal(get_double_type(context), *(double *)value);
+    return LLVMConstReal(get_double_type(context, 0), *(double *)value);
 }
 
 LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
@@ -109,25 +130,25 @@ LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void 
 LLVMValueRef get_int_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
     (void)builder;
-    return LLVMConstInt(get_int_type(context), 0, true);
+    return LLVMConstInt(get_int_type(context, 0), 0, true);
 }
 
 LLVMValueRef get_bool_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
     (void)builder;
-    return LLVMConstInt(get_bool_type(context), 0, true);
+    return LLVMConstInt(get_bool_type(context, 0), 0, true);
 }
 
 LLVMValueRef get_char_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
     (void)builder;
-    return LLVMConstInt(get_char_type(context), 0, true);
+    return LLVMConstInt(get_char_type(context, 0), 0, true);
 }
 
 LLVMValueRef get_double_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
     (void)builder;
-    return LLVMConstReal(get_double_type(context), 0.0);
+    return LLVMConstReal(get_double_type(context, 0), 0.0);
 }
 
 LLVMValueRef get_str_zero(LLVMContextRef context, LLVMBuilderRef builder)
@@ -138,22 +159,22 @@ LLVMValueRef get_str_zero(LLVMContextRef context, LLVMBuilderRef builder)
 
 LLVMValueRef get_int_one(LLVMContextRef context)
 {
-    return LLVMConstInt(get_int_type(context), 1, true);
+    return LLVMConstInt(get_int_type(context, 0), 1, true);
 }
 
 LLVMValueRef get_bool_one(LLVMContextRef context)
 {
-    return LLVMConstInt(get_bool_type(context), 1, true);
+    return LLVMConstInt(get_bool_type(context, 0), 1, true);
 }
 
 LLVMValueRef get_char_one(LLVMContextRef context)
 {
-    return LLVMConstInt(get_char_type(context), 1, true);
+    return LLVMConstInt(get_char_type(context, 0), 1, true);
 }
 
 LLVMValueRef get_double_one(LLVMContextRef context)
 {
-    return LLVMConstReal(get_double_type(context), 1.0);
+    return LLVMConstReal(get_double_type(context, 0), 1.0);
 }
 
 struct ops null_ops = { 0 };
@@ -286,7 +307,7 @@ struct ops double_ops = {
 };
 
 struct ops ext_ops = {
-    get_double_type,
+    get_ext_type,
     get_double_const,
     get_int_zero,
     get_int_one,
@@ -375,13 +396,7 @@ void cg_free(struct code_generator *cg)
 LLVMTypeRef _get_llvm_type(struct code_generator *cg, struct type_exp *type)
 {
     enum type en_type = get_type(type);
-    LLVMTypeRef ret_type;
-    if (en_type == TYPE_EXT) {
-        ret_type = hashtable_get(&cg->ext_types, string_get(type->name));
-    } else {
-        ret_type = cg->ops[en_type].get_type(cg->context);
-    }
-    return ret_type;
+    return cg->ops[en_type].get_type(cg->context, type);
 }
 
 LLVMValueRef _get_function(struct code_generator *cg, const char *name)
@@ -411,7 +426,6 @@ LLVMValueRef _get_global_variable(struct code_generator *cg, const char *name)
         gv = LLVMAddGlobal(cg->module, type, name);
         return gv;
     }
-
     return 0;
 }
 
@@ -440,7 +454,7 @@ void _create_argument_allocas(struct code_generator *cg, struct prototype_node *
         //assert(type_exp && type_exp->type >= 0 && type_exp->type < TYPE_TYPES);
         //TODO: fix the inconsistency enum type type = get_type(param->base.type);
         LLVMValueRef alloca = _create_entry_block_alloca(
-            cg->ops[type].get_type(cg->context), fun, string_get(param->var_name));
+            cg->ops[type].get_type(cg->context, type_exp), fun, string_get(param->var_name));
 
         // Create a debug descriptor for the variable.
         /*DIScope *Scope = KSDbgInfo.LexicalBlocks.back();
@@ -512,7 +526,7 @@ LLVMValueRef _emit_unary_node(struct code_generator *cg, struct exp_node *node)
         return cg->ops->neg_op(cg->builder, operand_v, "negtmp");
     } else if (string_eq_chars(unary->op, "!")) {
         LLVMValueRef ret = cg->ops->not_op(cg->builder, operand_v, "nottmp");
-        return LLVMBuildZExt(cg->builder, ret, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
+        return LLVMBuildZExt(cg->builder, ret, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
     }
     string fname;
     string_init_chars(&fname, "unary");
@@ -547,35 +561,35 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
         return ops->rem(cg->builder, lv, rv, "remtmp");
     else if (string_eq_chars(bin->op, "<")) {
         lv = ops->cmp(cg->builder, ops->cmp_lt, lv, rv, "cmplttmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
+        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
         return lv;
     } else if (string_eq_chars(bin->op, ">")) {
         lv = ops->cmp(cg->builder, ops->cmp_gt, lv, rv, "cmpgttmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
+        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
         return lv;
     } else if (string_eq_chars(bin->op, "==")) {
         lv = ops->cmp(cg->builder, ops->cmp_eq, lv, rv, "cmpeqtmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
+        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
         return lv;
     } else if (string_eq_chars(bin->op, "!=")) {
         lv = ops->cmp(cg->builder, ops->cmp_neq, lv, rv, "cmpneqtmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
+        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
         return lv;
     } else if (string_eq_chars(bin->op, "<=")) {
         lv = ops->cmp(cg->builder, ops->cmp_le, lv, rv, "cmpletmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
+        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
         return lv;
     } else if (string_eq_chars(bin->op, ">=")) {
         lv = ops->cmp(cg->builder, ops->cmp_ge, lv, rv, "cmpgetmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
+        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
         return lv;
     } else if (string_eq_chars(bin->op, "||")) {
         lv = ops->or_op(cg->builder, lv, rv, "ortmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
+        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
         return lv;
     } else if (string_eq_chars(bin->op, "&&")) {
         lv = ops->and_op(cg->builder, lv, rv, "andtmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context), "ret_val_int");
+        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
         return lv;
     } else {
         string f_name;
@@ -591,6 +605,10 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
 LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *node)
 {
     struct prototype_node *proto = (struct prototype_node *)node;
+    assert(proto->base.type);
+    struct fun_info *fi = get_fun_info(proto->name,
+        (struct type_oper *)proto->base.type);
+    assert(fi);
     hashtable_set(&cg->protos, string_get(proto->name), proto);
     size_t param_count = array_size(&proto->fun_params);
     if (proto->is_variadic)
@@ -601,7 +619,7 @@ LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *no
     struct type_exp *ret = *(struct type_exp **)array_back(&proto_type->args);
     for (size_t i = 0; i < param_count; i++) {
         struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
-        arg_types[i] = cg->ops[get_type(type_exp)].get_type(cg->context);
+        arg_types[i] = cg->ops[get_type(type_exp)].get_type(cg->context, type_exp);
     }
     LLVMTypeRef ret_type = _get_llvm_type(cg, ret);
     LLVMTypeRef ft = LLVMFunctionType(ret_type, arg_types, param_count, proto->is_variadic);
@@ -622,9 +640,6 @@ LLVMValueRef _emit_function_node(struct code_generator *cg, struct exp_node *nod
         return 0;
     }
     assert(fun_node->base.type->kind == KIND_OPER);
-    struct fun_info *fi = get_fun_info(fun_node->prototype->name,
-        (struct type_oper *)fun_node->base.type);
-    assert(fi);
     hashtable_clear(&cg->named_values);
     LLVMValueRef fun = _emit_prototype_node(cg, (struct exp_node *)fun_node->prototype);
     assert(fun);
@@ -698,7 +713,7 @@ LLVMValueRef _emit_condition_node(struct code_generator *cg, struct exp_node *no
     LLVMAppendExistingBasicBlock(fun, merge_bb);
     LLVMPositionBuilderAtEnd(cg->builder, merge_bb);
     enum type type = get_type(cond->then_node->type);
-    LLVMValueRef phi_node = LLVMBuildPhi(cg->builder, cg->ops[type].get_type(cg->context), "iftmp");
+    LLVMValueRef phi_node = LLVMBuildPhi(cg->builder, cg->ops[type].get_type(cg->context, cond->then_node->type), "iftmp");
     LLVMAddIncoming(phi_node, &then_v, &then_bb, 1);
     LLVMAddIncoming(phi_node, &else_v, &else_bb, 1);
     return phi_node;
@@ -785,11 +800,11 @@ LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct var_node *n
         is_external = true;
     if (!gVar) {
         if (is_external) {
-            gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context), var_name);
+            gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->base.type), var_name);
             LLVMSetExternallyInitialized(gVar, true);
         } else {
             hashtable_set(&cg->gvs, var_name, node);
-            gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context), var_name);
+            gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->base.type), var_name);
             LLVMSetExternallyInitialized(gVar, false);
             if (cg->parser->is_repl)
                 // REPL treated as the global variable initialized as zero and
@@ -817,18 +832,10 @@ LLVMValueRef _emit_var_node(struct code_generator *cg, struct exp_node *node)
 
 LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
 {
-    struct type_node *type = (struct type_node *)node;
-    LLVMTypeRef struct_type = LLVMStructCreateNamed(cg->context, string_get(type->name));
-    unsigned int member_count = array_size(&type->body->nodes);
-    LLVMTypeRef *members = malloc(member_count * sizeof(LLVMTypeRef));
-    for (size_t i = 0; i < member_count; i++) {
-        struct exp_node *var = *(struct exp_node **)array_get(&type->body->nodes, i);
-        members[i] = cg->ops[var->annotated_type->type].get_type(cg->context);
-    }
-    LLVMStructSetBody(struct_type, members, member_count, false);
-    hashtable_set(&cg->ext_types, string_get(type->name), struct_type);
-    hashtable_set(&cg->ext_nodes, string_get(type->name), node);
-    free(members);
+    struct type_oper *type = (struct type_oper *)node->type;
+    assert(node->type);
+    LLVMTypeRef struct_type = get_ext_type(cg->context, type);
+    hashtable_set(&cg->ext_nodes, string_get(type->base.name), node);
     return 0;
 }
 
@@ -880,7 +887,7 @@ LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *no
     LLVMValueRef init_val = emit_ir_code(cg, node->init_value);
     assert(init_val);
     enum type type = get_type(node->base.type);
-    LLVMValueRef alloca = _create_entry_block_alloca(cg->ops[type].get_type(cg->context), fun, var_name);
+    LLVMValueRef alloca = _create_entry_block_alloca(cg->ops[type].get_type(cg->context, node->base.type), fun, var_name);
     LLVMBuildStore(cg->builder, init_val, alloca);
     hashtable_set(&cg->named_values, var_name, alloca);
     return 0;
@@ -894,7 +901,8 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     LLVMBasicBlockRef bb = LLVMGetInsertBlock(cg->builder);
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
-    LLVMValueRef alloca = _create_entry_block_alloca(cg->ops[TYPE_INT].get_type(cg->context), fun, var_name);
+    //TODO: fixme with correct type_exp passed down
+    LLVMValueRef alloca = _create_entry_block_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), fun, var_name);
 
     // KSDbgInfo.emitLocation(this);
     LLVMValueRef start_v = emit_ir_code(cg, forn->start);
@@ -933,7 +941,7 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     else
         hashtable_remove(&cg->named_values, var_name);
 
-    return LLVMConstNull(cg->ops[TYPE_INT].get_type(cg->context));
+    return LLVMConstNull(cg->ops[TYPE_INT].get_type(cg->context, 0));
 }
 
 LLVMValueRef _emit_block_node(struct code_generator *cg, struct exp_node *node)
@@ -1018,9 +1026,18 @@ LLVMTypeRef get_llvm_type(struct type_exp *type)
     return _get_llvm_type(g_cg, type);
 }
 
-LLVMTargetDataRef get_llvm_data_layout()
+LLVMTypeRef get_llvm_type_for_abi(struct type_exp *type)
 {
     assert(g_cg);
+    struct type_size_info tsi = get_type_size_info(type);
+    if (type->type == TYPE_BOOL) //bool type is 1 bit size in llvm but we need to comply with abi size
+        return LLVMIntTypeInContext(get_llvm_context(), tsi.width);
+    return _get_llvm_type(g_cg, type);
+}
+
+LLVMTargetDataRef get_llvm_data_layout()
+{
+    assert(g_cg && g_cg->module);
     return LLVMGetModuleDataLayout(g_cg->module);
 }
 

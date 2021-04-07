@@ -1,6 +1,7 @@
 #include "codegen/abi_arg_info.h"
 #include "codegen/codegen.h"
 #include "codegen/type_size_info.h"
+#include <assert.h>
 
 struct abi_arg_info _create_direct(LLVMTypeRef type, unsigned direct_offset, LLVMTypeRef padding_type, bool can_be_flattened)
 {
@@ -104,4 +105,23 @@ struct abi_arg_info create_direct_type_offset(LLVMTypeRef type, unsigned offset)
 struct abi_arg_info create_direct_type(LLVMTypeRef type)
 {
     return _create_direct(type, 0, 0, true);
+}
+
+bool can_have_padding_type(struct abi_arg_info *aai)
+{
+    return aai->kind == AK_DIRECT || aai->kind == AK_EXTEND || aai->kind == AK_INDIRECT || aai->kind == AK_INDIRECT_ALIASED;
+}
+
+LLVMTypeRef get_padding_type(struct abi_arg_info *aai)
+{
+    return can_have_padding_type(aai) ? aai->padding_type : 0;
+}
+
+void get_coerce_and_expand_types(struct abi_arg_info *aai, LLVMTypeRef *types)
+{
+    assert(aai->kind == AK_COERCE_AND_EXPAND);
+    if (LLVMGetTypeKind(aai->coerce_and_expand_type) == LLVMStructTypeKind)
+        LLVMGetStructElementTypes(aai->coerce_and_expand_type, types);
+    else
+        types[0] = aai->coerce_and_expand_type;
 }

@@ -22,17 +22,22 @@ struct ast_abi_arg {
     struct abi_arg_info info;
 };
 
+extern const unsigned ALL_REQUIRED;
+
 struct fun_info {
     struct ast_abi_arg ret;
     struct array args; //array of ast_abi_arg
     bool is_chain_call;
-    unsigned required_args;
+    unsigned required_args; //required number of arguments: ~0U meaning all are requireed in args array
 };
+
+bool is_variadic(struct fun_info *fi);
 
 void fun_info_init(struct fun_info *fi);
 void fun_info_deinit(struct fun_info *fi);
 
 struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type);
+LLVMTypeRef get_fun_type(struct fun_info *fi);
 
 #ifdef __cplusplus
 }
