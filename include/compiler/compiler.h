@@ -9,7 +9,7 @@
 #define __MLANG_COMPILER_H__
 
 #include "parser/ast.h"
-#include "sema/env.h"
+#include "sema/sema_context.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,8 +22,8 @@ enum object_file_type {
     FT_OBJECT = 3
 };
 
-int compile(const char* fn, enum object_file_type file_type);
-char* emit_ir_string(struct env *env, struct exp_node* ast_node);
+int compile(const char *fn, enum object_file_type file_type);
+char *emit_ir_string(struct env *env, struct exp_node *ast_node);
 void free_ir_string(char *ir_string);
 
 #ifdef __cplusplus

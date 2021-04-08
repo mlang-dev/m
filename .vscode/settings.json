@@ -114,7 +114,10 @@
         "unistd.h": "c",
         "fun_info.h": "c",
         "libfmemopen.h": "c",
-        "xlocale": "c"
+        "xlocale": "c",
+        "limits.h": "c",
+        "type_size_info.h": "c",
+        "sema_context.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

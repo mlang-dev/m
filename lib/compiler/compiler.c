@@ -6,16 +6,16 @@
 #include "compiler/compiler.h"
 #include "clib/util.h"
 #include "compiler/jit.h"
+#include "sema/analyzer.h"
+#include "sema/sema_context.h"
 #include <llvm-c/BitWriter.h>
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
-#include "sema/env.h"
-#include "sema/analyzer.h"
 
-int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, const char* filename)
+int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, const char *filename)
 {
-    if (LLVMTargetMachineEmitToFile(target_machine, module, (char*)filename, LLVMObjectFile, 0)) {
+    if (LLVMTargetMachineEmitToFile(target_machine, module, (char *)filename, LLVMObjectFile, 0)) {
         printf("Target machine can't emit an object file\n");
         return 2;
     }
@@ -38,7 +38,7 @@ int gof_initialize()
     return 0;
 }
 
-int generate_object_file(LLVMModuleRef module, const char* filename)
+int generate_object_file(LLVMModuleRef module, const char *filename)
 {
     gof_initialize();
     LLVMTargetMachineRef target_machine = create_target_machine(module);
@@ -47,43 +47,42 @@ int generate_object_file(LLVMModuleRef module, const char* filename)
     return gof_emit_file(module, target_machine, filename);
 }
 
-int generate_bitcode_file(LLVMModuleRef module, const char* filename)
+int generate_bitcode_file(LLVMModuleRef module, const char *filename)
 {
     LLVMWriteBitcodeToFile(module, filename);
     printf("generated bc file: %s\n", filename);
     return 0;
 }
 
-int generate_ir_file(LLVMModuleRef module, const char* filename)
+int generate_ir_file(LLVMModuleRef module, const char *filename)
 {
     LLVMPrintModuleToFile(module, filename, 0);
     return 0;
 }
 
-int compile(const char* source_file, enum object_file_type file_type)
+int compile(const char *source_file, enum object_file_type file_type)
 {
     string filename;
     string_init_chars(&filename, source_file);
     string_substr(&filename, '.');
-    struct env* env = env_new(false);
-    struct code_generator* cg = env->cg;
-    create_ir_module(cg, string_get(&filename));
-    struct block_node* block = parse_file(env->parser, source_file);
-    analyze_and_generate_builtin_codes(env, (struct exp_node*)block);
+    struct env *env = env_new(false);
+    create_ir_module(env, string_get(&filename));
+    struct block_node *block = parse_file(env->sema_context->parser, source_file);
+    analyze_and_generate_builtin_codes(env->sema_context, (struct exp_node *)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
-            struct exp_node* node = *(struct exp_node**)array_get(&block->nodes, i);
-            emit_ir_code(cg, node);
+            struct exp_node *node = *(struct exp_node **)array_get(&block->nodes, i);
+            emit_ir_code(env, node);
         }
         if (file_type == FT_OBJECT) {
             string_add_chars(&filename, ".o");
-            generate_object_file(cg->module, string_get(&filename));
+            generate_object_file(env->module, string_get(&filename));
         } else if (file_type == FT_BITCODE) {
             string_add_chars(&filename, ".bc");
-            generate_bitcode_file(cg->module, string_get(&filename));
+            generate_bitcode_file(env->module, string_get(&filename));
         } else if (file_type == FT_IR) {
             string_add_chars(&filename, ".ir");
-            generate_ir_file(cg->module, string_get(&filename));
+            generate_ir_file(env->module, string_get(&filename));
         }
     } else {
         log_info(INFO, "no statement is found.");
@@ -93,16 +92,16 @@ int compile(const char* source_file, enum object_file_type file_type)
     return 0;
 }
 
-char* emit_ir_string(struct env *env, struct exp_node* ast_node)
+char *emit_ir_string(struct env *env, struct exp_node *ast_node)
 {
-    if (!ast_node) return 0;
-    analyze(env, ast_node);
-    emit_ir_code(env->cg, ast_node);
-    return LLVMPrintModuleToString(env->cg->module);
+    if (!ast_node)
+        return 0;
+    analyze(env->sema_context, ast_node);
+    emit_ir_code(env, ast_node);
+    return LLVMPrintModuleToString(env->module);
 }
 
 void free_ir_string(char *ir_string)
 {
     LLVMDisposeMessage(ir_string);
 }
-

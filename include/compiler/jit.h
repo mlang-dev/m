@@ -11,24 +11,24 @@
 
 #include "clib/util.h"
 #include "codegen/codegen.h"
-#include "sema/env.h"
+#include "codegen/env.h"
+#include "sema/sema_context.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct JIT {
-    struct code_generator* cg;
-    void* instance;
-    struct env* env;
+    struct env *env;
+    void *instance;
 };
 
-struct JIT* jit_new(struct code_generator* cg);
-void jit_free(struct JIT* jit);
-void add_module(struct JIT* jit, void* module);
+struct JIT *jit_new(struct env *cg);
+void jit_free(struct JIT *jit);
+void add_module(struct JIT *jit, void *module);
 typedef double (*target_address_double)();
 typedef int (*target_address_int)();
-void* find_target_address(struct JIT* jit, const char* symbol);
+void *find_target_address(struct JIT *jit, const char *symbol);
 
 #ifdef __cplusplus
 }

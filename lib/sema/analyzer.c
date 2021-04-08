@@ -8,6 +8,8 @@
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
 #include "clib/symboltable.h"
+#include "codegen/codegen.h"
+#include "codegen/env.h"
 #include "sys.h"
 #include "tool/cmodule.h"
 #include <assert.h>
@@ -33,7 +35,7 @@ bool _is_predicate_op(const char *op)
     return false;
 }
 
-void _log_err(struct env *env, struct source_loc loc, const char *msg)
+void _log_err(struct sema_context *env, struct source_loc loc, const char *msg)
 {
     (void)env;
     char full_msg[512];
@@ -41,7 +43,7 @@ void _log_err(struct env *env, struct source_loc loc, const char *msg)
     log_info(ERROR, full_msg);
 }
 
-struct type_exp *_analyze_unk(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_unk(struct sema_context *env, struct exp_node *node)
 {
     printf("analyzing unk: %s\n", node_type_strings[node->node_type]);
     if (!env || !node)
@@ -49,17 +51,17 @@ struct type_exp *_analyze_unk(struct env *env, struct exp_node *node)
     return 0;
 }
 
-struct type_exp *retrieve_type_with_type_name(struct env *env, symbol name)
+struct type_exp *retrieve_type_with_type_name(struct sema_context *env, symbol name)
 {
     return get_symbol_type(&env->tenv, &env->nongens, name);
 }
 
-struct type_exp *retrieve_type_for_var_name(struct env *env, symbol name)
+struct type_exp *retrieve_type_for_var_name(struct sema_context *env, symbol name)
 {
     return get_symbol_type(&env->venv, &env->nongens, name);
 }
 
-struct type_exp *_analyze_ident(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_ident(struct sema_context *env, struct exp_node *node)
 {
     struct ident_node *ident = (struct ident_node *)node;
     struct type_exp *type = 0;
@@ -82,13 +84,13 @@ struct type_exp *_analyze_ident(struct env *env, struct exp_node *node)
     return type;
 }
 
-struct type_exp *_analyze_num(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_num(struct sema_context *env, struct exp_node *node)
 {
     symbol symbol_type = to_symbol(type_strings[node->annotated_type->type]);
     return retrieve_type_with_type_name(env, symbol_type);
 }
 
-struct type_exp *_analyze_var(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_var(struct sema_context *env, struct exp_node *node)
 {
     struct var_node *var = (struct var_node *)node;
     struct type_exp *type;
@@ -127,7 +129,7 @@ struct type_exp *_analyze_var(struct env *env, struct exp_node *node)
     return var_type;
 }
 
-struct type_exp *_analyze_type(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_type(struct sema_context *env, struct exp_node *node)
 {
     struct type_node *type = (struct type_node *)node;
     struct array args;
@@ -144,7 +146,7 @@ struct type_exp *_analyze_type(struct env *env, struct exp_node *node)
     return result_type;
 }
 
-struct type_exp *_analyze_type_value(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_type_value(struct sema_context *env, struct exp_node *node)
 {
     struct type_value_node *type_value = (struct type_value_node *)node;
     for (size_t i = 0; i < array_size(&type_value->body->nodes); i++) {
@@ -154,7 +156,7 @@ struct type_exp *_analyze_type_value(struct env *env, struct exp_node *node)
     return 0;
 }
 
-struct type_exp *_analyze_proto(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_proto(struct sema_context *env, struct exp_node *node)
 {
     (void)env;
     struct prototype_node *proto = (struct prototype_node *)node;
@@ -173,7 +175,7 @@ struct type_exp *_analyze_proto(struct env *env, struct exp_node *node)
     return proto->base.type;
 }
 
-struct type_exp *_analyze_fun(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_fun(struct sema_context *env, struct exp_node *node)
 {
     struct function_node *fun = (struct function_node *)node;
     //# create a new non-generic variable for the binder
@@ -205,16 +207,17 @@ struct type_exp *_analyze_fun(struct env *env, struct exp_node *node)
     return result;
 }
 
-struct type_exp *_analyze_call(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *node)
 {
     struct call_node *call = (struct call_node *)node;
-    struct type_exp *fun_type = retrieve_type_for_var_name(env, call->callee);
+    struct env *env = get_env();
+    struct type_exp *fun_type = retrieve_type_for_var_name(context, call->callee);
     if (!fun_type) {
         struct source_loc loc = { 1, 1 };
         string error;
         string_copy(&error, call->callee);
         string_add_chars(&error, " not defined");
-        _log_err(env, loc, string_get(&error));
+        _log_err(context, loc, string_get(&error));
         string_deinit(&error);
         return 0;
     }
@@ -222,7 +225,7 @@ struct type_exp *_analyze_call(struct env *env, struct exp_node *node)
     array_init(&args, sizeof(struct type_exp *));
     for (size_t i = 0; i < array_size(&call->args); i++) {
         struct exp_node *arg = *(struct exp_node **)array_get(&call->args, i);
-        struct type_exp *type = analyze(env, arg);
+        struct type_exp *type = analyze(context, arg);
         array_push(&args, &type);
     }
 
@@ -231,35 +234,35 @@ struct type_exp *_analyze_call(struct env *env, struct exp_node *node)
     if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args)) && !is_recursive(call)) {
         string sp_callee = monomorphize(string_get(call->callee), &args);
         call->specialized_callee = to_symbol(string_get(&sp_callee));
-        if (has_symbol(&env->venv, call->specialized_callee)) {
-            fun_type = retrieve_type_for_var_name(env, call->specialized_callee);
+        if (has_symbol(&context->venv, call->specialized_callee)) {
+            fun_type = retrieve_type_for_var_name(context, call->specialized_callee);
             struct type_oper *fun_op = (struct type_oper *)fun_type;
             return *(struct type_exp **)array_back(&fun_op->args);
         }
         /* specialized callee */
-        struct exp_node *generic_fun = (struct exp_node *)hashtable_get(&env->generic_ast, string_get(call->callee));
+        struct exp_node *generic_fun = (struct exp_node *)hashtable_get(&context->generic_ast, string_get(call->callee));
         struct function_node *sp_fun = (struct function_node *)node_copy(generic_fun);
         sp_fun->prototype->name = call->specialized_callee;
-        fun_type = analyze_and_generate_builtin_codes(env, (struct exp_node *)sp_fun);
-        hashtable_set(&env->cg->specialized_nodes, string_get(sp_fun->prototype->name), sp_fun);
-        push_symbol_type(&env->venv, call->specialized_callee, fun_type);
+        fun_type = analyze_and_generate_builtin_codes(context, (struct exp_node *)sp_fun);
+        hashtable_set(&env->specialized_nodes, string_get(sp_fun->prototype->name), sp_fun);
+        push_symbol_type(&context->venv, call->specialized_callee, fun_type);
         specialized_node = (struct exp_node *)sp_fun;
     }
     struct type_exp *result_type = (struct type_exp *)create_type_var();
     array_push(&args, &result_type);
     struct type_exp *call_fun = (struct type_exp *)create_type_fun(&args);
-    unify(call_fun, fun_type, &env->nongens);
-    if (hashtable_in_p(&env->builtin_ast, call->callee)) {
-        array_push(&env->used_builtin_names, &call->callee);
+    unify(call_fun, fun_type, &context->nongens);
+    if (hashtable_in_p(&context->builtin_ast, call->callee)) {
+        array_push(&context->used_builtin_names, &call->callee);
     }
     // TODO: this should be moved to codegen phase
     if (specialized_node) {
-        emit_ir_code(env->cg, specialized_node);
+        emit_ir_code(env, specialized_node);
     }
     return prune(result_type);
 }
 
-struct type_exp *_analyze_unary(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_unary(struct sema_context *env, struct exp_node *node)
 {
     struct unary_node *unary = (struct unary_node *)node;
     struct type_exp *op_type = analyze(env, unary->operand);
@@ -271,7 +274,7 @@ struct type_exp *_analyze_unary(struct env *env, struct exp_node *node)
     return op_type;
 }
 
-struct type_exp *_analyze_binary(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_binary(struct sema_context *env, struct exp_node *node)
 {
     struct binary_node *bin = (struct binary_node *)node;
     struct type_exp *lhs_type = analyze(env, bin->lhs);
@@ -292,7 +295,7 @@ struct type_exp *_analyze_binary(struct env *env, struct exp_node *node)
     return result;
 }
 
-struct type_exp *_analyze_if(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_if(struct sema_context *env, struct exp_node *node)
 {
     struct condition_node *cond_node = (struct condition_node *)node;
     struct type_exp *cond_type = analyze(env, cond_node->condition_node);
@@ -304,7 +307,7 @@ struct type_exp *_analyze_if(struct env *env, struct exp_node *node)
     return then_type;
 }
 
-struct type_exp *_analyze_for(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_for(struct sema_context *env, struct exp_node *node)
 {
     struct for_node *for_node = (struct for_node *)node;
     struct type_exp *int_type = (struct type_exp *)create_nullary_type(TYPE_INT);
@@ -326,7 +329,7 @@ struct type_exp *_analyze_for(struct env *env, struct exp_node *node)
     return (struct type_exp *)create_nullary_type(TYPE_UNIT);
 }
 
-struct type_exp *_analyze_block(struct env *env, struct exp_node *node)
+struct type_exp *_analyze_block(struct sema_context *env, struct exp_node *node)
 {
     struct block_node *block = (struct block_node *)node;
     enter_scope(env);
@@ -339,7 +342,7 @@ struct type_exp *_analyze_block(struct env *env, struct exp_node *node)
     return exp;
 }
 
-struct type_exp *(*analyze_fp[])(struct env *, struct exp_node *) = {
+struct type_exp *(*analyze_fp[])(struct sema_context *, struct exp_node *) = {
     _analyze_unk,
     _analyze_num,
     _analyze_ident,
@@ -356,17 +359,17 @@ struct type_exp *(*analyze_fp[])(struct env *, struct exp_node *) = {
     _analyze_block,
 };
 
-struct type_exp *analyze(struct env *env, struct exp_node *node)
+struct type_exp *analyze(struct sema_context *env, struct exp_node *node)
 {
     struct type_exp *type = analyze_fp[node->node_type](env, node);
     node->type = type;
     return type;
 }
 
-struct type_exp *analyze_and_generate_builtin_codes(struct env *env, struct exp_node *node)
+struct type_exp *analyze_and_generate_builtin_codes(struct sema_context *env, struct exp_node *node)
 {
     struct type_exp *type = analyze(env, node);
-    struct code_generator *cg = env->cg;
+    struct env *cg = get_env();
     if (array_size(&env->used_builtin_names)) {
         for (size_t i = 0; i < array_size(&env->used_builtin_names); i++) {
             symbol built_name = *((symbol *)array_get(&env->used_builtin_names, i));

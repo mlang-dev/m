@@ -5,15 +5,14 @@
  */
 #include <stdlib.h>
 
+#include "clib/util.h"
 #include "compiler/jit.h"
-#include <llvm-c/LLJIT.h>
 #include <llvm-c/Core.h>
 #include <llvm-c/Initialization.h>
+#include <llvm-c/LLJIT.h>
 #include <llvm-c/Support.h>
-#include "clib/util.h"
 
-
-void* _create_jit_instance()
+void *_create_jit_instance()
 {
     LLVMInitializeCore(LLVMGetGlobalPassRegistry());
 
@@ -32,7 +31,7 @@ void* _create_jit_instance()
     return jit;
 }
 
-void _destroy_jit_instance(void* instance)
+void _destroy_jit_instance(void *instance)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)instance;
     LLVMErrorRef err = LLVMOrcDisposeLLJIT(j);
@@ -41,15 +40,15 @@ void _destroy_jit_instance(void* instance)
     }
 }
 
-struct JIT* jit_new(struct code_generator* cg)
+struct JIT *jit_new(struct env *env)
 {
-    struct JIT* jit = malloc(sizeof(*jit));
-    jit->cg = cg;
+    struct JIT *jit = malloc(sizeof(*jit));
+    jit->env = env;
     jit->instance = _create_jit_instance();
     return jit;
 }
 
-void jit_free(struct JIT* jit)
+void jit_free(struct JIT *jit)
 {
     if (jit->instance) {
         //_destroy_jit_instance(jit->jit);
@@ -58,29 +57,29 @@ void jit_free(struct JIT* jit)
     free(jit);
 }
 
-void add_module(struct JIT* jit, void* module)
+void add_module(struct JIT *jit, void *module)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcJITDylibRef jd = LLVMOrcLLJITGetMainJITDylib(j);
     LLVMOrcThreadSafeContextRef tsc = LLVMOrcCreateNewThreadSafeContext();
     LLVMOrcThreadSafeModuleRef tsm = LLVMOrcCreateNewThreadSafeModule((LLVMModuleRef)module, tsc);
     LLVMOrcDefinitionGeneratorRef dg;
-    #ifdef __APPLE__ //MacOS
-        LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, '_', 0, 0); 
-        LLVMLoadLibraryPermanently("/usr/lib/libstdc++.so"); 
-    #else //Linux
-        LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, 0, 0, 0); 
-        LLVMLoadLibraryPermanently("/usr/lib/x86_64-linux-gnu/libstdc++.so.6"); 
-    #endif
+#ifdef __APPLE__ //MacOS
+    LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, '_', 0, 0);
+    LLVMLoadLibraryPermanently("/usr/lib/libstdc++.so");
+#else //Linux
+    LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, 0, 0, 0);
+    LLVMLoadLibraryPermanently("/usr/lib/x86_64-linux-gnu/libstdc++.so.6");
+#endif
     LLVMOrcJITDylibAddGenerator(jd, dg);
     LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
 }
 
-void* find_target_address(struct JIT* jit, const char* symbol)
+void *find_target_address(struct JIT *jit, const char *symbol)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcJITTargetAddress addr;
     if (LLVMOrcLLJITLookup(j, &addr, symbol)) {
     }
-    return (void*)addr;
+    return (void *)addr;
 }

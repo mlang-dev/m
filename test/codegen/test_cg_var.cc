@@ -3,15 +3,16 @@
  *
  * Unit tests for code generating
  */
+#include "compiler/compiler.h"
+#include "sema/analyzer.h"
+#include "sema/sema_context.h"
+#include "test_base.h"
+#include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
-#include "test_base.h"
-#include "sema/env.h"
-#include "sema/analyzer.h"
-#include "compiler/compiler.h"
-#include "tutil.h"
 
-class testCGVar : public TestBase {};
+class testCGVar : public TestBase {
+};
 
 TEST_F(testCGVar, testGlobalVarInt)
 {
@@ -86,4 +87,3 @@ point:Point2D = 10 20
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
-

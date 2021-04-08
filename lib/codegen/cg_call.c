@@ -12,7 +12,7 @@ struct address zero_address()
 
 void emit_call(struct call_node *call)
 {
-    struct fun_info *fi = get_fun_info(get_callee(call), call->base.type);
+    struct fun_info *fi = get_fun_info(get_callee(call), call->base.type, false);
     LLVMValueRef ir_fun_type = get_fun_type(fi);
     struct ir_arg_info iai;
     ir_arg_info_init(&iai);

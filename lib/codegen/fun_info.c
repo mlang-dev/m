@@ -7,10 +7,10 @@
 
 const unsigned ALL_REQUIRED = ~0U;
 
-void fun_info_init(struct fun_info *fi)
+void fun_info_init(struct fun_info *fi, unsigned required_args)
 {
     fi->is_chain_call = false;
-    fi->required_args = ALL_REQUIRED;
+    fi->required_args = required_args;
     array_init(&fi->args, sizeof(struct ast_abi_arg));
 }
 
@@ -24,14 +24,14 @@ bool is_variadic(struct fun_info *fi)
     return fi->required_args != ALL_REQUIRED;
 }
 
-struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type)
+struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type, bool is_variadic)
 {
     struct hashtable *fun_infos = get_fun_infos();
     struct fun_info *result = hashtable_get_p(fun_infos, fun_name);
     if (result)
         return result;
     struct fun_info fi;
-    fun_info_init(&fi);
+    fun_info_init(&fi, is_variadic ? ALL_REQUIRED : array_size(&fun_type->args));
     fi.ret.type = &fun_type->base;
     struct ast_abi_arg aa;
     for (unsigned i = 0; i < array_size(&fun_type->args); i++) {

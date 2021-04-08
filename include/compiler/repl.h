@@ -8,7 +8,7 @@
 #ifndef __MLANG_REPL_H__
 #define __MLANG_REPL_H__
 
-#include "sema/env.h"
+#include "codegen/env.h"
 #include "compiler/jit.h"
 #include "sema/type.h"
 
@@ -23,13 +23,13 @@ struct eval_result {
         int i_value;
         bool b_value;
         char c_value;
-        const char* s_value;
+        const char *s_value;
     };
 };
 
-struct JIT* build_jit(struct env* env);
-void eval_statement(void* p_jit, struct exp_node* node);
-struct eval_result eval_exp(struct JIT* jit, struct exp_node* node);
+struct JIT *build_jit(struct env *env);
+void eval_statement(void *p_jit, struct exp_node *node);
+struct eval_result eval_exp(struct JIT *jit, struct exp_node *node);
 int run_repl();
 
 #ifdef __cplusplus

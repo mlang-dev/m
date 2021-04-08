@@ -1,13 +1,13 @@
 /*
- * env.h
+ * sema_context.h
  * 
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
  * header file of m environement
  */
 
-#ifndef __MLANG_ENV_H__
-#define __MLANG_ENV_H__
+#ifndef __MLANG_SEMA_CONTEXT_H__
+#define __MLANG_SEMA_CONTEXT_H__
 
 #include "clib/array.h"
 #include "clib/symboltable.h"
@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-struct env {
+struct sema_context {
     /* 
      *  value type env: symboltable of <symbol, struct type_exp>*>
      *  binding variable name to type expression
@@ -58,14 +58,14 @@ struct env {
     struct array used_builtin_names;
 
     symbol scope_marker;
-    struct code_generator *cg;
+    //struct env *cg;
     struct parser *parser;
 };
 
-struct env *env_new(bool is_repl);
-void env_free(struct env *env);
-void enter_scope(struct env *env);
-void leave_scope(struct env *env);
+struct sema_context *sema_context_new(bool is_repl);
+void sema_context_free(struct sema_context *env);
+void enter_scope(struct sema_context *env);
+void leave_scope(struct sema_context *env);
 
 #ifdef __cplusplus
 }

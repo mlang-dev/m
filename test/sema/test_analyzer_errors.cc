@@ -3,13 +3,13 @@
  *
  * Unit tests for type inference and semantic analsysis
  */
-#include "sema/analyzer.h"
 #include "codegen/codegen.h"
 #include "parser/parser.h"
+#include "sema/analyzer.h"
+#include "sema/sema_context.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
-#include "sema/env.h"
 
 TEST(testAnalyzerError, testNoFunctionFound)
 {
@@ -17,11 +17,11 @@ TEST(testAnalyzerError, testNoFunctionFound)
 no_exist_function_call ()
 )";
     testing::internal::CaptureStderr();
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
-    analyze_and_generate_builtin_codes(env, (exp_node*)block);
+    analyze_and_generate_builtin_codes(env->sema_context, (exp_node *)block);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :1:1: no_exist_function_call not defined\n", error.c_str());
     env_free(env);
@@ -33,11 +33,11 @@ TEST(testAnalyzerError, testRemError)
 10+0.3
 )";
     testing::internal::CaptureStderr();
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
-    analyze_and_generate_builtin_codes(env, (exp_node*)block);
+    analyze_and_generate_builtin_codes(env->sema_context, (exp_node *)block);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :2:1: type not same for binary op: +\n", error.c_str());
     env_free(env);
@@ -49,11 +49,11 @@ TEST(testAnalyzerError, tesTypeMismatch)
 x:int = true
 )";
     testing::internal::CaptureStderr();
-    env* env = env_new(false);
-    block_node* block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    env *env = env_new(false);
+    block_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
-    analyze_and_generate_builtin_codes(env, (exp_node*)block);
+    analyze_and_generate_builtin_codes(env->sema_context, (exp_node *)block);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :2:1: variable type not matched with literal constant\n", error.c_str());
     env_free(env);

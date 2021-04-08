@@ -48,7 +48,7 @@ add_library(mlr
   parser/astdump.c
   sema/type.c
   sema/analyzer.c
-  sema/env.c
+  sema/sema_context.c
   codegen/type_size_info.c
   codegen/abi_arg_info.c
   codegen/fun_info.c
@@ -56,6 +56,7 @@ add_library(mlr
   codegen/x86_64_abi.c
   codegen/codegen.c
   codegen/ir_arg_info.c
+  codegen/env.c
   compiler/repl.c
   compiler/jit.c
   compiler/compiler.c
