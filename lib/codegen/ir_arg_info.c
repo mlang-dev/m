@@ -23,7 +23,7 @@ void ir_arg_range_init(struct ir_arg_range *iar)
     iar->arg_num = 0;
 }
 
-int _get_expansion_size(struct type_exp *type)
+int get_expansion_size(struct type_exp *type)
 {
     if (type->type == TYPE_EXT) {
         struct type_oper *to = (struct type_oper *)type;
@@ -31,7 +31,7 @@ int _get_expansion_size(struct type_exp *type)
         unsigned int member_count = array_size(&to->args);
         for (unsigned i = 0; i < member_count; i++) {
             struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);
-            size += _get_expansion_size(field_type);
+            size += get_expansion_size(field_type);
         }
         return size;
     }

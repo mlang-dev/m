@@ -11,6 +11,7 @@
 
 #include "clib/hashtable.h"
 #include "codegen/abi_arg_info.h"
+#include "codegen/ir_arg_info.h"
 #include "sema/type.h"
 
 #ifdef __cplusplus

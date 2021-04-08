@@ -33,10 +33,12 @@ struct ir_arg_info {
     struct array args;
 };
 
+void ir_arg_range_init(struct ir_arg_range *iar);
 void ir_arg_info_init(struct ir_arg_info *iai);
 void ir_arg_info_deinit(struct ir_arg_info *iai);
 struct ir_arg_range *get_ir_arg_range(struct ir_arg_info *iai, unsigned arg_no);
 void get_expanded_types(struct type_exp *type, struct array *types);
+int get_expansion_size(struct type_exp *type);
 
 #ifdef __cplusplus
 }

@@ -184,7 +184,7 @@ void map_to_ir_arg_info(struct fun_info *fi, struct ir_arg_info *iai)
             iar.arg_num = LLVMCountStructElementTypes(aa->info.type);
             break;
         case AK_EXPAND:
-            iar.arg_num = _get_expansion_size(aa->type);
+            iar.arg_num = get_expansion_size(aa->type);
             break;
         }
         if (iar.arg_num > 0) {
