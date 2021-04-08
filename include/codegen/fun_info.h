@@ -35,6 +35,7 @@ bool is_variadic(struct fun_info *fi);
 
 void fun_info_init(struct fun_info *fi);
 void fun_info_deinit(struct fun_info *fi);
+void map_to_ir_arg_info(struct fun_info *fi, struct ir_arg_info *iai);
 
 struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type);
 LLVMTypeRef get_fun_type(struct fun_info *fi);

@@ -37,7 +37,6 @@ void ir_arg_info_init(struct ir_arg_info *iai);
 void ir_arg_info_deinit(struct ir_arg_info *iai);
 struct ir_arg_range *get_ir_arg_range(struct ir_arg_info *iai, unsigned arg_no);
 void get_expanded_types(struct type_exp *type, struct array *types);
-void map_to_ir_arg_info(struct fun_info *fi, struct ir_arg_info *iai);
 
 #ifdef __cplusplus
 }

@@ -146,3 +146,52 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
     array_deinit(&arg_types);
     return fun_type;
 }
+
+void map_to_ir_arg_info(struct fun_info *fi, struct ir_arg_info *iai)
+{
+    unsigned ir_arg_no = 0;
+    if (fi->ret.info.kind == AK_INDIRECT)
+        iai->sret_arg_no = ir_arg_no++;
+
+    unsigned arg_no = 0;
+    unsigned arg_num = array_size(&fi->args);
+    for (unsigned i = 0; i < arg_num; i++) {
+        struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
+        struct ir_arg_range iar;
+        ir_arg_range_init(&iar);
+        if (get_padding_type(&aa->info))
+            iar.padding_arg_index = ir_arg_no++;
+        switch (aa->info.kind) {
+        case AK_EXTEND:
+        case AK_DIRECT: {
+            if (aa->info.kind == AK_DIRECT && aa->info.can_be_flattened && LLVMGetTypeKind(aa->info.type) == LLVMStructTypeKind) {
+                iar.arg_num = LLVMCountStructElementTypes(aa->info.type);
+            } else {
+                iar.arg_num = 1;
+            }
+            break;
+        }
+        case AK_INDIRECT:
+        case AK_INDIRECT_ALIASED:
+            iar.arg_num = 1;
+            break;
+        case AK_IGNORE:
+        case AK_INALLOCA:
+            iar.arg_num = 0;
+            break;
+        case AK_COERCE_AND_EXPAND:
+            //TODO: different than LLVMGetStructElementTypes returned number of types ?
+            iar.arg_num = LLVMCountStructElementTypes(aa->info.type);
+            break;
+        case AK_EXPAND:
+            iar.arg_num = _get_expansion_size(aa->type);
+            break;
+        }
+        if (iar.arg_num > 0) {
+            iar.first_arg_index = ir_arg_no;
+            ir_arg_no += iar.arg_num;
+        }
+        array_push(&iai->args, &iar);
+    }
+    iai->total_ir_args = ir_arg_no;
+}
