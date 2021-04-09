@@ -15,6 +15,7 @@
 #include "codegen/codegen.h"
 #include "parser/parser.h"
 #include "sema/sema_context.h"
+#include "sema/type.h"
 #include <llvm-c/Core.h>
 
 #ifdef __cplusplus
@@ -30,6 +31,7 @@ struct env {
 struct env *env_new(bool is_repl);
 void env_free(struct env *env);
 struct env *get_env();
+struct type_exp *emit_code(struct env *env, struct exp_node *node);
 
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
 

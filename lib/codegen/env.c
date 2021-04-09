@@ -2,6 +2,7 @@
 #include "codegen/codegen.h"
 #include "codegen/fun_info.h"
 #include "codegen/type_size_info.h"
+#include "sema/analyzer.h"
 #include "sema/sema_context.h"
 #include <assert.h>
 
@@ -30,4 +31,22 @@ struct env *get_env()
 {
     assert(g_env);
     return g_env;
+}
+
+struct type_exp *emit_code(struct env *env, struct exp_node *node)
+{
+    struct type_exp *type = analyze(env->sema_context, node);
+    if (array_size(&env->sema_context->used_builtin_names)) {
+        for (size_t i = 0; i < array_size(&env->sema_context->used_builtin_names); i++) {
+            symbol built_name = *((symbol *)array_get(&env->sema_context->used_builtin_names, i));
+            struct exp_node *node = hashtable_get_p(&env->sema_context->builtin_ast, built_name);
+            const char *built_name_str = string_get(built_name);
+            if (!hashset_in(&env->cg->builtins, built_name_str)) {
+                hashset_set(&env->cg->builtins, built_name_str);
+                emit_ir_code(env->cg, node);
+            }
+        }
+        array_clear(&env->sema_context->used_builtin_names);
+    }
+    return type;
 }

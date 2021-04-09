@@ -68,7 +68,7 @@ int compile(const char *source_file, enum object_file_type file_type)
     struct env *env = env_new(false);
     create_ir_module(env, string_get(&filename));
     struct block_node *block = parse_file(env->sema_context->parser, source_file);
-    analyze_and_generate_builtin_codes(env->sema_context, (struct exp_node *)block);
+    emit_code(env, (struct exp_node *)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
             struct exp_node *node = *(struct exp_node **)array_get(&block->nodes, i);

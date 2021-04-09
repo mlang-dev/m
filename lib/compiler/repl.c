@@ -43,11 +43,11 @@ struct eval_result eval_exp(struct JIT *jit, struct exp_node *node)
     string fn = make_unique_name("main-fn");
     enum node_type node_type = node->node_type;
     if (!node->type)
-        analyze_and_generate_builtin_codes(jit->env->sema_context, node);
+        emit_code(jit->env, node);
     struct type_exp *type = node->type;
     struct eval_result result = { 0 };
     node = parse_exp_to_function(jit->env->sema_context->parser, node, string_get(&fn));
-    analyze_and_generate_builtin_codes(jit->env->sema_context, node);
+    emit_code(jit->env, node);
     if (node) {
         void *p_fun = emit_ir_code(jit->env->cg, node);
         if (p_fun) {
@@ -84,7 +84,7 @@ void eval_statement(void *p_jit, struct exp_node *node)
     if (node) {
         //printf("node->type: %s\n", node_type_strings[node->node_type]);
         struct JIT *jit = (struct JIT *)p_jit;
-        analyze_and_generate_builtin_codes(jit->env->sema_context, node);
+        emit_code(jit->env, node);
         string type_node_str = to_string(node->type);
         if (!node->type)
             goto exit;
