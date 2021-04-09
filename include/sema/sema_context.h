@@ -48,6 +48,11 @@ struct sema_context {
     struct hashtable generic_ast;
 
     /* 
+     *  specialized value ASTs: hashtable of <symbol, struct exp_node*>
+     */
+    struct hashtable specialized_ast;
+
+    /* 
      *  struct array of struct type_exp*, specialized (non generic) 
      */
     struct array nongens;
@@ -58,11 +63,11 @@ struct sema_context {
     struct array used_builtin_names;
 
     symbol scope_marker;
-    //struct env *cg;
+    //reference the parser
     struct parser *parser;
 };
 
-struct sema_context *sema_context_new(bool is_repl);
+struct sema_context *sema_context_new(struct parser *parser);
 void sema_context_free(struct sema_context *env);
 void enter_scope(struct sema_context *env);
 void leave_scope(struct sema_context *env);

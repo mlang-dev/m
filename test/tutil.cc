@@ -5,6 +5,7 @@
  */
 #include "tutil.h"
 #include "codegen/codegen.h"
+#include "codegen/env.h"
 #include "compiler/compiler.h"
 #include "libfmemopen.h"
 #include "sema/sema_context.h"
@@ -42,10 +43,10 @@ void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)
 {
     char module_ir[1024];
     env *env = env_new(false);
-    create_ir_module(env, module_name);
-    make_module_ir(env->module, module_name, ir_code, module_ir);
+    create_ir_module(env->cg, module_name);
+    make_module_ir(env->cg->module, module_name, ir_code, module_ir);
     block_node *block = parse_string(env->sema_context->parser, "test", m_code);
-    char *ir_string = emit_ir_string(env, &block->base);
+    char *ir_string = emit_ir_string(env->cg, &block->base);
     ASSERT_STREQ(module_ir, ir_string);
     free_ir_string(ir_string);
     env_free(env);

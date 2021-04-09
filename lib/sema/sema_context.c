@@ -29,20 +29,20 @@ void leave_scope(struct sema_context *context)
     } while (s != context->scope_marker);
 }
 
-struct sema_context *sema_context_new(bool is_repl)
+struct sema_context *sema_context_new(struct parser *parser)
 {
     struct sema_context *context = malloc(sizeof(*context));
     memset((void *)context, 0, sizeof(*context));
-    context->parser = parser_new(is_repl);
     array_init(&context->nongens, sizeof(struct type_exp *));
     array_init(&context->used_builtin_names, sizeof(symbol));
-    context->parser = parser_new(is_repl);
+    context->parser = parser;
     symbols_init();
     symboltable_init(&context->tenv);
     symboltable_init(&context->venv);
     hashtable_init(&context->ext_type_ast);
     hashtable_init(&context->builtin_ast);
     hashtable_init(&context->generic_ast);
+    hashtable_init(&context->specialized_ast);
     context->scope_marker = to_symbol("<enter_scope_marker>");
     struct array args;
     array_init(&args, sizeof(struct type_exp *));
@@ -80,6 +80,7 @@ struct sema_context *sema_context_new(bool is_repl)
 void sema_context_free(struct sema_context *context)
 {
     hashtable_deinit(&context->ext_type_ast);
+    hashtable_deinit(&context->specialized_ast);
     hashtable_deinit(&context->generic_ast);
     hashtable_deinit(&context->builtin_ast);
     symboltable_deinit(&context->venv);
@@ -87,6 +88,5 @@ void sema_context_free(struct sema_context *context)
     symbols_deinit();
     array_deinit(&context->used_builtin_names);
     array_deinit(&context->nongens);
-    parser_free(context->parser);
     free(context);
 }

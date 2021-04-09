@@ -27,14 +27,14 @@ void _print(struct eval_result result)
 
 void _add_current_module_to_jit(struct JIT *jit)
 {
-    add_module(jit, jit->env->module);
-    jit->env->module = 0;
+    add_module(jit, jit->env->cg->module);
+    jit->env->cg->module = 0;
 }
 
-void _create_jit_module(struct env *cg)
+void _create_jit_module(struct env *env)
 {
     string mod_name = make_unique_name("mjit");
-    create_ir_module(cg, string_get(&mod_name));
+    create_ir_module(env->cg, string_get(&mod_name));
     string_deinit(&mod_name);
 }
 
@@ -49,7 +49,7 @@ struct eval_result eval_exp(struct JIT *jit, struct exp_node *node)
     node = parse_exp_to_function(jit->env->sema_context->parser, node, string_get(&fn));
     analyze_and_generate_builtin_codes(jit->env->sema_context, node);
     if (node) {
-        void *p_fun = emit_ir_code(jit->env, node);
+        void *p_fun = emit_ir_code(jit->env->cg, node);
         if (p_fun) {
             //LLVMDumpModule(jit->env->module);
             _add_current_module_to_jit(jit);
@@ -89,10 +89,10 @@ void eval_statement(void *p_jit, struct exp_node *node)
         if (!node->type)
             goto exit;
         if (node->node_type == PROTOTYPE_NODE) {
-            emit_ir_code(jit->env, node);
+            emit_ir_code(jit->env->cg, node);
         } else if (node->node_type == FUNCTION_NODE || node->node_type == TYPE_NODE) {
             // function definition
-            emit_ir_code(jit->env, node);
+            emit_ir_code(jit->env->cg, node);
             //LLVMDumpModule(jit->env->module);
             _add_current_module_to_jit(jit);
             _create_jit_module(jit->env);
@@ -115,7 +115,7 @@ struct JIT *build_jit(struct env *env)
 {
     struct JIT *jit = jit_new(env);
     _create_jit_module(env);
-    generate_runtime_module(env);
+    generate_runtime_module(env->cg);
     _add_current_module_to_jit(jit);
     _create_jit_module(env);
     return jit;

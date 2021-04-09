@@ -244,7 +244,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
         struct function_node *sp_fun = (struct function_node *)node_copy(generic_fun);
         sp_fun->prototype->name = call->specialized_callee;
         fun_type = analyze_and_generate_builtin_codes(context, (struct exp_node *)sp_fun);
-        hashtable_set(&env->specialized_nodes, string_get(sp_fun->prototype->name), sp_fun);
+        hashtable_set(&context->specialized_ast, string_get(sp_fun->prototype->name), sp_fun);
         push_symbol_type(&context->venv, call->specialized_callee, fun_type);
         specialized_node = (struct exp_node *)sp_fun;
     }
@@ -257,7 +257,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
     }
     // TODO: this should be moved to codegen phase
     if (specialized_node) {
-        emit_ir_code(env, specialized_node);
+        emit_ir_code(env->cg, specialized_node);
     }
     return prune(result_type);
 }
@@ -366,21 +366,21 @@ struct type_exp *analyze(struct sema_context *env, struct exp_node *node)
     return type;
 }
 
-struct type_exp *analyze_and_generate_builtin_codes(struct sema_context *env, struct exp_node *node)
+struct type_exp *analyze_and_generate_builtin_codes(struct sema_context *context, struct exp_node *node)
 {
-    struct type_exp *type = analyze(env, node);
-    struct env *cg = get_env();
-    if (array_size(&env->used_builtin_names)) {
-        for (size_t i = 0; i < array_size(&env->used_builtin_names); i++) {
-            symbol built_name = *((symbol *)array_get(&env->used_builtin_names, i));
-            struct exp_node *node = hashtable_get_p(&env->builtin_ast, built_name);
+    struct type_exp *type = analyze(context, node);
+    struct env *env = get_env();
+    if (array_size(&context->used_builtin_names)) {
+        for (size_t i = 0; i < array_size(&context->used_builtin_names); i++) {
+            symbol built_name = *((symbol *)array_get(&context->used_builtin_names, i));
+            struct exp_node *node = hashtable_get_p(&context->builtin_ast, built_name);
             const char *built_name_str = string_get(built_name);
-            if (!hashset_in(&cg->builtins, built_name_str)) {
-                hashset_set(&cg->builtins, built_name_str);
-                emit_ir_code(cg, node);
+            if (!hashset_in(&env->cg->builtins, built_name_str)) {
+                hashset_set(&env->cg->builtins, built_name_str);
+                emit_ir_code(env->cg, node);
             }
         }
-        array_clear(&env->used_builtin_names);
+        array_clear(&context->used_builtin_names);
     }
     return type;
 }

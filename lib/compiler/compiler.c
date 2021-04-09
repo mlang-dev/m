@@ -76,13 +76,13 @@ int compile(const char *source_file, enum object_file_type file_type)
         }
         if (file_type == FT_OBJECT) {
             string_add_chars(&filename, ".o");
-            generate_object_file(env->module, string_get(&filename));
+            generate_object_file(env->cg->module, string_get(&filename));
         } else if (file_type == FT_BITCODE) {
             string_add_chars(&filename, ".bc");
-            generate_bitcode_file(env->module, string_get(&filename));
+            generate_bitcode_file(env->cg->module, string_get(&filename));
         } else if (file_type == FT_IR) {
             string_add_chars(&filename, ".ir");
-            generate_ir_file(env->module, string_get(&filename));
+            generate_ir_file(env->cg->module, string_get(&filename));
         }
     } else {
         log_info(INFO, "no statement is found.");
@@ -92,13 +92,13 @@ int compile(const char *source_file, enum object_file_type file_type)
     return 0;
 }
 
-char *emit_ir_string(struct env *env, struct exp_node *ast_node)
+char *emit_ir_string(struct code_generator *cg, struct exp_node *ast_node)
 {
     if (!ast_node)
         return 0;
-    analyze(env->sema_context, ast_node);
-    emit_ir_code(env, ast_node);
-    return LLVMPrintModuleToString(env->module);
+    analyze(cg->sema_context, ast_node);
+    emit_ir_code(cg, ast_node);
+    return LLVMPrintModuleToString(cg->module);
 }
 
 void free_ir_string(char *ir_string)
