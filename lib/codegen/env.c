@@ -4,13 +4,15 @@
 #include "codegen/type_size_info.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
+#include "sys.h"
 #include <assert.h>
 
 struct env *g_env = 0;
 
 struct env *env_new(bool is_repl)
 {
-    struct env *env = malloc(sizeof(*env));
+    struct env *env;
+    MALLOC(env, sizeof(struct env));
     env->parser = parser_new(is_repl);
     env->sema_context = sema_context_new(env->parser);
     env->cg = cg_new(env->sema_context);
