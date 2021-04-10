@@ -68,13 +68,13 @@ git submodule update
 ## build llvm
 Note: You can skip building llvm from source but just install binary (version 11.0) from [llvm site](https://releases.llvm.org/). 
 
-Replace "Release" with "Debug" in following commands if Debug build is desired.
+Replace "Debug" with "Release" in following commands if Release build is desired.
 ```
 cd ./extern/llvm-project
 mkdir build
 cd build
-cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;lld" ../llvm
-cmake --build . --config Release -j NN --target install   (Run under Administrator, NN - number of CPU (cores) that you have)
+cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Debug -DLLVM_ENABLE_PROJECTS="clang;lld" ../llvm
+sudo cmake --build . --config Debug -j NN --target install   (Run under Administrator, NN - number of CPU (cores) that you have)
 cd ../../../
 ```
 On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be added to the Path environment variable so that "llvm-config" command is able to be executed in cmake. 
@@ -83,19 +83,19 @@ On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be adde
 ```
 mkdir build
 cd build
-cmake ..
-cmake --build . --config Release
+cmake -DCMAKE_BUILD_TYPE=Debug ..
+cmake --build . --config Debug
 ```
-The build system will build m executable under ./src on macOS/Linux, or .\src\Release on Windows
+The build system will build m executable under ./tools on macOS/Linux, or .\tools\Debug on Windows
 
 ## using m REPL
 ```
-./src/m
+./tools/m
 ```
 
 ## using m compiler
 ```
-./src/m ./samples/sample_lib.m
+./tools/m ./samples/sample_lib.m
 ```
 The above command using m compiler generates an object file "sample_lib.o" under the same folder, which will be used to be compiled with C code in the following example.
 
@@ -127,8 +127,8 @@ clang -x c++ -Xclang -ast-dump -fsyntax-only ./include/test-ccompiler.h
 
 * Generate stdio.m/math.m lib files
 ```
-./src/c2m -i/usr/include -o../mlib stdio.h
-./src/c2m -i/usr/include -o../mlib math.h
+./tools/c2m -i/usr/include -o../mlib stdio.h
+./tools/c2m -i/usr/include -o../mlib math.h
 ```
 
 * ld link to executable command. Unix-like system crt1.0: _start entry point for ELF, crti.o: initialization, crtn.o: finalization

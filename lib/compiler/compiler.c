@@ -66,13 +66,13 @@ int compile(const char *source_file, enum object_file_type file_type)
     string_init_chars(&filename, source_file);
     string_substr(&filename, '.');
     struct env *env = env_new(false);
-    create_ir_module(env, string_get(&filename));
+    create_ir_module(env->cg, string_get(&filename));
     struct block_node *block = parse_file(env->sema_context->parser, source_file);
     emit_code(env, (struct exp_node *)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->nodes); i++) {
             struct exp_node *node = *(struct exp_node **)array_get(&block->nodes, i);
-            emit_ir_code(env, node);
+            emit_ir_code(env->cg, node);
         }
         if (file_type == FT_OBJECT) {
             string_add_chars(&filename, ".o");
