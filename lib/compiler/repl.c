@@ -115,7 +115,6 @@ struct JIT *build_jit(struct env *env)
 {
     struct JIT *jit = jit_new(env);
     _create_jit_module(env);
-    generate_runtime_module(env->cg);
     _add_current_module_to_jit(jit);
     _create_jit_module(env);
     return jit;

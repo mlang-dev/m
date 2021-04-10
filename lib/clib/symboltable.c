@@ -47,17 +47,17 @@ void *_remove_from_head(struct link_list *ll)
 
 void _symboltable_remove(symboltable *st, symbol s)
 {
-    struct link_list *ll = hashtable_get_p(st, s);
+    struct link_list *ll = hashtable_get_p(&st->ht, s);
     _remove_from_head(ll);
 }
 
 void symboltable_push(symboltable *st, symbol s, void *data)
 {
-    struct link_list *ll = hashtable_get_p(st, s);
+    struct link_list *ll = hashtable_get_p(&st->ht, s);
     if (!ll) {
         ll = malloc(sizeof(*ll));
         ll->first = NULL;
-        hashtable_set_p(st, s, ll);
+        hashtable_set_p(&st->ht, s, ll);
     }
     _add_to_head(ll, data);
     /* add the symbol to symbols stack*/
@@ -78,7 +78,7 @@ symbol symboltable_pop(symboltable *st)
 
 void *symboltable_get(symboltable *st, symbol s)
 {
-    struct link_list *ll = hashtable_get_p(st, s);
+    struct link_list *ll = hashtable_get_p(&st->ht, s);
     if (!ll || !ll->first) {
         return NULL;
     }
@@ -87,17 +87,18 @@ void *symboltable_get(symboltable *st, symbol s)
 
 bool has_symbol(symboltable *st, symbol s)
 {
-    struct link_list *ll = hashtable_get_p(st, s);
+    struct link_list *ll = hashtable_get_p(&st->ht, s);
     return ll && ll->first;
 }
 
 bool has_symbol_in_scope(symboltable *st, symbol s, symbol end_s)
 {
     struct link_list_entry *entry;
-    list_foreach(entry, &st->symbols, list){
+    list_foreach(entry, &st->symbols, list)
+    {
         if (entry->data == end_s)
             break;
-        else if(entry->data == s)
+        else if (entry->data == s)
             return true;
     }
     return false;

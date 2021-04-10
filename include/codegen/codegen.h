@@ -22,12 +22,11 @@
 extern "C" {
 #endif
 
-typedef LLVMValueRef (*binary_op)(LLVMBuilderRef, LLVMValueRef LHS, LLVMValueRef RHS,
-    const char *Name);
-typedef LLVMValueRef (*unary_op)(LLVMBuilderRef, LLVMValueRef v, const char *Name);
-typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef, unsigned short Op,
-    LLVMValueRef LHS, LLVMValueRef RHS,
-    const char *Name);
+typedef LLVMValueRef (*binary_op)(LLVMBuilderRef builder, LLVMValueRef lhs, LLVMValueRef rhs,
+    const char *name);
+typedef LLVMValueRef (*unary_op)(LLVMBuilderRef builder, LLVMValueRef v, const char *name);
+typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef builder, unsigned short op,
+    LLVMValueRef lhs, LLVMValueRef rhs, const char *name);
 typedef LLVMTypeRef (*get_ir_type)(LLVMContextRef context, struct type_exp *type);
 typedef LLVMValueRef (*get_const)(LLVMContextRef context, LLVMBuilderRef builder, void *value);
 typedef LLVMValueRef (*get_zero)(LLVMContextRef context, LLVMBuilderRef builder);
@@ -85,7 +84,6 @@ void cg_free(struct code_generator *cg);
 
 void create_ir_module(struct code_generator *cg, const char *module_name);
 LLVMValueRef emit_ir_code(struct code_generator *cg, struct exp_node *node);
-void generate_runtime_module(struct code_generator *cg);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
 LLVMContextRef get_llvm_context();
 LLVMTypeRef get_llvm_type(struct type_exp *type);

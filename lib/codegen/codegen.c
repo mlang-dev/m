@@ -33,21 +33,25 @@ LLVMContextRef get_llvm_context()
 
 LLVMTypeRef get_int_type(LLVMContextRef context, struct type_ext *type)
 {
+    (void *)type;
     return LLVMInt32TypeInContext(context);
 }
 
 LLVMTypeRef get_char_type(LLVMContextRef context, struct type_ext *type)
 {
+    (void *)type;
     return LLVMInt8TypeInContext(context);
 }
 
 LLVMTypeRef get_bool_type(LLVMContextRef context, struct type_ext *type)
 {
+    (void *)type;
     return LLVMInt1TypeInContext(context);
 }
 
 LLVMTypeRef get_double_type(LLVMContextRef context, struct type_ext *type)
 {
+    (void *)type;
     return LLVMDoubleTypeInContext(context);
 }
 
@@ -74,6 +78,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
 
 LLVMTypeRef get_str_type(LLVMContextRef context, struct type_ext *type)
 {
+    (void *)type;
     return LLVMPointerType(LLVMInt8TypeInContext(context), 0);
 }
 
@@ -85,25 +90,25 @@ const char *buiiltin_funs[] = {
 
 LLVMValueRef get_int_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
-    (void)builder;
+    (void *)builder;
     return LLVMConstInt(get_int_type(context, 0), *(int *)value, true);
 }
 
 LLVMValueRef get_bool_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
-    (void)builder;
+    (void *)builder;
     return LLVMConstInt(get_bool_type(context, 0), *(int *)value, true);
 }
 
 LLVMValueRef get_char_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
-    (void)builder;
+    (void *)builder;
     return LLVMConstInt(get_char_type(context, 0), *(char *)value, true);
 }
 
 LLVMValueRef get_double_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
-    (void)builder;
+    (void *)builder;
     return LLVMConstReal(get_double_type(context, 0), *(double *)value);
 }
 
@@ -129,31 +134,30 @@ LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void 
 
 LLVMValueRef get_int_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
-    (void)builder;
+    (void *)builder;
     return LLVMConstInt(get_int_type(context, 0), 0, true);
 }
 
 LLVMValueRef get_bool_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
-    (void)builder;
+    (void *)builder;
     return LLVMConstInt(get_bool_type(context, 0), 0, true);
 }
 
 LLVMValueRef get_char_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
-    (void)builder;
+    (void *)builder;
     return LLVMConstInt(get_char_type(context, 0), 0, true);
 }
 
 LLVMValueRef get_double_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
-    (void)builder;
+    (void *)builder;
     return LLVMConstReal(get_double_type(context, 0), 0.0);
 }
 
 LLVMValueRef get_str_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
-    (void)context;
     return get_str_const(context, builder, "");
 }
 
@@ -179,18 +183,6 @@ LLVMValueRef get_double_one(LLVMContextRef context)
 
 struct ops null_ops = { 0 };
 
-LLVMValueRef int_cmp_op(LLVMBuilderRef builder, unsigned short op, LLVMValueRef lhs, LLVMValueRef rhs,
-    const char *name)
-{
-    return LLVMBuildICmp(builder, op, lhs, rhs, name);
-}
-
-LLVMValueRef double_cmp_op(LLVMBuilderRef builder, unsigned short op, LLVMValueRef lhs, LLVMValueRef rhs,
-    const char *name)
-{
-    return LLVMBuildFCmp(builder, op, lhs, rhs, name);
-}
-
 struct ops bool_ops = {
     get_bool_type,
     get_bool_const,
@@ -201,7 +193,7 @@ struct ops bool_ops = {
     LLVMBuildMul,
     LLVMBuildSDiv,
     LLVMBuildSRem,
-    int_cmp_op,
+    LLVMBuildICmp,
     LLVMIntULT,
     LLVMIntUGT,
     LLVMIntEQ,
@@ -224,7 +216,7 @@ struct ops char_ops = {
     LLVMBuildMul,
     LLVMBuildSDiv,
     LLVMBuildSRem,
-    int_cmp_op,
+    LLVMBuildICmp,
     LLVMIntSLT,
     LLVMIntSGT,
     LLVMIntEQ,
@@ -247,7 +239,7 @@ struct ops int_ops = {
     LLVMBuildMul,
     LLVMBuildSDiv,
     LLVMBuildSRem,
-    int_cmp_op,
+    LLVMBuildICmp,
     LLVMIntSLT,
     LLVMIntSGT,
     LLVMIntEQ,
@@ -270,7 +262,7 @@ struct ops str_ops = {
     LLVMBuildMul,
     LLVMBuildSDiv,
     LLVMBuildSRem,
-    int_cmp_op,
+    LLVMBuildICmp,
     LLVMIntSLT,
     LLVMIntSGT,
     LLVMIntEQ,
@@ -293,7 +285,7 @@ struct ops double_ops = {
     LLVMBuildFMul,
     LLVMBuildFDiv,
     LLVMBuildFRem,
-    double_cmp_op,
+    LLVMBuildFCmp,
     LLVMRealULT,
     LLVMRealUGT,
     LLVMRealUEQ,
@@ -316,7 +308,7 @@ struct ops ext_ops = {
     LLVMBuildFMul,
     LLVMBuildFDiv,
     LLVMBuildFRem,
-    int_cmp_op,
+    LLVMBuildICmp,
     LLVMRealULT,
     LLVMRealUGT,
     LLVMRealUEQ,
@@ -373,7 +365,6 @@ struct code_generator *cg_new(struct sema_context *sema_context)
 void cg_free(struct code_generator *cg)
 {
     LLVMDisposeBuilder(cg->builder);
-    //delete (llvm::legacy::FunctionPassManager*)env->fpm;
     if (cg->module)
         LLVMDisposeModule(cg->module);
     LLVMContextDispose(cg->context);
@@ -389,7 +380,6 @@ void cg_free(struct code_generator *cg)
     hashtable_deinit(&cg->ext_vars);
     free(cg);
     g_cg = cg;
-    //LLVMShutdown();
 }
 
 LLVMTypeRef _get_llvm_type(struct code_generator *cg, struct type_exp *type)
@@ -833,15 +823,13 @@ LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
 {
     struct type_oper *type = (struct type_oper *)node->type;
     assert(node->type);
-    LLVMTypeRef struct_type = get_ext_type(cg->context, type);
+    LLVMTypeRef struct_type = get_ext_type(cg->context, node->type);
     hashtable_set(&cg->ext_nodes, string_get(type->base.name), node);
     return 0;
 }
 
 LLVMValueRef _emit_type_value_node(struct code_generator *cg, struct exp_node *node)
 {
-    (void)cg;
-    (void)node;
     //struct type_value_node* type_values = (struct type_value_node*)node;
     assert(false);
     return 0;
@@ -962,11 +950,6 @@ void create_ir_module(struct code_generator *cg,
     LLVMTargetDataRef data_layout = LLVMCreateTargetDataLayout(target_marchine);
     LLVMSetModuleDataLayout(module, data_layout);
     cg->module = module;
-}
-
-void generate_runtime_module(struct code_generator *cg)
-{
-    (void)cg;
 }
 
 LLVMValueRef _emit_unk_node(struct code_generator *cg, struct exp_node *node)
