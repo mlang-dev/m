@@ -663,6 +663,7 @@ LLVMValueRef _emit_function_node(struct code_generator *cg, struct exp_node *nod
 LLVMValueRef _emit_call_node(struct code_generator *cg, struct exp_node *node)
 {
     struct call_node *call = (struct call_node *)node;
+    //assert(call->callee_decl);
     symbol callee_name = get_callee(call);
     struct fun_info *fi = get_fun_info(callee_name, (struct type_oper *)call->base.type, false);
     assert(fi);

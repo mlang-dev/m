@@ -267,6 +267,7 @@ struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, 
     node->callee = to_symbol(callee);
     array_copy(&node->args, args);
     node->specialized_callee = 0;
+    node->callee_decl = 0;
     return node;
 }
 

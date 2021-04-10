@@ -155,6 +155,7 @@ struct call_node {
     symbol callee;
     symbol specialized_callee;
     struct array args; //args: struct array of exp_node*
+    struct prototype_node *callee_decl;
 };
 
 struct type_exp *get_ret_type(struct function_node *fun_node);

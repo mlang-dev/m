@@ -173,6 +173,7 @@ struct type_exp *_analyze_proto(struct sema_context *context, struct exp_node *n
     array_push(&fun_sig, &proto->base.annotated_type);
     //printf("ret type analyzing proto: %p, %p\n", (void*)proto->base.annotated_type, *(void**)array_back(&fun_sig));
     proto->base.type = (struct type_exp *)create_type_fun(&fun_sig);
+    hashtable_set_p(&context->protos, proto->name, node);
     return proto->base.type;
 }
 
@@ -231,7 +232,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
     }
 
     /* monomorphization of generic */
-    struct exp_node *specialized_node = 0;
+    struct exp_node *specialized_fun = 0;
     if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args)) && !is_recursive(call)) {
         string sp_callee = monomorphize(string_get(call->callee), &args);
         call->specialized_callee = to_symbol(string_get(&sp_callee));
@@ -247,7 +248,9 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
         fun_type = analyze(env->sema_context, (struct exp_node *)sp_fun);
         hashtable_set(&context->specialized_ast, string_get(sp_fun->prototype->name), sp_fun);
         push_symbol_type(&context->venv, call->specialized_callee, fun_type);
-        specialized_node = (struct exp_node *)sp_fun;
+        specialized_fun = (struct exp_node *)sp_fun;
+        hashtable_set_p(&context->calls, call->specialized_callee, node);
+        call->callee_decl = sp_fun->prototype;
     }
     struct type_exp *result_type = (struct type_exp *)create_type_var();
     array_push(&args, &result_type);
@@ -256,9 +259,13 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
     if (hashtable_in_p(&context->builtin_ast, call->callee)) {
         array_push(&context->used_builtin_names, &call->callee);
     }
+    if (!call->specialized_callee) {
+        hashtable_set_p(&context->calls, call->callee, node);
+        call->callee_decl = hashtable_get_p(&context->protos, call->callee);
+    }
     // TODO: this should be moved to codegen phase
-    if (specialized_node) {
-        emit_ir_code(env->cg, specialized_node);
+    if (specialized_fun) {
+        emit_ir_code(env->cg, specialized_fun);
     }
     return prune(result_type);
 }
