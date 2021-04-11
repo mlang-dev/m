@@ -595,8 +595,7 @@ LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *no
 {
     struct prototype_node *proto = (struct prototype_node *)node;
     assert(proto->base.type);
-    struct fun_info *fi = get_fun_info(proto->name,
-        (struct type_oper *)proto->base.type, proto->is_variadic);
+    struct fun_info *fi = get_fun_info(proto);
     assert(fi);
     hashtable_set(&cg->protos, string_get(proto->name), proto);
     size_t param_count = array_size(&proto->fun_params);
@@ -653,9 +652,9 @@ LLVMValueRef _emit_function_node(struct code_generator *cg, struct exp_node *nod
 LLVMValueRef _emit_call_node(struct code_generator *cg, struct exp_node *node)
 {
     struct call_node *call = (struct call_node *)node;
-    //assert(call->callee_decl);
+    assert(call->callee_decl);
     symbol callee_name = get_callee(call);
-    struct fun_info *fi = get_fun_info(callee_name, (struct type_oper *)call->base.type, false);
+    struct fun_info *fi = get_fun_info(call->callee_decl);
     assert(fi);
     LLVMValueRef callee = _get_function(cg, string_get(callee_name));
     assert(callee);

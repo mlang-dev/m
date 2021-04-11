@@ -173,13 +173,14 @@ struct type_exp *_analyze_proto(struct sema_context *context, struct exp_node *n
     array_push(&fun_sig, &proto->base.annotated_type);
     //printf("ret type analyzing proto: %p, %p\n", (void*)proto->base.annotated_type, *(void**)array_back(&fun_sig));
     proto->base.type = (struct type_exp *)create_type_fun(&fun_sig);
-    hashtable_set_p(&context->protos, proto->name, node);
+    hashtable_set_p(&context->protos, proto->name, proto);
     return proto->base.type;
 }
 
 struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *node)
 {
     struct function_node *fun = (struct function_node *)node;
+    hashtable_set_p(&context->protos, fun->prototype->name, fun->prototype);
     //# create a new non-generic variable for the binder
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
@@ -249,6 +250,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
         hashtable_set(&context->specialized_ast, string_get(sp_fun->prototype->name), sp_fun);
         push_symbol_type(&context->venv, call->specialized_callee, fun_type);
         specialized_fun = (struct exp_node *)sp_fun;
+        hashtable_set_p(&context->protos, call->specialized_callee, sp_fun->prototype);
         hashtable_set_p(&context->calls, call->specialized_callee, node);
         call->callee_decl = sp_fun->prototype;
     }

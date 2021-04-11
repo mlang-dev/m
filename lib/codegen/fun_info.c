@@ -24,10 +24,11 @@ bool is_variadic(struct fun_info *fi)
     return fi->required_args != ALL_REQUIRED;
 }
 
-struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type, bool is_variadic)
+struct fun_info *get_fun_info(struct prototype_node *proto)
 {
+    struct type_oper *fun_type = (struct type_oper *)proto->base.type;
     struct hashtable *fun_infos = get_fun_infos();
-    struct fun_info *result = hashtable_get_p(fun_infos, fun_name);
+    struct fun_info *result = hashtable_get_p(fun_infos, proto->name);
     if (result)
         return result;
     struct fun_info fi;
@@ -39,8 +40,8 @@ struct fun_info *get_fun_info(symbol fun_name, struct type_oper *fun_type, bool 
         array_push(&fi.args, &aa);
     }
     x86_64_update_abi_info(&fi);
-    hashtable_set_p(fun_infos, fun_name, &fi);
-    return (struct fun_info *)hashtable_get_p(fun_infos, fun_name);
+    hashtable_set_p(fun_infos, proto->name, &fi);
+    return (struct fun_info *)hashtable_get_p(fun_infos, proto->name);
 }
 
 LLVMTypeRef get_fun_type(struct fun_info *fi)
