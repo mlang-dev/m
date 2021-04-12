@@ -595,29 +595,18 @@ LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *no
 {
     struct prototype_node *proto = (struct prototype_node *)node;
     assert(proto->base.type);
-    struct fun_info *fi = get_fun_info(proto);
-    assert(fi);
     hashtable_set(&cg->protos, string_get(proto->name), proto);
-    size_t param_count = array_size(&proto->fun_params);
-    if (proto->is_variadic)
-        param_count--;
-    LLVMTypeRef *arg_types = malloc(param_count * sizeof(LLVMTypeRef));
     struct type_oper *proto_type = (struct type_oper *)proto->base.type;
     assert(proto_type->base.kind == KIND_OPER);
-    struct type_exp *ret = *(struct type_exp **)array_back(&proto_type->args);
-    for (size_t i = 0; i < param_count; i++) {
-        struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
-        arg_types[i] = cg->ops[get_type(type_exp)].get_type(cg->context, type_exp);
-    }
-    LLVMTypeRef ret_type = _get_llvm_type(cg, ret);
-    LLVMTypeRef ft = LLVMFunctionType(ret_type, arg_types, param_count, proto->is_variadic);
-    LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(proto->name), ft);
+    struct fun_info *fi = get_fun_info(proto);
+    assert(fi);
+    LLVMTypeRef fun_type = get_fun_type(fi);
+    LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(proto->name), fun_type);
     for (unsigned i = 0; i < LLVMCountParams(fun); i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
         struct var_node *fun_param = (struct var_node *)array_get(&proto->fun_params, i);
         LLVMSetValueName2(param, string_get(fun_param->var_name), string_size(fun_param->var_name));
     }
-    free(arg_types);
     return fun;
 }
 
@@ -631,6 +620,7 @@ LLVMValueRef _emit_function_node(struct code_generator *cg, struct exp_node *nod
     hashtable_clear(&cg->named_values);
     LLVMValueRef fun = _emit_prototype_node(cg, (struct exp_node *)fun_node->prototype);
     assert(fun);
+
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
     LLVMPositionBuilderAtEnd(cg->builder, bb);
     _create_argument_allocas(cg, fun_node->prototype, fun);
@@ -663,7 +653,7 @@ LLVMValueRef _emit_call_node(struct code_generator *cg, struct exp_node *node)
         struct exp_node *arg = *(struct exp_node **)array_get(&call->args, i);
         arg_values[i] = emit_ir_code(cg, arg);
     }
-    LLVMValueRef value = LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "calltmp");
+    LLVMValueRef value = LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "");
     free(arg_values);
     return value;
 }

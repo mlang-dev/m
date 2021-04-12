@@ -45,11 +45,11 @@ struct abi_arg_info create_ignore()
     return aai;
 }
 
-struct abi_arg_info create_extend(struct type_exp *ret_type, LLVMTypeRef llvm_type)
+struct abi_arg_info create_extend(struct type_exp *ret_type)
 {
     struct abi_arg_info aai;
     aai.kind = AK_EXTEND;
-    aai.type = llvm_type;
+    aai.type = LLVMInt8TypeInContext(get_llvm_context()); //would use 32 bits
     aai.padding_type = 0;
     aai.direct_offset = 0;
     aai.sign_ext = true;
@@ -66,7 +66,7 @@ struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type)
 {
     if (ret_type->type < TYPE_EXT) {
         if (is_promotable_int(ret_type))
-            return create_extend(ret_type, 0);
+            return create_extend(ret_type);
         else
             return create_direct();
     }
@@ -77,7 +77,7 @@ struct abi_arg_info create_indirect_result(struct type_exp *type, unsigned free_
 {
     if (type->type < TYPE_EXT) {
         if (is_promotable_int(type))
-            return create_extend(type, 0);
+            return create_extend(type);
         else
             return create_direct();
     }

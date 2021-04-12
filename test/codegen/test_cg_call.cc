@@ -48,8 +48,8 @@ entry:
 
 define i8 @main() {
 entry:
-  %calltmp = call i8 @__f_char(i8 99)
-  ret i8 %calltmp
+  %0 = call i8 @__f_char(i8 99)
+  ret i8 %0
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);

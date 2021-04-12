@@ -343,13 +343,13 @@ struct type_exp *_analyze_block(struct sema_context *context, struct exp_node *n
 {
     struct block_node *block = (struct block_node *)node;
     enter_scope(context);
-    struct type_exp *exp = 0;
+    struct type_exp *type = 0;
     for (size_t i = 0; i < array_size(&block->nodes); i++) {
         struct exp_node *node = *(struct exp_node **)array_get(&block->nodes, i);
-        exp = analyze(context, node);
+        type = analyze(context, node);
     }
     leave_scope(context);
-    return exp;
+    return type;
 }
 
 struct type_exp *(*analyze_fp[])(struct sema_context *, struct exp_node *) = {

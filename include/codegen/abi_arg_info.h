@@ -49,7 +49,7 @@ struct abi_arg_info create_expand(bool padding_inreg, LLVMTypeRef padding_type);
 struct abi_arg_info create_direct_type_offset(LLVMTypeRef type, unsigned offset);
 struct abi_arg_info create_direct_type(LLVMTypeRef type);
 struct abi_arg_info create_direct();
-struct abi_arg_info create_extend(struct type_exp *ret_type, LLVMTypeRef llvm_type);
+struct abi_arg_info create_extend(struct type_exp *ret_type);
 struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type);
 struct abi_arg_info create_indirect_result(struct type_exp *ret_type, unsigned free_int_regs);
 struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type);

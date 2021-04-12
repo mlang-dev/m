@@ -32,10 +32,13 @@ struct fun_info *get_fun_info(struct prototype_node *proto)
     if (result)
         return result;
     struct fun_info fi;
-    fun_info_init(&fi, is_variadic ? ALL_REQUIRED : array_size(&fun_type->args));
-    fi.ret.type = &fun_type->base;
+    unsigned param_num = array_size(&fun_type->args) - 1;
+    if (proto->is_variadic)
+        param_num -= 1;
+    fun_info_init(&fi, proto->is_variadic ? param_num : ALL_REQUIRED);
+    fi.ret.type = *(struct type_exp **)array_back(&fun_type->args);
     struct ast_abi_arg aa;
-    for (unsigned i = 0; i < array_size(&fun_type->args); i++) {
+    for (unsigned i = 0; i < param_num; i++) {
         aa.type = *(struct type_exp **)array_get(&fun_type->args, i);
         array_push(&fi.args, &aa);
     }
@@ -79,11 +82,10 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
         array_push(&arg_types, &ret_type);
     }
     //TODO: inalloca
-    unsigned arg_no = 0;
     unsigned arg_num = array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range *iar = get_ir_arg_range(&iai, arg_no);
+        struct ir_arg_range *iar = get_ir_arg_range(&iai, i);
         if (iar->padding_arg_index != InvalidIndex) {
             assert(iar->padding_arg_index == array_size(&arg_types));
             array_push(&arg_types, &aa->info.padding_type);
@@ -143,7 +145,8 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
         }
     }
     assert(iai.total_ir_args == array_size(&arg_types));
-    LLVMTypeRef fun_type = LLVMFunctionType(ret_type, array_get(&arg_types, 0), iai.total_ir_args, is_variadic(fi));
+    assert(ret_type);
+    LLVMTypeRef fun_type = LLVMFunctionType(ret_type, iai.total_ir_args? array_get(&arg_types, 0): 0, iai.total_ir_args, is_variadic(fi));
     array_deinit(&arg_types);
     return fun_type;
 }

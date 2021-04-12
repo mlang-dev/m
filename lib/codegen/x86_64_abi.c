@@ -50,12 +50,12 @@ void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum 
         //builtin types
         if (te->type == TYPE_UNIT) {
             *current = NO_CLASS;
-        } //else if (te->type == TYPE_INT128 or UINT128) { *low = *high = INTEGER;}
-        else if (te->type == TYPE_BOOL || te->type == TYPE_STRING) {
+        } else if (is_int_type(te->type) || te->type == TYPE_STRING) {
             *current = INTEGER;
         } else if (te->type == TYPE_DOUBLE) {
             *current = SSE;
         } //TODO: LONG_DOUBLE
+        return;
     } /*else if pointer then make current pointing to INTEGER*/
     //TODO: vector, complex, int type with specified bitwidth, constant array
     else if (te->type == TYPE_EXT) {
@@ -81,7 +81,6 @@ void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum 
                 _post_merge(size, low, high);
                 return;
             }
-
             enum Class field_low, field_high;
             _classify(field_type, offset, &field_low, &field_high);
             *low = _merge(*low, field_low);
@@ -168,8 +167,8 @@ LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
     }
     if (tk == LLVMStructTypeKind) {
         if (ir_offset < LLVMSizeOfTypeInBits(dl, ir_type) / 8) {
-            unsigned field_index = LLVMOffsetOfElement(dl, ir_type, ir_offset);
-            ir_offset -= LLVMElementAtOffset(dl, ir_type, field_index);
+            unsigned field_index = LLVMElementAtOffset(dl, ir_type, ir_offset);
+            ir_offset -= LLVMOffsetOfElement(dl, ir_type, field_index);
             return _get_int_type_at_offset(LLVMStructGetTypeAtIndex(ir_type, field_index), ir_offset, source_type, source_offset);
         }
     }
@@ -220,7 +219,7 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
         result_type = _get_int_type_at_offset(get_llvm_type(ret_type), 0, ret_type, 0);
         if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
             if (is_promotable_int(ret_type))
-                return create_extend(ret_type, 0);
+                return create_extend(ret_type);
         }
         break;
     // AMD64-ABI 3.2.3p4: Rule 4. If the class is SSE, the next
@@ -304,7 +303,7 @@ struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free
         result_type = _get_int_type_at_offset(get_llvm_type(type), 0, type, 0);
         if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
             if (is_promotable_int(type))
-                return create_extend(type, 0);
+                return create_extend(type);
         }
         break;
     case SSE: {
