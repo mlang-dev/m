@@ -19,7 +19,7 @@ TEST(testGeneral, testBuildJit)
 // {
 //     const char test_code[] = R"(
 // type Point2D = x:double y:double
-// f x:Point2D = x
+// f x:Point2D = x.y
 // )";
 //     const char *expected_ir = R"(
 // define i8 @__f_char(i8 %x) {
@@ -30,10 +30,13 @@ TEST(testGeneral, testBuildJit)
 //   ret i8 %x2
 // }
 
-// define i8 @main() {
+// %struct.Point2D = type { double, double }
+
+// define double @f(%struct.Point2D* %xy) #0 {
 // entry:
-//   %calltmp = call i8 @__f_char(i8 99)
-//   ret i8 %calltmp
+//   %x = getelementptr inbounds %struct.Point2D, %struct.Point2D* %xy, i32 0, i32 0
+//   %0 = load double, double* %x, align 8
+//   ret double %0
 // }
 // )";
 //     validate_m_code_with_ir_code(test_code, expected_ir);

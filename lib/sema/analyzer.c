@@ -97,8 +97,8 @@ struct type_exp *_analyze_var(struct sema_context *context, struct exp_node *nod
     struct env *env = get_env();
     assert(var->base.annotated_type || var->init_value);
     if (var->base.annotated_type && var->base.annotated_type->type == TYPE_EXT) {
-        assert(var->base.annotation);
-        type = retrieve_type_with_type_name(context, var->base.annotation);
+        assert(var->base.annotated_type_name);
+        type = retrieve_type_with_type_name(context, var->base.annotated_type_name);
         push_symbol_type(&context->venv, var->var_name, type);
         if (var->init_value)
             analyze(env->sema_context, var->init_value);
