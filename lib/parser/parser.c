@@ -57,7 +57,7 @@ struct block_node *_parse_block(struct parser *parser, struct exp_node *parent, 
 struct op_type {
     symbol op;
     enum type type;
-    symbol ext_type;
+    symbol type_symbol;
     bool success;
 };
 
@@ -121,9 +121,9 @@ struct parser *parser_new(bool is_repl)
     symboltable_init(&parser->vars);
     queue_init(&parser->queued_tokens, sizeof(struct token));
     hashtable_init(&parser->ext_types);
-    hashtable_init_with_value_size(&parser->types, sizeof(int), 0);
+    hashtable_init_with_value_size(&parser->symbol_2_int_types, sizeof(int), 0);
     for (int i = 0; i < TYPE_TYPES; i++) {
-        hashtable_set_int(&parser->types, to_symbol(type_strings[i]), i);
+        hashtable_set_int(&parser->symbol_2_int_types, to_symbol(type_strings[i]), i);
     }
     hashtable_init_with_value_size(&parser->op_precs, sizeof(int), 0);
     _build_op_precs(&parser->op_precs);
@@ -148,7 +148,7 @@ void module_free(struct module *module)
 
 void parser_free(struct parser *parser)
 {
-    hashtable_deinit(&parser->types);
+    hashtable_deinit(&parser->symbol_2_int_types);
     hashtable_deinit(&parser->ext_types);
     for (size_t i = 0; i < array_size(&parser->ast->modules); i++) {
         struct module *it = *(struct module **)array_get(&parser->ast->modules, i);
@@ -245,7 +245,7 @@ struct exp_node *_parse_parentheses(struct parser *parser, struct exp_node *pare
 struct op_type _parse_op_type(struct parser *parser, struct source_loc loc)
 {
     struct op_type optype;
-    optype.ext_type = 0;
+    optype.type_symbol = 0;
     optype.op = 0;
     optype.type = TYPE_UNK;
     if (IS_OP(parser->curr_token.token_type)) {
@@ -256,7 +256,7 @@ struct op_type _parse_op_type(struct parser *parser, struct source_loc loc)
         // type of definition
         parse_next_token(parser); /* skip ':'*/
         symbol type_symbol = string_2_symbol(parser->curr_token.str_val);
-        if (!hashtable_in_p(&parser->types, type_symbol)) {
+        if (!hashtable_in_p(&parser->symbol_2_int_types, type_symbol)) {
             string error;
             string_init_chars(&error, "wrong type: ");
             string_add(&error, parser->curr_token.str_val);
@@ -264,8 +264,8 @@ struct op_type _parse_op_type(struct parser *parser, struct source_loc loc)
             optype.success = false;
             return optype;
         }
-        optype.type = hashtable_get_int(&parser->types, type_symbol);
-        optype.ext_type = type_symbol;
+        optype.type = hashtable_get_int(&parser->symbol_2_int_types, type_symbol);
+        optype.type_symbol = type_symbol;
         parse_next_token(parser); /*skip type*/
         if (IS_OP(parser->curr_token.token_type))
             optype.op = string_2_symbol(parser->curr_token.str_val);
@@ -401,11 +401,11 @@ struct exp_node *parse_statement(struct parser *parser, struct exp_node *parent)
             return 0;
         if (parser->id_is_var_decl) {
             /*id is var decl*/
-            node = (struct exp_node *)var_node_new(parent, loc, id_symbol, optype.type, 0, 0);
+            node = (struct exp_node *)var_node_new(parent, loc, id_symbol, optype.type, optype.type_symbol, 0);
             //printf("parsed var: %s\n", string_get(&id_name));
         } else if (optype.op == parser->assignment || optype.type) { //|| !has_symbol(&parser->vars, id_symbol)
             // variable definition
-            node = _parse_var(parser, parent, id_symbol, optype.type, optype.ext_type);
+            node = _parse_var(parser, parent, id_symbol, optype.type, optype.type_symbol);
         } else if (parser->curr_token.token_type == TOKEN_EOL || parser->curr_token.token_type == TOKEN_EOF || _get_op_prec(&parser->op_precs, optype.op) > 0) {
             // just id expression evaluation
             struct exp_node *lhs = (struct exp_node *)ident_node_new(parent, parser->curr_token.loc, id_symbol);
@@ -631,7 +631,6 @@ struct exp_node *_parse_prototype(struct parser *parser, struct exp_node *parent
         fun_param.base.type = 0;
         if (optype.success && optype.type) {
             fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(optype.type);
-            fun_param.base.type = fun_param.base.annotated_type;
         }
         array_push(&fun_params, &fun_param);
         if (parser->curr_token.token_type == TOKEN_OP && string_eq_chars(parser->curr_token.str_val, ","))
@@ -663,6 +662,7 @@ struct exp_node *_create_fun_node(struct parser *parser, struct prototype_node *
     if (is_binary_op(prototype)) {
         _set_op_prec(&parser->op_precs, prototype->op, prototype->precedence);
     }
+    hashtable_set_int(&parser->symbol_2_int_types, prototype->name, TYPE_FUNCTION);
     return (struct exp_node *)function_node_new(prototype, block);
 }
 
@@ -744,7 +744,7 @@ struct exp_node *_parse_type(struct parser *parser, struct exp_node *parent)
     type->body = body;
     assert(body);
     parser->id_is_var_decl = false;
-    hashtable_set_int(&parser->types, name, TYPE_EXT);
+    hashtable_set_int(&parser->symbol_2_int_types, name, TYPE_EXT);
     hashtable_set_p(&parser->ext_types, name, type);
     return (struct exp_node *)type;
 }

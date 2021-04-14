@@ -186,6 +186,8 @@ struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, sy
     node->base.loc = loc;
     node->var_name = var_name;
     node->init_value = init_value;
+    if (node->base.annotated_type && !node->base.annotated_type_name)
+        assert(false);
     return node;
 }
 
@@ -291,7 +293,8 @@ symbol get_callee(struct call_node *call)
 struct prototype_node *prototype_node_default_new(struct exp_node *parent, struct source_loc loc, symbol name, struct array *args,
     struct type_exp *ret_type, bool is_variadic, bool is_external)
 {
-    return prototype_node_new(parent, loc, name, args, ret_type, false, 0, EmptySymbol, is_variadic, is_external);
+    return prototype_node_new(parent, loc, name, args, ret_type, false, 0,
+        0, is_variadic, is_external);
 }
 
 struct prototype_node *prototype_node_new(struct exp_node *parent, struct source_loc loc, symbol name,

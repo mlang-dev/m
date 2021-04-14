@@ -20,7 +20,7 @@ extern "C" {
 
 struct parser {
     /* mapping type string into type enum: hashtable of (symbol, int) */
-    struct hashtable types;
+    struct hashtable symbol_2_int_types;
 
     /* hashtable of (symbol, exp_node*) for ext types */
     struct hashtable ext_types;

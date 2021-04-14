@@ -86,8 +86,7 @@ struct type_exp *_analyze_ident(struct sema_context *context, struct exp_node *n
 
 struct type_exp *_analyze_num(struct sema_context *context, struct exp_node *node)
 {
-    symbol symbol_type = to_symbol(type_strings[node->annotated_type->type]);
-    return retrieve_type_with_type_name(context, symbol_type);
+    return retrieve_type_with_type_name(context, node->annotated_type_name);
 }
 
 struct type_exp *_analyze_var(struct sema_context *context, struct exp_node *node)
@@ -95,24 +94,25 @@ struct type_exp *_analyze_var(struct sema_context *context, struct exp_node *nod
     struct var_node *var = (struct var_node *)node;
     struct type_exp *type;
     struct env *env = get_env();
-    assert(var->base.annotated_type || var->init_value);
-    if (var->base.annotated_type && var->base.annotated_type->type == TYPE_EXT) {
+    assert(var->base.annotated_type_name || var->init_value);
+    if (var->base.annotated_type_name && hashtable_get_int(&context->parser->symbol_2_int_types, var->base.annotated_type_name) == TYPE_EXT) {
         assert(var->base.annotated_type_name);
         type = retrieve_type_with_type_name(context, var->base.annotated_type_name);
         push_symbol_type(&context->venv, var->var_name, type);
         if (var->init_value)
             analyze(env->sema_context, var->init_value);
         return type;
-    } else if (var->base.annotated_type && !var->init_value) {
-        type = var->base.annotated_type;
+    } else if (var->base.annotated_type_name && !var->init_value) {
+        type = retrieve_type_with_type_name(context, var->base.annotated_type_name);
+        assert(type);
         push_symbol_type(&context->venv, var->var_name, type);
         return type;
     }
     type = analyze(context, var->init_value);
     if (!type)
         return 0;
-    if (var->base.annotated_type && var->init_value->annotated_type
-        && var->base.annotated_type->type != var->init_value->annotated_type->type) {
+    if (var->base.annotated_type_name && var->init_value->annotated_type_name
+        && var->base.annotated_type_name != var->init_value->annotated_type_name) {
         _log_err(context, node->loc, "variable type not matched with literal constant");
         return 0;
     }
@@ -165,13 +165,12 @@ struct type_exp *_analyze_proto(struct sema_context *context, struct exp_node *n
     array_init(&fun_sig, sizeof(struct type_exp *));
     for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
         struct var_node *param = (struct var_node *)array_get(&proto->fun_params, i);
-        assert(param->base.annotated_type);
+        assert(param->base.annotated_type_name);
         param->base.type = param->base.annotated_type;
-        array_push(&fun_sig, &param->base.annotated_type);
+        array_push(&fun_sig, &param->base.type);
     }
-    assert(proto->base.annotated_type);
+    assert(proto->base.annotated_type_name);
     array_push(&fun_sig, &proto->base.annotated_type);
-    //printf("ret type analyzing proto: %p, %p\n", (void*)proto->base.annotated_type, *(void**)array_back(&fun_sig));
     proto->base.type = (struct type_exp *)create_type_fun(&fun_sig);
     hashtable_set_p(&context->protos, proto->name, proto);
     return proto->base.type;
