@@ -10,10 +10,11 @@
  */
 #include "clib/symbol.h"
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
 struct hashtable *g_symbols = NULL;
+symbol EmptySymbol = 0;
 
 symbol to_symbol(const char *name)
 {
@@ -26,10 +27,16 @@ symbol to_symbol(const char *name)
     return sym;
 }
 
+symbol string_2_symbol(string *name)
+{
+    return to_symbol(string_get(name));
+}
+
 void symbols_init()
 {
     g_symbols = malloc(sizeof(*g_symbols));
     hashtable_init(g_symbols);
+    EmptySymbol = to_symbol("");
 }
 
 void symbols_deinit()

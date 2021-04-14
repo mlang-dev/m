@@ -44,8 +44,8 @@ void *hashtable_get(struct hashtable *ht, const char *key);
 void *hashtable_get_g(struct hashtable *ht, void *key, size_t key_size);
 //hashtable with key as pointer
 void *hashtable_get_p(struct hashtable *ht, void *key);
-int hashtable_get_int(struct hashtable *ht, const char *key);
-void hashtable_set_int(struct hashtable *ht, const char *key, int value);
+int hashtable_get_int(struct hashtable *ht, void *key);
+void hashtable_set_int(struct hashtable *ht, void *key, int value);
 bool hashtable_in(struct hashtable *ht, const char *key);
 bool hashtable_in_g(struct hashtable *ht, void *key, size_t key_size);
 bool hashtable_in_p(struct hashtable *ht, void *key);

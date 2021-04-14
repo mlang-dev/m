@@ -36,7 +36,6 @@ struct sema_context *sema_context_new(struct parser *parser)
     array_init(&context->nongens, sizeof(struct type_exp *));
     array_init(&context->used_builtin_names, sizeof(symbol));
     context->parser = parser;
-    symbols_init();
     symboltable_init(&context->tenv);
     symboltable_init(&context->venv);
     hashtable_init(&context->ext_type_ast);
@@ -89,7 +88,6 @@ void sema_context_free(struct sema_context *context)
     hashtable_deinit(&context->calls);
     symboltable_deinit(&context->venv);
     symboltable_deinit(&context->tenv);
-    symbols_deinit();
     array_deinit(&context->used_builtin_names);
     array_deinit(&context->nongens);
     free(context);

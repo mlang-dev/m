@@ -133,7 +133,7 @@ struct prototype_node {
     symbol op;
     struct array fun_params; /*struct array of var_node*/
     char is_operator;
-    unsigned precedence;
+    int precedence;
     bool is_variadic;
     bool is_extern;
 };
@@ -162,36 +162,35 @@ struct type_exp *get_ret_type(struct function_node *fun_node);
 
 struct function_node *function_node_new(struct prototype_node *prototype,
     struct block_node *body);
-struct function_node *copy_function_node(struct function_node *fun, const char *name);
-struct ident_node *ident_node_new(struct exp_node *parent, struct source_loc loc, const char *name);
+struct ident_node *ident_node_new(struct exp_node *parent, struct source_loc loc, symbol name);
 struct literal_node *double_node_new(struct exp_node *parent, struct source_loc loc, double val);
 struct literal_node *int_node_new(struct exp_node *parent, struct source_loc loc, int val);
 struct literal_node *bool_node_new(struct exp_node *parent, struct source_loc loc, bool val);
 struct literal_node *char_node_new(struct exp_node *parent, struct source_loc loc, char val);
 struct literal_node *unit_node_new(struct exp_node *parent, struct source_loc loc);
 struct literal_node *string_node_new(struct exp_node *parent, struct source_loc loc, const char *val);
-struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, const char *var_name, enum type type, symbol ext_type, struct exp_node *init_value);
-struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, const char *callee,
+struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, symbol var_name, enum type type, symbol ext_type, struct exp_node *init_value);
+struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, symbol callee,
     struct array *args);
 struct prototype_node *prototype_node_new(struct exp_node *parent, struct source_loc loc,
-    const char *name,
+    symbol *name,
     struct array *params,
     struct type_exp *ret_type,
     bool is_operator,
     unsigned precedence,
-    const char *op,
+    symbol op,
     bool is_variadic, bool is_external);
 struct type_node *type_node_new(struct exp_node *parent, struct source_loc loc, symbol name, struct block_node *body);
 struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_loc loc, struct block_node *body);
 struct prototype_node *prototype_node_default_new(struct exp_node *parent, struct source_loc loc,
-    const char *name,
+    symbol name,
     struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external);
 
 struct condition_node *if_node_new(struct exp_node *parent, struct source_loc loc, struct exp_node *condition, struct exp_node *then_node,
     struct exp_node *else_node);
-struct unary_node *unary_node_new(struct exp_node *parent, struct source_loc loc, const char *op, struct exp_node *operand);
-struct binary_node *binary_node_new(struct exp_node *parent, struct source_loc loc, const char *op, struct exp_node *lhs, struct exp_node *rhs);
-struct for_node *for_node_new(struct exp_node *parent, struct source_loc loc, const char *var_name, struct exp_node *start,
+struct unary_node *unary_node_new(struct exp_node *parent, struct source_loc loc, symbol op, struct exp_node *operand);
+struct binary_node *binary_node_new(struct exp_node *parent, struct source_loc loc, symbol op, struct exp_node *lhs, struct exp_node *rhs);
+struct for_node *for_node_new(struct exp_node *parent, struct source_loc loc, symbol var_name, struct exp_node *start,
     struct exp_node *end, struct exp_node *step, struct exp_node *body);
 struct block_node *block_node_new(struct exp_node *parent, struct array *nodes);
 struct exp_node *node_copy(struct exp_node *node);
@@ -203,7 +202,7 @@ bool is_binary_op(struct prototype_node *pnode);
 char get_op_name(struct prototype_node *pnode);
 bool is_recursive(struct call_node *call);
 symbol get_callee(struct call_node *call);
-int find_member_index(struct type_node *type_node, const char *member);
+int find_member_index(struct type_node *type_node, symbol member);
 
 #ifdef __cplusplus
 }

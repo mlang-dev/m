@@ -41,12 +41,13 @@ void _create_jit_module(struct env *env)
 struct eval_result eval_exp(struct JIT *jit, struct exp_node *node)
 {
     string fn = make_unique_name("main-fn");
+    symbol fn_symbol = string_2_symbol(&fn);
     enum node_type node_type = node->node_type;
     if (!node->type)
         emit_code(jit->env, node);
     struct type_exp *type = node->type;
     struct eval_result result = { 0 };
-    node = parse_exp_to_function(jit->env->sema_context->parser, node, string_get(&fn));
+    node = parse_exp_to_function(jit->env->sema_context->parser, node, fn_symbol);
     emit_code(jit->env, node);
     if (node) {
         void *p_fun = emit_ir_code(jit->env->cg, node);

@@ -164,10 +164,17 @@ void hashtable_set(struct hashtable *ht, const char *key, void *value)
     hashtable_set_g(ht, (void *)key, key_size, value, 0);
 }
 
-void hashtable_set_int(struct hashtable *ht, const char *key, int value)
+void hashtable_set_int(struct hashtable *ht, void *key, int value)
 {
-    size_t key_size = strlen(key) + 1;
-    hashtable_set_g(ht, (void *)key, key_size, &value, sizeof(value));
+    hashtable_set_p(ht, key, &value);
+}
+
+int hashtable_get_int(struct hashtable *ht, void *key)
+{
+    int *int_p=hashtable_get_p(ht, key);
+    if (!int_p)
+        return 0;
+    return *int_p;
 }
 
 void hashtable_set_g(struct hashtable *ht, void *key, size_t key_size, void *value, size_t value_size)
@@ -214,19 +221,6 @@ void *hashtable_get_g(struct hashtable *ht, void *key, size_t key_size)
     struct hashbox *box = _hashtable_get_hashbox(ht, key, key_size);
     if (box) {
         return _get_data(ht, box->key_value_pair + key_size);
-    }
-    return 0;
-}
-
-int hashtable_get_int(struct hashtable *ht, const char *key)
-{
-    size_t key_size = strlen(key) + 1;
-    int *data = 0;
-    struct hashbox *box = _hashtable_get_hashbox(ht, (void *)key, key_size);
-    if (box) {
-        assert(ht->value_size);
-        data = (int *)_get_data(ht, box->key_value_pair + key_size);
-        return data ? *data : 0;
     }
     return 0;
 }

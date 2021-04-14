@@ -57,23 +57,25 @@ TEST(testHashtable, TestStrGeneric)
     hashtable_deinit(&ht);
 }
 
-TEST(testHashtable, TestStrInt)
+TEST(testHashtable, TestSymbolInt)
 {
     hashtable ht;
+    symbols_init();
     hashtable_init_with_value_size(&ht, sizeof(int), 0);
-    char str1[] = "hello";
-    char str2[] = "world";
-    char str3[] = "something else";
+    symbol str1 = to_symbol("hello");
+    symbol str2 = to_symbol("world");
+    symbol str3 = to_symbol("something else");
     hashtable_set_int(&ht, str1, 100);
     hashtable_set_int(&ht, str2, 200);
     ASSERT_EQ(2, hashtable_size(&ht));
-    ASSERT_TRUE(hashtable_in(&ht, str1));
-    ASSERT_TRUE(hashtable_in(&ht, str2));
+    ASSERT_TRUE(hashtable_in_p(&ht, str1));
+    ASSERT_TRUE(hashtable_in_p(&ht, str2));
     ASSERT_EQ(100, hashtable_get_int(&ht, str1));
     ASSERT_EQ(200, hashtable_get_int(&ht, str2));
-    ASSERT_FALSE(hashtable_in(&ht, str3));
+    ASSERT_FALSE(hashtable_in_p(&ht, str3));
     ASSERT_EQ(0, hashtable_get_int(&ht, str3));
     hashtable_deinit(&ht);
+    symbols_deinit();
 }
 
 TEST(testHashtable, TestRemove)

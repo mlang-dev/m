@@ -73,7 +73,7 @@ struct type_exp *_analyze_ident(struct sema_context *context, struct exp_node *n
             assert(type);
             struct type_oper *oper = (struct type_oper *)type;
             struct type_node *type_node = (struct type_node *)hashtable_get_p(&context->ext_type_ast, oper->base.name);
-            int index = find_member_index(type_node, string_get(id));
+            int index = find_member_index(type_node, id);
             if (index < 0) {
                 _log_err(context, node->loc, "%s member not matched.");
                 return 0;
