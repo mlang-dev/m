@@ -14,6 +14,7 @@
 #include "clib/symbol.h"
 #include "clib/util.h"
 #include "codegen/type_size_info.h"
+#include "parser/parser.h"
 #include "sema/type.h"
 
 // TEST(testHashtable, TestAddAndGet)
@@ -157,13 +158,13 @@ TEST(testHashtable, TestHashtableGrowWithCollision)
 
 TEST(testHashtable, TestHashtablePointerKey)
 {
-    symbols_init();
+    struct parser *parser = parser_new(false);
     reset_id_name("a");
     hashtable ht;
     hashtable_init(&ht);
-    type_oper *op1 = create_nullary_type(TYPE_INT);
-    type_oper *op2 = create_nullary_type(TYPE_DOUBLE);
-    type_oper *op3 = create_nullary_type(TYPE_BOOL);
+    type_oper *op1 = create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
+    type_oper *op2 = create_nullary_type(TYPE_DOUBLE, get_type_symbol(TYPE_DOUBLE));
+    type_oper *op3 = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
     hashtable_set_p(&ht, op1, op1);
     hashtable_set_p(&ht, op2, op2);
     ASSERT_EQ(op1, hashtable_get_p(&ht, op1));
@@ -174,7 +175,7 @@ TEST(testHashtable, TestHashtablePointerKey)
     type_exp_free((type_exp *)op1);
     type_exp_free((type_exp *)op2);
     type_exp_free((type_exp *)op3);
-    symbols_deinit();
+    parser_free(parser);
 }
 
 TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)

@@ -8,6 +8,7 @@
 #include "clib/string.h"
 #include "parser/ast.h"
 #include "parser/astdump.h"
+#include "parser/parser.h"
 #include <clang-c/Index.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,7 +43,7 @@ struct prototype_node *create_function_prototype(CXCursor cursor)
     if (!type) {
         return 0;
     }
-    struct type_exp *ret_type = (struct type_exp *)create_nullary_type(type);
+    struct type_exp *ret_type = (struct type_exp *)create_nullary_type(type, get_type_symbol(type));
     ARRAY_FUN_PARAM(fun_params);
     struct var_node fun_param;
     fun_param.base.annotated_type = 0;
@@ -64,8 +65,9 @@ struct prototype_node *create_function_prototype(CXCursor cursor)
             string format = str_format("arg%d", i);
             fun_param.var_name = to_symbol(string_get(&format));
         }
-        fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(arg_type);
-        fun_param.base.type = fun_param.base.annotated_type;
+        fun_param.base.annotated_type_name = get_type_symbol(arg_type);
+        fun_param.base.annotated_type = 0;
+        fun_param.base.type = (struct type_exp *)create_nullary_type(arg_type, fun_param.base.annotated_type_name);
         array_push(&fun_params, &fun_param);
     }
     struct source_loc loc = { 0, 1 };

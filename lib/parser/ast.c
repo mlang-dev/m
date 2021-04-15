@@ -112,8 +112,9 @@ struct literal_node *_create_literal_node(struct exp_node *parent, struct source
 {
     struct literal_node *node = malloc(sizeof(*node));
     node->base.node_type = LITERAL_NODE;
-    node->base.annotated_type = (struct type_exp *)create_nullary_type(type);
     node->base.annotated_type_name = to_symbol(type_strings[type]);
+    node->base.annotated_type = (struct type_exp *)create_nullary_type(type, node->base.annotated_type_name);
+    node->base.annotated_type_enum = type;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -132,7 +133,7 @@ struct literal_node *_create_literal_node(struct exp_node *parent, struct source
 
 void _free_literal_node(struct literal_node *node)
 {
-    if (node->base.annotated_type->type == TYPE_STRING)
+    if (node->base.annotated_type_enum == TYPE_STRING)
         free((void *)node->str_val);
     _free_exp_node(&node->base);
 }
@@ -170,7 +171,7 @@ struct literal_node *string_node_new(struct exp_node *parent, struct source_loc 
 struct literal_node *_copy_literal_node(struct literal_node *orig_node)
 {
     return _create_literal_node(orig_node->base.parent, orig_node->base.loc, &orig_node->char_val,
-        orig_node->base.annotated_type->type);
+        orig_node->base.annotated_type_enum);
 }
 
 struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, symbol var_name, enum type type, symbol ext_type,
@@ -179,7 +180,8 @@ struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, sy
     (void)ext_type;
     struct var_node *node = (struct var_node *)malloc(sizeof(*node));
     node->base.node_type = VAR_NODE;
-    node->base.annotated_type = type ? (struct type_exp *)create_nullary_type(type) : 0;
+    node->base.annotated_type = type ? (struct type_exp *)create_nullary_type(type, ext_type) : 0;
+    node->base.annotated_type_enum = type;
     node->base.annotated_type_name = ext_type;
     node->base.type = 0;
     node->base.parent = parent;
@@ -307,6 +309,7 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
     node->base.node_type = PROTOTYPE_NODE;
     node->base.annotated_type = ret_type;
     node->base.annotated_type_name = ret_type ? to_symbol(type_strings[ret_type->type]) : 0;
+    node->base.annotated_type_enum = ret_type ? ret_type->type : TYPE_UNK;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -320,8 +323,9 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
     struct var_node fun_param;
     if (is_variadic) {
         fun_param.var_name = to_symbol(type_strings[TYPE_GENERIC]);
-        fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(TYPE_GENERIC);
         fun_param.base.annotated_type_name = to_symbol(type_strings[TYPE_GENERIC]);
+        fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param.base.annotated_type_name);
+        fun_param.base.annotated_type_enum = TYPE_GENERIC;
         fun_param.base.type = fun_param.base.annotated_type;
         array_push(&node->fun_params, &fun_param);
     }
@@ -333,6 +337,7 @@ struct prototype_node *_copy_prototype_node(struct prototype_node *proto)
     struct prototype_node *node = malloc(sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
     node->base.annotated_type = proto->base.annotated_type;
+    node->base.annotated_type_enum = proto->base.annotated_type_enum;
     node->base.annotated_type_name = proto->base.annotated_type_name;
     node->base.type = 0;
     node->base.parent = proto->base.parent;
@@ -349,8 +354,9 @@ struct prototype_node *_copy_prototype_node(struct prototype_node *proto)
     fun_param.base.node_type = VAR_NODE;
     if (proto->is_variadic) {
         fun_param.var_name = to_symbol(type_strings[TYPE_GENERIC]);
-        fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(TYPE_GENERIC);
         fun_param.base.annotated_type_name = to_symbol(type_strings[TYPE_GENERIC]);
+        fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param.base.annotated_type_name);
+        fun_param.base.annotated_type_enum = TYPE_GENERIC;
         array_push(&node->fun_params, &fun_param);
     }
     return node;

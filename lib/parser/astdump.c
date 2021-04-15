@@ -7,12 +7,12 @@
 #include "clib/string.h"
 #include "clib/util.h"
 
-string _dump_block(struct block_node* node)
+string _dump_block(struct block_node *node)
 {
     string block;
     string_init_chars(&block, "blk: \n");
     for (size_t i = 0; i < array_size(&node->nodes); i++) {
-        struct exp_node* stmt = *(struct exp_node**)array_get(&node->nodes, i);
+        struct exp_node *stmt = *(struct exp_node **)array_get(&node->nodes, i);
         string str_stmt = dump(stmt);
         string_add_chars(&block, "  ");
         string_add(&block, &str_stmt);
@@ -21,21 +21,22 @@ string _dump_block(struct block_node* node)
     return block;
 }
 
-string _dump_prototype(struct prototype_node* proto)
+string _dump_prototype(struct prototype_node *proto)
 {
     string result;
     string_init(&result);
-    if(proto->is_extern)
+    if (proto->is_extern)
         string_add_chars(&result, "extern ");
     string_add_chars(&result, string_get(proto->name));
     ARRAY_STRING(args);
     string var_str;
     string_init(&var_str);
-    for(size_t i = 0; i < array_size(&proto->fun_params); i++){
-        struct var_node* var = (struct var_node*)array_get(&proto->fun_params, i);
+    for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
+        struct var_node *var = (struct var_node *)array_get(&proto->fun_params, i);
         string_copy(&var_str, var->var_name);
-        if(var->base.annotated_type&&var->base.annotated_type->type!=TYPE_GENERIC){
-            string var_type = to_string(var->base.annotated_type);
+        if (var->base.annotated_type && var->base.annotated_type_enum != TYPE_GENERIC) {
+            string var_type;
+            string_init_chars(&var_type, string_get(var->base.annotated_type_name));
             string_add_chars(&var_str, ":");
             string_add(&var_str, &var_type);
         }
@@ -45,15 +46,15 @@ string _dump_prototype(struct prototype_node* proto)
     string_add_chars(&result, "(");
     string_add(&result, &joined);
     string_add_chars(&result, ")");
-    if(proto->base.annotated_type){
-        var_str = to_string(proto->base.annotated_type);
+    if (proto->base.annotated_type) {
+        string_copy_chars(&var_str, string_get(proto->base.annotated_type_name));
         string_add_chars(&result, ":");
         string_add(&result, &var_str);
     }
     return result;
 }
 
-string _dump_function(struct function_node* func)
+string _dump_function(struct function_node *func)
 {
     string result = _dump_prototype(func->prototype);
     string_add_chars(&result, "\n");
@@ -62,7 +63,7 @@ string _dump_function(struct function_node* func)
     return result;
 }
 
-string _dump_var(struct var_node* var)
+string _dump_var(struct var_node *var)
 {
     string var_str;
     string_init_chars(&var_str, "var: ");
@@ -73,7 +74,7 @@ string _dump_var(struct var_node* var)
     return var_str;
 }
 
-string _dump_unary(struct unary_node* unary)
+string _dump_unary(struct unary_node *unary)
 {
     string un;
     string_init_chars(&un, "un: ");
@@ -83,7 +84,7 @@ string _dump_unary(struct unary_node* unary)
     return un;
 }
 
-string _dump_binary(struct binary_node* binary)
+string _dump_binary(struct binary_node *binary)
 {
     string lhs_str = dump(binary->lhs);
     string rhs_str = dump(binary->rhs);
@@ -98,11 +99,11 @@ string _dump_binary(struct binary_node* binary)
     return bin;
 }
 
-string _dump_call(struct call_node* call)
+string _dump_call(struct call_node *call)
 {
     ARRAY_STRING(args);
     for (size_t i = 0; i < array_size(&call->args); i++) {
-        string dp = dump(*(struct exp_node**)array_get(&call->args, i));
+        string dp = dump(*(struct exp_node **)array_get(&call->args, i));
         array_push(&args, &dp);
     }
     string args_str = string_join(&args, " ");
@@ -113,7 +114,7 @@ string _dump_call(struct call_node* call)
     return result;
 }
 
-string _dump_if(struct condition_node* cond)
+string _dump_if(struct condition_node *cond)
 {
     string result;
     string_init_chars(&result, "if ");
@@ -130,7 +131,7 @@ string _dump_if(struct condition_node* cond)
     return result;
 }
 
-string _dump_for(struct for_node* fornode)
+string _dump_for(struct for_node *fornode)
 {
     string result;
     string_init_chars(&result, "for ");
@@ -144,7 +145,7 @@ string _dump_for(struct for_node* fornode)
     return result;
 }
 
-string _dump_id(struct ident_node* idnode)
+string _dump_id(struct ident_node *idnode)
 {
     string str_id;
     string_init_chars(&str_id, "id: ");
@@ -152,7 +153,7 @@ string _dump_id(struct ident_node* idnode)
     return str_id;
 }
 
-string _dump_number(struct literal_node* node)
+string _dump_number(struct literal_node *node)
 {
     string str_num;
     string_init_chars(&str_num, "num: ");
@@ -162,30 +163,30 @@ string _dump_number(struct literal_node* node)
     return str_num;
 }
 
-string dump(struct exp_node* node)
+string dump(struct exp_node *node)
 {
     if (node->node_type == FUNCTION_NODE)
-        return _dump_function((struct function_node*)node);
+        return _dump_function((struct function_node *)node);
     else if (node->node_type == PROTOTYPE_NODE)
-        return _dump_prototype((struct prototype_node*)node);
+        return _dump_prototype((struct prototype_node *)node);
     else if (node->node_type == VAR_NODE)
-        return _dump_var((struct var_node*)node);
+        return _dump_var((struct var_node *)node);
     else if (node->node_type == UNARY_NODE)
-        return _dump_unary((struct unary_node*)node);
+        return _dump_unary((struct unary_node *)node);
     else if (node->node_type == BINARY_NODE)
-        return _dump_binary((struct binary_node*)node);
+        return _dump_binary((struct binary_node *)node);
     else if (node->node_type == CONDITION_NODE)
-        return _dump_if((struct condition_node*)node);
+        return _dump_if((struct condition_node *)node);
     else if (node->node_type == CALL_NODE)
-        return _dump_call((struct call_node*)node);
+        return _dump_call((struct call_node *)node);
     else if (node->node_type == FOR_NODE)
-        return _dump_for((struct for_node*)node);
+        return _dump_for((struct for_node *)node);
     else if (node->node_type == IDENT_NODE)
-        return _dump_id((struct ident_node*)node);
+        return _dump_id((struct ident_node *)node);
     else if (node->node_type == LITERAL_NODE)
-        return _dump_number((struct literal_node*)node);
+        return _dump_number((struct literal_node *)node);
     else if (node->node_type == BLOCK_NODE)
-        return _dump_block((struct block_node*)node);
+        return _dump_block((struct block_node *)node);
     else {
         string not_supported;
         string_init_chars(&not_supported, "ast->node_type not supported: ");

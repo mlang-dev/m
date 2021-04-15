@@ -65,7 +65,7 @@ struct type_oper {
 struct type_var *create_type_var();
 struct type_oper *create_type_oper(symbol type_name, enum type type, struct array *args);
 struct type_oper *create_type_oper_ext(symbol type_name, struct array *args);
-struct type_oper *create_nullary_type(enum type type);
+struct type_oper *create_nullary_type(enum type type, symbol type_symbol);
 struct type_oper *create_type_fun(struct array *args);
 void type_exp_free(struct type_exp *type);
 bool occurs_in_type(struct type_var *var, struct type_exp *type2);

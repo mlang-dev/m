@@ -60,6 +60,8 @@ struct block_node *parse_file(struct parser *parser, const char *file_name);
 struct block_node *parse_file_object(struct parser *parser, const char *mod_name, FILE *file);
 struct block_node *parse_repl(struct parser *parser, void (*fun)(void *, struct exp_node *), void *jit);
 struct block_node *parse_string(struct parser *parser, const char *mod_name, const char *code);
+enum type get_type_enum(symbol type_symbol);
+symbol get_type_symbol(enum type type_enum);
 
 #ifdef __cplusplus
 }

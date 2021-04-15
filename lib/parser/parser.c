@@ -61,6 +61,8 @@ struct op_type {
     bool success;
 };
 
+struct parser *g_parser = 0;
+
 const char *get_ctt(struct parser *parser)
 {
     return token_type_strings[parser->curr_token.token_type];
@@ -136,6 +138,7 @@ struct parser *parser_new(bool is_repl)
     parser->is_repl = is_repl;
     parser->current_module = 0;
     init_token(&parser->curr_token);
+    g_parser = parser;
     return parser;
 }
 
@@ -157,6 +160,7 @@ void parser_free(struct parser *parser)
     free(parser->ast);
     symboltable_deinit(&parser->vars);
     free(parser);
+    g_parser = 0;
     symbols_init();
 }
 
@@ -308,8 +312,11 @@ struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_no
                     }
                     if (arg->node_type == IDENT_NODE) {
                         struct op_type optype = _parse_op_type(parser, arg->loc);
-                        if (optype.type)
-                            arg->annotated_type = (struct type_exp *)create_nullary_type(optype.type);
+                        if (optype.type) {
+                            arg->annotated_type = (struct type_exp *)create_nullary_type(optype.type, optype.type_symbol);
+                            arg->annotated_type_name = optype.type_symbol;
+                            arg->annotated_type_enum = optype.type;
+                        }
                     }
                     array_push(&args, &arg);
                 }
@@ -318,7 +325,7 @@ struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_no
                 parse_next_token(parser);
                 struct op_type optype = _parse_op_type(parser, parser->curr_token.loc);
                 if (optype.type) {
-                    ret_type = (struct type_exp *)create_nullary_type(optype.type);
+                    ret_type = (struct type_exp *)create_nullary_type(optype.type, optype.type_symbol);
                 }
             }
             if (IS_OP(parser->curr_token.token_type) && string_eq_chars(parser->curr_token.str_val, "=")) {
@@ -344,6 +351,8 @@ struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_no
         for (size_t i = 0; i < array_size(&args); i++) {
             struct ident_node *id = *(struct ident_node **)array_get(&args, i);
             fun_param.base.annotated_type = id->base.annotated_type;
+            fun_param.base.annotated_type_enum = id->base.annotated_type_enum;
+            fun_param.base.annotated_type_name = id->base.annotated_type_name;
             fun_param.var_name = id->name;
             array_push(&fun_params, &fun_param);
         }
@@ -628,9 +637,13 @@ struct exp_node *_parse_prototype(struct parser *parser, struct exp_node *parent
         parse_next_token(parser);
         optype = _parse_op_type(parser, parser->curr_token.loc);
         fun_param.base.annotated_type = 0;
+        fun_param.base.annotated_type_enum = TYPE_UNK;
         fun_param.base.type = 0;
+        fun_param.base.annotated_type_name = 0;
         if (optype.success && optype.type) {
-            fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(optype.type);
+            fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(optype.type, optype.type_symbol);
+            fun_param.base.annotated_type_name = optype.type_symbol;
+            fun_param.base.annotated_type_enum = optype.type;
         }
         array_push(&fun_params, &fun_param);
         if (parser->curr_token.token_type == TOKEN_OP && string_eq_chars(parser->curr_token.str_val, ","))
@@ -647,7 +660,7 @@ struct exp_node *_parse_prototype(struct parser *parser, struct exp_node *parent
     struct type_exp *ret_type = 0;
     optype = _parse_op_type(parser, parser->curr_token.loc);
     if (optype.type)
-        ret_type = (struct type_exp *)create_nullary_type(optype.type);
+        ret_type = (struct type_exp *)create_nullary_type(optype.type, optype.type_symbol);
     // Verify right number of names for operator.
     if (proto_type && array_size(&fun_params) != proto_type)
         return (struct exp_node *)log_info(ERROR, "Invalid number of operands for operator");
@@ -938,4 +951,16 @@ struct block_node *parse_repl(struct parser *parser, void (*fun)(void *, struct 
     parser->current_module = module_new(mod_name, stdin);
     array_push(&parser->ast->modules, &parser->current_module);
     return parse_block(parser, 0, fun, jit);
+}
+
+enum type get_type_enum(symbol type_symbol)
+{
+    assert(g_parser);
+    return hashtable_get_int(&g_parser->symbol_2_int_types, type_symbol);
+}
+
+symbol get_type_symbol(enum type type_enum)
+{
+    assert(g_parser);
+    return to_symbol(type_strings[type_enum]);
 }

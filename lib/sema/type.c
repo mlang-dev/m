@@ -70,12 +70,11 @@ struct type_oper *create_type_oper_ext(symbol type_name, struct array *args)
     return create_type_oper(type_name, TYPE_EXT, args);
 }
 
-struct type_oper *create_nullary_type(enum type type)
+struct type_oper *create_nullary_type(enum type type, symbol type_symbol)
 {
     struct array args;
     array_init(&args, sizeof(struct type_exp *));
-    symbol type_name = to_symbol(type_strings[type]);
-    return create_type_oper(type_name, type, &args);
+    return create_type_oper(type_symbol, type, &args);
 }
 
 struct type_oper *create_type_fun(struct array *args)

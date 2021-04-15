@@ -166,10 +166,13 @@ struct type_exp *_analyze_proto(struct sema_context *context, struct exp_node *n
     for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
         struct var_node *param = (struct var_node *)array_get(&proto->fun_params, i);
         assert(param->base.annotated_type_name);
+        assert(param->base.annotated_type_enum == get_type_enum(param->base.annotated_type_name));
+        //        param->base.type = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
         param->base.type = param->base.annotated_type;
         array_push(&fun_sig, &param->base.type);
     }
     assert(proto->base.annotated_type_name);
+    //struct type_exp *te = create_nullary_type(proto->base.annotated_type_enum, proto->base.annotated_type_name);
     array_push(&fun_sig, &proto->base.annotated_type);
     proto->base.type = (struct type_exp *)create_type_fun(&fun_sig);
     hashtable_set_p(&context->protos, proto->name, proto);
@@ -186,8 +189,8 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *nod
     for (size_t i = 0; i < array_size(&fun->prototype->fun_params); i++) {
         struct var_node *param = (struct var_node *)array_get(&fun->prototype->fun_params, i);
         struct type_exp *exp;
-        if (param->base.annotated_type)
-            exp = param->base.annotated_type;
+        if (param->base.annotated_type_name)
+            exp = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
         else
             exp = (struct type_exp *)create_type_var();
         array_push(&fun_sig, &exp);
@@ -276,7 +279,7 @@ struct type_exp *_analyze_unary(struct sema_context *context, struct exp_node *n
     struct unary_node *unary = (struct unary_node *)node;
     struct type_exp *op_type = analyze(context, unary->operand);
     if (string_eq_chars(unary->op, "!")) {
-        struct type_exp *bool_type = (struct type_exp *)create_nullary_type(TYPE_BOOL);
+        struct type_exp *bool_type = (struct type_exp *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         unify(op_type, bool_type, &context->nongens);
         unary->operand->type = op_type;
     }
@@ -291,7 +294,7 @@ struct type_exp *_analyze_binary(struct sema_context *context, struct exp_node *
     struct type_exp *result = 0;
     if (unify(lhs_type, rhs_type, &context->nongens)) {
         if (_is_predicate_op(string_get(bin->op)))
-            result = (struct type_exp *)create_nullary_type(TYPE_BOOL);
+            result = (struct type_exp *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         else
             result = lhs_type;
         return result;
@@ -308,7 +311,7 @@ struct type_exp *_analyze_if(struct sema_context *context, struct exp_node *node
 {
     struct condition_node *cond_node = (struct condition_node *)node;
     struct type_exp *cond_type = analyze(context, cond_node->condition_node);
-    struct type_oper *bool_type = create_nullary_type(TYPE_BOOL);
+    struct type_oper *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
     unify(cond_type, (struct type_exp *)bool_type, &context->nongens);
     struct type_exp *then_type = analyze(context, cond_node->then_node);
     struct type_exp *else_type = analyze(context, cond_node->else_node);
@@ -319,8 +322,8 @@ struct type_exp *_analyze_if(struct sema_context *context, struct exp_node *node
 struct type_exp *_analyze_for(struct sema_context *context, struct exp_node *node)
 {
     struct for_node *for_node = (struct for_node *)node;
-    struct type_exp *int_type = (struct type_exp *)create_nullary_type(TYPE_INT);
-    struct type_exp *bool_type = (struct type_exp *)create_nullary_type(TYPE_BOOL);
+    struct type_exp *int_type = (struct type_exp *)create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
+    struct type_exp *bool_type = (struct type_exp *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
     push_symbol_type(&context->venv, for_node->var_name, int_type);
     struct type_exp *start_type = analyze(context, for_node->start);
     struct type_exp *step_type = analyze(context, for_node->step);
@@ -335,7 +338,7 @@ struct type_exp *_analyze_for(struct sema_context *context, struct exp_node *nod
     for_node->step->type = step_type;
     for_node->end->type = end_type;
     for_node->body->type = body_type;
-    return (struct type_exp *)create_nullary_type(TYPE_UNIT);
+    return (struct type_exp *)create_nullary_type(TYPE_UNIT, get_type_symbol(TYPE_UNIT));
 }
 
 struct type_exp *_analyze_block(struct sema_context *context, struct exp_node *node)
