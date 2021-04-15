@@ -313,7 +313,6 @@ struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_no
                     if (arg->node_type == IDENT_NODE) {
                         struct op_type optype = _parse_op_type(parser, arg->loc);
                         if (optype.type) {
-                            arg->annotated_type = (struct type_exp *)create_nullary_type(optype.type, optype.type_symbol);
                             arg->annotated_type_name = optype.type_symbol;
                             arg->annotated_type_enum = optype.type;
                         }
@@ -347,10 +346,10 @@ struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_no
     if (func_definition) {
         ARRAY_FUN_PARAM(fun_params);
         struct var_node fun_param;
-        fun_param.base.annotated_type = 0;
+        fun_param.base.annotated_type_enum = 0;
+        fun_param.base.annotated_type_name = 0;
         for (size_t i = 0; i < array_size(&args); i++) {
             struct ident_node *id = *(struct ident_node **)array_get(&args, i);
-            fun_param.base.annotated_type = id->base.annotated_type;
             fun_param.base.annotated_type_enum = id->base.annotated_type_enum;
             fun_param.base.annotated_type_name = id->base.annotated_type_name;
             fun_param.var_name = id->name;
@@ -492,7 +491,7 @@ struct exp_node *_parse_ident(struct parser *parser, struct exp_node *parent)
         while (true) {
             struct exp_node *arg = parse_exp(parser, parent, 0);
             assert(arg);
-            if (!(arg->node_type == LITERAL_NODE && arg->annotated_type->type == TYPE_UNIT))
+            if (!(arg->node_type == LITERAL_NODE && arg->annotated_type_enum == TYPE_UNIT))
                 array_push(&args, &arg);
             if (!_id_is_a_function_call(parser))
                 break;
@@ -636,12 +635,11 @@ struct exp_node *_parse_prototype(struct parser *parser, struct exp_node *parent
         fun_param.var_name = to_symbol(string_get(parser->curr_token.str_val));
         parse_next_token(parser);
         optype = _parse_op_type(parser, parser->curr_token.loc);
-        fun_param.base.annotated_type = 0;
+        fun_param.base.annotated_type_name = 0;
         fun_param.base.annotated_type_enum = TYPE_UNK;
         fun_param.base.type = 0;
         fun_param.base.annotated_type_name = 0;
         if (optype.success && optype.type) {
-            fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(optype.type, optype.type_symbol);
             fun_param.base.annotated_type_name = optype.type_symbol;
             fun_param.base.annotated_type_enum = optype.type;
         }

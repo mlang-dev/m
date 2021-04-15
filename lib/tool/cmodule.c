@@ -46,7 +46,8 @@ struct prototype_node *create_function_prototype(CXCursor cursor)
     struct type_exp *ret_type = (struct type_exp *)create_nullary_type(type, get_type_symbol(type));
     ARRAY_FUN_PARAM(fun_params);
     struct var_node fun_param;
-    fun_param.base.annotated_type = 0;
+    fun_param.base.annotated_type_enum = 0;
+    fun_param.base.annotated_type_name = 0;
     fun_param.base.type = 0;
     fun_param.base.node_type = VAR_NODE;
     int num_args = clang_Cursor_getNumArguments(cursor);
@@ -66,7 +67,7 @@ struct prototype_node *create_function_prototype(CXCursor cursor)
             fun_param.var_name = to_symbol(string_get(&format));
         }
         fun_param.base.annotated_type_name = get_type_symbol(arg_type);
-        fun_param.base.annotated_type = 0;
+        fun_param.base.annotated_type_enum = 0;
         fun_param.base.type = (struct type_exp *)create_nullary_type(arg_type, fun_param.base.annotated_type_name);
         array_push(&fun_params, &fun_param);
     }

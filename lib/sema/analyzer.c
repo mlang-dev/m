@@ -167,13 +167,12 @@ struct type_exp *_analyze_proto(struct sema_context *context, struct exp_node *n
         struct var_node *param = (struct var_node *)array_get(&proto->fun_params, i);
         assert(param->base.annotated_type_name);
         assert(param->base.annotated_type_enum == get_type_enum(param->base.annotated_type_name));
-        //        param->base.type = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
-        param->base.type = param->base.annotated_type;
+        param->base.type = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
         array_push(&fun_sig, &param->base.type);
     }
     assert(proto->base.annotated_type_name);
-    //struct type_exp *te = create_nullary_type(proto->base.annotated_type_enum, proto->base.annotated_type_name);
-    array_push(&fun_sig, &proto->base.annotated_type);
+    struct type_exp *te = create_nullary_type(proto->base.annotated_type_enum, proto->base.annotated_type_name);
+    array_push(&fun_sig, &te);
     proto->base.type = (struct type_exp *)create_type_fun(&fun_sig);
     hashtable_set_p(&context->protos, proto->name, proto);
     return proto->base.type;

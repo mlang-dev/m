@@ -68,7 +68,7 @@ TEST_F(testParser, testVariableWithType)
     block_node *block = parse_file_object(parser, "test", file);
     auto node = *(var_node **)array_front(&block->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_EQ(TYPE_INT, node->base.annotated_type->type);
+    ASSERT_EQ(TYPE_INT, node->base.annotated_type_enum);
     ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
@@ -207,8 +207,8 @@ TEST_F(testParser, testForLoop)
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->prototype->name));
     ASSERT_EQ(FOR_NODE, body_node->base.node_type);
-    ASSERT_EQ(TYPE_INT, body_node->start->annotated_type->type);
-    ASSERT_EQ(TYPE_INT, body_node->step->annotated_type->type);
+    ASSERT_EQ(TYPE_INT, body_node->start->annotated_type_enum);
+    ASSERT_EQ(TYPE_INT, body_node->step->annotated_type_enum);
     ASSERT_EQ(BINARY_NODE, body_node->end->node_type);
     ASSERT_EQ(3, ((literal_node *)body_node->start)->int_val);
     parser_free(parser);
@@ -347,8 +347,7 @@ TEST_F(testParser, testPrototypeNodeEmptyArg)
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(0, array_size(&proto->fun_params));
     ASSERT_STREQ("print", string_get(proto->name));
-    string proto_type = to_string(proto->base.annotated_type);
-    ASSERT_STREQ("int", string_get(&proto_type));
+    ASSERT_STREQ("int", string_get(proto->base.annotated_type_name));
     parser_free(parser);
 }
 
@@ -416,7 +415,7 @@ xy.x
     struct var_node *var = (struct var_node *)node;
     ASSERT_STREQ("xy", string_get(var->var_name));
     ASSERT_STREQ("Point2D", string_get(var->base.annotated_type_name));
-    ASSERT_EQ(TYPE_EXT, var->base.annotated_type->type);
+    ASSERT_EQ(TYPE_EXT, var->base.annotated_type_enum);
     node = *(exp_node **)array_get(&block->nodes, 2);
     ASSERT_EQ(IDENT_NODE, node->node_type);
     struct ident_node *id_node = (struct ident_node *)node;

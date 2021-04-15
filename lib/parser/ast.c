@@ -38,8 +38,6 @@ struct type_exp *get_ret_type(struct function_node *fun_node)
 
 void _free_exp_node(struct exp_node *node)
 {
-    if (node->annotated_type)
-        type_exp_free(node->annotated_type);
     /*TODO: free node->type, need to be considerate for shared types*/
     free(node);
 }
@@ -86,7 +84,7 @@ struct ident_node *ident_node_new(struct exp_node *parent, struct source_loc loc
 {
     struct ident_node *node = malloc(sizeof(*node));
     node->base.type = 0;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.node_type = IDENT_NODE;
     node->base.parent = parent;
@@ -113,7 +111,6 @@ struct literal_node *_create_literal_node(struct exp_node *parent, struct source
     struct literal_node *node = malloc(sizeof(*node));
     node->base.node_type = LITERAL_NODE;
     node->base.annotated_type_name = to_symbol(type_strings[type]);
-    node->base.annotated_type = (struct type_exp *)create_nullary_type(type, node->base.annotated_type_name);
     node->base.annotated_type_enum = type;
     node->base.type = 0;
     node->base.parent = parent;
@@ -180,7 +177,6 @@ struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, sy
     (void)ext_type;
     struct var_node *node = (struct var_node *)malloc(sizeof(*node));
     node->base.node_type = VAR_NODE;
-    node->base.annotated_type = type ? (struct type_exp *)create_nullary_type(type, ext_type) : 0;
     node->base.annotated_type_enum = type;
     node->base.annotated_type_name = ext_type;
     node->base.type = 0;
@@ -188,8 +184,6 @@ struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, sy
     node->base.loc = loc;
     node->var_name = var_name;
     node->init_value = init_value;
-    if (node->base.annotated_type && !node->base.annotated_type_name)
-        assert(false);
     return node;
 }
 
@@ -211,7 +205,7 @@ struct type_node *type_node_new(struct exp_node *parent, struct source_loc loc, 
 {
     struct type_node *node = malloc(sizeof(*node));
     node->base.node_type = TYPE_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.type = 0;
     node->base.parent = parent;
@@ -237,7 +231,7 @@ struct type_value_node *type_value_node_new(struct exp_node *parent, struct sour
 {
     struct type_value_node *node = malloc(sizeof(*node));
     node->base.node_type = TYPE_VALUE_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.type = 0;
     node->base.parent = parent;
@@ -263,7 +257,7 @@ struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, 
 {
     struct call_node *node = malloc(sizeof(*node));
     node->base.node_type = CALL_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.type = 0;
     node->base.parent = parent;
@@ -307,7 +301,6 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
 {
     struct prototype_node *node = malloc(sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
-    node->base.annotated_type = ret_type;
     node->base.annotated_type_name = ret_type ? to_symbol(type_strings[ret_type->type]) : 0;
     node->base.annotated_type_enum = ret_type ? ret_type->type : TYPE_UNK;
     node->base.type = 0;
@@ -324,9 +317,8 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
     if (is_variadic) {
         fun_param.var_name = to_symbol(type_strings[TYPE_GENERIC]);
         fun_param.base.annotated_type_name = to_symbol(type_strings[TYPE_GENERIC]);
-        fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param.base.annotated_type_name);
         fun_param.base.annotated_type_enum = TYPE_GENERIC;
-        fun_param.base.type = fun_param.base.annotated_type;
+        fun_param.base.type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param.base.annotated_type_name);
         array_push(&node->fun_params, &fun_param);
     }
     return node;
@@ -336,7 +328,6 @@ struct prototype_node *_copy_prototype_node(struct prototype_node *proto)
 {
     struct prototype_node *node = malloc(sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
-    node->base.annotated_type = proto->base.annotated_type;
     node->base.annotated_type_enum = proto->base.annotated_type_enum;
     node->base.annotated_type_name = proto->base.annotated_type_name;
     node->base.type = 0;
@@ -355,7 +346,6 @@ struct prototype_node *_copy_prototype_node(struct prototype_node *proto)
     if (proto->is_variadic) {
         fun_param.var_name = to_symbol(type_strings[TYPE_GENERIC]);
         fun_param.base.annotated_type_name = to_symbol(type_strings[TYPE_GENERIC]);
-        fun_param.base.annotated_type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param.base.annotated_type_name);
         fun_param.base.annotated_type_enum = TYPE_GENERIC;
         array_push(&node->fun_params, &fun_param);
     }
@@ -374,7 +364,7 @@ struct function_node *function_node_new(struct prototype_node *prototype,
 {
     struct function_node *node = malloc(sizeof(*node));
     node->base.type = 0;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.node_type = FUNCTION_NODE;
     node->base.parent = (struct exp_node *)prototype;
@@ -403,7 +393,7 @@ struct condition_node *if_node_new(struct exp_node *parent, struct source_loc lo
 {
     struct condition_node *node = malloc(sizeof(*node));
     node->base.node_type = CONDITION_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.type = 0;
     node->base.parent = parent;
@@ -435,7 +425,7 @@ struct unary_node *unary_node_new(struct exp_node *parent, struct source_loc loc
 {
     struct unary_node *node = malloc(sizeof(*node));
     node->base.node_type = UNARY_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.type = 0;
     node->base.parent = parent;
@@ -461,7 +451,7 @@ struct binary_node *binary_node_new(struct exp_node *parent, struct source_loc l
 {
     struct binary_node *node = malloc(sizeof(*node));
     node->base.node_type = BINARY_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.type = 0;
     node->base.parent = parent;
@@ -492,7 +482,7 @@ struct for_node *for_node_new(struct exp_node *parent, struct source_loc loc, sy
 {
     struct for_node *node = malloc(sizeof(*node));
     node->base.node_type = FOR_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.type = 0;
     node->base.parent = parent;
@@ -528,7 +518,7 @@ struct block_node *block_node_new(struct exp_node *parent, struct array *nodes)
 {
     struct block_node *node = malloc(sizeof(*node));
     node->base.node_type = BLOCK_NODE;
-    node->base.annotated_type = 0;
+    node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
     node->base.type = 0;
     node->base.parent = parent;

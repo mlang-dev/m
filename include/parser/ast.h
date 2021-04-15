@@ -45,7 +45,6 @@ extern const char *node_type_strings[];
 
 struct exp_node {
     enum node_type node_type;
-    struct type_exp *annotated_type;
     enum type annotated_type_enum;
     symbol annotated_type_name;
     struct type_exp *type; //type inferred
