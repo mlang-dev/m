@@ -1,7 +1,7 @@
 #include "codegen/fun_info.h"
 #include "codegen/codegen.h"
+#include "codegen/compute_fun_info.h"
 #include "codegen/ir_arg_info.h"
-#include "codegen/x86_64_abi.h"
 #include "sys.h"
 #include <assert.h>
 
@@ -42,7 +42,7 @@ struct fun_info *get_fun_info(struct prototype_node *proto)
         aa.type = *(struct type_exp **)array_get(&fun_type->args, i);
         array_push(&fi.args, &aa);
     }
-    x86_64_update_abi_info(&fi);
+    compute_fun_info(&fi);
     hashtable_set_p(fun_infos, proto->name, &fi);
     return (struct fun_info *)hashtable_get_p(fun_infos, proto->name);
 }
@@ -146,7 +146,7 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
     }
     assert(iai.total_ir_args == array_size(&arg_types));
     assert(ret_type);
-    LLVMTypeRef fun_type = LLVMFunctionType(ret_type, iai.total_ir_args? array_get(&arg_types, 0): 0, iai.total_ir_args, is_variadic(fi));
+    LLVMTypeRef fun_type = LLVMFunctionType(ret_type, iai.total_ir_args ? array_get(&arg_types, 0) : 0, iai.total_ir_args, is_variadic(fi));
     array_deinit(&arg_types);
     return fun_type;
 }

@@ -188,8 +188,12 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *nod
     for (size_t i = 0; i < array_size(&fun->prototype->fun_params); i++) {
         struct var_node *param = (struct var_node *)array_get(&fun->prototype->fun_params, i);
         struct type_exp *exp;
-        if (param->base.annotated_type_name)
-            exp = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
+        if (param->base.annotated_type_name) {
+            if(param->base.annotated_type_enum == TYPE_EXT)
+                exp = retrieve_type_with_type_name(context, param->base.annotated_type_name);
+            else
+                exp = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
+        }
         else
             exp = (struct type_exp *)create_type_var();
         array_push(&fun_sig, &exp);

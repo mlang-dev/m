@@ -601,7 +601,8 @@ LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *no
     assert(fi);
     LLVMTypeRef fun_type = get_fun_type(fi);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(proto->name), fun_type);
-    for (unsigned i = 0; i < LLVMCountParams(fun); i++) {
+    unsigned paramCount = LLVMCountParams(fun);
+    for (unsigned i = 0; i < paramCount; i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
         struct var_node *fun_param = (struct var_node *)array_get(&proto->fun_params, i);
         LLVMSetValueName2(param, string_get(fun_param->var_name), string_size(fun_param->var_name));

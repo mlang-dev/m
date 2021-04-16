@@ -1,5 +1,7 @@
-#include "codegen/x86_64_abi.h"
+#include "codegen/abi_arg_info.h"
 #include "codegen/codegen.h"
+#include "codegen/compute_fun_info.h"
+#include "codegen/fun_info.h"
 #include "codegen/type_size_info.h"
 #include <assert.h>
 #include <llvm-c/Core.h>

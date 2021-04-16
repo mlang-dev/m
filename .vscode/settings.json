@@ -119,7 +119,8 @@
         "type_size_info.h": "c",
         "sema_context.h": "c",
         "codegen.h": "c",
-        "support.h": "c"
+        "support.h": "c",
+        "compute_fun_info.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

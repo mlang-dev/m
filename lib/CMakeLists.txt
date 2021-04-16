@@ -54,9 +54,11 @@ add_library(mlr
   codegen/fun_info.c
   codegen/target_info.c
   codegen/x86_64_abi.c
+  codegen/winx86_64_abi.c
   codegen/codegen.c
   codegen/ir_arg_info.c
   codegen/env.c
+  codegen/compute_fun_info.c
   compiler/repl.c
   compiler/jit.c
   compiler/compiler.c

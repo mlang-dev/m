@@ -5,17 +5,23 @@
  *
  * header file for target info
  */
+#ifndef __TARGET_INFO_H__
+#define __TARGET_INFO_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum c_abi_target_kind {
     /// Unix-like http://www.codesourcery.com/public/cxx-abi/
-    ITANIUM, 
+    ITANIUM,
     /// http://infocenter.arm.com/help/topic/com.arm.doc.ihi0041c/IHI0041C_cppabi.pdf
     ARM,
 
     /// partial implementation of ARM
     IOS,
 
-    /// Apple ARM 64bit, 
+    /// Apple ARM 64bit,
     /// http://infocenter.arm.com/help/topic/com.arm.doc.ihi0059a/IHI0059A_cppabi64.pdf
     APPLE_ARM64,
 
@@ -95,7 +101,7 @@ struct target_info {
     unsigned char double_width, double_align;
     unsigned char pointer_width, pointer_align;
 
-    char* target_triple;
+    char *target_triple;
     enum Arch arch;
     enum SubArch sub_arch;
     enum Vendor vendor;
@@ -106,3 +112,9 @@ struct target_info {
 
 struct target_info *ti_new();
 void ti_free(struct target_info *ti);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //__TARGET_INFO_H__
