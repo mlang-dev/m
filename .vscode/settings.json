@@ -120,7 +120,12 @@
         "sema_context.h": "c",
         "codegen.h": "c",
         "support.h": "c",
-        "compute_fun_info.h": "c"
+        "compute_fun_info.h": "c",
+        "util.h": "c",
+        "string.h": "c",
+        "assert.h": "c",
+        "windows.h": "c",
+        "errno.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

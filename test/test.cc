@@ -15,13 +15,13 @@ TEST(testGeneral, testBuildJit)
     env_free(env);
 }
 
-//  TEST(testGeneral, testCallByStruct)
-//  {
-//      const char test_code[] = R"(
+// TEST(testGeneral, testCallByStruct)
+// {
+//     const char test_code[] = R"(
 //  type Point2D = x:double y:double
 //  f xy:Point2D = xy.x
 //  )";
-//      const char *expected_ir = R"(
+//     const char *expected_ir = R"(
 //  define i8 @__f_char(i8 %x) {
 //  entry:
 //    %x1 = alloca i8, align 1
@@ -39,5 +39,5 @@ TEST(testGeneral, testBuildJit)
 //    ret double %0
 //  }
 //  )";
-//      validate_m_code_with_ir_code(test_code, expected_ir);
-//  }
+//     validate_m_code_with_ir_code(test_code, expected_ir);
+// }

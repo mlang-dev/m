@@ -24,8 +24,8 @@ TEST_F(testTypeSizeInfo, testStructTypeSize)
     auto node = *(exp_node **)array_front(&block->nodes);
     analyze(env->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
-    ASSERT_EQ(128, tsi.width);
-    ASSERT_EQ(64, tsi.align);
+    ASSERT_EQ(128, tsi.width_bits);
+    ASSERT_EQ(64, tsi.align_bits);
     env_free(env);
 }
 
@@ -37,8 +37,8 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeCharDouble)
     auto node = *(exp_node **)array_front(&block->nodes);
     analyze(env->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
-    ASSERT_EQ(128, tsi.width);
-    ASSERT_EQ(64, tsi.align);
+    ASSERT_EQ(128, tsi.width_bits);
+    ASSERT_EQ(64, tsi.align_bits);
     env_free(env);
 }
 
@@ -50,8 +50,8 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeCharChar)
     auto node = *(exp_node **)array_front(&block->nodes);
     analyze(env->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
-    ASSERT_EQ(16, tsi.width);
-    ASSERT_EQ(8, tsi.align);
+    ASSERT_EQ(16, tsi.width_bits);
+    ASSERT_EQ(8, tsi.align_bits);
     env_free(env);
 }
 
@@ -63,8 +63,8 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeBoolChar)
     auto node = *(exp_node **)array_front(&block->nodes);
     analyze(env->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
-    ASSERT_EQ(16, tsi.width);
-    ASSERT_EQ(8, tsi.align);
+    ASSERT_EQ(16, tsi.width_bits);
+    ASSERT_EQ(8, tsi.align_bits);
     env_free(env);
 }
 
@@ -76,7 +76,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeCharInt)
     auto node = *(exp_node **)array_front(&block->nodes);
     analyze(env->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
-    ASSERT_EQ(64, tsi.width);
-    ASSERT_EQ(32, tsi.align);
+    ASSERT_EQ(64, tsi.width_bits);
+    ASSERT_EQ(32, tsi.align_bits);
     env_free(env);
 }

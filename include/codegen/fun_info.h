@@ -28,6 +28,7 @@ extern const unsigned ALL_REQUIRED;
 
 struct fun_info {
     struct ast_abi_arg ret;
+    struct ir_arg_info iai;
     struct array args; //array of ast_abi_arg
     bool is_chain_call;
     unsigned required_args; //required number of arguments: ~0U meaning all are requireed in args array
@@ -37,7 +38,6 @@ bool is_variadic(struct fun_info *fi);
 
 void fun_info_init(struct fun_info *fi, unsigned required_args);
 void fun_info_deinit(struct fun_info *fi);
-void map_to_ir_arg_info(struct fun_info *fi, struct ir_arg_info *iai);
 
 struct fun_info *get_fun_info(struct prototype_node *proto);
 LLVMTypeRef get_fun_type(struct fun_info *fi);

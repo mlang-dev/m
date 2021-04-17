@@ -2,7 +2,7 @@
 #include "codegen/codegen.h"
 #include "codegen/compute_fun_info.h"
 #include "codegen/ir_arg_info.h"
-#include "sys.h"
+#include "util.h"
 #include <assert.h>
 
 const unsigned ALL_REQUIRED = ~0U;
@@ -12,6 +12,7 @@ void fun_info_init(struct fun_info *fi, unsigned required_args)
     fi->is_chain_call = false;
     fi->required_args = required_args;
     array_init(&fi->args, sizeof(struct ast_abi_arg));
+    ir_arg_info_init(&fi->iai);
 }
 
 void fun_info_deinit(struct fun_info *fi)
@@ -22,6 +23,55 @@ void fun_info_deinit(struct fun_info *fi)
 bool is_variadic(struct fun_info *fi)
 {
     return fi->required_args != ALL_REQUIRED;
+}
+
+void _map_to_ir_arg_info(struct fun_info *fi)
+{
+    unsigned ir_arg_no = 0;
+    if (fi->ret.info.kind == AK_INDIRECT)
+        fi->iai.sret_arg_no = ir_arg_no++;
+
+    unsigned arg_no = 0;
+    unsigned arg_num = array_size(&fi->args);
+    for (unsigned i = 0; i < arg_num; i++) {
+        struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
+        struct ir_arg_range iar;
+        ir_arg_range_init(&iar);
+        if (get_padding_type(&aa->info))
+            iar.padding_arg_index = ir_arg_no++;
+        switch (aa->info.kind) {
+        case AK_EXTEND:
+        case AK_DIRECT: {
+            if (aa->info.kind == AK_DIRECT && aa->info.can_be_flattened && LLVMGetTypeKind(aa->info.type) == LLVMStructTypeKind) {
+                iar.arg_num = LLVMCountStructElementTypes(aa->info.type);
+            } else {
+                iar.arg_num = 1;
+            }
+            break;
+        }
+        case AK_INDIRECT:
+        case AK_INDIRECT_ALIASED:
+            iar.arg_num = 1;
+            break;
+        case AK_IGNORE:
+        case AK_INALLOCA:
+            iar.arg_num = 0;
+            break;
+        case AK_COERCE_AND_EXPAND:
+            //TODO: different than LLVMGetStructElementTypes returned number of types ?
+            iar.arg_num = LLVMCountStructElementTypes(aa->info.type);
+            break;
+        case AK_EXPAND:
+            iar.arg_num = get_expansion_size(aa->type);
+            break;
+        }
+        if (iar.arg_num > 0) {
+            iar.first_arg_index = ir_arg_no;
+            ir_arg_no += iar.arg_num;
+        }
+        array_push(&fi->iai.args, &iar);
+    }
+    fi->iai.total_ir_args = ir_arg_no;
 }
 
 struct fun_info *get_fun_info(struct prototype_node *proto)
@@ -43,6 +93,17 @@ struct fun_info *get_fun_info(struct prototype_node *proto)
         array_push(&fi.args, &aa);
     }
     compute_fun_info(&fi);
+    // direct or extend without a specified coerce type, specify the
+    // default now.
+    if (can_have_coerce_to_type(&fi.ret.info) && !fi.ret.info.type)
+        fi.ret.info.type = get_llvm_type(fi.ret.type);
+    unsigned arg_num = array_size(&fi.args);
+    for (unsigned i = 0; i < arg_num; i++) {
+        struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi.args, i);
+        if (can_have_coerce_to_type(&aa->info) && !aa->info.type)
+            aa->info.type = get_llvm_type(aa->type);
+    }
+    _map_to_ir_arg_info(&fi);
     hashtable_set_p(fun_infos, proto->name, &fi);
     return (struct fun_info *)hashtable_get_p(fun_infos, proto->name);
 }
@@ -70,13 +131,10 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
         break;
     }
 
-    struct ir_arg_info iai;
-    ir_arg_info_init(&iai);
-    map_to_ir_arg_info(fi, &iai);
     struct array arg_types;
     array_init(&arg_types, sizeof(LLVMTypeRef *));
-    if (iai.sret_arg_no != InvalidIndex) {
-        assert(iai.sret_arg_no == 0);
+    if (fi->iai.sret_arg_no != InvalidIndex) {
+        assert(fi->iai.sret_arg_no == 0);
         //TODO: fixme address space
         LLVMTypeRef ret_type = LLVMPointerType(get_llvm_type(fi->ret.type), 0);
         array_push(&arg_types, &ret_type);
@@ -85,7 +143,7 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
     unsigned arg_num = array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range *iar = get_ir_arg_range(&iai, i);
+        struct ir_arg_range *iar = get_ir_arg_range(&fi->iai, i);
         if (iar->padding_arg_index != InvalidIndex) {
             assert(iar->padding_arg_index == array_size(&arg_types));
             array_push(&arg_types, &aa->info.padding_type);
@@ -144,58 +202,9 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
             break;
         }
     }
-    assert(iai.total_ir_args == array_size(&arg_types));
+    assert(fi->iai.total_ir_args == array_size(&arg_types));
     assert(ret_type);
-    LLVMTypeRef fun_type = LLVMFunctionType(ret_type, iai.total_ir_args ? array_get(&arg_types, 0) : 0, iai.total_ir_args, is_variadic(fi));
+    LLVMTypeRef fun_type = LLVMFunctionType(ret_type, fi->iai.total_ir_args ? array_get(&arg_types, 0) : 0, fi->iai.total_ir_args, is_variadic(fi));
     array_deinit(&arg_types);
     return fun_type;
-}
-
-void map_to_ir_arg_info(struct fun_info *fi, struct ir_arg_info *iai)
-{
-    unsigned ir_arg_no = 0;
-    if (fi->ret.info.kind == AK_INDIRECT)
-        iai->sret_arg_no = ir_arg_no++;
-
-    unsigned arg_no = 0;
-    unsigned arg_num = array_size(&fi->args);
-    for (unsigned i = 0; i < arg_num; i++) {
-        struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range iar;
-        ir_arg_range_init(&iar);
-        if (get_padding_type(&aa->info))
-            iar.padding_arg_index = ir_arg_no++;
-        switch (aa->info.kind) {
-        case AK_EXTEND:
-        case AK_DIRECT: {
-            if (aa->info.kind == AK_DIRECT && aa->info.can_be_flattened && LLVMGetTypeKind(aa->info.type) == LLVMStructTypeKind) {
-                iar.arg_num = LLVMCountStructElementTypes(aa->info.type);
-            } else {
-                iar.arg_num = 1;
-            }
-            break;
-        }
-        case AK_INDIRECT:
-        case AK_INDIRECT_ALIASED:
-            iar.arg_num = 1;
-            break;
-        case AK_IGNORE:
-        case AK_INALLOCA:
-            iar.arg_num = 0;
-            break;
-        case AK_COERCE_AND_EXPAND:
-            //TODO: different than LLVMGetStructElementTypes returned number of types ?
-            iar.arg_num = LLVMCountStructElementTypes(aa->info.type);
-            break;
-        case AK_EXPAND:
-            iar.arg_num = get_expansion_size(aa->type);
-            break;
-        }
-        if (iar.arg_num > 0) {
-            iar.first_arg_index = ir_arg_no;
-            ir_arg_no += iar.arg_num;
-        }
-        array_push(&iai->args, &iar);
-    }
-    iai->total_ir_args = ir_arg_no;
 }

@@ -4,7 +4,7 @@
 #include "codegen/type_size_info.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
-#include "sys.h"
+#include "util.h"
 #include <assert.h>
 
 struct env *g_env = 0;

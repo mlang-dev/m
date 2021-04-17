@@ -3,16 +3,16 @@
  *
  * mlang driver, command line to run as an intepreter or compiler options
  */
-#include <stdlib.h>
-#include <string.h>
 #include "clib/array.h"
 #include "clib/object.h"
 #include "compiler/compiler.h"
-#include "compiler/repl.h"
 #include "compiler/ld.h"
-#include "sys.h"
+#include "compiler/repl.h"
+#include "util.h"
+#include <stdlib.h>
+#include <string.h>
 
-extern char* optarg;
+extern char *optarg;
 extern int optind, opterr, optopt;
 
 void print_usage()
@@ -22,24 +22,24 @@ void print_usage()
     exit(2);
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     //printf("from location: %s\n", get_exec_path());
     int c;
     int fflag = 0;
     enum object_file_type file_type = FT_OBJECT;
     struct array src_files;
-    array_init(&src_files, sizeof(char*));
+    array_init(&src_files, sizeof(char *));
     struct array ld_options;
-    array_init(&ld_options, sizeof(char*));
+    array_init(&ld_options, sizeof(char *));
     bool use_ld = false;
 #ifdef __APPLE__
-    const char* ld_cmd = "ld64.lld.darwinnew";
+    const char *ld_cmd = "ld64.lld.darwinnew";
     const char *finalization = "-lSystem";
     array_push(&ld_options, &ld_cmd);
 #elif defined(_WIN32)
     char output[PATH_MAX];
-    char* output_str = &output[0];
+    char *output_str = &output[0];
     strcpy(output, "/OUT:");
     const char *ld_cmd = "link.exe";
     const char *entry_main = "/ENTRY:main";
@@ -51,10 +51,10 @@ int main(int argc, char* argv[])
     array_push(&ld_options, &libstdio);
     array_push(&ld_options, &libc);
 #elif defined(__linux__)
-    const char* ld_cmd = "ld.lld";
+    const char *ld_cmd = "ld.lld";
     const char *libcpath = "-L/usr/lib/x86_64-linux-gnu";
     const char *libc = "-lc";
-    const char *dynamic_link = "-dynamic-linker"; //only elf 
+    const char *dynamic_link = "-dynamic-linker"; //only elf
     const char *libld = "/lib64/ld-linux-x86-64.so.2";
     const char *start_entry = "/usr/lib/x86_64-linux-gnu/crt1.o";
     const char *initialization = "/usr/lib/x86_64-linux-gnu/crti.o";
@@ -84,14 +84,14 @@ int main(int argc, char* argv[])
                 break;
             }
             case 'o': {
-            #ifdef _WIN32
+#ifdef _WIN32
                 strcat(output, optarg);
                 array_push(&ld_options, &output_str);
-            #else
-                const char* output = "-o";
+#else
+                const char *output = "-o";
                 array_push(&ld_options, &output);
                 array_push(&ld_options, &optarg);
-            #endif
+#endif
                 use_ld = true;
                 break;
             }
@@ -112,24 +112,24 @@ int main(int argc, char* argv[])
         if (!file_type)
             file_type = FT_OBJECT;
         for (size_t i = 0; i < array_size(&src_files); i++) {
-            const char* fn = *(const char**)array_get(&src_files, i);
+            const char *fn = *(const char **)array_get(&src_files, i);
             if (access(fn, F_OK) == -1) {
                 printf("file: %s does not exist\n", fn);
                 exit(1);
             }
             result = compile(fn, file_type);
-            char* basename = get_basename((char*)fn);
-            char* obj_name = strcat(basename, ".o");
+            char *basename = get_basename((char *)fn);
+            char *obj_name = strcat(basename, ".o");
             array_push(&ld_options, &obj_name);
             break;
         }
     }
     //do linker
-    if (file_type == FT_OBJECT && use_ld){
-        if(finalization)
+    if (file_type == FT_OBJECT && use_ld) {
+        if (finalization)
             array_push(&ld_options, &finalization);
         int ld_argc = array_size(&ld_options);
-        const char** ld_argv = (const char**)array_get(&ld_options, 0);
+        const char **ld_argv = (const char **)array_get(&ld_options, 0);
         result = ld(ld_argc, ld_argv);
     }
     array_deinit(&src_files);

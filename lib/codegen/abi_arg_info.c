@@ -56,10 +56,10 @@ struct abi_arg_info create_extend(struct type_exp *ret_type)
     return aai;
 }
 
-struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type)
+struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type, bool indirect_byval)
 {
     uint64_t align_bytes = get_type_align(ret_type) / 8;
-    return _create_indirect(align_bytes, true, false, 0);
+    return _create_indirect(align_bytes, indirect_byval, false, 0);
 }
 
 struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type)
@@ -70,7 +70,7 @@ struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type)
         else
             return create_direct();
     }
-    return create_natural_align_indirect(ret_type);
+    return create_natural_align_indirect(ret_type, false);
 }
 
 struct abi_arg_info create_indirect_result(struct type_exp *type, unsigned free_int_regs)
@@ -124,4 +124,9 @@ void get_coerce_and_expand_types(struct abi_arg_info *aai, LLVMTypeRef *types)
         LLVMGetStructElementTypes(aai->coerce_and_expand_type, types);
     else
         types[0] = aai->coerce_and_expand_type;
+}
+
+bool can_have_coerce_to_type(struct abi_arg_info *aai)
+{
+    return aai->kind == AK_DIRECT || aai->kind == AK_EXTEND || aai->kind == AK_COERCE_AND_EXPAND;
 }

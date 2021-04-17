@@ -32,6 +32,11 @@ typedef LLVMValueRef (*get_const)(LLVMContextRef context, LLVMBuilderRef builder
 typedef LLVMValueRef (*get_zero)(LLVMContextRef context, LLVMBuilderRef builder);
 typedef LLVMValueRef (*get_one)(LLVMContextRef context);
 
+struct aligned_pointer {
+    LLVMValueRef pointer;
+    unsigned alignment;
+};
+
 struct ops {
     get_ir_type get_type;
     get_const get_const;

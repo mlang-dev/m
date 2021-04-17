@@ -65,6 +65,7 @@ add_library(mlr
   win/getopt.c
   win/libfmemopen.c
   sys/getpath.c
+  sys/util.c
  )
 
 include_directories(

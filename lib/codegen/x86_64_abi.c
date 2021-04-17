@@ -63,7 +63,7 @@ void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum 
     else if (te->type == TYPE_EXT) {
         struct type_oper *to = (struct type_oper *)te;
         struct type_size_info tsi = get_type_size_info(te);
-        uint64_t size = tsi.width;
+        uint64_t size = tsi.width_bits;
         if (size > 512)
             return;
         struct struct_layout *sl = layout_struct(to);
@@ -347,7 +347,7 @@ struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free
 }
 
 ///compute abi info
-void x86_64_update_abi_info(struct fun_info *fi)
+void x86_64_compute_fun_info(struct fun_info *fi)
 {
     unsigned free_int_regs = 6;
     unsigned free_sse_regs = 8;

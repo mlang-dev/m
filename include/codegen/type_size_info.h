@@ -10,8 +10,8 @@ extern "C" {
 
 //type size info
 struct type_size_info {
-    uint64_t width;
-    unsigned align;
+    uint64_t width_bits;
+    unsigned align_bits;
     bool align_required;
 };
 

@@ -1,25 +1,25 @@
 #include "codegen/target_info.h"
-#include "sys.h"
-#include <llvm-c/TargetMachine.h>
 #include "clib/string.h"
+#include "util.h"
+#include <llvm-c/TargetMachine.h>
 #include <string.h>
 
 //x86_64-pc-windows-msvc
 //x86_64-apple-darwin19.6.0
 //x86_64-unknown-linux-gnu
-enum Arch _parse_arch(string* arch)
+enum Arch _parse_arch(string *arch)
 {
     const char *a = string_get(arch);
     if (strcmp(a, "amd64") == 0 || strcmp(a, "amd64") == 0 || strcmp(a, "amd64") == 0)
         return ARCH_X86_64;
-    else if(strcmp(a, "i386") == 0 || strcmp(a, "i486") == 0 || strcmp(a, "i586") == 0 || strcmp(a, "i686") == 0)
+    else if (strcmp(a, "i386") == 0 || strcmp(a, "i486") == 0 || strcmp(a, "i586") == 0 || strcmp(a, "i686") == 0)
         return ARCH_X86;
-    else if(strcmp(a, "i786") == 0 || strcmp(a, "i886") == 0 || strcmp(a, "i986") == 0)
+    else if (strcmp(a, "i786") == 0 || strcmp(a, "i886") == 0 || strcmp(a, "i986") == 0)
         return ARCH_X86;
     return ARCH_NONE;
 }
 
-enum SubArch _parse_subarch(string* sub_arch)
+enum SubArch _parse_subarch(string *sub_arch)
 {
     return SUBARCH_NONE;
 }
@@ -92,7 +92,7 @@ void _parse_triple(struct target_info *ti)
     string_init_chars(&str, ti->target_triple);
     struct array ar = string_split(&str, '-');
     int item_num = array_size(&ar);
-    if(item_num){
+    if (item_num) {
         string *arch = array_get(&ar, 0);
         ti->arch = _parse_arch(arch);
         ti->sub_arch = _parse_subarch(arch);
@@ -104,11 +104,10 @@ void _parse_triple(struct target_info *ti)
             ti->os = _parse_os(array_get(&ar, 2));
         else
             ti->os = OS_NONE;
-        if (item_num > 3){
+        if (item_num > 3) {
             ti->env = _parse_env(array_get(&ar, 3));
             ti->oft = _parse_oft(array_get(&ar, 3));
-        }
-        else{
+        } else {
             ti->env = ENV_NONE;
             ti->oft = OFT_NONE;
         }
@@ -123,7 +122,7 @@ struct target_info *ti_new()
     ti->target_triple = LLVMGetDefaultTargetTriple();
     _parse_triple(ti);
     bool is64 = ti->arch == ARCH_X86_64;
-    ti->unit_width = 0; 
+    ti->unit_width = 0;
     ti->unit_align = 8;
     ti->char_width = 8;
     ti->char_align = 8;
@@ -135,7 +134,7 @@ struct target_info *ti_new()
     ti->double_align = is64 ? 64 : 32;
 
     //FIXME: or 32 depending on pointer size (32arch or 64arch)
-    ti->pointer_width = is64 ? 64 : 32; 
+    ti->pointer_width = is64 ? 64 : 32;
     ti->pointer_align = is64 ? 64 : 32;
     return ti;
 }
@@ -144,5 +143,3 @@ void ti_free(struct target_info *ti)
 {
     free(ti);
 }
-
-

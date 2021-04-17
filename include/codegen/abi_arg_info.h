@@ -52,11 +52,12 @@ struct abi_arg_info create_direct();
 struct abi_arg_info create_extend(struct type_exp *ret_type);
 struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type);
 struct abi_arg_info create_indirect_result(struct type_exp *ret_type, unsigned free_int_regs);
-struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type);
+struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type, bool indirect_byval);
 struct abi_arg_info create_ignore();
 
 bool can_have_padding_type(struct abi_arg_info *aai);
 LLVMTypeRef get_padding_type(struct abi_arg_info *aai);
 void get_coerce_and_expand_types(struct abi_arg_info *aai, LLVMTypeRef *types);
+bool can_have_coerce_to_type(struct abi_arg_info *aai);
 
 #endif //__MLANG_ABI_ARG_INFO_H__

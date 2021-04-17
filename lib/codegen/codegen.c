@@ -21,7 +21,7 @@ struct code_generator *g_cg = 0;
 LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct var_node *node,
     bool is_external);
 LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *node);
-LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *node);
+LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi);
 LLVMValueRef _emit_block_node(struct code_generator *cg, struct exp_node *block);
 
 LLVMContextRef get_llvm_context()
@@ -395,7 +395,7 @@ LLVMValueRef _get_function(struct code_generator *cg, const char *name)
         return f;
     struct exp_node *fp = (struct exp_node *)hashtable_get(&cg->protos, name);
     if (fp)
-        return _emit_prototype_node(cg, fp);
+        return _emit_prototype_node(cg, fp, 0);
     return 0;
 }
 
@@ -431,16 +431,45 @@ LLVMValueRef _create_entry_block_alloca(
     return alloca;
 }
 
+void _emit_param(struct type_oper *to)
+{
+    struct aligned_pointer ap = { 0, 0 };
+}
+
 void _create_argument_allocas(struct code_generator *cg, struct prototype_node *node,
-    LLVMValueRef fun)
+    struct fun_info *fi, LLVMValueRef fun)
 {
     struct type_oper *proto_type = (struct type_oper *)node->base.type;
     //assert (LLVMCountParams(fun) == array_size(&proto_type->args) - 1);
-    for (unsigned i = 0; i < LLVMCountParams(fun); i++) {
+    unsigned param_count = array_size(&fi->args);
+    struct array params;
+    array_init(&params, sizeof(struct aligned_pointer));
+    for (unsigned i = 0; i < param_count; i++) {
         struct var_node *param = (struct var_node *)array_get(&node->fun_params, i);
         struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
+        struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
+        struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
+        unsigned first_ir_arg = iar->first_arg_index;
+        unsigned arg_num = iar->arg_num;
+        switch (aaa->info.kind) {
+        case AK_INDIRECT:
+        case AK_INDIRECT_ALIASED: {
+            assert(arg_num == 1);
+            struct aligned_pointer param;
+            param.pointer = LLVMGetParam(fun, first_ir_arg);
+            param.alignment = aaa->info.indirect_align;
+            if (proto_type->base.type < TYPE_EXT) { //aggregate
+                //
+                if (aaa->info.indirect_realign || aaa->info.kind == AK_INDIRECT_ALIASED) {
+                    //realign the value, if the address is aliased, copy the param to ensure
+                    //a unique address
+                } else {
+                }
+            }
+            array_push(&params, &param);
+        }
+        }
         enum type type = get_type(type_exp);
-        //assert(type_exp && type_exp->type >= 0 && type_exp->type < TYPE_TYPES);
         //TODO: fix the inconsistency enum type type = get_type(param->base.type);
         LLVMValueRef alloca = _create_entry_block_alloca(
             cg->ops[type].get_type(cg->context, type_exp), fun, string_get(param->var_name));
@@ -461,6 +490,7 @@ void _create_argument_allocas(struct code_generator *cg, struct prototype_node *
         LLVMBuildStore(cg->builder, LLVMGetParam(fun, i), alloca);
         hashtable_set(&cg->named_values, string_get(param->var_name), alloca);
     }
+    array_deinit(&params);
 }
 
 LLVMValueRef _emit_literal_node(struct code_generator *cg, struct exp_node *node)
@@ -590,7 +620,7 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
     }
 }
 
-LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi)
 {
     struct prototype_node *proto = (struct prototype_node *)node;
     assert(proto->base.type);
@@ -598,11 +628,19 @@ LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *no
     struct type_oper *proto_type = (struct type_oper *)proto->base.type;
     assert(proto_type->base.kind == KIND_OPER);
     struct fun_info *fi = get_fun_info(proto);
+    if (out_fi)
+        *out_fi = fi;
     assert(fi);
     LLVMTypeRef fun_type = get_fun_type(fi);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(proto->name), fun_type);
-    unsigned paramCount = LLVMCountParams(fun);
-    for (unsigned i = 0; i < paramCount; i++) {
+    if (fi->iai.sret_arg_no != InvalidIndex) {
+        LLVMValueRef ai = LLVMGetParam(fun, fi->iai.sret_arg_no);
+        const char *sret_var = "agg.result";
+        LLVMSetValueName2(ai, sret_var, strlen(sret_var));
+        //TODO add noalias attribute to the var
+    }
+    unsigned param_count = array_size(&fi->args);
+    for (unsigned i = 0; i < param_count; i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
         struct var_node *fun_param = (struct var_node *)array_get(&proto->fun_params, i);
         LLVMSetValueName2(param, string_get(fun_param->var_name), string_size(fun_param->var_name));
@@ -618,12 +656,13 @@ LLVMValueRef _emit_function_node(struct code_generator *cg, struct exp_node *nod
     }
     assert(fun_node->base.type->kind == KIND_OPER);
     hashtable_clear(&cg->named_values);
-    LLVMValueRef fun = _emit_prototype_node(cg, (struct exp_node *)fun_node->prototype);
-    assert(fun);
+    struct fun_info *fi = 0;
+    LLVMValueRef fun = _emit_prototype_node(cg, (struct exp_node *)fun_node->prototype, &fi);
+    assert(fun && fi);
 
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
     LLVMPositionBuilderAtEnd(cg->builder, bb);
-    _create_argument_allocas(cg, fun_node->prototype, fun);
+    _create_argument_allocas(cg, fun_node->prototype, fi, fun);
     LLVMValueRef ret_val = 0;
     for (size_t i = 0; i < array_size(&fun_node->body->nodes); i++) {
         struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->body->nodes, i);
@@ -1002,7 +1041,7 @@ LLVMTypeRef get_llvm_type_for_abi(struct type_exp *type)
     assert(g_cg);
     struct type_size_info tsi = get_type_size_info(type);
     if (type->type == TYPE_BOOL) //bool type is 1 bit size in llvm but we need to comply with abi size
-        return LLVMIntTypeInContext(get_llvm_context(), tsi.width);
+        return LLVMIntTypeInContext(get_llvm_context(), tsi.width_bits);
     return _get_llvm_type(g_cg, type);
 }
 

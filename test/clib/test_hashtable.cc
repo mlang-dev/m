@@ -184,13 +184,13 @@ TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
     hashtable ht;
     hashtable_init_with_value_size(&ht, sizeof(struct type_size_info), 0);
     struct type_size_info tsi;
-    tsi.width = 64;
-    tsi.align = 64;
+    tsi.width_bits = 64;
+    tsi.align_bits = 64;
     symbol type_name = to_symbol("double");
     hashtable_set_p(&ht, type_name, &tsi);
     struct type_size_info *result = (struct type_size_info *)hashtable_get_p(&ht, type_name);
-    ASSERT_EQ(64, result->width);
-    ASSERT_EQ(64, result->align);
+    ASSERT_EQ(64, result->width_bits);
+    ASSERT_EQ(64, result->align_bits);
     hashtable_deinit(&ht);
     symbols_deinit();
 }

@@ -15,8 +15,8 @@
 extern "C" {
 #endif
 
-void winx86_64_update_abi_info(struct fun_info *fi);
-void x86_64_update_abi_info(struct fun_info *fi);
+void winx86_64_compute_fun_info(struct fun_info *fi);
+void x86_64_compute_fun_info(struct fun_info *fi);
 void compute_fun_info(struct fun_info *fi);
 
 #ifdef __cplusplus
