@@ -10,6 +10,9 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
+#include "codegen/cg_call.h"
+#include "codegen/cg_fun.h"
+#include "codegen/cg_var.h"
 #include "codegen/codegen.h"
 #include "codegen/fun_info.h"
 #include "codegen/type_size_info.h"
@@ -17,12 +20,6 @@
 #include <llvm-c/Support.h>
 
 struct code_generator *g_cg = 0;
-
-LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct var_node *node,
-    bool is_external);
-LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *node);
-LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi);
-LLVMValueRef _emit_block_node(struct code_generator *cg, struct exp_node *block);
 
 LLVMContextRef get_llvm_context()
 {
@@ -388,109 +385,20 @@ LLVMTypeRef _get_llvm_type(struct code_generator *cg, struct type_exp *type)
     return cg->ops[en_type].get_type(cg->context, type);
 }
 
-LLVMValueRef _get_function(struct code_generator *cg, const char *name)
+LLVMValueRef _emit_block_node(struct code_generator *cg, struct exp_node *node)
 {
-    LLVMValueRef f = LLVMGetNamedFunction(cg->module, name);
-    if (f)
-        return f;
-    struct exp_node *fp = (struct exp_node *)hashtable_get(&cg->protos, name);
-    if (fp)
-        return _emit_prototype_node(cg, fp, 0);
-    return 0;
-}
-
-LLVMValueRef _get_named_global(struct code_generator *cg, const char *name)
-{
-    return LLVMGetNamedGlobal(cg->module, name);
-}
-
-LLVMValueRef _get_global_variable(struct code_generator *cg, const char *name)
-{
-    LLVMValueRef gv = _get_named_global(cg, name);
-    if (gv)
-        return gv;
-    struct var_node *var = (struct var_node *)hashtable_get(&cg->gvs, name);
-    if (var) {
-        LLVMTypeRef type = _get_llvm_type(cg, var->base.type);
-        gv = LLVMAddGlobal(cg->module, type, name);
-        return gv;
+    struct block_node *block = (struct block_node *)node;
+    LLVMValueRef codegen = 0;
+    for (size_t i = 0; i < array_size(&block->nodes); i++) {
+        struct exp_node *exp = *(struct exp_node **)array_get(&block->nodes, i);
+        codegen = emit_ir_code(cg, exp);
     }
-    return 0;
-}
-
-LLVMValueRef _create_entry_block_alloca(
-    LLVMTypeRef type,
-    LLVMValueRef fun,
-    const char *var_name)
-{
-    LLVMBuilderRef builder = LLVMCreateBuilder();
-    LLVMBasicBlockRef bb = LLVMGetEntryBasicBlock(fun);
-    LLVMPositionBuilder(builder, bb, LLVMGetFirstInstruction(bb));
-    LLVMValueRef alloca = LLVMBuildAlloca(builder, type, var_name);
-    LLVMDisposeBuilder(builder);
-    return alloca;
+    return codegen;
 }
 
 void _emit_param(struct type_oper *to)
 {
     struct aligned_pointer ap = { 0, 0 };
-}
-
-void _create_argument_allocas(struct code_generator *cg, struct prototype_node *node,
-    struct fun_info *fi, LLVMValueRef fun)
-{
-    struct type_oper *proto_type = (struct type_oper *)node->base.type;
-    //assert (LLVMCountParams(fun) == array_size(&proto_type->args) - 1);
-    unsigned param_count = array_size(&fi->args);
-    struct array params;
-    array_init(&params, sizeof(struct aligned_pointer));
-    for (unsigned i = 0; i < param_count; i++) {
-        struct var_node *param = (struct var_node *)array_get(&node->fun_params, i);
-        struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
-        struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
-        unsigned first_ir_arg = iar->first_arg_index;
-        unsigned arg_num = iar->arg_num;
-        switch (aaa->info.kind) {
-        case AK_INDIRECT:
-        case AK_INDIRECT_ALIASED: {
-            assert(arg_num == 1);
-            struct aligned_pointer param;
-            param.pointer = LLVMGetParam(fun, first_ir_arg);
-            param.alignment = aaa->info.indirect_align;
-            if (proto_type->base.type < TYPE_EXT) { //aggregate
-                //
-                if (aaa->info.indirect_realign || aaa->info.kind == AK_INDIRECT_ALIASED) {
-                    //realign the value, if the address is aliased, copy the param to ensure
-                    //a unique address
-                } else {
-                }
-            }
-            array_push(&params, &param);
-        }
-        }
-        enum type type = get_type(type_exp);
-        //TODO: fix the inconsistency enum type type = get_type(param->base.type);
-        LLVMValueRef alloca = _create_entry_block_alloca(
-            cg->ops[type].get_type(cg->context, type_exp), fun, string_get(param->var_name));
-
-        // Create a debug descriptor for the variable.
-        /*DIScope *Scope = KSDbgInfo.LexicalBlocks.back();
-    DIFile *Unit = DBuilder->createFile(KSDbgInfo.TheCU->getFilename(),
-                                        KSDbgInfo.TheCU->getDirectory());
-    DILocalVariable *D = DBuilder->createLocalVariable(
-                                                       dwarf::DW_TAG_arg_variable,
-    Scope, Args[Idx], Unit, Line, KSDbgInfo.getDoubleTy(), Idx);
-
-    DBuilder->insertDeclare(Alloca, D, DBuilder->createExpression(),
-                            DebugLoc::get(Line, 0, Scope),
-                            Builder.GetInsertBlock());
-    */
-
-        LLVMBuildStore(cg->builder, LLVMGetParam(fun, i), alloca);
-        hashtable_set(&cg->named_values, string_get(param->var_name), alloca);
-    }
-    array_deinit(&params);
 }
 
 LLVMValueRef _emit_literal_node(struct code_generator *cg, struct exp_node *node)
@@ -518,7 +426,7 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
     const char *idname = string_get(id);
     LLVMValueRef v = (LLVMValueRef)hashtable_get(&cg->named_values, idname);
     if (!v) {
-        v = _get_global_variable(cg, idname);
+        v = get_global_variable(cg, idname);
         assert(v);
     }
     if (array_size(&ident->member_accessors) > 1) {
@@ -549,7 +457,7 @@ LLVMValueRef _emit_unary_node(struct code_generator *cg, struct exp_node *node)
     string fname;
     string_init_chars(&fname, "unary");
     string_add(&fname, unary->op);
-    LLVMValueRef fun = _get_function(cg, string_get(&fname));
+    LLVMValueRef fun = get_llvm_function(cg, string_get(&fname));
     if (fun == 0)
         return log_info(ERROR, "Unknown unary operator");
 
@@ -613,88 +521,11 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
         string f_name;
         string_init_chars(&f_name, "binary");
         string_add(&f_name, bin->op);
-        LLVMValueRef fun = _get_function(cg, string_get(&f_name));
+        LLVMValueRef fun = get_llvm_function(cg, string_get(&f_name));
         assert(fun && "binary operator not found!");
         LLVMValueRef ops[2] = { lv, rv };
         return LLVMBuildCall(cg->builder, fun, ops, 2, "binop");
     }
-}
-
-LLVMValueRef _emit_prototype_node(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi)
-{
-    struct prototype_node *proto = (struct prototype_node *)node;
-    assert(proto->base.type);
-    hashtable_set(&cg->protos, string_get(proto->name), proto);
-    struct type_oper *proto_type = (struct type_oper *)proto->base.type;
-    assert(proto_type->base.kind == KIND_OPER);
-    struct fun_info *fi = get_fun_info(proto);
-    if (out_fi)
-        *out_fi = fi;
-    assert(fi);
-    LLVMTypeRef fun_type = get_fun_type(fi);
-    LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(proto->name), fun_type);
-    if (fi->iai.sret_arg_no != InvalidIndex) {
-        LLVMValueRef ai = LLVMGetParam(fun, fi->iai.sret_arg_no);
-        const char *sret_var = "agg.result";
-        LLVMSetValueName2(ai, sret_var, strlen(sret_var));
-        //TODO add noalias attribute to the var
-    }
-    unsigned param_count = array_size(&fi->args);
-    for (unsigned i = 0; i < param_count; i++) {
-        LLVMValueRef param = LLVMGetParam(fun, i);
-        struct var_node *fun_param = (struct var_node *)array_get(&proto->fun_params, i);
-        LLVMSetValueName2(param, string_get(fun_param->var_name), string_size(fun_param->var_name));
-    }
-    return fun;
-}
-
-LLVMValueRef _emit_function_node(struct code_generator *cg, struct exp_node *node)
-{
-    struct function_node *fun_node = (struct function_node *)node;
-    if (is_generic(node->type)) {
-        return 0;
-    }
-    assert(fun_node->base.type->kind == KIND_OPER);
-    hashtable_clear(&cg->named_values);
-    struct fun_info *fi = 0;
-    LLVMValueRef fun = _emit_prototype_node(cg, (struct exp_node *)fun_node->prototype, &fi);
-    assert(fun && fi);
-
-    LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
-    LLVMPositionBuilderAtEnd(cg->builder, bb);
-    _create_argument_allocas(cg, fun_node->prototype, fi, fun);
-    LLVMValueRef ret_val = 0;
-    for (size_t i = 0; i < array_size(&fun_node->body->nodes); i++) {
-        struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->body->nodes, i);
-        ret_val = emit_ir_code(cg, stmt);
-    }
-    if (!ret_val) {
-        struct type_exp *ret_type = get_ret_type(fun_node);
-        enum type type = get_type(ret_type);
-        ret_val = cg->ops[type].get_zero(cg->context, cg->builder);
-    }
-    assert(ret_val);
-    LLVMBuildRet(cg->builder, ret_val);
-    return fun;
-}
-
-LLVMValueRef _emit_call_node(struct code_generator *cg, struct exp_node *node)
-{
-    struct call_node *call = (struct call_node *)node;
-    assert(call->callee_decl);
-    symbol callee_name = get_callee(call);
-    struct fun_info *fi = get_fun_info(call->callee_decl);
-    assert(fi);
-    LLVMValueRef callee = _get_function(cg, string_get(callee_name));
-    assert(callee);
-    LLVMValueRef *arg_values = malloc(array_size(&call->args) * sizeof(LLVMValueRef));
-    for (size_t i = 0, e = array_size(&call->args); i != e; ++i) {
-        struct exp_node *arg = *(struct exp_node **)array_get(&call->args, i);
-        arg_values[i] = emit_ir_code(cg, arg);
-    }
-    LLVMValueRef value = LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "");
-    free(arg_values);
-    return value;
 }
 
 LLVMValueRef _emit_condition_node(struct code_generator *cg, struct exp_node *node)
@@ -736,117 +567,6 @@ LLVMValueRef _emit_condition_node(struct code_generator *cg, struct exp_node *no
     return phi_node;
 }
 
-LLVMValueRef _get_zero_value_ext_type(struct code_generator *cg, LLVMTypeRef type, struct type_oper *type_ext)
-{
-    size_t element_count = array_size(&type_ext->args);
-    LLVMValueRef *values = malloc(element_count * sizeof(LLVMValueRef));
-    for (size_t i = 0; i < element_count; i++) {
-        enum type element_type = get_type(*(struct type_exp **)array_get(&type_ext->args, i));
-        //values[i] = LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0 * (i+1));
-        values[i] = cg->ops[element_type].get_zero(cg->context, cg->builder);
-    }
-    LLVMValueRef value = LLVMConstNamedStruct(type, values, element_count);
-    free(values);
-    return value;
-}
-
-LLVMValueRef _get_const_value_ext_type(struct code_generator *cg, LLVMTypeRef type, struct type_value_node *struct_values)
-{
-    size_t element_count = array_size(&struct_values->body->nodes);
-    LLVMValueRef *values = malloc(element_count * sizeof(LLVMValueRef));
-    for (size_t i = 0; i < element_count; i++) {
-        struct exp_node *arg = *(struct exp_node **)array_get(&struct_values->body->nodes, i);
-        values[i] = emit_ir_code(cg, arg);
-    }
-    LLVMValueRef value = LLVMConstNamedStruct(type, values, element_count);
-    free(values);
-    return value;
-}
-
-LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct var_node *node,
-    bool is_external)
-{
-    const char *var_name = string_get(node->var_name);
-    LLVMValueRef gVar = _get_named_global(cg, var_name);
-    assert(node->base.type);
-    LLVMTypeRef type = (LLVMTypeRef)hashtable_get(&cg->ext_types, string_get(node->base.type->name));
-    if (hashtable_in(&cg->gvs, var_name) && !gVar && !is_external)
-        is_external = true;
-    if (!gVar) {
-        if (is_external) {
-            gVar = LLVMAddGlobal(cg->module, type, var_name);
-        } else {
-            hashtable_set(&cg->gvs, var_name, node);
-            gVar = LLVMAddGlobal(cg->module, type, var_name);
-            LLVMValueRef init_value;
-            if (node->init_value)
-                init_value = _get_const_value_ext_type(cg, type, (struct type_value_node *)node->init_value);
-            else
-                init_value = _get_zero_value_ext_type(cg, type, (struct type_oper *)node->base.type);
-            LLVMSetInitializer(gVar, init_value);
-        }
-    }
-    hashtable_set(&cg->ext_vars, var_name, node->base.type->name);
-    if (!cg->sema_context->parser->is_repl)
-        return 0;
-    //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
-    struct type_value_node *values = (struct type_value_node *)node->init_value;
-    char tempname[64];
-    for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
-        struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);
-        LLVMValueRef exp = emit_ir_code(cg, arg);
-        sprintf(tempname, "temp%zu", i);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, gVar, i, tempname);
-        LLVMBuildStore(cg->builder, exp, member);
-    }
-    return 0;
-}
-
-LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct var_node *node,
-    bool is_external)
-{
-    if (node->base.type->type == TYPE_EXT) {
-        return _emit_global_var_type_node(cg, node, is_external);
-    }
-    const char *var_name = string_get(node->var_name);
-    LLVMValueRef gVar = _get_named_global(cg, var_name); //LLVMGetNamedGlobal(cg->module, var_name);
-    LLVMValueRef exp = emit_ir_code(cg, node->init_value);
-    assert(node->base.type && cg->module);
-    enum type type = get_type(node->base.type);
-    if (hashtable_in(&cg->gvs, var_name) && !gVar && !is_external)
-        is_external = true;
-    if (!gVar) {
-        if (is_external) {
-            gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->base.type), var_name);
-            LLVMSetExternallyInitialized(gVar, true);
-        } else {
-            hashtable_set(&cg->gvs, var_name, node);
-            gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->base.type), var_name);
-            LLVMSetExternallyInitialized(gVar, false);
-            if (cg->sema_context->parser->is_repl)
-                // REPL treated as the global variable initialized as zero and
-                // then updated with any expression
-                LLVMSetInitializer(gVar, cg->ops[type].get_zero(cg->context, cg->builder));
-            else {
-                //TODO: We need to assert exp has to be a constant value
-                LLVMSetInitializer(gVar, exp);
-            }
-        }
-    }
-    if (cg->sema_context->parser->is_repl)
-        LLVMBuildStore(cg->builder, exp, gVar);
-    return 0;
-}
-
-LLVMValueRef _emit_var_node(struct code_generator *cg, struct exp_node *node)
-{
-    struct var_node *var = (struct var_node *)node;
-    if (!var->base.parent)
-        return _emit_global_var_node(cg, var, false);
-    else
-        return _emit_local_var_node(cg, var);
-}
-
 LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
 {
     struct type_oper *type = (struct type_oper *)node->type;
@@ -863,52 +583,6 @@ LLVMValueRef _emit_type_value_node(struct code_generator *cg, struct exp_node *n
     return 0;
 }
 
-LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_node *node)
-{
-    // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
-    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
-    // fprintf(stderr, "_emit_var_node:2 %lu!\n", node->var_names.size());
-    const char *var_name = string_get(node->var_name);
-    // log_info(DEBUG, "local var cg: %s", var_name.c_str());
-    assert(node->init_value);
-    LLVMTypeRef type = (LLVMTypeRef)hashtable_get(&cg->ext_types, string_get(node->base.type->name));
-    LLVMValueRef alloca = _create_entry_block_alloca(type, fun, var_name);
-    struct type_value_node *values = (struct type_value_node *)node->init_value;
-    char tempname[64];
-    for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
-        struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);
-        LLVMValueRef exp = emit_ir_code(cg, arg);
-        sprintf(tempname, "temp%zu", i);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, i, tempname);
-        LLVMBuildStore(cg->builder, exp, member);
-    }
-    hashtable_set(&cg->named_values, var_name, alloca);
-    /*TODO: local & global sharing the same hashtable now*/
-    hashtable_set(&cg->ext_vars, var_name, node->base.type->name);
-    return 0;
-    // KSDbgInfo.emitLocation(this);
-}
-
-LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *node)
-{
-    if (node->base.type->type == TYPE_EXT)
-        return _emit_local_var_type_node(cg, node);
-    // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
-    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
-    // fprintf(stderr, "_emit_var_node:2 %lu!\n", node->var_names.size());
-    const char *var_name = string_get(node->var_name);
-    // log_info(DEBUG, "local var cg: %s", var_name.c_str());
-    assert(node->init_value);
-    LLVMValueRef init_val = emit_ir_code(cg, node->init_value);
-    assert(init_val);
-    enum type type = get_type(node->base.type);
-    LLVMValueRef alloca = _create_entry_block_alloca(cg->ops[type].get_type(cg->context, node->base.type), fun, var_name);
-    LLVMBuildStore(cg->builder, init_val, alloca);
-    hashtable_set(&cg->named_values, var_name, alloca);
-    return 0;
-    // KSDbgInfo.emitLocation(this);
-}
-
 LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
 {
     struct for_node *forn = (struct for_node *)node;
@@ -917,7 +591,7 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
     //TODO: fixme with correct type_exp passed down
-    LLVMValueRef alloca = _create_entry_block_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), fun, var_name);
+    LLVMValueRef alloca = emit_entry_block_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), fun, var_name);
 
     // KSDbgInfo.emitLocation(this);
     LLVMValueRef start_v = emit_ir_code(cg, forn->start);
@@ -959,17 +633,6 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     return LLVMConstNull(cg->ops[TYPE_INT].get_type(cg->context, 0));
 }
 
-LLVMValueRef _emit_block_node(struct code_generator *cg, struct exp_node *node)
-{
-    struct block_node *block = (struct block_node *)node;
-    LLVMValueRef codegen = 0;
-    for (size_t i = 0; i < array_size(&block->nodes); i++) {
-        struct exp_node *exp = *(struct exp_node **)array_get(&block->nodes, i);
-        codegen = emit_ir_code(cg, exp);
-    }
-    return codegen;
-}
-
 void create_ir_module(struct code_generator *cg,
     const char *module_name)
 {
@@ -992,16 +655,16 @@ LLVMValueRef (*cg_fp[])(struct code_generator *, struct exp_node *) = {
     _emit_unk_node,
     _emit_literal_node,
     _emit_ident_node,
-    _emit_var_node,
+    emit_var_node,
     _emit_type_node,
     _emit_type_value_node,
     _emit_unary_node,
     _emit_binary_node,
     _emit_condition_node,
     _emit_for_node,
-    _emit_call_node,
-    _emit_prototype_node,
-    _emit_function_node,
+    emit_call_node,
+    emit_prototype_node,
+    emit_function_node,
     _emit_block_node
 };
 

@@ -125,7 +125,8 @@
         "string.h": "c",
         "assert.h": "c",
         "windows.h": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "cg_var.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

@@ -22,14 +22,6 @@ TEST(testGeneral, testBuildJit)
 //  f xy:Point2D = xy.x
 //  )";
 //     const char *expected_ir = R"(
-//  define i8 @__f_char(i8 %x) {
-//  entry:
-//    %x1 = alloca i8, align 1
-//    store i8 %x, i8* %x1, align 1
-//    %x2 = load i8, i8* %x1, align 1
-//    ret i8 %x2
-//  }
-
 //  %struct.Point2D = type { double, double }
 
 //  define double @f(%struct.Point2D* %xy) #0 {

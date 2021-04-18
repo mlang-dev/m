@@ -18,6 +18,7 @@ struct abi_arg_info _create_indirect(unsigned indirect_align, bool indirect_byva
 {
     struct abi_arg_info aai;
     aai.kind = AK_INDIRECT;
+    aai.type = 0;
     aai.padding_type = padding_type;
     aai.indirect_byval = indirect_byval;
     aai.indirect_align = indirect_align;
@@ -29,6 +30,7 @@ struct abi_arg_info create_expand(bool padding_inreg, LLVMTypeRef padding_type)
 {
     struct abi_arg_info aai;
     aai.kind = AK_DIRECT;
+    aai.type = 0;
     aai.padding_type = padding_type;
     aai.padding_inreg = padding_inreg;
     return aai;

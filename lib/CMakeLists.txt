@@ -56,6 +56,9 @@ add_library(mlr
   codegen/x86_64_abi.c
   codegen/winx86_64_abi.c
   codegen/codegen.c
+  codegen/cg_fun.c
+  codegen/cg_var.c
+  codegen/cg_call.c
   codegen/ir_arg_info.c
   codegen/env.c
   codegen/compute_fun_info.c

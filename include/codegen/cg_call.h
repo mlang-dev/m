@@ -1,10 +1,11 @@
 /*
- * abi_ir_arg.h
+ * cg_call.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file defining interface mapping from abi arg infos lowing to ir args
+ * header file defining interface emitting call site
  */
+
 #ifndef __MLANG_CG_CALL_H__
 #define __MLANG_CG_CALL_H__
 
@@ -16,13 +17,7 @@
 extern "C" {
 #endif
 
-struct address {
-    LLVMValueRef pointer;
-    unsigned alignment;
-};
-
-struct address zero_address();
-void emit_call(struct call_node *call);
+LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node);
 
 #ifdef __cplusplus
 }
