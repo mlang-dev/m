@@ -17,14 +17,14 @@
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 
-void _create_argument_allocas(struct code_generator *cg, struct prototype_node *node,
+void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *node,
     struct fun_info *fi, LLVMValueRef fun)
 {
     struct type_oper *proto_type = (struct type_oper *)node->base.type;
     //assert (LLVMCountParams(fun) == array_size(&proto_type->args) - 1);
     unsigned param_count = array_size(&fi->args);
     struct array params;
-    array_init(&params, sizeof(struct aligned_pointer));
+    array_init(&params, sizeof(struct aligned_address));
     for (unsigned i = 0; i < param_count; i++) {
         struct var_node *param = (struct var_node *)array_get(&node->fun_params, i);
         struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
@@ -32,13 +32,15 @@ void _create_argument_allocas(struct code_generator *cg, struct prototype_node *
         struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
         unsigned first_ir_arg = iar->first_arg_index;
         unsigned arg_num = iar->arg_num;
+        struct aligned_address param_value;
+        param_value.pointer = 0;
+        param_value.alignment = 0;
         switch (aaa->info.kind) {
         case AK_INDIRECT:
         case AK_INDIRECT_ALIASED: {
             assert(arg_num == 1);
-            struct aligned_pointer param;
-            param.pointer = LLVMGetParam(fun, first_ir_arg);
-            param.alignment = aaa->info.indirect_align;
+            param_value.pointer = LLVMGetParam(fun, first_ir_arg);
+            param_value.alignment = aaa->info.indirect_align;
             if (proto_type->base.type < TYPE_EXT) { //aggregate
                 //
                 if (aaa->info.indirect_realign || aaa->info.kind == AK_INDIRECT_ALIASED) {
@@ -47,13 +49,10 @@ void _create_argument_allocas(struct code_generator *cg, struct prototype_node *
                 } else {
                 }
             }
-            array_push(&params, &param);
+            array_push(&params, &param_value);
         }
         }
-        enum type type = get_type(type_exp);
         //TODO: fix the inconsistency enum type type = get_type(param->base.type);
-        LLVMValueRef alloca = emit_entry_block_alloca(
-            cg->ops[type].get_type(cg->context, type_exp), fun, string_get(param->var_name));
 
         // Create a debug descriptor for the variable.
         /*DIScope *Scope = KSDbgInfo.LexicalBlocks.back();
@@ -67,9 +66,16 @@ void _create_argument_allocas(struct code_generator *cg, struct prototype_node *
                             DebugLoc::get(Line, 0, Scope),
                             Builder.GetInsertBlock());
     */
-
-        LLVMBuildStore(cg->builder, LLVMGetParam(fun, i), alloca);
-        hashtable_set(&cg->named_values, string_get(param->var_name), alloca);
+        if (!param_value.alignment) {
+            //not indirect pointer, copy value to alloca
+            enum type type = get_type(type_exp);
+            LLVMValueRef alloca = emit_entry_block_alloca(
+                cg->ops[type].get_type(cg->context, type_exp), fun, string_get(param->var_name));
+            LLVMBuildStore(cg->builder, LLVMGetParam(fun, i), alloca);
+            hashtable_set(&cg->named_values, string_get(param->var_name), alloca);
+        } else {
+            hashtable_set(&cg->named_values, string_get(param->var_name), LLVMGetParam(fun, i));
+        }
     }
     array_deinit(&params);
 }
@@ -111,6 +117,9 @@ LLVMValueRef emit_prototype_node(struct code_generator *cg, struct exp_node *nod
         LLVMValueRef param = LLVMGetParam(fun, i);
         struct var_node *fun_param = (struct var_node *)array_get(&proto->fun_params, i);
         LLVMSetValueName2(param, string_get(fun_param->var_name), string_size(fun_param->var_name));
+        struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
+        if (aa->type->type == TYPE_EXT)
+            hashtable_set(&cg->varname_2_typename, string_get(fun_param->var_name), aa->type->name);
     }
     return fun;
 }
@@ -129,7 +138,7 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
 
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
     LLVMPositionBuilderAtEnd(cg->builder, bb);
-    _create_argument_allocas(cg, fun_node->prototype, fi, fun);
+    _emit_argument_allocas(cg, fun_node->prototype, fi, fun);
     LLVMValueRef ret_val = 0;
     for (size_t i = 0; i < array_size(&fun_node->body->nodes); i++) {
         struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->body->nodes, i);

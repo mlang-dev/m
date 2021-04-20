@@ -32,7 +32,7 @@ typedef LLVMValueRef (*get_const)(LLVMContextRef context, LLVMBuilderRef builder
 typedef LLVMValueRef (*get_zero)(LLVMContextRef context, LLVMBuilderRef builder);
 typedef LLVMValueRef (*get_one)(LLVMContextRef context);
 
-struct aligned_pointer {
+struct aligned_address {
     LLVMValueRef pointer;
     unsigned alignment;
 };
@@ -71,9 +71,9 @@ struct code_generator {
 
     struct ops ops[TYPE_TYPES];
     hashset builtins; //hashtable of char*
-    struct hashtable ext_types; /*hashtable of <string, struct LLVMTypeRef*/
-    struct hashtable ext_nodes; /*hashtable of <string type name, struct type_node*/
-    struct hashtable ext_vars; /*hashtable of <string variable, string struct type*/
+    struct hashtable typename_2_irtypes; /*hashtable of <string, struct LLVMTypeRef*/
+    struct hashtable typename_2_ast; /*hashtable of <string type name, struct type_node*/
+    struct hashtable varname_2_typename; /*hashtable of <string variable, string type*/
 
     /// target info
     struct target_info *target_info;

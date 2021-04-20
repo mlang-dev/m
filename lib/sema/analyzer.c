@@ -140,11 +140,11 @@ struct type_exp *_analyze_type(struct sema_context *context, struct exp_node *no
         struct type_exp *arg = _analyze_var(context, *(struct exp_node **)array_get(&type->body->nodes, i));
         array_push(&args, &arg);
     }
-    struct type_exp *result_type = (struct type_exp *)create_type_oper_ext(type->name, &args);
-    assert(type->name == result_type->name);
+    struct type_oper *result_type = create_type_oper_ext(type->name, &args);
+    assert(type->name == result_type->base.name);
     push_symbol_type(&context->tenv, type->name, result_type);
     hashtable_set_p(&context->ext_type_ast, type->name, node);
-    return result_type;
+    return &result_type->base;
 }
 
 struct type_exp *_analyze_type_value(struct sema_context *context, struct exp_node *node)
@@ -273,7 +273,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
     if (specialized_fun) {
         emit_ir_code(env->cg, specialized_fun);
     }
-    return prune(result_type);
+    return result_type;
 }
 
 struct type_exp *_analyze_unary(struct sema_context *context, struct exp_node *node)
@@ -376,6 +376,7 @@ struct type_exp *(*analyze_fp[])(struct sema_context *, struct exp_node *) = {
 struct type_exp *analyze(struct sema_context *context, struct exp_node *node)
 {
     struct type_exp *type = analyze_fp[node->node_type](context, node);
+    type = prune(type);
     node->type = type;
     return type;
 }

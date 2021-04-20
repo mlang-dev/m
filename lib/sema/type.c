@@ -90,6 +90,8 @@ void type_exp_free(struct type_exp *type)
 
 struct type_exp *prune(struct type_exp *type)
 {
+    if (!type)
+        return type;
     if (type->kind == KIND_VAR) {
         struct type_var *var = (struct type_var *)type;
         assert(type != var->instance);

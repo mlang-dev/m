@@ -7,29 +7,21 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
-TEST(testGeneral, testBuildJit)
+TEST(testGeneral, testCallByStruct)
 {
-    env *env = env_new(true);
-    JIT *jit = build_jit(env);
-    jit_free(jit);
-    env_free(env);
+    const char test_code[] = R"(
+ type Point2D = x:double y:double
+ f xy:Point2D = xy.x
+ )";
+    const char *expected_ir = R"(
+%Point2D = type { double, double }
+
+define double @f(%Point2D* %xy) {
+entry:
+  %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
+  %xy.x = load double, double* %x, align 8
+  ret double %xy.x
 }
-
-// TEST(testGeneral, testCallByStruct)
-// {
-//     const char test_code[] = R"(
-//  type Point2D = x:double y:double
-//  f xy:Point2D = xy.x
-//  )";
-//     const char *expected_ir = R"(
-//  %struct.Point2D = type { double, double }
-
-//  define double @f(%struct.Point2D* %xy) #0 {
-//  entry:
-//    %x = getelementptr inbounds %struct.Point2D, %struct.Point2D* %xy, i32 0, i32 0
-//    %0 = load double, double* %x, align 8
-//    ret double %0
-//  }
-//  )";
-//     validate_m_code_with_ir_code(test_code, expected_ir);
-// }
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}

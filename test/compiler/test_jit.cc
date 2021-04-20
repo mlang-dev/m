@@ -10,6 +10,14 @@
 #include "tutil.h"
 #include "gtest/gtest.h"
 
+TEST(testJIT, testBuildJit)
+{
+    env *env = env_new(true);
+    JIT *jit = build_jit(env);
+    jit_free(jit);
+    env_free(env);
+}
+
 TEST(testJIT, testNumber)
 {
     char test_code[] = R"(

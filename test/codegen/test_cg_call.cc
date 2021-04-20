@@ -88,25 +88,17 @@ TEST_F(testCGCall, testCallByStruct)
 {
     const char test_code[] = R"(
 type Point2D = x:double y:double
-f x:Point2D = x.y
+f xy:Point2D = xy.y
 )";
     const char *expected_ir = R"(
-define i8 @__f_char(i8 %x) {
-entry:
-  %x1 = alloca i8, align 1
-  store i8 %x, i8* %x1, align 1
-  %x2 = load i8, i8* %x1, align 1
-  ret i8 %x2
-}
+%Point2D = type { double, double }
 
-%struct.Point2D = type { double, double }
-
-define double @f(%struct.Point2D* %xy) #0 {
+define double @f(%Point2D* %xy) {
 entry:
-  %x = getelementptr inbounds %struct.Point2D, %struct.Point2D* %xy, i32 0, i32 0
-  %0 = load double, double* %x, align 8
-  ret double %0
+  %y = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 1
+  %xy.y = load double, double* %y, align 8
+  ret double %xy.y
 }
 )";
-    //validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }

@@ -23,7 +23,7 @@ TEST(testAnalyzer, testIntVariable)
     ASSERT_STREQ("x", string_get(node->var_name));
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(TYPE_INT, node->init_value->type->type);
-    ASSERT_EQ(KIND_VAR, node->base.type->kind);
+    ASSERT_EQ(KIND_OPER, node->base.type->kind);
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int", string_get(&type_str));
     env_free(env);

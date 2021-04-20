@@ -56,7 +56,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
 {
     assert(type_exp->type == TYPE_EXT);
     assert(g_cg);
-    LLVMTypeRef struct_type = hashtable_get(&g_cg->ext_types, string_get(type_exp->name));
+    LLVMTypeRef struct_type = hashtable_get(&g_cg->typename_2_irtypes, string_get(type_exp->name));
     if (struct_type)
         return struct_type;
     struct type_oper *type = (struct type_oper *)type_exp;
@@ -68,7 +68,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
         members[i] = get_llvm_type(field_type);
     }
     LLVMStructSetBody(struct_type, members, member_count, false);
-    hashtable_set(&g_cg->ext_types, string_get(type->base.name), struct_type);
+    hashtable_set(&g_cg->typename_2_irtypes, string_get(type->base.name), struct_type);
     free(members);
     return struct_type;
 }
@@ -349,9 +349,9 @@ struct code_generator *cg_new(struct sema_context *sema_context)
     hashtable_init(&cg->gvs);
     hashtable_init(&cg->protos);
     hashtable_init(&cg->named_values);
-    hashtable_init(&cg->ext_types);
-    hashtable_init(&cg->ext_nodes);
-    hashtable_init(&cg->ext_vars);
+    hashtable_init(&cg->typename_2_irtypes);
+    hashtable_init(&cg->typename_2_ast);
+    hashtable_init(&cg->varname_2_typename);
     hashtable_init_with_value_size(&cg->type_size_infos, sizeof(struct type_size_info), 0);
     hashtable_init_with_value_size(&cg->fun_infos, sizeof(struct fun_info), (free_fun)fun_info_deinit);
     cg->target_info = ti_new();
@@ -372,9 +372,9 @@ void cg_free(struct code_generator *cg)
     hashtable_deinit(&cg->protos);
     hashtable_deinit(&cg->named_values);
     hashset_deinit(&cg->builtins);
-    hashtable_deinit(&cg->ext_types);
-    hashtable_deinit(&cg->ext_nodes);
-    hashtable_deinit(&cg->ext_vars);
+    hashtable_deinit(&cg->typename_2_irtypes);
+    hashtable_deinit(&cg->typename_2_ast);
+    hashtable_deinit(&cg->varname_2_typename);
     free(cg);
     g_cg = cg;
 }
@@ -394,11 +394,6 @@ LLVMValueRef _emit_block_node(struct code_generator *cg, struct exp_node *node)
         codegen = emit_ir_code(cg, exp);
     }
     return codegen;
-}
-
-void _emit_param(struct type_oper *to)
-{
-    struct aligned_pointer ap = { 0, 0 };
 }
 
 LLVMValueRef _emit_literal_node(struct code_generator *cg, struct exp_node *node)
@@ -430,13 +425,11 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
         assert(v);
     }
     if (array_size(&ident->member_accessors) > 1) {
-        char tempname[64];
-        string *type_name = hashtable_get(&cg->ext_vars, idname);
-        struct type_node *type_node = (struct type_node *)hashtable_get(&cg->ext_nodes, string_get(type_name));
+        string *type_name = hashtable_get(&cg->varname_2_typename, idname);
+        struct type_node *type_node = (struct type_node *)hashtable_get(&cg->typename_2_ast, string_get(type_name));
         symbol attr = *((symbol *)array_get(&ident->member_accessors, 1));
         int index = find_member_index(type_node, attr);
-        sprintf(tempname, "temp%d", index);
-        v = LLVMBuildStructGEP(cg->builder, v, index, tempname);
+        v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
     }
     return LLVMBuildLoad(cg->builder, v, string_get(ident->name));
 }
@@ -572,7 +565,7 @@ LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
     struct type_oper *type = (struct type_oper *)node->type;
     assert(node->type);
     LLVMTypeRef struct_type = get_ext_type(cg->context, node->type);
-    hashtable_set(&cg->ext_nodes, string_get(type->base.name), node);
+    hashtable_set(&cg->typename_2_ast, string_get(type->base.name), node);
     return 0;
 }
 
