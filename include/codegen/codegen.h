@@ -14,6 +14,7 @@
 
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
+#include "codegen/ir_api.h"
 #include "codegen/target_info.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
@@ -31,11 +32,6 @@ typedef LLVMTypeRef (*get_ir_type)(LLVMContextRef context, struct type_exp *type
 typedef LLVMValueRef (*get_const)(LLVMContextRef context, LLVMBuilderRef builder, void *value);
 typedef LLVMValueRef (*get_zero)(LLVMContextRef context, LLVMBuilderRef builder);
 typedef LLVMValueRef (*get_one)(LLVMContextRef context);
-
-struct aligned_address {
-    LLVMValueRef pointer;
-    unsigned alignment;
-};
 
 struct ops {
     get_ir_type get_type;

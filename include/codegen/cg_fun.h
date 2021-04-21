@@ -24,11 +24,6 @@ extern "C" {
 
 LLVMValueRef emit_prototype_node(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi);
 LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node);
-LLVMValueRef emit_entry_block_alloca(
-    LLVMTypeRef type,
-    LLVMValueRef fun,
-    const char *var_name);
-
 LLVMValueRef get_llvm_function(struct code_generator *cg, const char *name);
 
 #ifdef __cplusplus

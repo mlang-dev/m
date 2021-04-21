@@ -15,6 +15,7 @@
 #include "codegen/cg_var.h"
 #include "codegen/codegen.h"
 #include "codegen/fun_info.h"
+#include "codegen/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
@@ -584,7 +585,7 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
     //TODO: fixme with correct type_exp passed down
-    LLVMValueRef alloca = emit_entry_block_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), fun, var_name);
+    LLVMValueRef alloca = create_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), 4, fun, var_name);
 
     // KSDbgInfo.emitLocation(this);
     LLVMValueRef start_v = emit_ir_code(cg, forn->start);

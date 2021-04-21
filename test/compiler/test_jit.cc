@@ -195,10 +195,10 @@ TEST(testJIT, testIdFunc)
     env *env = env_new(true);
     JIT *jit = build_jit(env);
     block_node *block = parse_string(env->sema_context->parser, "test", test_code);
-    auto node = *(exp_node **)array_front(&block->nodes);
-    auto node1 = *(exp_node **)array_back(&block->nodes);
-    eval_statement(jit, node);
-    auto result = eval_exp(jit, node1);
+    auto node1 = *(exp_node **)array_front(&block->nodes);
+    auto node2 = *(exp_node **)array_back(&block->nodes);
+    eval_statement(jit, node1);
+    auto result = eval_exp(jit, node2);
     ASSERT_EQ(10.0, result.d_value);
     jit_free(jit);
     env_free(env);

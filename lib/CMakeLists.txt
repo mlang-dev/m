@@ -62,6 +62,7 @@ add_library(mlr
   codegen/ir_arg_info.c
   codegen/env.c
   codegen/compute_fun_info.c
+  codegen/ir_api.c
   compiler/repl.c
   compiler/jit.c
   compiler/compiler.c

@@ -1,13 +1,13 @@
 /*
- * ast_abi_arg.h
+ * fun_info.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file defining interface bridging between ast node and abi arg info
+ * header file defining function info in generating IR functions
  */
 
-#ifndef __MLANG_AST_ABI_ARG_H__
-#define __MLANG_AST_ABI_ARG_H__
+#ifndef __MLANG_FUN_INFO_H__
+#define __MLANG_FUN_INFO_H__
 
 #include "clib/hashtable.h"
 #include "codegen/abi_arg_info.h"

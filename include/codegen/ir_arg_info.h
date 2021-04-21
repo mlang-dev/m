@@ -1,5 +1,5 @@
 /*
- * abi_ir_arg.h
+ * ir_arg_info.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *

@@ -14,6 +14,7 @@
 #include "codegen/cg_var.h"
 #include "codegen/codegen.h"
 #include "codegen/fun_info.h"
+#include "codegen/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
@@ -27,7 +28,8 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
     // log_info(DEBUG, "local var cg: %s", var_name.c_str());
     assert(node->init_value);
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get(&cg->typename_2_irtypes, string_get(node->base.type->name));
-    LLVMValueRef alloca = emit_entry_block_alloca(type, fun, var_name);
+    struct type_size_info tsi = get_type_size_info(node->base.type);
+    LLVMValueRef alloca = create_alloca(type, tsi.align_bits / 8, fun, var_name);
     struct type_value_node *values = (struct type_value_node *)node->init_value;
     char tempname[64];
     for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
@@ -57,7 +59,8 @@ LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *no
     LLVMValueRef init_val = emit_ir_code(cg, node->init_value);
     assert(init_val);
     enum type type = get_type(node->base.type);
-    LLVMValueRef alloca = emit_entry_block_alloca(cg->ops[type].get_type(cg->context, node->base.type), fun, var_name);
+    struct type_size_info tsi = get_type_size_info(node->base.type);
+    LLVMValueRef alloca = create_alloca(cg->ops[type].get_type(cg->context, node->base.type), tsi.align_bits / 8, fun, var_name);
     LLVMBuildStore(cg->builder, init_val, alloca);
     hashtable_set(&cg->named_values, var_name, alloca);
     return 0;
