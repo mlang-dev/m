@@ -161,13 +161,27 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
         struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->body->nodes, i);
         ret_val = emit_ir_code(cg, stmt);
     }
-    if (!ret_val) {
-        struct type_exp *ret_type = get_ret_type(fun_node);
-        enum type type = get_type(ret_type);
-        ret_val = cg->ops[type].get_zero(cg->context, cg->builder);
+    if (!ret_val || !fi->ret.info.type) {
+        //struct type_exp *ret_type = get_ret_type(fun_node);
+        //enum type type = get_type(ret_type);
+        //ret_val = cg->ops[type].get_zero(cg->context, cg->builder);
+        LLVMBuildRetVoid(cg->builder);
+    } else {
+
+        LLVMTypeRef ret_type = LLVMTypeOf(ret_val);
+        if (LLVMGetTypeKind(ret_type) != LLVMGetTypeKind(fi->ret.info.type)) {
+            // assuming cast struct to
+            struct type_size_info tsi = get_type_size_info(fi->ret.type);
+            LLVMTypeRef ret_ptr = LLVMPointerType(fi->ret.info.type, 0);
+            assert(LLVMGetTypeKind(ret_type) == LLVMGetTypeKind(ret_ptr));
+            //cast struct pointer to int pointer
+            ret_val = LLVMBuildBitCast(cg->builder, ret_val, ret_ptr, "");
+            //load int from int pointer
+            ret_val = LLVMBuildLoad2(cg->builder, fi->ret.info.type, ret_val, "");
+            LLVMSetAlignment(ret_val, tsi.align_bits / 8);
+        }
+        LLVMBuildRet(cg->builder, ret_val);
     }
-    assert(ret_val);
-    LLVMBuildRet(cg->builder, ret_val);
     return fun;
 }
 

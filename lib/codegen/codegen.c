@@ -432,7 +432,10 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
         int index = find_member_index(type_node, attr);
         v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
     }
-    return LLVMBuildLoad(cg->builder, v, string_get(ident->name));
+    if (ident->base.type->type < TYPE_EXT)
+        return LLVMBuildLoad(cg->builder, v, string_get(ident->name));
+    else
+        return v;
 }
 
 LLVMValueRef _emit_unary_node(struct code_generator *cg, struct exp_node *node)
