@@ -144,6 +144,19 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
     LLVMPositionBuilderAtEnd(cg->builder, bb);
     _emit_argument_allocas(cg, fun_node->prototype, fi, fun);
     LLVMValueRef ret_val = 0;
+    //handle ret value
+    // if (fi->ret.type->type == TYPE_UNIT) {
+
+    // } else if (fi->ret.info.kind == AK_INDIRECT) {
+    //     // sret struct type return type
+    // } else {
+    //     LLVMTypeRef ret_type = get_llvm_type(fi->ret.type);
+    //     if (ret_type != fi->ret.info.type) {
+    //         struct type_size_info tsi = get_type_size_info(fi->ret.type);
+    //         unsigned align = tsi.align_bits / 8;
+    //         LLVMValueRef ret_alloca = create_alloca(ret_type, align, fun, "retval");
+    //     }
+    // }
     for (size_t i = 0; i < array_size(&fun_node->body->nodes); i++) {
         struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->body->nodes, i);
         ret_val = emit_ir_code(cg, stmt);

@@ -36,7 +36,7 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
         struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
         sprintf(tempname, "temp%zu", i);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, i, tempname);
+        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, i, "");
         LLVMBuildStore(cg->builder, exp, member);
     }
     hashtable_set(&cg->named_values, var_name, alloca);

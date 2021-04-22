@@ -28,7 +28,8 @@ link_directories(
 
 add_executable(mtest
   tutil.cc
-  #test.cc
+  test.cc
+  #[[
   clib/test_symbol.cc
   clib/test_symboltable.cc
   clib/test_math.cc
@@ -52,7 +53,7 @@ add_executable(mtest
   codegen/test_type_size_info.cc
   codegen/test_cg_var.cc
   codegen/test_cg_call.cc
-  codegen/test_cg_fun.cc
+  codegen/test_cg_fun.cc]]
 )
 
 if(WIN32)
