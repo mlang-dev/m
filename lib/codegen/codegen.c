@@ -427,7 +427,7 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
     }
     if (array_size(&ident->member_accessors) > 1) {
         string *type_name = hashtable_get_p(&cg->varname_2_typename, id);
-        struct type_node *type_node = (struct type_node *)hashtable_get(&cg->typename_2_ast, string_get(type_name));
+        struct type_node *type_node = (struct type_node *)hashtable_get_p(&cg->typename_2_ast, type_name);
         symbol attr = *((symbol *)array_get(&ident->member_accessors, 1));
         int index = find_member_index(type_node, attr);
         v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
@@ -569,7 +569,7 @@ LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
     struct type_oper *type = (struct type_oper *)node->type;
     assert(node->type);
     LLVMTypeRef struct_type = get_ext_type(cg->context, node->type);
-    hashtable_set(&cg->typename_2_ast, string_get(type->base.name), node);
+    hashtable_set_p(&cg->typename_2_ast, type->base.name, node);
     return 0;
 }
 

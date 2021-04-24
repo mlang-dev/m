@@ -83,8 +83,13 @@ struct code_generator {
      *  symboltable of <symbol, LLVMTypeRef>
      *  binding type name to IR Type
      */
-    struct hashtable typename_2_irtypes; /*hashtable of <string, struct LLVMTypeRef*/
-    struct hashtable typename_2_ast; /*hashtable of <string type name, struct type_node*/
+    struct hashtable typename_2_irtypes;
+
+    /* 
+     *  symboltable of <symbol, type_node*>
+     *  binding type name to AST definition node
+     */
+    struct hashtable typename_2_ast;
 
     /// target info
     struct target_info *target_info;
