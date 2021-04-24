@@ -51,6 +51,8 @@ bool hashtable_in_g(struct hashtable *ht, void *key, size_t key_size);
 bool hashtable_in_p(struct hashtable *ht, void *key);
 void hashtable_clear(struct hashtable *ht);
 void hashtable_remove(struct hashtable *ht, const char *key);
+void hashtable_remove_p(struct hashtable *ht, void *key);
+void hashtable_remove_g(struct hashtable *ht, void *key, size_t key_size);
 
 #ifdef __cplusplus
 }

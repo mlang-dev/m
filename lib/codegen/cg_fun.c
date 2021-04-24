@@ -61,7 +61,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
                 }
             }
             array_push(&params, &param_value);
-            hashtable_set(&cg->named_values, string_get(param->var_name), param_value.pointer);
+            hashtable_set_p(&cg->varname_2_irvalues, param->var_name, param_value.pointer);
             break;
         }
         case AK_DIRECT: {
@@ -86,7 +86,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
                     sig_type, align, fun, string_get(param->var_name));
                 create_coerced_store(cg->builder, arg_value, alloca, align);
             }
-            hashtable_set(&cg->named_values, string_get(param->var_name), alloca);
+            hashtable_set_p(&cg->varname_2_irvalues, param->var_name, alloca);
             break;
         }
         default: {
@@ -135,7 +135,7 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
         return 0;
     }
     assert(fun_node->base.type->kind == KIND_OPER);
-    hashtable_clear(&cg->named_values);
+    hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
     LLVMValueRef fun = emit_prototype_node(cg, (struct exp_node *)fun_node->prototype, &fi);
     assert(fun && fi);

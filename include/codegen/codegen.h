@@ -57,9 +57,14 @@ struct ops {
 };
 
 struct code_generator {
+    /* 
+     *  value type env: symboltable of <symbol, LLVMValueRef>
+     *  binding variable name to LLVMValueRef
+     */
+    struct hashtable varname_2_irvalues;
+
     LLVMContextRef context;
     LLVMBuilderRef builder;
-    struct hashtable named_values; //hashtable of string, LLVMValueRef
     LLVMModuleRef module;
 
     struct hashtable protos; //hashtable of char*, prototype_node*

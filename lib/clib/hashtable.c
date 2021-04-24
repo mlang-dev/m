@@ -158,6 +158,34 @@ void hashtable_remove(struct hashtable *ht, const char *key)
     }
 }
 
+void hashtable_remove_g(struct hashtable *ht, void *key, size_t key_size)
+{
+    struct hash_head *head;
+    struct hash_entry *entry;
+    struct hash_entry *prev = 0;
+    head = &ht->heads[_get_index(ht, (unsigned char *)key, key_size)];
+    list_foreach(entry, head, list)
+    {
+        if (match_entry(entry, key, key_size)) {
+            break;
+        }
+        prev = entry;
+    }
+    if (entry) {
+        if (prev)
+            list_remove_next(prev, list);
+        else
+            list_remove_head(head, list);
+        _hash_entry_free(ht, entry);
+        ht->size--;
+    }
+}
+
+void hashtable_remove_p(struct hashtable *ht, void *key)
+{
+    hashtable_remove_g(ht, key, sizeof(void *));
+}
+
 void hashtable_set(struct hashtable *ht, const char *key, void *value)
 {
     size_t key_size = strlen(key) + 1;
@@ -171,7 +199,7 @@ void hashtable_set_int(struct hashtable *ht, void *key, int value)
 
 int hashtable_get_int(struct hashtable *ht, void *key)
 {
-    int *int_p=hashtable_get_p(ht, key);
+    int *int_p = hashtable_get_p(ht, key);
     if (!int_p)
         return 0;
     return *int_p;

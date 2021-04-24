@@ -349,7 +349,7 @@ struct code_generator *cg_new(struct sema_context *sema_context)
     _set_bin_ops(cg);
     hashtable_init(&cg->gvs);
     hashtable_init(&cg->protos);
-    hashtable_init(&cg->named_values);
+    hashtable_init(&cg->varname_2_irvalues);
     hashtable_init(&cg->typename_2_irtypes);
     hashtable_init(&cg->typename_2_ast);
     hashtable_init(&cg->varname_2_typename);
@@ -371,7 +371,7 @@ void cg_free(struct code_generator *cg)
     hashtable_deinit(&cg->type_size_infos);
     hashtable_deinit(&cg->gvs);
     hashtable_deinit(&cg->protos);
-    hashtable_deinit(&cg->named_values);
+    hashtable_deinit(&cg->varname_2_irvalues);
     hashset_deinit(&cg->builtins);
     hashtable_deinit(&cg->typename_2_irtypes);
     hashtable_deinit(&cg->typename_2_ast);
@@ -420,7 +420,7 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
     struct ident_node *ident = (struct ident_node *)node;
     symbol id = *((symbol *)array_get(&ident->member_accessors, 0));
     const char *idname = string_get(id);
-    LLVMValueRef v = (LLVMValueRef)hashtable_get(&cg->named_values, idname);
+    LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, id);
     if (!v) {
         v = get_global_variable(cg, idname);
         assert(v);
@@ -583,7 +583,7 @@ LLVMValueRef _emit_type_value_node(struct code_generator *cg, struct exp_node *n
 LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
 {
     struct for_node *forn = (struct for_node *)node;
-    const char *var_name = string_get(forn->var_name);
+    symbol var_name = forn->var_name;
     LLVMBasicBlockRef bb = LLVMGetInsertBlock(cg->builder);
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
@@ -599,8 +599,8 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     LLVMBuildBr(cg->builder, loop_bb);
     LLVMPositionBuilderAtEnd(cg->builder, loop_bb);
 
-    LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get(&cg->named_values, var_name);
-    hashtable_set(&cg->named_values, var_name, alloca);
+    LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, var_name);
+    hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     emit_ir_code(cg, forn->body);
     LLVMValueRef step_v;
     if (forn->step) {
@@ -623,9 +623,9 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     LLVMPositionBuilderAtEnd(cg->builder, after_bb);
 
     if (old_alloca)
-        hashtable_set(&cg->named_values, var_name, old_alloca);
+        hashtable_set_p(&cg->varname_2_irvalues, var_name, old_alloca);
     else
-        hashtable_remove(&cg->named_values, var_name);
+        hashtable_remove_p(&cg->varname_2_irvalues, var_name);
 
     return LLVMConstNull(cg->ops[TYPE_INT].get_type(cg->context, 0));
 }

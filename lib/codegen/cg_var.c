@@ -24,12 +24,12 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
     // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
     // fprintf(stderr, "_emit_var_node:2 %lu!\n", node->var_names.size());
-    const char *var_name = string_get(node->var_name);
+    symbol var_name = node->var_name;
     // log_info(DEBUG, "local var cg: %s", var_name.c_str());
     assert(node->init_value);
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get(&cg->typename_2_irtypes, string_get(node->base.type->name));
     struct type_size_info tsi = get_type_size_info(node->base.type);
-    LLVMValueRef alloca = create_alloca(type, tsi.align_bits / 8, fun, var_name);
+    LLVMValueRef alloca = create_alloca(type, tsi.align_bits / 8, fun, string_get(var_name));
     struct type_value_node *values = (struct type_value_node *)node->init_value;
     for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
         struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);
@@ -37,7 +37,7 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
         LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, i, "");
         LLVMBuildStore(cg->builder, exp, member);
     }
-    hashtable_set(&cg->named_values, var_name, alloca);
+    hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     /*TODO: local & global sharing the same hashtable now*/
     hashtable_set(&cg->varname_2_typename, var_name, node->base.type->name);
     return 0;
@@ -51,7 +51,7 @@ LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *no
     // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
     // fprintf(stderr, "_emit_var_node:2 %lu!\n", node->var_names.size());
-    const char *var_name = string_get(node->var_name);
+    symbol var_name = node->var_name;
     // log_info(DEBUG, "local var cg: %s", var_name.c_str());
     assert(node->init_value);
     LLVMValueRef init_val = emit_ir_code(cg, node->init_value);
@@ -60,7 +60,7 @@ LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *no
     struct type_size_info tsi = get_type_size_info(node->base.type);
     LLVMValueRef alloca = create_alloca(cg->ops[type].get_type(cg->context, node->base.type), tsi.align_bits / 8, fun, var_name);
     LLVMBuildStore(cg->builder, init_val, alloca);
-    hashtable_set(&cg->named_values, var_name, alloca);
+    hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     if (type == TYPE_EXT)
         assert(!node->is_ret);
     return 0;
