@@ -39,7 +39,7 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
     }
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     /*TODO: local & global sharing the same hashtable now*/
-    hashtable_set(&cg->varname_2_typename, var_name, node->base.type->name);
+    hashtable_set_p(&cg->varname_2_typename, var_name, node->base.type->name);
     return 0;
     // KSDbgInfo.emitLocation(this);
 }
@@ -117,7 +117,7 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct var_no
             LLVMSetInitializer(gVar, init_value);
         }
     }
-    hashtable_set(&cg->varname_2_typename, var_name, node->base.type->name);
+    hashtable_set_p(&cg->varname_2_typename, node->var_name, node->base.type->name);
     if (!cg->sema_context->parser->is_repl)
         return 0;
     //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);

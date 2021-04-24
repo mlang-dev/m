@@ -57,12 +57,6 @@ struct ops {
 };
 
 struct code_generator {
-    /* 
-     *  value type env: symboltable of <symbol, LLVMValueRef>
-     *  binding variable name to LLVMValueRef
-     */
-    struct hashtable varname_2_irvalues;
-
     LLVMContextRef context;
     LLVMBuilderRef builder;
     LLVMModuleRef module;
@@ -72,9 +66,21 @@ struct code_generator {
 
     struct ops ops[TYPE_TYPES];
     hashset builtins; //hashtable of char*
+
+    /* 
+     *  symboltable of <symbol, LLVMValueRef>
+     *  binding variable name to LLVMValueRef
+     */
+    struct hashtable varname_2_irvalues;
+
+    /* 
+     *  symboltable of <symbol, symbol>
+     *  binding variable name to type name
+     */
+    struct hashtable varname_2_typename;
+
     struct hashtable typename_2_irtypes; /*hashtable of <string, struct LLVMTypeRef*/
     struct hashtable typename_2_ast; /*hashtable of <string type name, struct type_node*/
-    struct hashtable varname_2_typename; /*hashtable of <string variable, string type*/
 
     /// target info
     struct target_info *target_info;

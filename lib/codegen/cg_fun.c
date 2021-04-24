@@ -123,7 +123,7 @@ LLVMValueRef emit_prototype_node(struct code_generator *cg, struct exp_node *nod
         LLVMSetValueName2(param, string_get(fun_param->var_name), string_size(fun_param->var_name));
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
         if (aa->type->type == TYPE_EXT)
-            hashtable_set(&cg->varname_2_typename, string_get(fun_param->var_name), aa->type->name);
+            hashtable_set_p(&cg->varname_2_typename, fun_param->var_name, aa->type->name);
     }
     return fun;
 }
