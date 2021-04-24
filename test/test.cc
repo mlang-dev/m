@@ -18,16 +18,13 @@ TEST(testGeneral, testReturnStructDirect)
     const char *expected_ir = R"(
 %Point2D = type { double, double }
 
-define i64 @f() {
+define void @f(%Point2D* %agg.result) {
 entry:
-  %xy = alloca %Point2D, align 8
-  %0 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-  store i32 10, i32* %0, align 4
-  %1 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 1
-  store i32 20, i32* %1, align 4
-  %2 = bitcast %Point2D* %xy to i64*
-  %3 = load i64, i64* %2, align 4
-  ret i64 %3
+  %0 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 0
+  store double 1.000000e+01, double* %0, align 8
+  %1 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 1
+  store double 2.000000e+01, double* %1, align 8
+  ret void
 }
 )";
     //validate_m_code_with_ir_code(test_code, expected_ir);

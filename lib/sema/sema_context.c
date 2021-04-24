@@ -17,14 +17,14 @@
 
 void enter_scope(struct sema_context *context)
 {
-    symboltable_push(&context->venv, context->scope_marker, 0);
+    symboltable_push(&context->decl_2_typexps, context->scope_marker, 0);
 }
 
 void leave_scope(struct sema_context *context)
 {
     symbol s;
     do {
-        s = symboltable_pop(&context->venv);
+        s = symboltable_pop(&context->decl_2_typexps);
         assert(s);
     } while (s != context->scope_marker);
 }
@@ -36,9 +36,10 @@ struct sema_context *sema_context_new(struct parser *parser)
     array_init(&context->nongens, sizeof(struct type_exp *));
     array_init(&context->used_builtin_names, sizeof(symbol));
     context->parser = parser;
-    symboltable_init(&context->tenv);
-    symboltable_init(&context->venv);
-    hashtable_init(&context->ext_type_ast);
+    symboltable_init(&context->typename_2_typexps);
+    symboltable_init(&context->decl_2_typexps);
+    symboltable_init(&context->varname_2_asts);
+    hashtable_init(&context->ext_typename_2_asts);
     hashtable_init(&context->builtin_ast);
     hashtable_init(&context->generic_ast);
     hashtable_init(&context->specialized_ast);
@@ -51,7 +52,7 @@ struct sema_context *sema_context_new(struct parser *parser)
     for (size_t i = 0; i < ARRAY_SIZE(type_strings); i++) {
         symbol type_name = to_symbol(type_strings[i]);
         struct type_exp *exp = (struct type_exp *)create_type_oper(type_name, i, &args);
-        push_symbol_type(&context->tenv, type_name, exp);
+        push_symbol_type(&context->typename_2_typexps, type_name, exp);
     }
     char libpath[PATH_MAX];
     char *mpath = get_exec_path();
@@ -71,7 +72,7 @@ struct sema_context *sema_context_new(struct parser *parser)
         assert(node->node_type == PROTOTYPE_NODE);
         struct prototype_node *proto = (struct prototype_node *)node;
         analyze(context, node);
-        push_symbol_type(&context->venv, proto->name, proto->base.type);
+        push_symbol_type(&context->decl_2_typexps, proto->name, proto->base.type);
         hashtable_set_p(&context->builtin_ast, proto->name, node);
         //string type = to_string(proto->base.type);
     }
@@ -80,14 +81,15 @@ struct sema_context *sema_context_new(struct parser *parser)
 
 void sema_context_free(struct sema_context *context)
 {
-    hashtable_deinit(&context->ext_type_ast);
+    hashtable_deinit(&context->ext_typename_2_asts);
     hashtable_deinit(&context->specialized_ast);
     hashtable_deinit(&context->generic_ast);
     hashtable_deinit(&context->builtin_ast);
     hashtable_deinit(&context->protos);
     hashtable_deinit(&context->calls);
-    symboltable_deinit(&context->venv);
-    symboltable_deinit(&context->tenv);
+    symboltable_deinit(&context->varname_2_asts);
+    symboltable_deinit(&context->decl_2_typexps);
+    symboltable_deinit(&context->typename_2_typexps);
     array_deinit(&context->used_builtin_names);
     array_deinit(&context->nongens);
     free(context);

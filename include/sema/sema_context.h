@@ -23,19 +23,25 @@ struct sema_context {
      *  value type env: symboltable of <symbol, struct type_exp>*>
      *  binding variable name to type expression
      */
-    struct symboltable venv;
+    struct symboltable decl_2_typexps;
+
+    /* 
+     *  value ast env: symboltable of <symbol, struct exp_node>*>
+     *  binding variable name to ast node expression
+     */
+    struct symboltable varname_2_asts;
 
     /* 
      *  type env: symboltable of <symbol, struct type_exp>*>
      *  binding type name to type expression
      */
-    struct symboltable tenv;
+    struct symboltable typename_2_typexps;
 
     /* 
      *  new type AST def: hashtable of <symbol, struct exp_node （type_node)*> 
      *      example: type Point2D = x:int y:int
      */
-    struct hashtable ext_type_ast;
+    struct hashtable ext_typename_2_asts;
 
     /* 
      *  builtin ASTs: symbol to exp_node*, only used for codegen

@@ -59,7 +59,7 @@ struct ops {
 struct code_generator {
     LLVMContextRef context;
     LLVMBuilderRef builder;
-    struct hashtable named_values; //hashtable of string, void*
+    struct hashtable named_values; //hashtable of string, LLVMValueRef
     LLVMModuleRef module;
 
     struct hashtable protos; //hashtable of char*, prototype_node*

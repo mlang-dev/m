@@ -184,6 +184,7 @@ struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, sy
     node->base.loc = loc;
     node->var_name = var_name;
     node->init_value = init_value;
+    node->is_ret = false;
     return node;
 }
 

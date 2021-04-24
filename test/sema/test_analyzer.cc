@@ -605,6 +605,33 @@ z = getx()
 
     /*verify variable xy in inner function is out of scope*/
     symbol xy = to_symbol("xy");
-    ASSERT_EQ(false, has_symbol(&env->sema_context->venv, xy));
+    ASSERT_EQ(false, has_symbol(&env->sema_context->decl_2_typexps, xy));
+    env_free(env);
+}
+
+TEST(testAnalyzer, testReturnValueFlag)
+{
+    char test_code[] = R"(
+getx()=
+    x = 10
+    y = x + 1
+    y
+)";
+    env *env = env_new(false);
+    create_ir_module(env->cg, "test");
+    block_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    emit_code(env, (exp_node *)block);
+    /*validate fun definition*/
+    auto node = *(exp_node **)array_get(&block->nodes, 0);
+    auto type_str = to_string(node->type);
+    ASSERT_STREQ("() -> int", string_get(&type_str));
+
+    /*validate inside functions*/
+    auto fun = (function_node *)node;
+    auto var_x = *(var_node **)array_get(&fun->body->nodes, 0);
+    auto var_y = *(var_node **)array_get(&fun->body->nodes, 1);
+    ASSERT_EQ(false, var_x->is_ret);
+    ASSERT_EQ(true, var_y->is_ret);
     env_free(env);
 }

@@ -89,6 +89,7 @@ struct var_node {
     struct exp_node base;
     symbol var_name;
     struct exp_node *init_value;
+    bool is_ret;
 };
 
 struct unary_node {

@@ -53,12 +53,12 @@ struct type_exp *_analyze_unk(struct sema_context *context, struct exp_node *nod
 
 struct type_exp *retrieve_type_with_type_name(struct sema_context *context, symbol name)
 {
-    return get_symbol_type(&context->tenv, &context->nongens, name);
+    return get_symbol_type(&context->typename_2_typexps, &context->nongens, name);
 }
 
 struct type_exp *retrieve_type_for_var_name(struct sema_context *context, symbol name)
 {
-    return get_symbol_type(&context->venv, &context->nongens, name);
+    return get_symbol_type(&context->decl_2_typexps, &context->nongens, name);
 }
 
 struct type_exp *_analyze_ident(struct sema_context *context, struct exp_node *node)
@@ -72,7 +72,7 @@ struct type_exp *_analyze_ident(struct sema_context *context, struct exp_node *n
         } else {
             assert(type);
             struct type_oper *oper = (struct type_oper *)type;
-            struct type_node *type_node = (struct type_node *)hashtable_get_p(&context->ext_type_ast, oper->base.name);
+            struct type_node *type_node = (struct type_node *)hashtable_get_p(&context->ext_typename_2_asts, oper->base.name);
             int index = find_member_index(type_node, id);
             if (index < 0) {
                 _log_err(context, node->loc, "%s member not matched.");
@@ -98,14 +98,16 @@ struct type_exp *_analyze_var(struct sema_context *context, struct exp_node *nod
     if (var->base.annotated_type_name && hashtable_get_int(&context->parser->symbol_2_int_types, var->base.annotated_type_name) == TYPE_EXT) {
         assert(var->base.annotated_type_name);
         type = retrieve_type_with_type_name(context, var->base.annotated_type_name);
-        push_symbol_type(&context->venv, var->var_name, type);
+        push_symbol_type(&context->decl_2_typexps, var->var_name, type);
+        push_symbol_type(&context->varname_2_asts, var->var_name, var);
         if (var->init_value)
             analyze(env->sema_context, var->init_value);
         return type;
     } else if (var->base.annotated_type_name && !var->init_value) {
         type = retrieve_type_with_type_name(context, var->base.annotated_type_name);
         assert(type);
-        push_symbol_type(&context->venv, var->var_name, type);
+        push_symbol_type(&context->decl_2_typexps, var->var_name, type);
+        push_symbol_type(&context->varname_2_asts, var->var_name, var);
         return type;
     }
     type = analyze(context, var->init_value);
@@ -117,7 +119,7 @@ struct type_exp *_analyze_var(struct sema_context *context, struct exp_node *nod
         return 0;
     }
     struct type_exp *var_type;
-    if (has_symbol_in_scope(&context->venv, var->var_name, context->scope_marker))
+    if (has_symbol_in_scope(&context->decl_2_typexps, var->var_name, context->scope_marker))
         var_type = retrieve_type_for_var_name(context, var->var_name);
     else
         var_type = (struct type_exp *)create_type_var();
@@ -126,7 +128,8 @@ struct type_exp *_analyze_var(struct sema_context *context, struct exp_node *nod
         _log_err(context, node->loc, "variable type not matched with literal constant");
         return 0;
     }
-    push_symbol_type(&context->venv, var->var_name, var_type);
+    push_symbol_type(&context->decl_2_typexps, var->var_name, var_type);
+    push_symbol_type(&context->varname_2_asts, var->var_name, var);
     return var_type;
 }
 
@@ -142,8 +145,8 @@ struct type_exp *_analyze_type(struct sema_context *context, struct exp_node *no
     }
     struct type_oper *result_type = create_type_oper_ext(type->name, &args);
     assert(type->name == result_type->base.name);
-    push_symbol_type(&context->tenv, type->name, result_type);
-    hashtable_set_p(&context->ext_type_ast, type->name, node);
+    push_symbol_type(&context->typename_2_typexps, type->name, result_type);
+    hashtable_set_p(&context->ext_typename_2_asts, type->name, node);
     return &result_type->base;
 }
 
@@ -197,11 +200,12 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *nod
             exp = (struct type_exp *)create_type_var();
         array_push(&fun_sig, &exp);
         array_push(&context->nongens, &exp);
-        push_symbol_type(&context->venv, param->var_name, exp);
+        push_symbol_type(&context->decl_2_typexps, param->var_name, exp);
+        push_symbol_type(&context->varname_2_asts, param->var_name, param);
     }
     /*analyze function body*/
     struct type_exp *fun_type = (struct type_exp *)create_type_var();
-    push_symbol_type(&context->venv, fun->prototype->name, fun_type);
+    push_symbol_type(&context->decl_2_typexps, fun->prototype->name, fun_type);
     struct type_exp *ret_type = analyze(context, (struct exp_node *)fun->body);
     array_push(&fun_sig, &ret_type);
     struct type_exp *result_type = (struct type_exp *)create_type_fun(&fun_sig);
@@ -241,7 +245,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
     if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args)) && !is_recursive(call)) {
         string sp_callee = monomorphize(string_get(call->callee), &args);
         call->specialized_callee = to_symbol(string_get(&sp_callee));
-        if (has_symbol(&context->venv, call->specialized_callee)) {
+        if (has_symbol(&context->decl_2_typexps, call->specialized_callee)) {
             fun_type = retrieve_type_for_var_name(context, call->specialized_callee);
             struct type_oper *fun_op = (struct type_oper *)fun_type;
             return *(struct type_exp **)array_back(&fun_op->args);
@@ -252,7 +256,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
         sp_fun->prototype->name = call->specialized_callee;
         fun_type = analyze(env->sema_context, (struct exp_node *)sp_fun);
         hashtable_set(&context->specialized_ast, string_get(sp_fun->prototype->name), sp_fun);
-        push_symbol_type(&context->venv, call->specialized_callee, fun_type);
+        push_symbol_type(&context->decl_2_typexps, call->specialized_callee, fun_type);
         specialized_fun = (struct exp_node *)sp_fun;
         hashtable_set_p(&context->protos, call->specialized_callee, sp_fun->prototype);
         hashtable_set_p(&context->calls, call->specialized_callee, node);
@@ -326,7 +330,7 @@ struct type_exp *_analyze_for(struct sema_context *context, struct exp_node *nod
     struct for_node *for_node = (struct for_node *)node;
     struct type_exp *int_type = (struct type_exp *)create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
     struct type_exp *bool_type = (struct type_exp *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
-    push_symbol_type(&context->venv, for_node->var_name, int_type);
+    push_symbol_type(&context->decl_2_typexps, for_node->var_name, int_type);
     struct type_exp *start_type = analyze(context, for_node->start);
     struct type_exp *step_type = analyze(context, for_node->step);
     struct type_exp *end_type = analyze(context, for_node->end);
@@ -351,6 +355,15 @@ struct type_exp *_analyze_block(struct sema_context *context, struct exp_node *n
     for (size_t i = 0; i < array_size(&block->nodes); i++) {
         struct exp_node *node = *(struct exp_node **)array_get(&block->nodes, i);
         type = analyze(context, node);
+    }
+    //tag variable node as returning variable if exists
+    struct exp_node *ret_node = *(struct exp_node **)array_back(&block->nodes);
+    if (ret_node->node_type == IDENT_NODE) {
+        symbol var_name = ((struct ident_node *)ret_node)->name;
+        struct var_node *var = (struct var_node *)symboltable_get(&context->varname_2_asts, var_name);
+        //struct member reference id node like xy.x is not a variable
+        if (var)
+            var->is_ret = true;
     }
     leave_scope(context);
     return type;

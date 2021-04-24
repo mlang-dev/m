@@ -31,11 +31,9 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
     struct type_size_info tsi = get_type_size_info(node->base.type);
     LLVMValueRef alloca = create_alloca(type, tsi.align_bits / 8, fun, var_name);
     struct type_value_node *values = (struct type_value_node *)node->init_value;
-    char tempname[64];
     for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
         struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
-        sprintf(tempname, "temp%zu", i);
         LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, i, "");
         LLVMBuildStore(cg->builder, exp, member);
     }
@@ -63,6 +61,8 @@ LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *no
     LLVMValueRef alloca = create_alloca(cg->ops[type].get_type(cg->context, node->base.type), tsi.align_bits / 8, fun, var_name);
     LLVMBuildStore(cg->builder, init_val, alloca);
     hashtable_set(&cg->named_values, var_name, alloca);
+    if (type == TYPE_EXT)
+        assert(!node->is_ret);
     return 0;
     // KSDbgInfo.emitLocation(this);
 }
