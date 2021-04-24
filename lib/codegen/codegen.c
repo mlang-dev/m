@@ -57,7 +57,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
 {
     assert(type_exp->type == TYPE_EXT);
     assert(g_cg);
-    LLVMTypeRef struct_type = hashtable_get(&g_cg->typename_2_irtypes, string_get(type_exp->name));
+    LLVMTypeRef struct_type = hashtable_get_p(&g_cg->typename_2_irtypes, type_exp->name);
     if (struct_type)
         return struct_type;
     struct type_oper *type = (struct type_oper *)type_exp;
@@ -69,7 +69,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
         members[i] = get_llvm_type(field_type);
     }
     LLVMStructSetBody(struct_type, members, member_count, false);
-    hashtable_set(&g_cg->typename_2_irtypes, string_get(type->base.name), struct_type);
+    hashtable_set_p(&g_cg->typename_2_irtypes, type->base.name, struct_type);
     free(members);
     return struct_type;
 }

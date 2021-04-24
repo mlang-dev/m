@@ -27,7 +27,7 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
     symbol var_name = node->var_name;
     // log_info(DEBUG, "local var cg: %s", var_name.c_str());
     assert(node->init_value);
-    LLVMTypeRef type = (LLVMTypeRef)hashtable_get(&cg->typename_2_irtypes, string_get(node->base.type->name));
+    LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, node->base.type->name);
     struct type_size_info tsi = get_type_size_info(node->base.type);
     LLVMValueRef alloca = create_alloca(type, tsi.align_bits / 8, fun, string_get(var_name));
     struct type_value_node *values = (struct type_value_node *)node->init_value;
@@ -100,7 +100,7 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct var_no
     const char *var_name = string_get(node->var_name);
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     assert(node->base.type);
-    LLVMTypeRef type = (LLVMTypeRef)hashtable_get(&cg->typename_2_irtypes, string_get(node->base.type->name));
+    LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, node->base.type->name);
     if (hashtable_in(&cg->gvs, var_name) && !gVar && !is_external)
         is_external = true;
     if (!gVar) {

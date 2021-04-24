@@ -79,6 +79,10 @@ struct code_generator {
      */
     struct hashtable varname_2_typename;
 
+    /* 
+     *  symboltable of <symbol, LLVMTypeRef>
+     *  binding type name to IR Type
+     */
     struct hashtable typename_2_irtypes; /*hashtable of <string, struct LLVMTypeRef*/
     struct hashtable typename_2_ast; /*hashtable of <string type name, struct type_node*/
 
