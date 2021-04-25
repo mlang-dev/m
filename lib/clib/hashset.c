@@ -25,6 +25,11 @@ void hashset_set(hashset *hs, const char *key_data)
     hashtable_set(hs, key_data, 0);
 }
 
+void hashset_set_p(hashset *hs, void *key_data)
+{
+    hashtable_set_p(hs, key_data, 0);
+}
+
 size_t hashset_size(hashset *hs)
 {
     return hashtable_size(hs);
@@ -33,6 +38,11 @@ size_t hashset_size(hashset *hs)
 bool hashset_in(hashset *hs, const char *key_data)
 {
     return hashtable_in(hs, key_data);
+}
+
+bool hashset_in_p(hashset *hs, void *key_data)
+{
+    return hashtable_in_p(hs, key_data);
 }
 
 void hashset_deinit(hashset *hs)

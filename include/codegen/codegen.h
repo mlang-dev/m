@@ -63,7 +63,12 @@ struct code_generator {
     struct sema_context *sema_context;
 
     struct ops ops[TYPE_TYPES];
-    hashset builtins; //hashtable of char*
+
+    /* 
+     *  hashset of <symbol, symbol>
+     *  built function symbol names
+     */
+    hashset builtins;
 
     /* 
      *  symboltable of <symbol, prototype_node*>
