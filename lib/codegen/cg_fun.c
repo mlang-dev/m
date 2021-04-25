@@ -101,7 +101,7 @@ LLVMValueRef emit_prototype_node(struct code_generator *cg, struct exp_node *nod
 {
     struct prototype_node *proto = (struct prototype_node *)node;
     assert(proto->base.type);
-    hashtable_set(&cg->protos, string_get(proto->name), proto);
+    hashtable_set_p(&cg->protos, proto->name, proto);
     struct type_oper *proto_type = (struct type_oper *)proto->base.type;
     assert(proto_type->base.kind == KIND_OPER);
     struct fun_info *fi = get_fun_info(proto);
@@ -185,12 +185,13 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
     return fun;
 }
 
-LLVMValueRef get_llvm_function(struct code_generator *cg, const char *name)
+LLVMValueRef get_llvm_function(struct code_generator *cg, symbol fun_name)
 {
+    const char *name = string_get(fun_name);
     LLVMValueRef f = LLVMGetNamedFunction(cg->module, name);
     if (f)
         return f;
-    struct exp_node *fp = (struct exp_node *)hashtable_get(&cg->protos, name);
+    struct exp_node *fp = (struct exp_node *)hashtable_get_p(&cg->protos, fun_name);
     if (fp)
         return emit_prototype_node(cg, fp, 0);
     return 0;

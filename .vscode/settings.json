@@ -127,7 +127,8 @@
         "windows.h": "c",
         "errno.h": "c",
         "cg_var.h": "c",
-        "ast.h": "c"
+        "ast.h": "c",
+        "typeindex": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

@@ -101,13 +101,13 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct var_no
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     assert(node->base.type);
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, node->base.type->name);
-    if (hashtable_in(&cg->gvs, var_name) && !gVar && !is_external)
+    if (hashtable_in_p(&cg->gvs, node->var_name) && !gVar && !is_external)
         is_external = true;
     if (!gVar) {
         if (is_external) {
             gVar = LLVMAddGlobal(cg->module, type, var_name);
         } else {
-            hashtable_set(&cg->gvs, var_name, node);
+            hashtable_set_p(&cg->gvs, node->var_name, node);
             gVar = LLVMAddGlobal(cg->module, type, var_name);
             LLVMValueRef init_value;
             if (node->init_value)
@@ -144,14 +144,14 @@ LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct var_node *n
     LLVMValueRef exp = emit_ir_code(cg, node->init_value);
     assert(node->base.type && cg->module);
     enum type type = get_type(node->base.type);
-    if (hashtable_in(&cg->gvs, var_name) && !gVar && !is_external)
+    if (hashtable_in_p(&cg->gvs, node->var_name) && !gVar && !is_external)
         is_external = true;
     if (!gVar) {
         if (is_external) {
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->base.type), var_name);
             LLVMSetExternallyInitialized(gVar, true);
         } else {
-            hashtable_set(&cg->gvs, var_name, node);
+            hashtable_set_p(&cg->gvs, node->var_name, node);
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->base.type), var_name);
             LLVMSetExternallyInitialized(gVar, false);
             if (cg->sema_context->parser->is_repl)
@@ -178,12 +178,13 @@ LLVMValueRef emit_var_node(struct code_generator *cg, struct exp_node *node)
         return _emit_local_var_node(cg, var);
 }
 
-LLVMValueRef get_global_variable(struct code_generator *cg, const char *name)
+LLVMValueRef get_global_variable(struct code_generator *cg, symbol gv_name)
 {
+    const char *name = string_get(gv_name);
     LLVMValueRef gv = LLVMGetNamedGlobal(cg->module, name);
     if (gv)
         return gv;
-    struct var_node *var = (struct var_node *)hashtable_get(&cg->gvs, name);
+    struct var_node *var = (struct var_node *)hashtable_get_p(&cg->gvs, gv_name);
     if (var) {
         LLVMTypeRef type = get_llvm_type(var->base.type);
         gv = LLVMAddGlobal(cg->module, type, name);

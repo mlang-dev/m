@@ -422,7 +422,7 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
     const char *idname = string_get(id);
     LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, id);
     if (!v) {
-        v = get_global_variable(cg, idname);
+        v = get_global_variable(cg, id);
         assert(v);
     }
     if (array_size(&ident->member_accessors) > 1) {
@@ -454,7 +454,8 @@ LLVMValueRef _emit_unary_node(struct code_generator *cg, struct exp_node *node)
     string fname;
     string_init_chars(&fname, "unary");
     string_add(&fname, unary->op);
-    LLVMValueRef fun = get_llvm_function(cg, string_get(&fname));
+    symbol op = to_symbol(string_get(&fname));
+    LLVMValueRef fun = get_llvm_function(cg, op);
     if (fun == 0)
         return log_info(ERROR, "Unknown unary operator");
 
@@ -518,7 +519,8 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
         string f_name;
         string_init_chars(&f_name, "binary");
         string_add(&f_name, bin->op);
-        LLVMValueRef fun = get_llvm_function(cg, string_get(&f_name));
+        symbol op = to_symbol(string_get(&f_name));
+        LLVMValueRef fun = get_llvm_function(cg, op);
         assert(fun && "binary operator not found!");
         LLVMValueRef ops[2] = { lv, rv };
         return LLVMBuildCall(cg->builder, fun, ops, 2, "binop");

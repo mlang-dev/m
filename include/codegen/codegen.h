@@ -60,12 +60,22 @@ struct code_generator {
     LLVMContextRef context;
     LLVMBuilderRef builder;
     LLVMModuleRef module;
-
-    struct hashtable protos; //hashtable of char*, prototype_node*
-    struct hashtable gvs; //hashtable of char* and var_node*
+    struct sema_context *sema_context;
 
     struct ops ops[TYPE_TYPES];
     hashset builtins; //hashtable of char*
+
+    /* 
+     *  symboltable of <symbol, prototype_node*>
+     *  binding prototype name to prototype_node*
+     */
+    struct hashtable protos;
+
+    /* 
+     *  symboltable of <symbol, var_node*>
+     *  binding global variable name to var_node*
+     */
+    struct hashtable gvs;
 
     /* 
      *  symboltable of <symbol, LLVMValueRef>
@@ -93,9 +103,18 @@ struct code_generator {
 
     /// target info
     struct target_info *target_info;
-    struct hashtable type_size_infos; /*hashtable of <symbol, struct type_size_info>*/
-    struct hashtable fun_infos; /*hashtable of <symbol, struct fun_info>*/
-    struct sema_context *sema_context;
+
+    /* 
+     *  symboltable of <symbol, struct type_size_info>
+     *  binding type name to type size
+     */
+    struct hashtable type_size_infos;
+
+    /* 
+     *  symboltable of <symbol, struct fun_info>
+     *  binding fun name to struct fun_info
+     */
+    struct hashtable fun_infos;
 };
 
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)

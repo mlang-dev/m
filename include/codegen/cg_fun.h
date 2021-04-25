@@ -14,6 +14,7 @@
 
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
+#include "clib/symbol.h"
 #include "codegen/target_info.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
@@ -24,7 +25,7 @@ extern "C" {
 
 LLVMValueRef emit_prototype_node(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi);
 LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node);
-LLVMValueRef get_llvm_function(struct code_generator *cg, const char *name);
+LLVMValueRef get_llvm_function(struct code_generator *cg, symbol fun_name);
 
 #ifdef __cplusplus
 }

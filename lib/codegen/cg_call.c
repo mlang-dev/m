@@ -22,7 +22,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     symbol callee_name = get_callee(call);
     struct fun_info *fi = get_fun_info(call->callee_decl);
     assert(fi);
-    LLVMValueRef callee = get_llvm_function(cg, string_get(callee_name));
+    LLVMValueRef callee = get_llvm_function(cg, callee_name);
     assert(callee);
     LLVMValueRef *arg_values = malloc(array_size(&call->args) * sizeof(LLVMValueRef));
     for (size_t i = 0, e = array_size(&call->args); i != e; ++i) {
