@@ -11,33 +11,77 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
-// TEST(testCGFun, testStructInitializer)
-// {
-//     const char test_code[] = R"(
-//  type Point2D = x:int y:int
-//  f () =
-//    xy:Point2D = 10 20
-//    xy.x
-//  )";
-//     const char *expected_ir = R"(
-// %Point2D = type { i32, i32 }
+TEST(testCGFunCall, testIntIdFunc)
+{
+    const char test_code[] = R"(
+f x:int = x
+)";
+    const char *expected_ir = R"(
+define i32 @f(i32 %x) {
+entry:
+  %x1 = alloca i32, align 4
+  store i32 %x, i32* %x1, align 4
+  %x2 = load i32, i32* %x1, align 4
+  ret i32 %x2
+}
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}
 
-// @__const.f.xy = private unnamed_addr constant %Point2D { i32 10, i32 20 }, align 4
+TEST(testCGFunCall, testGenericIdFunc)
+{
+    const char test_code[] = R"(
+f x = x
+main () = f 'c'
+)";
+    const char *expected_ir = R"(
+define i8 @__f_char(i8 %x) {
+entry:
+  %x1 = alloca i8, align 1
+  store i8 %x, i8* %x1, align 1
+  %x2 = load i8, i8* %x1, align 1
+  ret i8 %x2
+}
 
-// define i64 @f() {
-// entry:
-//   %retval = alloca %Point2D, align 4
-//   %0 = bitcast %Point2D* %retval to i8*
-//   call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 4 %0, i8* align 4 bitcast (%Point2D* @@__const.f.xy to i8*), i64 8, i1 false)
-//   %1 = bitcast %Point2D* %retval to i64*
-//   %2 = load i64, i64* %1, align 4
-//   ret i64 %2
-// }
-// )";
-//     validate_m_code_with_ir_code(test_code, expected_ir);
-// }
+define i8 @main() {
+entry:
+  %0 = call i8 @__f_char(i8 99)
+  ret i8 %0
+}
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}
 
-TEST(testCGFun, testPassStructIndirect)
+TEST(testCGFunCall, testTwoParamsFunc)
+{
+    const char test_code[] = R"(
+f x y = (x + y) / 2
+main () = f 10 20
+)";
+    const char *expected_ir = R"(
+define i32 @f(i32 %x, i32 %y) {
+entry:
+  %y2 = alloca i32, align 4
+  %x1 = alloca i32, align 4
+  store i32 %x, i32* %x1, align 4
+  store i32 %y, i32* %y2, align 4
+  %x3 = load i32, i32* %x1, align 4
+  %y4 = load i32, i32* %y2, align 4
+  %addtmp = add i32 %x3, %y4
+  %divtmp = sdiv i32 %addtmp, 2
+  ret i32 %divtmp
+}
+
+define i32 @main() {
+entry:
+  %0 = call i32 @f(i32 10, i32 20)
+  ret i32 %0
+}
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}
+
+TEST(testCGFunCall, testPassStructIndirect)
 {
     const char test_code[] = R"(
 type Point2D = x:double y:double
@@ -56,7 +100,7 @@ entry:
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
-TEST(testCGFun, testPassStructDirect)
+TEST(testCGFunCall, testPassStructDirect)
 {
     const char test_code[] = R"(
  type Point2D = x:int y:int
@@ -78,7 +122,7 @@ entry:
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
-TEST(testCGFun, testReturnStructDirect)
+TEST(testCGFunCall, testReturnStructDirect)
 {
     const char test_code[] = R"(
  type Point2D = x:int y:int
@@ -104,7 +148,7 @@ entry:
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
-TEST(testCGFun, testReturnStructInDirect)
+TEST(testCGFunCall, testReturnStructInDirect)
 {
     const char test_code[] = R"(
  type Point2D = x:double y:double
