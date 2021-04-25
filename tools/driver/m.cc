@@ -24,7 +24,7 @@ void print_usage()
 
 int main(int argc, char *argv[])
 {
-    //printf("from location: %s\n", get_exec_path());
+    // printf("from location: %s\n", get_exec_path());
     int c;
     int fflag = 0;
     enum object_file_type file_type = FT_OBJECT;
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     const char *ld_cmd = "ld.lld";
     const char *libcpath = "-L/usr/lib/x86_64-linux-gnu";
     const char *libc = "-lc";
-    const char *dynamic_link = "-dynamic-linker"; //only elf
+    const char *dynamic_link = "-dynamic-linker"; // only elf
     const char *libld = "/lib64/ld-linux-x86-64.so.2";
     const char *start_entry = "/usr/lib/x86_64-linux-gnu/crt1.o";
     const char *initialization = "/usr/lib/x86_64-linux-gnu/crti.o";
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    //do linker
+    // do linker
     if (file_type == FT_OBJECT && use_ld) {
         if (finalization)
             array_push(&ld_options, &finalization);
