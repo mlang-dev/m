@@ -22,6 +22,10 @@
 LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_node *node)
 {
     // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
+    struct prototype_node *proto_node = (struct prototype_node *)node->base.parent;
+    assert(proto_node->base.node_type == PROTOTYPE_NODE);
+    struct fun_info *fi = get_fun_info(proto_node);
+    bool is_rvo = check_rvo(fi);
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
     // fprintf(stderr, "_emit_var_node:2 %lu!\n", node->var_names.size());
     symbol var_name = node->var_name;
@@ -29,7 +33,18 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
     assert(node->init_value);
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, node->base.type->name);
     struct type_size_info tsi = get_type_size_info(node->base.type);
-    LLVMValueRef alloca = create_alloca(type, tsi.align_bits / 8, fun, string_get(var_name));
+    LLVMValueRef alloca = 0;
+    if (is_rvo && node->is_ret) {
+        assert(fi->iai.sret_arg_no != InvalidIndex);
+        // we only needed to a
+        //1. create pointer to the struct
+        // alloca = create_alloca(LLVMPointerType(type, 0), tsi.align_bits / 8, fun, string_get(var_name));
+        // LLVMBuildStore(cg->builder, LLVMGetParam(fun, fi->iai.sret_arg_no), alloca);
+        //alloca = LLVMBuildLoad2(cg->builder, type, alloca, "");
+        alloca = LLVMGetParam(fun, fi->iai.sret_arg_no);
+    } else {
+        alloca = create_alloca(type, tsi.align_bits / 8, fun, string_get(var_name));
+    }
     struct type_value_node *values = (struct type_value_node *)node->init_value;
     for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
         struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);

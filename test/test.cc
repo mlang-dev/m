@@ -18,7 +18,7 @@ TEST(testGeneral, testReturnStructDirect)
     const char *expected_ir = R"(
 %Point2D = type { double, double }
 
-define void @f(%Point2D* %agg.result) {
+define void @f(%Point2D* noalias sret(%Point2D) %agg.result) {
 entry:
   %0 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 0
   store double 1.000000e+01, double* %0, align 8
@@ -27,5 +27,5 @@ entry:
   ret void
 }
 )";
-    //validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }

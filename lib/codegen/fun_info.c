@@ -208,3 +208,8 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
     array_deinit(&arg_types);
     return fun_type;
 }
+
+bool check_rvo(struct fun_info *fi)
+{
+    return fi->ret.type->type == TYPE_EXT && (fi->ret.info.kind == AK_INDIRECT || fi->ret.info.kind == AK_INDIRECT_ALIASED);
+}

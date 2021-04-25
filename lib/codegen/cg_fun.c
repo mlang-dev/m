@@ -114,7 +114,8 @@ LLVMValueRef emit_prototype_node(struct code_generator *cg, struct exp_node *nod
         LLVMValueRef ai = LLVMGetParam(fun, fi->iai.sret_arg_no);
         const char *sret_var = "agg.result";
         LLVMSetValueName2(ai, sret_var, strlen(sret_var));
-        //TODO add noalias attribute to the var
+        add_fun_param_attribute(cg->context, fun, fi->iai.sret_arg_no, "noalias");
+        add_fun_param_type_attribute(cg->context, fun, fi->iai.sret_arg_no, "sret", get_llvm_type(fi->ret.type));
     }
     unsigned param_count = array_size(&fi->args);
     for (unsigned i = 0; i < param_count; i++) {

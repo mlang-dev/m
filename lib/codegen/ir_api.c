@@ -83,3 +83,15 @@ void create_coerced_store(LLVMBuilderRef builder, LLVMValueRef src, LLVMValueRef
         _create_aggregate_store(builder, src, dst, align);
     }
 }
+
+void add_fun_param_attribute(LLVMContextRef context, LLVMValueRef fun, unsigned arg_index, const char *attr)
+{
+    unsigned attr_kind = LLVMGetEnumAttributeKindForName(attr, strlen(attr));
+    LLVMAddAttributeAtIndex(fun, arg_index + 1, LLVMCreateEnumAttribute(context, attr_kind, 0));
+}
+
+void add_fun_param_type_attribute(LLVMContextRef context, LLVMValueRef fun, unsigned arg_index, const char *attr, LLVMTypeRef type)
+{
+    unsigned attr_kind = LLVMGetEnumAttributeKindForName(attr, strlen(attr));
+    LLVMAddAttributeAtIndex(fun, arg_index + 1, LLVMCreateTypeAttribute(context, attr_kind, type));
+}
