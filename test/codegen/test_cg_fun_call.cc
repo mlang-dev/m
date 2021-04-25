@@ -15,6 +15,7 @@ TEST(testCGFunCall, testIntIdFunc)
 {
     const char test_code[] = R"(
 f x:int = x
+main() = f 10
 )";
     const char *expected_ir = R"(
 define i32 @f(i32 %x) {
@@ -23,6 +24,12 @@ entry:
   store i32 %x, i32* %x1, align 4
   %x2 = load i32, i32* %x1, align 4
   ret i32 %x2
+}
+
+define i32 @main() {
+entry:
+  %0 = call i32 @f(i32 10)
+  ret i32 %0
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
@@ -86,6 +93,9 @@ TEST(testCGFunCall, testPassStructIndirect)
     const char test_code[] = R"(
 type Point2D = x:double y:double
 f xy:Point2D = xy.y
+main() = 
+  xy:Point2D = 10.0 20.0
+  f xy
 )";
     const char *expected_ir = R"(
 %Point2D = type { double, double }
@@ -95,6 +105,17 @@ entry:
   %y = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 1
   %xy.y = load double, double* %y, align 8
   ret double %xy.y
+}
+
+define double @main() {
+entry:
+  %xy = alloca %Point2D, align 8
+  %0 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
+  store double 1.000000e+01, double* %0, align 8
+  %1 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 1
+  store double 2.000000e+01, double* %1, align 8
+  %2 = call double @f(%Point2D* %xy)
+  ret double %2
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);

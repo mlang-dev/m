@@ -258,3 +258,15 @@ TEST(testString, testSubstring)
     ASSERT_STREQ("abc", string_get(string_substr(&str1, '.')));
     string_deinit(&str1);
 }
+
+TEST(testString, testInitLongStringWithCopyToShortString)
+{
+    string str;
+    string_init_chars(&str, "this is a very long string");
+    ASSERT_STREQ("this is a very long string", string_get(&str));
+    string_copy_chars(&str, "r");
+    ASSERT_STREQ("r", string_get(&str));
+    string_add_chars(&str, "esult");
+    ASSERT_STREQ("result", string_get(&str));
+    string_deinit(&str);
+}

@@ -111,8 +111,8 @@ void string_add(string *str1, string *str2)
         str1->base.p_data = data;
         str1->cap = len + 1;
     } else {
-        //still in reserved area
-        memcpy(str1->_reserved + str1->base.size, string_get(str2), str2->base.size + 1);
+        char *dst = (str1->cap > SSO_LENGTH) ? (char *)str1->base.p_data : str1->_reserved;
+        memcpy(dst + str1->base.size, string_get(str2), str2->base.size + 1);
     }
     str1->base.size = len;
 }

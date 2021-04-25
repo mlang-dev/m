@@ -237,6 +237,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
     for (size_t i = 0; i < array_size(&call->args); i++) {
         struct exp_node *arg = *(struct exp_node **)array_get(&call->args, i);
         struct type_exp *type = analyze(context, arg);
+        assert(type);
         array_push(&args, &type);
     }
 
