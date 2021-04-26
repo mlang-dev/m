@@ -19,6 +19,16 @@
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 
+void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct type_value_node *values)
+{
+    for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
+        struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);
+        LLVMValueRef exp = emit_ir_code(cg, arg);
+        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, i, "");
+        LLVMBuildStore(cg->builder, exp, member);
+    }
+}
+
 LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_node *node)
 {
     // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
@@ -36,21 +46,15 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
     LLVMValueRef alloca = 0;
     if (is_rvo && node->is_ret) {
         assert(fi->iai.sret_arg_no != InvalidIndex);
-        // we only needed to a
-        //1. create pointer to the struct
-        // alloca = create_alloca(LLVMPointerType(type, 0), tsi.align_bits / 8, fun, string_get(var_name));
-        // LLVMBuildStore(cg->builder, LLVMGetParam(fun, fi->iai.sret_arg_no), alloca);
-        //alloca = LLVMBuildLoad2(cg->builder, type, alloca, "");
+        //function parameter with sret: just directly used the pointer passed
         alloca = LLVMGetParam(fun, fi->iai.sret_arg_no);
-    } else {
+    } else if (node->init_value->node_type == TYPE_VALUE_NODE) {
         alloca = create_alloca(type, tsi.align_bits / 8, fun, string_get(var_name));
-    }
-    struct type_value_node *values = (struct type_value_node *)node->init_value;
-    for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
-        struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);
-        LLVMValueRef exp = emit_ir_code(cg, arg);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, i, "");
-        LLVMBuildStore(cg->builder, exp, member);
+        struct type_value_node *values = (struct type_value_node *)node->init_value;
+        _store_type_values(cg, alloca, values);
+    } else {
+        alloca = emit_ir_code(cg, node->init_value);
+        LLVMSetValueName2(alloca, string_get(var_name), string_size(var_name));
     }
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     /*TODO: local & global sharing the same hashtable now*/

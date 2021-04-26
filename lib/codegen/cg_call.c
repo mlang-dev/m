@@ -49,6 +49,17 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
         arg_values[i] = arg_value;
     }
     LLVMValueRef value = LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "");
+    LLVMTypeRef sig_ret_type = get_llvm_type(fi->ret.type);
+    struct prototype_node *parent_proto = node->parent;
+    assert(parent_proto->base.node_type == PROTOTYPE_NODE);
+    LLVMValueRef parent_fun = get_llvm_function(cg, parent_proto->name);
+    if (sig_ret_type != fi->ret.info.type) {
+        struct type_size_info tsi = get_type_size_info(fi->ret.type);
+        //create temp memory
+        LLVMValueRef alloca = create_alloca(sig_ret_type, tsi.align_bits / 8, parent_fun, "");
+        create_coerced_store(cg->builder,  value, alloca, tsi.align_bits / 8);
+        value = alloca;
+    }
     free(arg_values);
     return value;
 }

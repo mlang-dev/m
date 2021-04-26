@@ -166,6 +166,9 @@ TEST(testCGFunCall, testReturnStructDirect)
  f () = 
    xy:Point2D = 10 20
    xy
+ main() = 
+   xy = f()
+   xy.x
  )";
     const char *expected_ir = R"(
 %Point2D = type { i32, i32 }

@@ -68,6 +68,10 @@ LLVMValueRef coerce_int_or_ptr(LLVMValueRef value, LLVMTypeRef dst_type)
     return 0;
 }
 
+/// store src value to dst location (dst pointer)
+/// when dst pointer pointing to different type than source type, we need to convert
+/// dst pointer type to pointer to source type, then load source value into the
+/// converted dst pointer
 void create_coerced_store(LLVMBuilderRef builder, LLVMValueRef src, LLVMValueRef dst, unsigned align)
 {
     LLVMTypeRef src_type = LLVMTypeOf(src);
