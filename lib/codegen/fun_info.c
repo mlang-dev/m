@@ -43,31 +43,31 @@ void _map_to_ir_arg_info(struct fun_info *fi)
         case AK_EXTEND:
         case AK_DIRECT: {
             if (aa->info.kind == AK_DIRECT && aa->info.can_be_flattened && LLVMGetTypeKind(aa->info.type) == LLVMStructTypeKind) {
-                iar.arg_num = LLVMCountStructElementTypes(aa->info.type);
+                iar.ir_arg_num = LLVMCountStructElementTypes(aa->info.type);
             } else {
-                iar.arg_num = 1;
+                iar.ir_arg_num = 1;
             }
             break;
         }
         case AK_INDIRECT:
         case AK_INDIRECT_ALIASED:
-            iar.arg_num = 1;
+            iar.ir_arg_num = 1;
             break;
         case AK_IGNORE:
         case AK_INALLOCA:
-            iar.arg_num = 0;
+            iar.ir_arg_num = 0;
             break;
         case AK_COERCE_AND_EXPAND:
             //TODO: different than LLVMGetStructElementTypes returned number of types ?
-            iar.arg_num = LLVMCountStructElementTypes(aa->info.type);
+            iar.ir_arg_num = LLVMCountStructElementTypes(aa->info.type);
             break;
         case AK_EXPAND:
-            iar.arg_num = get_expansion_size(aa->type);
+            iar.ir_arg_num = get_expansion_size(aa->type);
             break;
         }
-        if (iar.arg_num > 0) {
+        if (iar.ir_arg_num > 0) {
             iar.first_arg_index = ir_arg_no;
-            ir_arg_no += iar.arg_num;
+            ir_arg_no += iar.ir_arg_num;
         }
         array_push(&fi->iai.args, &iar);
     }
@@ -151,10 +151,10 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
         switch (aa->info.kind) {
         case AK_IGNORE:
         case AK_INALLOCA:
-            assert(iar->arg_num == 0);
+            assert(iar->ir_arg_num == 0);
             break;
         case AK_INDIRECT: {
-            assert(iar->arg_num == 1);
+            assert(iar->ir_arg_num == 1);
             assert(iar->first_arg_index == array_size(&arg_types));
             LLVMTypeRef lty = get_llvm_type_for_abi(aa->type);
             LLVMTypeRef pointer_type = LLVMPointerType(lty, 0); //TODO: should use AllocaAddressSpace in Layout
@@ -162,7 +162,7 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
             break;
         }
         case AK_INDIRECT_ALIASED: {
-            assert(iar->arg_num == 1);
+            assert(iar->ir_arg_num == 1);
             assert(iar->first_arg_index == array_size(&arg_types));
             LLVMTypeRef lty = get_llvm_type_for_abi(aa->type);
             LLVMTypeRef pointer_type = LLVMPointerType(lty, 0); //TODO: should use AllocaAddressSpace in Layout
@@ -179,18 +179,18 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
                     array_push(&arg_types, &field_type);
                 }
             } else {
-                assert(iar->arg_num == 1);
+                assert(iar->ir_arg_num == 1);
                 array_push(&arg_types, &arg_type);
             }
             break;
         }
         case AK_COERCE_AND_EXPAND: {
             assert(iar->first_arg_index == array_size(&arg_types));
-            assert(iar->arg_num);
+            assert(iar->ir_arg_num);
             LLVMTypeRef *types;
-            MALLOC(types, sizeof(*types) * iar->arg_num);
+            MALLOC(types, sizeof(*types) * iar->ir_arg_num);
             get_coerce_and_expand_types(&aa->info, types);
-            for (unsigned i = 0; i < iar->arg_num; ++i) {
+            for (unsigned i = 0; i < iar->ir_arg_num; ++i) {
                 array_push(&arg_types, &types[i]);
             }
             free(types);

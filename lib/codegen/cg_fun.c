@@ -41,7 +41,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
         struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
         unsigned first_ir_arg = iar->first_arg_index;
-        unsigned arg_num = iar->arg_num;
+        unsigned ir_arg_num = iar->ir_arg_num;
         struct address param_value;
         LLVMValueRef arg_value = LLVMGetParam(fun, first_ir_arg);
         param_value.pointer = 0;
@@ -49,7 +49,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
         switch (aaa->info.kind) {
         case AK_INDIRECT:
         case AK_INDIRECT_ALIASED: {
-            assert(arg_num == 1);
+            assert(ir_arg_num == 1);
             param_value.pointer = arg_value;
             param_value.alignment = aaa->info.indirect_align;
             if (proto_type->base.type < TYPE_EXT) { //aggregate

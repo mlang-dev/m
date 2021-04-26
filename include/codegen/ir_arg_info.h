@@ -22,7 +22,7 @@ struct ir_arg_range {
     unsigned padding_arg_index;
     //[first_arg_index, first_arg_index + arg_num]
     unsigned first_arg_index;
-    unsigned arg_num;
+    unsigned ir_arg_num;
 };
 
 struct ir_arg_info {

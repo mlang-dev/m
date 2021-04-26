@@ -126,7 +126,10 @@ TEST(testCGFunCall, testPassStructDirect)
     const char test_code[] = R"(
  type Point2D = x:int y:int
  f xy:Point2D = xy.x
- )";
+ main() = 
+  xy:Point2D = 10 20
+  f xy
+)";
     const char *expected_ir = R"(
 %Point2D = type { i32, i32 }
 
@@ -138,6 +141,19 @@ entry:
   %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
   %xy.x = load i32, i32* %x, align 4
   ret i32 %xy.x
+}
+
+define i32 @main() {
+entry:
+  %xy = alloca %Point2D, align 4
+  %0 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
+  store i32 10, i32* %0, align 4
+  %1 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 1
+  store i32 20, i32* %1, align 4
+  %2 = bitcast %Point2D* %xy to i64*
+  %3 = load i64, i64* %2, align 4
+  %4 = call i32 @f(i64 %3)
+  ret i32 %4
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);

@@ -20,7 +20,7 @@ void ir_arg_range_init(struct ir_arg_range *iar)
 {
     iar->padding_arg_index = InvalidIndex;
     iar->first_arg_index = InvalidIndex;
-    iar->arg_num = 0;
+    iar->ir_arg_num = 0;
 }
 
 int get_expansion_size(struct type_exp *type)

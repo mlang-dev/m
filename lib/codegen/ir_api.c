@@ -31,7 +31,7 @@ LLVMValueRef _access_bytes_struct(LLVMBuilderRef builder, LLVMValueRef value, LL
     uint64_t first_type_size = LLVMABISizeOfType(get_llvm_data_layout(), first_type);
     if (first_type_size < size && first_type_size < struct_type_size)
         return value;
-    //GEP to first element
+    // GEP to first element
     value = LLVMBuildStructGEP2(builder, type, value, 0, "coerce.dive");
     first_type = LLVMTypeOf(value);
     if (LLVMGetTypeKind(first_type) == LLVMStructTypeKind) {
@@ -56,6 +56,18 @@ void _create_aggregate_store(LLVMBuilderRef builder, LLVMValueRef value, LLVMVal
     }
 }
 
+bool _is_int_or_ptr(LLVMTypeKind tk)
+{
+    return tk == LLVMIntegerTypeKind || tk == LLVMPointerTypeKind;
+}
+
+/// TODO: fix this later
+LLVMValueRef coerce_int_or_ptr(LLVMValueRef value, LLVMTypeRef dst_type)
+{
+    assert(false);
+    return 0;
+}
+
 void create_coerced_store(LLVMBuilderRef builder, LLVMValueRef src, LLVMValueRef dst, unsigned align)
 {
     LLVMTypeRef src_type = LLVMTypeOf(src);
@@ -73,15 +85,52 @@ void create_coerced_store(LLVMBuilderRef builder, LLVMValueRef src, LLVMValueRef
         dst_type = LLVMGetElementType(LLVMTypeOf(dst));
         dst_kind = LLVMGetTypeKind(dst_type);
     }
-    ///TODO: address space casting from src to dst pointer
-    //if (src_kind == LLVMPointerTypeKind && dst_kind == LLVMPointerTypeKind)
+    /// TODO: address space casting from src to dst pointer
+    // if (src_kind == LLVMPointerTypeKind && dst_kind == LLVMPointerTypeKind)
     uint64_t dst_size = LLVMABISizeOfType(td, dst_type);
     if (src_size <= dst_size) {
-        //bit cast the src pointer
+        // bit cast the src pointer
         LLVMTypeRef src_ptr_type = LLVMPointerType(src_type, 0);
         dst = LLVMBuildBitCast(builder, dst, src_ptr_type, "");
         _create_aggregate_store(builder, src, dst, align);
     }
+}
+
+LLVMValueRef create_coerced_load(LLVMBuilderRef builder, LLVMValueRef src, LLVMTypeRef dst_type, unsigned align)
+{
+    LLVMTypeRef src_type = LLVMGetElementType(LLVMTypeOf(src));
+    LLVMValueRef load = 0;
+    if (src_type == dst_type) {
+        load = LLVMBuildLoad2(builder, src_type, src, "");
+        LLVMSetAlignment(load, align);
+        return load;
+    }
+    LLVMTypeKind src_type_kind = LLVMGetTypeKind(src_type);
+    LLVMTypeKind dst_type_kind = LLVMGetTypeKind(dst_type);
+    LLVMTargetDataRef td = get_llvm_data_layout();
+    uint64_t dst_size = LLVMABISizeOfType(td, dst_type);
+    if (src_type_kind == LLVMStructTypeKind) {
+        src = _access_bytes_struct(builder, src, src_type, dst_size);
+        src_type = LLVMGetElementType(LLVMTypeOf(src));
+        src_type_kind = LLVMGetTypeKind(src_type);
+    }
+    uint64_t src_size = LLVMABISizeOfType(td, src_type);
+    // for int, or pointer type do extension or truncation
+    if (_is_int_or_ptr(dst_type_kind) && _is_int_or_ptr(src_type_kind)) {
+        LLVMValueRef load = LLVMBuildLoad2(builder, src_type, src, "");
+        return coerce_int_or_ptr(load, dst_type);
+    }
+    if (src_size >= dst_size) {
+        LLVMTypeRef dst_ptr_type = LLVMPointerType(dst_type, 0);
+        src = LLVMBuildBitCast(builder, src, dst_ptr_type, "");
+        load = LLVMBuildLoad2(builder, dst_type, src, "");
+        LLVMSetAlignment(load, align);
+        return load;
+    }
+
+    // TODO: more
+    assert(false);
+    return 0;
 }
 
 void add_fun_param_attribute(LLVMContextRef context, LLVMValueRef fun, unsigned arg_index, const char *attr)

@@ -111,7 +111,7 @@ clang++ ./samples/sample_main.cc ./samples/sample_lib.o ./runtime.o -o ./sample
 ```
 * Learn llvm IR
 ```
-clang -S -emit-llvm ./samples/sample_main.c ./samples/sample_test.c
+clang -S -emit-llvm ./samples/test_c.c -o ./samples/test_c.ll
 ```
 
 * clang RVO (return value optimization)

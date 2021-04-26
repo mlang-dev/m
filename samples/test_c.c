@@ -1,14 +1,18 @@
 struct Point2D {
-    double x;
-    double y;
+    int x;
+    int y;
 };
 
-struct Point2D f()
+int f(struct Point2D xy)
 {
-    struct Point2D xy = { 10.0, 20.0 };
-    return xy;
+    return xy.x;
 }
 
+int main()
+{
+    struct Point2D xy = { 10, 20 };
+    return f(xy);
+}
 // struct Point2D {
 //     double x;
 //     double y;

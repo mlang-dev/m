@@ -23,7 +23,7 @@ void _itanium_layout_field(struct struct_layout *sl, struct type_exp *field_type
     effective_field_size_bytes = field_size_bytes = tsi.width_bits / 8;
     field_align_bytes = tsi.align_bits / 8;
     align_required = tsi.align_required;
-    //TODO: adjust for microsft struct, AIX
+    // TODO: adjust for microsft struct, AIX
     uint64_t preferred_align_bytes = field_align_bytes;
     uint64_t unpacked_field_offset_bytes = field_offset_bytes;
     uint64_t unpacked_field_align_bytes = field_align_bytes;
@@ -111,7 +111,7 @@ struct type_size_info _create_builtin_type_size_info(struct type_exp *type)
         ti.align_bits = 64;
         break;
     case TYPE_STRING:
-        ti.width_bits = 64; //FIXME: or 32 depending on pointer size (32arch or 64arch)
+        ti.width_bits = 64; // FIXME: or 32 depending on pointer size (32arch or 64arch)
         ti.align_bits = 64;
         break;
     }
