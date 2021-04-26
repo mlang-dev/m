@@ -205,6 +205,8 @@ bool is_recursive(struct call_node *call);
 symbol get_callee(struct call_node *call);
 int find_member_index(struct type_node *type_node, symbol member);
 
+struct prototype_node *find_parent_proto(struct exp_node *node);
+
 #ifdef __cplusplus
 }
 #endif

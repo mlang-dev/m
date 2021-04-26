@@ -32,7 +32,7 @@ void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct t
 LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_node *node)
 {
     // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
-    struct prototype_node *proto_node = (struct prototype_node *)node->base.parent;
+    struct prototype_node *proto_node = (struct prototype_node *)find_parent_proto(node);
     assert(proto_node->base.node_type == PROTOTYPE_NODE);
     struct fun_info *fi = get_fun_info(proto_node);
     bool is_rvo = check_rvo(fi);
@@ -48,6 +48,8 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
         assert(fi->iai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
         alloca = LLVMGetParam(fun, fi->iai.sret_arg_no);
+        struct type_value_node *values = (struct type_value_node *)node->init_value;
+        _store_type_values(cg, alloca, values);
     } else if (node->init_value->node_type == TYPE_VALUE_NODE) {
         alloca = create_alloca(type, tsi.align_bits / 8, fun, string_get(var_name));
         struct type_value_node *values = (struct type_value_node *)node->init_value;

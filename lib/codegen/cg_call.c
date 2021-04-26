@@ -22,7 +22,22 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     LLVMValueRef callee = get_llvm_function(cg, callee_name);
     assert(callee);
     unsigned arg_count = array_size(&call->args);
-    LLVMValueRef *arg_values = malloc(arg_count * sizeof(LLVMValueRef));
+    bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
+    unsigned ir_arg_count =  has_sret ? arg_count + 1 : arg_count;
+    LLVMValueRef *arg_values = malloc(ir_arg_count * sizeof(LLVMValueRef));
+    LLVMTypeRef sig_ret_type = get_llvm_type(fi->ret.type);
+    struct prototype_node *parent_proto = find_parent_proto(node);
+    struct type_size_info ret_tsi = get_type_size_info(fi->ret.type);
+    LLVMValueRef ret_alloca = 0;
+    LLVMValueRef parent_fun = 0;
+    if (parent_proto) { //TODO: JIT call code in global scope, no parent
+        parent_fun = get_llvm_function(cg, parent_proto->name);
+    }
+
+    if (has_sret) { //the first is return struct
+        ret_alloca = create_alloca(sig_ret_type, ret_tsi.align_bits / 8, parent_fun, "");
+        arg_values[fi->iai.sret_arg_no] = ret_alloca;
+    }
     for (size_t i = 0; i < arg_count; ++i) {
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
         struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
@@ -48,18 +63,26 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
         }
         arg_values[i] = arg_value;
     }
-    LLVMValueRef value = LLVMBuildCall(cg->builder, callee, arg_values, array_size(&call->args), "");
-    LLVMTypeRef sig_ret_type = get_llvm_type(fi->ret.type);
-    struct prototype_node *parent_proto = node->parent;
-    assert(parent_proto->base.node_type == PROTOTYPE_NODE);
-    LLVMValueRef parent_fun = get_llvm_function(cg, parent_proto->name);
-    if (sig_ret_type != fi->ret.info.type) {
-        struct type_size_info tsi = get_type_size_info(fi->ret.type);
-        //create temp memory
-        LLVMValueRef alloca = create_alloca(sig_ret_type, tsi.align_bits / 8, parent_fun, "");
-        create_coerced_store(cg->builder,  value, alloca, tsi.align_bits / 8);
-        value = alloca;
-    }
+    LLVMValueRef call_inst = LLVMBuildCall(cg->builder, callee, arg_values, ir_arg_count, "");
     free(arg_values);
-    return value;
+
+    if (has_sret) {
+        add_call_arg_type_attribute(cg->context, call_inst, fi->iai.sret_arg_no, "sret", sig_ret_type);
+        LLVMSetInstrParamAlignment(call_inst, fi->iai.sret_arg_no + 1 /*always shift with 1*/, ret_tsi.align_bits / 8);
+        return ret_alloca;
+    }
+
+    if (!parent_proto)
+        return call_inst;
+
+    assert(parent_proto->base.node_type == PROTOTYPE_NODE);
+    //TODO: fix return has to be a valid type, not null
+    if (fi->ret.info.type && sig_ret_type != fi->ret.info.type) {
+        //create temp memory
+        if (!ret_alloca)
+            ret_alloca = create_alloca(sig_ret_type, ret_tsi.align_bits / 8, parent_fun, "");
+        create_coerced_store(cg->builder, call_inst, ret_alloca, ret_tsi.align_bits / 8);
+        return ret_alloca;
+    }
+    return call_inst;
 }

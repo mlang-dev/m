@@ -184,6 +184,17 @@ entry:
   %3 = load i64, i64* %2, align 4
   ret i64 %3
 }
+
+define i32 @main() {
+entry:
+  %xy = alloca %Point2D, align 4
+  %0 = call i64 @f()
+  %1 = bitcast %Point2D* %xy to i64*
+  store i64 %0, i64* %1, align 4
+  %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
+  %xy.x = load i32, i32* %x, align 4
+  ret i32 %xy.x
+}
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
@@ -195,7 +206,10 @@ TEST(testCGFunCall, testReturnStructInDirect)
  f () = 
    xy:Point2D = 10.0 20.0
    xy
- )";
+ main() = 
+   xy = f()
+   xy.x
+)";
     const char *expected_ir = R"(
 %Point2D = type { double, double }
 
@@ -206,6 +220,15 @@ entry:
   %1 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 1
   store double 2.000000e+01, double* %1, align 8
   ret void
+}
+
+define double @main() {
+entry:
+  %xy = alloca %Point2D, align 8
+  call void @f(%Point2D* sret(%Point2D) align 8 %xy)
+  %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
+  %xy.x = load double, double* %x, align 8
+  ret double %xy.x
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);

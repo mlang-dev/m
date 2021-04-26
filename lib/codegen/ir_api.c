@@ -148,3 +148,9 @@ void add_fun_param_type_attribute(LLVMContextRef context, LLVMValueRef fun, unsi
     unsigned attr_kind = LLVMGetEnumAttributeKindForName(attr, strlen(attr));
     LLVMAddAttributeAtIndex(fun, arg_index + 1, LLVMCreateTypeAttribute(context, attr_kind, type));
 }
+
+void add_call_arg_type_attribute(LLVMContextRef context, LLVMValueRef call, unsigned arg_index, const char *attr, LLVMTypeRef type)
+{
+    unsigned attr_kind = LLVMGetEnumAttributeKindForName(attr, strlen(attr));
+    LLVMAddCallSiteAttribute(call, arg_index + 1, LLVMCreateTypeAttribute(context, attr_kind, type));
+}

@@ -24,7 +24,8 @@ void create_coerced_store(LLVMBuilderRef builder, LLVMValueRef src, LLVMValueRef
 LLVMValueRef create_coerced_load(LLVMBuilderRef builder, LLVMValueRef src, LLVMTypeRef dst_type, unsigned align);
 void add_fun_param_attribute(LLVMContextRef context, LLVMValueRef fun, unsigned arg_index, const char *attr);
 void add_fun_param_type_attribute(LLVMContextRef context, LLVMValueRef fun, unsigned arg_index, const char *attr, LLVMTypeRef type);
-LLVMValueRef coerce_int_or_ptr(LLVMValueRef value, LLVMTypeRef dst_type);
+void add_call_arg_type_attribute(LLVMContextRef context, LLVMValueRef call, unsigned arg_index, const char *attr, LLVMTypeRef type);
+    LLVMValueRef coerce_int_or_ptr(LLVMValueRef value, LLVMTypeRef dst_type);
 
 #ifdef __cplusplus
 }
