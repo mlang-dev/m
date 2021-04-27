@@ -228,12 +228,12 @@ void _free_type_node(struct type_node *node)
     _free_exp_node(&node->base);
 }
 
-struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_loc loc, struct block_node *body)
+struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_loc loc, struct block_node *body, symbol type_symbol)
 {
     struct type_value_node *node = malloc(sizeof(*node));
     node->base.node_type = TYPE_VALUE_NODE;
-    node->base.annotated_type_enum = 0;
-    node->base.annotated_type_name = 0;
+    node->base.annotated_type_enum = TYPE_EXT;
+    node->base.annotated_type_name = type_symbol;
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
@@ -244,7 +244,7 @@ struct type_value_node *type_value_node_new(struct exp_node *parent, struct sour
 struct type_value_node *_copy_type_value_node(struct type_value_node *orig_node)
 {
     return type_value_node_new(orig_node->base.parent, orig_node->base.loc,
-        _copy_block_node(orig_node->body));
+        _copy_block_node(orig_node->body), orig_node->base.annotated_type_name);
 }
 
 void _free_type_value_node(struct type_value_node *node)

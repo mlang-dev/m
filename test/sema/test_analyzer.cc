@@ -541,6 +541,33 @@ xy.x
     env_free(env);
 }
 
+TEST(testAnalyzer, testStructTypeVariablesNewForm)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+xy = Point2D 10.0 20.0
+xy.x
+)";
+    env *env = env_new(false);
+    create_ir_module(env->cg, "test");
+    block_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ASSERT_EQ(3, array_size(&block->nodes));
+    emit_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+    node = *(exp_node **)array_get(&block->nodes, 1);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+    node = *(exp_node **)array_get(&block->nodes, 2);
+    ASSERT_EQ(IDENT_NODE, node->node_type);
+    struct ident_node *id_node = (struct ident_node *)node;
+    ASSERT_STREQ("xy.x", string_get(id_node->name));
+    type_str = to_string(node->type);
+    ASSERT_STREQ("double", string_get(&type_str));
+    env_free(env);
+}
+
 TEST(testAnalyzer, testStructTypeLocalVariables)
 {
     char test_code[] = R"(
@@ -569,12 +596,81 @@ getx()
     env_free(env);
 }
 
+TEST(testAnalyzer, testStructTypeLocalVariablesNewForm)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+getx()=
+    xy = Point2D 10.0 0.0
+    xy.x
+getx()
+)";
+    env *env = env_new(false);
+    create_ir_module(env->cg, "test");
+    block_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ASSERT_EQ(3, array_size(&block->nodes));
+    emit_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+    /*fun definition*/
+    node = *(exp_node **)array_get(&block->nodes, 1);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("() -> double", string_get(&type_str));
+    node = *(exp_node **)array_get(&block->nodes, 2);
+    ASSERT_EQ(CALL_NODE, node->node_type);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("double", string_get(&type_str));
+    env_free(env);
+}
+
 TEST(testAnalyzer, testStructTypeReturn)
 {
     char test_code[] = R"(
 type Point2D = x:double y:double
 getx()=
     xy:Point2D = 10.0 0.0
+    xy
+z = getx()
+)";
+    env *env = env_new(false);
+    create_ir_module(env->cg, "test");
+    block_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ASSERT_EQ(3, array_size(&block->nodes));
+    emit_code(env, (exp_node *)block);
+    auto node = *(exp_node **)array_front(&block->nodes);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+    /*fun definition*/
+    node = *(exp_node **)array_get(&block->nodes, 1);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("() -> Point2D", string_get(&type_str));
+
+    /*variable node*/
+    node = *(exp_node **)array_get(&block->nodes, 2);
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    struct var_node *var = (struct var_node *)node;
+
+    /*initial value is a call expression*/
+    ASSERT_EQ(CALL_NODE, var->init_value->node_type);
+    type_str = to_string(var->init_value->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+    type_str = to_string(var->base.type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+
+    /*verify variable xy in inner function is out of scope*/
+    symbol xy = to_symbol("xy");
+    ASSERT_EQ(false, has_symbol(&env->sema_context->decl_2_typexps, xy));
+    env_free(env);
+}
+
+
+TEST(testAnalyzer, testStructTypeReturnNewForm)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+getx()=
+    xy = Point2D 10.0 0.0
     xy
 z = getx()
 )";

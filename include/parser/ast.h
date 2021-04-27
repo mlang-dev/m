@@ -182,7 +182,7 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
     symbol op,
     bool is_variadic, bool is_external);
 struct type_node *type_node_new(struct exp_node *parent, struct source_loc loc, symbol name, struct block_node *body);
-struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_loc loc, struct block_node *body);
+struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_loc loc, struct block_node *body, symbol type_name);
 struct prototype_node *prototype_node_default_new(struct exp_node *parent, struct source_loc loc,
     symbol name,
     struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external);

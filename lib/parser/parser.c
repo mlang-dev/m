@@ -476,6 +476,19 @@ bool _id_is_a_function_call(struct parser *parser)
     return parser->allow_id_as_a_func && (parser->curr_token.token_type == TOKEN_IDENT || parser->curr_token.token_type == TOKEN_NUM || parser->curr_token.token_type == TOKEN_IF || parser->curr_token.token_type == TOKEN_UNARY || parser->curr_token.token_type == TOKEN_LPAREN);
 }
 
+struct exp_node *_parse_type_value_node(struct parser*parser, struct exp_node*parent, symbol ext_type_symbol)
+{
+    assert(ext_type_symbol);
+    struct type_node *type = (struct type_node *)hashtable_get_p(&parser->ext_types, ext_type_symbol);
+    assert(type);
+    struct block_node *block = _parse_block(parser, (struct exp_node *)parent, 0, 0);
+    if (block) {
+        assert(array_size(&type->body->nodes) == array_size(&block->nodes));
+        return (struct exp_node *)type_value_node_new(parent, parser->curr_token.loc, block, ext_type_symbol);
+    }
+    return 0;
+}
+
 struct exp_node *_parse_ident(struct parser *parser, struct exp_node *parent)
 {
     symbol id_symbol = string_2_symbol(parser->curr_token.str_val);
@@ -486,20 +499,25 @@ struct exp_node *_parse_ident(struct parser *parser, struct exp_node *parent)
     if (_id_is_a_function_call(parser)) {
         // fprintf(stderr, "ident parsed. %s\n", id_name.c_str());
         //(
-        struct array args;
-        array_init(&args, sizeof(struct exp_node *));
-        while (true) {
-            struct exp_node *arg = parse_exp(parser, parent, 0);
-            assert(arg);
-            if (!(arg->node_type == LITERAL_NODE && arg->annotated_type_enum == TYPE_UNIT))
-                array_push(&args, &arg);
-            if (!_id_is_a_function_call(parser))
-                break;
+        struct exp_node *exp = 0;
+        if (hashtable_in_p(&parser->ext_types, id_symbol)) {
+            exp = _parse_type_value_node(parser, parent, id_symbol);
+        } else {
+            struct array args;
+            array_init(&args, sizeof(struct exp_node *));
+            while (true) {
+                struct exp_node *arg = parse_exp(parser, parent, 0);
+                assert(arg);
+                if (!(arg->node_type == LITERAL_NODE && arg->annotated_type_enum == TYPE_UNIT))
+                    array_push(&args, &arg);
+                if (!_id_is_a_function_call(parser))
+                    break;
+                //parse_next_token(parser);
+            }
             parse_next_token(parser);
+            exp = (struct exp_node *)call_node_new(parent, loc, id_symbol, &args);
+            array_deinit(&args);
         }
-        parse_next_token(parser);
-        struct exp_node *exp = (struct exp_node *)call_node_new(parent, loc, id_symbol, &args);
-        array_deinit(&args);
         return exp;
     }
     return (struct exp_node *)ident_node_new(parent, loc, id_symbol);
@@ -703,14 +721,7 @@ struct exp_node *_parse_var(struct parser *parser, struct exp_node *parent, symb
     struct exp_node *exp = 0;
     struct var_node *var = (struct var_node *)var_node_new(parent, parser->curr_token.loc, name, type, ext_type, 0);
     if (type == TYPE_EXT) {
-        assert(ext_type);
-        struct type_node *type = (struct type_node *)hashtable_get_p(&parser->ext_types, ext_type);
-        assert(type);
-        struct block_node *block = _parse_block(parser, (struct exp_node *)var, 0, 0);
-        if (block) {
-            assert(array_size(&type->body->nodes) == array_size(&block->nodes));
-            exp = (struct exp_node *)type_value_node_new(parent, parser->curr_token.loc, block);
-        }
+        exp = _parse_type_value_node(parser, var, ext_type);
     } else {
         exp = parse_exp(parser, (struct exp_node *)var, 0);
     }

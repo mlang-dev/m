@@ -233,3 +233,36 @@ entry:
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
+
+TEST(testCGFunCall, testReturnStructInDirectNotNamed)
+{
+    const char test_code[] = R"(
+ type Point2D = x:double y:double
+ f () = 
+   xy:Point2D = 10.0 20.0
+   xy
+ main() = f().x
+)";
+    const char *expected_ir = R"(
+%Point2D = type { double, double }
+
+define void @f(%Point2D* noalias sret(%Point2D) %agg.result) {
+entry:
+  %0 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 0
+  store double 1.000000e+01, double* %0, align 8
+  %1 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 1
+  store double 2.000000e+01, double* %1, align 8
+  ret void
+}
+
+define double @main() {
+entry:
+  %xy = alloca %Point2D, align 8
+  call void @f(%Point2D* sret(%Point2D) align 8 %xy)
+  %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
+  %xy.x = load double, double* %x, align 8
+  ret double %xy.x
+}
+)";
+    //validate_m_code_with_ir_code(test_code, expected_ir);
+}
