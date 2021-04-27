@@ -74,9 +74,9 @@ entry:
   store i32 %y, i32* %y2, align 4
   %x3 = load i32, i32* %x1, align 4
   %y4 = load i32, i32* %y2, align 4
-  %addtmp = add i32 %x3, %y4
-  %divtmp = sdiv i32 %addtmp, 2
-  ret i32 %divtmp
+  %0 = add i32 %x3, %y4
+  %1 = sdiv i32 %0, 2
+  ret i32 %1
 }
 
 define i32 @main() {
@@ -199,6 +199,45 @@ entry:
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
+TEST(testCGFunCall, testReturnStructDirectWithoutName)
+{
+    const char test_code[] = R"(
+ type Point2D = x:int y:int
+ f () = Point2D 10 20
+   
+ main() = 
+   xy = f()
+   xy.x
+ )";
+    const char *expected_ir = R"(
+%Point2D = type { i32, i32 }
+
+define i64 @f() {
+entry:
+  %tmp = alloca %Point2D, align 4
+  %0 = getelementptr inbounds %Point2D, %Point2D* %tmp, i32 0, i32 0
+  store i32 10, i32* %0, align 4
+  %1 = getelementptr inbounds %Point2D, %Point2D* %tmp, i32 0, i32 1
+  store i32 20, i32* %1, align 4
+  %2 = bitcast %Point2D* %tmp to i64*
+  %3 = load i64, i64* %2, align 4
+  ret i64 %3
+}
+
+define i32 @main() {
+entry:
+  %xy = alloca %Point2D, align 4
+  %0 = call i64 @f()
+  %1 = bitcast %Point2D* %xy to i64*
+  store i64 %0, i64* %1, align 4
+  %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
+  %xy.x = load i32, i32* %x, align 4
+  ret i32 %xy.x
+}
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}
+
 TEST(testCGFunCall, testReturnStructInDirect)
 {
     const char test_code[] = R"(
@@ -234,13 +273,72 @@ entry:
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
-TEST(testCGFunCall, testReturnStructInDirectNotNamed)
+TEST(testCGFunCall, testReturnStructInDirectWithoutName)
 {
     const char test_code[] = R"(
  type Point2D = x:double y:double
- f () = 
-   xy:Point2D = 10.0 20.0
-   xy
+ f () = Point2D 10.0 20.0
+ main() = 
+   xy = f()
+   xy.x
+)";
+    const char *expected_ir = R"(
+%Point2D = type { double, double }
+
+define void @f(%Point2D* noalias sret(%Point2D) %agg.result) {
+entry:
+  %0 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 0
+  store double 1.000000e+01, double* %0, align 8
+  %1 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 1
+  store double 2.000000e+01, double* %1, align 8
+  ret void
+}
+
+define double @main() {
+entry:
+  %xy = alloca %Point2D, align 8
+  call void @f(%Point2D* sret(%Point2D) align 8 %xy)
+  %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
+  %xy.x = load double, double* %x, align 8
+  ret double %xy.x
+}
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}
+
+TEST(testCGFunCall, testReturnStructInDirectWithoutNameCalling)
+{
+    const char test_code[] = R"(
+ type Point2D = x:double y:double
+ f () = Point2D 10.0 20.0
+ main() = f()
+)";
+    const char *expected_ir = R"(
+%Point2D = type { double, double }
+
+define void @f(%Point2D* noalias sret(%Point2D) %agg.result) {
+entry:
+  %0 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 0
+  store double 1.000000e+01, double* %0, align 8
+  %1 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 1
+  store double 2.000000e+01, double* %1, align 8
+  ret void
+}
+
+define void @main(%Point2D* noalias sret(%Point2D) %agg.result) {
+entry:
+  call void @f(%Point2D* sret(%Point2D) align 8 %agg.result)
+  ret void
+}
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}
+
+TEST(testCGFunCall, testReturnStructInDirectWithoutNameElementAccess)
+{
+    const char test_code[] = R"(
+ type Point2D = x:double y:double
+ f () = Point2D 10.0 20.0
  main() = f().x
 )";
     const char *expected_ir = R"(
@@ -265,4 +363,31 @@ entry:
 }
 )";
     //validate_m_code_with_ir_code(test_code, expected_ir);
+}
+
+TEST(testCGFunCall, testReturnExpressionScalar)
+{
+    char test_code[] = R"(
+getx()=
+    x = 10
+    x + 1
+main() = getx()
+)";
+    const char *expected_ir = R"(
+define i32 @getx() {
+entry:
+  %x = alloca i32, align 4
+  store i32 10, i32* %x, align 4
+  %x1 = load i32, i32* %x, align 4
+  %0 = add i32 %x1, 1
+  ret i32 %0
+}
+
+define i32 @main() {
+entry:
+  %0 = call i32 @getx()
+  ret i32 %0
+}
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }

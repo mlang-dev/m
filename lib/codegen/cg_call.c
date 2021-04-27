@@ -12,6 +12,21 @@
 #include "codegen/type_size_info.h"
 #include <assert.h>
 
+
+// get parent func sret parameter if exists
+LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct exp_node *node)
+{
+    struct prototype_node *parent_proto = find_parent_proto(node);
+    struct fun_info *fi = get_fun_info(parent_proto);
+    bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
+    LLVMValueRef ret = 0;
+    if (has_sret && node->is_ret) {
+        LLVMValueRef fun = get_llvm_function(cg, parent_proto->name);
+        ret = LLVMGetParam(fun, fi->iai.sret_arg_no);
+    }
+    return ret;
+}
+
 LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
 {
     struct call_node *call = (struct call_node *)node;
@@ -35,7 +50,9 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     }
 
     if (has_sret) { //the first is return struct
-        ret_alloca = create_alloca(sig_ret_type, ret_tsi.align_bits / 8, parent_fun, "");
+        ret_alloca = _get_parent_call_sret_pointer(cg, node);
+        if (!ret_alloca)
+            ret_alloca = create_alloca(sig_ret_type, ret_tsi.align_bits / 8, parent_fun, "");
         arg_values[fi->iai.sret_arg_no] = ret_alloca;
     }
     for (size_t i = 0; i < arg_count; ++i) {

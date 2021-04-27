@@ -29,31 +29,39 @@ void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct t
     }
 }
 
-LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_node *node)
+LLVMValueRef emit_type_value_node(struct code_generator *cg, struct type_value_node *type_values, bool is_ret, const char *name)
 {
-    // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
-    struct prototype_node *proto_node = (struct prototype_node *)find_parent_proto(node);
-    assert(proto_node->base.node_type == PROTOTYPE_NODE);
+    //struct type_value_node *type_values = (struct type_value_node *)node->init_value;
+    struct prototype_node *proto_node = (struct prototype_node *)find_parent_proto(type_values);
+    struct type_exp *te = type_values->base.type;
+    LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
+    struct type_size_info tsi = get_type_size_info(te);
     struct fun_info *fi = get_fun_info(proto_node);
     bool is_rvo = check_rvo(fi);
-    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
-    // fprintf(stderr, "_emit_var_node:2 %lu!\n", node->var_names.size());
-    symbol var_name = node->var_name;
-    // log_info(DEBUG, "local var cg: %s", var_name.c_str());
-    assert(node->init_value);
-    LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, node->base.type->name);
-    struct type_size_info tsi = get_type_size_info(node->base.type);
+    is_ret = is_ret || type_values->base.is_ret;
     LLVMValueRef alloca = 0;
-    if (is_rvo && node->is_ret) {
+    if (is_rvo && is_ret) {
         assert(fi->iai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
         alloca = LLVMGetParam(fun, fi->iai.sret_arg_no);
-        struct type_value_node *values = (struct type_value_node *)node->init_value;
-        _store_type_values(cg, alloca, values);
-    } else if (node->init_value->node_type == TYPE_VALUE_NODE) {
-        alloca = create_alloca(type, tsi.align_bits / 8, fun, string_get(var_name));
-        struct type_value_node *values = (struct type_value_node *)node->init_value;
-        _store_type_values(cg, alloca, values);
+        _store_type_values(cg, alloca, type_values);
+    } else {
+        alloca = create_alloca(type, tsi.align_bits / 8, fun, name);
+        _store_type_values(cg, alloca, type_values);
+    }
+    return alloca;
+}
+
+LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_node *node)
+{
+    symbol var_name = node->var_name;
+    LLVMValueRef alloca = 0;
+
+    if (node->init_value->node_type == TYPE_VALUE_NODE) {
+        assert(node->base.type->name == node->init_value->type->name);
+        bool is_ret = node->base.is_ret;
+        alloca = emit_type_value_node(cg, (struct type_value_node *)node->init_value, node->base.is_ret, string_get(var_name));
     } else {
         alloca = emit_ir_code(cg, node->init_value);
         LLVMSetValueName2(alloca, string_get(var_name), string_size(var_name));
@@ -79,11 +87,11 @@ LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *no
     assert(init_val);
     enum type type = get_type(node->base.type);
     struct type_size_info tsi = get_type_size_info(node->base.type);
-    LLVMValueRef alloca = create_alloca(cg->ops[type].get_type(cg->context, node->base.type), tsi.align_bits / 8, fun, var_name);
+    LLVMValueRef alloca = create_alloca(cg->ops[type].get_type(cg->context, node->base.type), tsi.align_bits / 8, fun, string_get(var_name));
     LLVMBuildStore(cg->builder, init_val, alloca);
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     if (type == TYPE_EXT)
-        assert(!node->is_ret);
+        assert(!node->base.is_ret);
     return 0;
     // KSDbgInfo.emitLocation(this);
 }

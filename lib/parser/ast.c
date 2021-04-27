@@ -89,6 +89,7 @@ struct ident_node *ident_node_new(struct exp_node *parent, struct source_loc loc
     node->base.node_type = IDENT_NODE;
     node->base.parent = parent;
     node->base.loc = loc;
+    node->base.is_ret = false;
     node->name = name;
     node->member_accessors = to_symbol_array(string_split(node->name, '.'));
     return node;
@@ -115,6 +116,7 @@ struct literal_node *_create_literal_node(struct exp_node *parent, struct source
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
+    node->base.is_ret = false;
     if (type == TYPE_INT)
         node->int_val = *(int *)val;
     else if (type == TYPE_DOUBLE)
@@ -182,9 +184,9 @@ struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, sy
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
+    node->base.is_ret = false;
     node->var_name = var_name;
     node->init_value = init_value;
-    node->is_ret = false;
     return node;
 }
 
@@ -211,6 +213,7 @@ struct type_node *type_node_new(struct exp_node *parent, struct source_loc loc, 
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
+    node->base.is_ret = false;
     node->name = name;
     node->body = body;
     return node;
@@ -237,6 +240,7 @@ struct type_value_node *type_value_node_new(struct exp_node *parent, struct sour
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
+    node->base.is_ret = false;
     node->body = body;
     return node;
 }
@@ -263,6 +267,7 @@ struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, 
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
+    node->base.is_ret = false;
     node->callee = callee;
     array_copy(&node->args, args);
     node->specialized_callee = 0;
@@ -307,6 +312,7 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
+    node->base.is_ret = false;
     node->name = name;
     node->fun_params = *args;
     node->is_operator = is_operator;
@@ -334,6 +340,7 @@ struct prototype_node *_copy_prototype_node(struct prototype_node *proto)
     node->base.type = 0;
     node->base.parent = proto->base.parent;
     node->base.loc = proto->base.loc;
+    node->base.is_ret = false;
     node->name = proto->name;
     node->fun_params = proto->fun_params;
     node->is_operator = proto->is_operator;
@@ -370,6 +377,7 @@ struct function_node *function_node_new(struct prototype_node *prototype,
     node->base.node_type = FUNCTION_NODE;
     node->base.parent = (struct exp_node *)prototype;
     node->base.loc = prototype->base.loc;
+    node->base.is_ret = false;
     node->prototype = prototype;
     node->body = body;
     return node;
@@ -399,6 +407,7 @@ struct condition_node *if_node_new(struct exp_node *parent, struct source_loc lo
     node->base.type = 0;
     node->base.parent = parent;
     node->base.loc = loc;
+    node->base.is_ret = false;
     node->condition_node = condition;
     node->then_node = then_node;
     node->else_node = else_node;

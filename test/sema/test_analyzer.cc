@@ -705,6 +705,35 @@ z = getx()
     env_free(env);
 }
 
+TEST(testAnalyzer, testStructTypeReturnNoNamed)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+get_point() = Point2D 10.0 0.0
+z() = get_point()
+)";
+    env *env = env_new(false);
+    create_ir_module(env->cg, "test");
+    block_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ASSERT_EQ(3, array_size(&block->nodes));
+    emit_code(env, (exp_node *)block);
+    //1. type definition
+    auto node = *(exp_node **)array_front(&block->nodes);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("Point2D", string_get(&type_str));
+    //2. function definition
+    node = *(exp_node **)array_get(&block->nodes, 1);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("() -> Point2D", string_get(&type_str));
+
+    //3. function definition again
+    node = *(exp_node **)array_get(&block->nodes, 2);
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    type_str = to_string(node->type);
+    ASSERT_STREQ("() -> Point2D", string_get(&type_str));
+    env_free(env);
+}
+
 TEST(testAnalyzer, testReturnValueFlag)
 {
     char test_code[] = R"(
@@ -727,7 +756,33 @@ getx()=
     auto fun = (function_node *)node;
     auto var_x = *(var_node **)array_get(&fun->body->nodes, 0);
     auto var_y = *(var_node **)array_get(&fun->body->nodes, 1);
-    ASSERT_EQ(false, var_x->is_ret);
-    ASSERT_EQ(true, var_y->is_ret);
+    ASSERT_EQ(false, var_x->base.is_ret);
+    ASSERT_EQ(true, var_y->base.is_ret);
+    env_free(env);
+}
+
+TEST(testAnalyzer, testReturnExpression)
+{
+    char test_code[] = R"(
+getx()=
+    x = 10
+    x + 1
+)";
+    env *env = env_new(false);
+    create_ir_module(env->cg, "test");
+    block_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ASSERT_EQ(1, array_size(&block->nodes));
+    emit_code(env, (exp_node *)block);
+    /*validate fun definition*/
+    auto node = *(exp_node **)array_get(&block->nodes, 0);
+    auto type_str = to_string(node->type);
+    ASSERT_STREQ("() -> int", string_get(&type_str));
+
+    /*validate inside functions*/
+    auto fun = (function_node *)node;
+    auto var_x = *(var_node **)array_get(&fun->body->nodes, 0);
+    auto exp = *(binary_node **)array_get(&fun->body->nodes, 1);
+    ASSERT_EQ(false, var_x->base.is_ret);
+    ASSERT_EQ(BINARY_NODE, exp->base.node_type);
     env_free(env);
 }

@@ -361,12 +361,13 @@ struct type_exp *_analyze_block(struct sema_context *context, struct exp_node *n
     }
     //tag variable node as returning variable if exists
     struct exp_node *ret_node = *(struct exp_node **)array_back(&block->nodes);
+    ret_node->is_ret = true;
     if (ret_node->node_type == IDENT_NODE) {
         symbol var_name = ((struct ident_node *)ret_node)->name;
         struct var_node *var = (struct var_node *)symboltable_get(&context->varname_2_asts, var_name);
         //struct member reference id node like xy.x is not a variable
         if (var)
-            var->is_ret = true;
+            var->base.is_ret = true;
     }
     leave_scope(context);
     return type;

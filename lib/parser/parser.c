@@ -278,6 +278,20 @@ struct op_type _parse_op_type(struct parser *parser, struct source_loc loc)
     return optype;
 }
 
+
+struct exp_node *_parse_type_value_node(struct parser *parser, struct exp_node *parent, symbol ext_type_symbol)
+{
+    assert(ext_type_symbol);
+    struct type_node *type = (struct type_node *)hashtable_get_p(&parser->ext_types, ext_type_symbol);
+    assert(type);
+    struct block_node *block = _parse_block(parser, (struct exp_node *)parent, 0, 0);
+    if (block) {
+        assert(array_size(&type->body->nodes) == array_size(&block->nodes));
+        return (struct exp_node *)type_value_node_new(parent, parser->curr_token.loc, block, ext_type_symbol);
+    }
+    return 0;
+}
+
 struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_node *parent, struct source_loc loc, symbol pid_name, bool is_operator, int precedence)
 {
     if (parser->curr_token.token_type == TOKEN_LPAREN) {
@@ -293,6 +307,10 @@ struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_no
     string_init_chars(&id_name, string_get(pid_name));
     parser->allow_id_as_a_func = false;
     struct type_exp *ret_type = 0;
+    if (hashtable_in_p(&parser->ext_types, pid_name)) {
+        return _parse_type_value_node(parser, parent, pid_name);
+    }
+
     if (parser->curr_token.token_type != TOKEN_RPAREN) {
         while (true) {
             // if(parser->curr_token.token_type == TOKEN_RPAREN){
@@ -377,7 +395,8 @@ struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_no
         //array_deinit(&argNames);
     }
     // function application
-    struct exp_node *call_node = (struct exp_node *)call_node_new(parent, loc, string_2_symbol(&id_name), &args);
+    symbol name_symbol = string_2_symbol(&id_name);
+    struct exp_node *call_node = (struct exp_node *)call_node_new(parent, loc, name_symbol, &args);
     //log_info(DEBUG, "function application: %s, %d, %d", string_get(&id_name), call_node->node_type, parser->curr_token.token_type);
     return parse_exp(parser, parent, call_node);
 }
@@ -474,19 +493,6 @@ bool _is_new_line(int cha)
 bool _id_is_a_function_call(struct parser *parser)
 {
     return parser->allow_id_as_a_func && (parser->curr_token.token_type == TOKEN_IDENT || parser->curr_token.token_type == TOKEN_NUM || parser->curr_token.token_type == TOKEN_IF || parser->curr_token.token_type == TOKEN_UNARY || parser->curr_token.token_type == TOKEN_LPAREN);
-}
-
-struct exp_node *_parse_type_value_node(struct parser*parser, struct exp_node*parent, symbol ext_type_symbol)
-{
-    assert(ext_type_symbol);
-    struct type_node *type = (struct type_node *)hashtable_get_p(&parser->ext_types, ext_type_symbol);
-    assert(type);
-    struct block_node *block = _parse_block(parser, (struct exp_node *)parent, 0, 0);
-    if (block) {
-        assert(array_size(&type->body->nodes) == array_size(&block->nodes));
-        return (struct exp_node *)type_value_node_new(parent, parser->curr_token.loc, block, ext_type_symbol);
-    }
-    return 0;
 }
 
 struct exp_node *_parse_ident(struct parser *parser, struct exp_node *parent)

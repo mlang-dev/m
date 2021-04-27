@@ -445,6 +445,45 @@ xy = Point2D 10.0 20.0
     parser_free(parser);
 }
 
+TEST_F(testParser, testStructsTypeOneLineReturnTypeConstructor)
+{
+    char test_code[] = R"(
+type Point2D = x:double y:double
+get_point() = Point2D 10.0 20.0
+)";
+    auto parser = parser_new(false);
+    block_node *block = parse_string(parser, "test", test_code);
+    ASSERT_EQ(2, array_size(&block->nodes));
+
+    //1. first line is to define type
+    auto node = *(exp_node **)array_front(&block->nodes);
+    ASSERT_EQ(TYPE_NODE, node->node_type);
+    type_node *type = (type_node *)node;
+    ASSERT_STREQ("Point2D", string_get(type->name));
+    ASSERT_EQ(2, array_size(&type->body->nodes));
+    struct var_node *var1 = *(struct var_node **)array_front(&type->body->nodes);
+    struct var_node *var2 = *(struct var_node **)array_back(&type->body->nodes);
+    ASSERT_EQ(VAR_NODE, var1->base.node_type);
+    ASSERT_EQ(VAR_NODE, var2->base.node_type);
+    ASSERT_STREQ("x", string_get(var1->var_name));
+    ASSERT_STREQ("y", string_get(var2->var_name));
+
+    //2. second line is to define a one line function
+    auto fun_node = *(struct function_node **)array_back(&block->nodes);
+    ASSERT_EQ(FUNCTION_NODE, fun_node->base.node_type);
+    ASSERT_EQ(1, array_size(&fun_node->body->nodes));
+    auto type_value_node = *(struct type_value_node **)array_back(&fun_node->body->nodes);
+    ASSERT_EQ(TYPE_VALUE_NODE, type_value_node->base.node_type);
+    auto value1 = *(struct literal_node **)array_front(&type_value_node->body->nodes);
+    auto value2 = *(struct literal_node **)array_back(&type_value_node->body->nodes);
+    ASSERT_EQ(LITERAL_NODE, value1->base.node_type);
+    ASSERT_EQ(LITERAL_NODE, value2->base.node_type);
+    ASSERT_EQ(10.0, value1->double_val);
+    ASSERT_EQ(20.0, value2->double_val);
+    parser_free(parser);
+}
+
+
 TEST_F(testParser, testStructsTypeDefAndDecl)
 {
     char test_code[] = R"(

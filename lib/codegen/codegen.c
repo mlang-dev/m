@@ -474,15 +474,15 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
     assert(LLVMTypeOf(lv) == LLVMTypeOf(rv));
     struct ops *ops = &cg->ops[prune(bin->lhs->type)->type];
     if (string_eq_chars(bin->op, "+"))
-        return ops->add(cg->builder, lv, rv, "addtmp");
+        return ops->add(cg->builder, lv, rv, "");
     else if (string_eq_chars(bin->op, "-"))
-        return ops->sub(cg->builder, lv, rv, "subtmp");
+        return ops->sub(cg->builder, lv, rv, "");
     else if (string_eq_chars(bin->op, "*"))
-        return ops->mul(cg->builder, lv, rv, "multmp");
+        return ops->mul(cg->builder, lv, rv, "");
     else if (string_eq_chars(bin->op, "/"))
-        return ops->div(cg->builder, lv, rv, "divtmp");
+        return ops->div(cg->builder, lv, rv, "");
     else if (string_eq_chars(bin->op, "%"))
-        return ops->rem(cg->builder, lv, rv, "remtmp");
+        return ops->rem(cg->builder, lv, rv, "");
     else if (string_eq_chars(bin->op, "<")) {
         lv = ops->cmp(cg->builder, ops->cmp_lt, lv, rv, "cmplttmp");
         lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
@@ -577,9 +577,7 @@ LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
 
 LLVMValueRef _emit_type_value_node(struct code_generator *cg, struct exp_node *node)
 {
-    //struct type_value_node* type_values = (struct type_value_node*)node;
-    assert(false);
-    return 0;
+    return emit_type_value_node(cg, (struct type_value_node*)node, false, "tmp");
 }
 
 LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
