@@ -115,7 +115,6 @@ int _get_op_prec(struct hashtable *op_precs, symbol op)
 
 struct parser *parser_new(bool is_repl)
 {
-    symbols_init();
     struct parser *parser = malloc(sizeof(*parser));
     parser->type_of = to_symbol(":");
     parser->assignment = to_symbol("=");
@@ -161,7 +160,6 @@ void parser_free(struct parser *parser)
     symboltable_deinit(&parser->vars);
     free(parser);
     g_parser = 0;
-    symbols_init();
 }
 
 void parse_next_token(struct parser *parser)

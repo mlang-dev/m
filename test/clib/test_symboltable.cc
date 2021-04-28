@@ -15,10 +15,11 @@
 #include "clib/util.h"
 #include "parser/parser.h"
 #include "sema/type.h"
+#include "codegen/env.h"
 
 TEST(testSymboltable, TestSymboltableSameKeyMultipleValues)
 {
-    struct parser *parser = parser_new(false);
+    struct env *env = env_new(false);
     symboltable st;
     symboltable_init(&st);
     symbol s = to_symbol("hello");
@@ -41,12 +42,12 @@ TEST(testSymboltable, TestSymboltableSameKeyMultipleValues)
     symboltable_deinit(&st);
     type_exp_free((type_exp *)op1);
     type_exp_free((type_exp *)op2);
-    parser_free(parser);
+    env_free(env);
 }
 
 TEST(testSymboltable, TestSymboltableMultipleKeys)
 {
-    struct parser *parser = parser_new(false);
+    struct env *env = env_new(false);
     symboltable st;
     symboltable_init(&st);
     symbol s1 = to_symbol("hello");
@@ -71,5 +72,5 @@ TEST(testSymboltable, TestSymboltableMultipleKeys)
     symboltable_deinit(&st);
     type_exp_free((type_exp *)op1);
     type_exp_free((type_exp *)op2);
-    parser_free(parser);
+    env_free(env);
 }

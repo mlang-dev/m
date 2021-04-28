@@ -14,8 +14,8 @@
 #include "clib/symbol.h"
 #include "clib/util.h"
 #include "codegen/type_size_info.h"
-#include "parser/parser.h"
 #include "sema/type.h"
+#include "codegen/env.h"
 
 // TEST(testHashtable, TestAddAndGet)
 // {
@@ -158,7 +158,7 @@ TEST(testHashtable, TestHashtableGrowWithCollision)
 
 TEST(testHashtable, TestHashtablePointerKey)
 {
-    struct parser *parser = parser_new(false);
+    struct env *env = env_new(false);
     reset_id_name("a");
     hashtable ht;
     hashtable_init(&ht);
@@ -175,7 +175,7 @@ TEST(testHashtable, TestHashtablePointerKey)
     type_exp_free((type_exp *)op1);
     type_exp_free((type_exp *)op2);
     type_exp_free((type_exp *)op3);
-    parser_free(parser);
+    env_free(env);
 }
 
 TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)

@@ -11,6 +11,7 @@ struct env *g_env = 0;
 
 struct env *env_new(bool is_repl)
 {
+    symbols_init();
     struct env *env;
     MALLOC(env, sizeof(struct env));
     env->parser = parser_new(is_repl);
@@ -27,6 +28,7 @@ void env_free(struct env *env)
     cg_free(env->cg);
     free(env);
     g_env = 0;
+    symbols_deinit();
 }
 
 struct env *get_env()

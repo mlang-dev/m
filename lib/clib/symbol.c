@@ -13,7 +13,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-struct hashtable *g_symbols = NULL;
+struct hashtable *g_symbols = 0;
 symbol EmptySymbol = 0;
 
 symbol to_symbol(const char *name)
@@ -34,6 +34,8 @@ symbol string_2_symbol(string *name)
 
 void symbols_init()
 {
+    if (g_symbols)
+        return;
     g_symbols = malloc(sizeof(*g_symbols));
     hashtable_init(g_symbols);
     EmptySymbol = to_symbol("");

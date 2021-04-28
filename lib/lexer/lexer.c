@@ -57,6 +57,8 @@ static struct keyword_token keyword_tokens[] = {
     { FALSE, TOKEN_FALSE },
 };
 
+struct hashtable keyword_2_tokens;
+
 const char* boolean_values[2] = {
     FALSE,
     TRUE,
@@ -110,9 +112,18 @@ static int get_char(struct file_tokenizer* tokenizer)
     return last_char;
 }
 
+void _init_keyword_2_tokens()
+{
+    hashtable_init_with_value_size(&keyword_2_tokens, sizeof(enum token_type), 0);
+    for (size_t i = 0; i < ARRAY_SIZE(keyword_tokens); ++i) {
+        symbol keyword = to_symbol(keyword_tokens[i].keyword);
+        hashtable_set_p(&keyword_2_tokens, keyword, &keyword_tokens[i].token);
+    }
+}
+
 struct file_tokenizer* create_tokenizer(FILE* file, const char* filename)
 {
-    struct file_tokenizer* tokenizer = malloc(sizeof(*tokenizer));
+    struct file_tokenizer *tokenizer = malloc(sizeof(*tokenizer));
     struct source_loc loc = { 1, 0 };
     tokenizer->loc = loc;
     tokenizer->next_token.token_type = TOKEN_UNK;
