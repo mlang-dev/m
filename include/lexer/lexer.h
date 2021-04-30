@@ -58,6 +58,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_SUB)             \
     ENUM_ITEM(TOKEN_MUL)             \
     ENUM_ITEM(TOKEN_DIV)             \
+    ENUM_ITEM(TOKEN_DOT)             \
     ENUM_ITEM(TOKEN_TOTAL)       
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
@@ -89,9 +90,9 @@ struct file_tokenizer {
     struct source_loc loc;
     struct source_loc tok_loc;
     struct token cur_token;
-    struct token next_token;
     char curr_char[2];
     string str_val;
+    int peek;
 };
 
 struct file_tokenizer* create_tokenizer(FILE* file, const char* filename);
@@ -99,6 +100,9 @@ void destroy_tokenizer(struct file_tokenizer* tokenizer);
 struct token* get_token(struct file_tokenizer* tokenizer);
 void init_token(struct token* token);
 extern const char* boolean_values[2];
+
+void lexer_init();
+void lexer_deinit();
 
 #ifdef __cplusplus
 }
