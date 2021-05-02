@@ -11,6 +11,7 @@ nav: true
 The m language grammar is given in this specification using a simple Extended Backus-Naur Form (EBNF) from [W3C EBNF](https://www.w3.org/TR/REC-xml/#sec-notation).
 
 ### Lexical Rules
+```
 letter          ::= [a-zA-Z]<br/>
 character       ::= any printable ASCII character<br/>
 digit           ::= [0-9]<br/>
@@ -27,8 +28,10 @@ comments        ::= #(character)*<br/>
 nl              ::= '\n' | '\r\n'
 indent          ::= indentation marker: increase to a new indentation level
 dedent          ::= dedentation marker: decrease to a old indentation level
+```
 
 ### Syntax Rules
+```
 Program         ::= (Declare | Function)\*<br/>
 Declare         ::= Type_Decl | Var_Decl<br/>
 Var_Decl        ::= id(:Type)?<br/>
@@ -67,4 +70,4 @@ Precedence by descended order
     ==, !=          left to right
     &&              left to right
     ||              left to right
-
+```
