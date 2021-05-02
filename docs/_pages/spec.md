@@ -2,14 +2,16 @@
 layout: page
 title: spec
 permalink: /spec/
-description: 
+description: m language specification
 nav: true
 ---
-# m language specification
+<br/>
+<br/>
 
 ## Extended BNF Notation
 The m language grammar is given in this specification using a simple Extended Backus-Naur Form (EBNF) from [W3C EBNF](https://www.w3.org/TR/REC-xml/#sec-notation).
-
+<br/>
+<br/>
 ### Lexical Rules
 ```
 letter          ::= [a-zA-Z]<br/>
