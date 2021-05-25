@@ -10,6 +10,11 @@
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
 
+const char *boolean_values[2] = {
+    "false",
+    "true",
+};
+
 void _print(struct eval_result result)
 {
     if (result.type == TYPE_INT) {

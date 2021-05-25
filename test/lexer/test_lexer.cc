@@ -26,7 +26,8 @@ TEST(testLexer, testExternToken)
     char test_code[] = "extern";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_EXTERN, token->token_type);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
+    ASSERT_EQ(to_symbol("extern"), token->keyword);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -37,7 +38,8 @@ TEST(testLexer, testTypeToken)
     char test_code[] = "type";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_TYPE, token->token_type);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
+    ASSERT_EQ(to_symbol("type"), token->keyword);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -108,8 +110,7 @@ TEST(testLexer, testInt)
     char test_code[] = "30";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_NUM, token->token_type);
-    ASSERT_EQ(TYPE_INT, token->type);
+    ASSERT_EQ(TOKEN_INT, token->token_type);
     ASSERT_EQ(30, token->int_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -121,14 +122,12 @@ TEST(testLexer, testRange)
     char test_code[] = "2..10";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_NUM, token->token_type);
-    ASSERT_EQ(TYPE_INT, token->type);
+    ASSERT_EQ(TOKEN_INT, token->token_type);
     ASSERT_EQ(2, token->int_val);
     token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_RANGE, token->token_type);
     token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_NUM, token->token_type);
-    ASSERT_EQ(TYPE_INT, token->type);
+    ASSERT_EQ(TOKEN_INT, token->token_type);
     ASSERT_EQ(10, token->int_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -141,7 +140,6 @@ TEST(testLexer, testTrueBool)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_TRUE, token->token_type);
-    ASSERT_EQ(TYPE_BOOL, token->type);
     ASSERT_EQ(1, token->int_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -154,7 +152,6 @@ TEST(testLexer, testFalseBool)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_FALSE, token->token_type);
-    ASSERT_EQ(TYPE_BOOL, token->type);
     ASSERT_EQ(0, token->int_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -166,8 +163,7 @@ TEST(testLexer, testDoubleWithDotZero)
     char test_code[] = "30.0";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_NUM, token->token_type);
-    ASSERT_EQ(TYPE_DOUBLE, token->type);
+    ASSERT_EQ(TOKEN_FLOAT, token->token_type);
     ASSERT_EQ(30.0, token->double_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -179,8 +175,7 @@ TEST(testLexer, testDoubleWithDot)
     char test_code[] = "30.";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_NUM, token->token_type);
-    ASSERT_EQ(TYPE_DOUBLE, token->type);
+    ASSERT_EQ(TOKEN_FLOAT, token->token_type);
     ASSERT_EQ(30.0, token->double_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -192,8 +187,7 @@ TEST(testLexer, testDoubleWithZeroDot)
     char test_code[] = "0.5";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_NUM, token->token_type);
-    ASSERT_EQ(TYPE_DOUBLE, token->type);
+    ASSERT_EQ(TOKEN_FLOAT, token->token_type);
     ASSERT_EQ(0.5, token->double_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -205,8 +199,7 @@ TEST(testLexer, testDoubleWithDotNoLeadingZero)
     char test_code[] = ".5";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_NUM, token->token_type);
-    ASSERT_EQ(TYPE_DOUBLE, token->type);
+    ASSERT_EQ(TOKEN_FLOAT, token->token_type);
     ASSERT_EQ(0.5, token->double_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -218,8 +211,7 @@ TEST(testLexer, testDouble)
     char test_code[] = "30.5";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_NUM, token->token_type);
-    ASSERT_EQ(TYPE_DOUBLE, token->type);
+    ASSERT_EQ(TOKEN_FLOAT, token->token_type);
     ASSERT_EQ(30.5, token->double_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -231,8 +223,7 @@ TEST(testLexer, testMoreDouble)
     char test_code[] = "30.12";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_NUM, token->token_type);
-    ASSERT_EQ(TYPE_DOUBLE, token->type);
+    ASSERT_EQ(TOKEN_FLOAT, token->token_type);
     ASSERT_EQ(30.12, token->double_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -244,7 +235,8 @@ TEST(testLexer, testVariadic)
     char test_code[] = "...";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_VARIADIC, token->token_type);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
+    ASSERT_EQ(to_symbol("..."), token->keyword);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }

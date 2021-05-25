@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-FILE *fmemopen(void *buf, size_t len, const char *type);
+FILE *fmemopen(void *buf, size_t len, const char *mode);
 
 #ifdef __cplusplus
 }

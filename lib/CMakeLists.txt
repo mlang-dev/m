@@ -46,6 +46,7 @@ add_library(mlr
   parser/ast.c
   parser/parser.c
   parser/astdump.c
+  parser/grammar.c
   sema/type.c
   sema/analyzer.c
   sema/sema_context.c

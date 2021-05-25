@@ -1,6 +1,6 @@
 /*
  * struct queue.h
- * 
+ *
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
  * dynamic struct queue c header file
@@ -18,8 +18,8 @@ extern "C" {
 
 struct queue {
     struct array items;
-    size_t front; //pointing to the place where element is to be read from
-    size_t back; //pointing to the place where element is to be put next
+    size_t front; // pointing to the place where element is to be read from
+    size_t back; // pointing to the place where element is to be put next
 };
 
 void queue_init(struct queue *q, size_t element_size);

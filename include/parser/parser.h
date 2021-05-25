@@ -33,6 +33,19 @@ struct parser {
     symbol type_of; //type-of symbol, the syntax is :
     symbol assignment; //assignment symbol: =
     symbol lessthan; //symbol: <
+    symbol comma;
+    symbol not ;
+    symbol binary;
+    symbol unary;
+    symbol import;
+    symbol extern_symbol;
+    symbol type;
+    symbol variadic;
+    symbol lparen;
+    symbol rparen;
+    symbol lbracket;
+    symbol rbracket;
+
     struct token curr_token;
     struct ast *ast;
     bool allow_id_as_a_func;
