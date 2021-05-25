@@ -23,6 +23,27 @@ char op_chars[] = {
     '!', '%', '&', '*', '+', '-', '/', '<', '=', '>', '?', '@', '^', '|', ':'
 };
 
+const char *keyword_tokens[] = {
+    "import",
+    "extern",
+    "type",
+    "if",
+    "else",
+    "then",
+    "in",
+    "for",
+    "unary",
+    "binary",
+    "||",
+    "&&",
+    "..",
+    "...",
+    "true",
+    "false"
+};
+
+char char_tokens[] = { '(', ')', '[', ']' };
+
 bool is_op_char(char op)
 {
     for (size_t i = 0; i < ARRAY_SIZE(op_chars); i++) {
@@ -31,30 +52,6 @@ bool is_op_char(char op)
     }
     return false;
 }
-
-struct keyword_token {
-    char keyword[16];
-    enum token_type token;
-};
-
-static struct keyword_token keyword_tokens[] = {
-    { "import", TOKEN_KEYWORD },
-    { "extern", TOKEN_KEYWORD },
-    { "type", TOKEN_KEYWORD },
-    { "if", TOKEN_KEYWORD },
-    { "else", TOKEN_KEYWORD },
-    { "then", TOKEN_KEYWORD },
-    { "in", TOKEN_KEYWORD },
-    { "for", TOKEN_KEYWORD },
-    { "unary", TOKEN_KEYWORD },
-    { "binary", TOKEN_KEYWORD },
-    { "||", TOKEN_KEYWORD },
-    { "&&", TOKEN_KEYWORD },
-    { "..", TOKEN_KEYWORD },
-    { "...", TOKEN_KEYWORD },
-    { "true", TOKEN_KEYWORD },
-    { "false", TOKEN_KEYWORD },
-};
 
 struct hashtable keyword_2_tokens;
 
@@ -68,29 +65,17 @@ void log_error(struct file_tokenizer *tokenizer, const char *msg)
 enum token_type get_token_type(const char *keyword)
 {
     for (size_t i = 0; i < ARRAY_SIZE(keyword_tokens); i++) {
-        if (strcmp(keyword_tokens[i].keyword, keyword) == 0)
-            return keyword_tokens[i].token;
+        if (strcmp(keyword_tokens[i], keyword) == 0)
+            return TOKEN_KEYWORD;
     }
     return TOKEN_NULL;
 }
 
-struct char_token {
-    char keyword;
-    enum token_type token;
-};
-
-static struct char_token char_tokens[] = {
-    { '(', TOKEN_KEYWORD },
-    { ')', TOKEN_KEYWORD },
-    { '[', TOKEN_KEYWORD },
-    { ']', TOKEN_KEYWORD },
-};
-
 enum token_type get_char_token_type(char keyword)
 {
     for (size_t i = 0; i < ARRAY_SIZE(char_tokens); i++) {
-        if (char_tokens[i].keyword == keyword)
-            return char_tokens[i].token;
+        if (char_tokens[i] == keyword)
+            return TOKEN_KEYWORD;
     }
     return TOKEN_NULL;
 }
@@ -122,10 +107,10 @@ int peek_char(struct file_tokenizer *tokenizer)
 void lexer_init()
 {
     hashtable_init_with_value_size(&keyword_2_tokens, sizeof(enum token_type), 0);
-    for (size_t i = 0; i < ARRAY_SIZE(keyword_tokens); ++i) {
-        symbol keyword = to_symbol(keyword_tokens[i].keyword);
-        hashtable_set_p(&keyword_2_tokens, keyword, &keyword_tokens[i].token);
-    }
+    // for (size_t i = 0; i < ARRAY_SIZE(keyword_tokens); ++i) {
+    //     symbol keyword = to_symbol(keyword_tokens[i].keyword);
+    //     hashtable_set_p(&keyword_2_tokens, keyword, &keyword_tokens[i].token);
+    // }
 }
 
 void lexer_deinit()
