@@ -131,6 +131,14 @@ struct parser *parser_new(bool is_repl)
     parser->rparen = to_symbol(")");
     parser->lbracket = to_symbol("[");
     parser->rbracket = to_symbol("]");
+    parser->if_symbol = to_symbol("if");
+    parser->else_symbol = to_symbol("else");
+    parser->then_symbol = to_symbol("then");
+    parser->for_symbol = to_symbol("for");
+    parser->in_symbol = to_symbol("in");
+    parser->range_symbol = to_symbol("..");
+    parser->true_symbol = to_symbol("true");
+    parser->false_symbol = to_symbol("false");
 
     symboltable_init(&parser->vars);
     queue_init(&parser->queued_tokens, sizeof(struct token));
@@ -196,7 +204,7 @@ struct exp_node *_parse_bool_value(struct parser *parser, struct exp_node *paren
 {
     struct literal_node *result;
     result = bool_node_new(parent, parser->curr_token.loc,
-        parser->curr_token.int_val);
+        parser->curr_token.keyword == parser->true_symbol ? 1 : 0);
     if (parser->curr_token.token_type != TOKEN_EOL)
         parse_next_token(parser);
     return (struct exp_node *)result;
@@ -242,7 +250,7 @@ struct exp_node *_parse_parentheses(struct parser *parser, struct exp_node *pare
 {
     struct exp_node *v;
     parse_next_token(parser);
-    if (parser->curr_token.token_type == TOKEN_RPAREN) {
+    if (parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->rparen) {
         v = (struct exp_node *)unit_node_new(parent, parser->curr_token.loc);
         parse_next_token(parser);
         return v;
@@ -250,7 +258,7 @@ struct exp_node *_parse_parentheses(struct parser *parser, struct exp_node *pare
     v = parse_exp(parser, parent, 0);
     if (!v)
         return 0;
-    if (parser->curr_token.token_type != TOKEN_RPAREN)
+    if (parser->curr_token.token_type != TOKEN_KEYWORD || parser->curr_token.keyword != parser->rparen)
         return (struct exp_node *)log_info(ERROR, "expected ')'");
     parse_next_token(parser);
     return v;
@@ -319,13 +327,8 @@ struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_no
         return _parse_type_value_node(parser, parent, pid_name);
     }
 
-    if (parser->curr_token.token_type != TOKEN_RPAREN) {
+    if (parser->curr_token.token_type != TOKEN_KEYWORD || parser->curr_token.keyword != parser->rparen) {
         while (true) {
-            // if(parser->curr_token.token_type == TOKEN_RPAREN){
-            //     parse_next_token(parser);
-            //     printf("right parenthese\n");
-            //     continue;
-            // }
             if (parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->variadic) {
                 is_variadic = true;
                 parse_next_token(parser);
@@ -346,7 +349,7 @@ struct exp_node *_parse_function_app_or_def(struct parser *parser, struct exp_no
                     array_push(&args, &arg);
                 }
             }
-            if (parser->curr_token.token_type == TOKEN_RPAREN) {
+            if (parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->rparen) {
                 parse_next_token(parser);
                 struct op_type optype = _parse_op_type(parser, parser->curr_token.loc);
                 if (optype.type) {
@@ -455,7 +458,7 @@ struct exp_node *parse_statement(struct parser *parser, struct exp_node *parent)
                 // it is operator overloading
                 symbol op = string_2_symbol(parser->curr_token.str_val);
                 parse_next_token(parser);
-                if (parser->curr_token.token_type != TOKEN_RPAREN)
+                if (parser->curr_token.token_type != TOKEN_KEYWORD || parser->curr_token.keyword != parser->rparen)
                     return (struct exp_node *)log_info(ERROR, "expected ')'");
                 parse_next_token(parser);
                 int precedence = 0;
@@ -489,7 +492,7 @@ bool _is_new_line(int cha)
 
 bool _id_is_a_function_call(struct parser *parser)
 {
-    return parser->allow_id_as_a_func && (parser->curr_token.token_type == TOKEN_IDENT || parser->curr_token.token_type == TOKEN_INT || parser->curr_token.token_type == TOKEN_FLOAT || parser->curr_token.token_type == TOKEN_IF || (parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->unary || parser->curr_token.keyword == parser->lparen));
+    return parser->allow_id_as_a_func && (parser->curr_token.token_type == TOKEN_IDENT || parser->curr_token.token_type == TOKEN_INT || parser->curr_token.token_type == TOKEN_FLOAT || (parser->curr_token.token_type == TOKEN_KEYWORD && (parser->curr_token.keyword == parser->unary || parser->curr_token.keyword == parser->lparen || parser->curr_token.keyword == parser->if_symbol)));
 }
 
 struct exp_node *_parse_ident(struct parser *parser, struct exp_node *parent)
@@ -526,7 +529,7 @@ struct exp_node *_parse_node(struct parser *parser, struct exp_node *parent)
 {
     if (parser->curr_token.token_type == TOKEN_IDENT)
         return _parse_ident(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_TRUE || parser->curr_token.token_type == TOKEN_FALSE)
+    else if (parser->curr_token.token_type == TOKEN_KEYWORD && (parser->curr_token.keyword == parser->true_symbol || parser->curr_token.keyword == parser->false_symbol))
         return _parse_bool_value(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_INT || parser->curr_token.token_type == TOKEN_FLOAT)
         return _parse_number(parser, parent);
@@ -534,9 +537,9 @@ struct exp_node *_parse_node(struct parser *parser, struct exp_node *parent)
         return _parse_char(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_STRING)
         return _parse_string(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_IF)
+    else if (parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->if_symbol)
         return _parse_if(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_FOR)
+    else if (parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->for_symbol)
         return _parse_for(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->lparen)
         return _parse_parentheses(parser, parent);
@@ -655,7 +658,7 @@ struct exp_node *_parse_prototype(struct parser *parser, struct exp_node *parent
     bool is_variadic = parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->variadic;
     if (is_variadic)
         parse_next_token(parser);
-    if (has_parenthese && parser->curr_token.token_type != TOKEN_RPAREN)
+    if (has_parenthese && parser->curr_token.keyword != parser->rparen)
         return (struct exp_node *)log_info(ERROR, "Expected ')' to match '('");
     // success.
     if (has_parenthese)
@@ -756,7 +759,7 @@ struct exp_node *_parse_type(struct parser *parser, struct exp_node *parent)
 struct exp_node *_parse_unary(struct parser *parser, struct exp_node *parent)
 {
     // If the current token is not an operator, it must be a primary expr.
-    if (parser->curr_token.token_type == TOKEN_RANGE
+    if ((parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->range_symbol)
         || parser->curr_token.token_type == TOKEN_EOL
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
@@ -787,14 +790,14 @@ struct exp_node *_parse_for(struct parser *parser, struct exp_node *parent)
     symbol id_symbol = string_2_symbol(parser->curr_token.str_val);
     parse_next_token(parser); // eat identifier.
 
-    if (parser->curr_token.token_type != TOKEN_IN)
+    if (parser->curr_token.token_type != TOKEN_KEYWORD || parser->curr_token.keyword != parser->in_symbol)
         return (struct exp_node *)log_info(ERROR, "expected 'in' after for %s", parser->curr_token.str_val);
     parse_next_token(parser); // eat 'in'.
 
     struct exp_node *start = parse_exp(parser, parent, 0);
     if (start == 0)
         return 0;
-    if (parser->curr_token.token_type != TOKEN_RANGE)
+    if (parser->curr_token.token_type != TOKEN_KEYWORD || parser->curr_token.keyword != parser->range_symbol)
         return (struct exp_node *)log_info(ERROR, "expected '..' after for start value got token: %s: %s",
             token_type_strings[parser->curr_token.token_type], parser->curr_token.str_val);
     parse_next_token(parser);
@@ -806,7 +809,7 @@ struct exp_node *_parse_for(struct parser *parser, struct exp_node *parent)
 
     // The step value is optional.
     struct exp_node *step = 0;
-    if (parser->curr_token.token_type == TOKEN_RANGE) {
+    if (parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->range_symbol) {
         step = end_val;
         parse_next_token(parser);
         end_val = parse_exp(parser, parent, 0);
@@ -833,7 +836,7 @@ struct exp_node *_parse_if(struct parser *parser, struct exp_node *parent)
     struct exp_node *cond = parse_exp(parser, parent, 0);
     if (!cond)
         return 0;
-    if (parser->curr_token.token_type == TOKEN_THEN) {
+    if (parser->curr_token.token_type == TOKEN_KEYWORD && parser->curr_token.keyword == parser->then_symbol) {
         parse_next_token(parser); // eat the then
     }
     while (parser->curr_token.token_type == TOKEN_EOL)
@@ -844,7 +847,7 @@ struct exp_node *_parse_if(struct parser *parser, struct exp_node *parent)
 
     while (parser->curr_token.token_type == TOKEN_EOL)
         parse_next_token(parser);
-    if (parser->curr_token.token_type != TOKEN_ELSE)
+    if (parser->curr_token.token_type != TOKEN_KEYWORD || parser->curr_token.keyword != parser->else_symbol)
         return (struct exp_node *)log_info(ERROR, "expected else, got type: %s", node_type_strings[parser->curr_token.token_type]);
 
     parse_next_token(parser);

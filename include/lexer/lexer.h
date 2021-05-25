@@ -27,17 +27,6 @@ extern "C" {
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
     ENUM_ITEM(TOKEN_KEYWORD)         \
-    ENUM_ITEM(TOKEN_IF)              \
-    ENUM_ITEM(TOKEN_THEN)            \
-    ENUM_ITEM(TOKEN_ELSE)            \
-    ENUM_ITEM(TOKEN_FOR)             \
-    ENUM_ITEM(TOKEN_IN)              \
-    ENUM_ITEM(TOKEN_RANGE)           \
-    ENUM_ITEM(TOKEN_TRUE)            \
-    ENUM_ITEM(TOKEN_FALSE)           \
-    ENUM_ITEM(TOKEN_RPAREN)          \
-    ENUM_ITEM(TOKEN_LBRACKET)        \
-    ENUM_ITEM(TOKEN_RBRACKET)        \
     ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_TOTAL)
 

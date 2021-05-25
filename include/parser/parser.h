@@ -45,6 +45,14 @@ struct parser {
     symbol rparen;
     symbol lbracket;
     symbol rbracket;
+    symbol if_symbol;
+    symbol else_symbol;
+    symbol then_symbol;
+    symbol for_symbol;
+    symbol in_symbol;
+    symbol range_symbol;
+    symbol true_symbol;
+    symbol false_symbol;
 
     struct token curr_token;
     struct ast *ast;

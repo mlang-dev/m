@@ -41,19 +41,19 @@ static struct keyword_token keyword_tokens[] = {
     { "import", TOKEN_KEYWORD },
     { "extern", TOKEN_KEYWORD },
     { "type", TOKEN_KEYWORD },
-    { "if", TOKEN_IF },
-    { "else", TOKEN_ELSE },
-    { "then", TOKEN_THEN },
-    { "in", TOKEN_IN },
-    { "for", TOKEN_FOR },
+    { "if", TOKEN_KEYWORD },
+    { "else", TOKEN_KEYWORD },
+    { "then", TOKEN_KEYWORD },
+    { "in", TOKEN_KEYWORD },
+    { "for", TOKEN_KEYWORD },
     { "unary", TOKEN_KEYWORD },
     { "binary", TOKEN_KEYWORD },
     { "||", TOKEN_KEYWORD },
     { "&&", TOKEN_KEYWORD },
-    { "..", TOKEN_RANGE },
+    { "..", TOKEN_KEYWORD },
     { "...", TOKEN_KEYWORD },
-    { "true", TOKEN_TRUE },
-    { "false", TOKEN_FALSE },
+    { "true", TOKEN_KEYWORD },
+    { "false", TOKEN_KEYWORD },
 };
 
 struct hashtable keyword_2_tokens;
@@ -81,9 +81,9 @@ struct char_token {
 
 static struct char_token char_tokens[] = {
     { '(', TOKEN_KEYWORD },
-    { ')', TOKEN_RPAREN },
-    { '[', TOKEN_LBRACKET },
-    { ']', TOKEN_RBRACKET },
+    { ')', TOKEN_KEYWORD },
+    { '[', TOKEN_KEYWORD },
+    { ']', TOKEN_KEYWORD },
 };
 
 enum token_type get_char_token_type(char keyword)
@@ -241,14 +241,11 @@ struct token *_tokenize_id_keyword(struct file_tokenizer *tokenizer)
     }
     enum token_type token_type = get_token_type(string_get(&tokenizer->str_val));
     tokenizer->cur_token.token_type = token_type != 0 ? token_type : TOKEN_IDENT;
-    if (token_type == TOKEN_TRUE || token_type == TOKEN_FALSE) {
-        tokenizer->cur_token.int_val = token_type == TOKEN_TRUE ? 1 : 0;
+    if (token_type == TOKEN_KEYWORD) {
+        tokenizer->cur_token.keyword = to_symbol(string_get(&tokenizer->str_val));
     } else
         tokenizer->cur_token.str_val = &tokenizer->str_val;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    if (token_type == TOKEN_KEYWORD) {
-        tokenizer->cur_token.keyword = to_symbol(string_get(&tokenizer->str_val));
-    }
     return &tokenizer->cur_token;
 }
 

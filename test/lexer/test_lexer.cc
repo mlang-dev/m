@@ -125,7 +125,8 @@ TEST(testLexer, testRange)
     ASSERT_EQ(TOKEN_INT, token->token_type);
     ASSERT_EQ(2, token->int_val);
     token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_RANGE, token->token_type);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
+    ASSERT_EQ(to_symbol(".."), token->keyword);
     token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_INT, token->token_type);
     ASSERT_EQ(10, token->int_val);
@@ -139,8 +140,8 @@ TEST(testLexer, testTrueBool)
     char test_code[] = "true";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_TRUE, token->token_type);
-    ASSERT_EQ(1, token->int_val);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
+    ASSERT_EQ(to_symbol("true"), token->keyword);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -151,8 +152,8 @@ TEST(testLexer, testFalseBool)
     char test_code[] = "false";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_FALSE, token->token_type);
-    ASSERT_EQ(0, token->int_val);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
+    ASSERT_EQ(to_symbol("false"), token->keyword);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
