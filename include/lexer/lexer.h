@@ -20,19 +20,16 @@ extern "C" {
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
     ENUM_ITEM(TOKEN_NULL)            \
     ENUM_ITEM(TOKEN_EOF)             \
-    ENUM_ITEM(TOKEN_EOL)             \
+    ENUM_ITEM(TOKEN_NEWLINE)         \
     ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_INT)             \
     ENUM_ITEM(TOKEN_FLOAT)           \
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
     ENUM_ITEM(TOKEN_KEYWORD)         \
-    ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_TOTAL)
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
-
-#define IS_OP(type) (type == TOKEN_OP)
 
 extern const char *token_type_strings[];
 
@@ -69,7 +66,7 @@ void destroy_tokenizer(struct file_tokenizer *tokenizer);
 struct token *get_token(struct file_tokenizer *tokenizer);
 void init_token(struct token *token);
 extern const char *boolean_values[2];
-
+bool is_op_char(char op);
 void lexer_init();
 void lexer_deinit();
 

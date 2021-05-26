@@ -287,7 +287,7 @@ struct token *_tokenize_op(struct file_tokenizer *tokenizer)
             break;
         string_add_chars(&tokenizer->str_val, tokenizer->curr_char);
     }
-    tokenizer->cur_token.token_type = TOKEN_OP;
+    tokenizer->cur_token.token_type = TOKEN_KEYWORD;
     tokenizer->cur_token.str_val = &tokenizer->str_val;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     tokenizer->cur_token.keyword = to_symbol(string_get(tokenizer->cur_token.str_val));
@@ -318,12 +318,12 @@ struct token *get_token(struct file_tokenizer *tokenizer)
             break;
         tokenizer->curr_char[0] = get_char(tokenizer);
     }
-
+    tokenizer->cur_token.keyword = 0; //TODO:
     tokenizer->tok_loc = tokenizer->loc;
     if (tokenizer->curr_char[0] == EOF)
         return _tokenize_type(tokenizer, TOKEN_EOF);
     else if (is_new_line(tokenizer->curr_char[0])) {
-        _tokenize_type(tokenizer, TOKEN_EOL);
+        _tokenize_type(tokenizer, TOKEN_NEWLINE);
         tokenizer->curr_char[0] = ' '; // replaced with empty space
         return &tokenizer->cur_token;
     } else if (tokenizer->curr_char[0] == '\'') {

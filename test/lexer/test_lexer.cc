@@ -62,7 +62,7 @@ TEST(testLexer, testEqualOp)
     char test_code[] = "==";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_OP, token->token_type);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
     ASSERT_STREQ("==", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -74,7 +74,7 @@ TEST(testLexer, testLEOp)
     char test_code[] = "<=";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_OP, token->token_type);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
     ASSERT_STREQ("<=", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -86,7 +86,7 @@ TEST(testLexer, testGEOp)
     char test_code[] = ">=";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_OP, token->token_type);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
     ASSERT_STREQ(">=", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -98,7 +98,7 @@ TEST(testLexer, testNEOp)
     char test_code[] = "!=";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_OP, token->token_type);
+    ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
     ASSERT_STREQ("!=", string_get(token->str_val));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
