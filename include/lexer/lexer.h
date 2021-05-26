@@ -26,7 +26,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_FLOAT)           \
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
-    ENUM_ITEM(TOKEN_KEYWORD)         \
+    ENUM_ITEM(TOKEN_SYMBOL)          \
     ENUM_ITEM(TOKEN_TOTAL)
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
@@ -46,7 +46,7 @@ struct token {
         double double_val; //double literal
         int int_val; //int literal
         char char_val; //char literal
-        symbol keyword_or_id;
+        symbol symbol_val;
     };
 };
 
