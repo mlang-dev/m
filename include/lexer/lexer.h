@@ -42,12 +42,12 @@ struct token {
     enum token_type token_type;
     struct source_loc loc;
     union {
-        string *str_val;
-        double double_val;
-        int int_val;
-        char char_val;
+        string *str_val; //string literal
+        double double_val; //double literal
+        int int_val; //int literal
+        char char_val; //char literal
+        symbol keyword_or_id;
     };
-    symbol keyword;
 };
 
 struct file_tokenizer {

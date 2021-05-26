@@ -15,7 +15,7 @@ TEST(testLexer, testUnderlineName)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_IDENT, token->token_type);
-    ASSERT_STREQ("__name", string_get(token->str_val));
+    ASSERT_STREQ("__name", string_get(token->keyword_or_id));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -27,7 +27,7 @@ TEST(testLexer, testExternToken)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_EQ(to_symbol("extern"), token->keyword);
+    ASSERT_EQ(to_symbol("extern"), token->keyword_or_id);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -39,7 +39,7 @@ TEST(testLexer, testTypeToken)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_EQ(to_symbol("type"), token->keyword);
+    ASSERT_EQ(to_symbol("type"), token->keyword_or_id);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -51,7 +51,7 @@ TEST(testLexer, testIdentToken)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_IDENT, token->token_type);
-    ASSERT_STREQ("x.y", string_get(token->str_val));
+    ASSERT_STREQ("x.y", string_get(token->keyword_or_id));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -63,7 +63,7 @@ TEST(testLexer, testEqualOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_STREQ("==", string_get(token->str_val));
+    ASSERT_STREQ("==", string_get(token->keyword_or_id));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -75,7 +75,7 @@ TEST(testLexer, testLEOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_STREQ("<=", string_get(token->str_val));
+    ASSERT_STREQ("<=", string_get(token->keyword_or_id));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -87,7 +87,7 @@ TEST(testLexer, testGEOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_STREQ(">=", string_get(token->str_val));
+    ASSERT_STREQ(">=", string_get(token->keyword_or_id));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -99,7 +99,7 @@ TEST(testLexer, testNEOp)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_STREQ("!=", string_get(token->str_val));
+    ASSERT_STREQ("!=", string_get(token->keyword_or_id));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -126,7 +126,7 @@ TEST(testLexer, testRange)
     ASSERT_EQ(2, token->int_val);
     token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_EQ(to_symbol(".."), token->keyword);
+    ASSERT_EQ(to_symbol(".."), token->keyword_or_id);
     token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_INT, token->token_type);
     ASSERT_EQ(10, token->int_val);
@@ -141,7 +141,7 @@ TEST(testLexer, testTrueBool)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_EQ(to_symbol("true"), token->keyword);
+    ASSERT_EQ(to_symbol("true"), token->keyword_or_id);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -153,7 +153,7 @@ TEST(testLexer, testFalseBool)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_EQ(to_symbol("false"), token->keyword);
+    ASSERT_EQ(to_symbol("false"), token->keyword_or_id);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -237,7 +237,7 @@ TEST(testLexer, testVariadic)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_KEYWORD, token->token_type);
-    ASSERT_EQ(to_symbol("..."), token->keyword);
+    ASSERT_EQ(to_symbol("..."), token->keyword_or_id);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -344,7 +344,7 @@ TEST(testLexer, testIdWithStringLiteralMulti)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_IDENT, token->token_type);
-    ASSERT_STREQ("printf", string_get(token->str_val));
+    ASSERT_STREQ("printf", string_get(token->keyword_or_id));
     token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_STRING, token->token_type);
     ASSERT_STREQ("%s", string_get(token->str_val));
