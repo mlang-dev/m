@@ -18,10 +18,10 @@ extern "C" {
 enum ctype {
     //value type
     VALUE_TYPE = 0,
-    CHAR,
-    INT,
-    FLOAT,
-    DOUBLE,
+    // CHAR,
+    // INT,
+    // FLOAT,
+    // DOUBLE,
 
     REFERENCE_TYPE = 64, //5
     //reference type or value type (depending on how long of the string)

@@ -180,7 +180,7 @@ void join_path(char *destination, const char *path1, const char *path2)
     }
 }
 
-char* get_basename(char *filename)
+char *get_basename(char *filename)
 {
     char *end = filename + strlen(filename);
     while (end > filename && *end != '.') {
@@ -190,4 +190,9 @@ char* get_basename(char *filename)
         *end = '\0';
     }
     return filename;
+}
+
+bool is_power_of2_64(uint64_t value)
+{
+    return value && !(value & (value - 1));
 }

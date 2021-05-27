@@ -1,6 +1,6 @@
 #include "codegen/target_info.h"
 #include "clib/string.h"
-#include "util.h"
+#include "clib/util.h"
 #include <llvm-c/TargetMachine.h>
 #include <string.h>
 

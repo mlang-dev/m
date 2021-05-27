@@ -7,7 +7,6 @@
 #include "clib/object.h"
 #include "clib/symbol.h"
 #include "clib/util.h"
-#include "util.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>

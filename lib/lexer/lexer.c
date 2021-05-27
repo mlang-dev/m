@@ -11,8 +11,12 @@
 #include "clib/hashtable.h"
 #include "clib/string.h"
 #include "clib/util.h"
+#include "lexer/keyword.h"
 #include "lexer/lexer.h"
+/*
+IDENT ::= [_a-zA-Z][_a-zA-Z0-9]{0,30}
 
+*/
 const char *token_type_strings[] = {
     FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
 };
@@ -36,6 +40,8 @@ char op_chars[] = {
     '|',
     ':',
 };
+
+struct keyword_states keyword_states;
 
 const char *keyword_symbols[] = {
     "import",
@@ -144,11 +150,19 @@ void lexer_init()
     //     symbol keyword = to_symbol(keyword_symbols[i].keyword);
     //     hashtable_set_p(&keyword_2_tokens, keyword, &keyword_symbols[i].token);
     // }
+    kss_init(&keyword_states);
+    char ch;
+    struct keyword_state *ks;
+    struct keyword_state *next_ks;
+    for (size_t i = 0; i < ARRAY_SIZE(keyword_symbols); ++i) {
+        kss_add_string(&keyword_states, keyword_symbols[i]);
+    }
 }
 
 void lexer_deinit()
 {
     hashtable_deinit(&keyword_2_tokens);
+    kss_deinit(&keyword_states);
 }
 
 struct file_tokenizer *create_tokenizer(FILE *file, const char *filename)

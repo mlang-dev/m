@@ -12,8 +12,18 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "clib/array.h"
 #include "clib/string.h"
+
+#ifdef _WIN32
+#include "clib/win/unistd.h"
+#else
+#include <unistd.h>
+#endif
 
 #define ENABLE_DEBUG_LOG 0
 #define GENERATE_ENUM(ENUM) ENUM,
@@ -38,9 +48,21 @@ string get_id_name();
 void reset_id_name(const char *idname);
 void print_backtrace(void);
 void join_path(char *destination, const char *path1, const char *path2);
-char* get_basename(char *filename);
+char *get_basename(char *filename);
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
+#define MALLOC(_ptr, _size)                                                      \
+    do {                                                                         \
+        if (NULL == (_ptr = malloc(_size))) {                                    \
+            fprintf(stderr, "Failed to allocate memory. %s\n", strerror(errno)); \
+            exit(EXIT_FAILURE);                                                  \
+        }                                                                        \
+    } while (0)
+
+char *get_exec_path();
+
+bool is_power_of2_64(uint64_t Value);
 
 #ifdef __cplusplus
 }

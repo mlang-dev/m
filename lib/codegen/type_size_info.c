@@ -1,6 +1,6 @@
 #include "codegen/type_size_info.h"
+#include "clib/util.h"
 #include "codegen/codegen.h"
-#include "util.h"
 #include <assert.h>
 
 uint64_t align_to(uint64_t field_offset, uint64_t align)

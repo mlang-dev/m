@@ -1,17 +1,17 @@
 #ifdef _WIN32
 #ifndef _UNISTD_H
-#define _UNISTD_H    1
+#define _UNISTD_H 1
 
 /* This is intended as a drop-in replacement for unistd.h on Windows.
  * Please add functionality as neeeded.
  * https://stackoverflow.com/a/826027/1202830
  */
 
-#include <stdlib.h>
-#include <io.h>
-#include <win/getopt.h> /* getopt at: https://gist.github.com/ashelly/7776712 */
-#include <process.h> /* for getpid() and the exec..() family */
+#include <clib/win/getopt.h> /* getopt at: https://gist.github.com/ashelly/7776712 */
 #include <direct.h> /* for _getcwd() and _chdir() */
+#include <io.h>
+#include <process.h> /* for getpid() and the exec..() family */
+#include <stdlib.h>
 
 #define PATH_MAX 260
 
@@ -20,10 +20,10 @@
 
 /* Values for the second argument to access.
    These may be OR'd together.  */
-#define R_OK    4       /* Test for read permission.  */
-#define W_OK    2       /* Test for write permission.  */
+#define R_OK 4 /* Test for read permission.  */
+#define W_OK 2 /* Test for write permission.  */
 //#define   X_OK    1       /* execute permission - unsupported in windows*/
-#define F_OK    0       /* Test for existence.  */
+#define F_OK 0 /* Test for existence.  */
 
 #define access _access
 #define dup2 _dup2
@@ -48,7 +48,7 @@
 #define STDERR_FILENO 2
 /* should be in some equivalent to <sys/types.h> */
 // typedef __int8            int8_t;
-// typedef __int16           int16_t; 
+// typedef __int16           int16_t;
 // typedef __int32           int32_t;
 // typedef __int64           int64_t;
 // typedef unsigned __int8   uint8_t;

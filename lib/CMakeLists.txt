@@ -41,8 +41,12 @@ add_library(mlr
   clib/hashtable.c
   clib/util.c
   clib/generic.c
+  clib/win/getopt.c
+  clib/win/libfmemopen.c
+  clib/getpath.c
   tool/cmodule.c
   lexer/lexer.c
+  lexer/keyword.c
   parser/ast.c
   parser/parser.c
   parser/astdump.c
@@ -67,10 +71,6 @@ add_library(mlr
   compiler/repl.c
   compiler/jit.c
   compiler/compiler.c
-  win/getopt.c
-  win/libfmemopen.c
-  sys/getpath.c
-  sys/util.c
  )
 
 include_directories(

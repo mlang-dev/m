@@ -1,8 +1,8 @@
 #include "codegen/fun_info.h"
+#include "clib/util.h"
 #include "codegen/codegen.h"
 #include "codegen/compute_fun_info.h"
 #include "codegen/ir_arg_info.h"
-#include "util.h"
 #include <assert.h>
 
 const unsigned ALL_REQUIRED = ~0U;

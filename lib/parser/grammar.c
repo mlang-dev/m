@@ -6,7 +6,7 @@
  */
 
 #include "parser/grammar.h"
-#include "util.h"
+#include "clib/util.h"
 
 struct grammar *grammar_new(const char *grammar_text)
 {

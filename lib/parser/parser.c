@@ -10,7 +10,7 @@
 
 #include "clib/hashtable.h"
 #include "clib/util.h"
-#include "libfmemopen.h"
+#include "clib/win/libfmemopen.h"
 #include "parser/astdump.h"
 #include "parser/parser.h"
 

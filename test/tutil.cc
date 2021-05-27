@@ -4,10 +4,10 @@
  * Utility functions for testing
  */
 #include "tutil.h"
+#include "clib/win/libfmemopen.h"
 #include "codegen/codegen.h"
 #include "codegen/env.h"
 #include "compiler/compiler.h"
-#include "libfmemopen.h"
 #include "sema/sema_context.h"
 #include "gtest/gtest.h"
 #include <llvm-c/Core.h>

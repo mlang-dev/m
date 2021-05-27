@@ -129,7 +129,8 @@
         "cg_var.h": "c",
         "ast.h": "c",
         "typeindex": "c",
-        "type.h": "c"
+        "type.h": "c",
+        "stdio.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

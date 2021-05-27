@@ -8,10 +8,10 @@
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
 #include "clib/symboltable.h"
+#include "clib/util.h"
 #include "codegen/codegen.h"
 #include "codegen/env.h"
 #include "tool/cmodule.h"
-#include "util.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
