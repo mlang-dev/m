@@ -26,6 +26,7 @@ struct keyword_states {
 void kss_init(struct keyword_states *kss);
 void kss_add_string(struct keyword_states *kss, const char *str);
 void kss_deinit(struct keyword_states *kss);
+struct keyword_state *find_next_keyword_state(struct keyword_state *state, char ch);
 
 #ifdef __cplusplus
 }

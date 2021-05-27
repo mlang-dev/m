@@ -1,5 +1,6 @@
 #include "lexer/keyword.h"
 #include "clib/util.h"
+#include <ctype.h>
 
 void kss_init(struct keyword_states *kss)
 {
@@ -29,15 +30,17 @@ void _free_keyword_state(struct keyword_state *ks)
     free(ks);
 }
 
-struct keyword_state *_find_keyword_state(struct array *arr, char ch)
+struct keyword_state *find_next_keyword_state(struct keyword_state *state, char ch)
 {
+    if (!state)
+        return 0;
     struct keyword_state *ks = 0;
-    for (size_t i = 0; i < array_size(arr); i++) {
-        ks = *(struct keyword_state **)array_get(arr, i);
+    for (size_t i = 0; i < array_size(&state->nexts); i++) {
+        ks = *(struct keyword_state **)array_get(&state->nexts, i);
         if (ks->ch == ch)
-            break;
+            return ks;
     }
-    return ks;
+    return 0;
 }
 
 void kss_add_string(struct keyword_states *kss, const char *str)
@@ -52,7 +55,7 @@ void kss_add_string(struct keyword_states *kss, const char *str)
     }
     for (size_t j = 1; j < strlen(str); ++j) {
         ch = str[j];
-        next_ks = _find_keyword_state(&ks->nexts, ch);
+        next_ks = find_next_keyword_state(ks, ch);
         if (!next_ks) {
             next_ks = _new_keyword_state(ch);
             array_push(&ks->nexts, &next_ks);
@@ -60,6 +63,7 @@ void kss_add_string(struct keyword_states *kss, const char *str)
         ks = next_ks;
     }
     ks->accept = true;
+    ks->identifiable = isalnum(str[0]);
 }
 
 void kss_deinit(struct keyword_states *kss)

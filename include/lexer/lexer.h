@@ -66,7 +66,6 @@ void destroy_tokenizer(struct file_tokenizer *tokenizer);
 struct token *get_token(struct file_tokenizer *tokenizer);
 void init_token(struct token *token);
 extern const char *boolean_values[2];
-bool is_op_char(char op);
 void lexer_init();
 void lexer_deinit();
 

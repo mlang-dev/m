@@ -5,28 +5,28 @@
  */
 #include "gtest/gtest.h"
 
-#include "parser/ast.h"
 #include "clib/array.h"
 #include "clib/string.h"
-#include <string.h>
-#include "parser/parser.h"
-#include "tutil.h"
+#include "codegen/env.h"
+#include "parser/ast.h"
 #include "parser/astdump.h"
 #include "test_base.h"
+#include "tutil.h"
+#include <string.h>
 
-class testAstDump : public TestBase {};
+class testAstDump : public TestBase {
+};
 
 TEST_F(testAstDump, testPrototypeNodeDump)
 {
     char test_code[] = "extern printf(format:string ...):int";
-    auto parser = parser_new(false);
-    block_node* block = parse_string(parser, "test", test_code);
-    auto node = *(exp_node**)array_front(&block->nodes);
+    auto env = env_new(false);
+    block_node *block = parse_string(env->parser, "test", test_code);
+    auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(PROTOTYPE_NODE, node->node_type);
-    auto proto = (prototype_node*)node;
-    ASSERT_STREQ("printf", string_get((string*)proto->name));
+    auto proto = (prototype_node *)node;
+    ASSERT_STREQ("printf", string_get((string *)proto->name));
     string dump_str = dump(node);
     ASSERT_STREQ(test_code, string_get(&dump_str));
-    parser_free(parser);
+    env_free(env);
 }
-
