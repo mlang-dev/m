@@ -5,28 +5,28 @@ permalink: /spec/
 description: m language specification
 nav: true
 ---
-<br/>
-<br/>
+
+
 
 ## Extended BNF Notation
 The m language grammar is given in this specification using a simple Extended Backus-Naur Form (EBNF) from [W3C EBNF](https://www.w3.org/TR/REC-xml/#sec-notation).
-<br/>
-<br/>
+
+
 ### Lexical Rules
 ```
-letter          ::= [a-zA-Z]<br/>
-character       ::= any printable ASCII character<br/>
-digit           ::= [0-9]<br/>
-id              ::= _\*(letter)+(digit)\*<br/>
+letter          ::= [a-zA-Z]
+character       ::= any printable ASCII character
+digit           ::= [0-9]
+id              ::= [_a-zA-Z][_a-zA-Z0-9]*
 sign            ::= "+" | "-"
 point           ::= "."
 exponent-marker ::= "e" | "E" | "s" | "S" | "d" | "D" | "f" | "F" | "l" | "L"
 exponent        ::= exponent-marker sign? (digit)+
 floatconst      ::= sign? (digit)* point (digit)+ exponent
-intconst        ::= (digit)\*<br/>
-charconst       ::= 'character' | '\n' | '\0'<br/>
-stringconst     ::= "character*"<br/>
-comments        ::= #(character)*<br/>
+intconst        ::= (digit)\*
+charconst       ::= 'character' | '\n' | '\0'
+stringconst     ::= "character*"
+comments        ::= #(character)*
 nl              ::= '\n' | '\r\n'
 indent          ::= indentation marker: increase to a new indentation level
 dedent          ::= dedentation marker: decrease to a old indentation level
@@ -34,33 +34,33 @@ dedent          ::= dedentation marker: decrease to a old indentation level
 
 ### Syntax Rules
 ```
-Program         ::= (Declare | Function)\*<br/>
-Declare         ::= Type_Decl | Var_Decl<br/>
-Var_Decl        ::= id(:Type)?<br/>
-Type            ::= () | bool | char | int | double | id <br/>
-Type_Decl       ::= type id = Var_Decl\* <br/>
-Function        ::= id (Var_Decl )\*= Block_Statement | nl? ident Block_Statement dedent<br/>
-Block_Statement ::= (Statement nl)+<br/>
-Statement       ::= if Expression Expression else Expression<br/>
-                    |for id "in" Expression..Expression nl ident Block_Statement degent<br/>
-                    |Assignment<br/>
+Program         ::= (Declare | Function)\*
+Declare         ::= Type_Decl | Var_Decl
+Var_Decl        ::= id(:Type)?
+Type            ::= () | bool | char | int | double | id 
+Type_Decl       ::= type id = Var_Decl\* 
+Function        ::= id (Var_Decl )\*= Block_Statement | nl? ident Block_Statement dedent
+Block_Statement ::= (Statement nl)+
+Statement       ::= if Expression Expression else Expression
+                    |for id "in" Expression..Expression nl ident Block_Statement degent
+                    |Assignment
                     |Call_Expression
-Assignment      ::= id(.id)* = Expression<br/>
-Expression      ::= '-'Expression<br/>
-                    |'!'Expression<br/>
-                    |Expression BinOp Expression<br/>
-                    |Expression RelOp Expression<br/>
-                    |Expression LogOp Expression<br/>
-                    |Call_Expression(.id)*<br/>
-                    |'('Expression')'<br/>
-                    |intconst<br/>
-                    |charconst<br/>
-                    |stringconst<br/>
-                    |floatconst<br/>
-Call_Expression ::= id (Expression )*<br/>
-BinOp           ::= + | - | * | / <br/>
-RelOp           ::= == | != | <= | < | >= | > |<br/>
-LogOp           ::= && | || |<br/>
+Assignment      ::= id(.id)* = Expression
+Expression      ::= '-'Expression
+                    |'!'Expression
+                    |Expression BinOp Expression
+                    |Expression RelOp Expression
+                    |Expression LogOp Expression
+                    |Call_Expression(.id)*
+                    |'('Expression')'
+                    |intconst
+                    |charconst
+                    |stringconst
+                    |floatconst
+Call_Expression ::= id (Expression )*
+BinOp           ::= + | - | * | / 
+RelOp           ::= == | != | <= | < | >= | > |
+LogOp           ::= && | || |
 
 ### Operator Associativities and Precedences
 Precedence by descended order
