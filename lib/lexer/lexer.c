@@ -11,7 +11,6 @@
 #include "clib/hashtable.h"
 #include "clib/string.h"
 #include "clib/util.h"
-#include "lexer/keyword.h"
 #include "lexer/lexer.h"
 /*
 IDENT ::= [_a-zA-Z][_a-zA-Z0-9]{0,30}
@@ -23,66 +22,11 @@ const char *token_type_strings[] = {
 
 #define CUR_CHAR(tokenizer) tokenizer->curr_char[0]
 
-struct keyword_states keyword_states;
-
-const char *keyword_symbols[] = {
-    "import",
-    "extern",
-    "type",
-    "if",
-    "else",
-    "then",
-    "in",
-    "for",
-    "unary",
-    "binary",
-    "..",
-    "...",
-    "true",
-    "false",
-    "||",
-    "&&",
-    "!",
-    "%",
-    "&",
-    "^",
-    "*",
-    "/",
-    "+",
-    "-",
-    "<",
-    "=",
-    ">",
-    "<=",
-    ">=",
-    "==",
-    "!=",
-    "?",
-    "@",
-    "|",
-    ":",
-    "(",
-    ")",
-    "[",
-    "]"
-};
-
-struct hashtable keyword_2_tokens;
-
 void log_error(struct file_tokenizer *tokenizer, const char *msg)
 {
     char full_msg[512];
     sprintf(full_msg, "%s:%d:%d: %s", tokenizer->filename, tokenizer->tok_loc.line, tokenizer->tok_loc.col, msg);
     log_info(ERROR, full_msg);
-}
-
-bool is_keyword_token(const char *keyword)
-{
-    for (size_t i = 0; i < ARRAY_SIZE(keyword_symbols); i++) {
-        if (strcmp(keyword_symbols[i], keyword) == 0)
-            return true;
-    }
-    return false;
 }
 
 int get_char(struct file_tokenizer *tokenizer)
@@ -109,31 +53,32 @@ int peek_char(struct file_tokenizer *tokenizer)
     return tokenizer->peek;
 }
 
-void lexer_init()
+void _lexer_init(struct file_tokenizer *tokenizer, const char **keyword_symbols, int keyword_count)
 {
-    hashtable_init_with_value_size(&keyword_2_tokens, sizeof(enum token_type), 0);
+    hashtable_init_with_value_size(&tokenizer->keyword_2_tokens, sizeof(enum token_type), 0);
     // for (size_t i = 0; i < ARRAY_SIZE(keyword_symbols); ++i) {
     //     symbol keyword = to_symbol(keyword_symbols[i].keyword);
     //     hashtable_set_p(&keyword_2_tokens, keyword, &keyword_symbols[i].token);
     // }
-    kss_init(&keyword_states);
+    kss_init(&tokenizer->keyword_states);
     char ch;
     struct keyword_state *ks;
     struct keyword_state *next_ks;
-    for (size_t i = 0; i < ARRAY_SIZE(keyword_symbols); ++i) {
-        kss_add_string(&keyword_states, keyword_symbols[i]);
+    for (size_t i = 0; i < keyword_count; ++i) {
+        kss_add_string(&tokenizer->keyword_states, keyword_symbols[i]);
     }
 }
 
-void lexer_deinit()
+void _lexer_deinit(struct file_tokenizer *tokenizer)
 {
-    hashtable_deinit(&keyword_2_tokens);
-    kss_deinit(&keyword_states);
+    hashtable_deinit(&tokenizer->keyword_2_tokens);
+    kss_deinit(&tokenizer->keyword_states);
 }
 
-struct file_tokenizer *create_tokenizer(FILE *file, const char *filename)
+struct file_tokenizer *create_tokenizer(FILE *file, const char *filename, const char **keyword_symbols, int keyword_count)
 {
     struct file_tokenizer *tokenizer = malloc(sizeof(*tokenizer));
+    _lexer_init(tokenizer, keyword_symbols, keyword_count);
     struct source_loc loc = { 1, 0 };
     tokenizer->loc = loc;
     tokenizer->curr_char[0] = ' ';
@@ -149,6 +94,7 @@ void destroy_tokenizer(struct file_tokenizer *tokenizer)
 {
     fclose(tokenizer->file);
     string_deinit(&tokenizer->str_val);
+    _lexer_deinit(tokenizer);
     free(tokenizer);
 }
 
@@ -176,7 +122,6 @@ struct token *_tokenize_dot(struct file_tokenizer *tokenizer)
     tokenizer->curr_char[0] = get_char(tokenizer);
     if (tokenizer->curr_char[0] == '.') {
         _collect_all_dots(tokenizer, &str);
-        assert(is_keyword_token(string_get(&str)));
         tokenizer->cur_token.symbol_val = to_symbol(string_get(&str));
         tokenizer->cur_token.token_type = TOKEN_SYMBOL;
         tokenizer->cur_token.loc = tokenizer->tok_loc;
@@ -231,7 +176,7 @@ struct token *_tokenize_number_literal(struct file_tokenizer *tokenizer)
 struct token *_tokenize_id_keyword(struct file_tokenizer *tokenizer)
 {
     string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
-    struct keyword_state *ks = keyword_states.states[tokenizer->curr_char[0]];
+    struct keyword_state *ks = tokenizer->keyword_states.states[tokenizer->curr_char[0]];
     struct keyword_state *ks_next = 0;
     while (true) {
         char ch = tokenizer->curr_char[0] = get_char(tokenizer);
@@ -246,7 +191,6 @@ struct token *_tokenize_id_keyword(struct file_tokenizer *tokenizer)
         }
     }
 
-    //tokenizer->cur_token.token_type = is_keyword_token(string_get(&tokenizer->str_val)) ? TOKEN_SYMBOL : TOKEN_IDENT;
     tokenizer->cur_token.token_type = (ks && ks->accept) ? TOKEN_SYMBOL : TOKEN_IDENT;
     tokenizer->cur_token.symbol_val = to_symbol(string_get(&tokenizer->str_val));
     tokenizer->cur_token.loc = tokenizer->tok_loc;
@@ -336,7 +280,7 @@ struct token *get_token(struct file_tokenizer *tokenizer)
         return _tokenize_dot(tokenizer);
     } else if (isdigit(tokenizer->curr_char[0])) {
         return _tokenize_number_literal(tokenizer);
-    } else if (isalpha(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '_' || keyword_states.states[tokenizer->curr_char[0]]) {
+    } else if (isalpha(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '_' || tokenizer->keyword_states.states[tokenizer->curr_char[0]]) {
         return _tokenize_id_keyword(tokenizer);
     } else if (tokenizer->curr_char[0] == '#') {
         // skip comments

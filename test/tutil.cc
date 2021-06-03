@@ -8,6 +8,7 @@
 #include "codegen/codegen.h"
 #include "codegen/env.h"
 #include "compiler/compiler.h"
+#include "parser/grammar.h"
 #include "sema/sema_context.h"
 #include "gtest/gtest.h"
 #include <llvm-c/Core.h>
@@ -26,7 +27,7 @@ FILE *open_file_from_string(const char *code)
 file_tokenizer *create_tokenizer_for_string(const char *str)
 {
     FILE *file = fmemopen((void *)str, strlen(str), "r");
-    return create_tokenizer(file, "");
+    return create_tokenizer(file, "", keyword_symbols, keyword_count);
 }
 
 void make_module_ir(LLVMModuleRef module, const char *module_name, const char *ir_string, char *module_ir)

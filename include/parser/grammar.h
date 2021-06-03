@@ -14,6 +14,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern const char *keyword_symbols[];
+
+extern int keyword_count;
+
 /// A grammar is a set of Rules. A rule is the form of A = e where A is a nonterminal symbol
 /// and e is a expression consists of any terminal symbol, any nonterminal symbol or empty string
 /// e.g. product = product [*/] factor

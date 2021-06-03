@@ -11,6 +11,7 @@
 #include "clib/string.h"
 #include "clib/symbol.h"
 #include "clib/util.h"
+#include "lexer/keyword.h"
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -59,15 +60,15 @@ struct file_tokenizer {
     char curr_char[2];
     string str_val;
     int peek;
+    struct keyword_states keyword_states;
+    struct hashtable keyword_2_tokens;
 };
 
-struct file_tokenizer *create_tokenizer(FILE *file, const char *filename);
+struct file_tokenizer *create_tokenizer(FILE *file, const char *filename, const char **keyword_symbols, int keyword_count);
 void destroy_tokenizer(struct file_tokenizer *tokenizer);
 struct token *get_token(struct file_tokenizer *tokenizer);
 void init_token(struct token *token);
 extern const char *boolean_values[2];
-void lexer_init();
-void lexer_deinit();
 
 #ifdef __cplusplus
 }

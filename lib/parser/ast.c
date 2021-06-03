@@ -6,6 +6,7 @@
  */
 #include "parser/ast.h"
 #include "clib/array.h"
+#include "parser/grammar.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -632,7 +633,7 @@ struct module *module_new(const char *mod_name, FILE *file)
     struct block_node *node = malloc(sizeof(*node));
     mod->block = node;
     array_init(&mod->block->nodes, sizeof(struct exp_node *));
-    mod->tokenizer = create_tokenizer(file, mod_name);
+    mod->tokenizer = create_tokenizer(file, mod_name, keyword_symbols, keyword_count);
     return mod;
 }
 
