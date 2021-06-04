@@ -51,7 +51,7 @@ struct token {
     };
 };
 
-struct file_tokenizer {
+struct tokenizer {
     FILE *file;
     const char *filename;
     struct source_loc loc;
@@ -64,9 +64,9 @@ struct file_tokenizer {
     struct hashtable keyword_2_tokens;
 };
 
-struct file_tokenizer *create_tokenizer(FILE *file, const char *filename, const char **keyword_symbols, int keyword_count);
-void destroy_tokenizer(struct file_tokenizer *tokenizer);
-struct token *get_token(struct file_tokenizer *tokenizer);
+struct tokenizer *create_tokenizer(FILE *file, const char *filename, const char **keyword_symbols, int keyword_count);
+void destroy_tokenizer(struct tokenizer *tokenizer);
+struct token *get_token(struct tokenizer *tokenizer);
 void init_token(struct token *token);
 extern const char *boolean_values[2];
 

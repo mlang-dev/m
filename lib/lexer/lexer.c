@@ -22,14 +22,14 @@ const char *token_type_strings[] = {
 
 #define CUR_CHAR(tokenizer) tokenizer->curr_char[0]
 
-void log_error(struct file_tokenizer *tokenizer, const char *msg)
+void log_error(struct tokenizer *tokenizer, const char *msg)
 {
     char full_msg[512];
     sprintf(full_msg, "%s:%d:%d: %s", tokenizer->filename, tokenizer->tok_loc.line, tokenizer->tok_loc.col, msg);
     log_info(ERROR, full_msg);
 }
 
-int get_char(struct file_tokenizer *tokenizer)
+int get_char(struct tokenizer *tokenizer)
 {
     int last_char;
     if (tokenizer->peek >= 0) {
@@ -46,14 +46,14 @@ int get_char(struct file_tokenizer *tokenizer)
     return last_char;
 }
 
-int peek_char(struct file_tokenizer *tokenizer)
+int peek_char(struct tokenizer *tokenizer)
 {
     assert(tokenizer->peek == -1); // only 1 peek is allowed.
     tokenizer->peek = getc(tokenizer->file);
     return tokenizer->peek;
 }
 
-void _lexer_init(struct file_tokenizer *tokenizer, const char **keyword_symbols, int keyword_count)
+void _lexer_init(struct tokenizer *tokenizer, const char **keyword_symbols, int keyword_count)
 {
     hashtable_init_with_value_size(&tokenizer->keyword_2_tokens, sizeof(enum token_type), 0);
     // for (size_t i = 0; i < ARRAY_SIZE(keyword_symbols); ++i) {
@@ -69,15 +69,15 @@ void _lexer_init(struct file_tokenizer *tokenizer, const char **keyword_symbols,
     }
 }
 
-void _lexer_deinit(struct file_tokenizer *tokenizer)
+void _lexer_deinit(struct tokenizer *tokenizer)
 {
     hashtable_deinit(&tokenizer->keyword_2_tokens);
     kss_deinit(&tokenizer->keyword_states);
 }
 
-struct file_tokenizer *create_tokenizer(FILE *file, const char *filename, const char **keyword_symbols, int keyword_count)
+struct tokenizer *create_tokenizer(FILE *file, const char *filename, const char **keyword_symbols, int keyword_count)
 {
-    struct file_tokenizer *tokenizer = malloc(sizeof(*tokenizer));
+    struct tokenizer *tokenizer = malloc(sizeof(*tokenizer));
     _lexer_init(tokenizer, keyword_symbols, keyword_count);
     struct source_loc loc = { 1, 0 };
     tokenizer->loc = loc;
@@ -90,7 +90,7 @@ struct file_tokenizer *create_tokenizer(FILE *file, const char *filename, const 
     return tokenizer;
 }
 
-void destroy_tokenizer(struct file_tokenizer *tokenizer)
+void destroy_tokenizer(struct tokenizer *tokenizer)
 {
     fclose(tokenizer->file);
     string_deinit(&tokenizer->str_val);
@@ -98,7 +98,7 @@ void destroy_tokenizer(struct file_tokenizer *tokenizer)
     free(tokenizer);
 }
 
-void _collect_all_dots(struct file_tokenizer *tokenizer, string *symbol)
+void _collect_all_dots(struct tokenizer *tokenizer, string *symbol)
 {
     while (tokenizer->curr_char[0] == '.') {
         string_add_chars(symbol, tokenizer->curr_char);
@@ -106,7 +106,7 @@ void _collect_all_dots(struct file_tokenizer *tokenizer, string *symbol)
     }
 }
 
-void _collect_all_digits(struct file_tokenizer *tokenizer, string *str)
+void _collect_all_digits(struct tokenizer *tokenizer, string *str)
 {
     while (isdigit(tokenizer->curr_char[0])) {
         string_add_chars(str, tokenizer->curr_char);
@@ -114,7 +114,7 @@ void _collect_all_digits(struct file_tokenizer *tokenizer, string *str)
     }
 }
 
-struct token *_tokenize_dot(struct file_tokenizer *tokenizer)
+struct token *_tokenize_dot(struct tokenizer *tokenizer)
 {
     assert(tokenizer->curr_char[0] == '.');
     string str;
@@ -140,7 +140,7 @@ struct token *_tokenize_dot(struct file_tokenizer *tokenizer)
     }
 }
 
-struct token *_tokenize_number_literal(struct file_tokenizer *tokenizer)
+struct token *_tokenize_number_literal(struct tokenizer *tokenizer)
 {
     string num_str;
     string_init(&num_str);
@@ -173,7 +173,7 @@ struct token *_tokenize_number_literal(struct file_tokenizer *tokenizer)
     return &tokenizer->cur_token;
 }
 
-struct token *_tokenize_id_keyword(struct file_tokenizer *tokenizer)
+struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
 {
     string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
     struct keyword_state *ks = tokenizer->keyword_states.states[tokenizer->curr_char[0]];
@@ -197,7 +197,7 @@ struct token *_tokenize_id_keyword(struct file_tokenizer *tokenizer)
     return &tokenizer->cur_token;
 }
 
-struct token *_tokenize_char_token(struct file_tokenizer *tokenizer, enum token_type token_type)
+struct token *_tokenize_char_token(struct tokenizer *tokenizer, enum token_type token_type)
 {
     string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
     tokenizer->cur_token.loc = tokenizer->tok_loc;
@@ -206,7 +206,7 @@ struct token *_tokenize_char_token(struct file_tokenizer *tokenizer, enum token_
     return &tokenizer->cur_token;
 }
 
-struct token *_tokenize_char_literal(struct file_tokenizer *tokenizer)
+struct token *_tokenize_char_literal(struct tokenizer *tokenizer)
 {
     char temp = get_char(tokenizer);
     if (temp == '\'') {
@@ -224,7 +224,7 @@ struct token *_tokenize_char_literal(struct file_tokenizer *tokenizer)
     return &tokenizer->cur_token;
 }
 
-struct token *_tokenize_string_literal(struct file_tokenizer *tokenizer)
+struct token *_tokenize_string_literal(struct tokenizer *tokenizer)
 {
     string_copy_chars(&tokenizer->str_val, "");
     while (true) {
@@ -250,14 +250,14 @@ struct token *_tokenize_string_literal(struct file_tokenizer *tokenizer)
     return &tokenizer->cur_token;
 }
 
-void _skip_to_line_end(struct file_tokenizer *tokenizer)
+void _skip_to_line_end(struct tokenizer *tokenizer)
 {
     do
         tokenizer->curr_char[0] = get_char(tokenizer);
     while (tokenizer->curr_char[0] != EOF && !is_new_line(tokenizer->curr_char[0]));
 }
 
-struct token *get_token(struct file_tokenizer *tokenizer)
+struct token *get_token(struct tokenizer *tokenizer)
 {
     // skip spaces
     while (isspace(tokenizer->curr_char[0])) {

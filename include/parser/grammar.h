@@ -19,12 +19,21 @@ extern const char *keyword_symbols[];
 
 extern int keyword_count;
 
+struct expr {
+    struct array tokens; //array of tokens
+};
+
+struct rule {
+    symbol nonterm; // nonterminal symbol
+    struct array exprs; // array of expr
+};
+
 /// A grammar is a set of Rules. A rule is the form of A = e where A is a nonterminal symbol
 /// and e is a expression consists of any terminal symbol, any nonterminal symbol or empty string
 /// e.g. product = product [*/] factor
 struct grammar {
-    symbol start_symbol; //nonterminal symbol name
-    struct hashtable rules;
+    symbol start_symbol; // nonterminal symbol name
+    struct hashtable rules; /* hashtable of <symbol, rule> */
 };
 
 struct grammar *grammar_new(const char *grammar_text);

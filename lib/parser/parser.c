@@ -12,6 +12,7 @@
 #include "clib/util.h"
 #include "clib/win/libfmemopen.h"
 #include "parser/astdump.h"
+#include "parser/earley_parser.h"
 #include "parser/parser.h"
 
 #define exit_block(parser, parent, base_col) (parent && parser->curr_token.loc.col < base_col && (parser->curr_token.token_type != TOKEN_NEWLINE || parser->is_repl))
@@ -191,6 +192,9 @@ struct parser *parser_new(bool is_repl)
     parser->current_module = 0;
     init_token(&parser->curr_token);
     g_parser = parser;
+
+    struct earley_parser *earley_parser = earley_parser_new(0);
+    earley_parser_free(earley_parser);
     return parser;
 }
 

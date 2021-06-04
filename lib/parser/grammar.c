@@ -7,6 +7,8 @@
 
 #include "parser/grammar.h"
 #include "clib/util.h"
+#include "lexer/lexer.h"
+#include "parser/meta_grammar.h"
 
 const char *keyword_symbols[] = {
     "import",
@@ -52,14 +54,14 @@ const char *keyword_symbols[] = {
 
 keyword_count = ARRAY_SIZE(keyword_symbols);
 
-struct grammar *
-grammar_new(const char *grammar_text)
+struct grammar *grammar_new(const char *grammar_text)
 {
     struct grammar *grammar = 0;
     MALLOC(grammar, sizeof(*grammar));
     hashtable_init(&grammar->rules);
     grammar->start_symbol = 0;
-
+    struct grammar *meta_grammar = create_meta_grammar();
+    free_meta_grammar(meta_grammar);
     return grammar;
 }
 

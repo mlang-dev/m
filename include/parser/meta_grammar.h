@@ -7,31 +7,24 @@
  */
 #ifndef __MLANG_META_GRAMMAR_H__
 #define __MLANG_META_GRAMMAR_H__
+
+#include "parser/grammar.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-const char *meta_grammar = R"(
+// const char *meta_grammar_text = R"(
+// grammar = rules EOF
+// rules   = rules rule | rule
+// rule    = IDENT "=" exprs NEWLINE
+// exprs   = exprs "|" expr | expr
+// expr    = expr atom | atom
+// atom    = IDENT | STRING
+// )";
 
-sum         ::= sum '+' term        {}
-                | sum '-' term      {}
-                | term              {}
-term        ::= term '*' factor     {}
-                | term '/' factor   {}
-                | term '%' factor   {}
-                | factor            {}
-factor      ::= '+' factor          {}
-                | '-' factor        {}
-                | power             {}
-power       ::= primary '^' factor  {}
-                | primary
-primary     ::= primary '.' ID       {}
-                | atom              {}
-atom        ::= ID                  {}
-                | NUM               {}
-                | STR               {}
-
-)";
+struct grammar *create_meta_grammar();
+void free_meta_grammar(struct grammar *meta_grammar);
 
 #ifdef __cplusplus
 }
