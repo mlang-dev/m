@@ -32,9 +32,7 @@ struct parser {
 
     symbol type_of; //type-of symbol, the syntax is :
     symbol assignment; //assignment symbol: =
-    symbol lessthan; //symbol: <
     symbol comma;
-    symbol not ;
     symbol binary;
     symbol unary;
     symbol import;
@@ -53,6 +51,22 @@ struct parser {
     symbol range_symbol;
     symbol true_symbol;
     symbol false_symbol;
+
+    symbol plus_op;
+    symbol minus_op;
+    symbol multiply_op;
+    symbol division_op;
+    symbol modulo_op;
+    symbol lessthan_op;
+    symbol greaterthan_op;
+    symbol lessthanequal_op;
+    symbol greaterthanequal_op;
+    symbol equal_op;
+    symbol notequal_op;
+
+    symbol or_op;
+    symbol and_op;
+    symbol not_op;
 
     struct token curr_token;
     struct ast *ast;

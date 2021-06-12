@@ -14,15 +14,6 @@
 extern "C" {
 #endif
 
-// const char *meta_grammar_text = R"(
-// grammar = rules EOF
-// rules   = rules rule | rule
-// rule    = IDENT "=" exprs NEWLINE
-// exprs   = exprs "|" expr | expr
-// expr    = expr atom | atom
-// atom    = IDENT | STRING
-// )";
-
 struct grammar *create_meta_grammar();
 void free_meta_grammar(struct grammar *meta_grammar);
 

@@ -90,6 +90,12 @@ struct tokenizer *create_tokenizer(FILE *file, const char *filename, const char 
     return tokenizer;
 }
 
+struct tokenizer *create_tokenizer_for_string(const char *content, const char **keyword_symbols, int keyword_count)
+{
+    FILE *file = fmemopen((void *)content, strlen(content), "r");
+    return create_tokenizer(file, "", keyword_symbols, keyword_count);
+}
+
 void destroy_tokenizer(struct tokenizer *tokenizer)
 {
     fclose(tokenizer->file);

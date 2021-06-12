@@ -151,9 +151,7 @@ struct parser *parser_new(bool is_repl)
     struct parser *parser = malloc(sizeof(*parser));
     parser->type_of = to_symbol(":");
     parser->assignment = to_symbol("=");
-    parser->lessthan = to_symbol("<");
     parser->comma = to_symbol(",");
-    parser->not = to_symbol("!");
     parser->binary = to_symbol("binary");
     parser->unary = to_symbol("unary");
     parser->import = to_symbol("import");
@@ -172,6 +170,21 @@ struct parser *parser_new(bool is_repl)
     parser->range_symbol = to_symbol("..");
     parser->true_symbol = to_symbol("true");
     parser->false_symbol = to_symbol("false");
+
+    parser->plus_op = to_symbol("+");
+    parser->minus_op = to_symbol("-");
+    parser->multiply_op = to_symbol("*");
+    parser->division_op = to_symbol("/");
+    parser->modulo_op = to_symbol("%");
+    parser->lessthan_op = to_symbol("<");
+    parser->greaterthan_op = to_symbol(">");
+    parser->lessthanequal_op = to_symbol("<=");
+    parser->greaterthanequal_op = to_symbol(">=");
+    parser->equal_op = to_symbol("==");
+    parser->notequal_op = to_symbol("!=");
+    parser->or_op = to_symbol("||");
+    parser->and_op = to_symbol("&&");
+    parser->not_op = to_symbol("!");
 
     symboltable_init(&parser->vars);
     queue_init(&parser->queued_tokens, sizeof(struct token));
@@ -578,7 +591,7 @@ struct exp_node *_parse_node(struct parser *parser, struct exp_node *parent)
         return _parse_for(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->lparen)
         return _parse_parentheses(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->not )
+    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->not_op)
         return _parse_unary(parser, parent);
     else {
         string error;
@@ -854,7 +867,7 @@ struct exp_node *_parse_for(struct parser *parser, struct exp_node *parent)
     }
     // convert end variable to a logic
     struct exp_node *id_node = (struct exp_node *)ident_node_new(parent, start->loc, id_symbol);
-    struct exp_node *end = (struct exp_node *)binary_node_new(parent, end_val->loc, parser->lessthan, id_node, end_val);
+    struct exp_node *end = (struct exp_node *)binary_node_new(parent, end_val->loc, parser->lessthan_op, id_node, end_val);
     struct block_node *body = _parse_block(parser, parent, 0, 0);
     if (body == 0)
         return 0;
@@ -951,7 +964,9 @@ struct block_node *parse_file_object(struct parser *parser, const char *mod_name
 struct block_node *parse_string(struct parser *parser, const char *mod_name, const char *code)
 {
     FILE *file = fmemopen((void *)code, strlen(code), "r");
-    return parse_file_object(parser, mod_name, file);
+    struct block_node *node = parse_file_object(parser, mod_name, file);
+    fclose(file);
+    return node;
 }
 
 struct block_node *parse_repl(struct parser *parser, void (*fun)(void *, struct exp_node *), void *jit)
