@@ -12,6 +12,7 @@
 #include "clib/string.h"
 #include "clib/util.h"
 #include "lexer/lexer.h"
+#include "clib/win/libfmemopen.h"
 /*
 IDENT ::= [_a-zA-Z][_a-zA-Z0-9]{0,30}
 
@@ -93,7 +94,8 @@ struct tokenizer *create_tokenizer(FILE *file, const char *filename, const char 
 struct tokenizer *create_tokenizer_for_string(const char *content, const char **keyword_symbols, int keyword_count)
 {
     FILE *file = fmemopen((void *)content, strlen(content), "r");
-    return create_tokenizer(file, "", keyword_symbols, keyword_count);
+    struct tokenizer *tokenizer = create_tokenizer(file, "", keyword_symbols, keyword_count);
+    return tokenizer;
 }
 
 void destroy_tokenizer(struct tokenizer *tokenizer)

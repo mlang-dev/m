@@ -19,9 +19,14 @@ struct grammar *create_meta_grammar()
     struct grammar *meta_grammar;
     MALLOC(meta_grammar, sizeof(*meta_grammar));
     hashtable_init_with_value_size(&meta_grammar->rules, sizeof(struct rule), 0);
-    //struct tokenizer *tokenizer = create_tokenizer_for_string(meta_grammar_text, 0, 0);
-    //struct token *token = get_token(tokenizer);
-    //destroy_tokenizer(tokenizer);
+    const char *keywords[] = { "=", "|" };
+    struct tokenizer *tokenizer = create_tokenizer_for_string(meta_grammar_text, keywords, ARRAY_SIZE(keywords));
+    while (true) {
+        struct token *token = get_token(tokenizer);
+        if (token->token_type == TOKEN_EOF)
+            break;
+    }
+    destroy_tokenizer(tokenizer);
     return meta_grammar;
 }
 
