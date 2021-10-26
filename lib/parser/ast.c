@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * m language ast c code implementation. 
- * 
+ * m language ast c code implementation.
+ *
  */
 #include "parser/ast.h"
 #include "clib/array.h"
@@ -49,7 +49,7 @@ struct block_node *_copy_block_node(struct block_node *orig_node)
     array_init(&nodes, sizeof(struct exp_node *));
     for (size_t i = 0; i < array_size(&orig_node->nodes); i++) {
         struct exp_node *node = node_copy(*(struct exp_node **)array_get(&orig_node->nodes, i));
-        //printf("block node copy: %s\n", node_type_strings[node->node_type]);
+        // printf("block node copy: %s\n", node_type_strings[node->node_type]);
         array_push(&nodes, &node);
     }
     return block_node_new(orig_node->base.parent, &nodes);
@@ -301,7 +301,7 @@ struct prototype_node *prototype_node_default_new(struct exp_node *parent, struc
 }
 
 struct prototype_node *prototype_node_new(struct exp_node *parent, struct source_loc loc, symbol name,
-    struct array *args,
+    struct array *params,
     struct type_exp *ret_type,
     bool is_operator, unsigned precedence, symbol op,
     bool is_variadic, bool is_external)
@@ -315,7 +315,7 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
     node->base.loc = loc;
     node->base.is_ret = false;
     node->name = name;
-    node->fun_params = *args;
+    node->fun_params = *params;
     node->is_operator = is_operator;
     node->precedence = precedence;
     node->is_variadic = is_variadic;
@@ -627,9 +627,9 @@ void node_free(struct exp_node *node)
 struct module *module_new(const char *mod_name, FILE *file)
 {
     struct module *mod = malloc(sizeof(*mod));
-    //printf("new module: %s\n", mod_name);
+    // printf("new module: %s\n", mod_name);
     mod->name = to_symbol(mod_name);
-    //printf("got new module: %s\n", mod_name);
+    // printf("got new module: %s\n", mod_name);
     struct block_node *node = malloc(sizeof(*node));
     mod->block = node;
     array_init(&mod->block->nodes, sizeof(struct exp_node *));

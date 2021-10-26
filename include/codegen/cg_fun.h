@@ -1,6 +1,6 @@
 /*
  * cg_fun.h
- * 
+ *
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
  * header file for LLVM IR codegen of functions
@@ -15,7 +15,10 @@
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
 #include "clib/symbol.h"
+#include "codegen/codegen.h"
+#include "codegen/fun_info.h"
 #include "codegen/target_info.h"
+#include "parser/ast.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
 

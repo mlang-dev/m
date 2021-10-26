@@ -1,6 +1,6 @@
 /*
  * ast.h
- * 
+ *
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
  * ast header file
@@ -20,7 +20,7 @@ extern "C" {
 #endif
 
 /*
- * if node type order is changed here, the corresponding order of function pointer 
+ * if node type order is changed here, the corresponding order of function pointer
  * in codegen.c & analyzer.c shall be changed accordingly.
  */
 #define FOREACH_NODETYPE(ENUM_ITEM) \
@@ -47,7 +47,7 @@ struct exp_node {
     enum node_type node_type;
     enum type annotated_type_enum;
     symbol annotated_type_name;
-    struct type_exp *type; //type inferred
+    struct type_exp *type; // type inferred
     struct source_loc loc;
     struct exp_node *parent;
     bool is_ret;
@@ -55,7 +55,7 @@ struct exp_node {
 
 struct block_node {
     struct exp_node base;
-    struct array nodes; //struct array of exp_node*
+    struct array nodes; // struct array of exp_node*
 };
 
 struct module {
@@ -65,7 +65,7 @@ struct module {
 };
 
 struct ast {
-    struct array modules; //struct array of module*
+    struct array modules; // struct array of module*
 };
 
 struct literal_node {
@@ -155,7 +155,7 @@ struct call_node {
     struct exp_node base;
     symbol callee;
     symbol specialized_callee;
-    struct array args; //args: struct array of exp_node*
+    struct array args; // args: struct array of exp_node*
     struct prototype_node *callee_decl;
 };
 
@@ -174,7 +174,7 @@ struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, sy
 struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, symbol callee,
     struct array *args);
 struct prototype_node *prototype_node_new(struct exp_node *parent, struct source_loc loc,
-    symbol *name,
+    symbol name,
     struct array *params,
     struct type_exp *ret_type,
     bool is_operator,
