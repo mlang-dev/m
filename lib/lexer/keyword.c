@@ -2,6 +2,7 @@
 #include "clib/util.h"
 #include <ctype.h>
 
+
 void kss_init(struct keyword_states *kss)
 {
     for (size_t i = 0; i < ARRAY_SIZE(kss->states); i++) {

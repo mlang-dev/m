@@ -24,6 +24,7 @@ extern "C" {
 #else
 #include <unistd.h>
 #endif
+#include <errno.h>
 
 #define ENABLE_DEBUG_LOG 0
 #define GENERATE_ENUM(ENUM) ENUM,
