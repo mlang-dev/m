@@ -97,7 +97,12 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
     array_deinit(&params);
 }
 
-LLVMValueRef emit_prototype_node(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi)
+LLVMValueRef emit_prototype_node(struct code_generator *cg, struct exp_node *node)
+{
+    return emit_prototype_node_fi(cg, node, 0);
+}
+
+LLVMValueRef emit_prototype_node_fi(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi)
 {
     struct prototype_node *proto = (struct prototype_node *)node;
     assert(proto->base.type);
@@ -138,7 +143,7 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
     assert(fun_node->base.type->kind == KIND_OPER);
     hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
-    LLVMValueRef fun = emit_prototype_node(cg, (struct exp_node *)fun_node->prototype, &fi);
+    LLVMValueRef fun = emit_prototype_node_fi(cg, (struct exp_node *)fun_node->prototype, &fi);
     assert(fun && fi);
 
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
@@ -194,6 +199,6 @@ LLVMValueRef get_llvm_function(struct code_generator *cg, symbol fun_name)
         return f;
     struct exp_node *fp = (struct exp_node *)hashtable_get_p(&cg->protos, fun_name);
     if (fp)
-        return emit_prototype_node(cg, fp, 0);
+        return emit_prototype_node(cg, fp);
     return 0;
 }

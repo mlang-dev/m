@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tools/m",
-            "args": ["~/dev/m/samples/sample_lib.m"],
+            "args": ["${workspaceFolder}/samples/sample_lib.m"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
