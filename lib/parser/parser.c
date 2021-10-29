@@ -966,6 +966,7 @@ struct block_node *parse_string(struct parser *parser, const char *mod_name, con
     FILE *file = fmemopen((void *)code, strlen(code), "r");
     struct block_node *node = parse_file_object(parser, mod_name, file);
     fclose(file);
+    parser->current_module->tokenizer->file = 0;
     return node;
 }
 
@@ -985,6 +986,6 @@ enum type get_type_enum(symbol type_symbol)
 
 symbol get_type_symbol(enum type type_enum)
 {
-    assert(g_parser);
+    //assert(g_parser);
     return to_symbol(type_strings[type_enum]);
 }

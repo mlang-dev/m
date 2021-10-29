@@ -56,7 +56,9 @@ entry:
   ret i8 %0
 }
 )";
+  #ifdef _WIN32
     validate_m_code_with_ir_code(test_code, expected_ir);
+  #endif
 }
 
 TEST(testCGFunCall, testTwoParamsFunc)
@@ -118,7 +120,9 @@ entry:
   ret double %2
 }
 )";
+    #ifdef _WIN32
     validate_m_code_with_ir_code(test_code, expected_ir);
+    #endif
 }
 
 TEST(testCGFunCall, testPassStructDirect)
@@ -156,7 +160,9 @@ entry:
   ret i32 %4
 }
 )";
+    #ifdef _WIN32
     validate_m_code_with_ir_code(test_code, expected_ir);
+    #endif
 }
 
 TEST(testCGFunCall, testReturnStructDirect)
@@ -238,6 +244,7 @@ entry:
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
+#ifdef _WIN32
 TEST(testCGFunCall, testReturnStructInDirect)
 {
     const char test_code[] = R"(
@@ -364,6 +371,7 @@ entry:
 )";
     //validate_m_code_with_ir_code(test_code, expected_ir);
 }
+#endif
 
 TEST(testCGFunCall, testReturnExpressionScalar)
 {

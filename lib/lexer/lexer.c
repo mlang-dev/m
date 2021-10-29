@@ -100,7 +100,8 @@ struct tokenizer *create_tokenizer_for_string(const char *content, const char **
 
 void destroy_tokenizer(struct tokenizer *tokenizer)
 {
-    fclose(tokenizer->file);
+    if(tokenizer->file) //memory file for string, could be closed earlier for each string parsing.
+        fclose(tokenizer->file);
     string_deinit(&tokenizer->str_val);
     _lexer_deinit(tokenizer);
     free(tokenizer);

@@ -90,7 +90,9 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
             break;
         }
         default: {
+            #ifdef _WIN32
             assert(false);
+            #endif
         }
         }
     }

@@ -377,7 +377,7 @@ void cg_free(struct code_generator *cg)
     hashtable_deinit(&cg->typename_2_ast);
     hashtable_deinit(&cg->varname_2_typename);
     free(cg);
-    g_cg = cg;
+    g_cg = 0;
 }
 
 LLVMTypeRef _get_llvm_type(struct code_generator *cg, struct type_exp *type)

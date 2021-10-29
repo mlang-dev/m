@@ -7,6 +7,7 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
+#ifdef _WIN32
 TEST(testGeneral, testReturnStructDirect)
 {
     const char test_code[] = R"(
@@ -29,3 +30,4 @@ entry:
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
+#endif
