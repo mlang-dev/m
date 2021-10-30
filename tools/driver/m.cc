@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
     struct array ld_options;
     array_init(&ld_options, sizeof(char *));
     bool use_ld = false;
+    const char *finalization = 0;
 #ifdef __APPLE__
     const char *ld_cmd = "ld64.lld.darwinnew";
     const char *finalization = "-lSystem";
@@ -45,7 +46,6 @@ int main(int argc, char *argv[])
     const char *entry_main = "/ENTRY:main";
     const char *libstdio = "legacy_stdio_definitions.lib";
     const char *libc = "ucrtd.lib";
-    const char *finalization = NULL;
     array_push(&ld_options, &ld_cmd);
     array_push(&ld_options, &entry_main);
     array_push(&ld_options, &libstdio);
