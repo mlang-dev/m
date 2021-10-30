@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     const char *finalization = "-lSystem";
     array_push(&ld_options, &ld_cmd);
 #elif defined(_WIN32)
+    const char *finalization = 0;
     char output[PATH_MAX];
     char *output_str = &output[0];
     strcpy(output, "/OUT:");
@@ -58,7 +59,6 @@ int main(int argc, char *argv[])
     const char *libld = "/lib64/ld-linux-x86-64.so.2";
     const char *start_entry = "/usr/lib/x86_64-linux-gnu/crt1.o";
     const char *initialization = "/usr/lib/x86_64-linux-gnu/crti.o";
-    const char *finalization = "/usr/lib/x86_64-linux-gnu/crtn.o";
     array_push(&ld_options, &ld_cmd);
     array_push(&ld_options, &libcpath);
     array_push(&ld_options, &libc);

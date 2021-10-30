@@ -24,10 +24,6 @@ else()
   set(clang_lib clang)
 endif(WIN32)
 
-
-include_directories(${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/include
 )

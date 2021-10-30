@@ -1,32 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
-include(GoogleTest)
-
-find_package(LLVM REQUIRED CONFIG)
-message(STATUS "Found LLVM BIN ${LLVM_TOOLS_BINARY_DIR}")
-execute_process(COMMAND llvm-config --libnames
-                OUTPUT_VARIABLE llvm_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND llvm-config --system-libs
-                OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
-string(REPLACE " -llibxml2.tbd" "" sys_libraries ${sys_libraries})
-string(REPLACE " " ";" llvm_libraries ${llvm_libraries})
-string(REPLACE " " ";" sys_libraries ${sys_libraries})
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Found LLVM libraries ${llvm_libraries}")
-message(STATUS "Found LLVM include dirs: ${LLVM_INCLUDE_DIRS}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-message(STATUS "Found SYS libraries ${sys_libraries}") 
-if(WIN32)
-  set(clang_lib libclang)
-  message(STATUS, "Found Windows Kit: ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-  message(STATUS, "Found Windows Platform: ${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}")
-else()
-  set(clang_lib clang)
-endif(WIN32)
-
-
-include_directories(${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
+include_directories(
+  ${CMAKE_SOURCE_DIR}/include
+)
 
 add_library(mlr 
   clib/math.c
@@ -74,11 +50,3 @@ add_library(mlr
   compiler/jit.c
   compiler/compiler.c
  )
-
-include_directories(
-  ${CMAKE_SOURCE_DIR}/include
-)
-
-link_directories(
-  ${LLVM_INCLUDE_DIRS}/../lib
-)
