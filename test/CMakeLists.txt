@@ -14,10 +14,10 @@ message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found LLVM libraries ${llvm_libraries}")
 message(STATUS "Found SYS libraries ${sys_libraries}")
-include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
 include_directories(
+  ${LLVM_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/test
   ${CMAKE_SOURCE_DIR}/include
 )
