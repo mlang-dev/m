@@ -18,6 +18,7 @@
 #include "codegen/target_info.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
+#include "parser/ast.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,16 +29,16 @@ typedef LLVMValueRef (*binary_op)(LLVMBuilderRef builder, LLVMValueRef lhs, LLVM
 typedef LLVMValueRef (*unary_op)(LLVMBuilderRef builder, LLVMValueRef v, const char *name);
 typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef builder, unsigned short op,
     LLVMValueRef lhs, LLVMValueRef rhs, const char *name);
-typedef LLVMTypeRef (*get_ir_type)(LLVMContextRef context, struct type_exp *type);
-typedef LLVMValueRef (*get_const)(LLVMContextRef context, LLVMBuilderRef builder, void *value);
-typedef LLVMValueRef (*get_zero)(LLVMContextRef context, LLVMBuilderRef builder);
-typedef LLVMValueRef (*get_one)(LLVMContextRef context);
+typedef LLVMTypeRef (*get_ir_type_func)(LLVMContextRef context, struct type_exp *type);
+typedef LLVMValueRef (*get_const_func)(LLVMContextRef context, LLVMBuilderRef builder, void *value);
+typedef LLVMValueRef (*get_zero_func)(LLVMContextRef context, LLVMBuilderRef builder);
+typedef LLVMValueRef (*get_one_func)(LLVMContextRef context);
 
 struct ops {
-    get_ir_type get_type;
-    get_const get_const;
-    get_zero get_zero;
-    get_one get_one;
+    get_ir_type_func get_type;
+    get_const_func get_const;
+    get_zero_func get_zero;
+    get_one_func get_one;
     binary_op add;
     binary_op sub;
     binary_op mul;

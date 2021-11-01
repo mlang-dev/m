@@ -11,18 +11,17 @@ uint64_t align_to(uint64_t field_offset, uint64_t align)
 void _itanium_layout_field(struct struct_layout *sl, struct type_exp *field_type)
 {
     unsigned field_offset_bytes = sl->data_size_bits / 8;
-    uint64_t unpadded_field_offset_bits = sl->data_size_bits - sl->unfilled_bits_last_unit;
-
+    //uint64_t unpadded_field_offset_bits = sl->data_size_bits - sl->unfilled_bits_last_unit;
     sl->unfilled_bits_last_unit = 0;
     sl->last_bit_field_storage_unit_size = 0;
 
     uint64_t field_size_bytes, field_align_bytes, effective_field_size_bytes;
-    bool align_required;
+    //bool align_required;
     assert(field_type);
     struct type_size_info tsi = get_type_size_info(field_type);
     effective_field_size_bytes = field_size_bytes = tsi.width_bits / 8;
     field_align_bytes = tsi.align_bits / 8;
-    align_required = tsi.align_required;
+    //align_required = tsi.align_required;
     // TODO: adjust for microsft struct, AIX
     uint64_t preferred_align_bytes = field_align_bytes;
     uint64_t unpacked_field_offset_bytes = field_offset_bytes;
@@ -51,8 +50,8 @@ void _itanium_end_layout(struct struct_layout *sl)
 {
     if (sl->size_bits < sl->padded_field_size * 8)
         sl->size_bits = sl->padded_field_size * 8;
-    uint64_t unpadded_size = sl->size_bits - sl->unfilled_bits_last_unit;
-    uint64_t unpadded_size_bits = align_to(sl->size_bits, sl->unpacked_alignment * 8);
+    //uint64_t unpadded_size = sl->size_bits - sl->unfilled_bits_last_unit;
+    //uint64_t unpadded_size_bits = align_to(sl->size_bits, sl->unpacked_alignment * 8);
     sl->size_bits = align_to(sl->size_bits, sl->alignment * 8);
 }
 
@@ -113,6 +112,13 @@ struct type_size_info _create_builtin_type_size_info(struct type_exp *type)
     case TYPE_STRING:
         ti.width_bits = 64; // FIXME: or 32 depending on pointer size (32arch or 64arch)
         ti.align_bits = 64;
+        break;
+    case TYPE_GENERIC:
+    case TYPE_FUNCTION:
+    case TYPE_EXT:
+    case TYPE_TYPES:
+    case TYPE_UNK:
+        //assert(false);
         break;
     }
     return ti;

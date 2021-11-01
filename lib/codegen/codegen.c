@@ -29,27 +29,27 @@ LLVMContextRef get_llvm_context()
     return g_cg->context;
 }
 
-LLVMTypeRef get_int_type(LLVMContextRef context, struct type_ext *type)
+LLVMTypeRef get_int_type(LLVMContextRef context, struct type_exp *type)
 {
-    (void *)type;
+    (void)type;
     return LLVMInt32TypeInContext(context);
 }
 
-LLVMTypeRef get_char_type(LLVMContextRef context, struct type_ext *type)
+LLVMTypeRef get_char_type(LLVMContextRef context, struct type_exp *type)
 {
-    (void *)type;
+    (void)type;
     return LLVMInt8TypeInContext(context);
 }
 
-LLVMTypeRef get_bool_type(LLVMContextRef context, struct type_ext *type)
+LLVMTypeRef get_bool_type(LLVMContextRef context, struct type_exp *type)
 {
-    (void *)type;
+    (void)type;
     return LLVMInt1TypeInContext(context);
 }
 
-LLVMTypeRef get_double_type(LLVMContextRef context, struct type_ext *type)
+LLVMTypeRef get_double_type(LLVMContextRef context, struct type_exp *type)
 {
-    (void *)type;
+    (void)type;
     return LLVMDoubleTypeInContext(context);
 }
 
@@ -76,7 +76,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
 
 LLVMTypeRef get_str_type(LLVMContextRef context, struct type_ext *type)
 {
-    (void *)type;
+    (void)type;
     return LLVMPointerType(LLVMInt8TypeInContext(context), 0);
 }
 
@@ -88,25 +88,25 @@ const char *buiiltin_funs[] = {
 
 LLVMValueRef get_int_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
-    (void *)builder;
+    (void)builder;
     return LLVMConstInt(get_int_type(context, 0), *(int *)value, true);
 }
 
 LLVMValueRef get_bool_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
-    (void *)builder;
+    (void)builder;
     return LLVMConstInt(get_bool_type(context, 0), *(int *)value, true);
 }
 
 LLVMValueRef get_char_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
-    (void *)builder;
+    (void)builder;
     return LLVMConstInt(get_char_type(context, 0), *(char *)value, true);
 }
 
 LLVMValueRef get_double_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
-    (void *)builder;
+    (void)builder;
     return LLVMConstReal(get_double_type(context, 0), *(double *)value);
 }
 
@@ -132,30 +132,31 @@ LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void 
 
 LLVMValueRef get_int_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
-    (void *)builder;
+    (void)builder;
     return LLVMConstInt(get_int_type(context, 0), 0, true);
 }
 
 LLVMValueRef get_bool_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
-    (void *)builder;
+    (void)builder;
     return LLVMConstInt(get_bool_type(context, 0), 0, true);
 }
 
 LLVMValueRef get_char_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
-    (void *)builder;
+    (void)builder;
     return LLVMConstInt(get_char_type(context, 0), 0, true);
 }
 
 LLVMValueRef get_double_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
-    (void *)builder;
+    (void)builder;
     return LLVMConstReal(get_double_type(context, 0), 0.0);
 }
 
 LLVMValueRef get_str_zero(LLVMContextRef context, LLVMBuilderRef builder)
 {
+    (void)builder;
     return get_str_const(context, builder, "");
 }
 
@@ -419,7 +420,7 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
 {
     struct ident_node *ident = (struct ident_node *)node;
     symbol id = *((symbol *)array_get(&ident->member_accessors, 0));
-    const char *idname = string_get(id);
+    //const char *idname = string_get(id);
     LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, id);
     if (!v) {
         v = get_global_variable(cg, id);
@@ -570,7 +571,7 @@ LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
 {
     struct type_oper *type = (struct type_oper *)node->type;
     assert(node->type);
-    LLVMTypeRef struct_type = get_ext_type(cg->context, node->type);
+    //LLVMTypeRef struct_type = get_ext_type(cg->context, node->type);
     hashtable_set_p(&cg->typename_2_ast, type->base.name, node);
     return 0;
 }
@@ -588,7 +589,7 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
     //TODO: fixme with correct type_exp passed down
-    LLVMValueRef alloca = create_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), 4, fun, var_name);
+    LLVMValueRef alloca = create_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), 4, fun, string_get(var_name));
 
     // KSDbgInfo.emitLocation(this);
     LLVMValueRef start_v = emit_ir_code(cg, forn->start);
@@ -612,7 +613,7 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     LLVMValueRef end_cond = emit_ir_code(cg, forn->end);
     assert(end_cond);
 
-    LLVMValueRef cur_var = LLVMBuildLoad(cg->builder, alloca, var_name);
+    LLVMValueRef cur_var = LLVMBuildLoad(cg->builder, alloca, string_get(var_name));
     LLVMValueRef next_var = LLVMBuildAdd(cg->builder, cur_var, step_v, "nextvar");
     LLVMBuildStore(cg->builder, next_var, alloca);
     end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg->context, cg->builder), "loopcond");

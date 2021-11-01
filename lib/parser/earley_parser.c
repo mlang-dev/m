@@ -11,7 +11,7 @@
 
 struct earley_parser *earley_parser_new(const char *grammar_text)
 {
-    struct grammer *grammer = grammar_new(grammar_text);
+    struct grammar *grammer = grammar_new(grammar_text);
     grammar_free(grammer);
     struct earley_parser *parser;
     MALLOC(parser, sizeof(*parser));

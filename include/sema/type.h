@@ -70,7 +70,7 @@ struct type_oper *create_type_fun(struct array *args);
 void type_exp_free(struct type_exp *type);
 bool occurs_in_type(struct type_var *var, struct type_exp *type2);
 struct type_exp *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
-void push_symbol_type(symboltable *st, symbol name, struct type_exp *type);
+void push_symbol_type(symboltable *st, symbol name, void *type);
 bool unify(struct type_exp *type1, struct type_exp *type2, struct array *nongens);
 string to_string(struct type_exp *type);
 enum type get_type(struct type_exp *type);

@@ -49,10 +49,10 @@ void kss_add_string(struct keyword_states *kss, const char *str)
     struct keyword_state *ks;
     struct keyword_state *next_ks;
     char ch = str[0];
-    ks = kss->states[ch];
+    ks = kss->states[(int)ch];
     if (!ks) {
         ks = _new_keyword_state(ch);
-        kss->states[ch] = ks;
+        kss->states[(int)ch] = ks;
     }
     for (size_t j = 1; j < strlen(str); ++j) {
         ch = str[j];

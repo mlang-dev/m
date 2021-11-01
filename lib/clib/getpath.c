@@ -30,8 +30,8 @@ static void reduce(char *dir)
 
 char *get_exec_path()
 {
-    int ret;
 #if defined(__APPLE__)
+    int ret;
     pid_t pid;
     pid = getpid();
     ret = proc_pidpath(pid, exec_path, sizeof(exec_path));
@@ -44,6 +44,7 @@ char *get_exec_path()
 #elif defined(__linux__)
     readlink("/proc/self/exe", exec_path, sizeof(exec_path));
 #elif defined(_WIN32)
+    int ret;
     TCHAR buffer[MAX_PATH];
     ret = GetModuleFileName(NULL, buffer, sizeof(buffer));
     if (ret == 0) {

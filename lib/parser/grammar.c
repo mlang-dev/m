@@ -52,10 +52,11 @@ const char *keyword_symbols[] = {
     "]"
 };
 
-keyword_count = ARRAY_SIZE(keyword_symbols);
+int keyword_count = ARRAY_SIZE(keyword_symbols);
 
 struct grammar *grammar_new(const char *grammar_text)
 {
+    (void)grammar_text;
     struct grammar *grammar = 0;
     MALLOC(grammar, sizeof(*grammar));
     hashtable_init(&grammar->rules);

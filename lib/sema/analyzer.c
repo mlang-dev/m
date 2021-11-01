@@ -172,12 +172,13 @@ struct type_exp *_analyze_proto(struct sema_context *context, struct exp_node *n
         struct var_node *param = (struct var_node *)array_get(&proto->fun_params, i);
         assert(param->base.annotated_type_name);
         assert(param->base.annotated_type_enum == get_type_enum(param->base.annotated_type_name));
-        param->base.type = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
+        struct type_oper* to = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
+        param->base.type = &to->base;
         array_push(&fun_sig, &param->base.type);
     }
     assert(proto->base.annotated_type_name);
-    struct type_exp *te = create_nullary_type(proto->base.annotated_type_enum, proto->base.annotated_type_name);
-    array_push(&fun_sig, &te);
+    struct type_oper *to = create_nullary_type(proto->base.annotated_type_enum, proto->base.annotated_type_name);
+    array_push(&fun_sig, &to);
     proto->base.type = (struct type_exp *)create_type_fun(&fun_sig);
     hashtable_set_p(&context->protos, proto->name, proto);
     return proto->base.type;
@@ -196,8 +197,10 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *nod
         if (param->base.annotated_type_name) {
             if (param->base.annotated_type_enum == TYPE_EXT)
                 exp = retrieve_type_with_type_name(context, param->base.annotated_type_name);
-            else
-                exp = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
+            else{
+                struct type_oper *to = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
+                exp = &to->base;
+            }
         } else
             exp = (struct type_exp *)create_type_var();
         array_push(&fun_sig, &exp);

@@ -257,7 +257,7 @@ struct type_exp *get_symbol_type(symboltable *st, struct array *nongens, symbol 
     return 0;
 }
 
-void push_symbol_type(symboltable *st, symbol name, struct type_exp *type)
+void push_symbol_type(symboltable *st, symbol name, void *type)
 {
     symboltable_push(st, name, type);
 }

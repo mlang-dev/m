@@ -245,7 +245,6 @@ void *hashtable_get(struct hashtable *ht, const char *key)
 
 void *hashtable_get_g(struct hashtable *ht, void *key, size_t key_size)
 {
-    void **data;
     struct hashbox *box = _hashtable_get_hashbox(ht, key, key_size);
     if (box) {
         return _get_data(ht, box->key_value_pair + key_size);

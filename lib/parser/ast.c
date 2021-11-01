@@ -669,7 +669,7 @@ struct prototype_node *find_parent_proto(struct exp_node *node)
     struct prototype_node *proto = 0;
     while (node->parent) {
         if (node->parent->node_type == PROTOTYPE_NODE) {
-            proto = node->parent;
+            proto = (struct prototype_node*)node->parent;
             break;
         }
         node = node->parent;

@@ -77,6 +77,14 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
             }
             break;
         }
+        case AK_EXTEND:
+        case AK_INDIRECT_ALIASED:
+        case AK_IGNORE:
+        case AK_EXPAND:
+        case AK_COERCE_AND_EXPAND:
+        case AK_INALLOCA:
+        case AK_INDIRECT:
+            break;
         }
         arg_values[i] = arg_value;
     }

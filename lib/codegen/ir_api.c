@@ -6,7 +6,12 @@
 
 struct address create_temp_mem(struct type_oper *to, unsigned align, symbol name)
 {
+    (void)to;
+    (void)align;
+    (void)name;
     struct address adr;
+    adr.alignment = 0;
+    adr.pointer = 0;
     return adr;
 }
 
@@ -64,6 +69,8 @@ bool _is_int_or_ptr(LLVMTypeKind tk)
 /// TODO: fix this later
 LLVMValueRef coerce_int_or_ptr(LLVMValueRef value, LLVMTypeRef dst_type)
 {
+    (void)value;
+    (void)dst_type;
     assert(false);
     return 0;
 }
@@ -76,7 +83,7 @@ void create_coerced_store(LLVMBuilderRef builder, LLVMValueRef src, LLVMValueRef
 {
     LLVMTypeRef src_type = LLVMTypeOf(src);
     LLVMTypeRef dst_type = LLVMGetElementType(LLVMTypeOf(dst));
-    LLVMTypeKind src_kind = LLVMGetTypeKind(src_type);
+    //LLVMTypeKind src_kind = LLVMGetTypeKind(src_type);
     LLVMTypeKind dst_kind = LLVMGetTypeKind(dst_type);
     LLVMTargetDataRef td = get_llvm_data_layout();
     if (src_type == dst_type) {

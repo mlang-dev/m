@@ -42,7 +42,6 @@ void get_expanded_types(struct type_exp *type, struct array *types)
 {
     if (type->type == TYPE_EXT) {
         struct type_oper *to = (struct type_oper *)type;
-        int size = 0;
         unsigned int member_count = array_size(&to->args);
         for (unsigned i = 0; i < member_count; i++) {
             struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);

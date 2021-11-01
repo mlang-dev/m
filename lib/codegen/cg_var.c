@@ -32,7 +32,7 @@ void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct t
 LLVMValueRef emit_type_value_node(struct code_generator *cg, struct type_value_node *type_values, bool is_ret, const char *name)
 {
     //struct type_value_node *type_values = (struct type_value_node *)node->init_value;
-    struct prototype_node *proto_node = (struct prototype_node *)find_parent_proto(type_values);
+    struct prototype_node *proto_node = (struct prototype_node *)find_parent_proto(&type_values->base);
     struct type_exp *te = type_values->base.type;
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
@@ -60,7 +60,7 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct var_nod
 
     if (node->init_value->node_type == TYPE_VALUE_NODE) {
         assert(node->base.type->name == node->init_value->type->name);
-        bool is_ret = node->base.is_ret;
+        //bool is_ret = node->base.is_ret;
         alloca = emit_type_value_node(cg, (struct type_value_node *)node->init_value, node->base.is_ret, string_get(var_name));
     } else {
         alloca = emit_ir_code(cg, node->init_value);

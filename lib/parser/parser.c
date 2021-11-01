@@ -136,7 +136,7 @@ void _build_op_precs(struct hashtable *op_precs)
 
 void _set_op_prec(struct hashtable *op_precs, symbol op, int prec)
 {
-    hashtable_set(op_precs, op, prec);
+    hashtable_set(op_precs, string_get(op), &prec);
 }
 
 int _get_op_prec(struct hashtable *op_precs, symbol op)
@@ -754,7 +754,7 @@ struct exp_node *_parse_var(struct parser *parser, struct exp_node *parent, symb
     struct exp_node *exp = 0;
     struct var_node *var = (struct var_node *)var_node_new(parent, parser->curr_token.loc, name, type, ext_type, 0);
     if (type == TYPE_EXT) {
-        exp = _parse_type_value_node(parser, var, ext_type);
+        exp = _parse_type_value_node(parser, &var->base, ext_type);
     } else {
         exp = parse_exp(parser, (struct exp_node *)var, 0);
     }

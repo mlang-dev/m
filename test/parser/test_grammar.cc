@@ -30,7 +30,7 @@ power       ::= NUM '^' factor      {}
     )";
     struct env *env = env_new(false);
     struct grammar *grammar = grammar_new(test_grammar);
-    symbol start = to_symbol("sum");
+    // symbol start = to_symbol("sum");
     // ASSERT_EQ(start, grammar->start_symbol);
     grammar_free(grammar);
     env_free(env);

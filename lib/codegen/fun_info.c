@@ -31,7 +31,7 @@ void _map_to_ir_arg_info(struct fun_info *fi)
     if (fi->ret.info.kind == AK_INDIRECT)
         fi->iai.sret_arg_no = ir_arg_no++;
 
-    unsigned arg_no = 0;
+    //unsigned arg_no = 0;
     unsigned arg_num = array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);

@@ -74,6 +74,7 @@ point:Point2D
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
+
 TEST_F(testCGVar, testGlobalVarStructInitializer)
 {
     const char test_code[] = R"(

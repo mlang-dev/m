@@ -49,6 +49,7 @@ struct abi_arg_info create_ignore()
 
 struct abi_arg_info create_extend(struct type_exp *ret_type)
 {
+    (void)ret_type;
     struct abi_arg_info aai;
     aai.kind = AK_EXTEND;
     aai.type = LLVMInt8TypeInContext(get_llvm_context()); //would use 32 bits

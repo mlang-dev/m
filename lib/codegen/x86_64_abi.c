@@ -68,7 +68,7 @@ void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum 
             return;
         struct struct_layout *sl = layout_struct(to);
         *current = NO_CLASS;
-        for (int i = 0; i < array_size(&sl->field_offsets); i++) {
+        for (size_t i = 0; i < array_size(&sl->field_offsets); i++) {
             uint64_t offset = offset_base + *(uint64_t *)array_get(&sl->field_offsets, i);
             struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);
             uint64_t field_type_size = get_type_size(field_type);
@@ -212,6 +212,7 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
     case NO_CLASS:
         if (high == NO_CLASS)
             return create_ignore();
+        break;
     case SSEUP:
     case X87UP:
         assert(false);
@@ -282,7 +283,7 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
 
 struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free_int_regs, unsigned *needed_int, unsigned *needed_sse)
 {
-    struct abi_arg_info aa;
+    //struct abi_arg_info aa;
     enum Class low, high;
     _classify(type, 0, &low, &high);
     *needed_int = 0;
@@ -357,9 +358,9 @@ void x86_64_compute_fun_info(struct fun_info *fi)
         --free_int_regs;
     if (fi->is_chain_call)
         ++free_int_regs;
-    unsigned required_args = fi->required_args;
+    //unsigned required_args = fi->required_args;
     for (unsigned arg_no = 0; arg_no < array_size(&fi->args); arg_no++) {
-        bool is_named_arg = arg_no < required_args;
+        //bool is_named_arg = arg_no < required_args;
         struct ast_abi_arg *arg = array_get(&fi->args, arg_no);
         arg->info = _classify_argument_type(arg->type, free_int_regs, &needed_int, &needed_sse);
 

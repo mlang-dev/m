@@ -19,7 +19,7 @@ enum Arch _parse_arch(string *arch)
     return ARCH_NONE;
 }
 
-enum SubArch _parse_subarch(string *sub_arch)
+enum SubArch _parse_subarch()
 {
     return SUBARCH_NONE;
 }
@@ -95,7 +95,7 @@ void _parse_triple(struct target_info *ti)
     if (item_num) {
         string *arch = array_get(&ar, 0);
         ti->arch = _parse_arch(arch);
-        ti->sub_arch = _parse_subarch(arch);
+        ti->sub_arch = _parse_subarch();
         if (item_num > 1)
             ti->vendor = _parse_vendor(array_get(&ar, 1));
         else

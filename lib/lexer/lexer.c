@@ -62,10 +62,10 @@ void _lexer_init(struct tokenizer *tokenizer, const char **keyword_symbols, int 
     //     hashtable_set_p(&keyword_2_tokens, keyword, &keyword_symbols[i].token);
     // }
     kss_init(&tokenizer->keyword_states);
-    char ch;
-    struct keyword_state *ks;
-    struct keyword_state *next_ks;
-    for (size_t i = 0; i < keyword_count; ++i) {
+    //char ch;
+    //struct keyword_state *ks;
+    //struct keyword_state *next_ks;
+    for (int i = 0; i < keyword_count; ++i) {
         kss_add_string(&tokenizer->keyword_states, keyword_symbols[i]);
     }
 }
@@ -185,7 +185,7 @@ struct token *_tokenize_number_literal(struct tokenizer *tokenizer)
 struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
 {
     string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
-    struct keyword_state *ks = tokenizer->keyword_states.states[tokenizer->curr_char[0]];
+    struct keyword_state *ks = tokenizer->keyword_states.states[(int)tokenizer->curr_char[0]];
     struct keyword_state *ks_next = 0;
     while (true) {
         char ch = tokenizer->curr_char[0] = get_char(tokenizer);
@@ -289,7 +289,7 @@ struct token *get_token(struct tokenizer *tokenizer)
         return _tokenize_dot(tokenizer);
     } else if (isdigit(tokenizer->curr_char[0])) {
         return _tokenize_number_literal(tokenizer);
-    } else if (isalpha(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '_' || tokenizer->keyword_states.states[tokenizer->curr_char[0]]) {
+    } else if (isalpha(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '_' || tokenizer->keyword_states.states[(int)tokenizer->curr_char[0]]) {
         return _tokenize_id_keyword(tokenizer);
     } else if (tokenizer->curr_char[0] == '#') {
         // skip comments

@@ -21,6 +21,7 @@
 
 struct address emit_address_at_offset(struct code_generator *cg, struct address adr, struct abi_arg_info *info)
 {
+    (void)cg;
     unsigned offset = info->direct_offset;
     if (offset) {
     }
@@ -37,7 +38,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
     array_init(&params, sizeof(struct address));
     for (unsigned i = 0; i < param_count; i++) {
         struct var_node *param = (struct var_node *)array_get(&node->fun_params, i);
-        struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
+        //struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
         struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
         unsigned first_ir_arg = iar->first_arg_index;

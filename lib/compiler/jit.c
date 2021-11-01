@@ -78,7 +78,7 @@ void add_module(struct JIT *jit, void *module)
 void *find_target_address(struct JIT *jit, const char *symbol)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
-    LLVMOrcJITTargetAddress addr;
+    LLVMOrcExecutorAddress addr;
     if (LLVMOrcLLJITLookup(j, &addr, symbol)) {
     }
     return (void *)addr;

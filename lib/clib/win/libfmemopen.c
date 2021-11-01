@@ -33,4 +33,6 @@ FILE *fmemopen(void *buf, size_t len, const char *mode)
     rewind(file);
     return file;
 }
+#else 
+    typedef int make_iso_compilers_happy;
 #endif /*_WIN32 */
