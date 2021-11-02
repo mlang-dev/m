@@ -74,7 +74,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
     return struct_type;
 }
 
-LLVMTypeRef get_str_type(LLVMContextRef context, struct type_ext *type)
+LLVMTypeRef get_str_type(LLVMContextRef context, struct type_exp *type)
 {
     (void)type;
     return LLVMPointerType(LLVMInt8TypeInContext(context), 0);
@@ -108,6 +108,20 @@ LLVMValueRef get_double_const(LLVMContextRef context, LLVMBuilderRef builder, vo
 {
     (void)builder;
     return LLVMConstReal(get_double_type(context, 0), *(double *)value);
+}
+
+LLVMValueRef f_cmp(LLVMBuilderRef builder, int op,
+                           LLVMValueRef lhs, LLVMValueRef rhs,
+                           const char *name)
+{
+    return LLVMBuildFCmp(builder, op, lhs, rhs, name);
+}
+
+LLVMValueRef i_cmp(LLVMBuilderRef builder, int op,
+                           LLVMValueRef lhs, LLVMValueRef rhs,
+                           const char *name)
+{
+    return LLVMBuildICmp(builder, op, lhs, rhs, name);
 }
 
 LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
@@ -192,7 +206,7 @@ struct ops bool_ops = {
     LLVMBuildMul,
     LLVMBuildSDiv,
     LLVMBuildSRem,
-    LLVMBuildICmp,
+    i_cmp,
     LLVMIntULT,
     LLVMIntUGT,
     LLVMIntEQ,
@@ -215,7 +229,7 @@ struct ops char_ops = {
     LLVMBuildMul,
     LLVMBuildSDiv,
     LLVMBuildSRem,
-    LLVMBuildICmp,
+    i_cmp,
     LLVMIntSLT,
     LLVMIntSGT,
     LLVMIntEQ,
@@ -238,7 +252,7 @@ struct ops int_ops = {
     LLVMBuildMul,
     LLVMBuildSDiv,
     LLVMBuildSRem,
-    LLVMBuildICmp,
+    i_cmp,
     LLVMIntSLT,
     LLVMIntSGT,
     LLVMIntEQ,
@@ -261,7 +275,7 @@ struct ops str_ops = {
     LLVMBuildMul,
     LLVMBuildSDiv,
     LLVMBuildSRem,
-    LLVMBuildICmp,
+    i_cmp,
     LLVMIntSLT,
     LLVMIntSGT,
     LLVMIntEQ,
@@ -284,7 +298,7 @@ struct ops double_ops = {
     LLVMBuildFMul,
     LLVMBuildFDiv,
     LLVMBuildFRem,
-    LLVMBuildFCmp,
+    f_cmp,
     LLVMRealULT,
     LLVMRealUGT,
     LLVMRealUEQ,
@@ -307,7 +321,7 @@ struct ops ext_ops = {
     LLVMBuildFMul,
     LLVMBuildFDiv,
     LLVMBuildFRem,
-    LLVMBuildICmp,
+    i_cmp,
     LLVMRealULT,
     LLVMRealUGT,
     LLVMRealUEQ,

@@ -75,11 +75,13 @@ void add_module(struct JIT *jit, void *module)
     LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
 }
 
-void *find_target_address(struct JIT *jit, const char *symbol)
+struct fun_pointer find_target_address(struct JIT *jit, const char *symbol)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcExecutorAddress addr;
     if (LLVMOrcLLJITLookup(j, &addr, symbol)) {
     }
-    return (void *)addr;
+    struct fun_pointer fp;
+    fp.address = (void*)addr;
+    return fp;
 }

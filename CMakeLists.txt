@@ -8,6 +8,13 @@ set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
+if (MSVC)
+    # warning level 4 and all warnings as errors
+    add_compile_options(/W4 /WX)
+else()
+    # lots of warnings and all warnings as errors
+    add_compile_options(-Wall -Wextra -pedantic -Werror)
+endif()
 
 add_subdirectory(extern/googletest)
 add_subdirectory(lib)

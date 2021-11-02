@@ -59,20 +59,17 @@ struct eval_result eval_exp(struct JIT *jit, struct exp_node *node)
         if (p_fun) {
             //LLVMDumpModule(jit->env->module);
             _add_current_module_to_jit(jit);
-            void *fp = find_target_address(jit, string_get(&fn));
+            struct fun_pointer fp = find_target_address(jit, string_get(&fn));
             // keep global variables in the jit
             enum type ret_type = get_type(type);
             if (is_int_type(ret_type)) {
-                int (*i_fp)() = (int (*)())fp;
-                result.i_value = i_fp();
+                result.i_value = fp.i_fp();
                 result.type = ret_type;
             } else if (ret_type == TYPE_DOUBLE || ret_type == TYPE_EXT) {
-                double (*d_fp)() = (double (*)())fp;
-                result.d_value = d_fp();
+                result.d_value = fp.d_fp();
                 result.type = TYPE_DOUBLE;
             } else if (ret_type == TYPE_STRING) {
-                char *(*s_fp)() = (char *(*)())fp;
-                result.s_value = s_fp();
+                result.s_value = fp.s_fp();
                 result.type = TYPE_STRING;
             }
             if (node_type != VAR_NODE) {

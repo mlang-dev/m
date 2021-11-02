@@ -27,7 +27,7 @@ extern "C" {
 typedef LLVMValueRef (*binary_op)(LLVMBuilderRef builder, LLVMValueRef lhs, LLVMValueRef rhs,
     const char *name);
 typedef LLVMValueRef (*unary_op)(LLVMBuilderRef builder, LLVMValueRef v, const char *name);
-typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef builder, unsigned short op,
+typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef builder, int op,
     LLVMValueRef lhs, LLVMValueRef rhs, const char *name);
 typedef LLVMTypeRef (*get_ir_type_func)(LLVMContextRef context, struct type_exp *type);
 typedef LLVMValueRef (*get_const_func)(LLVMContextRef context, LLVMBuilderRef builder, void *value);

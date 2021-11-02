@@ -23,12 +23,22 @@ struct JIT {
     void *instance;
 };
 
+struct fun_pointer
+{
+    union{
+        void* address;
+        int (*i_fp)();
+        char* (*s_fp)();
+        double (*d_fp)();
+    };
+};
+
 struct JIT *jit_new(struct env *cg);
 void jit_free(struct JIT *jit);
 void add_module(struct JIT *jit, void *module);
 typedef double (*target_address_double)();
 typedef int (*target_address_int)();
-void *find_target_address(struct JIT *jit, const char *symbol);
+struct fun_pointer find_target_address(struct JIT *jit, const char *symbol);
 
 #ifdef __cplusplus
 }
