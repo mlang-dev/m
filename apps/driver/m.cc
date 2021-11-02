@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
     struct array ld_options;
     array_init(&ld_options, sizeof(char *));
     bool use_ld = false;
-    const char *finalization = 0;
 #ifdef __APPLE__
     const char *ld_cmd = "ld64.lld.darwinnew";
     const char *finalization = "-lSystem";
@@ -52,6 +51,7 @@ int main(int argc, char *argv[])
     array_push(&ld_options, &libstdio);
     array_push(&ld_options, &libc);
 #elif defined(__linux__)
+    const char *finalization = 0;
     const char *ld_cmd = "ld.lld";
     const char *libcpath = "-L/usr/lib/x86_64-linux-gnu";
     const char *libc = "-lc";

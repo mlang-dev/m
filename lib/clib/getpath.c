@@ -39,19 +39,15 @@ char *get_exec_path()
         fprintf(stderr, "PID %d: proc_pidpath ();\n", pid);
         fprintf(stderr, "    %s\n", strerror(errno));
     } else {
-        //printf("proc %d: %s\n", pid, exec_path);
+        // printf("proc %d: %s\n", pid, exec_path);
     }
 #elif defined(__linux__)
     readlink("/proc/self/exe", exec_path, sizeof(exec_path));
 #elif defined(_WIN32)
-    int ret;
-    TCHAR buffer[MAX_PATH];
-    ret = GetModuleFileName(NULL, buffer, sizeof(buffer));
-    if (ret == 0) {
+    int file_len;
+    file_len = GetModuleFileNameA(NULL, exec_path, sizeof(exec_path));
+    if (file_len == 0) {
         fprintf(stderr, "failed to get exec_path\n");
-    } else {
-        wcstombs(exec_path, buffer, sizeof(exec_path));
-        //    wprintf("get exec path wsprintf: %s\n", exec_path);
     }
 #endif
     reduce(exec_path);

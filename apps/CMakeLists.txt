@@ -25,6 +25,7 @@ else()
 endif(WIN32)
 
 include_directories(
+  ${LLVM_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/include
 )
 

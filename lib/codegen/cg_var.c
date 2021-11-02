@@ -130,6 +130,7 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct var_no
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     assert(node->base.type);
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, node->base.type->name);
+    assert(type);
     if (hashtable_in_p(&cg->gvs, node->var_name) && !gVar && !is_external)
         is_external = true;
     if (!gVar) {

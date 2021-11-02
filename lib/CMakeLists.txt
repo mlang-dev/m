@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
+find_package(LLVM REQUIRED CONFIG)
+message(STATUS "Found LLVM Include: ${LLVM_INCLUDE_DIRS}")
+
 include_directories(
+  ${LLVM_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/include
 )
 

@@ -8,8 +8,10 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/apps/m",
-            "args": ["${workspaceFolder}/test/test.m"],
+            "program": "${workspaceFolder}/build/test/Debug/mtest",
+            "args": [
+                "${workspaceFolder}/test/test.m"
+            ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
