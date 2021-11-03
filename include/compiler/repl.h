@@ -24,7 +24,7 @@ struct eval_result {
         bool b_value;
         char c_value;
         const char *s_value;
-    };
+    } value;
 };
 
 struct JIT *build_jit(struct env *env);

@@ -28,8 +28,8 @@ int get_expansion_size(struct type_exp *type)
     if (type->type == TYPE_EXT) {
         struct type_oper *to = (struct type_oper *)type;
         int size = 0;
-        unsigned int member_count = array_size(&to->args);
-        for (unsigned i = 0; i < member_count; i++) {
+        size_t member_count = array_size(&to->args);
+        for (size_t i = 0; i < member_count; i++) {
             struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);
             size += get_expansion_size(field_type);
         }
@@ -42,8 +42,8 @@ void get_expanded_types(struct type_exp *type, struct array *types)
 {
     if (type->type == TYPE_EXT) {
         struct type_oper *to = (struct type_oper *)type;
-        unsigned int member_count = array_size(&to->args);
-        for (unsigned i = 0; i < member_count; i++) {
+        size_t member_count = array_size(&to->args);
+        for (size_t i = 0; i < member_count; i++) {
             struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);
             get_expanded_types(field_type, types);
         }

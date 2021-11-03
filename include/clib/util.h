@@ -49,15 +49,17 @@ bool is_new_line(int ch);
 string get_id_name();
 void reset_id_name(const char *idname);
 void print_backtrace(void);
-void join_path(char *destination, const char *path1, const char *path2);
+void join_path(char *destination, size_t dst_size, const char *path1, const char *path2);
 char *get_basename(char *filename);
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
+#define ERROR_MSG_MAX 512
 #define MALLOC(_ptr, _size)                                                      \
     do {                                                                         \
         if (NULL == (_ptr = malloc(_size))) {                                    \
-            fprintf(stderr, "Failed to allocate memory. %s\n", strerror(errno)); \
+            char errmsg[ERROR_MSG_MAX];                                          \
+            strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
+            fprintf(stderr, "Failed to allocate memory. %s\n", errmsg);          \
             exit(EXIT_FAILURE);                                                  \
         }                                                                        \
     } while (0)

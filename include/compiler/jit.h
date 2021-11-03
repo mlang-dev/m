@@ -30,7 +30,7 @@ struct fun_pointer
         int (*i_fp)();
         char* (*s_fp)();
         double (*d_fp)();
-    };
+    } fp;
 };
 
 struct JIT *jit_new(struct env *cg);

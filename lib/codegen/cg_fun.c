@@ -22,7 +22,7 @@
 struct address emit_address_at_offset(struct code_generator *cg, struct address adr, struct abi_arg_info *info)
 {
     (void)cg;
-    unsigned offset = info->direct_offset;
+    unsigned offset = info->align.direct_offset;
     if (offset) {
     }
     return adr;
@@ -33,7 +33,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
 {
     struct type_oper *proto_type = (struct type_oper *)node->base.type;
     //assert (LLVMCountParams(fun) == array_size(&proto_type->args) - 1);
-    unsigned param_count = array_size(&fi->args);
+    unsigned param_count = (unsigned)array_size(&fi->args);
     struct array params;
     array_init(&params, sizeof(struct address));
     for (unsigned i = 0; i < param_count; i++) {
@@ -52,7 +52,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
         case AK_INDIRECT_ALIASED: {
             assert(ir_arg_num == 1);
             param_value.pointer = arg_value;
-            param_value.alignment = aaa->info.indirect_align;
+            param_value.alignment = aaa->info.align.indirect_align;
             if (proto_type->base.type < TYPE_EXT) { //aggregate
                 //
                 if (aaa->info.indirect_realign || aaa->info.kind == AK_INDIRECT_ALIASED) {
@@ -70,7 +70,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *no
             struct type_size_info tsi = get_type_size_info(aaa->type);
             unsigned align = tsi.align_bits / 8;
             LLVMTypeRef sig_type = get_llvm_type(aaa->type);
-            if (LLVMGetTypeKind(aaa->info.type) != LLVMStructTypeKind && aaa->info.direct_offset == 0
+            if (LLVMGetTypeKind(aaa->info.type) != LLVMStructTypeKind && aaa->info.align.direct_offset == 0
                 && aaa->info.type == sig_type) {
                 alloca = create_alloca(
                     aaa->info.type, align, fun, string_get(param->var_name));
@@ -125,7 +125,7 @@ LLVMValueRef emit_prototype_node_fi(struct code_generator *cg, struct exp_node *
         add_fun_param_attribute(cg->context, fun, fi->iai.sret_arg_no, "noalias");
         add_fun_param_type_attribute(cg->context, fun, fi->iai.sret_arg_no, "sret", get_llvm_type(fi->ret.type));
     }
-    unsigned param_count = array_size(&fi->args);
+    unsigned param_count = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < param_count; i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
         struct var_node *fun_param = (struct var_node *)array_get(&proto->fun_params, i);

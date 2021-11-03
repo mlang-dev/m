@@ -26,18 +26,18 @@ const char *token_type_strings[] = {
 void log_error(struct tokenizer *tokenizer, const char *msg)
 {
     char full_msg[512];
-    sprintf(full_msg, "%s:%d:%d: %s", tokenizer->filename, tokenizer->tok_loc.line, tokenizer->tok_loc.col, msg);
+    sprintf_s(full_msg, sizeof(full_msg), "%s:%d:%d: %s", tokenizer->filename, tokenizer->tok_loc.line, tokenizer->tok_loc.col, msg);
     log_info(ERROR, full_msg);
 }
 
-int get_char(struct tokenizer *tokenizer)
+char get_char(struct tokenizer *tokenizer)
 {
-    int last_char;
+    char last_char;
     if (tokenizer->peek >= 0) {
         last_char = tokenizer->peek;
         tokenizer->peek = -1;
     } else {
-        last_char = getc(tokenizer->file);
+        last_char = (char)getc(tokenizer->file);
     }
     if (is_new_line(last_char)) {
         tokenizer->loc.line++;
@@ -47,10 +47,10 @@ int get_char(struct tokenizer *tokenizer)
     return last_char;
 }
 
-int peek_char(struct tokenizer *tokenizer)
+char peek_char(struct tokenizer *tokenizer)
 {
     assert(tokenizer->peek == -1); // only 1 peek is allowed.
-    tokenizer->peek = getc(tokenizer->file);
+    tokenizer->peek = (char)getc(tokenizer->file);
     return tokenizer->peek;
 }
 
@@ -131,20 +131,20 @@ struct token *_tokenize_dot(struct tokenizer *tokenizer)
     tokenizer->curr_char[0] = get_char(tokenizer);
     if (tokenizer->curr_char[0] == '.') {
         _collect_all_dots(tokenizer, &str);
-        tokenizer->cur_token.symbol_val = to_symbol(string_get(&str));
+        tokenizer->cur_token.val.symbol_val = to_symbol(string_get(&str));
         tokenizer->cur_token.token_type = TOKEN_SYMBOL;
         tokenizer->cur_token.loc = tokenizer->tok_loc;
         return &tokenizer->cur_token;
     } else if (isdigit(tokenizer->curr_char[0])) {
         _collect_all_digits(tokenizer, &str);
-        tokenizer->cur_token.double_val = strtod(string_get(&str), 0);
+        tokenizer->cur_token.val.double_val = strtod(string_get(&str), 0);
         tokenizer->cur_token.token_type = TOKEN_FLOAT;
         tokenizer->cur_token.loc = tokenizer->tok_loc;
         return &tokenizer->cur_token;
     } else {
         tokenizer->cur_token.token_type = TOKEN_SYMBOL;
         tokenizer->cur_token.loc = tokenizer->tok_loc;
-        tokenizer->cur_token.symbol_val = to_symbol(".");
+        tokenizer->cur_token.val.symbol_val = to_symbol(".");
         return &tokenizer->cur_token;
     }
 }
@@ -171,10 +171,10 @@ struct token *_tokenize_number_literal(struct tokenizer *tokenizer)
         }
     }
     if (has_dot) {
-        tokenizer->cur_token.double_val = strtod(string_get(&num_str), 0);
+        tokenizer->cur_token.val.double_val = strtod(string_get(&num_str), 0);
         tokenizer->cur_token.token_type = TOKEN_FLOAT;
     } else {
-        tokenizer->cur_token.int_val = atoi(string_get(&num_str));
+        tokenizer->cur_token.val.int_val = atoi(string_get(&num_str));
         tokenizer->cur_token.token_type = TOKEN_INT;
     }
 
@@ -201,7 +201,7 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
     }
 
     tokenizer->cur_token.token_type = (ks && ks->accept) ? TOKEN_SYMBOL : TOKEN_IDENT;
-    tokenizer->cur_token.symbol_val = to_symbol(string_get(&tokenizer->str_val));
+    tokenizer->cur_token.val.symbol_val = to_symbol(string_get(&tokenizer->str_val));
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     return &tokenizer->cur_token;
 }
@@ -211,7 +211,7 @@ struct token *_tokenize_char_token(struct tokenizer *tokenizer, enum token_type 
     string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     tokenizer->cur_token.token_type = token_type;
-    tokenizer->cur_token.symbol_val = to_symbol(tokenizer->curr_char);
+    tokenizer->cur_token.val.symbol_val = to_symbol(tokenizer->curr_char);
     return &tokenizer->cur_token;
 }
 
@@ -222,7 +222,7 @@ struct token *_tokenize_char_literal(struct tokenizer *tokenizer)
         log_error(tokenizer, "empty char is not allowed in character literal");
         return 0;
     }
-    tokenizer->cur_token.char_val = temp;
+    tokenizer->cur_token.val.char_val = temp;
     if (get_char(tokenizer) != '\'') {
         log_error(tokenizer, "only one char allowed in character literal");
         return 0;
@@ -254,7 +254,7 @@ struct token *_tokenize_string_literal(struct tokenizer *tokenizer)
     }
     tokenizer->cur_token.token_type = TOKEN_STRING;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    tokenizer->cur_token.str_val = &tokenizer->str_val;
+    tokenizer->cur_token.val.str_val = &tokenizer->str_val;
     tokenizer->curr_char[0] = get_char(tokenizer);
     return &tokenizer->cur_token;
 }

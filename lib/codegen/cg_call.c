@@ -36,9 +36,9 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     assert(fi);
     LLVMValueRef callee = get_llvm_function(cg, callee_name);
     assert(callee);
-    unsigned arg_count = array_size(&call->args);
+    size_t arg_count = array_size(&call->args);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
-    unsigned ir_arg_count =  has_sret ? arg_count + 1 : arg_count;
+    size_t ir_arg_count =  has_sret ? arg_count + 1 : arg_count;
     LLVMValueRef *arg_values = malloc(ir_arg_count * sizeof(LLVMValueRef));
     LLVMTypeRef sig_ret_type = get_llvm_type(fi->ret.type);
     struct prototype_node *parent_proto = find_parent_proto(node);
@@ -66,7 +66,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
             if (!aaa->info.type)
                 break; //FIXIME: is_variadic arg, no available ir arg
             LLVMTypeKind tk = LLVMGetTypeKind(aaa->info.type);
-            if (tk != LLVMStructTypeKind && aaa->info.type == get_llvm_type(aaa->type) && aaa->info.direct_offset == 0) {
+            if (tk != LLVMStructTypeKind && aaa->info.type == get_llvm_type(aaa->type) && aaa->info.align.direct_offset == 0) {
                 break;
             }
             if (tk == LLVMStructTypeKind && aaa->info.kind == AK_DIRECT && aaa->info.can_be_flattened) {
@@ -88,7 +88,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
         }
         arg_values[i] = arg_value;
     }
-    LLVMValueRef call_inst = LLVMBuildCall(cg->builder, callee, arg_values, ir_arg_count, "");
+    LLVMValueRef call_inst = LLVMBuildCall(cg->builder, callee, arg_values, (unsigned int)ir_arg_count, "");
     free(arg_values);
 
     if (has_sret) {

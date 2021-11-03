@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     if (array_size(&src_files)) {
         for (size_t i = 0; i < array_size(&src_files); i++) {
             const char *fn = *(const char **)array_get(&src_files, i);
-            join_path(file_path, input_folder, fn);
+            join_path(file_path, sizeof(file_path), input_folder, fn);
             if (access(file_path, F_OK) == -1) {
                 printf("file: %s does not exist\n", file_path);
                 exit(1);
@@ -61,9 +61,9 @@ int main(int argc, char *argv[])
             string_copy(&dest_file, string_substr(&src_file, '.'));
             string_add_chars(&dest_file, ".m");
             if (output_folder)
-                join_path(dest_path, output_folder, string_get(&dest_file));
+                join_path(dest_path, sizeof(dest_path), output_folder, string_get(&dest_file));
             else
-                join_path(dest_path, cwd, string_get(&dest_file));
+                join_path(dest_path, sizeof(dest_path), cwd, string_get(&dest_file));
             printf("transpile from %s to %s\n", file_path, dest_path);
             transpile_2_m(file_path, dest_path);
         }

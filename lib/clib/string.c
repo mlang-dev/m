@@ -22,7 +22,7 @@ void _init_str(string *str)
     };
     register_object_interface(STRING, string_interface);
     str->base.type = STRING;
-    str->base.p_data = 0;
+    str->base.data.p_data = 0;
     str->base.size = 0;
     str->cap = SSO_LENGTH;
 }
@@ -50,7 +50,7 @@ string make_string(const char *chars)
 
 char *string_get(string *str)
 {
-    return str->cap <= SSO_LENGTH ? str->_reserved : str->base.p_data;
+    return str->cap <= SSO_LENGTH ? str->_reserved : str->base.data.p_data;
 }
 
 void string_init(string *str)
@@ -67,7 +67,7 @@ void string_init_chars(string *str, const char *chars)
 void string_copy_with_len(string *dest, const char *data, size_t len)
 {
     if (len >= dest->cap) {
-        dest->base.p_data = malloc(len + 1);
+        dest->base.data.p_data = malloc(len + 1);
         dest->cap = len + 1;
     }
     char *dest_data = string_get(dest);
@@ -100,7 +100,7 @@ void string_add(string *str1, string *str2)
         char *data;
         if (str1->cap > SSO_LENGTH) {
             //allocated in heap already
-            data = (char *)realloc(str1->base.p_data, len + 1);
+            data = (char *)realloc(str1->base.data.p_data, len + 1);
             memcpy(data + str1->base.size, string_get(str2), str2->base.size + 1);
         } else {
             //previously in reserved
@@ -108,10 +108,10 @@ void string_add(string *str1, string *str2)
             memcpy(data, str1->_reserved, str1->base.size + 1);
             memcpy(data + str1->base.size, string_get(str2), str2->base.size + 1);
         }
-        str1->base.p_data = data;
+        str1->base.data.p_data = data;
         str1->cap = len + 1;
     } else {
-        char *dst = (str1->cap > SSO_LENGTH) ? (char *)str1->base.p_data : str1->_reserved;
+        char *dst = (str1->cap > SSO_LENGTH) ? (char *)str1->base.data.p_data : str1->_reserved;
         memcpy(dst + str1->base.size, string_get(str2), str2->base.size + 1);
     }
     str1->base.size = len;
@@ -144,14 +144,14 @@ bool string_eq_chars(string *str1, const char *chars)
 
 void string_deinit(string *str)
 {
-    if (str->base.p_data)
-        free(str->base.p_data);
+    if (str->base.data.p_data)
+        free(str->base.data.p_data);
 }
 
 string *string_substr(string *str, char match)
 {
     char *data = string_get(str);
-    for (int i = str->base.size - 1; i >= 0; i--) {
+    for (size_t i = str->base.size - 1; i >= 0; i--) {
         if (data[i] == match) {
             data[i] = '\0';
             str->base.size = i;
@@ -181,7 +181,7 @@ struct array string_split(string *str, char sep)
     ARRAY_STRING(arr);
     string sub_str;
     string_init(&sub_str);
-    int collect_start = 0;
+    size_t collect_start = 0;
     char *data = string_get(str);
     for (size_t i = 0; i < str->base.size; i++) {
         if (data[i] == sep || i == str->base.size - 1) {

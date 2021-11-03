@@ -128,7 +128,7 @@ LLVMValueRef create_coerced_load(LLVMBuilderRef builder, LLVMValueRef src, LLVMT
     uint64_t src_size = LLVMABISizeOfType(td, src_type);
     // for int, or pointer type do extension or truncation
     if (_is_int_or_ptr(dst_type_kind) && _is_int_or_ptr(src_type_kind)) {
-        LLVMValueRef load = LLVMBuildLoad2(builder, src_type, src, "");
+        load = LLVMBuildLoad2(builder, src_type, src, "");
         return coerce_int_or_ptr(load, dst_type);
     }
     if (src_size >= dst_size) {

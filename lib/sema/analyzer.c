@@ -39,7 +39,7 @@ void _log_err(struct sema_context *context, struct source_loc loc, const char *m
 {
     (void)context;
     char full_msg[512];
-    sprintf(full_msg, "%s:%d:%d: %s", "", loc.line, loc.col, msg);
+    sprintf_s(full_msg, sizeof(full_msg), "%s:%d:%d: %s", "", loc.line, loc.col, msg);
     log_info(ERROR, full_msg);
 }
 
@@ -359,8 +359,8 @@ struct type_exp *_analyze_block(struct sema_context *context, struct exp_node *n
     enter_scope(context);
     struct type_exp *type = 0;
     for (size_t i = 0; i < array_size(&block->nodes); i++) {
-        struct exp_node *node = *(struct exp_node **)array_get(&block->nodes, i);
-        type = analyze(context, node);
+        struct exp_node *n = *(struct exp_node **)array_get(&block->nodes, i);
+        type = analyze(context, n);
     }
     //tag variable node as returning variable if exists
     struct exp_node *ret_node = *(struct exp_node **)array_back(&block->nodes);

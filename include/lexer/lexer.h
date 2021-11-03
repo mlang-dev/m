@@ -48,7 +48,7 @@ struct token {
         int int_val; //int literal
         char char_val; //char literal
         symbol symbol_val;
-    };
+    }val;
 };
 
 struct tokenizer {
@@ -59,7 +59,7 @@ struct tokenizer {
     struct token cur_token;
     char curr_char[2];
     string str_val;
-    int peek;
+    char peek;
     struct keyword_states keyword_states;
     struct hashtable keyword_2_tokens;
 };

@@ -82,6 +82,6 @@ struct fun_pointer find_target_address(struct JIT *jit, const char *symbol)
     if (LLVMOrcLLJITLookup(j, &addr, symbol)) {
     }
     struct fun_pointer fp;
-    fp.address = (void*)addr;
+    fp.fp.address = (void*)addr;
     return fp;
 }

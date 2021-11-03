@@ -62,9 +62,9 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
         return struct_type;
     struct type_oper *type = (struct type_oper *)type_exp;
     struct_type = LLVMStructCreateNamed(context, string_get(type->base.name));
-    unsigned int member_count = array_size(&type->args);
+    unsigned member_count = (unsigned)array_size(&type->args);
     LLVMTypeRef *members = malloc(member_count * sizeof(LLVMTypeRef));
-    for (size_t i = 0; i < member_count; i++) {
+    for (unsigned i = 0; i < member_count; i++) {
         struct type_exp *field_type = *(struct type_exp **)array_get(&type->args, i);
         members[i] = get_llvm_type(field_type);
     }
@@ -129,7 +129,7 @@ LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void 
     const char *str = (const char *)value;
 
     // implementation of LLVMBuildGlobalString, except of way of getting module
-    uint64_t size = strlen(str);
+    unsigned size = (unsigned)strlen(str);
     LLVMValueRef str_const = LLVMConstStringInContext(context, str, size, 0);
     LLVMValueRef str_value = LLVMAddGlobal(get_llvm_module(), LLVMTypeOf(str_const), "");
     LLVMSetInitializer(str_value, str_const);
@@ -418,13 +418,13 @@ LLVMValueRef _emit_literal_node(struct code_generator *cg, struct exp_node *node
     enum type type = get_type(node->type);
     void *value = 0;
     if (type == TYPE_CHAR)
-        value = &((struct literal_node *)node)->char_val;
+        value = &((struct literal_node *)node)->val.char_val;
     else if (is_int_type(type))
-        value = &((struct literal_node *)node)->int_val;
+        value = &((struct literal_node *)node)->val.int_val;
     else if (type == TYPE_DOUBLE)
-        value = &((struct literal_node *)node)->double_val;
+        value = &((struct literal_node *)node)->val.double_val;
     else if (type == TYPE_STRING) {
-        value = (void *)((struct literal_node *)node)->str_val;
+        value = (void *)((struct literal_node *)node)->val.str_val;
     }
     return cg->ops[type].get_const(cg->context, cg->builder, value);
 }
@@ -537,8 +537,8 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
         symbol op = to_symbol(string_get(&f_name));
         LLVMValueRef fun = get_llvm_function(cg, op);
         assert(fun && "binary operator not found!");
-        LLVMValueRef ops[2] = { lv, rv };
-        return LLVMBuildCall(cg->builder, fun, ops, 2, "binop");
+        LLVMValueRef lrv[2] = { lv, rv };
+        return LLVMBuildCall(cg->builder, fun, lrv, 2, "binop");
     }
 }
 
@@ -717,7 +717,7 @@ LLVMTypeRef get_llvm_type_for_abi(struct type_exp *type)
     assert(g_cg);
     struct type_size_info tsi = get_type_size_info(type);
     if (type->type == TYPE_BOOL) // bool type is 1 bit size in llvm but we need to comply with abi size
-        return LLVMIntTypeInContext(get_llvm_context(), tsi.width_bits);
+        return LLVMIntTypeInContext(get_llvm_context(), (unsigned)tsi.width_bits);
     return _get_llvm_type(g_cg, type);
 }
 

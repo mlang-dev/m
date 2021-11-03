@@ -12,7 +12,7 @@ struct abi_arg_info _winx86_64_classify(struct type_exp *te, unsigned *free_sse_
     if (te->type == TYPE_UNIT)
         return create_ignore();
     struct type_size_info tsi = get_type_size_info(te);
-    uint64_t width = tsi.width_bits;
+    unsigned width = (unsigned)tsi.width_bits;
     //uint64_t align = tsi.align_bits / 8;
     if (te->type == TYPE_EXT) {
         if (!is_return_type) {

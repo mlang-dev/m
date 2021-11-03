@@ -20,7 +20,7 @@ const char *log_level_strings[] = {
 static char id_name[512] = "a";
 void reset_id_name(const char *idname)
 {
-    strcpy(id_name, idname);
+    strcpy_s(id_name, sizeof(id_name), idname);
 }
 
 void _inc_str(string *id)
@@ -73,11 +73,11 @@ string make_unique_name(const char *name)
     if (!alpha_nums_init) {
         char c = '0';
         for (int i = 0; i < 10; i++) {
-            alpha_nums[i] = c + i;
+            alpha_nums[i] = (char)(c + i);
         }
         c = 'a';
         for (int i = 0; i < 26; i++) {
-            alpha_nums[i + 10] = c + i;
+            alpha_nums[i + 10] = (char)(c + i);
         }
         alpha_nums_init = true;
     }
@@ -97,7 +97,7 @@ void *log_info(enum LogLevel level, const char *string_format, ...)
 {
     va_list args;
     char format[512];
-    sprintf(format, "%s: %s\n", log_level_strings[level], string_format);
+    sprintf_s(format, sizeof(format), "%s: %s\n", log_level_strings[level], string_format);
     va_start(args, string_format);
     if (level == ERROR)
         vfprintf(stderr, format, args);
@@ -112,7 +112,7 @@ string str_format(const char *string_format, ...)
     va_list args;
     char data[512];
     va_start(args, string_format);
-    vsprintf(data, string_format, args);
+    vsprintf_s(data, sizeof(data), string_format, args);
     va_end(args);
     string str;
     string_init_chars(&str, data);
@@ -147,15 +147,14 @@ void print_backtrace(void)
     */
 }
 
-void join_path(char *destination, const char *path1, const char *path2)
+void join_path(char *destination, size_t dst_size, const char *path1, const char *path2)
 {
     if (path1 == 0 && path2 == 0) {
-        strcpy(destination, "");
-        ;
+        strcpy_s(destination, dst_size, "");
     } else if (path2 == 0 || strlen(path2) == 0) {
-        strcpy(destination, path1);
+        strcpy_s(destination, dst_size, path1);
     } else if (path1 == 0 || strlen(path1) == 0) {
-        strcpy(destination, path2);
+        strcpy_s(destination, dst_size, path2);
     } else {
         char directory_separator[] = "/";
 #ifdef WIN32
@@ -170,13 +169,13 @@ void join_path(char *destination, const char *path1, const char *path2)
         if (strcmp(last_char, directory_separator) != 0) {
             append_directory_separator = 1;
         }
-        strcpy(destination, path1);
+        strcpy_s(destination, dst_size, path1);
         if (append_directory_separator)
-            strcat(destination, directory_separator);
+            strcat_s(destination, dst_size, directory_separator);
         if (strncmp(path2, directory_separator, 1) == 0) {
             path2++;
         }
-        strcat(destination, path2);
+        strcat_s(destination, dst_size, path2);
     }
 }
 

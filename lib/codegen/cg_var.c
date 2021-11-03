@@ -24,7 +24,7 @@ void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct t
     for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
         struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, i, "");
+        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, (unsigned)i, "");
         LLVMBuildStore(cg->builder, exp, member);
     }
 }
@@ -104,7 +104,7 @@ LLVMValueRef _get_const_value_ext_type(struct code_generator *cg, LLVMTypeRef ty
         struct exp_node *arg = *(struct exp_node **)array_get(&struct_values->body->nodes, i);
         values[i] = emit_ir_code(cg, arg);
     }
-    LLVMValueRef value = LLVMConstNamedStruct(type, values, element_count);
+    LLVMValueRef value = LLVMConstNamedStruct(type, values, (unsigned int)element_count);
     free(values);
     return value;
 }
@@ -118,7 +118,7 @@ LLVMValueRef _get_zero_value_ext_type(struct code_generator *cg, LLVMTypeRef typ
         //values[i] = LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0 * (i+1));
         values[i] = cg->ops[element_type].get_zero(cg->context, cg->builder);
     }
-    LLVMValueRef value = LLVMConstNamedStruct(type, values, element_count);
+    LLVMValueRef value = LLVMConstNamedStruct(type, values, (unsigned int)element_count);
     free(values);
     return value;
 }
@@ -156,8 +156,8 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct var_no
     for (size_t i = 0; i < array_size(&values->body->nodes); i++) {
         struct exp_node *arg = *(struct exp_node **)array_get(&values->body->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
-        sprintf(tempname, "temp%zu", i);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, gVar, i, tempname);
+        sprintf_s(tempname, sizeof(tempname), "temp%zu", i);
+        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, gVar, (unsigned int)i, tempname);
         LLVMBuildStore(cg->builder, exp, member);
     }
     return 0;

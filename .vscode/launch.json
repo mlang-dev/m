@@ -18,6 +18,19 @@
             "externalConsole": false,
             "miDebuggerPath": "/usr/bin/gdb",
             "MIMode": "gdb"
+        },
+        {
+            "name": "VC Launch",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/Debug/mtest",
+            "args": [
+                "${workspaceFolder}/test/test.m"
+            ],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
         }
     ]
 }

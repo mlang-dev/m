@@ -91,7 +91,7 @@ void _parse_triple(struct target_info *ti)
     string str;
     string_init_chars(&str, ti->target_triple);
     struct array ar = string_split(&str, '-');
-    int item_num = array_size(&ar);
+    size_t item_num = array_size(&ar);
     if (item_num) {
         string *arch = array_get(&ar, 0);
         ti->arch = _parse_arch(arch);

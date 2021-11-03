@@ -56,7 +56,7 @@ TEST_F(testParser, testBlockVariable)
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node *literal = (struct literal_node *)node->init_value;
-    ASSERT_EQ(11, literal->int_val);
+    ASSERT_EQ(11, literal->val.int_val);
     env_free(env);
 }
 
@@ -73,7 +73,7 @@ TEST_F(testParser, testVariableWithType)
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node *literal = (struct literal_node *)node->init_value;
-    ASSERT_EQ(11, literal->int_val);
+    ASSERT_EQ(11, literal->val.int_val);
     env_free(env);
 }
 
@@ -89,7 +89,7 @@ TEST_F(testParser, testBool)
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node *literal = (struct literal_node *)node->init_value;
-    ASSERT_EQ(true, literal->bool_val);
+    ASSERT_EQ(true, literal->val.bool_val);
     env_free(env);
 }
 
@@ -105,7 +105,7 @@ TEST_F(testParser, testChar)
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node *literal = (struct literal_node *)node->init_value;
-    ASSERT_EQ('c', literal->char_val);
+    ASSERT_EQ('c', literal->val.char_val);
     env_free(env);
 }
 
@@ -120,7 +120,7 @@ TEST_F(testParser, testString)
     ASSERT_EQ(VAR_NODE, node->base.node_type);
     ASSERT_EQ(LITERAL_NODE, node->init_value->node_type);
     struct literal_node *literal = (struct literal_node *)node->init_value;
-    ASSERT_STREQ("hello world!", literal->str_val);
+    ASSERT_STREQ("hello world!", literal->val.str_val);
     env_free(env);
 }
 
@@ -210,7 +210,7 @@ TEST_F(testParser, testForLoop)
     ASSERT_EQ(TYPE_INT, body_node->start->annotated_type_enum);
     ASSERT_EQ(TYPE_INT, body_node->step->annotated_type_enum);
     ASSERT_EQ(BINARY_NODE, body_node->end->node_type);
-    ASSERT_EQ(3, ((literal_node *)body_node->start)->int_val);
+    ASSERT_EQ(3, ((literal_node *)body_node->start)->val.int_val);
     env_free(env);
 }
 
@@ -405,8 +405,8 @@ xy:Point2D = 10.0 20.0
     auto value2 = *(struct literal_node **)array_back(&value_node->body->nodes);
     ASSERT_EQ(LITERAL_NODE, value1->base.node_type);
     ASSERT_EQ(LITERAL_NODE, value2->base.node_type);
-    ASSERT_EQ(10.0, value1->double_val);
-    ASSERT_EQ(20.0, value2->double_val);
+    ASSERT_EQ(10.0, value1->val.double_val);
+    ASSERT_EQ(20.0, value2->val.double_val);
     env_free(env);
 }
 
@@ -440,8 +440,8 @@ xy = Point2D 10.0 20.0
     auto value2 = *(struct literal_node **)array_back(&value_node->body->nodes);
     ASSERT_EQ(LITERAL_NODE, value1->base.node_type);
     ASSERT_EQ(LITERAL_NODE, value2->base.node_type);
-    ASSERT_EQ(10.0, value1->double_val);
-    ASSERT_EQ(20.0, value2->double_val);
+    ASSERT_EQ(10.0, value1->val.double_val);
+    ASSERT_EQ(20.0, value2->val.double_val);
     env_free(env);
 }
 
@@ -478,8 +478,8 @@ get_point() = Point2D 10.0 20.0
     auto value2 = *(struct literal_node **)array_back(&type_value_node->body->nodes);
     ASSERT_EQ(LITERAL_NODE, value1->base.node_type);
     ASSERT_EQ(LITERAL_NODE, value2->base.node_type);
-    ASSERT_EQ(10.0, value1->double_val);
-    ASSERT_EQ(20.0, value2->double_val);
+    ASSERT_EQ(10.0, value1->val.double_val);
+    ASSERT_EQ(20.0, value2->val.double_val);
     env_free(env);
 }
 

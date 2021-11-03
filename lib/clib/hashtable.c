@@ -97,8 +97,8 @@ struct hash_entry *_hash_entry_new(size_t key_size, size_t value_size)
 {
     struct hash_entry *entry = (struct hash_entry *)calloc(1, sizeof(struct hash_entry));
     entry->data.status = HASH_EXIST;
-    entry->data.key_size = key_size;
-    entry->data.value_size = value_size;
+    entry->data.key_size = (unsigned)key_size;
+    entry->data.value_size = (unsigned)value_size;
     entry->data.key_value_pair = malloc(key_size + value_size);
     return entry;
 }

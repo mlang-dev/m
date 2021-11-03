@@ -10,7 +10,7 @@ uint64_t align_to(uint64_t field_offset, uint64_t align)
 
 void _itanium_layout_field(struct struct_layout *sl, struct type_exp *field_type)
 {
-    unsigned field_offset_bytes = sl->data_size_bits / 8;
+    uint64_t field_offset_bytes = sl->data_size_bits / 8;
     //uint64_t unpadded_field_offset_bits = sl->data_size_bits - sl->unfilled_bits_last_unit;
     sl->unfilled_bits_last_unit = 0;
     sl->last_bit_field_storage_unit_size = 0;
@@ -30,20 +30,20 @@ void _itanium_layout_field(struct struct_layout *sl, struct type_exp *field_type
     unpacked_field_offset_bytes = align_to(unpacked_field_offset_bytes, unpacked_field_align_bytes);
     uint64_t field_offset_bits = field_offset_bytes * 8;
     array_push(&sl->field_offsets, &field_offset_bits);
-    sl->data_size_bits = (field_offset_bytes + effective_field_size_bytes) * 8;
+    sl->data_size_bits = (unsigned)(field_offset_bytes + effective_field_size_bytes) * 8;
     uint64_t padded_field_size = field_offset_bytes + field_size_bytes;
     if (sl->padded_field_size < padded_field_size)
-        sl->padded_field_size = padded_field_size;
+        sl->padded_field_size = (unsigned)padded_field_size;
     if (sl->size_bits < sl->data_size_bits)
         sl->size_bits = sl->data_size_bits;
     if (sl->unadjusted_alignment < field_align_bytes)
-        sl->unadjusted_alignment = field_align_bytes;
+        sl->unadjusted_alignment = (unsigned)field_align_bytes;
     if (sl->alignment < field_align_bytes)
-        sl->alignment = field_align_bytes;
+        sl->alignment = (unsigned)field_align_bytes;
     if (sl->unpacked_alignment < unpacked_field_align_bytes)
-        sl->unadjusted_alignment = unpacked_field_align_bytes;
+        sl->unadjusted_alignment = (unsigned)unpacked_field_align_bytes;
     if (sl->preferred_alignment < preferred_align_bytes)
-        sl->preferred_alignment = preferred_align_bytes;
+        sl->preferred_alignment = (unsigned)preferred_align_bytes;
 }
 
 void _itanium_end_layout(struct struct_layout *sl)
@@ -52,13 +52,13 @@ void _itanium_end_layout(struct struct_layout *sl)
         sl->size_bits = sl->padded_field_size * 8;
     //uint64_t unpadded_size = sl->size_bits - sl->unfilled_bits_last_unit;
     //uint64_t unpadded_size_bits = align_to(sl->size_bits, sl->unpacked_alignment * 8);
-    sl->size_bits = align_to(sl->size_bits, sl->alignment * 8);
+    sl->size_bits = (unsigned)align_to(sl->size_bits, sl->alignment * 8);
 }
 
 struct struct_layout *_itanium_layout_struct(struct type_oper *to)
 {
     struct struct_layout *sl = sl_new();
-    unsigned int member_count = array_size(&to->args);
+    unsigned int member_count = (unsigned)array_size(&to->args);
     for (unsigned i = 0; i < member_count; i++) {
         struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);
         _itanium_layout_field(sl, field_type);

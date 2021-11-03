@@ -76,7 +76,7 @@ struct literal_node {
         bool bool_val;
         char char_val;
         const char *str_val;
-    };
+    } val;
 };
 
 struct ident_node {

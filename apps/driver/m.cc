@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     const char *finalization = 0;
     char output[PATH_MAX];
     char *output_str = &output[0];
-    strcpy(output, "/OUT:");
+    strcpy_s(output, sizeof(output), "/OUT:");
     const char *ld_cmd = "link.exe";
     const char *entry_main = "/ENTRY:main";
     const char *libstdio = "legacy_stdio_definitions.lib";
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
             }
             case 'o': {
 #ifdef _WIN32
-                strcat(output, optarg);
+                strcat_s(output, sizeof(output), optarg);
                 array_push(&ld_options, &output_str);
 #else
                 const char *output = "-o";
@@ -121,14 +121,13 @@ int main(int argc, char *argv[])
             char *basename = get_basename((char *)fn);
             char *obj_name = strcat(basename, ".o");
             array_push(&ld_options, &obj_name);
-            break;
         }
     }
     // do linker
     if (file_type == FT_OBJECT && use_ld) {
         if (finalization)
             array_push(&ld_options, &finalization);
-        int ld_argc = array_size(&ld_options);
+        int ld_argc = (int)array_size(&ld_options);
         const char **ld_argv = (const char **)array_get(&ld_options, 0);
         result = ld(ld_argc, ld_argv);
     }

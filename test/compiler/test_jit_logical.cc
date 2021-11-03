@@ -19,7 +19,7 @@ TEST(testJITLogical, testOrTrueTrue)
     block_node *block = parse_string(env->sema_context->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(true, result.i_value);
+    ASSERT_EQ(true, result.value.i_value);
     env_free(env);
 }
 
@@ -33,7 +33,7 @@ TEST(testJITLogical, testOrTrueFalse)
     block_node *block = parse_string(env->sema_context->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(true, result.i_value);
+    ASSERT_EQ(true, result.value.i_value);
     env_free(env);
 }
 
@@ -47,7 +47,7 @@ TEST(testJITLogical, testOrFalseFalse)
     block_node *block = parse_string(env->sema_context->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(false, result.i_value);
+    ASSERT_EQ(false, result.value.i_value);
     env_free(env);
 }
 
@@ -61,7 +61,7 @@ TEST(testJITLogical, testAndTrueTrue)
     block_node *block = parse_string(env->sema_context->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(true, result.i_value);
+    ASSERT_EQ(true, result.value.i_value);
     env_free(env);
 }
 
@@ -75,7 +75,7 @@ TEST(testJITLogical, testAndTrueFalse)
     block_node *block = parse_string(env->sema_context->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(false, result.i_value);
+    ASSERT_EQ(false, result.value.i_value);
     env_free(env);
 }
 
@@ -89,7 +89,7 @@ TEST(testJITLogical, testAndFalseFalse)
     block_node *block = parse_string(env->sema_context->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(false, result.i_value);
+    ASSERT_EQ(false, result.value.i_value);
     env_free(env);
 }
 
@@ -103,7 +103,7 @@ TEST(testJITLogical, testNotFalse)
     block_node *block = parse_string(env->sema_context->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(true, result.i_value);
+    ASSERT_EQ(true, result.value.i_value);
     env_free(env);
 }
 
@@ -117,6 +117,6 @@ TEST(testJITLogical, testNotTrue)
     block_node *block = parse_string(env->sema_context->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     auto result = eval_exp(jit, node);
-    ASSERT_EQ(false, result.i_value);
+    ASSERT_EQ(false, result.value.i_value);
     env_free(env);
 }

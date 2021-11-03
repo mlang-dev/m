@@ -8,6 +8,7 @@
 
 FILE *fmemopen(void *buf, size_t len, const char *mode)
 {
+    (void)mode;
     FILE *file = 0;
     int file_handle = -1;
     char temp_path[MAX_PATH - 13];

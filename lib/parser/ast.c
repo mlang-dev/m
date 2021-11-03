@@ -119,22 +119,22 @@ struct literal_node *_create_literal_node(struct exp_node *parent, struct source
     node->base.loc = loc;
     node->base.is_ret = false;
     if (type == TYPE_INT)
-        node->int_val = *(int *)val;
+        node->val.int_val = *(int *)val;
     else if (type == TYPE_DOUBLE)
-        node->double_val = *(double *)val;
+        node->val.double_val = *(double *)val;
     else if (type == TYPE_CHAR)
-        node->char_val = *(char *)val;
+        node->val.char_val = *(char *)val;
     else if (type == TYPE_BOOL)
-        node->bool_val = *(bool *)val;
+        node->val.bool_val = *(bool *)val;
     else if (type == TYPE_STRING)
-        node->str_val = strdup((const char *)val);
+        node->val.str_val = _strdup((const char *)val);
     return node;
 }
 
 void _free_literal_node(struct literal_node *node)
 {
     if (node->base.annotated_type_enum == TYPE_STRING)
-        free((void *)node->str_val);
+        free((void *)node->val.str_val);
     _free_exp_node(&node->base);
 }
 
@@ -170,7 +170,7 @@ struct literal_node *string_node_new(struct exp_node *parent, struct source_loc 
 
 struct literal_node *_copy_literal_node(struct literal_node *orig_node)
 {
-    return _create_literal_node(orig_node->base.parent, orig_node->base.loc, &orig_node->char_val,
+    return _create_literal_node(orig_node->base.parent, orig_node->base.loc, &orig_node->val.char_val,
         orig_node->base.annotated_type_enum);
 }
 
@@ -655,7 +655,7 @@ bool is_recursive(struct call_node *call)
 
 int find_member_index(struct type_node *type_node, symbol member)
 {
-    for (size_t i = 0; i < array_size(&type_node->body->nodes); i++) {
+    for (int i = 0; i < (int)array_size(&type_node->body->nodes); i++) {
         struct var_node *var = *(struct var_node **)array_get(&type_node->body->nodes, i);
         if (var->var_name == member) {
             return i;

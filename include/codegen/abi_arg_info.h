@@ -29,12 +29,12 @@ struct abi_arg_info {
     union {
         LLVMTypeRef padding_type; //Direct || Extend || Indirect || Expand
         LLVMTypeRef coerce_and_expand_type; //CoerceAndExpand
-    };
+    } padding;
     union {
         unsigned direct_offset; //Direct || Extend
         unsigned indirect_align; //Indirect
         unsigned alloca_field_index; //InAlloca
-    };
+    } align;
     enum ArgKind kind;
     unsigned indirect_as; //indirect address space
     bool padding_inreg;

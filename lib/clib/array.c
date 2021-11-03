@@ -24,8 +24,8 @@ struct array *array_new(size_t element_size)
 void array_init_size(struct array *arr, size_t element_size, size_t init_size, free_fun free)
 {
     arr->_element_size = element_size;
-    arr->base.p_data = malloc(init_size * element_size);
-    memset(arr->base.p_data, 0, init_size * element_size);
+    arr->base.data.p_data = malloc(init_size * element_size);
+    memset(arr->base.data.p_data, 0, init_size * element_size);
     arr->cap = init_size;
     arr->base.size = 0;
     arr->free = free;
@@ -49,13 +49,13 @@ void array_copy(struct array *dest, struct array *src)
 void array_copy_size(struct array *dest, struct array *src, size_t size)
 {
     array_init_size(dest, src->_element_size, size, src->free);
-    memcpy(dest->base.p_data, src->base.p_data, size * src->_element_size);
+    memcpy(dest->base.data.p_data, src->base.data.p_data, size * src->_element_size);
     dest->base.size = size;
 }
 
 void _copy_element_to_array(struct array *arr, size_t index, void *element)
 {
-    memcpy((unsigned char *)arr->base.p_data + (index * arr->_element_size), element, arr->_element_size);
+    memcpy((unsigned char *)arr->base.data.p_data + (index * arr->_element_size), element, arr->_element_size);
 }
 
 void array_push(struct array *arr, void *element)
@@ -70,7 +70,7 @@ void array_push(struct array *arr, void *element)
 void array_grow(struct array *arr)
 {
     arr->cap *= 2;
-    arr->base.p_data = realloc(arr->base.p_data, arr->cap * arr->_element_size);
+    arr->base.data.p_data = realloc(arr->base.data.p_data, arr->cap * arr->_element_size);
 }
 
 void array_set(struct array *arr, size_t index, void *element)
@@ -82,12 +82,12 @@ void array_set(struct array *arr, size_t index, void *element)
 
 void *array_get(struct array *arr, size_t index)
 {
-    return (unsigned char *)arr->base.p_data + (index * arr->_element_size);
+    return (unsigned char *)arr->base.data.p_data + (index * arr->_element_size);
 }
 
 void *array_data(struct array *arr)
 {
-    return arr->base.p_data;
+    return arr->base.data.p_data;
 }
 
 void *array_back(struct array *arr)
@@ -118,7 +118,7 @@ void array_deinit(struct array *arr)
         if (arr->free && elem)
             arr->free(elem);
     }
-    free(arr->base.p_data);
+    free(arr->base.data.p_data);
 }
 
 void array_add(struct array *dest, struct array *src)

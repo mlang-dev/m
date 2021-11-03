@@ -32,7 +32,7 @@ void obj_deinit(object *obj)
 
 void *obj_data(object *obj)
 {
-    return &obj->c_data;
+    return &obj->data.c_data;
 }
 
 bool obj_eq(object *dest, object *src)
@@ -40,7 +40,7 @@ bool obj_eq(object *dest, object *src)
     if (dest->type != src->type || dest->size != src->size)
         return false;
     if (dest->type > REFERENCE_TYPE)
-        return memcmp(dest->p_data, src->p_data, dest->size) == 0;
+        return memcmp(dest->data.p_data, src->data.p_data, dest->size) == 0;
     return memcmp(dest, src, dest->size) == 0;
 }
 

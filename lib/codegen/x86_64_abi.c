@@ -97,7 +97,7 @@ void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum 
 
 bool _bits_contain_no_user_data(struct type_exp *type, unsigned start_bit, unsigned end_bit)
 {
-    unsigned type_size_bits = get_type_size(type);
+    uint64_t type_size_bits = get_type_size(type);
     if (type_size_bits <= start_bit)
         return true;
 
@@ -107,7 +107,7 @@ bool _bits_contain_no_user_data(struct type_exp *type, unsigned start_bit, unsig
         struct type_oper *to = (struct type_oper *)type;
         struct struct_layout *sl = layout_struct(to);
         for (unsigned i = 0; i < array_size(&to->args); i++) {
-            unsigned field_offset = *(uint64_t *)array_get(&sl->field_offsets, i);
+            unsigned field_offset = (unsigned)*(uint64_t *)array_get(&sl->field_offsets, i);
             if (field_offset >= end_bit)
                 break;
             unsigned field_start = field_offset < start_bit ? start_bit - field_offset : 0;
@@ -128,13 +128,13 @@ bool _contains_float_at_offset(LLVMTypeRef ir_type, unsigned ir_offset)
         return true;
     if (tk == LLVMStructTypeKind) {
         unsigned field_index = LLVMElementAtOffset(dl, ir_type, ir_offset);
-        ir_offset -= LLVMOffsetOfElement(dl, ir_type, field_index);
+        ir_offset -= (unsigned) LLVMOffsetOfElement(dl, ir_type, field_index);
         return _contains_float_at_offset(LLVMStructGetTypeAtIndex(ir_type, field_index), ir_offset);
     }
     if (tk == LLVMArrayTypeKind) {
         LLVMTypeRef element_type = LLVMGetElementType(ir_type);
-        unsigned element_size = LLVMABISizeOfType(dl, element_type);
-        ir_offset -= ir_offset / element_size * element_size;
+        uint64_t element_size = LLVMABISizeOfType(dl, element_type);
+        ir_offset -= (unsigned)(ir_offset / element_size * element_size);
         return _contains_float_at_offset(element_type, ir_offset);
     }
     return false;
@@ -170,7 +170,7 @@ LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
     if (tk == LLVMStructTypeKind) {
         if (ir_offset < LLVMSizeOfTypeInBits(dl, ir_type) / 8) {
             unsigned field_index = LLVMElementAtOffset(dl, ir_type, ir_offset);
-            ir_offset -= LLVMOffsetOfElement(dl, ir_type, field_index);
+            ir_offset -= (unsigned)LLVMOffsetOfElement(dl, ir_type, field_index);
             return _get_int_type_at_offset(LLVMStructGetTypeAtIndex(ir_type, field_index), ir_offset, source_type, source_offset);
         }
     }
@@ -179,16 +179,16 @@ LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
     //
     uint64_t type_size_bytes = get_type_size(source_type) / 8;
     uint64_t bit_width = ((type_size_bytes - source_offset) < 8 ? type_size_bytes - source_offset : 8) * 8;
-    return LLVMIntTypeInContext(get_llvm_context(), bit_width);
+    return LLVMIntTypeInContext(get_llvm_context(), (unsigned)bit_width);
 }
 
 ///given a high and low type that can ideally be used as two register pair to pass or return
 ///to return a first class aggregate to represent them, e.g. {i32*, float} as {low, high}
 LLVMTypeRef _get_x86_64_byval_arg_pair(LLVMTypeRef low, LLVMTypeRef high, LLVMTargetDataRef dl)
 {
-    unsigned low_size = LLVMABISizeOfType(dl, low);
+    uint64_t low_size = LLVMABISizeOfType(dl, low);
     unsigned high_align = LLVMABIAlignmentOfType(dl, high);
-    unsigned high_start = align_to(low_size, high_align);
+    uint64_t high_start = align_to(low_size, high_align);
     if (high_start != 8) {
         if (LLVMGetTypeKind(low) == LLVMFloatTypeKind)
             low = LLVMDoubleTypeInContext(get_llvm_context());

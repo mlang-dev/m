@@ -39,7 +39,7 @@ typedef struct _object {
         float f_data;
         double d_data;
         void *p_data;
-    };
+    } data;
 } object;
 
 typedef bool (*object_eq)(object *dest, object *src);

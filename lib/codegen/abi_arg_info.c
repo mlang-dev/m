@@ -8,8 +8,8 @@ struct abi_arg_info _create_direct(LLVMTypeRef type, unsigned direct_offset, LLV
     struct abi_arg_info aai;
     aai.kind = AK_DIRECT;
     aai.type = type;
-    aai.padding_type = padding_type;
-    aai.direct_offset = direct_offset;
+    aai.padding.padding_type = padding_type;
+    aai.align.direct_offset = direct_offset;
     aai.can_be_flattened = can_be_flattened;
     return aai;
 }
@@ -19,9 +19,9 @@ struct abi_arg_info _create_indirect(unsigned indirect_align, bool indirect_byva
     struct abi_arg_info aai;
     aai.kind = AK_INDIRECT;
     aai.type = 0;
-    aai.padding_type = padding_type;
+    aai.padding.padding_type = padding_type;
     aai.indirect_byval = indirect_byval;
-    aai.indirect_align = indirect_align;
+    aai.align.indirect_align = indirect_align;
     aai.indirect_realign = indirect_realign;
     return aai;
 }
@@ -31,7 +31,7 @@ struct abi_arg_info create_expand(bool padding_inreg, LLVMTypeRef padding_type)
     struct abi_arg_info aai;
     aai.kind = AK_DIRECT;
     aai.type = 0;
-    aai.padding_type = padding_type;
+    aai.padding.padding_type = padding_type;
     aai.padding_inreg = padding_inreg;
     return aai;
 }
@@ -41,8 +41,8 @@ struct abi_arg_info create_ignore()
     struct abi_arg_info aai;
     aai.kind = AK_IGNORE;
     aai.type = 0;
-    aai.padding_type = 0;
-    aai.direct_offset = 0;
+    aai.padding.padding_type = 0;
+    aai.align.direct_offset = 0;
     aai.can_be_flattened = false;
     return aai;
 }
@@ -53,8 +53,8 @@ struct abi_arg_info create_extend(struct type_exp *ret_type)
     struct abi_arg_info aai;
     aai.kind = AK_EXTEND;
     aai.type = LLVMInt8TypeInContext(get_llvm_context()); //would use 32 bits
-    aai.padding_type = 0;
-    aai.direct_offset = 0;
+    aai.padding.padding_type = 0;
+    aai.align.direct_offset = 0;
     aai.sign_ext = true;
     return aai;
 }
@@ -62,7 +62,7 @@ struct abi_arg_info create_extend(struct type_exp *ret_type)
 struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type, bool indirect_byval)
 {
     uint64_t align_bytes = get_type_align(ret_type) / 8;
-    return _create_indirect(align_bytes, indirect_byval, false, 0);
+    return _create_indirect((unsigned)align_bytes, indirect_byval, false, 0);
 }
 
 struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type)
@@ -84,13 +84,13 @@ struct abi_arg_info create_indirect_result(struct type_exp *type, unsigned free_
         else
             return create_direct();
     }
-    unsigned align_bytes = get_type_align(type) / 8;
+    unsigned align_bytes = (unsigned)get_type_align(type) / 8;
     if (align_bytes < 8)
         align_bytes = 8;
     if (free_int_regs == 0) {
         uint64_t size = get_type_size(type);
         if (align_bytes == 8 && size <= 64)
-            return _create_direct(LLVMIntTypeInContext(get_llvm_context(), size), 0, 0, true);
+            return _create_direct(LLVMIntTypeInContext(get_llvm_context(), (unsigned)size), 0, 0, true);
     }
     return _create_indirect(align_bytes, true, false, 0);
 }
@@ -117,16 +117,16 @@ bool can_have_padding_type(struct abi_arg_info *aai)
 
 LLVMTypeRef get_padding_type(struct abi_arg_info *aai)
 {
-    return can_have_padding_type(aai) ? aai->padding_type : 0;
+    return can_have_padding_type(aai) ? aai->padding.padding_type : 0;
 }
 
 void get_coerce_and_expand_types(struct abi_arg_info *aai, LLVMTypeRef *types)
 {
     assert(aai->kind == AK_COERCE_AND_EXPAND);
-    if (LLVMGetTypeKind(aai->coerce_and_expand_type) == LLVMStructTypeKind)
-        LLVMGetStructElementTypes(aai->coerce_and_expand_type, types);
+    if (LLVMGetTypeKind(aai->padding.coerce_and_expand_type) == LLVMStructTypeKind)
+        LLVMGetStructElementTypes(aai->padding.coerce_and_expand_type, types);
     else
-        types[0] = aai->coerce_and_expand_type;
+        types[0] = aai->padding.coerce_and_expand_type;
 }
 
 bool can_have_coerce_to_type(struct abi_arg_info *aai)
