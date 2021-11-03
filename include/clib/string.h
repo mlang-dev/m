@@ -20,6 +20,15 @@ extern "C" {
 
 #define SSO_LENGTH 19
 
+#ifndef _WIN32
+#define sprintf_s(dst, dst_size, format, ...)  sprintf(dst, format, __VA_ARGS__)
+#define vsprintf_s(dst, dst_size, format, ...) vsprintf(dst, format, __VA_ARGS__)
+#define strcpy_s(dst, dst_size, src) strcpy(dst, src)
+#define strcat_s(dst, dst_size, src) strcat(dst, src)
+#define strerror_s(errmsg, errmsg_size, errnum) strerror(errnum)
+#define _strdup(src) strdup(src)
+#endif
+
 typedef struct {
     object base;
     size_t cap;

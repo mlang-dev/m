@@ -56,7 +56,7 @@ struct sema_context *sema_context_new(struct parser *parser)
     }
     char libpath[PATH_MAX];
     char *mpath = get_exec_path();
-    join_path(libpath, sizeof(libpath), mpath, "mlib\\stdio.m");
+    join_path(libpath, sizeof(libpath), mpath, "mlib/stdio.m");
     struct block_node *block = parse_file(context->parser, libpath);
     struct array builtins;
     array_init(&builtins, sizeof(struct exp_node *));
@@ -64,7 +64,7 @@ struct sema_context *sema_context_new(struct parser *parser)
         struct exp_node *node = *(struct exp_node **)array_get(&block->nodes, i);
         array_push(&builtins, &node);
     }
-    join_path(libpath, sizeof(libpath), mpath, "mlib\\math.m");
+    join_path(libpath, sizeof(libpath), mpath, "mlib/math.m");
     block = parse_file(context->parser, libpath);
     array_add(&builtins, &block->nodes);
     for (size_t i = 0; i < array_size(&builtins); i++) {

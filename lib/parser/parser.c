@@ -942,11 +942,9 @@ struct block_node *parse_block(struct parser *parser, struct exp_node *parent, v
 
 struct block_node *parse_file(struct parser *parser, const char *file_name)
 {
-    errno_t err = 0;
-    FILE *file;
-    err = fopen_s(&file, file_name, "r");
-    if (err) {
-        printf("can't open the file: %s errno: %d\n", file_name, err);
+    FILE *file= fopen(file_name, "r");
+    if (!file) {
+        printf("can't open the file: %s errno: %d\n", file_name, errno);
         return 0;
     }
     const char *mod_name = file_name;

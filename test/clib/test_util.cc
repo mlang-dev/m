@@ -35,14 +35,14 @@ TEST(testUtil, testMoreLetters)
 TEST(testUtil, testJoinPath)
 {
     char path[64];
-    join_path(path, "/usr/local/include", "stdio.h");
+    join_path(path, sizeof(path), "/usr/local/include", "stdio.h");
     ASSERT_STREQ("/usr/local/include/stdio.h", path);
 }
 
 TEST(testUtil, testJoinPath2)
 {
     char path[64];
-    join_path(path, "/usr/local/include/", "stdio.h");
+    join_path(path, sizeof(path), "/usr/local/include/", "stdio.h");
     ASSERT_STREQ("/usr/local/include/stdio.h", path);
 }
 #endif

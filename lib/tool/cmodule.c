@@ -119,7 +119,7 @@ struct array parse_c_file(const char *file_path)
 void _write_to_file(struct array *codes, const char *mfile)
 {
     FILE *fp;
-    fopen_s(&fp, mfile, "w");
+    fp = fopen(mfile, "w");
     for (size_t i = 0; i < array_size(codes); i++) {
         fprintf(fp, "%s\n", string_get(array_get(codes, i)));
     }

@@ -151,7 +151,7 @@ void string_deinit(string *str)
 string *string_substr(string *str, char match)
 {
     char *data = string_get(str);
-    for (size_t i = str->base.size - 1; i >= 0; i--) {
+    for (int i = (int)str->base.size - 1; i >= 0; i--) {
         if (data[i] == match) {
             data[i] = '\0';
             str->base.size = i;

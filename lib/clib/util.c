@@ -149,6 +149,7 @@ void print_backtrace(void)
 
 void join_path(char *destination, size_t dst_size, const char *path1, const char *path2)
 {
+    (void)dst_size; // not used but make gcc/clang happy
     if (path1 == 0 && path2 == 0) {
         strcpy_s(destination, dst_size, "");
     } else if (path2 == 0 || strlen(path2) == 0) {
