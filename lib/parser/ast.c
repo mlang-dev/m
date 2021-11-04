@@ -7,6 +7,7 @@
 #include "parser/ast.h"
 #include "clib/array.h"
 #include "parser/grammar.h"
+#include "parser/m_grammar.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>

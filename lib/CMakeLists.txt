@@ -33,6 +33,7 @@ add_library(mlr
   parser/grammar.c
   parser/meta_grammar.c
   parser/m_parser.c
+  parser/m_grammar.c
   sema/type.c
   sema/analyzer.c
   sema/sema_context.c

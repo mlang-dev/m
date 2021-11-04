@@ -10,49 +10,14 @@
 #include "lexer/lexer.h"
 #include "parser/meta_grammar.h"
 
-const char *keyword_symbols[] = {
-    "import",
-    "extern",
-    "type",
-    "if",
-    "else",
-    "then",
-    "in",
-    "for",
-    "unary",
-    "binary",
-    "..",
-    "...",
-    "true",
-    "false",
-    "||",
-    "&&",
-    "!",
-    "%",
-    "&",
-    "^",
-    "*",
-    "/",
-    "+",
-    "-",
-    "<",
-    "=",
-    ">",
-    "<=",
-    ">=",
-    "==",
-    "!=",
-    "?",
-    "@",
+const char *grammar_symbols[] = {
+    "::=",
     "|",
-    ":",
-    "(",
-    ")",
-    "[",
-    "]"
+    "{",
+    "}"
 };
 
-int keyword_count = ARRAY_SIZE(keyword_symbols);
+int grammar_symbols_count = ARRAY_SIZE(grammar_symbols);
 
 struct grammar *grammar_new(const char *grammar_text)
 {
@@ -61,8 +26,13 @@ struct grammar *grammar_new(const char *grammar_text)
     MALLOC(grammar, sizeof(*grammar));
     hashtable_init(&grammar->rules);
     grammar->start_symbol = 0;
-    struct grammar *meta_grammar = create_meta_grammar();
-    free_meta_grammar(meta_grammar);
+    struct tokenizer *tokenizer = create_tokenizer_for_string(grammar_text, grammar_symbols, grammar_symbols_count);
+    struct token *tok;
+    do {
+        tok = get_token(tokenizer);
+        //printf("got token: %s\n", token_type_strings[tok->token_type]);
+    }while(tok->token_type != TOKEN_EOF);
+    destroy_tokenizer(tokenizer);
     return grammar;
 }
 

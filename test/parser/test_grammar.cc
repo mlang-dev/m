@@ -11,7 +11,7 @@
 #include "gtest/gtest.h"
 #include <stdio.h>
 
-TEST(testGrammar, testOrOp)
+TEST(testGrammar, testArithmeticExp)
 {
     char test_grammar[] = R"(
 sum         ::= sum '+' term        {}
@@ -30,8 +30,8 @@ power       ::= NUM '^' factor      {}
     )";
     struct env *env = env_new(false);
     struct grammar *grammar = grammar_new(test_grammar);
-    // symbol start = to_symbol("sum");
-    // ASSERT_EQ(start, grammar->start_symbol);
+    symbol start = to_symbol("sum");
+    //ASSERT_EQ(start, grammar->start_symbol);
     grammar_free(grammar);
     env_free(env);
 }

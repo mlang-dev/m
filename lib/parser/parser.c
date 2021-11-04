@@ -206,8 +206,6 @@ struct parser *parser_new(bool is_repl)
     init_token(&parser->curr_token);
     g_parser = parser;
 
-    struct earley_parser *earley_parser = earley_parser_new(0);
-    earley_parser_free(earley_parser);
     return parser;
 }
 

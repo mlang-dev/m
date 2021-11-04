@@ -15,10 +15,6 @@
 extern "C" {
 #endif
 
-extern const char *keyword_symbols[];
-
-extern int keyword_count;
-
 struct expr {
     struct array tokens; //array of tokens
 };
