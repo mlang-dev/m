@@ -32,7 +32,7 @@ add_library(mlr
   parser/astdump.c
   parser/grammar.c
   parser/meta_grammar.c
-  parser/earley_parser.c
+  parser/m_parser.c
   sema/type.c
   sema/analyzer.c
   sema/sema_context.c
