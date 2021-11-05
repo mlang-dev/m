@@ -18,7 +18,7 @@ struct grammar *create_meta_grammar()
     // struct tokenizer *tokenizer = create_tokenizer(file, "", 0, 0);
     struct grammar *meta_grammar;
     MALLOC(meta_grammar, sizeof(*meta_grammar));
-    hashtable_init_with_value_size(&meta_grammar->rules, sizeof(struct rule), 0);
+    hashtable_init_with_value_size(&meta_grammar->rule_map, sizeof(struct rule), 0);
     const char *keywords[] = { "=", "|" };
     struct tokenizer *tokenizer = create_tokenizer_for_string(meta_grammar_text, keywords, ARRAY_SIZE(keywords));
     while (true) {
@@ -32,6 +32,6 @@ struct grammar *create_meta_grammar()
 
 void free_meta_grammar(struct grammar *meta_grammar)
 {
-    hashtable_deinit(&meta_grammar->rules);
+    hashtable_deinit(&meta_grammar->rule_map);
     free(meta_grammar);
 }

@@ -33,7 +33,9 @@ struct hashtable {
     free_fun free_element;
 };
 
+//default hashtable without value size will store object pointer
 void hashtable_init(struct hashtable *ht);
+
 void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size, free_fun free_element);
 void hashtable_deinit(struct hashtable *ht);
 size_t hashtable_size(struct hashtable *ht);

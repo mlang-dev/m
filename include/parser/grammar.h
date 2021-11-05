@@ -15,24 +15,32 @@
 extern "C" {
 #endif
 
+struct atom {
+    symbol symbol;
+    bool is_terminal;
+};
+
 struct expr {
-    struct array tokens; //array of tokens
+    struct array atoms; //array of symbols (terminal or nonterminal)
 };
 
 struct rule {
+    int rule_no;
     symbol nonterm; // nonterminal symbol
     struct array exprs; // array of expr
 };
 
-/// A grammar is a set of Rules. A rule is the form of A = e where A is a nonterminal symbol
+/// A grammar is a set of Rules. A rule is the form of A ::= e where A is a nonterminal symbol
 /// and e is a expression consists of any terminal symbol, any nonterminal symbol or empty string
 /// e.g. product = product [*/] factor
 struct grammar {
     symbol start_symbol; // nonterminal symbol name
-    struct hashtable rules; /* hashtable of <symbol, rule> */
+    struct hashtable rule_map; /* hashtable of <symbol, rule> */
+    struct array rules;        /* array of rule pointer */
 };
 
-struct grammar *grammar_new(const char *grammar_text);
+struct grammar *grammar_new();
+struct grammar *grammar_parse(const char *grammar_text);
 void grammar_free(struct grammar *grammar);
 
 #ifdef __cplusplus

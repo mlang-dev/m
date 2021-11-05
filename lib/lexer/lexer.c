@@ -23,6 +23,20 @@ const char *token_type_strings[] = {
 
 #define CUR_CHAR(tokenizer) tokenizer->curr_char[0]
 
+void token_copy(struct token *dst, struct token *src)
+{
+    if(dst->token_type == TOKEN_STRING){
+        string_free(dst->val.str_val);
+    }
+    if(src->token_type == TOKEN_STRING){
+        dst->token_type = src->token_type;
+        dst->loc = src->loc;
+        dst->val.str_val = string_new(string_get(src->val.str_val));
+    }else{
+        *dst = *src;
+    }
+}
+
 void log_error(struct tokenizer *tokenizer, const char *msg)
 {
     char full_msg[512];

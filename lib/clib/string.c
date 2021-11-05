@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "clib/array.h"
 #include "clib/object.h"
@@ -265,4 +266,13 @@ bool string_eq_generic(object *str1, object *str2)
 void *string_data_generic(object *obj)
 {
     return string_get((string *)obj);
+}
+
+bool is_upper(const char *chars)
+{
+    for(int i=0; i<strlen(chars); i++){
+        if(!isupper(chars[i]))
+            return false;
+    }
+    return true;
 }

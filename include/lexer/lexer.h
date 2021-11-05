@@ -51,6 +51,8 @@ struct token {
     }val;
 };
 
+void token_copy(struct token *dst, struct token *src);
+
 struct tokenizer {
     FILE *file;
     const char *filename;
