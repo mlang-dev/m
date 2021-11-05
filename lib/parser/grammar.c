@@ -12,10 +12,15 @@
 #include <assert.h>
 
 const char *grammar_symbols[] = {
-    "::=",
-    "|",
-    "{",
-    "}"
+    "::=",  // 
+    "|",    // 
+    "[",    // range start symbol
+    "]",    // range end symbol
+    "?",    // optional
+    "*",    // zero or more repeats,
+    "+",    // one or more repeats
+    "{",    // semantic action start
+    "}"     // semantic action end
 };
 
 int grammar_symbols_count = ARRAY_SIZE(grammar_symbols);

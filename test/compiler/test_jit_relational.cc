@@ -4,7 +4,7 @@
  * Unit tests for logical operators JIT
  */
 #include "compiler/repl.h"
-#include "parser/parser.h"
+#include "parser/m_parser.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>

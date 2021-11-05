@@ -13,7 +13,7 @@
 #include "clib/hashset.h"
 #include "clib/symboltable.h"
 #include "codegen/codegen.h"
-#include "parser/parser.h"
+#include "parser/m_parser.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
 #include <llvm-c/Core.h>

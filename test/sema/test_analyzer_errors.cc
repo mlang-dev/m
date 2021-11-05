@@ -5,7 +5,7 @@
  */
 #include "codegen/codegen.h"
 #include "codegen/env.h"
-#include "parser/parser.h"
+#include "parser/m_parser.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
 #include "tutil.h"

@@ -3,7 +3,7 @@
  *
  * Unit tests for parser
  */
-#include "parser/parser.h"
+#include "parser/m_parser.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>

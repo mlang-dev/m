@@ -1,7 +1,7 @@
 #include "compiler/compiler.h"
 #include "compiler/repl.h"
 #include "parser/astdump.h"
-#include "parser/parser.h"
+#include "parser/m_parser.h"
 #include "sema/analyzer.h"
 #include "tutil.h"
 #include "gtest/gtest.h"

@@ -8,7 +8,7 @@
 #include "clib/string.h"
 #include "parser/ast.h"
 #include "parser/astdump.h"
-#include "parser/parser.h"
+#include "parser/m_parser.h"
 #include <clang-c/Index.h>
 #include <stdio.h>
 #include <stdlib.h>
