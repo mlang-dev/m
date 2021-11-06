@@ -17,7 +17,8 @@ extern "C" {
 
 enum atom_type {
     ATOM_NONTERM = 0,
-    ATOM_EXACT_MATCH, 
+    ATOM_TOKEN_MATCH,  // like ID, NUM token
+    ATOM_EXACT_MATCH,
     ATOM_IN_MATCH,
     ATOM_REGEX_MATCH
 };
