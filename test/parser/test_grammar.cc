@@ -57,9 +57,10 @@ TEST(testGrammar, testArithmeticExpUsingCharSetOr)
     char test_grammar[] = R"(
 sum         = sum [+-] term     {}
             | term              {}
-term        = term [*/%] factor   {}
+term        = term [*/%] factor {}
             | factor            {}
-factor      = [+-] factor        {}
+factor      = '(' sum ')'       {}
+            | [+-] factor       {}
             | power             {}
 power       = NUM '^' factor    {}
             | NUM               {}
@@ -70,11 +71,11 @@ power       = NUM '^' factor    {}
     symbol start = to_symbol("sum");
     ASSERT_EQ(start, grammar->start_symbol);
     ASSERT_EQ(4, array_size(&grammar->rules));
-    int expected_exps[] = { 2, 2, 2, 2 };
+    int expected_exps[] = { 2, 2, 3, 2 };
     int expected_atoms[4][4] = {
         { 3, 1, 0, 0 },
         { 3, 1, 0, 0 },
-        { 2, 1, 0, 0 },
+        { 3, 2, 1, 0 },
         { 3, 1, 0, 0 }
     };
     for (size_t i = 0; i < array_size(&grammar->rules); i++) {

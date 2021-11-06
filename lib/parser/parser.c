@@ -8,6 +8,7 @@
  */
 #include "parser/parser.h"
 #include "clib/array.h"
+#include "clib/util.h"
 #include "parser/grammar.h"
 
 struct parser *parser_new(const char *grammar_text)
@@ -23,4 +24,9 @@ void parser_free(struct parser *parser)
 {
     grammar_free(parser->grammar);
     free(parser);
+}
+
+bool parser_parse(struct parser *parser, const char *text)
+{
+    return true;
 }

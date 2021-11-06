@@ -42,6 +42,7 @@ add_executable(mtest
   parser/test_parser.cc
   parser/test_parser_logical.cc
   parser/test_parser_relational.cc
+  parser/test_g_parser.cc
   parser/test_astdump.cc
   parser/test_grammar.cc
   sema/test_analyzer.cc

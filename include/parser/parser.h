@@ -1,9 +1,9 @@
 /*
  * parser.h
  * 
- * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
+ * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for an earley parser
+ * header file for a generic parser
  */
 #ifndef __MLANG_PARSER_H__
 #define __MLANG_PARSER_H__
@@ -20,6 +20,7 @@ struct parser {
 
 struct parser *parser_new(const char *grammar);
 void parser_free(struct parser *parser);
+bool parser_parse(struct parser *parser, const char *text);
 
 #ifdef __cplusplus
 }
