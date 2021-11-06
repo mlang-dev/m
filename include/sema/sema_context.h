@@ -79,10 +79,10 @@ struct sema_context {
 
     symbol scope_marker;
     //reference the parser
-    struct parser *parser;
+    struct m_parser *parser;
 };
 
-struct sema_context *sema_context_new(struct parser *parser);
+struct sema_context *sema_context_new(struct m_parser *parser);
 void sema_context_free(struct sema_context *env);
 void enter_scope(struct sema_context *env);
 void leave_scope(struct sema_context *env);

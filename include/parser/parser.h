@@ -5,21 +5,21 @@
  *
  * header file for an earley parser
  */
-#ifndef __MLANG_EARLEY_PARSER_H__
-#define __MLANG_EARLEY_PARSER_H__
+#ifndef __MLANG_PARSER_H__
+#define __MLANG_PARSER_H__
 
-#include "lexer/lexer.h"
+#include "parser/grammar.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct earley_parser {
-    struct tokenizer *tokenizer;
+struct parser {
+    struct grammar *grammar;
 };
 
-struct earley_parser *earley_parser_new(const char *grammar);
-void earley_parser_free(struct earley_parser *parser);
+struct parser *parser_new(const char *grammar);
+void parser_free(struct parser *parser);
 
 #ifdef __cplusplus
 }

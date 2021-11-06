@@ -12,24 +12,21 @@
 #include <assert.h>
 
 const char *grammar_symbols[] = {
-    "::=",  // 
-    "|",    // 
-    "[",    // range start symbol
-    "]",    // range end symbol
-    "?",    // optional
-    "*",    // zero or more repeats,
-    "+",    // one or more repeats
-    "{",    // semantic action start
-    "}"     // semantic action end
+    "::=", //
+    "|", //
+    "[", // range start symbol
+    "]", // range end symbol
+    "{", // semantic action start
+    "}" // semantic action end
 };
 
 int grammar_symbols_count = ARRAY_SIZE(grammar_symbols);
 
-void expr_add_symbol(struct expr *expr, symbol symbol, bool is_terminal)
+void expr_add_symbol(struct expr *expr, symbol symbol, enum atom_type type)
 {
     struct atom atom;
     atom.symbol = symbol;
-    atom.is_terminal = is_terminal;
+    atom.type = type;
     array_push(&expr->atoms, &atom);
 }
 
@@ -48,18 +45,18 @@ void rule_init(struct rule *rule)
     array_init(&rule->exprs, sizeof(struct expr));
 }
 
-struct expr* rule_add_expr(struct rule *rule)
+struct expr *rule_add_expr(struct rule *rule)
 {
     struct expr expr;
     expr_init(&expr);
     array_push(&rule->exprs, &expr);
-    return (struct expr*)array_back(&rule->exprs);
+    return (struct expr *)array_back(&rule->exprs);
 }
 
 void rule_deinit(struct rule *rule)
 {
-    for(size_t i = 0; i < array_size(&rule->exprs); i++){
-        struct expr* expr = (struct expr*)array_get(&rule->exprs, i);
+    for (size_t i = 0; i < array_size(&rule->exprs); i++) {
+        struct expr *expr = (struct expr *)array_get(&rule->exprs, i);
         expr_deinit(expr);
     }
     array_deinit(&rule->exprs);
@@ -70,19 +67,19 @@ struct grammar *grammar_new()
     struct grammar *grammar = 0;
     MALLOC(grammar, sizeof(*grammar));
     hashtable_init_with_value_size(&grammar->rule_map, sizeof(struct rule), (free_fun)rule_deinit);
-    array_init(&grammar->rules, sizeof(struct rule*));
+    array_init(&grammar->rules, sizeof(struct rule *));
     grammar->start_symbol = 0;
     return grammar;
 }
 
-struct rule* grammar_add_rule(struct grammar* g, symbol nonterm, int rule_no)
+struct rule *grammar_add_rule(struct grammar *g, symbol nonterm, int rule_no)
 {
     struct rule rule;
     rule.nonterm = nonterm;
     rule.rule_no = rule_no;
     rule_init(&rule);
     hashtable_set_p(&g->rule_map, nonterm, &rule);
-    struct rule *r = (struct rule*)hashtable_get_p(&g->rule_map, nonterm);
+    struct rule *r = (struct rule *)hashtable_get_p(&g->rule_map, nonterm);
     array_push(&g->rules, &r);
     return r;
 }
@@ -91,6 +88,8 @@ struct grammar *grammar_parse(const char *grammar_text)
 {
     symbol grmr_def = to_symbol("::=");
     symbol grmr_or = to_symbol("|");
+    symbol grmr_charset_start = to_symbol("[");
+    symbol grmr_charset_end = to_symbol("]");
     symbol grmr_act_start = to_symbol("{");
     symbol grmr_act_end = to_symbol("}");
     struct grammar *g = grammar_new();
@@ -99,43 +98,52 @@ struct grammar *grammar_parse(const char *grammar_text)
     struct token tok;
     symbol nonterm = 0;
     int rule_no = 0;
-    struct rule* rule = 0;
-    struct expr* expr = 0;
+    struct rule *rule = 0;
+    struct expr *expr = 0;
     next_tok = get_token(tokenizer);
     token_copy(&tok, next_tok);
-    while(tok.token_type != TOKEN_EOF) {
+    bool is_charset = false;
+    enum atom_type atom_type = ATOM_NONTERM;
+    while (tok.token_type != TOKEN_EOF) {
         next_tok = get_token(tokenizer);
-        if(tok.token_type == TOKEN_IDENT){
-            if(next_tok->token_type==TOKEN_SYMBOL && next_tok->val.symbol_val == grmr_def){
+        if (tok.token_type == TOKEN_IDENT) {
+            if (next_tok->token_type == TOKEN_SYMBOL && next_tok->val.symbol_val == grmr_def) {
                 rule = grammar_add_rule(g, tok.val.symbol_val, rule_no++);
                 expr = rule_add_expr(rule);
-            }else{
-                //nonterm symbol or terminal (all upper case)
-                expr_add_symbol(expr, tok.val.symbol_val, is_upper(string_get(tok.val.symbol_val)));
+            } else {
+                // nonterm symbol or terminal (all upper case)
+                atom_type = ATOM_NONTERM;
+                if(is_charset){
+                    atom_type = ATOM_IN_MATCH;
+                }
+                else if(is_upper(string_get(tok.val.symbol_val)))
+                    atom_type = ATOM_EXACT_MATCH;
+                expr_add_symbol(expr, tok.val.symbol_val, atom_type);
             }
-        }
-        else if(tok.token_type == TOKEN_SYMBOL){
-            if(tok.val.symbol_val == grmr_or){
-            //new exp for the same rule (nonterm)
+        } else if (tok.token_type == TOKEN_SYMBOL) {
+            if (tok.val.symbol_val == grmr_or) {
+                // new exp for the same rule (nonterm)
                 assert(rule);
                 expr = rule_add_expr(rule);
+            } else if (tok.val.symbol_val == grmr_charset_start) {
+                is_charset = true;           
+            } else if (tok.val.symbol_val == grmr_charset_end) {
+                is_charset = false;
             }
-        }
-        else if(tok.token_type == TOKEN_STRING){
-            //literal string is terminal symbol
-            expr_add_symbol(expr, to_symbol(string_get(tok.val.str_val)), true);
-        }
-        else if(tok.token_type == TOKEN_CHAR){
-            //literal string is terminal symbol
+        } else if (tok.token_type == TOKEN_STRING) {
+            // literal string is terminal symbol
+            expr_add_symbol(expr, to_symbol(string_get(tok.val.str_val)), ATOM_EXACT_MATCH);
+        } else if (tok.token_type == TOKEN_CHAR) {
+            // literal string is terminal symbol
             char str[2];
             str[0] = tok.val.char_val;
             str[1] = 0;
             expr_add_symbol(expr, to_symbol(str), true);
         }
         token_copy(&tok, next_tok);
-        //printf("got token: %s\n", token_type_strings[tok->token_type]);
-    } 
-    if(array_size(&g->rules)){
+        // printf("got token: %s\n", token_type_strings[tok->token_type]);
+    }
+    if (array_size(&g->rules)) {
         g->start_symbol = (*(struct rule **)array_front(&g->rules))->nonterm;
     }
     destroy_tokenizer(tokenizer);

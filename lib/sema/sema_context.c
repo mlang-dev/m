@@ -29,7 +29,7 @@ void leave_scope(struct sema_context *context)
     } while (s != context->scope_marker);
 }
 
-struct sema_context *sema_context_new(struct parser *parser)
+struct sema_context *sema_context_new(struct m_parser *parser)
 {
     struct sema_context *context = malloc(sizeof(*context));
     memset((void *)context, 0, sizeof(*context));

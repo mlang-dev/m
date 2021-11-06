@@ -5,8 +5,8 @@
  *
  * header file for m parser
  */
-#ifndef __MLANG_PARSER_H__
-#define __MLANG_PARSER_H__
+#ifndef __MLANG_M_PARSER_H__
+#define __MLANG_M_PARSER_H__
 
 #include "clib/hashtable.h"
 #include "clib/queue.h"
@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-struct parser {
+struct m_parser {
     /* mapping type string into type enum: hashtable of (symbol, int) */
     struct hashtable symbol_2_int_types;
 
@@ -79,22 +79,22 @@ struct parser {
 
 typedef void (*exp_executor)(void *, struct exp_node *);
 
-struct parser *parser_new(bool is_repl);
-void parser_free(struct parser *parser);
-void parse_next_token(struct parser *parser);
-struct exp_node *parse_exp_to_function(struct parser *parser, struct exp_node *exp, symbol fn);
-struct exp_node *parse_import(struct parser *parser, struct exp_node *parent);
-struct exp_node *parse_statement(struct parser *parser, struct exp_node *parent);
-struct exp_node *parse_exp(struct parser *parser, struct exp_node *parent, struct exp_node *lhs);
+struct m_parser *m_parser_new(bool is_repl);
+void m_parser_free(struct m_parser *parser);
+void parse_next_token(struct m_parser *parser);
+struct exp_node *parse_exp_to_function(struct m_parser *parser, struct exp_node *exp, symbol fn);
+struct exp_node *parse_import(struct m_parser *parser, struct exp_node *parent);
+struct exp_node *parse_statement(struct m_parser *parser, struct exp_node *parent);
+struct exp_node *parse_exp(struct m_parser *parser, struct exp_node *parent, struct exp_node *lhs);
 bool is_unary_op(struct prototype_node *pnode);
 bool is_binary_op(struct prototype_node *pnode);
 char get_op_name(struct prototype_node *pnode);
-void queue_token(struct parser *parser, struct token tkn);
-void queue_tokens(struct parser *psr, struct array *tokens);
-struct block_node *parse_file(struct parser *parser, const char *file_name);
-struct block_node *parse_file_object(struct parser *parser, const char *mod_name, FILE *file);
-struct block_node *parse_repl(struct parser *parser, void (*fun)(void *, struct exp_node *), void *jit);
-struct block_node *parse_string(struct parser *parser, const char *mod_name, const char *code);
+void queue_token(struct m_parser *parser, struct token tkn);
+void queue_tokens(struct m_parser *psr, struct array *tokens);
+struct block_node *parse_file(struct m_parser *parser, const char *file_name);
+struct block_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file);
+struct block_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct exp_node *), void *jit);
+struct block_node *parse_string(struct m_parser *parser, const char *mod_name, const char *code);
 enum type get_type_enum(symbol type_symbol);
 symbol get_type_symbol(enum type type_enum);
 

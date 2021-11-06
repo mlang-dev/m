@@ -14,7 +14,7 @@
 TEST(testGrammar, testArithmeticExp)
 {
     char test_grammar[] = R"(
-sum         ::= sum '+' term        {}
+sum         ::= sum [ab] term        {}
                 | sum '-' term      {}
                 | term              {}
 term        ::= term '*' factor     {}

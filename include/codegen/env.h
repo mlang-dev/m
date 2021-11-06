@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 struct env {
-    struct parser *parser;
+    struct m_parser *parser;
     struct code_generator *cg;
     struct sema_context *sema_context;
 };

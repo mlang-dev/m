@@ -15,7 +15,7 @@ struct env *env_new(bool is_repl)
     symbols_init();
     struct env *env;
     MALLOC(env, sizeof(struct env));
-    env->parser = parser_new(is_repl);
+    env->parser = m_parser_new(is_repl);
     env->sema_context = sema_context_new(env->parser);
     env->cg = cg_new(env->sema_context);
     g_env = env;
@@ -24,7 +24,7 @@ struct env *env_new(bool is_repl)
 
 void env_free(struct env *env)
 {
-    parser_free(env->parser);
+    m_parser_free(env->parser);
     sema_context_free(env->sema_context);
     cg_free(env->cg);
     free(env);

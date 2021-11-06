@@ -1,24 +1,26 @@
 /*
- * earley_parser.c
+ * parser.c
  *
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * This is to implement a Earley parser
+ * This is to implement a generic parser, taking a EBNF grammar text and parse text 
+ * into ast according to the grammar
  */
 #include "parser/parser.h"
 #include "clib/array.h"
 #include "parser/grammar.h"
 
-struct earley_parser *earley_parser_new(const char *grammar_text)
+struct parser *parser_new(const char *grammar_text)
 {
-    struct grammar *grammer = grammar_new(grammar_text);
-    grammar_free(grammer);
-    struct earley_parser *parser;
+    struct grammar *grammar = grammar_new(grammar_text);
+    struct parser *parser;
     MALLOC(parser, sizeof(*parser));
-    return 0;
+    parser->grammar = grammar;
+    return parser;
 }
 
-void earley_parser_free(struct earley_parser *parser)
+void parser_free(struct parser *parser)
 {
+    grammar_free(parser->grammar);
     free(parser);
 }

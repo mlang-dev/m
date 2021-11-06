@@ -15,9 +15,16 @@
 extern "C" {
 #endif
 
+enum atom_type {
+    ATOM_NONTERM = 0,
+    ATOM_EXACT_MATCH, 
+    ATOM_IN_MATCH,
+    ATOM_REGEX_MATCH
+};
+
 struct atom {
     symbol symbol;
-    bool is_terminal;
+    enum atom_type type;
 };
 
 struct expr {
