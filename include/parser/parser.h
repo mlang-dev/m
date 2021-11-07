@@ -15,6 +15,16 @@
 extern "C" {
 #endif
 
+struct tok {
+    int start_pos;
+    int end_pos;
+    int row_no; // 1-based
+    int col_no; // 1-based
+    symbol tok_type; // ID, NUM, STRING keywords like 'if', 'for' etc
+};
+
+void get_tok(struct parser *parser, struct tok *tok);
+
 struct parser {
     struct grammar *grammar;
 
@@ -32,6 +42,7 @@ struct parser {
 struct parser *parser_new(const char *grammar);
 void parser_free(struct parser *parser);
 bool parser_parse(struct parser *parser, const char *text);
+void parser_set_text(struct parser *parser, const char *text);
 
 #ifdef __cplusplus
 }

@@ -30,7 +30,7 @@
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "console": "integratedTerminal",
+            "console": "internalConsole",
         }
     ]
 }
