@@ -40,9 +40,11 @@ void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size, fre
 void hashtable_deinit(struct hashtable *ht);
 size_t hashtable_size(struct hashtable *ht);
 void hashtable_set(struct hashtable *ht, const char *key, void *value);
+void hashtable_set2(struct hashtable *ht, const char *key, size_t key_size, void *value);
 void hashtable_set_g(struct hashtable *ht, void *key, size_t key_size, void *value, size_t value_size);
 void hashtable_set_p(struct hashtable *ht, void *key, void *value);
 void *hashtable_get(struct hashtable *ht, const char *key);
+void *hashtable_get2(struct hashtable *ht, const char *key, size_t key_size);
 void *hashtable_get_g(struct hashtable *ht, void *key, size_t key_size);
 //hashtable with key as pointer
 void *hashtable_get_p(struct hashtable *ht, void *key);

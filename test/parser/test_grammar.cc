@@ -30,7 +30,7 @@ power       = NUM '^' factor    {}
     )";
     struct env *env = env_new(false);
     struct grammar *grammar = grammar_parse(test_grammar);
-    symbol start = to_symbol("sum");
+    symbol start = to_symbol2("sum", 3);
     ASSERT_EQ(start, grammar->start_symbol);
     ASSERT_EQ(4, array_size(&grammar->rules));
     int expected_exps[] = {3, 4, 3, 2};
@@ -68,7 +68,7 @@ power       = NUM '^' factor    {}
     )";
     struct env *env = env_new(false);
     struct grammar *grammar = grammar_parse(test_grammar);
-    symbol start = to_symbol("sum");
+    symbol start = to_symbol2("sum", 3);
     ASSERT_EQ(start, grammar->start_symbol);
     ASSERT_EQ(4, array_size(&grammar->rules));
     int expected_exps[] = { 2, 2, 3, 2 };

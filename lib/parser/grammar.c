@@ -74,7 +74,7 @@ struct rule *grammar_add_rule(struct grammar *g, symbol nonterm, int rule_no)
 
 struct grammar *grammar_parse(const char *grammar_text)
 {
-    char *p = (char*)grammar_text;
+    const char *p = grammar_text;
     struct grammar *g = grammar_new();
     int rule_no = 0;
     struct rule *rule = 0;
@@ -99,8 +99,7 @@ struct grammar *grammar_parse(const char *grammar_text)
             case '\n':
             case ' ':
                 if (term_char_no) {
-                    term[term_char_no] = 0;
-                    s = to_symbol(term);
+                    s = to_symbol2(term, term_char_no);
                     term_char_no = 0;
                 }
                 while(*p == '\r' || *p == '\n' || *p == ' ') p++;
@@ -111,7 +110,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                     s = 0;
                     p++;
                 }else if(expr && s){
-                    expr_add_symbol(expr, s, is_upper(term) ? ATOM_TOKEN_MATCH : ATOM_NONTERM);
+                    expr_add_symbol(expr, s, is_upper(term, sizeof(term)) ? ATOM_TOKEN_MATCH : ATOM_NONTERM);
                     s = 0;
                 }
                 break;
@@ -125,9 +124,8 @@ struct grammar *grammar_parse(const char *grammar_text)
                 while(*++p != '\''){
                     term[term_char_no++] = *p;
                 }
-                term[term_char_no] = 0;
                 term_char_no = 0;
-                expr_add_symbol(expr, to_symbol(term), ATOM_EXACT_MATCH);
+                expr_add_symbol(expr, to_symbol2(term, term_char_no), ATOM_EXACT_MATCH);
                 p++;
                 break;
             case '[':
@@ -135,9 +133,8 @@ struct grammar *grammar_parse(const char *grammar_text)
                 while (*++p != ']') {
                     term[term_char_no++] = *p;
                 }
-                term[term_char_no] = 0;
                 term_char_no = 0;
-                expr_add_symbol(expr, to_symbol(term), ATOM_IN_MATCH);
+                expr_add_symbol(expr, to_symbol2(term, term_char_no), ATOM_IN_MATCH);
                 p++;
                 break;
             case '{':
@@ -145,7 +142,6 @@ struct grammar *grammar_parse(const char *grammar_text)
                 p++;
                 break;
         }
-        // printf("got token: %s\n", token_type_strings[tok->token_type]);
     }
     if (array_size(&g->rules)) {
         g->start_symbol = (*(struct rule **)array_front(&g->rules))->nonterm;

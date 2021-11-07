@@ -35,10 +35,11 @@ string *string_new(const char *chars)
     return str;
 }
 
-string *string_new_len(const char *chars, size_t len)
+
+string *string_new2(const char *chars, size_t str_len)
 {
     string *str = malloc(sizeof(*str));
-    string_copy_with_len(str, chars, len);
+    string_init_chars2(str, chars, str_len);
     return str;
 }
 
@@ -54,6 +55,11 @@ char *string_get(string *str)
     return str->cap <= SSO_LENGTH ? str->_reserved : str->base.data.p_data;
 }
 
+size_t string_size(string *str)
+{
+    return str->base.size;
+}
+
 void string_init(string *str)
 {
     string_init_chars(str, "");
@@ -63,6 +69,12 @@ void string_init_chars(string *str, const char *chars)
 {
     _init_str(str);
     string_copy_chars(str, chars);
+}
+
+void string_init_chars2(string *str, const char *chars, size_t str_len)
+{
+    _init_str(str);
+    string_copy_chars2(str, chars, str_len);
 }
 
 void string_copy_with_len(string *dest, const char *data, size_t len)
@@ -77,9 +89,25 @@ void string_copy_with_len(string *dest, const char *data, size_t len)
     dest->base.size = len;
 }
 
+void string_copy_with_len2(string *dest, const char *data, size_t len)
+{
+    if (len >= dest->cap) {
+        dest->base.data.p_data = malloc(len);
+        dest->cap = len;
+    }
+    char *dest_data = string_get(dest);
+    memcpy(dest_data, data, len);
+    dest->base.size = len;
+}
+
 void string_copy_chars(string *dest, const char *chars)
 {
     string_copy_with_len(dest, chars, strlen(chars));
+}
+
+void string_copy_chars2(string *dest, const char *chars, size_t str_len)
+{
+    string_copy_with_len2(dest, chars, str_len);
 }
 
 void string_copy(string *dest, string *src)
@@ -229,11 +257,6 @@ void string_push(string *str, char ch)
     string_add_chars(str, temp);
 }
 
-size_t string_size(string *str)
-{
-    return str->base.size;
-}
-
 //generic interfaces
 void string_init_generic(object *dest, object *src)
 {
@@ -268,9 +291,9 @@ void *string_data_generic(object *obj)
     return string_get((string *)obj);
 }
 
-bool is_upper(const char *chars)
+bool is_upper(const char *chars, size_t str_size)
 {
-    for(int i=0; i<strlen(chars); i++){
+    for(int i=0; i<str_size; i++){
         if(!isupper(chars[i]))
             return false;
     }

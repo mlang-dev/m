@@ -192,6 +192,11 @@ void hashtable_set(struct hashtable *ht, const char *key, void *value)
     hashtable_set_g(ht, (void *)key, key_size, value, 0);
 }
 
+void hashtable_set2(struct hashtable *ht, const char *key, size_t key_size, void *value)
+{
+    hashtable_set_g(ht, (void *)key, key_size, value, 0);
+}
+
 void hashtable_set_int(struct hashtable *ht, void *key, int value)
 {
     hashtable_set_p(ht, key, &value);
@@ -240,6 +245,11 @@ void *hashtable_get_p(struct hashtable *ht, void *key)
 void *hashtable_get(struct hashtable *ht, const char *key)
 {
     size_t key_size = strlen(key) + 1;
+    return hashtable_get_g(ht, (void *)key, key_size);
+}
+
+void *hashtable_get2(struct hashtable *ht, const char *key, size_t key_size)
+{
     return hashtable_get_g(ht, (void *)key, key_size);
 }
 

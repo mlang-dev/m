@@ -9,6 +9,7 @@
 #define __MLANG_PARSER_H__
 
 #include "parser/grammar.h"
+#include "clib/symbol.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,6 +17,16 @@ extern "C" {
 
 struct parser {
     struct grammar *grammar;
+
+    const char *text;
+    int text_pos;  //current text position
+    int row_no;
+    int col_no;
+
+    symbol STRING_TOKEN;
+    symbol CHAR_TOKEN;
+    symbol NUM_TOKEN;
+    symbol ID_TOKEN;
 };
 
 struct parser *parser_new(const char *grammar);

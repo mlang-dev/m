@@ -27,6 +27,17 @@ symbol to_symbol(const char *name)
     return sym;
 }
 
+symbol to_symbol2(const char *name, size_t name_size)
+{
+    assert(g_symbols);
+    symbol sym = (symbol)hashtable_get2(g_symbols, name, name_size);
+    if (!sym) {
+        sym = string_new2(name, name_size);
+        hashtable_set2(g_symbols, name, name_size, sym);
+    }
+    return sym;
+}
+
 symbol string_2_symbol(string *name)
 {
     return to_symbol(string_get(name));

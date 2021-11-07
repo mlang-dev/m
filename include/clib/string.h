@@ -38,12 +38,15 @@ typedef struct {
 #define STRING_POINTER(vp) ((string *)vp)
 
 string *string_new(const char *chars);
-string *string_new_len(const char *chars, size_t len);
+string *string_new2(const char *chars, size_t len);
 string make_string(const char *chars);
 void string_init(string *str);
 void string_init_chars(string *str, const char *chars);
+void string_init_chars2(string *str, const char *chars, size_t str_len);
 void string_copy_chars(string *str, const char *chars);
+void string_copy_chars2(string *dest, const char *chars, size_t str_len);
 void string_copy_with_len(string *str, const char *data, size_t len);
+void string_copy_with_len2(string *dest, const char *data, size_t len);
 void string_copy(string *dest, string *src);
 bool string_eq_chars(string *str1, const char *chars);
 bool string_eq(string *str1, string *str2);
@@ -67,7 +70,7 @@ void *string_data_generic(object *obj);
 
 void string_copy_generic(void *dest, void *src, size_t size);
 void string_free_generic(void *dest);
-bool is_upper(const char *chars);
+bool is_upper(const char *chars, size_t str_size);
 
 #define ARRAY_STRING(var) ARRAY(var, string, string_free_generic)
 

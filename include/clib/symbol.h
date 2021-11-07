@@ -23,6 +23,7 @@ extern "C" {
 typedef string *symbol;
 
 symbol to_symbol(const char *name);
+symbol to_symbol2(const char *name, size_t name_size);
 symbol string_2_symbol(string *name);
 extern symbol EmptySymbol;
 void symbols_init();
