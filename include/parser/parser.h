@@ -23,8 +23,6 @@ struct tok {
     symbol tok_type; // ID, NUM, STRING keywords like 'if', 'for' etc
 };
 
-void get_tok(struct parser *parser, struct tok *tok);
-
 struct parser {
     struct grammar *grammar;
 
@@ -39,6 +37,7 @@ struct parser {
     symbol ID_TOKEN;
 };
 
+void get_tok(struct parser *parser, struct tok *tok);
 struct parser *parser_new(const char *grammar);
 void parser_free(struct parser *parser);
 bool parser_parse(struct parser *parser, const char *text);

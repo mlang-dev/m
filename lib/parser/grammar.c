@@ -9,10 +9,10 @@
 #include "clib/util.h"
 #include <assert.h>
 
-void expr_add_symbol(struct expr *expr, symbol symbol, enum atom_type type)
+void expr_add_symbol(struct expr *expr, symbol sym, enum atom_type type)
 {
     struct atom atom;
-    atom.symbol = symbol;
+    atom.sym = sym;
     atom.type = type;
     array_push(&expr->atoms, &atom);
 }
@@ -79,7 +79,6 @@ struct grammar *grammar_parse(const char *grammar_text)
     int rule_no = 0;
     struct rule *rule = 0;
     struct expr *expr = 0;
-    enum atom_type atom_type = ATOM_NONTERM;
     char term[256];
     int term_char_no = 0;
     symbol s = 0;

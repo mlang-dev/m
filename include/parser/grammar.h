@@ -24,7 +24,7 @@ enum atom_type {
 };
 
 struct atom {
-    symbol symbol;
+    symbol sym;
     enum atom_type type;
 };
 
