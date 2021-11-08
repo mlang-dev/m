@@ -234,10 +234,7 @@ TEST(testGParser, testArithmeticExp)
 {
     struct env *env = env_new(false);
     struct parser *parser = parser_new(test_grammar);
-    struct tok tok;
-    parser_set_text(parser, "");
-    get_tok(parser, &tok);
-    ASSERT_EQ(0, tok.tok_type);
+    ASSERT_EQ(true, parser_parse(parser, "1+2"));
     parser_free(parser);
     env_free(env);
 }

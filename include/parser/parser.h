@@ -37,6 +37,27 @@ struct parser {
     symbol ID_TOKEN;
 };
 
+struct expr_parse{
+    struct expr *expr; //rule expression applied in current position of tokens
+    int parsed;  //number of expr in the rule parsed, or pointing to the next rule expr to be parse for each expression in the rule.
+    size_t start_state_index; //0-based index of parse state
+};
+
+struct rule_parse {
+    struct rule *rule; // rule expression applied in current position of tokens
+    struct array expr_parses; // number of expr in the rule parsed, or pointing to the next rule expr to be parse for each expression in the rule.
+};
+
+// for each position of tokens we maintain a partial parse state: n tokens will have n parse states
+struct parse_state{
+    size_t state_index;   
+    struct array rule_parses; //number of parses for current position of tokens
+};
+
+struct parse_states {
+    struct array states; // number of parse state for current position of tokens
+};
+
 void get_tok(struct parser *parser, struct tok *tok);
 struct parser *parser_new(const char *grammar);
 void parser_free(struct parser *parser);

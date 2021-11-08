@@ -22,7 +22,6 @@ enum expr_item_type {
     EI_TOKEN_MATCH,  // like ID, NUM token
     EI_EXACT_MATCH,
     EI_IN_MATCH,
-    EI_RANGE_MATCH
 };
 
 struct expr_item {
@@ -54,6 +53,8 @@ struct grammar {
 struct grammar *grammar_new();
 struct grammar *grammar_parse(const char *grammar_text);
 void grammar_free(struct grammar *grammar);
+
+bool expr_item_exists_symbol(struct expr_item *ei, symbol sym);
 
 #ifdef __cplusplus
 }

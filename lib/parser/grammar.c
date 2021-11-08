@@ -29,6 +29,15 @@ void expr_item_deinit(struct expr_item *ei)
     array_deinit(&ei->members);
 }
 
+bool expr_item_exists_symbol(struct expr_item *ei, symbol sym)
+{
+    for(size_t i = 0; i < array_size(&ei->members); i++){
+        symbol x = *(symbol*)array_get(&ei->members, i);
+        if(x == sym) return true;
+    }
+    return false;
+}
+
 void expr_init(struct expr *expr)
 {
     array_init(&expr->items, sizeof(struct expr_item));
@@ -126,7 +135,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                     s = 0;
                     p++;
                 }else if(expr && s){
-                    expr_add_symbol(expr, s, is_upper(term, sizeof(term)) ? EI_TOKEN_MATCH : EI_NONTERM);
+                    expr_add_symbol(expr, s, is_upper((string*)s) ? EI_TOKEN_MATCH : EI_NONTERM);
                     s = 0;
                 }
                 break;

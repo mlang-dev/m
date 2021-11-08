@@ -10,6 +10,39 @@
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
+#include "clib/hashtable.h"
+
+TEST(testGrammar, testNumToken)
+{
+    char test_grammar[] = R"(
+power       = NUM 
+    )";
+    struct env *env = env_new(false);
+    struct grammar *grammar = grammar_parse(test_grammar);
+    symbol start = to_symbol2("power", 5);
+    ASSERT_EQ(start, grammar->start_symbol);
+    ASSERT_EQ(1, array_size(&grammar->rules));
+    int expected_exps[] = { 1 };
+    int expected_items[1][1] = {
+        { 1 },
+    };
+    for (size_t i = 0; i < array_size(&grammar->rules); i++) {
+        struct rule *rule = *(struct rule **)array_get(&grammar->rules, i);
+        ASSERT_EQ(expected_exps[i], array_size(&rule->exprs));
+        for (size_t j = 0; j < array_size(&rule->exprs); j++) {
+            struct expr *expr = (struct expr *)array_get(&rule->exprs, j);
+            ASSERT_EQ(expected_items[i][j], array_size(&expr->items));
+        }
+    }
+    struct rule *rule = (struct rule *)hashtable_get_p(&grammar->rule_map, start);
+    struct expr *expr = (struct expr*)array_front(&rule->exprs);
+    struct expr_item *ei = (struct expr_item*)array_front(&expr->items);
+    ASSERT_EQ(ei->ei_type, EI_TOKEN_MATCH);
+    ASSERT_EQ(ei->sym, to_symbol2("NUM", 3));
+    ASSERT_EQ(0, hashset_size(&grammar->keywords));
+    grammar_free(grammar);
+    env_free(env);
+}
 
 TEST(testGrammar, testArithmeticExp)
 {

@@ -291,10 +291,11 @@ void *string_data_generic(object *obj)
     return string_get((string *)obj);
 }
 
-bool is_upper(const char *chars, size_t str_size)
+bool is_upper(string *str)
 {
-    for(size_t i=0; i<str_size; i++){
-        if(!isupper(chars[i]))
+    const char *pstr = string_get(str);
+    for(size_t i=0; i<string_size(str); i++){
+        if(!isupper(pstr[i]))
             return false;
     }
     return true;
