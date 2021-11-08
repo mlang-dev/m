@@ -284,7 +284,7 @@ struct parse_state *_scan(struct parse_states *states, struct parse_state *state
 
 void _complete(struct parse_state *state)
 {
-
+    (void)state;
 }
 
 bool parser_parse(struct parser *parser, const char *text)
