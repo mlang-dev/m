@@ -25,6 +25,11 @@ void hashset_set(hashset *hs, const char *key_data)
     hashtable_set(hs, key_data, 0);
 }
 
+void hashset_set2(hashset *hs, const char *key_data, size_t key_len)
+{
+    hashtable_set2(hs, key_data, key_len, 0);
+}
+
 void hashset_set_p(hashset *hs, void *key_data)
 {
     hashtable_set_p(hs, key_data, 0);

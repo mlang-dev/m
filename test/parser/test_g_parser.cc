@@ -183,7 +183,7 @@ TEST(testGParser, testTokenID)
 {
     struct env *env = env_new(false);
     char test_code[] = R"(
-_abc
+_abc123
 
 )";
 
@@ -195,7 +195,37 @@ _abc
     ASSERT_EQ(2, tok.row_no);
     ASSERT_EQ(1, tok.col_no);
     ASSERT_EQ(1, tok.start_pos);
-    ASSERT_EQ(5, tok.end_pos);
+    ASSERT_EQ(8, tok.end_pos);
+    parser_free(parser);
+    env_free(env);
+}
+
+TEST(testGParser, testTokenMixedNumAndID)
+{
+    struct env *env = env_new(false);
+    char test_code[] = R"(
+123abc
+
+)";
+
+    struct parser *parser = parser_new(test_grammar);
+    struct tok tok;
+    parser_set_text(parser, test_code);
+    //NUM
+    get_tok(parser, &tok);
+    ASSERT_EQ(parser->NUM_TOKEN, tok.tok_type);
+    ASSERT_EQ(2, tok.row_no);
+    ASSERT_EQ(1, tok.col_no);
+    ASSERT_EQ(1, tok.start_pos);
+    ASSERT_EQ(4, tok.end_pos);
+
+    //ID
+    get_tok(parser, &tok);
+    ASSERT_EQ(parser->ID_TOKEN, tok.tok_type);
+    ASSERT_EQ(2, tok.row_no);
+    ASSERT_EQ(4, tok.col_no);
+    ASSERT_EQ(4, tok.start_pos);
+    ASSERT_EQ(7, tok.end_pos);
     parser_free(parser);
     env_free(env);
 }

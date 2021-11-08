@@ -34,7 +34,7 @@ power       = NUM '^' factor    {}
     ASSERT_EQ(start, grammar->start_symbol);
     ASSERT_EQ(4, array_size(&grammar->rules));
     int expected_exps[] = {3, 4, 3, 2};
-    int expected_atoms[4][4] = {
+    int expected_items[4][4] = {
         {3, 3, 1, 0}, 
         {3, 3, 3, 1},
         {2, 2, 1, 0},
@@ -45,9 +45,10 @@ power       = NUM '^' factor    {}
         ASSERT_EQ(expected_exps[i], array_size(&rule->exprs));
         for (size_t j = 0; j < array_size(&rule->exprs); j++){
             struct expr *expr = (struct expr *)array_get(&rule->exprs, j);
-            ASSERT_EQ(expected_atoms[i][j], array_size(&expr->atoms));
+            ASSERT_EQ(expected_items[i][j], array_size(&expr->items));
         }
     }
+    ASSERT_EQ(6, hashset_size(&grammar->keywords));
     grammar_free(grammar);
     env_free(env);
 }
@@ -72,7 +73,7 @@ power       = NUM '^' factor    {}
     ASSERT_EQ(start, grammar->start_symbol);
     ASSERT_EQ(4, array_size(&grammar->rules));
     int expected_exps[] = { 2, 2, 3, 2 };
-    int expected_atoms[4][4] = {
+    int expected_items[4][4] = {
         { 3, 1, 0, 0 },
         { 3, 1, 0, 0 },
         { 3, 2, 1, 0 },
@@ -83,9 +84,10 @@ power       = NUM '^' factor    {}
         ASSERT_EQ(expected_exps[i], array_size(&rule->exprs));
         for (size_t j = 0; j < array_size(&rule->exprs); j++) {
             struct expr *expr = (struct expr *)array_get(&rule->exprs, j);
-            ASSERT_EQ(expected_atoms[i][j], array_size(&expr->atoms));
+            ASSERT_EQ(expected_items[i][j], array_size(&expr->items));
         }
     }
+    ASSERT_EQ(8, hashset_size(&grammar->keywords));
     grammar_free(grammar);
     env_free(env);
 }

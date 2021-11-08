@@ -9,22 +9,38 @@
 #include "clib/util.h"
 #include <assert.h>
 
-void expr_add_symbol(struct expr *expr, symbol sym, enum atom_type type)
+void expr_item_init(struct expr_item *ei, symbol sym, enum expr_item_type type)
 {
-    struct atom atom;
-    atom.sym = sym;
-    atom.type = type;
-    array_push(&expr->atoms, &atom);
+    ei->sym = sym;
+    ei->ei_type = type;
+    array_init(&ei->members, sizeof(symbol));
+}
+
+struct expr_item* expr_add_symbol(struct expr *expr, symbol sym, enum expr_item_type type)
+{
+    struct expr_item ei;
+    expr_item_init(&ei, sym, type);
+    array_push(&expr->items, &ei);
+    return (struct expr_item*)array_back(&expr->items);
+}
+
+void expr_item_deinit(struct expr_item *ei)
+{
+    array_deinit(&ei->members);
 }
 
 void expr_init(struct expr *expr)
 {
-    array_init(&expr->atoms, sizeof(struct atom));
+    array_init(&expr->items, sizeof(struct expr_item));
 }
 
 void expr_deinit(struct expr *expr)
 {
-    array_deinit(&expr->atoms);
+    for(size_t i = 0; i < array_size(&expr->items); i++){
+        struct expr_item *ei = (struct expr_item *)array_get(&expr->items, i);
+        expr_item_deinit(ei);
+    }
+    array_deinit(&expr->items);
 }
 
 void rule_init(struct rule *rule)
@@ -53,6 +69,7 @@ struct grammar *grammar_new()
 {
     struct grammar *grammar = 0;
     MALLOC(grammar, sizeof(*grammar));
+    hashset_init(&grammar->keywords);
     hashtable_init_with_value_size(&grammar->rule_map, sizeof(struct rule), (free_fun)rule_deinit);
     array_init(&grammar->rules, sizeof(struct rule *));
     grammar->start_symbol = 0;
@@ -109,7 +126,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                     s = 0;
                     p++;
                 }else if(expr && s){
-                    expr_add_symbol(expr, s, is_upper(term, sizeof(term)) ? ATOM_TOKEN_MATCH : ATOM_NONTERM);
+                    expr_add_symbol(expr, s, is_upper(term, sizeof(term)) ? EI_TOKEN_MATCH : EI_NONTERM);
                     s = 0;
                 }
                 break;
@@ -123,17 +140,24 @@ struct grammar *grammar_parse(const char *grammar_text)
                 while(*++p != '\''){
                     term[term_char_no++] = *p;
                 }
+                expr_add_symbol(expr, to_symbol2(term, term_char_no), EI_EXACT_MATCH);
+                hashset_set2(&g->keywords, term, term_char_no);
                 term_char_no = 0;
-                expr_add_symbol(expr, to_symbol2(term, term_char_no), ATOM_EXACT_MATCH);
                 p++;
                 break;
-            case '[':
+            case '[': //regex
                 assert(term_char_no == 0);
                 while (*++p != ']') {
                     term[term_char_no++] = *p;
+                    hashset_set2(&g->keywords, p, 1);
+                    
+                }
+                struct expr_item *ei = expr_add_symbol(expr, to_symbol2(term, term_char_no), EI_IN_MATCH);
+                for(int i = 0; i < term_char_no; i++){
+                    symbol s = to_symbol2(&term[i], 1);
+                    array_push(&ei->members, &s);
                 }
                 term_char_no = 0;
-                expr_add_symbol(expr, to_symbol2(term, term_char_no), ATOM_IN_MATCH);
                 p++;
                 break;
             case '{':
@@ -152,5 +176,6 @@ void grammar_free(struct grammar *grammar)
 {
     hashtable_deinit(&grammar->rule_map);
     array_deinit(&grammar->rules);
+    hashset_deinit(&grammar->keywords);
     free(grammar);
 }
