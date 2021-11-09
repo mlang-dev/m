@@ -234,7 +234,7 @@ TEST(testGParser, testArithmeticExp)
 {
     struct env *env = env_new(false);
     struct parser *parser = parser_new(test_grammar);
-    ASSERT_EQ(true, parser_parse(parser, "1+2"));
+    ASSERT_EQ(true, parse(parser, "1+2"));
     parser_free(parser);
     env_free(env);
 }

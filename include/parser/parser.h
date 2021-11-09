@@ -39,19 +39,15 @@ struct parser {
 
 struct expr_parse{
     struct expr *expr; //rule expression applied in current position of tokens
-    int parsed;  //number of expr in the rule parsed, or pointing to the next rule expr to be parse for each expression in the rule.
+    size_t parsed;  //number of expr in the rule parsed, or pointing to the next rule expr to be parse for each expression in the rule.
+    struct rule *rule; //rule applied in current position of tokens
     size_t start_state_index; //0-based index of parse state
-};
-
-struct rule_parse {
-    struct rule *rule; // rule expression applied in current position of tokens
-    struct array expr_parses; // number of expr in the rule parsed, or pointing to the next rule expr to be parse for each expression in the rule.
 };
 
 // for each position of tokens we maintain a partial parse state: n tokens will have n parse states
 struct parse_state{
     size_t state_index;   
-    struct array rule_parses; //number of parses for current position of tokens
+    struct array expr_parses; //number of parses for current position of tokens
 };
 
 struct parse_states {
@@ -61,7 +57,7 @@ struct parse_states {
 void get_tok(struct parser *parser, struct tok *tok);
 struct parser *parser_new(const char *grammar);
 void parser_free(struct parser *parser);
-bool parser_parse(struct parser *parser, const char *text);
+bool parse(struct parser *parser, const char *text);
 void parser_set_text(struct parser *parser, const char *text);
 
 #ifdef __cplusplus
