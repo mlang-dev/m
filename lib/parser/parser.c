@@ -158,6 +158,7 @@ void parse_state_init_rule(struct parse_state *state, struct rule *rule)
     struct expr_parse ep;
     ep.parsed = 0;
     ep.start_state_index = state->state_index;
+    ep.rule = rule;
     for(size_t i = 0; i < array_size(&rule->exprs); i++){
         ep.expr = (struct expr *)array_get(&rule->exprs, i);
         if (!parse_state_find_expr_parse(state, ep.expr, 0)){
