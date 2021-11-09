@@ -19,7 +19,7 @@ struct parser *parser_new(const char *grammar_text)
     MALLOC(parser, sizeof(*parser));
     
     parser->grammar = grammar;
-    parser->ID_TOKEN = to_symbol2("ID", 2);
+    parser->IDENT_TOKEN = to_symbol2("IDENT", 5);
     parser->NUM_TOKEN = to_symbol2("NUM", 3);
     parser->STRING_TOKEN = to_symbol2("STRING", 6);
     parser->CHAR_TOKEN = to_symbol2("CHAR", 4);
@@ -116,7 +116,7 @@ void get_tok(struct parser *parser, struct tok *tok)
             _scan_until_no_digit(parser);
         }
         else if(isalpha(ch) || ch == '_'){
-            _mark_token(parser, tok, parser->ID_TOKEN);
+            _mark_token(parser, tok, parser->IDENT_TOKEN);
             _scan_until_no_id(parser);
         }
         break;

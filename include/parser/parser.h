@@ -34,7 +34,7 @@ struct parser {
     symbol STRING_TOKEN;
     symbol CHAR_TOKEN;
     symbol NUM_TOKEN;
-    symbol ID_TOKEN;
+    symbol IDENT_TOKEN;
 };
 
 struct expr_parse{

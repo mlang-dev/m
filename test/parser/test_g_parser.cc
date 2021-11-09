@@ -191,7 +191,7 @@ _abc123
     struct tok tok;
     parser_set_text(parser, test_code);
     get_tok(parser, &tok);
-    ASSERT_EQ(parser->ID_TOKEN, tok.tok_type);
+    ASSERT_EQ(parser->IDENT_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.row_no);
     ASSERT_EQ(1, tok.col_no);
     ASSERT_EQ(1, tok.start_pos);
@@ -221,7 +221,7 @@ TEST(testGParser, testTokenMixedNumAndID)
 
     //ID
     get_tok(parser, &tok);
-    ASSERT_EQ(parser->ID_TOKEN, tok.tok_type);
+    ASSERT_EQ(parser->IDENT_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.row_no);
     ASSERT_EQ(4, tok.col_no);
     ASSERT_EQ(4, tok.start_pos);
