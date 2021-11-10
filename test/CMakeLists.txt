@@ -39,6 +39,7 @@ add_executable(mtest
   clib/test_hashset.cc
   clib/test_util.cc
   lexer/test_lexer.cc
+  parser/test_tok.cc
   parser/test_parser.cc
   parser/test_parser_logical.cc
   parser/test_parser_relational.cc
