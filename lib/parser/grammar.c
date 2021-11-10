@@ -170,9 +170,11 @@ struct grammar *grammar_parse(const char *grammar_text)
                 p++;
                 break;
             case '{':
-            case '}':
-                p++;
-                break;
+                while (*++p != '}') {
+                    ;
+                }
+                ++p;
+                break;  
         }
     }
     if (array_size(&g->rules)) {

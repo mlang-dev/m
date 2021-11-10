@@ -26,7 +26,6 @@ void parser_free(struct parser *parser)
     free(parser);
 }
 
-
 struct expr_parse *parse_state_find_expr_parse(struct parse_state *state, struct expr* expr, size_t parsed)
 {
     for(size_t i = 0; i < array_size(&state->expr_parses); i++){
@@ -52,7 +51,6 @@ void parse_state_init_rule(struct parse_state *state, struct rule *rule)
     }
 }
 
-
 void parse_state_init(struct parse_state *state, int state_index)
 {
     state->state_index = state_index;
@@ -63,7 +61,6 @@ void parse_state_deinit(struct parse_state *state)
 {
     array_deinit(&state->expr_parses);
 }
-
 
 void parse_state_advance_expr_parse(struct parse_state *state, struct expr_parse *ep)
 {
@@ -124,7 +121,7 @@ void _complete(struct parse_state *state, symbol nonterm, struct parse_state *st
                 parse_state_advance_expr_parse(state, ep);
             }
         }
-    }
+    }       
 }
 
 bool parse(struct parser *parser, const char *text)
@@ -169,6 +166,7 @@ bool parse(struct parser *parser, const char *text)
         state = next_state;
         next_state = 0;
     }
+
     parse_states_deinit(&states);
     return true;
 }

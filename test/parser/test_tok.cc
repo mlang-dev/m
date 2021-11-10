@@ -197,7 +197,7 @@ TEST(testTok, testTokenMixedNumAndID)
     ASSERT_EQ(1, tok.start_pos);
     ASSERT_EQ(4, tok.end_pos);
 
-    //ID
+    //IDENT
     get_tok(&lexer, &tok);
     ASSERT_EQ(lexer.IDENT_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.row_no);

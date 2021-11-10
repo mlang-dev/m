@@ -31,12 +31,13 @@ struct expr_item {
 };
 
 struct expr {
-    struct array items; //array of symbols (terminal or nonterminal)
+    struct array items;     //array of symbols (terminal or nonterminal)
+    struct array actions;   //semantic actions
 };
 
 struct rule {
     int rule_no;
-    symbol nonterm; // nonterminal symbol
+    symbol nonterm;     // nonterminal symbol
     struct array exprs; // array of expr
 };
 

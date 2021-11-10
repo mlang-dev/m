@@ -89,15 +89,15 @@ power       = NUM '^' factor    {}
 TEST(testGrammar, testArithmeticExpUsingCharSetOr)
 {
     char test_grammar[] = R"(
-sum         = sum [+-] term     {}
-            | term              {}
-term        = term [*/%] factor {}
-            | factor            {}
-factor      = '(' sum ')'       {}
-            | [+-] factor       {}
-            | power             {}
-power       = NUM '^' factor    {}
-            | NUM               {}
+sum         = sum [+-] term     { expr 0 1 2 }
+            | term              { 0 }
+term        = term [*/%] factor { expr 0 1 2 }
+            | factor            { 0 }
+factor      = '(' sum ')'       { 1 }
+            | [+-] factor       { sign 0 1 }
+            | power             { 0 }
+power       = NUM '^' factor    { expr 0 1 2 }
+            | NUM               { 0 }
 
     )";
     struct env *env = env_new(false);
