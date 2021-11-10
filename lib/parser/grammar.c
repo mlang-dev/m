@@ -196,6 +196,7 @@ struct grammar *grammar_parse(const char *grammar_text)
     struct rule *rule = 0;
     struct expr *expr = 0;
     symbol s = 0;
+    string group;
     while (tok.tok_type) {
         get_tok(&lexer, &next_tok);
         if(tok.tok_type == lexer.IDENT_TOKEN){
@@ -218,7 +219,6 @@ struct grammar *grammar_parse(const char *grammar_text)
                 expr = rule_add_expr(rule);
                 break;
             case '[': //regex
-                string group;
                 string_init_chars2(&group, "", 0);
                 while(next_tok.char_type != ']'){
                     const char *p = &grammar_text[next_tok.start_pos];
@@ -229,7 +229,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                     get_tok(&lexer, &next_tok);
                 }
                 struct expr_item *ei = expr_add_symbol(expr, string_2_symbol2(&group), EI_IN_MATCH);
-                for (int i = 0; i < string_size(&group); i++) {
+                for (size_t i = 0; i < string_size(&group); i++) {
                     symbol s = to_symbol2(string_get(&group) + i, 1);
                     array_push(&ei->members, &s);
                 }
