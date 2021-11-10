@@ -116,6 +116,7 @@ power       = NUM '^' factor    { expr 0 1 2 }
         struct rule *rule = *(struct rule **)array_get(&grammar->rules, i);
         ASSERT_EQ(expected_exps[i], array_size(&rule->exprs));
         for (size_t j = 0; j < array_size(&rule->exprs); j++) {
+            printf("verifying swexx %d %d\n", i, j);
             struct expr *expr = (struct expr *)array_get(&rule->exprs, j);
             ASSERT_EQ(expected_items[i][j], array_size(&expr->items));
         }

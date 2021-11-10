@@ -154,6 +154,14 @@ void string_add_chars(string *str1, const char *chars)
     string_deinit(&str2);
 }
 
+void string_add_chars2(string *str1, const char *str, size_t str_len)
+{
+    string str2;
+    string_init_chars2(&str2, str, str_len);
+    string_add(str1, &str2);
+    string_deinit(&str2);
+}
+
 bool string_eq(string *str1, string *str2)
 {
     if (str1->base.size != str2->base.size) {

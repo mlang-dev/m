@@ -99,6 +99,11 @@ void get_tok(struct lexer *lexer, struct tok *tok)
             _mark_token(lexer, tok, lexer->IDENT_TOKEN);
             _scan_until_no_id(lexer);
         }
+        else{
+            _mark_token(lexer, tok, ch);
+            tok->char_type = ch;
+            _move_ahead(lexer);
+        }
         break;
     case '\0':
         break;

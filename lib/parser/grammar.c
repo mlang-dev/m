@@ -197,17 +197,18 @@ struct grammar *grammar_parse(const char *grammar_text)
     struct expr *expr = 0;
     symbol s = 0;
     while (tok.tok_type) {
-        get_tok(&lexer, &tok);
+        get_tok(&lexer, &next_tok);
         if(tok.tok_type == lexer.IDENT_TOKEN){
             s = to_symbol2(&grammar_text[tok.start_pos], tok.end_pos - tok.start_pos);
             if(next_tok.char_type == '='){
                 //nonterm
                 rule = grammar_add_rule(g, s, rule_no++);
                 expr = rule_add_expr(rule);
+                get_tok(&lexer, &next_tok); //skip the '='
             }else if(expr){
                 expr_add_symbol(expr, s, is_upper((string*)s) ? EI_TOKEN_MATCH : EI_NONTERM);
             }
-        }else if(tok.tok_type == lexer.STRING_TOKEN){
+        } else if (tok.tok_type == lexer.STRING_TOKEN || tok.tok_type == lexer.CHAR_TOKEN) {
             s = to_symbol2(&grammar_text[tok.start_pos+1], tok.end_pos - tok.start_pos - 2); //stripping off two single quote
             expr_add_symbol(expr, s, EI_EXACT_MATCH);
             hashset_set2(&g->keywords, string_get(s), string_size(s));
@@ -217,21 +218,27 @@ struct grammar *grammar_parse(const char *grammar_text)
                 expr = rule_add_expr(rule);
                 break;
             case '[': //regex
-                assert(next_tok.tok_type == lexer.IDENT_TOKEN);
-                const char *p = &grammar_text[next_tok.start_pos];
-                for(int i = 0; i < next_tok.end_pos - next_tok.start_pos; i ++){
-                    hashset_set2(&g->keywords, p + i, 1);
+                string group;
+                string_init_chars2(&group, "", 0);
+                while(next_tok.char_type != ']'){
+                    const char *p = &grammar_text[next_tok.start_pos];
+                    for(int i = 0; i < next_tok.end_pos - next_tok.start_pos; i ++){
+                        hashset_set2(&g->keywords, p + i, 1);
+                    }
+                    string_add_chars2(&group, p, next_tok.end_pos - next_tok.start_pos);
+                    get_tok(&lexer, &next_tok);
                 }
-                struct expr_item *ei = expr_add_symbol(expr, to_symbol2(p, next_tok.end_pos - next_tok.start_pos), EI_IN_MATCH);
-                for(int i = 0; i < next_tok.end_pos - next_tok.start_pos; i++){
-                    symbol s = to_symbol2(p + i, 1);
+                struct expr_item *ei = expr_add_symbol(expr, string_2_symbol2(&group), EI_IN_MATCH);
+                for (int i = 0; i < string_size(&group); i++) {
+                    symbol s = to_symbol2(string_get(&group) + i, 1);
                     array_push(&ei->members, &s);
                 }
-                get_tok(&lexer, &next_tok);//']'
+                get_tok(&lexer, &next_tok); // skip ']'
                 break;
             case '{':
                 while(next_tok.char_type != '}')
                     get_tok(&lexer, &next_tok);//'}'
+                get_tok(&lexer, &next_tok); //skip '}
                 break;  
         }
         tok = next_tok;
