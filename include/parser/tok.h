@@ -20,7 +20,10 @@ struct tok {
     int end_pos;
     int row_no; // 1-based
     int col_no; // 1-based
-    symbol tok_type; // IDENT, NUM, STRING keywords like 'if', 'for' etc
+    union{
+        symbol tok_type; // IDENT, NUM, STRING keywords like 'if', 'for' etc
+        char char_type;
+    };
 };
 
 struct lexer {
