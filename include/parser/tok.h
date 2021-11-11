@@ -10,16 +10,14 @@
 #define __MLANG_TOKEN_H__
 
 #include "clib/symbol.h"
+#include "parser/source_location.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct tok {
-    int start_pos;
-    int end_pos;
-    int row_no; // 1-based
-    int col_no; // 1-based
+    struct source_location loc;
     union{
         symbol tok_type; // IDENT, NUM, STRING keywords like 'if', 'for' etc
         char char_type;
@@ -28,9 +26,9 @@ struct tok {
 
 struct lexer {
     const char *text;
-    int text_pos;  //current text position
-    int row_no;
-    int col_no;
+    int pos;  //current text position
+    int row;
+    int col;
 
     symbol STRING_TOKEN;
     symbol CHAR_TOKEN;

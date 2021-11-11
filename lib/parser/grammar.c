@@ -115,7 +115,7 @@ struct grammar *grammar_parse(const char *grammar_text)
     while (tok.tok_type) {
         get_tok(&lexer, &next_tok);
         if(tok.tok_type == lexer.IDENT_TOKEN){
-            s = to_symbol2(&grammar_text[tok.start_pos], tok.end_pos - tok.start_pos);
+            s = to_symbol2(&grammar_text[tok.loc.start], tok.loc.end - tok.loc.start);
             if(next_tok.char_type == '='){
                 //nonterm
                 rule = grammar_add_rule(g, s, rule_no++);
@@ -125,7 +125,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                 expr_add_symbol(expr, s, is_upper((string*)s) ? EI_TOKEN_MATCH : EI_NONTERM);
             }
         } else if (tok.tok_type == lexer.STRING_TOKEN || tok.tok_type == lexer.CHAR_TOKEN) {
-            s = to_symbol2(&grammar_text[tok.start_pos+1], tok.end_pos - tok.start_pos - 2); //stripping off two single quote
+            s = to_symbol2(&grammar_text[tok.loc.start+1], tok.loc.end - tok.loc.start - 2); //stripping off two single quote
             expr_add_symbol(expr, s, EI_EXACT_MATCH);
             hashset_set2(&g->keywords, string_get(s), string_size(s));
         }
@@ -136,11 +136,11 @@ struct grammar *grammar_parse(const char *grammar_text)
             case '[': //regex
                 string_init_chars2(&group, "", 0);
                 while(next_tok.char_type != ']'){
-                    const char *p = &grammar_text[next_tok.start_pos];
-                    for(int i = 0; i < next_tok.end_pos - next_tok.start_pos; i ++){
+                    const char *p = &grammar_text[next_tok.loc.start];
+                    for(int i = 0; i < next_tok.loc.end - next_tok.loc.start; i ++){
                         hashset_set2(&g->keywords, p + i, 1);
                     }
-                    string_add_chars2(&group, p, next_tok.end_pos - next_tok.start_pos);
+                    string_add_chars2(&group, p, next_tok.loc.end - next_tok.loc.start);
                     get_tok(&lexer, &next_tok);
                 }
                 struct expr_item *ei = expr_add_symbol(expr, string_2_symbol2(&group), EI_IN_MATCH);
@@ -155,10 +155,10 @@ struct grammar *grammar_parse(const char *grammar_text)
                     //next tok is action
                     if(next_tok.tok_type == lexer.IDENT_TOKEN){
                         assert(expr->action.action == 0);
-                        expr->action.action  = to_symbol2(&grammar_text[next_tok.start_pos], next_tok.end_pos - next_tok.start_pos);
+                        expr->action.action  = to_symbol2(&grammar_text[next_tok.loc.start], next_tok.loc.end - next_tok.loc.start);
                     }
                     else if(next_tok.tok_type == lexer.NUM_TOKEN){
-                        expr->action.exp_item_index[expr->action.exp_item_index_count++] = grammar_text[next_tok.start_pos] - '0'; 
+                        expr->action.exp_item_index[expr->action.exp_item_index_count++] = grammar_text[next_tok.loc.start] - '0'; 
                     }
                     else
                         assert(false);

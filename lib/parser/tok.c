@@ -13,14 +13,14 @@
 
 void _move_ahead(struct lexer *lexer)
 {
-    if (!lexer->text[lexer->text_pos]) return;
-    if (lexer->text[lexer->text_pos] == '\n') {
-        lexer->row_no++;
-        lexer->col_no = 1;
+    if (!lexer->text[lexer->pos]) return;
+    if (lexer->text[lexer->pos] == '\n') {
+        lexer->row++;
+        lexer->col = 1;
     } else {
-        lexer->col_no++;
+        lexer->col++;
     }
-    lexer->text_pos++;
+    lexer->pos++;
 }
 
 void _scan_until(struct lexer *lexer, char until)
@@ -28,12 +28,12 @@ void _scan_until(struct lexer *lexer, char until)
     do{
         _move_ahead(lexer);
 
-    } while (lexer->text[lexer->text_pos] != until);
+    } while (lexer->text[lexer->pos] != until);
 }
 
 void _scan_until_no_digit(struct lexer *lexer)
 {
-    const char *p = &lexer->text[lexer->text_pos];
+    const char *p = &lexer->text[lexer->pos];
     do {
         p++;
         _move_ahead(lexer);
@@ -44,7 +44,7 @@ void _scan_until_no_space(struct lexer *lexer)
 {
     do {
         _move_ahead(lexer);
-    } while (isspace(lexer->text[lexer->text_pos]));
+    } while (isspace(lexer->text[lexer->pos]));
 }
 
 void _scan_until_no_id(struct lexer *lexer)
@@ -53,25 +53,25 @@ void _scan_until_no_id(struct lexer *lexer)
     do
     {
         _move_ahead(lexer);
-        ch = lexer->text[lexer->text_pos];
+        ch = lexer->text[lexer->pos];
     }
     while (ch == '_' || isalpha(ch) || isdigit(ch));
 }
 
 void _mark_token(struct lexer *lexer, struct tok *tok, symbol tok_type)
 {
-    tok->start_pos = lexer->text_pos;
-    tok->row_no = lexer->row_no;
-    tok->col_no = lexer->col_no;
+    tok->loc.start = lexer->pos;
+    tok->loc.row = lexer->row;
+    tok->loc.col = lexer->col;
     tok->tok_type = tok_type;
 }
 
 void lexer_init(struct lexer *lexer, const char *text)
 {
     lexer->text = text;
-    lexer->text_pos = 0;
-    lexer->row_no = 1;
-    lexer->col_no = 1;
+    lexer->pos = 0;
+    lexer->row = 1;
+    lexer->col = 1;
 
     lexer->IDENT_TOKEN = to_symbol2("IDENT", 5);
     lexer->NUM_TOKEN = to_symbol2("NUM", 3);
@@ -82,7 +82,7 @@ void lexer_init(struct lexer *lexer, const char *text)
 void get_tok(struct lexer *lexer, struct tok *tok)
 {
     tok->tok_type = 0;
-    char ch = lexer->text[lexer->text_pos];
+    char ch = lexer->text[lexer->pos];
     switch (ch)
     {
     default:
@@ -91,7 +91,7 @@ void get_tok(struct lexer *lexer, struct tok *tok)
             get_tok(lexer, tok);
         }
         else if(isdigit(ch) || 
-            (ch == '.' && isdigit(lexer->text[lexer->text_pos + 1])) /*.123*/){
+            (ch == '.' && isdigit(lexer->text[lexer->pos + 1])) /*.123*/){
             _mark_token(lexer, tok, lexer->NUM_TOKEN);
             _scan_until_no_digit(lexer);
         }
@@ -123,6 +123,6 @@ void get_tok(struct lexer *lexer, struct tok *tok)
         break;
     }
     if(tok->tok_type){
-        tok->end_pos = lexer->text_pos;
+        tok->loc.end = lexer->pos;
     }
 }
