@@ -31,7 +31,9 @@ struct ast_node {
     struct array children; //list of pointer to child ast_node
 };
 
-
+struct ast_node *ast_node_new();
+void ast_node_free(struct ast_node *node);
+string print(struct ast_node *ast);
 
 #ifdef __cplusplus
 }

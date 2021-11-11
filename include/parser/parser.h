@@ -11,6 +11,7 @@
 #include "parser/grammar.h"
 #include "parser/tok.h"
 #include "clib/symbol.h"
+#include "parser/ast_node.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +42,7 @@ struct parse_states {
 
 struct parser *parser_new(const char *grammar);
 void parser_free(struct parser *parser);
-bool parse(struct parser *parser, const char *text);
+struct ast_node *parse(struct parser *parser, const char *text);
 
 #ifdef __cplusplus
 }

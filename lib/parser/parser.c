@@ -124,7 +124,13 @@ void _complete(struct parse_state *state, symbol nonterm, struct parse_state *st
     }       
 }
 
-bool parse(struct parser *parser, const char *text)
+struct ast_node *_build_ast(struct parse_states *states)
+{
+    
+    return ast_node_new();
+}
+
+struct ast_node *parse(struct parser *parser, const char *text)
 {
     struct tok tok;
     lexer_init(&parser->lexer, text);
@@ -166,7 +172,7 @@ bool parse(struct parser *parser, const char *text)
         state = next_state;
         next_state = 0;
     }
-
+    struct ast_node *ast = _build_ast(&states);
     parse_states_deinit(&states);
-    return true;
+    return ast;
 }

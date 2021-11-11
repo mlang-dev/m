@@ -28,6 +28,7 @@ add_library(mlr
   lexer/lexer.c
   lexer/keyword.c
   parser/ast.c
+  parser/ast_node.c
   parser/tok.c
   parser/parser.c
   parser/astdump.c
