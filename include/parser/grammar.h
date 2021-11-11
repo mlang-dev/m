@@ -30,9 +30,15 @@ struct expr_item {
     struct array members; // sets of members, when ei_type is in EI_IN_MATCH or EI_RANGE_MATCH
 };
 
+struct semantic_action{
+    symbol action;
+    int exp_item_index[5]; //0: is the first exp item value parsed at right side of grammar rule
+    int exp_item_index_count;
+};
+
 struct expr {
     struct array items;     //array of symbols (terminal or nonterminal)
-    struct array actions;   //semantic actions
+    struct semantic_action action;   //semantic actions
 };
 
 struct rule {

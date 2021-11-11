@@ -41,6 +41,8 @@ bool expr_item_exists_symbol(struct expr_item *ei, symbol sym)
 
 void expr_init(struct expr *expr)
 {
+    expr->action.action = 0;
+    expr->action.exp_item_index_count = 0;
     array_init(&expr->items, sizeof(struct expr_item));
 }
 
@@ -236,8 +238,19 @@ struct grammar *grammar_parse(const char *grammar_text)
                 get_tok(&lexer, &next_tok); // skip ']'
                 break;
             case '{':
-                while(next_tok.char_type != '}')
+                while(next_tok.char_type != '}'){
+                    //next tok is action
+                    if(next_tok.tok_type == lexer.IDENT_TOKEN){
+                        assert(expr->action.action == 0);
+                        expr->action.action  = to_symbol2(&grammar_text[next_tok.start_pos], next_tok.end_pos - next_tok.start_pos);
+                    }
+                    else if(next_tok.tok_type == lexer.NUM_TOKEN){
+                        expr->action.exp_item_index[expr->action.exp_item_index_count++] = grammar_text[next_tok.start_pos] - '0'; 
+                    }
+                    else
+                        assert(false);
                     get_tok(&lexer, &next_tok);//'}'
+                }
                 get_tok(&lexer, &next_tok); //skip '}
                 break;  
         }

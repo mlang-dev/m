@@ -112,12 +112,19 @@ power       = NUM '^' factor    { expr 0 1 2 }
         { 3, 2, 1, 0 },
         { 3, 1, 0, 0 }
     };
+    int expected_actions[4][4] = {
+        { 3, 1, 0, 0 },
+        { 3, 1, 0, 0 },
+        { 1, 2, 1, 0 },
+        { 3, 1, 0, 0 }
+    };
     for (size_t i = 0; i < array_size(&grammar->rules); i++) {
         struct rule *rule = *(struct rule **)array_get(&grammar->rules, i);
         ASSERT_EQ(expected_exps[i], array_size(&rule->exprs));
         for (size_t j = 0; j < array_size(&rule->exprs); j++) {
             struct expr *expr = (struct expr *)array_get(&rule->exprs, j);
             ASSERT_EQ(expected_items[i][j], array_size(&expr->items));
+            ASSERT_EQ(expected_actions[i][j], expr->action.exp_item_index_count);
         }
     }
     ASSERT_EQ(8, hashset_size(&grammar->keywords));
