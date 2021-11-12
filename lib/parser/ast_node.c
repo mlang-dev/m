@@ -40,6 +40,7 @@ void ast_node_free(struct ast_node *node)
 
 string print(struct ast_node *ast)
 {
+    (void)ast;
     string s;
     string_init(&s);
     return s;

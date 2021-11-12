@@ -55,11 +55,13 @@ void parse_state_init(struct parse_state *state, int state_index)
 {
     state->state_index = state_index;
     array_init(&state->expr_parses, sizeof(struct expr_parse));
+    array_init(&state->complete_parses, sizeof(struct complete_parse));
 }
 
 void parse_state_deinit(struct parse_state *state)
 {
     array_deinit(&state->expr_parses);
+    array_deinit(&state->complete_parses);
 }
 
 void parse_state_advance_expr_parse(struct parse_state *state, struct expr_parse *ep)
@@ -72,6 +74,25 @@ void parse_state_advance_expr_parse(struct parse_state *state, struct expr_parse
         init_ep.start_state_index = ep->start_state_index;
         array_push(&state->expr_parses, &init_ep);
     }
+}
+
+void parse_state_add_completed_expr_parse(struct parse_state *state, struct expr_parse *ep, size_t complete_pos)
+{
+    struct complete_parse cp;
+    cp.ep = ep;
+    cp.complete_pos = complete_pos;
+    array_push(&state->complete_parses, &cp);
+}
+
+struct complete_parse *parse_state_find_completed_expr_parse(struct parse_state *state, symbol nonterm, size_t complete_pos)
+{
+    struct complete_parse *cp = 0;
+    for(size_t i = 0; i < array_size(&state->complete_parses); i++){
+        cp = (struct complete_parse*)array_get(&state->complete_parses, i);
+        if (cp->ep->rule->nonterm == nonterm && cp->complete_pos == complete_pos)
+            break;
+    }
+    return cp;
 }
 
 void parse_states_init(struct parse_states *states)
@@ -109,30 +130,43 @@ bool _is_match(struct tok *tok, struct expr_item *ei)
     }    
 }
 
-void _complete(struct parse_state *state, symbol nonterm, struct parse_state *start_state)
+void _complete(struct parse_state *state, struct expr_parse *ep, struct parse_state *start_state)
 {
     //finding in start_state, all parse expr's next (non-term) symbol is nonterm parameter passed
     //advance one and add to current state
     for (size_t i = 0; i < array_size(&start_state->expr_parses); i++) {
-        struct expr_parse *ep = (struct expr_parse *)array_get(&start_state->expr_parses, i);
-        if (ep->parsed < array_size(&ep->expr->items)){
-            struct expr_item *ei = (struct expr_item *)array_get(&ep->expr->items, ep->parsed);
-            if(ei->sym == nonterm){
-                parse_state_advance_expr_parse(state, ep);
+        struct expr_parse *s_ep = (struct expr_parse *)array_get(&start_state->expr_parses, i);
+        if (s_ep->parsed < array_size(&s_ep->expr->items)){
+            struct expr_item *ei = (struct expr_item *)array_get(&s_ep->expr->items, s_ep->parsed);
+            if(ei->sym == s_ep->rule->nonterm){
+                parse_state_advance_expr_parse(state, s_ep);
             }
         }
-    }       
+    }
+    //add completed ep into the start state
+    parse_state_add_completed_expr_parse(start_state, ep, state->state_index);
 }
 
-struct ast_node *_build_ast(struct parse_states *states)
+struct ast_node *_build_ast(struct parse_states *states, symbol start_symbol, size_t from, size_t to)
 {
-    
+    struct parse_state *start_state = array_get(&states->states, from);
+    struct complete_parse *cp = parse_state_find_completed_expr_parse(start_state, start_symbol, to);
+    if (!cp) return 0;
+    //cp->ep->expr
+    size_t item_count = array_size(&cp->ep->expr->items);
+    if (item_count == 1){
+        //construct with actions
+        //start_state->
+        //return ast_node_new();
+    }
+    for(size_t i = 0; i < item_count - 1; i++){
+        //struct expr_item *item = (struct expr_item *)array_get(&cp->ep->expr->items, i);
+    }
     return ast_node_new();
 }
 
 struct ast_node *parse(struct parser *parser, const char *text)
 {
-    struct tok tok;
     lexer_init(&parser->lexer, text);
     struct parse_states states;
     parse_states_init(&states);
@@ -140,11 +174,11 @@ struct ast_node *parse(struct parser *parser, const char *text)
     struct parse_state *next_state = 0;
     struct grammar *g = parser->grammar;
     //0. get the first token and jumpstart parsing process by initiating the start rule
-    get_tok(&parser->lexer, &tok);
     state = parse_states_add_state(&states);
+    get_tok(&parser->lexer, &state->tok);
     struct rule *rule = hashtable_get_p(&parser->grammar->rule_map, parser->grammar->start_symbol);
     parse_state_init_rule(state, rule);
-    while(tok.tok_type && state)
+    while(state->tok.tok_type && state)
     {
         for (size_t i = 0; i < array_size(&state->expr_parses); i++) {
             struct expr_parse *ep = (struct expr_parse *)array_get(&state->expr_parses, i);
@@ -152,7 +186,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
                 //this rule is parsed successfully. complete it and advance one step for all parents
                 //from start state into current state.
                 struct parse_state* start_state = (struct parse_state*)array_get(&states.states, ep->start_state_index);
-                _complete(state, ep->rule->nonterm, start_state);
+                _complete(state, ep, start_state);
 
             }else{
                 struct expr_item *ei = (struct expr_item *)array_get(&ep->expr->items, ep->parsed);
@@ -160,7 +194,8 @@ struct ast_node *parse(struct parser *parser, const char *text)
                     // expects non-terminal, we're adding its rule exprs into current state
                     rule = hashtable_get_p(&g->rule_map, ei->sym);
                     parse_state_init_rule(state, rule);
-                }else if(_is_match(&tok, ei)) /*scan and matched*/{
+                }else if(_is_match(&state->tok, ei)) /*scan and matched*/{
+                    //terminal
                     if(!next_state){
                         next_state = parse_states_add_state(&states);
                     }
@@ -168,11 +203,12 @@ struct ast_node *parse(struct parser *parser, const char *text)
                 } 
             }
         }
-        get_tok(&parser->lexer, &tok);
         state = next_state;
+        get_tok(&parser->lexer, &state->tok);
         next_state = 0;
     }
-    struct ast_node *ast = _build_ast(&states);
+    size_t to = array_size(&states.states);
+    struct ast_node *ast = _build_ast(&states, g->start_symbol, 0, to - 1);
     parse_states_deinit(&states);
     return ast;
 }
