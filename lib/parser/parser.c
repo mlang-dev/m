@@ -178,7 +178,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
     get_tok(&parser->lexer, &state->tok);
     struct rule *rule = hashtable_get_p(&parser->grammar->rule_map, parser->grammar->start_symbol);
     parse_state_init_rule(state, rule);
-    while(state->tok.tok_type && state)
+    while(state && state->tok.tok_type)
     {
         for (size_t i = 0; i < array_size(&state->expr_parses); i++) {
             struct expr_parse *ep = (struct expr_parse *)array_get(&state->expr_parses, i);
@@ -204,7 +204,8 @@ struct ast_node *parse(struct parser *parser, const char *text)
             }
         }
         state = next_state;
-        get_tok(&parser->lexer, &state->tok);
+        if (state)
+            get_tok(&parser->lexer, &state->tok);
         next_state = 0;
     }
     size_t to = array_size(&states.states);
