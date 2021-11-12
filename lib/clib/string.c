@@ -14,6 +14,7 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/string.h"
+#include "clib/util.h"
 
 void _init_str(string *str)
 {
@@ -53,6 +54,16 @@ string make_string(const char *chars)
 char *string_get(string *str)
 {
     return str->cap <= SSO_LENGTH ? str->_reserved : str->base.data.p_data;
+}
+
+char *to_c_str(string *str)
+{
+    size_t str_len = string_size(str);
+    char *p;
+    MALLOC(p, (sizeof(*p) * (str_len + 1)));
+    p[str_len] = 0;
+    strncpy(p, str->cap <= SSO_LENGTH ? str->_reserved : str->base.data.p_data, str_len);
+    return p;
 }
 
 size_t string_size(string *str)
@@ -118,8 +129,7 @@ void string_copy(string *dest, string *src)
 
 void string_add(string *str1, string *str2)
 {
-    //
-    if (!string_size(str2))
+    if (!str2 || !string_size(str2))
         return;
     //printf("string sizes: %zu, %zu\n", string_size(str1), string_size(str2));
     assert(string_size(str1) < 1000 && string_size(str2) < 1000);

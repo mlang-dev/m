@@ -10,6 +10,7 @@
 #include "clib/array.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
+#include <assert.h>
 
 struct parser *parser_new(const char *grammar_text)
 {
@@ -95,6 +96,17 @@ struct complete_parse *parse_state_find_completed_expr_parse(struct parse_state 
     return cp;
 }
 
+struct complete_parse *parse_state_find_completed_expr_parse_except(struct parse_state *state, symbol nonterm, struct expr_parse *ep)
+{
+    struct complete_parse *cp = 0;
+    for (size_t i = 0; i < array_size(&state->complete_parses); i++) {
+        cp = (struct complete_parse *)array_get(&state->complete_parses, i);
+        if (cp->ep->rule->nonterm == nonterm && cp->ep != ep)
+            break;
+    }
+    return cp;
+}
+
 void parse_states_init(struct parse_states *states)
 {
     array_init(&states->states, sizeof(struct parse_state));
@@ -149,20 +161,32 @@ void _complete(struct parse_state *state, struct expr_parse *ep, struct parse_st
 
 struct ast_node *_build_ast(struct parse_states *states, symbol start_symbol, size_t from, size_t to)
 {
-    struct parse_state *start_state = array_get(&states->states, from);
-    struct complete_parse *cp = parse_state_find_completed_expr_parse(start_state, start_symbol, to);
+    struct parse_state *state = array_get(&states->states, from);
+    assert(state->state_index == from);
+    struct complete_parse *cp = parse_state_find_completed_expr_parse(state, start_symbol, to);
     if (!cp) return 0;
+    struct ast_node *node = ast_node_new(cp->ep->expr->action.action);
     //cp->ep->expr
+    size_t tok_pos = from;
     size_t item_count = array_size(&cp->ep->expr->items);
-    if (item_count == 1){
-        //construct with actions
-        //start_state->
-        //return ast_node_new();
+    for(size_t i = 0; i < item_count; i++){
+        struct expr_item *item = (struct expr_item *)array_get(&cp->ep->expr->items, i);
+        struct ast_node *child = 0;
+        state = (struct parse_state *)array_get(&states->states, tok_pos);
+        if(item->ei_type){ //terminal
+            child = ast_node_new(state->tok.tok_type);
+            tok_pos++;
+        }else{ //noterminal
+            cp = parse_state_find_completed_expr_parse_except(state, item->sym, cp->ep);
+            if(cp){
+                child = _build_ast(states, item->sym, tok_pos, cp->complete_pos);
+                tok_pos = cp->complete_pos;
+            }
+        }
+        if(child)
+            array_push(&node->children, &child);
     }
-    for(size_t i = 0; i < item_count - 1; i++){
-        //struct expr_item *item = (struct expr_item *)array_get(&cp->ep->expr->items, i);
-    }
-    return ast_node_new();
+    return node;
 }
 
 struct ast_node *parse(struct parser *parser, const char *text)

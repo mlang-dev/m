@@ -62,6 +62,7 @@ char string_back(string *str);
 char string_pop(string *str); // from back
 void string_push(string *str, char ch); //push to back
 char *string_get(string *str);
+char *to_c_str(string *str);
 size_t string_size(string *str);
 //generic interface
 void string_init_generic(object *dest, object *src);
