@@ -165,6 +165,15 @@ struct grammar *grammar_parse(const char *grammar_text)
     return g;
 }
 
+int expr_item_2_ast_node_index(struct expr *expr, int expr_item_index)
+{
+    for(int i = 0; i < expr->action.exp_item_index_count; i++){
+        if (expr->action.exp_item_index[i] == expr_item_index)
+            return i;
+    }
+    return -1;
+}
+
 void grammar_free(struct grammar *grammar)
 {
     hashtable_deinit(&grammar->rule_map);

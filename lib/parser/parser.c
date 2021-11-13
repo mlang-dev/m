@@ -168,8 +168,12 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
     //cp->ep->expr
     size_t tok_pos = from;
     size_t item_count = array_size(&cp->ep->expr->items);
-    struct ast_node *node = (item_count>1) ? ast_node_new(cp->ep->expr->action.action) : 0;
+    struct ast_node *node = (cp->ep->expr->action.exp_item_index_count > 1) ? ast_node_new(cp->ep->expr->action.action) : 0;
     for(size_t i = 0; i < item_count; i++){
+        if (expr_item_2_ast_node_index(cp->ep->expr, i) < 0){
+            tok_pos++;
+            continue;
+        }
         struct expr_item *item = (struct expr_item *)array_get(&cp->ep->expr->items, i);
         struct ast_node *child = 0;
         state = (struct parse_state *)array_get(&states->states, tok_pos);

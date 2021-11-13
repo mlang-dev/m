@@ -40,6 +40,8 @@ struct expr {
     struct semantic_action action;   //semantic actions
 };
 
+int expr_item_2_ast_node_index(struct expr *expr, int expr_item_index);
+
 struct rule {
     int rule_no;
     symbol nonterm;     // nonterminal symbol
