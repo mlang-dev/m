@@ -100,8 +100,9 @@ struct complete_parse *parse_state_find_completed_expr_parse(struct parse_state 
 struct complete_parse *parse_state_find_completed_expr_parse_except(struct parse_state *state, symbol nonterm, struct expr_parse *ep)
 {
     struct complete_parse *cp = 0;
-    for (size_t i = 0; i < array_size(&state->complete_parses); i++) {
-        struct complete_parse *cp = (struct complete_parse *)array_get(&state->complete_parses, i);
+    size_t complete_parse_count = array_size(&state->complete_parses);
+    for (size_t i = 0; i < complete_parse_count; i++) {
+        struct complete_parse *cp = (struct complete_parse *)array_get(&state->complete_parses, complete_parse_count-i-1);
         if (cp->ep->rule->nonterm == nonterm && cp->ep != ep)
             return cp;
     }
@@ -139,7 +140,7 @@ bool _is_match(struct tok *tok, struct expr_item *ei)
     case EI_EXACT_MATCH: // keyword
         return tok->tok_type == ei->sym;
     case EI_IN_MATCH:
-        return expr_item_exists_symbol(ei, tok->char_type);
+        return expr_item_exists_symbol(ei, string_get(tok->tok_type)[0]);
     }    
 }
 

@@ -18,10 +18,7 @@ extern "C" {
 
 struct tok {
     struct source_location loc;
-    union{
-        symbol tok_type; // IDENT, NUM, STRING keywords like 'if', 'for' etc
-        char char_type;
-    };
+    symbol tok_type; // IDENT, NUM, STRING keywords like 'if', 'for' etc
 };
 
 struct lexer {

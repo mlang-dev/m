@@ -100,8 +100,7 @@ void get_tok(struct lexer *lexer, struct tok *tok)
             _scan_until_no_id(lexer);
         }
         else{
-            _mark_token(lexer, tok, 0);
-            tok->char_type = ch;
+            _mark_token(lexer, tok, to_symbol2(&ch, 1));
             _move_ahead(lexer);
         }
         break;

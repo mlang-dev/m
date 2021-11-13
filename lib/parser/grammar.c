@@ -102,11 +102,18 @@ struct grammar *grammar_parse(const char *grammar_text)
     struct expr *expr = 0;
     symbol s = 0;
     string group;
+    const char meta_chars[] = "=|[]{}";
+    symbol DEFINITION = to_symbol2(&meta_chars[0], 1);
+    symbol ALTERNATION = to_symbol2(&meta_chars[1], 1);
+    symbol OPTION_S = to_symbol2(&meta_chars[2], 1);
+    symbol OPTION_E = to_symbol2(&meta_chars[3], 1);
+    symbol ACTION_S = to_symbol2(&meta_chars[4], 1);
+    symbol ACTION_E = to_symbol2(&meta_chars[5], 1);
     while (tok.tok_type) {
         get_tok(&lexer, &next_tok);
         if(tok.tok_type == lexer.IDENT_TOKEN){
             s = to_symbol2(&grammar_text[tok.loc.start], tok.loc.end - tok.loc.start);
-            if(next_tok.char_type == '='){
+            if(next_tok.tok_type == DEFINITION){
                 //nonterm
                 rule = grammar_add_rule(g, s, rule_no++);
                 expr = rule_add_expr(rule);
@@ -119,39 +126,35 @@ struct grammar *grammar_parse(const char *grammar_text)
             expr_add_symbol(expr, s, EI_EXACT_MATCH);
             hashset_set2(&g->keywords, string_get(s), string_size(s));
         }
-        switch(tok.char_type){
-            case '|':
-                expr = rule_add_expr(rule);
-                break;
-            case '[': //regex
-                string_init_chars2(&group, "", 0);
-                while(next_tok.char_type != ']'){
-                    const char *p = &grammar_text[next_tok.loc.start];
-                    for(int i = 0; i < next_tok.loc.end - next_tok.loc.start; i ++){
-                        hashset_set2(&g->keywords, p + i, 1);
-                    }
-                    string_add_chars2(&group, p, next_tok.loc.end - next_tok.loc.start);
-                    get_tok(&lexer, &next_tok);
+        if(tok.tok_type == ALTERNATION){
+            expr = rule_add_expr(rule);
+        } else if (tok.tok_type == OPTION_S){ //regex
+            string_init_chars2(&group, "", 0);
+            while(next_tok.tok_type != OPTION_E){
+                const char *p = &grammar_text[next_tok.loc.start];
+                for(int i = 0; i < next_tok.loc.end - next_tok.loc.start; i ++){
+                    hashset_set2(&g->keywords, p + i, 1);
                 }
-                struct expr_item *ei = expr_add_symbol(expr, string_2_symbol2(&group), EI_IN_MATCH);
-                get_tok(&lexer, &next_tok); // skip ']'
-                break;
-            case '{':
-                while(next_tok.char_type != '}'){
-                    //next tok is action
-                    if(next_tok.tok_type == lexer.IDENT_TOKEN){
-                        assert(expr->action.action == 0);
-                        expr->action.action  = to_symbol2(&grammar_text[next_tok.loc.start], next_tok.loc.end - next_tok.loc.start);
-                    }
-                    else if(next_tok.tok_type == lexer.NUM_TOKEN){
-                        expr->action.exp_item_index[expr->action.exp_item_index_count++] = grammar_text[next_tok.loc.start] - '0'; 
-                    }
-                    else
-                        assert(false);
-                    get_tok(&lexer, &next_tok);//'}'
+                string_add_chars2(&group, p, next_tok.loc.end - next_tok.loc.start);
+                get_tok(&lexer, &next_tok);
+            }
+            struct expr_item *ei = expr_add_symbol(expr, string_2_symbol2(&group), EI_IN_MATCH);
+            get_tok(&lexer, &next_tok); // skip ']'
+        }else if (tok.tok_type == ACTION_S){
+            while(next_tok.tok_type != ACTION_E){
+                //next tok is action
+                if(next_tok.tok_type == lexer.IDENT_TOKEN){
+                    assert(expr->action.action == 0);
+                    expr->action.action  = to_symbol2(&grammar_text[next_tok.loc.start], next_tok.loc.end - next_tok.loc.start);
                 }
-                get_tok(&lexer, &next_tok); //skip '}
-                break;  
+                else if(next_tok.tok_type == lexer.NUM_TOKEN){
+                    expr->action.exp_item_index[expr->action.exp_item_index_count++] = grammar_text[next_tok.loc.start] - '0'; 
+                }
+                else
+                    assert(false);
+                get_tok(&lexer, &next_tok);//'}'
+            }
+            get_tok(&lexer, &next_tok); //skip '}
         }
         tok = next_tok;
         next_tok.tok_type = 0;
