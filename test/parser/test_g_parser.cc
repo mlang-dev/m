@@ -30,8 +30,7 @@ TEST(testGParser, testArithmeticExp)
     struct parser *parser = parser_new(test_grammar);
     struct ast_node *ast = parse(parser, test_code);
     string code = print(ast, test_code);
-
-    ASSERT_STREQ(" ", to_c_str(&code));
+    ASSERT_STREQ("1 + 2", to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
     env_free(env);

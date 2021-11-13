@@ -27,7 +27,6 @@ enum expr_item_type {
 struct expr_item {
     symbol sym;
     enum expr_item_type ei_type;
-    struct array members; // sets of members, when ei_type is in EI_IN_MATCH or EI_RANGE_MATCH
 };
 
 struct semantic_action{
@@ -61,7 +60,7 @@ struct grammar *grammar_new();
 struct grammar *grammar_parse(const char *grammar_text);
 void grammar_free(struct grammar *grammar);
 
-bool expr_item_exists_symbol(struct expr_item *ei, symbol sym);
+bool expr_item_exists_symbol(struct expr_item *ei, char sym);
 
 #ifdef __cplusplus
 }

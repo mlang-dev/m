@@ -87,24 +87,25 @@ void parse_state_add_completed_expr_parse(struct parse_state *state, struct expr
 
 struct complete_parse *parse_state_find_completed_expr_parse(struct parse_state *state, symbol nonterm, size_t complete_pos)
 {
-    struct complete_parse *cp = 0;
+    struct complete_parse *cp;
     for(size_t i = 0; i < array_size(&state->complete_parses); i++){
         cp = (struct complete_parse*)array_get(&state->complete_parses, i);
-        if (cp->ep->rule->nonterm == nonterm && cp->complete_pos == complete_pos)
-            break;
+        if (cp->ep->rule->nonterm == nonterm && cp->complete_pos == complete_pos){
+            return cp;
+        }
     }
-    return cp;
+    return 0;
 }
 
 struct complete_parse *parse_state_find_completed_expr_parse_except(struct parse_state *state, symbol nonterm, struct expr_parse *ep)
 {
     struct complete_parse *cp = 0;
     for (size_t i = 0; i < array_size(&state->complete_parses); i++) {
-        cp = (struct complete_parse *)array_get(&state->complete_parses, i);
+        struct complete_parse *cp = (struct complete_parse *)array_get(&state->complete_parses, i);
         if (cp->ep->rule->nonterm == nonterm && cp->ep != ep)
-            break;
+            return cp;
     }
-    return cp;
+    return 0;
 }
 
 void parse_states_init(struct parse_states *states)
@@ -138,11 +139,11 @@ bool _is_match(struct tok *tok, struct expr_item *ei)
     case EI_EXACT_MATCH: // keyword
         return tok->tok_type == ei->sym;
     case EI_IN_MATCH:
-        return expr_item_exists_symbol(ei, tok->tok_type);
+        return expr_item_exists_symbol(ei, tok->char_type);
     }    
 }
 
-void _complete(struct parse_state *state, struct expr_parse *ep, struct parse_state *start_state)
+void _complete(struct parse_state *state, struct expr_parse *complete_ep, struct parse_state *start_state)
 {
     //finding in start_state, all parse expr's next (non-term) symbol is nonterm parameter passed
     //advance one and add to current state
@@ -150,41 +151,44 @@ void _complete(struct parse_state *state, struct expr_parse *ep, struct parse_st
         struct expr_parse *s_ep = (struct expr_parse *)array_get(&start_state->expr_parses, i);
         if (s_ep->parsed < array_size(&s_ep->expr->items)){
             struct expr_item *ei = (struct expr_item *)array_get(&s_ep->expr->items, s_ep->parsed);
-            if(ei->sym == s_ep->rule->nonterm){
+            if(ei->sym == complete_ep->rule->nonterm){
                 parse_state_advance_expr_parse(state, s_ep);
             }
         }
     }
     //add completed ep into the start state
-    parse_state_add_completed_expr_parse(start_state, ep, state->state_index);
+    parse_state_add_completed_expr_parse(start_state, complete_ep, state->state_index);
 }
 
-struct ast_node *_build_ast(struct parse_states *states, symbol start_symbol, size_t from, size_t to)
+struct ast_node *_build_ast(struct parse_states *states, size_t from, struct complete_parse *cp)
 {
     struct parse_state *state = array_get(&states->states, from);
-    assert(state->state_index == from);
-    struct complete_parse *cp = parse_state_find_completed_expr_parse(state, start_symbol, to);
-    if (!cp) return 0;
-    struct ast_node *node = ast_node_new(cp->ep->expr->action.action);
+    assert(state->state_index == from);   
     //cp->ep->expr
     size_t tok_pos = from;
     size_t item_count = array_size(&cp->ep->expr->items);
+    struct ast_node *node = (item_count>1) ? ast_node_new(cp->ep->expr->action.action) : 0;
     for(size_t i = 0; i < item_count; i++){
         struct expr_item *item = (struct expr_item *)array_get(&cp->ep->expr->items, i);
         struct ast_node *child = 0;
         state = (struct parse_state *)array_get(&states->states, tok_pos);
         if(item->ei_type){ //terminal
             child = ast_node_new(state->tok.tok_type);
+            child->loc = state->tok.loc;
             tok_pos++;
         }else{ //noterminal
-            cp = parse_state_find_completed_expr_parse_except(state, item->sym, cp->ep);
-            if(cp){
-                child = _build_ast(states, item->sym, tok_pos, cp->complete_pos);
-                tok_pos = cp->complete_pos;
+            struct complete_parse * child_cp = parse_state_find_completed_expr_parse_except(state, item->sym, cp->ep);
+            if(child_cp){
+                child = _build_ast(states, tok_pos, child_cp);
+                tok_pos = child_cp->complete_pos;
             }
         }
-        if(child)
-            array_push(&node->children, &child);
+        if(child){
+            if(node)
+                array_push(&node->children, &child);
+            else
+                return child;
+        }
     }
     return node;
 }
@@ -195,14 +199,16 @@ struct ast_node *parse(struct parser *parser, const char *text)
     struct parse_states states;
     parse_states_init(&states);
     struct parse_state *state = 0;
+    struct parse_state *start_state = 0;
     struct parse_state *next_state = 0;
     struct grammar *g = parser->grammar;
     //0. get the first token and jumpstart parsing process by initiating the start rule
     state = parse_states_add_state(&states);
+    start_state = state;
     get_tok(&parser->lexer, &state->tok);
     struct rule *rule = hashtable_get_p(&parser->grammar->rule_map, parser->grammar->start_symbol);
     parse_state_init_rule(state, rule);
-    while(state && state->tok.tok_type)
+    while(state)
     {
         for (size_t i = 0; i < array_size(&state->expr_parses); i++) {
             struct expr_parse *ep = (struct expr_parse *)array_get(&state->expr_parses, i);
@@ -212,14 +218,15 @@ struct ast_node *parse(struct parser *parser, const char *text)
                 struct parse_state* start_state = (struct parse_state*)array_get(&states.states, ep->start_state_index);
                 _complete(state, ep, start_state);
 
-            }else{
+            }else if(state->tok.tok_type){
                 struct expr_item *ei = (struct expr_item *)array_get(&ep->expr->items, ep->parsed);
                 if (ei->ei_type == EI_NONTERM && ei->sym != ep->rule->nonterm) {
-                    // expects non-terminal, we're adding its rule exprs into current state
+                    // expects non-terminal, we're adding the rule's exprs into current state
+                    // initial rule 
                     rule = hashtable_get_p(&g->rule_map, ei->sym);
                     parse_state_init_rule(state, rule);
                 }else if(_is_match(&state->tok, ei)) /*scan and matched*/{
-                    //terminal
+                    //terminal token match
                     if(!next_state){
                         next_state = parse_states_add_state(&states);
                     }
@@ -233,7 +240,9 @@ struct ast_node *parse(struct parser *parser, const char *text)
         next_state = 0;
     }
     size_t to = array_size(&states.states);
-    struct ast_node *ast = _build_ast(&states, g->start_symbol, 0, to - 1);
+
+    struct complete_parse *cp = parse_state_find_completed_expr_parse(start_state, g->start_symbol, to-1);
+    struct ast_node *ast = cp ? _build_ast(&states, 0, cp) : 0;
     parse_states_deinit(&states);
     return ast;
 }

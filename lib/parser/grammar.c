@@ -14,7 +14,6 @@ void expr_item_init(struct expr_item *ei, symbol sym, enum expr_item_type type)
 {
     ei->sym = sym;
     ei->ei_type = type;
-    array_init(&ei->members, sizeof(symbol));
 }
 
 struct expr_item* expr_add_symbol(struct expr *expr, symbol sym, enum expr_item_type type)
@@ -25,16 +24,11 @@ struct expr_item* expr_add_symbol(struct expr *expr, symbol sym, enum expr_item_
     return (struct expr_item*)array_back(&expr->items);
 }
 
-void expr_item_deinit(struct expr_item *ei)
+bool expr_item_exists_symbol(struct expr_item *ei, char sym)
 {
-    array_deinit(&ei->members);
-}
-
-bool expr_item_exists_symbol(struct expr_item *ei, symbol sym)
-{
-    for(size_t i = 0; i < array_size(&ei->members); i++){
-        symbol x = *(symbol*)array_get(&ei->members, i);
-        if(x == sym) return true;
+    const char *p = string_get(ei->sym);
+    for(size_t i = 0; i < string_size(ei->sym); i++){
+        if(p[i] == sym) return true;
     }
     return false;
 }
@@ -48,10 +42,6 @@ void expr_init(struct expr *expr)
 
 void expr_deinit(struct expr *expr)
 {
-    for(size_t i = 0; i < array_size(&expr->items); i++){
-        struct expr_item *ei = (struct expr_item *)array_get(&expr->items, i);
-        expr_item_deinit(ei);
-    }
     array_deinit(&expr->items);
 }
 
@@ -144,10 +134,6 @@ struct grammar *grammar_parse(const char *grammar_text)
                     get_tok(&lexer, &next_tok);
                 }
                 struct expr_item *ei = expr_add_symbol(expr, string_2_symbol2(&group), EI_IN_MATCH);
-                for (size_t i = 0; i < string_size(&group); i++) {
-                    symbol s = to_symbol2(string_get(&group) + i, 1);
-                    array_push(&ei->members, &s);
-                }
                 get_tok(&lexer, &next_tok); // skip ']'
                 break;
             case '{':
