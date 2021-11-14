@@ -57,13 +57,15 @@ void parse_state_init(struct parse_state *state, int state_index)
 {
     state->state_index = state_index;
     array_init(&state->expr_parses, sizeof(struct expr_parse));
-    array_init(&state->complete_parses, sizeof(struct complete_parse));
+    //array_init(&state->complete_parses, sizeof(struct complete_parse));
+    hashtable_init_with_value_size(&state->complete_parses, sizeof(struct array), (free_fun)array_deinit);
 }
 
 void parse_state_deinit(struct parse_state *state)
 {
     array_deinit(&state->expr_parses);
-    array_deinit(&state->complete_parses);
+    //array_deinit(&state->complete_parses);
+    hashtable_deinit(&state->complete_parses);
 }
 
 void parse_state_advance_expr_parse(struct parse_state *state, struct expr_parse *ep)
@@ -80,41 +82,46 @@ void parse_state_advance_expr_parse(struct parse_state *state, struct expr_parse
 
 void parse_state_add_completed_expr_parse(struct parse_state *state, struct expr_parse *ep, size_t end_state_index)
 {
+    struct array *cps = (struct array*)hashtable_get_p(&state->complete_parses, ep->rule->nonterm);
+    if(!cps){
+        struct array arr;
+        array_init(&arr, sizeof(struct complete_parse));
+        hashtable_set_p(&state->complete_parses, ep->rule->nonterm, &arr);
+        cps =  (struct array*)hashtable_get_p(&state->complete_parses, ep->rule->nonterm);
+    }
     struct complete_parse cp;
     cp.ep = ep;
     cp.end_state_index = end_state_index;
-    array_push(&state->complete_parses, &cp);
+    array_push(cps, &cp);
 }
 
-struct complete_parse *parse_state_find_completed_expr_parse(struct parse_state *state, symbol nonterm, size_t end_state_index, size_t *cp_index)
+struct complete_parse *parse_state_find_completed_expr_parse(struct parse_state *state, symbol nonterm, size_t end_state_index)
 {
     struct complete_parse *cp;
-    size_t cp_count = array_size(&state->complete_parses);
+    struct array *cps = hashtable_get_p(&state->complete_parses, nonterm);
+    size_t cp_count = array_size(cps);
     for(size_t i = 0; i < cp_count; i++){
         size_t j = cp_count - 1 - i;
-        cp = (struct complete_parse*)array_get(&state->complete_parses, j);
+        cp = (struct complete_parse*)array_get(cps, j);
         if (cp->ep->rule->nonterm == nonterm && cp->end_state_index == end_state_index){
-            *cp_index = j;
             return cp;
         }
     }
     return 0;
 }
 
-struct complete_parse *parse_state_find_child_completed_expr_parse(struct parse_state *state, symbol nonterm, struct complete_parse *parent, size_t until, size_t *cp_index)
+void parse_state_find_child_completed_expr_parse(struct parse_state *state, symbol nonterm, struct complete_parse *parent, struct array *children)
 {
-    struct complete_parse *cp = 0;
-    assert(until <= array_size(&state->complete_parses));
-    size_t complete_parse_count = until ? until : array_size(&state->complete_parses);
+    struct array *cps = hashtable_get_p(&state->complete_parses, nonterm);
+    if (!cps) return;
+    size_t complete_parse_count = array_size(cps);
     for (size_t i = 0; i < complete_parse_count; i++) {
         size_t j = complete_parse_count-1-i;
-        struct complete_parse *cp = (struct complete_parse *)array_get(&state->complete_parses, j);
-        if (cp->ep->rule->nonterm == nonterm){
-            *cp_index = j;
-            return cp;
+        struct complete_parse *cp = (struct complete_parse *)array_get(cps, j);
+        if (cp->ep->rule->nonterm == nonterm && cp != parent && cp->end_state_index <= parent->end_state_index){
+            array_push(children, cp);
         }
     }
-    return 0;
 }
 
 void parse_states_init(struct parse_states *states)
@@ -173,17 +180,16 @@ void _complete(struct parse_state *state, struct expr_parse *complete_ep, struct
 struct _child_cp_call{
     size_t state_index;
     size_t expr_item_index;
-    size_t cp_index;
+    struct complete_parse *child_cp;
 };
 
 struct _child_parse{
     struct parse_state *state;
     enum expr_item_type ei_type;
     struct complete_parse *child_cp;
-    size_t child_cp_index;
 };
 
-struct ast_node *_build_ast(struct parse_states *states, size_t from, struct complete_parse *cp, int cp_index)
+struct ast_node *_build_ast(struct parse_states *states, size_t from, struct complete_parse *cp)
 {
     struct parse_state *state = array_get(&states->states, from);
     assert(state->state_index == from);   
@@ -204,35 +210,47 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
             assert(ccp);
             i = ccp->expr_item_index;
             state_index = ccp->state_index;
-            cp_index = ccp->cp_index;
+            child_cp = ccp->child_cp;
+            assert(child_cp);
+        }else{
+            child_cp = 0;
         }
         state = (struct parse_state *)array_get(&states->states, state_index);
         item = (struct expr_item *)array_get(&cp->ep->expr->items, i);
         if(item->ei_type){ //terminal
             state_index++;
         }else{ //noterminal
-            size_t child_cp_index;
-            child_cp = parse_state_find_child_completed_expr_parse(state, item->sym, cp, state_index == from ? cp_index : 0, &child_cp_index);
+            if(!child_cp){
+                struct array children;
+                array_init(&children, sizeof(struct complete_parse));
+                parse_state_find_child_completed_expr_parse(state, item->sym, cp, &children);
+                if(array_size(&children)){
+                    child_cp = array_get(&children, 0);
+                    child_cp_call.expr_item_index = i;
+                    child_cp_call.state_index = state_index;
+                    for (int j = 1; j < array_size(&children); j++){
+                        child_cp_call.child_cp = array_get(&children, j);
+                        stack_push(&s, &child_cp_call);
+                    }
+                }
+            }
             if(child_cp){
-                child_cp_call.cp_index = child_cp_index;
-                child_cp_call.expr_item_index = i;
-                child_cp_call.state_index = state_index;
-                stack_push(&s, &child_cp_call);
-
                 child_parse.child_cp = child_cp;
-                child_parse.child_cp_index = child_cp_index;
-
                 state_index = child_cp->end_state_index;
             }else{
-                assert(i>0);
+                if (i==item_count - 1) i--;
             }
         }
         child_parse.ei_type = item->ei_type;
         child_parse.state = state;
-        array_push(&child_parses, &child_parse);
+        if(i<array_size(&child_parses)){
+            array_set(&child_parses, i, &child_parse);
+        }else{
+            array_push(&child_parses, &child_parse);
+        }
     }
     
-    //assert(child_cp->complete_pos == cp->complete_pos);
+    assert(state_index == cp->end_state_index);
     //ast
     for(int i = 0; i < array_size(&child_parses); i++){
         struct _child_parse *c_p = (struct _child_parse *)array_get(&child_parses, i);
@@ -244,7 +262,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
             child = ast_node_new(c_p->state->tok.tok_type);
             child->loc = c_p->state->tok.loc;
         }else{ //noterminal
-            child = _build_ast(states, c_p->state->state_index, c_p->child_cp, c_p->child_cp_index);
+            child = _build_ast(states, c_p->state->state_index, c_p->child_cp);
         }
         if(node){
             array_push(&node->children, &child);
@@ -307,9 +325,8 @@ struct ast_node *parse(struct parser *parser, const char *text)
         next_state = 0;
     }
     size_t to = array_size(&states.states);
-    size_t cp_index;
-    struct complete_parse *cp = parse_state_find_completed_expr_parse(start_state, g->start_symbol, to-1, &cp_index);
-    struct ast_node *ast = cp ? _build_ast(&states, 0, cp, cp_index) : 0;
+    struct complete_parse *cp = parse_state_find_completed_expr_parse(start_state, g->start_symbol, to-1);
+    struct ast_node *ast = cp ? _build_ast(&states, 0, cp) : 0;
     parse_states_deinit(&states);
     return ast;
 }
