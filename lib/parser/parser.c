@@ -246,14 +246,12 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
         }else{ //noterminal
             child = _build_ast(states, c_p->state->state_index, c_p->child_cp, c_p->child_cp_index);
         }
-        if(child){
-            if(node){
-                array_push(&node->children, &child);
-            }
-            else{
-                node = child;
-                break;
-            }
+        if(node){
+            array_push(&node->children, &child);
+        }
+        else{
+            node = child;
+            break;
         }
     }
     //build ast
