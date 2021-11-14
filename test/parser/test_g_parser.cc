@@ -46,7 +46,6 @@ TEST(testGParser, testArithmeticExp1)
     env_free(env);
 }
 
-/*
 TEST(testGParser, testArithmeticExp2)
 {
     const char test_code[] = "0 + 2 * 4";
@@ -59,4 +58,3 @@ TEST(testGParser, testArithmeticExp2)
     parser_free(parser);
     env_free(env);
 }
-*/

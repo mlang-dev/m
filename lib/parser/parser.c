@@ -118,7 +118,7 @@ void parse_state_find_child_completed_expr_parse(struct parse_state *state, symb
     for (size_t i = 0; i < complete_parse_count; i++) {
         size_t j = complete_parse_count-1-i;
         struct complete_parse *cp = (struct complete_parse *)array_get(cps, j);
-        if (cp->ep->rule->nonterm == nonterm && cp != parent && cp->end_state_index <= parent->end_state_index){
+        if (cp->ep->rule->nonterm == nonterm && cp->ep->expr != parent->ep->expr && cp->end_state_index <= parent->end_state_index){
             array_push(children, cp);
         }
     }
