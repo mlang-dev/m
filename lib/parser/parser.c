@@ -226,7 +226,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
                     child_cp = *(struct complete_parse**)array_get(&children, 0);
                     child_cp_call.expr_item_index = i;
                     child_cp_call.state_index = state_index;
-                    for (int j = 1; j < array_size(&children); j++){
+                    for (size_t j = 1; j < array_size(&children); j++){
                         child_cp_call.child_cp = *(struct complete_parse**)array_get(&children, j);
                         stack_push(&s, &child_cp_call);
                     }
@@ -251,7 +251,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
     
     assert(state_index == cp->end_state_index);
     //ast
-    for(int i = 0; i < array_size(&child_parses); i++){
+    for(size_t i = 0; i < array_size(&child_parses); i++){
         struct _child_parse *c_p = (struct _child_parse *)array_get(&child_parses, i);
         struct ast_node *child = 0; 
         if (expr_item_2_ast_node_index(cp->ep->expr, i) < 0){
