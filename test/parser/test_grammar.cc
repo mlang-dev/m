@@ -75,7 +75,6 @@ power       = NUM '^' factor    {}
     };
     for(size_t i = 0; i < array_size(&grammar->rules); i++){
         struct rule *rule = *(struct rule**)array_get(&grammar->rules, i);
-        printf("hello: %d", i);
         ASSERT_EQ(expected_exps[i], array_size(&rule->exprs));
         for (size_t j = 0; j < array_size(&rule->exprs); j++){
             struct expr *expr = (struct expr *)array_get(&rule->exprs, j);

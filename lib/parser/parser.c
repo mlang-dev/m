@@ -57,14 +57,12 @@ void parse_state_init(struct parse_state *state, int state_index)
 {
     state->state_index = state_index;
     array_init(&state->expr_parses, sizeof(struct expr_parse));
-    //array_init(&state->complete_parses, sizeof(struct complete_parse));
     hashtable_init_with_value_size(&state->complete_parses, sizeof(struct array), (free_fun)array_deinit);
 }
 
 void parse_state_deinit(struct parse_state *state)
 {
     array_deinit(&state->expr_parses);
-    //array_deinit(&state->complete_parses);
     hashtable_deinit(&state->complete_parses);
 }
 
@@ -118,8 +116,8 @@ void parse_state_find_child_completed_expr_parse(struct parse_state *state, symb
     for (size_t i = 0; i < complete_parse_count; i++) {
         size_t j = complete_parse_count-1-i;
         struct complete_parse *cp = (struct complete_parse *)array_get(cps, j);
-        if (cp->ep->rule->nonterm == nonterm && cp->ep->expr != parent->ep->expr && cp->end_state_index <= parent->end_state_index){
-            array_push(children, cp);
+        if (cp->ep->rule->nonterm == nonterm && cp != parent && cp->end_state_index <= parent->end_state_index){
+            array_push(children, &cp);
         }
     }
 }
@@ -222,17 +220,18 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
         }else{ //noterminal
             if(!child_cp){
                 struct array children;
-                array_init(&children, sizeof(struct complete_parse));
+                array_init(&children, sizeof(struct complete_parse*));
                 parse_state_find_child_completed_expr_parse(state, item->sym, cp, &children);
                 if(array_size(&children)){
-                    child_cp = array_get(&children, 0);
+                    child_cp = *(struct complete_parse**)array_get(&children, 0);
                     child_cp_call.expr_item_index = i;
                     child_cp_call.state_index = state_index;
                     for (int j = 1; j < array_size(&children); j++){
-                        child_cp_call.child_cp = array_get(&children, j);
+                        child_cp_call.child_cp = *(struct complete_parse**)array_get(&children, j);
                         stack_push(&s, &child_cp_call);
                     }
                 }
+                array_deinit(&children);
             }
             if(child_cp){
                 child_parse.child_cp = child_cp;
