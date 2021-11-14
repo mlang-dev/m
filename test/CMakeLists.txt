@@ -35,6 +35,7 @@ add_executable(mtest
   clib/test_string.cc
   clib/test_array.cc
   clib/test_queue.cc
+  clib/test_stack.cc
   clib/test_hashtable.cc
   clib/test_hashset.cc
   clib/test_util.cc

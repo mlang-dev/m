@@ -17,9 +17,6 @@ sum         = sum [+-] term     { expr 0 1 2 }
 term        = term [*/%] factor { expr 0 1 2 }
             | factor            { 0 }
 factor      = '(' sum ')'       { 1 }
-            | [+-] factor       { unary 0 1 }
-            | power             { 0 }
-power       = NUM '^' factor    { expr 0 1 2 }
             | NUM               { 0 }
     )";
 
@@ -48,3 +45,18 @@ TEST(testGParser, testArithmeticExp1)
     parser_free(parser);
     env_free(env);
 }
+
+/*
+TEST(testGParser, testArithmeticExp2)
+{
+    const char test_code[] = "0 + 2 * 4";
+    struct env *env = env_new(false);
+    struct parser *parser = parser_new(test_grammar);
+    struct ast_node *ast = parse(parser, test_code);
+    string code = print(ast, test_code);
+    ASSERT_STREQ("0 + 2 * 4", to_c_str(&code));
+    ast_node_free(ast);
+    parser_free(parser);
+    env_free(env);
+}
+*/

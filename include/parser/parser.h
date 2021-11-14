@@ -31,9 +31,10 @@ struct expr_parse{
 };
 
 struct complete_parse{
-    size_t complete_pos;
+    size_t end_state_index;
     struct expr_parse *ep;
 };
+
 // for each position of tokens we maintain a partial parse state: n tokens will have n parse states
 struct parse_state{
     size_t state_index;

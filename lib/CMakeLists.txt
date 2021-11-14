@@ -16,6 +16,7 @@ add_library(mlr
   clib/symbol.c
   clib/symboltable.c
   clib/queue.c
+  clib/stack.c
   clib/hash.c
   clib/hashset.c
   clib/hashtable.c
