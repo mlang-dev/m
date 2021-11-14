@@ -58,3 +58,29 @@ TEST(testGParser, testArithmeticExp2)
     parser_free(parser);
     env_free(env);
 }
+
+TEST(testGParser, testArithmeticExp3)
+{
+    const char test_code[] = "1 * 2 + 3";
+    struct env *env = env_new(false);
+    struct parser *parser = parser_new(test_grammar);
+    struct ast_node *ast = parse(parser, test_code);
+    string code = print(ast, test_code);
+    ASSERT_STREQ("1 * 2 + 3", to_c_str(&code));
+    ast_node_free(ast);
+    parser_free(parser);
+    env_free(env);
+}
+
+TEST(testGParser, testArithmeticExp4)
+{
+    const char test_code[] = "(1 + 2) * 3";
+    struct env *env = env_new(false);
+    struct parser *parser = parser_new(test_grammar);
+    struct ast_node *ast = parse(parser, test_code);
+    string code = print(ast, test_code);
+    ASSERT_STREQ("1 + 2 * 3", to_c_str(&code));
+    ast_node_free(ast);
+    parser_free(parser);
+    env_free(env);
+}
