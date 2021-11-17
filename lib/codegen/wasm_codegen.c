@@ -33,7 +33,7 @@ string _generate(struct ast_node *ast, const char *text)
         string op2 = _generate(child, text);
         string_add2(&s, &op2);
         struct ast_node *op = *(struct ast_node**)array_get(&ast->children, 1);
-        string_append(&s, ops[text[op->loc.start]]);
+        string_append(&s, ops[(int)text[op->loc.start]]);
         string_append(&s, "\n");
     }
     else if(ast->node_type == UNOP){
