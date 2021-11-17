@@ -45,7 +45,7 @@ add_library(mlr
   codegen/target_info.c
   codegen/x86_64_abi.c
   codegen/winx86_64_abi.c
-  codegen/codegen.c
+  codegen/llvm_codegen.c
   codegen/cg_fun.c
   codegen/cg_var.c
   codegen/cg_call.c
