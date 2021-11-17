@@ -37,26 +37,3 @@ void ast_node_free(struct ast_node *node)
     array_deinit(&node->children);
     free(node);
 }
-
-string print(struct ast_node *ast, const char *text)
-{
-    string s;
-    string_init(&s);
-    if(!ast){
-        return s;
-    }
-    if(ast->node_type){
-        string itself;
-        string_init_chars2(&itself, &text[ast->loc.start], ast->loc.end - ast->loc.start);
-        string_add(&s, &itself);
-    }
-    size_t child_count = array_size(&ast->children);
-    for(size_t i = 0; i < child_count; i++){
-        struct ast_node *child = *(struct ast_node**)array_get(&ast->children, i);
-        string child_s = print(child, text);
-        if(string_size(&s))
-            string_add_chars2(&s, " ", 1);
-        string_add(&s, &child_s);
-    }
-    return s;
-}

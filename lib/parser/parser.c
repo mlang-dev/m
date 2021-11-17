@@ -193,7 +193,6 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
     assert(state->state_index == from);   
     size_t state_index = from;
     size_t item_count = array_size(&cp->ep->expr->items);
-    struct ast_node *node = (cp->ep->expr->action.exp_item_index_count > 1) ? ast_node_new(cp->ep->expr->action.action) : 0;
     struct stack s;
     struct _child_cp_call child_cp_call;
     stack_init(&s, sizeof(child_cp_call));
@@ -250,7 +249,8 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
     }
     
     assert(state_index == cp->end_state_index);
-    //ast
+    //build ast
+    struct ast_node *node = (cp->ep->expr->action.exp_item_index_count > 1) ? ast_node_new(cp->ep->expr->action.action) : 0;
     for(size_t i = 0; i < array_size(&child_parses); i++){
         struct _child_parse *c_p = (struct _child_parse *)array_get(&child_parses, i);
         struct ast_node *child = 0; 
@@ -271,7 +271,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
             break;
         }
     }
-    //build ast
+
     stack_deinit(&s);
     array_deinit(&child_parses);
     return node;

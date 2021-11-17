@@ -51,7 +51,7 @@ TEST(testTok, testTokenChar)
     struct lexer lexer;
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
-    ASSERT_EQ(lexer.CHAR_TOKEN, tok.tok_type);
+    ASSERT_EQ(CHAR_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.loc.row);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
@@ -71,7 +71,7 @@ TEST(testTok, testTokenString)
     struct lexer lexer;
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
-    ASSERT_EQ(lexer.STRING_TOKEN, tok.tok_type);
+    ASSERT_EQ(STRING_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.loc.row);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
@@ -91,7 +91,7 @@ TEST(testTok, testTokenNumInt)
     struct lexer lexer;
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
-    ASSERT_EQ(lexer.NUM_TOKEN, tok.tok_type);
+    ASSERT_EQ(NUM_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.loc.row);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
@@ -111,7 +111,7 @@ TEST(testTok, testTokenNumFloat)
     struct lexer lexer;
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
-    ASSERT_EQ(lexer.NUM_TOKEN, tok.tok_type);
+    ASSERT_EQ(NUM_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.loc.row);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
@@ -131,7 +131,7 @@ TEST(testTok, testTokenNumFloat2)
     struct lexer lexer;
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
-    ASSERT_EQ(lexer.NUM_TOKEN, tok.tok_type);
+    ASSERT_EQ(NUM_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.loc.row);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
@@ -151,7 +151,7 @@ TEST(testTok, testTokenNumFloat3)
     struct lexer lexer;
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
-    ASSERT_EQ(lexer.NUM_TOKEN, tok.tok_type);
+    ASSERT_EQ(NUM_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.loc.row);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
@@ -170,7 +170,7 @@ _abc123
     struct lexer lexer;
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
-    ASSERT_EQ(lexer.IDENT_TOKEN, tok.tok_type);
+    ASSERT_EQ(IDENT_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.loc.row);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
@@ -191,7 +191,7 @@ TEST(testTok, testTokenMixedNumAndID)
     lexer_init(&lexer, test_code);
     //NUM
     get_tok(&lexer, &tok);
-    ASSERT_EQ(lexer.NUM_TOKEN, tok.tok_type);
+    ASSERT_EQ(NUM_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.loc.row);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
@@ -199,7 +199,7 @@ TEST(testTok, testTokenMixedNumAndID)
 
     //IDENT
     get_tok(&lexer, &tok);
-    ASSERT_EQ(lexer.IDENT_TOKEN, tok.tok_type);
+    ASSERT_EQ(IDENT_TOKEN, tok.tok_type);
     ASSERT_EQ(2, tok.loc.row);
     ASSERT_EQ(4, tok.loc.col);
     ASSERT_EQ(4, tok.loc.start);

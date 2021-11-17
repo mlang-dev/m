@@ -111,7 +111,7 @@ struct grammar *grammar_parse(const char *grammar_text)
     symbol ACTION_E = to_symbol2(&meta_chars[5], 1);
     while (tok.tok_type) {
         get_tok(&lexer, &next_tok);
-        if(tok.tok_type == lexer.IDENT_TOKEN){
+        if(tok.tok_type == IDENT_TOKEN){
             s = to_symbol2(&grammar_text[tok.loc.start], tok.loc.end - tok.loc.start);
             if(next_tok.tok_type == DEFINITION){
                 //nonterm
@@ -121,7 +121,7 @@ struct grammar *grammar_parse(const char *grammar_text)
             }else if(expr){
                 expr_add_symbol(expr, s, is_upper((string*)s) ? EI_TOKEN_MATCH : EI_NONTERM);
             }
-        } else if (tok.tok_type == lexer.STRING_TOKEN || tok.tok_type == lexer.CHAR_TOKEN) {
+        } else if (tok.tok_type == STRING_TOKEN || tok.tok_type == CHAR_TOKEN) {
             s = to_symbol2(&grammar_text[tok.loc.start+1], tok.loc.end - tok.loc.start - 2); //stripping off two single quote
             expr_add_symbol(expr, s, EI_EXACT_MATCH);
             hashset_set2(&g->keywords, string_get(s), string_size(s));
@@ -143,11 +143,11 @@ struct grammar *grammar_parse(const char *grammar_text)
         }else if (tok.tok_type == ACTION_S){
             while(next_tok.tok_type != ACTION_E){
                 //next tok is action
-                if(next_tok.tok_type == lexer.IDENT_TOKEN){
+                if(next_tok.tok_type == IDENT_TOKEN){
                     assert(expr->action.action == 0);
                     expr->action.action  = to_symbol2(&grammar_text[next_tok.loc.start], next_tok.loc.end - next_tok.loc.start);
                 }
-                else if(next_tok.tok_type == lexer.NUM_TOKEN){
+                else if(next_tok.tok_type == NUM_TOKEN){
                     expr->action.exp_item_index[expr->action.exp_item_index_count++] = grammar_text[next_tok.loc.start] - '0'; 
                 }
                 else

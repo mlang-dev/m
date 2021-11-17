@@ -10,6 +10,10 @@
 #include "parser/tok.h"
 
 //write non-null-terminated string: fwrite(string, sizeof(char), length, stdout);
+symbol IDENT_TOKEN = 0;
+symbol NUM_TOKEN = 0;
+symbol STRING_TOKEN = 0;
+symbol CHAR_TOKEN = 0;
 
 void _move_ahead(struct lexer *lexer)
 {
@@ -73,10 +77,10 @@ void lexer_init(struct lexer *lexer, const char *text)
     lexer->row = 1;
     lexer->col = 1;
 
-    lexer->IDENT_TOKEN = to_symbol2("IDENT", 5);
-    lexer->NUM_TOKEN = to_symbol2("NUM", 3);
-    lexer->STRING_TOKEN = to_symbol2("STRING", 6);
-    lexer->CHAR_TOKEN = to_symbol2("CHAR", 4);
+    IDENT_TOKEN = to_symbol2("IDENT", 5);
+    NUM_TOKEN = to_symbol2("NUM", 3);
+    STRING_TOKEN = to_symbol2("STRING", 6);
+    CHAR_TOKEN = to_symbol2("CHAR", 4);
 }
 
 void get_tok(struct lexer *lexer, struct tok *tok)
@@ -92,11 +96,11 @@ void get_tok(struct lexer *lexer, struct tok *tok)
         }
         else if(isdigit(ch) || 
             (ch == '.' && isdigit(lexer->text[lexer->pos + 1])) /*.123*/){
-            _mark_token(lexer, tok, lexer->NUM_TOKEN);
+            _mark_token(lexer, tok, NUM_TOKEN);
             _scan_until_no_digit(lexer);
         }
         else if(isalpha(ch) || ch == '_'){
-            _mark_token(lexer, tok, lexer->IDENT_TOKEN);
+            _mark_token(lexer, tok, IDENT_TOKEN);
             _scan_until_no_id(lexer);
         }
         else{
@@ -111,12 +115,12 @@ void get_tok(struct lexer *lexer, struct tok *tok)
         get_tok(lexer, tok);
         break;
     case '\'':
-        _mark_token(lexer, tok, lexer->CHAR_TOKEN);
+        _mark_token(lexer, tok, CHAR_TOKEN);
         _scan_until(lexer, '\'');
         _move_ahead(lexer); //skip the single quote
         break;
     case '"':
-        _mark_token(lexer, tok, lexer->STRING_TOKEN);
+        _mark_token(lexer, tok, STRING_TOKEN);
         _scan_until(lexer, '"');
         _move_ahead(lexer); // skip the double quote
         break;
