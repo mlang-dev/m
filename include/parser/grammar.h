@@ -63,7 +63,7 @@ struct grammar *grammar_parse(const char *grammar_text);
 void grammar_free(struct grammar *grammar);
 
 bool expr_item_exists_symbol(struct expr_item *ei, char sym);
-
+string print_rule_expr(symbol nonterm, struct expr *expr);
 #ifdef __cplusplus
 }
 #endif

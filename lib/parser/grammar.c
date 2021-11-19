@@ -174,6 +174,19 @@ int expr_item_2_ast_node_index(struct expr *expr, int expr_item_index)
     return -1;
 }
 
+string print_rule_expr(symbol nonterm, struct expr *expr)
+{
+    string s;
+    string_init_chars2(&s, string_get(nonterm), string_size(nonterm));
+    string_add_chars2(&s, " =", 2);
+    for(size_t i = 0; i < array_size(&expr->items); i++){
+        struct expr_item *ei = (struct expr_item *)array_get(&expr->items, i);
+        string_add_chars2(&s, " ", 1);
+        string_add_chars2(&s, string_get(ei->sym), string_size(ei->sym));
+    }
+    return s;
+}
+
 void grammar_free(struct grammar *grammar)
 {
     hashtable_deinit(&grammar->rule_map);
