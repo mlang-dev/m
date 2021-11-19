@@ -5,7 +5,6 @@
  */
 #include "gtest/gtest.h"
 
-#include "parser/ast.h"
 #include "clib/array.h"
 #include "clib/string.h"
 #include <string.h>
@@ -63,10 +62,10 @@ TEST(testArray, testElementWithNoOverhead)
 {
     array arr;
     array_init(&arr, sizeof(char*));
-    char exp[] = "hello";
+    const char *exp = "hello";
     array_push(&arr, &exp);
     ASSERT_EQ(1, array_size(&arr));
-    ASSERT_STREQ("hello", (char*)array_get(&arr, 0));
+    ASSERT_STREQ("hello", *(const char**)array_get(&arr, 0));
 }
 
 TEST(testArray, testElementWithNoOverheadInt)

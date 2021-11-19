@@ -3,12 +3,9 @@
  *
  * Unit tests for grammar parser
  */
-#include "codegen/env.h"
 #include "parser/grammar.h"
 #include "parser/parser.h"
 #include "codegen/wasm_codegen.h"
-#include "test_base.h"
-#include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 
@@ -29,14 +26,15 @@ i32.const 1
 i32.const 2
 i32.add
 )";
-    struct env *env = env_new(false);
+    symbols_init();
+    wasm_codegen_init();
     struct parser *parser = parser_new(test_grammar);
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
-    env_free(env);
+    symbols_deinit();
 }
 
 TEST(testGParser, testArithmeticExp1)
@@ -47,14 +45,15 @@ i32.const 1
 i32.const 2
 i32.add
 )";
-    struct env *env = env_new(false);
+    symbols_init();
+    wasm_codegen_init();
     struct parser *parser = parser_new(test_grammar);
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
-    env_free(env);
+    symbols_deinit();
 }
 
 TEST(testGParser, testArithmeticExp2)
@@ -67,14 +66,15 @@ i32.const 4
 i32.mul
 i32.add
 )";
-    struct env *env = env_new(false);
+    symbols_init();
+    wasm_codegen_init();
     struct parser *parser = parser_new(test_grammar);
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
-    env_free(env);
+    symbols_deinit();
 }
 
 TEST(testGParser, testArithmeticExp3)
@@ -87,14 +87,15 @@ i32.mul
 i32.const 3
 i32.add
 )";
-    struct env *env = env_new(false);
+    symbols_init();
+    wasm_codegen_init();
     struct parser *parser = parser_new(test_grammar);
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
-    env_free(env);
+    symbols_deinit();
 }
 
 TEST(testGParser, testArithmeticExp4)
@@ -107,12 +108,13 @@ i32.add
 i32.const 3
 i32.mul
 )";
-    struct env *env = env_new(false);
+    symbols_init();
+    wasm_codegen_init();
     struct parser *parser = parser_new(test_grammar);
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
-    env_free(env);
+    symbols_deinit();
 }

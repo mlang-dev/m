@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-include(GoogleTest)
-
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM BIN ${LLVM_TOOLS_BINARY_DIR}")
 execute_process(COMMAND llvm-config --libnames

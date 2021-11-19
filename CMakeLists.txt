@@ -12,6 +12,12 @@ if (MSVC)
     # warning level 4 and all warnings as errors
     # add_compile_options(/W4 /WX /Wv:18)
     # add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+elseif(EMSCRIPTEN)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+        set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    endif ()    
 else()
     # lots of warnings and all warnings as errors
     add_compile_options(-Wall -Wextra -pedantic -Werror)
@@ -19,7 +25,10 @@ endif()
 
 add_subdirectory(extern/googletest)
 add_subdirectory(lib)
-add_subdirectory(apps)
 add_subdirectory(test)
-add_subdirectory(samples)
+
+if (NOT EMSCRIPTEN)
+    add_subdirectory(apps)
+    add_subdirectory(samples)
+endif()
 

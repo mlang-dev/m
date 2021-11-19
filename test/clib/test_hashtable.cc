@@ -13,9 +13,6 @@
 #include "clib/string.h"
 #include "clib/symbol.h"
 #include "clib/util.h"
-#include "codegen/type_size_info.h"
-#include "sema/type.h"
-#include "codegen/env.h"
 
 // TEST(testHashtable, TestAddAndGet)
 // {
@@ -155,7 +152,7 @@ TEST(testHashtable, TestHashtableGrowWithCollision)
     ASSERT_EQ(100, *(int *)hashtable_get(&ht, "int"));
     hashtable_deinit(&ht);
 }
-
+/*
 TEST(testHashtable, TestHashtablePointerKey)
 {
     struct env *env = env_new(false);
@@ -194,3 +191,4 @@ TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
     hashtable_deinit(&ht);
     symbols_deinit();
 }
+*/

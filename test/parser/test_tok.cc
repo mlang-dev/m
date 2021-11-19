@@ -3,29 +3,26 @@
  *
  * Unit tests for grammar parser
  */
-#include "codegen/env.h"
 #include "parser/grammar.h"
 #include "parser/tok.h"
-#include "test_base.h"
-#include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 
 
 TEST(testTok, testTokenEmptyString)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     struct tok tok;
     struct lexer lexer;
     lexer_init(&lexer, "");
     get_tok(&lexer, &tok);
     ASSERT_EQ(0, tok.tok_type);
-    env_free(env);
+    symbols_deinit();
 }
 
 TEST(testTok, testSkipComment)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     char test_code[] = R"(
 #123
 
@@ -36,12 +33,12 @@ TEST(testTok, testSkipComment)
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
     ASSERT_EQ(0, tok.tok_type);
-    env_free(env);
-}
+    symbols_deinit();
+ }
 
 TEST(testTok, testTokenChar)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     char test_code[] = R"(
 '234'
 
@@ -56,12 +53,12 @@ TEST(testTok, testTokenChar)
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(6, tok.loc.end);
-    env_free(env);
+    symbols_deinit();
 }
 
 TEST(testTok, testTokenString)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     char test_code[] = R"(
 "234"
 
@@ -76,12 +73,12 @@ TEST(testTok, testTokenString)
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(6, tok.loc.end);
-    env_free(env);
-}
+    symbols_deinit();
+ }
 
 TEST(testTok, testTokenNumInt)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     char test_code[] = R"(
 234
 
@@ -96,12 +93,12 @@ TEST(testTok, testTokenNumInt)
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(4, tok.loc.end);
-    env_free(env);
-}
+    symbols_deinit();
+ }
 
 TEST(testTok, testTokenNumFloat)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     char test_code[] = R"(
 23.
 
@@ -116,12 +113,12 @@ TEST(testTok, testTokenNumFloat)
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(4, tok.loc.end);
-    env_free(env);
+    symbols_deinit();
 }
 
 TEST(testTok, testTokenNumFloat2)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     char test_code[] = R"(
 2.3
 
@@ -136,12 +133,12 @@ TEST(testTok, testTokenNumFloat2)
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(4, tok.loc.end);
-    env_free(env);
-}
+    symbols_deinit();
+ }
 
 TEST(testTok, testTokenNumFloat3)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     char test_code[] = R"(
 .23
 
@@ -156,12 +153,12 @@ TEST(testTok, testTokenNumFloat3)
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(4, tok.loc.end);
-    env_free(env);
-}
+    symbols_deinit();
+ }
 
 TEST(testTok, testTokenID)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     char test_code[] = R"(
 _abc123
 
@@ -175,12 +172,12 @@ _abc123
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(8, tok.loc.end);
-    env_free(env);
-}
+    symbols_deinit();
+ }
 
 TEST(testTok, testTokenMixedNumAndID)
 {
-    struct env *env = env_new(false);
+    symbols_init();
     char test_code[] = R"(
 123abc
 
@@ -204,5 +201,5 @@ TEST(testTok, testTokenMixedNumAndID)
     ASSERT_EQ(4, tok.loc.col);
     ASSERT_EQ(4, tok.loc.start);
     ASSERT_EQ(7, tok.loc.end);
-    env_free(env);
+    symbols_deinit();
 }
