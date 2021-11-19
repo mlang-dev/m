@@ -19,6 +19,7 @@
 extern "C" {
 #endif
 
+
 #define FOREACH_TYPE(ENUM_ITEM) \
     ENUM_ITEM(TYPE_UNK)         \
     ENUM_ITEM(TYPE_GENERIC)     \

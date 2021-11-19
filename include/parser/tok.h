@@ -21,16 +21,16 @@ struct tok {
     symbol tok_type; // IDENT, NUM, STRING keywords like 'if', 'for' etc
 };
 
+extern symbol STRING_TOKEN;
+extern symbol CHAR_TOKEN;
+extern symbol NUM_TOKEN;
+extern symbol IDENT_TOKEN;
+
 struct lexer {
     const char *text;
     int pos;  //current text position
     int row;
     int col;
-
-    symbol STRING_TOKEN;
-    symbol CHAR_TOKEN;
-    symbol NUM_TOKEN;
-    symbol IDENT_TOKEN;
 };
 
 void lexer_init(struct lexer *lexer, const char *text);

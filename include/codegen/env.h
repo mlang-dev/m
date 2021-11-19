@@ -16,7 +16,6 @@
 #include "parser/m_parser.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
-#include <llvm-c/Core.h>
 
 #ifdef __cplusplus
 extern "C" {

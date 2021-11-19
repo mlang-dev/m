@@ -3,11 +3,8 @@
  *
  * Unit tests for grammar parser
  */
-#include "codegen/env.h"
 #include "parser/grammar.h"
 #include "parser/parser.h"
-#include "test_base.h"
-#include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 #include "clib/hashtable.h"
@@ -17,7 +14,7 @@ TEST(testGrammar, testNumToken)
     char test_grammar[] = R"(
 power       = NUM 
     )";
-    struct env *env = env_new(false);
+    symbols_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("power", 5);
     ASSERT_EQ(start, grammar->start_symbol);
@@ -41,7 +38,7 @@ power       = NUM
     ASSERT_EQ(ei->sym, to_symbol2("NUM", 3));
     ASSERT_EQ(0, hashset_size(&grammar->keywords));
     grammar_free(grammar);
-    env_free(env);
+    symbols_deinit();
 }
 
 TEST(testGrammar, testArithmeticExp)
@@ -61,7 +58,7 @@ power       = NUM '^' factor    {}
             | NUM               {}
 
     )";
-    struct env *env = env_new(false);
+    symbols_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("sum", 3);
     ASSERT_EQ(start, grammar->start_symbol);
@@ -83,24 +80,24 @@ power       = NUM '^' factor    {}
     }
     ASSERT_EQ(6, hashset_size(&grammar->keywords));
     grammar_free(grammar);
-    env_free(env);
+    symbols_deinit();
 }
 
 TEST(testGrammar, testArithmeticExpUsingCharSetOr)
 {
     char test_grammar[] = R"(
-sum         = sum [+-] term     { expr 0 1 2 }
+sum         = sum [+-] term     { binop 0 1 2 }
             | term              { 0 }
-term        = term [*/%] factor { expr 0 1 2 }
+term        = term [*/%] factor { binop 0 1 2 }
             | factor            { 0 }
 factor      = '(' sum ')'       { 1 }
-            | [+-] factor       { sign 0 1 }
+            | [+-] factor       { unop 0 1 }
             | power             { 0 }
-power       = NUM '^' factor    { expr 0 1 2 }
+power       = NUM '^' factor    { binop 0 1 2 }
             | NUM               { 0 }
 
     )";
-    struct env *env = env_new(false);
+    symbols_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("sum", 3);
     ASSERT_EQ(start, grammar->start_symbol);
@@ -129,5 +126,5 @@ power       = NUM '^' factor    { expr 0 1 2 }
     }
     ASSERT_EQ(8, hashset_size(&grammar->keywords));
     grammar_free(grammar);
-    env_free(env);
+    symbols_deinit();
 }
