@@ -26,6 +26,7 @@ if (EMSCRIPTEN)
     parser/tok.c
     parser/parser.c
     parser/grammar.c
+    parser/m_grammar.c
     codegen/wasm_codegen.c
   )
 else()
