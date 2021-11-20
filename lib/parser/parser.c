@@ -31,7 +31,7 @@ void parser_free(struct parser *parser)
 struct expr_parse *parse_state_find_expr_parse(struct parse_state *state, struct expr* expr, size_t parsed)
 {
     for(size_t i = 0; i < array_size(&state->expr_parses); i++){
-        struct expr_parse *ep = (struct expr_parse *)array_get(&state->expr_parses, i);
+        struct expr_parse *ep = *(struct expr_parse **)array_get(&state->expr_parses, i);
         if(ep->expr == expr && ep->parsed == parsed){
             return ep;
         }
@@ -39,15 +39,31 @@ struct expr_parse *parse_state_find_expr_parse(struct parse_state *state, struct
     return 0;
 }
 
+struct expr_parse *expr_parse_new(size_t start_state_index, size_t parsed, struct rule *rule)
+{
+    struct expr_parse *ep;
+    MALLOC(ep, sizeof(*ep));
+    ep->start_state_index = start_state_index;
+    ep->parsed = parsed;
+    ep->rule = rule;
+    return ep;
+}
+
+struct complete_parse *complete_parse_new(size_t end_state_index, struct expr_parse *ep)
+{
+    struct complete_parse *cp;
+    MALLOC(cp, sizeof(*cp));
+    cp->end_state_index = end_state_index;
+    cp->ep = ep;
+    return cp;
+}
+
 void parse_state_init_rule(struct parse_state *state, struct rule *rule)
 {
-    struct expr_parse ep;
-    ep.parsed = 0;
-    ep.start_state_index = state->state_index;
-    ep.rule = rule;
     for(size_t i = 0; i < array_size(&rule->exprs); i++){
-        ep.expr = (struct expr *)array_get(&rule->exprs, i);
-        if (!parse_state_find_expr_parse(state, ep.expr, 0)){
+        struct expr_parse* ep = expr_parse_new(state->state_index, 0, rule);
+        ep->expr = (struct expr *)array_get(&rule->exprs, i);
+        if (!parse_state_find_expr_parse(state, ep->expr, 0)){
             array_push(&state->expr_parses, &ep);
         }
     }
@@ -56,8 +72,8 @@ void parse_state_init_rule(struct parse_state *state, struct rule *rule)
 void parse_state_init(struct parse_state *state, int state_index)
 {
     state->state_index = state_index;
-    array_init(&state->expr_parses, sizeof(struct expr_parse));
-    hashtable_init_with_value_size(&state->complete_parses, sizeof(struct array), (free_fun)array_deinit);
+    array_init_free(&state->expr_parses, sizeof(struct expr_parse *), (free_fun)free);
+    hashtable_init_with_value_size(&state->complete_parses, 0, (free_fun)array_free);//
 }
 
 void parse_state_deinit(struct parse_state *state)
@@ -69,11 +85,8 @@ void parse_state_deinit(struct parse_state *state)
 void parse_state_advance_expr_parse(struct parse_state *state, struct expr_parse *ep)
 {
     if (!parse_state_find_expr_parse(state, ep->expr, ep->parsed + 1)){
-        struct expr_parse init_ep;
-        init_ep.parsed = ep->parsed + 1;
-        init_ep.expr = ep->expr;
-        init_ep.rule = ep->rule;
-        init_ep.start_state_index = ep->start_state_index;
+        struct expr_parse *init_ep = expr_parse_new(ep->start_state_index, ep->parsed + 1, ep->rule);
+        init_ep->expr = ep->expr;
         array_push(&state->expr_parses, &init_ep);
     }
 }
@@ -82,14 +95,10 @@ void parse_state_add_completed_expr_parse(struct parse_state *state, struct expr
 {
     struct array *cps = (struct array*)hashtable_get_p(&state->complete_parses, ep->rule->nonterm);
     if(!cps){
-        struct array arr;
-        array_init(&arr, sizeof(struct complete_parse));
-        hashtable_set_p(&state->complete_parses, ep->rule->nonterm, &arr);
-        cps =  (struct array*)hashtable_get_p(&state->complete_parses, ep->rule->nonterm);
+        cps = array_new(sizeof(struct complete_parse*));
+        hashtable_set_p(&state->complete_parses, ep->rule->nonterm, cps);
     }
-    struct complete_parse cp;
-    cp.ep = ep;
-    cp.end_state_index = end_state_index;
+    struct complete_parse *cp = complete_parse_new(end_state_index, ep);
     array_push(cps, &cp);
 }
 
@@ -100,7 +109,7 @@ struct complete_parse *parse_state_find_completed_expr_parse(struct parse_state 
     size_t cp_count = array_size(cps);
     for(size_t i = 0; i < cp_count; i++){
         size_t j = cp_count - 1 - i;
-        cp = (struct complete_parse*)array_get(cps, j);
+        cp = *(struct complete_parse**)array_get(cps, j);
         if (cp->ep->rule->nonterm == nonterm && cp->end_state_index == end_state_index){
             return cp;
         }
@@ -115,7 +124,7 @@ void parse_state_find_child_completed_expr_parse(struct parse_state *state, symb
     size_t complete_parse_count = array_size(cps);
     for (size_t i = 0; i < complete_parse_count; i++) {
         size_t j = complete_parse_count-1-i;
-        struct complete_parse *cp = (struct complete_parse *)array_get(cps, j);
+        struct complete_parse *cp = *(struct complete_parse **)array_get(cps, j);
         if (cp->ep->rule->nonterm == nonterm && cp != parent && cp->end_state_index <= parent->end_state_index){
             array_push(children, &cp);
         }
@@ -163,7 +172,7 @@ void _complete(struct parse_state *state, struct expr_parse *complete_ep, struct
     //advance one and add to current state
     size_t ep_count = array_size(&start_state->expr_parses);
     for (size_t i = 0; i < ep_count; i++) {
-        struct expr_parse *s_ep = (struct expr_parse *)array_get(&start_state->expr_parses, i);
+        struct expr_parse *s_ep = *(struct expr_parse **)array_get(&start_state->expr_parses, i);
         if (s_ep->parsed < array_size(&s_ep->expr->items)){
             struct expr_item *ei = (struct expr_item *)array_get(&s_ep->expr->items, s_ep->parsed);
             if(ei->sym == complete_ep->rule->nonterm){
@@ -174,7 +183,7 @@ void _complete(struct parse_state *state, struct expr_parse *complete_ep, struct
     //add completed ep into the start state
     // string rule = print_rule_expr(complete_ep->rule->nonterm, complete_ep->expr);
     // printf("complete rule: %.*s, [%d, %d)\n", (int)string_size(&rule), string_get(&rule), 
-    // (int)start_state->state_index, (int)state->state_index);
+    //     (int)start_state->state_index, (int)state->state_index);
     parse_state_add_completed_expr_parse(start_state, complete_ep, state->state_index);
 }
 
@@ -296,7 +305,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
     while(state)
     {
         for (size_t i = 0; i < array_size(&state->expr_parses); i++) {
-            struct expr_parse *ep = (struct expr_parse *)array_get(&state->expr_parses, i);
+            struct expr_parse *ep = *(struct expr_parse **)array_get(&state->expr_parses, i);
             if (ep->parsed == array_size(&ep->expr->items)){
                 //this rule is parsed successfully. complete it and advance one step for all parents
                 //from start state into current state.

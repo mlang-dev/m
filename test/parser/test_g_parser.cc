@@ -5,18 +5,10 @@
  */
 #include "parser/grammar.h"
 #include "parser/parser.h"
+#include "parser/m_grammar.h"
 #include "codegen/wasm_codegen.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
-
-char test_grammar[] = R"(
-sum         = sum [+-] term     { binop 0 1 2 }
-            | term              { 0 }
-term        = term [*/%] factor { binop 0 1 2 }
-            | factor            { 0 }
-factor      = '(' sum ')'       { 1 }
-            | NUM               { 0 }
-    )";
 
 TEST(testGParser, testArithmeticExp)
 {
@@ -28,7 +20,7 @@ i32.add
 )";
     symbols_init();
     wasm_codegen_init();
-    struct parser *parser = parser_new(test_grammar);
+    struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
@@ -36,6 +28,7 @@ i32.add
     parser_free(parser);
     symbols_deinit();
 }
+
 
 TEST(testGParser, testArithmeticExp1)
 {
@@ -47,7 +40,7 @@ i32.add
 )";
     symbols_init();
     wasm_codegen_init();
-    struct parser *parser = parser_new(test_grammar);
+    struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
@@ -68,7 +61,7 @@ i32.add
 )";
     symbols_init();
     wasm_codegen_init();
-    struct parser *parser = parser_new(test_grammar);
+    struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
@@ -76,6 +69,7 @@ i32.add
     parser_free(parser);
     symbols_deinit();
 }
+
 
 TEST(testGParser, testArithmeticExp3)
 {
@@ -89,7 +83,7 @@ i32.add
 )";
     symbols_init();
     wasm_codegen_init();
-    struct parser *parser = parser_new(test_grammar);
+    struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
@@ -110,7 +104,7 @@ i32.mul
 )";
     symbols_init();
     wasm_codegen_init();
-    struct parser *parser = parser_new(test_grammar);
+    struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));

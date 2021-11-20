@@ -106,8 +106,11 @@ struct hash_entry *_hash_entry_new(size_t key_size, size_t value_size)
 void _hash_entry_free(struct hashtable *ht, struct hash_entry *entry)
 {
     if (ht->free_element) {
-        unsigned char *data = entry->data.key_value_pair + entry->data.key_size;
-        ht->free_element(data);
+        void *data = entry->data.key_value_pair + entry->data.key_size;
+        if (!ht->value_size)
+            ht->free_element(*(void**)data);
+        else
+            ht->free_element(data);
     }
     free(entry->data.key_value_pair);
     free(entry);
@@ -228,7 +231,7 @@ void hashtable_set_g(struct hashtable *ht, void *key, size_t key_size, void *val
     }
     if (copy_value)
         memcpy(box->key_value_pair + key_size, value, value_size);
-    else
+    else //copy address
         memcpy(box->key_value_pair + key_size, &value, value_size);
 }
 

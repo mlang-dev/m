@@ -16,6 +16,8 @@ extern const char *keyword_symbols[];
 
 extern int keyword_count;
 
+const char * get_m_grammar();
+
 #ifdef __cplusplus
 }
 #endif

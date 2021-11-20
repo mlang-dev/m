@@ -113,8 +113,13 @@ void array_free(struct array *arr)
 
 void array_deinit(struct array *arr)
 {
+    void *elem;
     for (size_t i = 0; i < arr->base.size; i++) {
-        void *elem = array_get(arr, i);
+        void *data = array_get(arr, i);
+        if (sizeof(void*) == arr->_element_size) //This is just heuristic guess
+            elem = *(void**)data;
+        else
+            elem = data;
         if (arr->free && elem)
             arr->free(elem);
     }

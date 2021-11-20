@@ -40,14 +40,15 @@ IF (NOT EMSCRIPTEN)
     clib/test_hashtable.cc
     clib/test_hashset.cc
     clib/test_util.cc
-    lexer/test_lexer.cc
     parser/test_tok.cc
+    parser/test_g_parser.cc
+    parser/test_grammar.cc
+
+    lexer/test_lexer.cc
     parser/test_parser.cc
     parser/test_parser_logical.cc
     parser/test_parser_relational.cc
-    parser/test_g_parser.cc
     parser/test_astdump.cc
-    parser/test_grammar.cc
     sema/test_analyzer.cc
     sema/test_analyzer_errors.cc
     compiler/test_jit_relational.cc
