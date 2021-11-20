@@ -14,6 +14,8 @@ symbol IDENT_TOKEN = 0;
 symbol NUM_TOKEN = 0;
 symbol STRING_TOKEN = 0;
 symbol CHAR_TOKEN = 0;
+symbol INDENT_TOKEN = 0;
+symbol DEDENT_TOKEN = 0;
 
 void _move_ahead(struct lexer *lexer)
 {
@@ -81,6 +83,8 @@ void lexer_init(struct lexer *lexer, const char *text)
     NUM_TOKEN = to_symbol2("NUM", 3);
     STRING_TOKEN = to_symbol2("STRING", 6);
     CHAR_TOKEN = to_symbol2("CHAR", 4);
+    INDENT_TOKEN = to_symbol2("INDENT", 6);
+    DEDENT_TOKEN = to_symbol2("DEDENT", 6);
 }
 
 void get_tok(struct lexer *lexer, struct tok *tok)

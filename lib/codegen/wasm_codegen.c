@@ -37,7 +37,7 @@ string _generate(struct ast_node *ast, const char *text)
         string_append(&s, "\n");
     }
     else if(ast->node_type == UNOP){
-
+        
     }
     else if(ast->node_type == NUM_TOKEN){
         string_append(&s, "i32.const ");

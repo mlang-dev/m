@@ -56,14 +56,18 @@ int keyword_count = ARRAY_SIZE(keyword_symbols);
 const char *get_m_grammar()
 {
     const char *m_grammar = 
-        "sum         = sum [+-] term     { binop 0 1 2 }"
-        "            | term              { 0 }"
-        "term        = term [*/%] factor { binop 0 1 2 }"
-        "            | factor            { 0 }"
-        "factor      = '(' sum ')'       { 1 }"
-        "            | [+-] factor       { unop 0 1 }"
-        "            | power             { 0 }"
-        "power       = NUM '^' factor    { binop 0 1 2 }"
-        "            | NUM               { 0 }";
+        "program    = program stmt      { list 0 1 }"
+        "           | stmt              { 0 }"
+        "stmt       = IDENT() '=' expr  { func 2 }"
+        "           | expr              { 0 }"
+        "expr       = expr [+-] term    { binop 0 1 2 }"
+        "           | term              { 0 }"
+        "term       = term [*/%] factor { binop 0 1 2 }"
+        "           | factor            { 0 }"
+        "factor     = '(' expr ')'      { 1 }"
+        "           | [+-] factor       { unop 0 1 }"
+        "           | power             { 0 }"
+        "power      = NUM '^' factor    { binop 0 1 2 }"
+        "           | NUM               { 0 }";
     return m_grammar;
 }

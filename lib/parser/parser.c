@@ -306,6 +306,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
     {
         for (size_t i = 0; i < array_size(&state->expr_parses); i++) {
             struct expr_parse *ep = *(struct expr_parse **)array_get(&state->expr_parses, i);
+            assert(array_size(&ep->expr->items) > 0);
             if (ep->parsed == array_size(&ep->expr->items)){
                 //this rule is parsed successfully. complete it and advance one step for all parents
                 //from start state into current state.
