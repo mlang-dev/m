@@ -1,14 +1,15 @@
-#include "app/mwat.h"
+#include "wasm/mwat.h"
 #include "clib/symbol.h"
 #include "clib/string.h"
 #include "codegen/wasm_codegen.h"
 #include "parser/m_grammar.h"
 #include "parser/parser.h"
 
-const char * wat_module_start = "(module ";
+const char * wat_module_start = "\n(module";
 const char * wat_module_end = ")\n";
 const char * fun_def = "run()=";
-const char *parse_exp_as_module(const char *expr)
+
+string parse_exp_as_module(const char *expr)
 {
     symbols_init();
     wasm_codegen_init();
@@ -24,5 +25,5 @@ const char *parse_exp_as_module(const char *expr)
     string_add2(&wat_mod_code, &wat_fun_code);
     string_add_chars2(&wat_mod_code, wat_module_end, strlen(wat_module_end));
     symbols_deinit();
-    return 0;
+    return wat_mod_code;
 }

@@ -28,6 +28,7 @@ if (EMSCRIPTEN)
     parser/grammar.c
     parser/m_grammar.c
     codegen/wasm_codegen.c
+    wasm/mwat.c
   )
 else()
   find_package(LLVM REQUIRED CONFIG)
@@ -87,5 +88,6 @@ else()
     compiler/repl.c
     compiler/jit.c
     compiler/compiler.c
+    wasm/mwat.c
   )
 endif()
