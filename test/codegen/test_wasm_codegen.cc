@@ -15,9 +15,10 @@ TEST(testWasmCodegen, testFunc)
     const char test_code[] = "run()=1+2";
     const char expected[] = R"(
 (func $run (result i32)
-i32.const 1
-i32.const 2
-i32.add
+(i32.add
+(i32.const 1)
+(i32.const 2)
+)
 )
 (export "run" (func $run))
 )";

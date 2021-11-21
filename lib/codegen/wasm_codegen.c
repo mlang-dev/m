@@ -48,23 +48,25 @@ string _generate(struct ast_node *ast, const char *text)
     else if (ast->node_type == BINOP){
         //0, 2 is operand, 1 is operator
         assert(array_size(&ast->children)==3);
+        struct ast_node *op = *(struct ast_node**)array_get(&ast->children, 1);
+        string_append(&s, "(");
+        string_append(&s, ops[(int)text[op->loc.start]]);
+        string_append(&s, "\n");
         struct ast_node *child = *(struct ast_node**)array_get(&ast->children, 0);
         string op1 = _generate(child, text);
         string_add2(&s, &op1);
         child = *(struct ast_node**)array_get(&ast->children, 2);
         string op2 = _generate(child, text);
         string_add2(&s, &op2);
-        struct ast_node *op = *(struct ast_node**)array_get(&ast->children, 1);
-        string_append(&s, ops[(int)text[op->loc.start]]);
-        string_append(&s, "\n");
+        string_append(&s, ")\n");
     }
     else if(ast->node_type == UNOP){
 
     }
     else if(ast->node_type == NUM_TOKEN){
-        string_append(&s, "i32.const ");
+        string_append(&s, "(i32.const ");
         string_add_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
-        string_append(&s, "\n");
+        string_append(&s, ")\n");
     }
     else if(ast->node_type){
         string_init_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
