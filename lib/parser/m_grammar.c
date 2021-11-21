@@ -58,7 +58,7 @@ const char *get_m_grammar()
     const char *m_grammar = 
         "program    = program stmt      { list 0 1 }"
         "           | stmt              { 0 }"
-        "stmt       = IDENT() '=' expr  { func 2 }"
+        "stmt       = IDENT '(' ')' '=' expr  { func 0 4 }"
         "           | expr              { 0 }"
         "expr       = expr [+-] term    { binop 0 1 2 }"
         "           | term              { 0 }"
