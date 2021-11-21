@@ -9,7 +9,7 @@
  * integer is fast then string)
  */
 #include "clib/symbol.h"
-
+#include <string.h>
 #include <assert.h>
 #include <stdlib.h>
 
