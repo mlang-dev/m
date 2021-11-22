@@ -76,7 +76,7 @@ char *get_basename(char *filename);
 
 #define REALLOC(_ptr, old_mem, _size)                                                      \
     do {                                                                         \
-        if (NULL == (_ptr = calloc(old_mem, _size))) {                                    \
+        if (NULL == (_ptr = realloc(old_mem, _size))) {                                    \
             char errmsg[ERROR_MSG_MAX];                                          \
             strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
             fprintf(stderr, "Failed to allocate memory -realloc. %s\n", errmsg);          \

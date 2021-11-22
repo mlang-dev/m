@@ -72,7 +72,9 @@ void array_push(struct array *arr, void *element)
 void array_grow(struct array *arr)
 {
     arr->cap *= 2;
-    arr->base.data.p_data = realloc(arr->base.data.p_data, arr->cap * arr->_element_size);
+    void* data;
+    REALLOC(data, arr->base.data.p_data, arr->cap * arr->_element_size);
+    arr->base.data.p_data = data;
 }
 
 void array_set(struct array *arr, size_t index, void *element)

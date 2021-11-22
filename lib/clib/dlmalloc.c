@@ -822,12 +822,12 @@ extern "C" {
 /* ------------------- Declarations of public routines ------------------- */
 
 #ifndef USE_DL_PREFIX
-#define dlcalloc               calloc
-#define dlfree                 free
-#define dlmalloc               malloc
+//#define dlcalloc               calloc
+//#define dlfree                 free
+//#define dlmalloc               malloc
 #define dlmemalign             memalign
 #define dlposix_memalign       posix_memalign
-#define dlrealloc              realloc
+//#define dlrealloc              realloc
 #define dlrealloc_in_place     realloc_in_place
 #define dlvalloc               valloc
 #define dlpvalloc              pvalloc

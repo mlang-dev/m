@@ -144,7 +144,7 @@ void string_add(string *str1, string *str2)
         char *data;
         if (str1->cap > SSO_LENGTH) {
             //allocated in heap already
-            data = (char *)realloc(str1->base.data.p_data, len + 1);
+            REALLOC(data, str1->base.data.p_data, len + 1);
             memcpy(data + str1->base.size, string_get(str2), str2->base.size + 1);
         } else {
             //previously in reserved
@@ -173,7 +173,7 @@ void string_add2(string *str1, string *str2)
         char *data;
         if (str1->cap > SSO_LENGTH) {
             //allocated in heap already
-            data = (char *)realloc(str1->base.data.p_data, len);
+            REALLOC(data, str1->base.data.p_data, len);
             memcpy(data + str1->base.size, string_get(str2), str2->base.size);
         } else {
             //previously in reserved
