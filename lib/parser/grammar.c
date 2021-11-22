@@ -192,5 +192,5 @@ void grammar_free(struct grammar *grammar)
     hashtable_deinit(&grammar->rule_map);
     array_deinit(&grammar->rules);
     hashset_deinit(&grammar->keywords);
-    free(grammar);
+    FREE(grammar);
 }

@@ -25,7 +25,7 @@ struct parser *parser_new(const char *grammar_text)
 void parser_free(struct parser *parser)
 {
     grammar_free(parser->grammar);
-    free(parser);
+    FREE(parser);
 }
 
 struct expr_parse *parse_state_find_expr_parse(struct parse_state *state, struct expr* expr, size_t parsed)

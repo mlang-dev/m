@@ -7,7 +7,6 @@
  */
 #include <assert.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -31,7 +30,8 @@ void _init_str(string *str)
 
 string *string_new(const char *chars)
 {
-    string *str = malloc(sizeof(*str));
+    string *str;
+    MALLOC(str, sizeof(*str));
     string_init_chars(str, chars);
     return str;
 }
@@ -39,7 +39,8 @@ string *string_new(const char *chars)
 
 string *string_new2(const char *chars, size_t str_len)
 {
-    string *str = malloc(sizeof(*str));
+    string *str;
+    MALLOC(str, sizeof(*str));
     string_init_chars2(str, chars, str_len);
     return str;
 }
@@ -91,7 +92,9 @@ void string_init_chars2(string *str, const char *chars, size_t str_len)
 void string_copy_with_len(string *dest, const char *data, size_t len)
 {
     if (len >= dest->cap) {
-        dest->base.data.p_data = malloc(len + 1);
+        void* p;
+        MALLOC(p, len+1);
+        dest->base.data.p_data = p;
         dest->cap = len + 1;
     }
     char *dest_data = string_get(dest);
@@ -103,7 +106,9 @@ void string_copy_with_len(string *dest, const char *data, size_t len)
 void string_copy_with_len2(string *dest, const char *data, size_t len)
 {
     if (len >= dest->cap) {
-        dest->base.data.p_data = malloc(len);
+        void* p;
+        MALLOC(p, len);
+        dest->base.data.p_data = p;
         dest->cap = len;
     }
     char *dest_data = string_get(dest);
@@ -143,7 +148,7 @@ void string_add(string *str1, string *str2)
             memcpy(data + str1->base.size, string_get(str2), str2->base.size + 1);
         } else {
             //previously in reserved
-            data = malloc(len + 1);
+            MALLOC(data, len+1);
             memcpy(data, str1->_reserved, str1->base.size + 1);
             memcpy(data + str1->base.size, string_get(str2), str2->base.size + 1);
         }
@@ -172,7 +177,7 @@ void string_add2(string *str1, string *str2)
             memcpy(data + str1->base.size, string_get(str2), str2->base.size);
         } else {
             //previously in reserved
-            data = malloc(len);
+            MALLOC(data, len);
             memcpy(data, str1->_reserved, str1->base.size);
             memcpy(data + str1->base.size, string_get(str2), str2->base.size);
         }
@@ -229,7 +234,7 @@ bool string_eq_chars(string *str1, const char *chars)
 void string_deinit(string *str)
 {
     if (str->base.data.p_data)
-        free(str->base.data.p_data);
+        FREE(str->base.data.p_data);
 }
 
 string *string_substr(string *str, char match)
@@ -282,7 +287,7 @@ struct array string_split(string *str, char sep)
 void string_free(string *str)
 {
     string_deinit(str);
-    free(str);
+    FREE(str);
 }
 
 char string_back(string *str)

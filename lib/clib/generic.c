@@ -7,14 +7,14 @@
  */
 
 #include <stddef.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "clib/generic.h"
+#include "clib/util.h"
 
 void generic_free(void *p)
 {
-    free(p);
+    FREE(p);
 }
 
 void generic_copy(void *dest, void *src, size_t size)

@@ -141,5 +141,5 @@ struct target_info *ti_new()
 
 void ti_free(struct target_info *ti)
 {
-    free(ti);
+    FREE(ti);
 }

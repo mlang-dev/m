@@ -59,10 +59,32 @@ char *get_basename(char *filename);
         if (NULL == (_ptr = malloc(_size))) {                                    \
             char errmsg[ERROR_MSG_MAX];                                          \
             strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
-            fprintf(stderr, "Failed to allocate memory. %s\n", errmsg);          \
+            fprintf(stderr, "Failed to allocate memory -malloc. %s\n", errmsg);          \
             exit(EXIT_FAILURE);                                                  \
         }                                                                        \
     } while (0)
+
+#define CALLOC(_ptr, _element_count, element_size)                                                      \
+    do {                                                                         \
+        if (NULL == (_ptr = calloc(_element_count, element_size))) {                                    \
+            char errmsg[ERROR_MSG_MAX];                                          \
+            strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
+            fprintf(stderr, "Failed to allocate memory -calloc. %s\n", errmsg);          \
+            exit(EXIT_FAILURE);                                                  \
+        }                                                                        \
+    } while (0)
+
+#define REALLOC(_ptr, old_mem, _size)                                                      \
+    do {                                                                         \
+        if (NULL == (_ptr = calloc(old_mem, _size))) {                                    \
+            char errmsg[ERROR_MSG_MAX];                                          \
+            strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
+            fprintf(stderr, "Failed to allocate memory -realloc. %s\n", errmsg);          \
+            exit(EXIT_FAILURE);                                                  \
+        }                                                                        \
+    } while (0)
+
+#define FREE(_ptr) free(_ptr)
 
 char *get_exec_path();
 

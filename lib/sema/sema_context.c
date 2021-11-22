@@ -12,7 +12,6 @@
 #include "tool/cmodule.h"
 #include <assert.h>
 #include <limits.h>
-#include <stdlib.h>
 #include <string.h>
 
 void enter_scope(struct sema_context *context)
@@ -31,8 +30,8 @@ void leave_scope(struct sema_context *context)
 
 struct sema_context *sema_context_new(struct m_parser *parser)
 {
-    struct sema_context *context = malloc(sizeof(*context));
-    memset((void *)context, 0, sizeof(*context));
+    struct sema_context *context;
+    CALLOC(context, 1, sizeof(*context));
     array_init(&context->nongens, sizeof(struct type_exp *));
     array_init(&context->used_builtin_names, sizeof(symbol));
     context->parser = parser;
@@ -92,5 +91,5 @@ void sema_context_free(struct sema_context *context)
     symboltable_deinit(&context->typename_2_typexps);
     array_deinit(&context->used_builtin_names);
     array_deinit(&context->nongens);
-    free(context);
+    FREE(context);
 }

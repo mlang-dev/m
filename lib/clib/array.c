@@ -8,24 +8,26 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "clib/array.h"
 #include "clib/generic.h"
+#include "clib/util.h"
 
 struct array *array_new(size_t element_size)
 {
-    struct array *arr = malloc(sizeof(*arr));
+    struct array *arr;
+    MALLOC(arr, sizeof(*arr));
     array_init(arr, element_size);
     return arr;
 }
 
 void array_init_size(struct array *arr, size_t element_size, size_t init_size, free_fun free)
 {
+    void *p_data;
+    CALLOC(p_data, init_size, element_size);
     arr->_element_size = element_size;
-    arr->base.data.p_data = malloc(init_size * element_size);
-    memset(arr->base.data.p_data, 0, init_size * element_size);
+    arr->base.data.p_data = p_data;
     arr->cap = init_size;
     arr->base.size = 0;
     arr->free = free;
@@ -108,7 +110,7 @@ size_t array_size(struct array *arr)
 void array_free(struct array *arr)
 {
     array_deinit(arr);
-    free(arr);
+    FREE(arr);
 }
 
 void array_deinit(struct array *arr)
@@ -123,7 +125,7 @@ void array_deinit(struct array *arr)
         if (arr->free && elem)
             arr->free(elem);
     }
-    free(arr->base.data.p_data);
+    FREE(arr->base.data.p_data);
 }
 
 void array_add(struct array *dest, struct array *src)

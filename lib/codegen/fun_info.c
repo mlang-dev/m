@@ -193,7 +193,7 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
             for (unsigned j = 0; j < iar->ir_arg_num; ++j) {
                 array_push(&arg_types, &types[j]);
             }
-            free(types);
+            FREE(types);
             break;
         }
         case AK_EXPAND:

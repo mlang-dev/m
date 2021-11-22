@@ -22,6 +22,7 @@ if (EMSCRIPTEN)
     clib/win/getopt.c
     clib/win/libfmemopen.c
     clib/getpath.c
+    clib/malloc.c
     parser/ast_node.c
     parser/tok.c
     parser/parser.c
@@ -56,6 +57,7 @@ else()
     clib/win/getopt.c
     clib/win/libfmemopen.c
     clib/getpath.c
+   # clib/malloc.c
     tool/cmodule.c
     lexer/lexer.c
     lexer/keyword.c

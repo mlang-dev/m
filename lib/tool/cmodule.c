@@ -11,7 +11,6 @@
 #include "parser/m_parser.h"
 #include <clang-c/Index.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 enum type _get_type(CXType cxtype)
 {

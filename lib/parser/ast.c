@@ -9,7 +9,6 @@
 #include "parser/grammar.h"
 #include "parser/m_grammar.h"
 #include <assert.h>
-#include <stdlib.h>
 #include <string.h>
 
 const char *node_type_strings[] = {
@@ -41,7 +40,7 @@ struct type_exp *get_ret_type(struct function_node *fun_node)
 void _free_exp_node(struct exp_node *node)
 {
     /*TODO: free node->type, need to be considerate for shared types*/
-    free(node);
+    FREE(node);
 }
 
 struct block_node *_copy_block_node(struct block_node *orig_node)
@@ -84,7 +83,8 @@ struct array to_symbol_array(struct array arr)
 
 struct ident_node *ident_node_new(struct exp_node *parent, struct source_loc loc, symbol name)
 {
-    struct ident_node *node = malloc(sizeof(*node));
+    struct ident_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.type = 0;
     node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
@@ -111,7 +111,8 @@ void _free_ident_node(struct ident_node *node)
 
 struct literal_node *_create_literal_node(struct exp_node *parent, struct source_loc loc, void *val, enum type type)
 {
-    struct literal_node *node = malloc(sizeof(*node));
+    struct literal_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = LITERAL_NODE;
     node->base.annotated_type_name = to_symbol(type_strings[type]);
     node->base.annotated_type_enum = type;
@@ -135,7 +136,7 @@ struct literal_node *_create_literal_node(struct exp_node *parent, struct source
 void _free_literal_node(struct literal_node *node)
 {
     if (node->base.annotated_type_enum == TYPE_STRING)
-        free((void *)node->val.str_val);
+        FREE((void *)node->val.str_val);
     _free_exp_node(&node->base);
 }
 
@@ -179,7 +180,8 @@ struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, sy
     struct exp_node *init_value)
 {
     (void)ext_type;
-    struct var_node *node = (struct var_node *)malloc(sizeof(*node));
+    struct var_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = VAR_NODE;
     node->base.annotated_type_enum = type;
     node->base.annotated_type_name = ext_type;
@@ -208,7 +210,8 @@ void _free_var_node(struct var_node *node)
 
 struct type_node *type_node_new(struct exp_node *parent, struct source_loc loc, symbol name, struct block_node *body)
 {
-    struct type_node *node = malloc(sizeof(*node));
+    struct type_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = TYPE_NODE;
     node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
@@ -235,7 +238,8 @@ void _free_type_node(struct type_node *node)
 
 struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_loc loc, struct block_node *body, symbol type_symbol)
 {
-    struct type_value_node *node = malloc(sizeof(*node));
+    struct type_value_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = TYPE_VALUE_NODE;
     node->base.annotated_type_enum = TYPE_EXT;
     node->base.annotated_type_name = type_symbol;
@@ -262,7 +266,8 @@ void _free_type_value_node(struct type_value_node *node)
 struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, symbol callee,
     struct array *args)
 {
-    struct call_node *node = malloc(sizeof(*node));
+    struct call_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = CALL_NODE;
     node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
@@ -307,7 +312,8 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
     bool is_operator, unsigned precedence, symbol op,
     bool is_variadic, bool is_external)
 {
-    struct prototype_node *node = malloc(sizeof(*node));
+    struct prototype_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
     node->base.annotated_type_name = ret_type ? to_symbol(type_strings[ret_type->type]) : 0;
     node->base.annotated_type_enum = ret_type ? ret_type->type : TYPE_UNK;
@@ -335,7 +341,8 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
 
 struct prototype_node *_copy_prototype_node(struct prototype_node *proto)
 {
-    struct prototype_node *node = malloc(sizeof(*node));
+    struct prototype_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = PROTOTYPE_NODE;
     node->base.annotated_type_enum = proto->base.annotated_type_enum;
     node->base.annotated_type_name = proto->base.annotated_type_name;
@@ -372,7 +379,8 @@ void _free_prototype_node(struct prototype_node *node)
 struct function_node *function_node_new(struct prototype_node *prototype,
     struct block_node *body)
 {
-    struct function_node *node = malloc(sizeof(*node));
+    struct function_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.type = 0;
     node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
@@ -402,7 +410,8 @@ void _free_function_node(struct function_node *node)
 struct condition_node *if_node_new(struct exp_node *parent, struct source_loc loc,
     struct exp_node *condition, struct exp_node *then_node, struct exp_node *else_node)
 {
-    struct condition_node *node = malloc(sizeof(*node));
+    struct condition_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = CONDITION_NODE;
     node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
@@ -435,7 +444,8 @@ void _free_if_node(struct condition_node *node)
 
 struct unary_node *unary_node_new(struct exp_node *parent, struct source_loc loc, symbol op, struct exp_node *operand)
 {
-    struct unary_node *node = malloc(sizeof(*node));
+    struct unary_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = UNARY_NODE;
     node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
@@ -461,7 +471,8 @@ void _free_unary_node(struct unary_node *node)
 
 struct binary_node *binary_node_new(struct exp_node *parent, struct source_loc loc, symbol op, struct exp_node *lhs, struct exp_node *rhs)
 {
-    struct binary_node *node = malloc(sizeof(*node));
+    struct binary_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = BINARY_NODE;
     node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
@@ -492,7 +503,8 @@ void _free_binary_node(struct binary_node *node)
 struct for_node *for_node_new(struct exp_node *parent, struct source_loc loc, symbol var_name, struct exp_node *start,
     struct exp_node *end, struct exp_node *step, struct exp_node *body)
 {
-    struct for_node *node = malloc(sizeof(*node));
+    struct for_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = FOR_NODE;
     node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
@@ -528,7 +540,8 @@ void _free_for_node(struct for_node *node)
 
 struct block_node *block_node_new(struct exp_node *parent, struct array *nodes)
 {
-    struct block_node *node = malloc(sizeof(*node));
+    struct block_node *node;
+    MALLOC(node, sizeof(*node));
     node->base.node_type = BLOCK_NODE;
     node->base.annotated_type_enum = 0;
     node->base.annotated_type_name = 0;
@@ -578,7 +591,7 @@ void node_free(struct exp_node *node)
 {
     switch (node->node_type) {
     case UNK_NODE:
-        free(node);
+        FREE(node);
         break;
     case BLOCK_NODE:
         _free_block_node((struct block_node *)node);
@@ -627,11 +640,13 @@ void node_free(struct exp_node *node)
 
 struct module *module_new(const char *mod_name, FILE *file)
 {
-    struct module *mod = malloc(sizeof(*mod));
+    struct module *mod;
+    MALLOC(mod, sizeof(*mod));
     // printf("new module: %s\n", mod_name);
     mod->name = to_symbol(mod_name);
     // printf("got new module: %s\n", mod_name);
-    struct block_node *node = malloc(sizeof(*node));
+    struct block_node *node;
+    MALLOC(node, sizeof(*node));
     mod->block = node;
     array_init(&mod->block->nodes, sizeof(struct exp_node *));
     mod->tokenizer = create_tokenizer(file, mod_name, keyword_symbols, keyword_count);
