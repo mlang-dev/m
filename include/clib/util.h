@@ -51,11 +51,17 @@ void print_backtrace(void);
 void join_path(char *destination, size_t dst_size, const char *path1, const char *path2);
 char *get_basename(char *filename);
 
+
+#define MMEM_MALLOC malloc
+#define MMEM_FREE free
+#define MMEM_CALLOC calloc
+#define MMEM_REALLOC realloc
+
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define ERROR_MSG_MAX 512
 #define MALLOC(_ptr, _size)                                                      \
     do {                                                                         \
-        if (NULL == (_ptr = malloc(_size))) {                                    \
+        if (NULL == (_ptr = MMEM_MALLOC(_size))) {                                    \
             char errmsg[ERROR_MSG_MAX];                                          \
             strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
             fprintf(stderr, "Failed to allocate memory -malloc. %s\n", errmsg);          \
@@ -65,7 +71,7 @@ char *get_basename(char *filename);
 
 #define CALLOC(_ptr, _element_count, element_size)                                                      \
     do {                                                                         \
-        if (NULL == (_ptr = calloc(_element_count, element_size))) {                                    \
+        if (NULL == (_ptr = MMEM_CALLOC(_element_count, element_size))) {                                    \
             char errmsg[ERROR_MSG_MAX];                                          \
             strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
             fprintf(stderr, "Failed to allocate memory -calloc. %s\n", errmsg);          \
@@ -75,7 +81,7 @@ char *get_basename(char *filename);
 
 #define REALLOC(_ptr, old_mem, _size)                                                      \
     do {                                                                         \
-        if (NULL == (_ptr = realloc(old_mem, _size))) {                                    \
+        if (NULL == (_ptr = MMEM_REALLOC(old_mem, _size))) {                                    \
             char errmsg[ERROR_MSG_MAX];                                          \
             strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
             fprintf(stderr, "Failed to allocate memory -realloc. %s\n", errmsg);          \
@@ -83,8 +89,7 @@ char *get_basename(char *filename);
         }                                                                        \
     } while (0)
 
-#define FREE_FUNC free
-#define FREE(_ptr) FREE_FUNC(_ptr)
+#define FREE(_ptr) MMEM_FREE(_ptr)
 
 char *get_exec_path();
 
