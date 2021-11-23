@@ -130,7 +130,7 @@ struct literal_node *_create_literal_node(struct exp_node *parent, struct source
     else if (type == TYPE_BOOL)
         node->val.bool_val = *(bool *)val;
     else if (type == TYPE_STRING)
-        node->val.str_val = __strdup((const char *)val);
+        node->val.str_val = str_clone((const char *)val);
     return node;
 }
 

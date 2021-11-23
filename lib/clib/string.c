@@ -360,7 +360,7 @@ bool is_upper(string *str)
     return true;
 }
 
-char *__strdup (const char *s)
+char *str_clone(const char *s)
 {
   size_t len = strlen (s) + 1;
   void *new;
