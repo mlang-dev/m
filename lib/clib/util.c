@@ -6,7 +6,6 @@
 //#include <execinfo.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "clib/util.h"
 
@@ -19,7 +18,7 @@ const char *log_level_strings[] = {
 static char id_name[512] = "a";
 void reset_id_name(const char *idname)
 {
-    strcpy_s(id_name, sizeof(id_name), idname);
+    strcpy(id_name, idname);
 }
 
 void _inc_str(string *id)
@@ -150,11 +149,11 @@ void join_path(char *destination, size_t dst_size, const char *path1, const char
 {
     (void)dst_size; // not used but make gcc/clang happy
     if (path1 == 0 && path2 == 0) {
-        strcpy_s(destination, dst_size, "");
+        strcpy(destination, "");
     } else if (path2 == 0 || strlen(path2) == 0) {
-        strcpy_s(destination, dst_size, path1);
+        strcpy(destination, path1);
     } else if (path1 == 0 || strlen(path1) == 0) {
-        strcpy_s(destination, dst_size, path2);
+        strcpy(destination, path2);
     } else {
         char directory_separator[] = "/";
 #ifdef WIN32
@@ -169,13 +168,13 @@ void join_path(char *destination, size_t dst_size, const char *path1, const char
         if (strcmp(last_char, directory_separator) != 0) {
             append_directory_separator = 1;
         }
-        strcpy_s(destination, dst_size, path1);
+        strcpy(destination, path1);
         if (append_directory_separator)
-            strcat_s(destination, dst_size, directory_separator);
+            strcat(destination, directory_separator);
         if (strncmp(path2, directory_separator, 1) == 0) {
             path2++;
         }
-        strcat_s(destination, dst_size, path2);
+        strcat(destination, path2);
     }
 }
 

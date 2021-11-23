@@ -8,7 +8,6 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "clib/hash.h"
 #include "clib/hashtable.h"
@@ -39,7 +38,8 @@ void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size, fre
     ht->cap = 19;
     ht->size = 0;
     ht->value_size = value_size;
-    ht->heads = calloc(ht->cap, sizeof(struct hash_head));
+
+    CALLOC(ht->heads, ht->cap, sizeof(struct hash_head));
     ht->free_element = free_element;
 }
 
@@ -58,7 +58,7 @@ void _hashtable_grow(struct hashtable *ht)
         cap = ht->cap;
         heads = ht->heads;
         ht->cap *= 2;
-        ht->heads = calloc(ht->cap, sizeof(struct hash_head));
+        CALLOC(ht->heads, ht->cap, sizeof(struct hash_head));
         for (size_t i = 0; i < cap; i++) {
             head = &heads[i];
             entry = head->first;

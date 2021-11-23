@@ -14,12 +14,11 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
 #include "clib/array.h"
 #include "clib/string.h"
-
+#include "clib/dlmalloc.h"
+#include <stdlib.h>
 #ifdef _WIN32
 #include "clib/win/unistd.h"
 #else
@@ -60,7 +59,7 @@ char *get_basename(char *filename);
             char errmsg[ERROR_MSG_MAX];                                          \
             strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
             fprintf(stderr, "Failed to allocate memory -malloc. %s\n", errmsg);          \
-            exit(EXIT_FAILURE);                                                  \
+            exit(1);                                                  \
         }                                                                        \
     } while (0)
 
@@ -70,7 +69,7 @@ char *get_basename(char *filename);
             char errmsg[ERROR_MSG_MAX];                                          \
             strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
             fprintf(stderr, "Failed to allocate memory -calloc. %s\n", errmsg);          \
-            exit(EXIT_FAILURE);                                                  \
+            exit(1);                                                  \
         }                                                                        \
     } while (0)
 
@@ -80,11 +79,12 @@ char *get_basename(char *filename);
             char errmsg[ERROR_MSG_MAX];                                          \
             strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
             fprintf(stderr, "Failed to allocate memory -realloc. %s\n", errmsg);          \
-            exit(EXIT_FAILURE);                                                  \
+            exit(1);                                                  \
         }                                                                        \
     } while (0)
 
-#define FREE(_ptr) free(_ptr)
+#define FREE_FUNC free
+#define FREE(_ptr) FREE_FUNC(_ptr)
 
 char *get_exec_path();
 

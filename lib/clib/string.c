@@ -7,7 +7,6 @@
  */
 #include <assert.h>
 #include <stdio.h>
-#include <string.h>
 #include <ctype.h>
 
 #include "clib/array.h"
@@ -359,4 +358,12 @@ bool is_upper(string *str)
             return false;
     }
     return true;
+}
+
+char *__strdup (const char *s)
+{
+  size_t len = strlen (s) + 1;
+  void *new;
+  MALLOC(new, len);
+  return (char *) memcpy (new, s, len);
 }

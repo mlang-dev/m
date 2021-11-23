@@ -3,7 +3,6 @@
  *
  * unit test for string functions
  */
-#include <string.h>
 
 #include "clib/string.h"
 #include "gtest/gtest.h"

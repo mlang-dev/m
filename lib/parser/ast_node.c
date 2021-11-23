@@ -8,7 +8,6 @@
 #include "clib/util.h"
 #include "parser/ast_node.h"
 #include <assert.h>
-#include <string.h>
 
 struct ast_node *ast_node_new(symbol node_type)
 {

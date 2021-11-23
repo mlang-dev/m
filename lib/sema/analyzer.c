@@ -14,7 +14,6 @@
 #include "tool/cmodule.h"
 #include <assert.h>
 #include <limits.h>
-#include <string.h>
 
 const char *relational_ops[] = {
     "<",

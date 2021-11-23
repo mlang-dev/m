@@ -8,8 +8,9 @@
 #include "clib/array.h"
 #include "parser/grammar.h"
 #include "parser/m_grammar.h"
+#include "clib/string.h"
 #include <assert.h>
-#include <string.h>
+
 
 const char *node_type_strings[] = {
     FOREACH_NODETYPE(GENERATE_ENUM_STRING)
@@ -129,14 +130,15 @@ struct literal_node *_create_literal_node(struct exp_node *parent, struct source
     else if (type == TYPE_BOOL)
         node->val.bool_val = *(bool *)val;
     else if (type == TYPE_STRING)
-        node->val.str_val = _strdup((const char *)val);
+        node->val.str_val = __strdup((const char *)val);
     return node;
 }
 
 void _free_literal_node(struct literal_node *node)
 {
-    if (node->base.annotated_type_enum == TYPE_STRING)
+    if (node->base.annotated_type_enum == TYPE_STRING){
         FREE((void *)node->val.str_val);
+    }
     _free_exp_node(&node->base);
 }
 

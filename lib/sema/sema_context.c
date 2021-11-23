@@ -12,7 +12,6 @@
 #include "tool/cmodule.h"
 #include <assert.h>
 #include <limits.h>
-#include <string.h>
 
 void enter_scope(struct sema_context *context)
 {

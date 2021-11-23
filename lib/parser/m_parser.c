@@ -5,7 +5,6 @@
  */
 #include <assert.h>
 #include <errno.h>
-#include <string.h>
 
 #include "clib/hashtable.h"
 #include "clib/util.h"

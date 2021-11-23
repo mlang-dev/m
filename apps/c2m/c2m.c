@@ -9,7 +9,6 @@
 #include "clib/util.h"
 #include <limits.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "parser/astdump.h"
 #include "tool/cmodule.h"

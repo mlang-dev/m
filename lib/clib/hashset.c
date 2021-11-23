@@ -7,7 +7,6 @@
  */
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "clib/array.h"
 #include "clib/hash.h"

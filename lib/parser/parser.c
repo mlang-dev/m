@@ -72,7 +72,7 @@ void parse_state_init_rule(struct parse_state *state, struct rule *rule)
 void parse_state_init(struct parse_state *state, int state_index)
 {
     state->state_index = state_index;
-    array_init_free(&state->expr_parses, sizeof(struct expr_parse *), (free_fun)free);
+    array_init_free(&state->expr_parses, sizeof(struct expr_parse *), (free_fun)FREE_FUNC);
     hashtable_init_with_value_size(&state->complete_parses, 0, (free_fun)array_free);//
 }
 
