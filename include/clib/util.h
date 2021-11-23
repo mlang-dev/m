@@ -52,10 +52,10 @@ void join_path(char *destination, size_t dst_size, const char *path1, const char
 char *get_basename(char *filename);
 
 
-#define MMEM_MALLOC malloc
-#define MMEM_FREE free
-#define MMEM_CALLOC calloc
-#define MMEM_REALLOC realloc
+#define MMEM_MALLOC dlmalloc
+#define MMEM_FREE dlfree
+#define MMEM_CALLOC dlcalloc
+#define MMEM_REALLOC dlrealloc
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define ERROR_MSG_MAX 512

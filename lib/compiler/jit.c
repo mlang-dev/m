@@ -54,7 +54,7 @@ void jit_free(struct JIT *jit)
         //_destroy_jit_instance(jit->jit);
         //LLVMShutdown();
     }
-    free(jit);
+    FREE(jit);
 }
 
 void add_module(struct JIT *jit, void *module)

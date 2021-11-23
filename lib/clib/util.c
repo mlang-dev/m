@@ -141,7 +141,7 @@ void print_backtrace(void)
     for (j = 0; j < nptrs; j++)
         printf("%s\n", strings[j]);
 
-    free(strings);
+    FREE(strings);
     */
 }
 
