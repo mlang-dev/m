@@ -20,7 +20,7 @@ struct array {
     object base;
     size_t cap;
     size_t _element_size; //element size of the array
-    free_fun free_fun;
+    free_fun fun_free;
 };
 
 struct array *array_new(size_t element_size);

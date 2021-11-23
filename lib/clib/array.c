@@ -21,7 +21,7 @@ struct array *array_new(size_t element_size)
     return arr;
 }
 
-void array_init_size(struct array *arr, size_t element_size, size_t init_size, free_fun free_fun)
+void array_init_size(struct array *arr, size_t element_size, size_t init_size, free_fun fun_free)
 {
     void *p_data;
     CALLOC(p_data, init_size, element_size);
@@ -29,7 +29,7 @@ void array_init_size(struct array *arr, size_t element_size, size_t init_size, f
     arr->base.data.p_data = p_data;
     arr->cap = init_size;
     arr->base.size = 0;
-    arr->free_fun = free_fun;
+    arr->fun_free = fun_free;
 }
 
 void array_init(struct array *arr, size_t element_size)
@@ -49,7 +49,7 @@ void array_copy(struct array *dest, struct array *src)
 
 void array_copy_size(struct array *dest, struct array *src, size_t size)
 {
-    array_init_size(dest, src->_element_size, size, src->free_fun);
+    array_init_size(dest, src->_element_size, size, src->fun_free);
     memcpy(dest->base.data.p_data, src->base.data.p_data, size * src->_element_size);
     dest->base.size = size;
 }
@@ -123,8 +123,8 @@ void array_deinit(struct array *arr)
             elem = *(void**)data;
         else
             elem = data;
-        if (arr->free_fun && elem)
-            arr->free_fun(elem);
+        if (arr->fun_free && elem)
+            arr->fun_free(elem);
     }
     FREE(arr->base.data.p_data);
 }
@@ -139,5 +139,5 @@ void array_add(struct array *dest, struct array *src)
 void array_clear(struct array *arr)
 {
     array_deinit(arr);
-    array_init_free(arr, arr->_element_size, arr->free_fun);
+    array_init_free(arr, arr->_element_size, arr->fun_free);
 }
