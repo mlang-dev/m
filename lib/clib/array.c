@@ -21,7 +21,7 @@ struct array *array_new(size_t element_size)
     return arr;
 }
 
-void array_init_size(struct array *arr, size_t element_size, size_t init_size, free_fun free)
+void array_init_size(struct array *arr, size_t element_size, size_t init_size, free_fun free_fun)
 {
     void *p_data;
     CALLOC(p_data, init_size, element_size);
@@ -29,7 +29,7 @@ void array_init_size(struct array *arr, size_t element_size, size_t init_size, f
     arr->base.data.p_data = p_data;
     arr->cap = init_size;
     arr->base.size = 0;
-    arr->free = free;
+    arr->free_fun = free_fun;
 }
 
 void array_init(struct array *arr, size_t element_size)
@@ -37,9 +37,9 @@ void array_init(struct array *arr, size_t element_size)
     array_init_free(arr, element_size, 0);
 }
 
-void array_init_free(struct array *arr, size_t element_size, free_fun free)
+void array_init_free(struct array *arr, size_t element_size, free_fun free_fun)
 {
-    array_init_size(arr, element_size, 7, free);
+    array_init_size(arr, element_size, 7, free_fun);
 }
 
 void array_copy(struct array *dest, struct array *src)
@@ -49,7 +49,7 @@ void array_copy(struct array *dest, struct array *src)
 
 void array_copy_size(struct array *dest, struct array *src, size_t size)
 {
-    array_init_size(dest, src->_element_size, size, src->free);
+    array_init_size(dest, src->_element_size, size, src->free_fun);
     memcpy(dest->base.data.p_data, src->base.data.p_data, size * src->_element_size);
     dest->base.size = size;
 }
@@ -123,8 +123,8 @@ void array_deinit(struct array *arr)
             elem = *(void**)data;
         else
             elem = data;
-        if (arr->free && elem)
-            arr->free(elem);
+        if (arr->free_fun && elem)
+            arr->free_fun(elem);
     }
     FREE(arr->base.data.p_data);
 }
@@ -139,5 +139,5 @@ void array_add(struct array *dest, struct array *src)
 void array_clear(struct array *arr)
 {
     array_deinit(arr);
-    array_init_free(arr, arr->_element_size, arr->free);
+    array_init_free(arr, arr->_element_size, arr->free_fun);
 }

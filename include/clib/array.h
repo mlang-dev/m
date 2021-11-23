@@ -20,12 +20,12 @@ struct array {
     object base;
     size_t cap;
     size_t _element_size; //element size of the array
-    free_fun free;
+    free_fun free_fun;
 };
 
 struct array *array_new(size_t element_size);
 void array_init(struct array *arr, size_t element_size);
-void array_init_free(struct array *arr, size_t element_size, free_fun free);
+void array_init_free(struct array *arr, size_t element_size, free_fun free_fun);
 void array_grow(struct array *arr);
 void array_deinit(struct array *arr);
 void array_push(struct array *arr, void *element);
