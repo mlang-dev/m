@@ -3,7 +3,6 @@
  *
  * JIT (just-in-time compiler)
  */
-#include <stdlib.h>
 
 #include "clib/util.h"
 #include "compiler/jit.h"
@@ -42,7 +41,8 @@ void _destroy_jit_instance(void *instance)
 
 struct JIT *jit_new(struct env *env)
 {
-    struct JIT *jit = malloc(sizeof(*jit));
+    struct JIT *jit;
+    MALLOC(jit, sizeof(*jit));
     jit->env = env;
     jit->instance = _create_jit_instance();
     return jit;
@@ -54,7 +54,7 @@ void jit_free(struct JIT *jit)
         //_destroy_jit_instance(jit->jit);
         //LLVMShutdown();
     }
-    free(jit);
+    FREE(jit);
 }
 
 void add_module(struct JIT *jit, void *module)

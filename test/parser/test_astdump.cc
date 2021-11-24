@@ -12,7 +12,6 @@
 #include "parser/astdump.h"
 #include "test_base.h"
 #include "tutil.h"
-#include <string.h>
 
 class testAstDump : public TestBase {
 };

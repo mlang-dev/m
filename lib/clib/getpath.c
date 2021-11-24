@@ -2,8 +2,6 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #ifdef __APPLE__
 #include <libproc.h>
 char SEP = '/';

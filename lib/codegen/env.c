@@ -29,7 +29,7 @@ void env_free(struct env *env)
     m_parser_free(env->parser);
     sema_context_free(env->sema_context);
     cg_free(env->cg);
-    free(env);
+    FREE(env);
     g_env = 0;
     symbols_deinit();
 }

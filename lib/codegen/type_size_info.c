@@ -174,5 +174,5 @@ struct struct_layout *sl_new()
 void sl_free(struct struct_layout *sl)
 {
     array_deinit(&sl->field_offsets);
-    free(sl);
+    FREE(sl);
 }

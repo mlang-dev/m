@@ -2,7 +2,6 @@
 #include "clib/string.h"
 #include "clib/util.h"
 #include <llvm-c/TargetMachine.h>
-#include <string.h>
 
 //x86_64-pc-windows-msvc
 //x86_64-apple-darwin19.6.0
@@ -141,5 +140,5 @@ struct target_info *ti_new()
 
 void ti_free(struct target_info *ti)
 {
-    free(ti);
+    FREE(ti);
 }

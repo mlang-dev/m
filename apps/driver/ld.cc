@@ -41,6 +41,7 @@
 #include "llvm/Support/PluginLoader.h"
 #include "llvm/Support/Signals.h"
 #include <cstdlib>
+#include "clib/util.h"
 
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
 #include <signal.h> // for raise
@@ -205,7 +206,9 @@ static unsigned inTestVerbosity() {
 int ld(int argc, const char **argv) {
   #ifdef _WIN32
     int old_argc = argc;
-    const char ** old_argv = (const char**)malloc(argc*sizeof(const char*));
+    void* oa;
+    MALLOC(oa, argc*sizeof(const char*));
+    const char ** old_argv = (const char **)oa;
     memcpy(old_argv, argv, argc*sizeof(const char*));
   #endif
 
@@ -241,7 +244,7 @@ int ld(int argc, const char **argv) {
     }
   }
   #ifdef _WIN32
-    free(old_argv);
+    FREE(old_argv);
   #endif
   return *mainRet;
 }

@@ -8,11 +8,10 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "clib/hash.h"
 #include "clib/hashtable.h"
+#include "clib/util.h"
 
 typedef void (*on_hash_entry)(struct hashtable *ht, struct hash_entry *entry);
 void hashtable_iterate(struct hashtable *ht, on_hash_entry on_entry);
@@ -39,7 +38,8 @@ void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size, fre
     ht->cap = 19;
     ht->size = 0;
     ht->value_size = value_size;
-    ht->heads = calloc(ht->cap, sizeof(struct hash_head));
+
+    CALLOC(ht->heads, ht->cap, sizeof(struct hash_head));
     ht->free_element = free_element;
 }
 
@@ -58,7 +58,7 @@ void _hashtable_grow(struct hashtable *ht)
         cap = ht->cap;
         heads = ht->heads;
         ht->cap *= 2;
-        ht->heads = calloc(ht->cap, sizeof(struct hash_head));
+        CALLOC(ht->heads, ht->cap, sizeof(struct hash_head));
         for (size_t i = 0; i < cap; i++) {
             head = &heads[i];
             entry = head->first;
@@ -70,7 +70,7 @@ void _hashtable_grow(struct hashtable *ht)
                 entry = next;
             }
         }
-        free(heads);
+        FREE(heads);
     }
 }
 
@@ -95,11 +95,14 @@ struct hashbox *_hashtable_get_hashbox(struct hashtable *ht, void *key, size_t k
 
 struct hash_entry *_hash_entry_new(size_t key_size, size_t value_size)
 {
-    struct hash_entry *entry = (struct hash_entry *)calloc(1, sizeof(struct hash_entry));
+    struct hash_entry *entry;
+    CALLOC(entry, 1, sizeof(struct hash_entry));
     entry->data.status = HASH_EXIST;
     entry->data.key_size = (unsigned)key_size;
     entry->data.value_size = (unsigned)value_size;
-    entry->data.key_value_pair = malloc(key_size + value_size);
+    void *kv;
+    MALLOC(kv, key_size + value_size);
+    entry->data.key_value_pair = kv;
     return entry;
 }
 
@@ -112,8 +115,8 @@ void _hash_entry_free(struct hashtable *ht, struct hash_entry *entry)
         else
             ht->free_element(data);
     }
-    free(entry->data.key_value_pair);
-    free(entry);
+    FREE(entry->data.key_value_pair);
+    FREE(entry);
 }
 
 void hashtable_iterate(struct hashtable *ht, on_hash_entry on_entry)
@@ -290,5 +293,5 @@ size_t hashtable_size(struct hashtable *ht)
 void hashtable_deinit(struct hashtable *ht)
 {
     hashtable_clear(ht);
-    free(ht->heads);
+    FREE(ht->heads);
 }

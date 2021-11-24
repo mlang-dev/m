@@ -58,6 +58,8 @@ IF (NOT EMSCRIPTEN)
     codegen/test_type_size_info.cc
     codegen/test_cg_var.cc
     codegen/test_cg_fun_call.cc
+    codegen/test_wasm_codegen.cc
+    app/test_mwat.cc
   )
 
   if(WIN32)
@@ -104,6 +106,8 @@ else()
     parser/test_tok.cc
     parser/test_g_parser.cc
     parser/test_grammar.cc
+    codegen/test_wasm_codegen.cc
+    app/test_mwat.cc
   )
 
   TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr

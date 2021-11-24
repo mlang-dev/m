@@ -4,8 +4,6 @@
  * LLVM IR Code Generation for variable declarations/definitions
  */
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "clib/array.h"
 #include "clib/object.h"
@@ -99,27 +97,29 @@ LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct var_node *no
 LLVMValueRef _get_const_value_ext_type(struct code_generator *cg, LLVMTypeRef type, struct type_value_node *struct_values)
 {
     size_t element_count = array_size(&struct_values->body->nodes);
-    LLVMValueRef *values = malloc(element_count * sizeof(LLVMValueRef));
+    LLVMValueRef *values;
+    MALLOC(values, element_count * sizeof(LLVMValueRef));
     for (size_t i = 0; i < element_count; i++) {
         struct exp_node *arg = *(struct exp_node **)array_get(&struct_values->body->nodes, i);
         values[i] = emit_ir_code(cg, arg);
     }
     LLVMValueRef value = LLVMConstNamedStruct(type, values, (unsigned int)element_count);
-    free(values);
+    FREE(values);
     return value;
 }
 
 LLVMValueRef _get_zero_value_ext_type(struct code_generator *cg, LLVMTypeRef type, struct type_oper *type_ext)
 {
     size_t element_count = array_size(&type_ext->args);
-    LLVMValueRef *values = malloc(element_count * sizeof(LLVMValueRef));
+    LLVMValueRef *values;
+    MALLOC(values, element_count * sizeof(LLVMValueRef));
     for (size_t i = 0; i < element_count; i++) {
         enum type element_type = get_type(*(struct type_exp **)array_get(&type_ext->args, i));
         //values[i] = LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0 * (i+1));
         values[i] = cg->ops[element_type].get_zero(cg->context, cg->builder);
     }
     LLVMValueRef value = LLVMConstNamedStruct(type, values, (unsigned int)element_count);
-    free(values);
+    FREE(values);
     return value;
 }
 

@@ -4,8 +4,6 @@
  * LLVM IR Code Generation Functions
  */
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "clib/array.h"
 #include "clib/object.h"
@@ -63,14 +61,15 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
     struct type_oper *type = (struct type_oper *)type_exp;
     struct_type = LLVMStructCreateNamed(context, string_get(type->base.name));
     unsigned member_count = (unsigned)array_size(&type->args);
-    LLVMTypeRef *members = malloc(member_count * sizeof(LLVMTypeRef));
+    LLVMTypeRef *members;
+    MALLOC(members, member_count * sizeof(LLVMTypeRef));
     for (unsigned i = 0; i < member_count; i++) {
         struct type_exp *field_type = *(struct type_exp **)array_get(&type->args, i);
         members[i] = get_llvm_type(field_type);
     }
     LLVMStructSetBody(struct_type, members, member_count, false);
     hashtable_set_p(&g_cg->typename_2_irtypes, type->base.name, struct_type);
-    free(members);
+    FREE(members);
     return struct_type;
 }
 
@@ -355,7 +354,8 @@ struct code_generator *cg_new(struct sema_context *sema_context)
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();
-    struct code_generator *cg = malloc(sizeof(*cg));
+    struct code_generator *cg;
+    MALLOC(cg, sizeof(*cg));
     cg->sema_context = sema_context;
     cg->context = context;
     cg->builder = LLVMCreateBuilderInContext(context);
@@ -391,7 +391,7 @@ void cg_free(struct code_generator *cg)
     hashtable_deinit(&cg->typename_2_irtypes);
     hashtable_deinit(&cg->typename_2_ast);
     hashtable_deinit(&cg->varname_2_typename);
-    free(cg);
+    FREE(cg);
     g_cg = 0;
 }
 

@@ -14,12 +14,11 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-
 #include "clib/array.h"
 #include "clib/string.h"
-
+#include "clib/dlmalloc.h"
+#include <stdlib.h>
 #ifdef _WIN32
 #include "clib/win/unistd.h"
 #else
@@ -52,17 +51,45 @@ void print_backtrace(void);
 void join_path(char *destination, size_t dst_size, const char *path1, const char *path2);
 char *get_basename(char *filename);
 
+
+#define MMEM_MALLOC dlmalloc
+#define MMEM_FREE dlfree
+#define MMEM_CALLOC dlcalloc
+#define MMEM_REALLOC dlrealloc
+
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define ERROR_MSG_MAX 512
 #define MALLOC(_ptr, _size)                                                      \
     do {                                                                         \
-        if (NULL == (_ptr = malloc(_size))) {                                    \
+        if (NULL == (_ptr = MMEM_MALLOC(_size))) {                                    \
             char errmsg[ERROR_MSG_MAX];                                          \
             strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
-            fprintf(stderr, "Failed to allocate memory. %s\n", errmsg);          \
-            exit(EXIT_FAILURE);                                                  \
+            fprintf(stderr, "Failed to allocate memory -malloc. %s\n", errmsg);          \
+            exit(1);                                                  \
         }                                                                        \
     } while (0)
+
+#define CALLOC(_ptr, _element_count, element_size)                                                      \
+    do {                                                                         \
+        if (NULL == (_ptr = MMEM_CALLOC(_element_count, element_size))) {                                    \
+            char errmsg[ERROR_MSG_MAX];                                          \
+            strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
+            fprintf(stderr, "Failed to allocate memory -calloc. %s\n", errmsg);          \
+            exit(1);                                                  \
+        }                                                                        \
+    } while (0)
+
+#define REALLOC(_ptr, old_mem, _size)                                                      \
+    do {                                                                         \
+        if (NULL == (_ptr = MMEM_REALLOC(old_mem, _size))) {                                    \
+            char errmsg[ERROR_MSG_MAX];                                          \
+            strerror_s(errmsg, ERROR_MSG_MAX, errno);                                \
+            fprintf(stderr, "Failed to allocate memory -realloc. %s\n", errmsg);          \
+            exit(1);                                                  \
+        }                                                                        \
+    } while (0)
+
+#define FREE(_ptr) MMEM_FREE(_ptr)
 
 char *get_exec_path();
 

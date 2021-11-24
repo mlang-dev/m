@@ -13,8 +13,6 @@
 // getopt.c
 #include <assert.h>
 #include <errno.h>
-#include <stdlib.h>
-#include <string.h>
 
 #if defined(REPLACE_GETOPT)
 int opterr = 1; /* if error message should be printed */

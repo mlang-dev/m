@@ -39,7 +39,8 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     size_t arg_count = array_size(&call->args);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
     size_t ir_arg_count =  has_sret ? arg_count + 1 : arg_count;
-    LLVMValueRef *arg_values = malloc(ir_arg_count * sizeof(LLVMValueRef));
+    LLVMValueRef *arg_values;
+    MALLOC(arg_values, ir_arg_count * sizeof(LLVMValueRef));
     LLVMTypeRef sig_ret_type = get_llvm_type(fi->ret.type);
     struct prototype_node *parent_proto = find_parent_proto(node);
     struct type_size_info ret_tsi = get_type_size_info(fi->ret.type);
@@ -89,7 +90,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
         arg_values[i] = arg_value;
     }
     LLVMValueRef call_inst = LLVMBuildCall(cg->builder, callee, arg_values, (unsigned int)ir_arg_count, "");
-    free(arg_values);
+    FREE(arg_values);
 
     if (has_sret) {
         add_call_arg_type_attribute(cg->context, call_inst, fi->iai.sret_arg_no, "sret", sig_ret_type);

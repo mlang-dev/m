@@ -6,7 +6,6 @@
 #include <assert.h>
 #include <ctype.h>
 #include <memory.h>
-#include <stdlib.h>
 
 #include "clib/hashtable.h"
 #include "clib/string.h"
@@ -92,7 +91,8 @@ void _lexer_deinit(struct tokenizer *tokenizer)
 
 struct tokenizer *create_tokenizer(FILE *file, const char *filename, const char **keyword_symbols, int keyword_count)
 {
-    struct tokenizer *tokenizer = malloc(sizeof(*tokenizer));
+    struct tokenizer *tokenizer;
+    MALLOC(tokenizer, sizeof(*tokenizer));
     _lexer_init(tokenizer, keyword_symbols, keyword_count);
     struct source_loc loc = { 1, 0 };
     tokenizer->loc = loc;
@@ -118,7 +118,7 @@ void destroy_tokenizer(struct tokenizer *tokenizer)
         fclose(tokenizer->file);
     string_deinit(&tokenizer->str_val);
     _lexer_deinit(tokenizer);
-    free(tokenizer);
+    FREE(tokenizer);
 }
 
 void _collect_all_dots(struct tokenizer *tokenizer, string *symbol)

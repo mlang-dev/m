@@ -22,11 +22,16 @@ if (EMSCRIPTEN)
     clib/win/getopt.c
     clib/win/libfmemopen.c
     clib/getpath.c
+    clib/dlmalloc.c
     parser/ast_node.c
     parser/tok.c
     parser/parser.c
     parser/grammar.c
+    parser/m_grammar.c
     codegen/wasm_codegen.c
+    wasm/mwat.c
+    wasm/sys.c
+    wasm/wasm.c
   )
 else()
   find_package(LLVM REQUIRED CONFIG)
@@ -54,6 +59,7 @@ else()
     clib/win/getopt.c
     clib/win/libfmemopen.c
     clib/getpath.c
+    clib/dlmalloc.c
     tool/cmodule.c
     lexer/lexer.c
     lexer/keyword.c
@@ -86,5 +92,6 @@ else()
     compiler/repl.c
     compiler/jit.c
     compiler/compiler.c
+    wasm/mwat.c
   )
 endif()

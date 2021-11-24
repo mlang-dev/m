@@ -5,7 +5,6 @@
  */
 #include "gtest/gtest.h"
 
-#include <string.h>
 
 #include "clib/generic.h"
 #include "clib/hashtable.h"

@@ -25,7 +25,7 @@ struct parser *parser_new(const char *grammar_text)
 void parser_free(struct parser *parser)
 {
     grammar_free(parser->grammar);
-    free(parser);
+    FREE(parser);
 }
 
 struct expr_parse *parse_state_find_expr_parse(struct parse_state *state, struct expr* expr, size_t parsed)
@@ -72,7 +72,7 @@ void parse_state_init_rule(struct parse_state *state, struct rule *rule)
 void parse_state_init(struct parse_state *state, int state_index)
 {
     state->state_index = state_index;
-    array_init_free(&state->expr_parses, sizeof(struct expr_parse *), (free_fun)free);
+    array_init_free(&state->expr_parses, sizeof(struct expr_parse *), (free_fun)MMEM_FREE);
     hashtable_init_with_value_size(&state->complete_parses, 0, (free_fun)array_free);//
 }
 
@@ -306,6 +306,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
     {
         for (size_t i = 0; i < array_size(&state->expr_parses); i++) {
             struct expr_parse *ep = *(struct expr_parse **)array_get(&state->expr_parses, i);
+            assert(array_size(&ep->expr->items) > 0);
             if (ep->parsed == array_size(&ep->expr->items)){
                 //this rule is parsed successfully. complete it and advance one step for all parents
                 //from start state into current state.

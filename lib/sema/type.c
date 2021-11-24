@@ -9,7 +9,6 @@
 #include "clib/symboltable.h"
 #include <assert.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
@@ -32,7 +31,8 @@ const char *const type_strings[] = {
 
 struct type_var *_create_type_var(symbol name)
 {
-    struct type_var *var = malloc(sizeof(*var));
+    struct type_var *var;
+    MALLOC(var, sizeof(*var));
     var->base.kind = KIND_VAR;
     var->base.type = 0;
     var->base.name = name;
@@ -57,7 +57,8 @@ struct type_var *copy_type_var(struct type_var *var)
 
 struct type_oper *create_type_oper(symbol type_name, enum type type, struct array *args)
 {
-    struct type_oper *oper = malloc(sizeof(*oper));
+    struct type_oper *oper;
+    MALLOC(oper, sizeof(*oper));
     oper->base.kind = KIND_OPER;
     oper->base.type = type;
     oper->base.name = type_name;
@@ -85,7 +86,7 @@ struct type_oper *create_type_fun(struct array *args)
 
 void type_exp_free(struct type_exp *type)
 {
-    free(type);
+    FREE(type);
 }
 
 struct type_exp *prune(struct type_exp *type)

@@ -9,9 +9,8 @@
  * integer is fast then string)
  */
 #include "clib/symbol.h"
-
 #include <assert.h>
-#include <stdlib.h>
+#include "clib/util.h"
 
 struct hashtable *g_symbols = 0;
 symbol EmptySymbol = 0;
@@ -38,6 +37,12 @@ symbol to_symbol2(const char *name, size_t name_size)
     return sym;
 }
 
+symbol to_symbol2_0(const char *name)
+{
+    return to_symbol2(name, strlen(name));
+}
+
+
 symbol string_2_symbol(string *name)
 {
     return to_symbol(string_get(name));
@@ -52,7 +57,7 @@ void symbols_init()
 {
     if (g_symbols)
         return;
-    g_symbols = malloc(sizeof(*g_symbols));
+    MALLOC(g_symbols, sizeof(*g_symbols));
     hashtable_init(g_symbols);
     EmptySymbol = to_symbol("");
 }
@@ -62,6 +67,6 @@ void symbols_deinit()
     if (!g_symbols)
         return;
     hashtable_deinit(g_symbols);
-    free(g_symbols);
+    FREE(g_symbols);
     g_symbols = NULL;
 }

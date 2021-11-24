@@ -28,7 +28,7 @@ void _free_keyword_state(struct keyword_state *ks)
         _free_keyword_state(elemt);
     }
     array_deinit(&ks->nexts);
-    free(ks);
+    FREE(ks);
 }
 
 struct keyword_state *find_next_keyword_state(struct keyword_state *state, char ch)

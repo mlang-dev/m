@@ -5,8 +5,6 @@
  */
 #include <assert.h>
 #include <errno.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "clib/hashtable.h"
 #include "clib/util.h"
@@ -148,7 +146,8 @@ int _get_op_prec(struct hashtable *op_precs, symbol op)
 
 struct m_parser *m_parser_new(bool is_repl)
 {
-    struct m_parser *parser = malloc(sizeof(*parser));
+    struct m_parser *parser;
+    MALLOC(parser, sizeof(*parser));
     parser->type_of = to_symbol(":");
     parser->assignment = to_symbol("=");
     parser->comma = to_symbol(",");
@@ -196,7 +195,8 @@ struct m_parser *m_parser_new(bool is_repl)
     hashtable_init_with_value_size(&parser->op_precs, sizeof(int), 0);
     _build_op_precs(&parser->op_precs);
 
-    struct ast *ast = malloc(sizeof(*ast));
+    struct ast *ast;
+    MALLOC(ast, sizeof(*ast));
     parser->ast = ast;
     array_init(&parser->ast->modules, sizeof(struct module *));
     parser->allow_id_as_a_func = true;
@@ -213,7 +213,7 @@ void module_free(struct module *module)
 {
     destroy_tokenizer(module->tokenizer);
     node_free((struct exp_node *)module->block);
-    free(module);
+    FREE(module);
 }
 
 void m_parser_free(struct m_parser *parser)
@@ -224,9 +224,9 @@ void m_parser_free(struct m_parser *parser)
         struct module *it = *(struct module **)array_get(&parser->ast->modules, i);
         module_free(it);
     }
-    free(parser->ast);
+    FREE(parser->ast);
     symboltable_deinit(&parser->vars);
-    free(parser);
+    FREE(parser);
     g_parser = 0;
 }
 

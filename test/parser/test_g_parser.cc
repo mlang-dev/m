@@ -14,9 +14,10 @@ TEST(testGParser, testArithmeticExp)
 {
     const char test_code[] = "1+2";
     const char expected[] = R"(
-i32.const 1
-i32.const 2
-i32.add
+(i32.add
+(i32.const 1)
+(i32.const 2)
+)
 )";
     symbols_init();
     wasm_codegen_init();
@@ -34,9 +35,10 @@ TEST(testGParser, testArithmeticExp1)
 {
     const char test_code[] = "(1+2)";
     const char expected[] = R"(
-i32.const 1
-i32.const 2
-i32.add
+(i32.add
+(i32.const 1)
+(i32.const 2)
+)
 )";
     symbols_init();
     wasm_codegen_init();
@@ -51,13 +53,15 @@ i32.add
 
 TEST(testGParser, testArithmeticExp2)
 {
-    const char test_code[] = "0 + 2 * 4";
+    const char test_code[] = "1 + 2 * 4";
     const char expected[] = R"(
-i32.const 0
-i32.const 2
-i32.const 4
-i32.mul
-i32.add
+(i32.add
+(i32.const 1)
+(i32.mul
+(i32.const 2)
+(i32.const 4)
+)
+)
 )";
     symbols_init();
     wasm_codegen_init();
@@ -75,11 +79,13 @@ TEST(testGParser, testArithmeticExp3)
 {
     const char test_code[] = "1 * 2 + 3";
     const char expected[] = R"(
-i32.const 1
-i32.const 2
-i32.mul
-i32.const 3
-i32.add
+(i32.add
+(i32.mul
+(i32.const 1)
+(i32.const 2)
+)
+(i32.const 3)
+)
 )";
     symbols_init();
     wasm_codegen_init();
@@ -96,11 +102,13 @@ TEST(testGParser, testArithmeticExp4)
 {
     const char test_code[] = "(1 + 2) * 3";
     const char expected[] = R"(
-i32.const 1
-i32.const 2
-i32.add
-i32.const 3
-i32.mul
+(i32.mul
+(i32.add
+(i32.const 1)
+(i32.const 2)
+)
+(i32.const 3)
+)
 )";
     symbols_init();
     wasm_codegen_init();

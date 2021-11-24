@@ -75,6 +75,7 @@ void *string_data_generic(object *obj);
 void string_copy_generic(void *dest, void *src, size_t size);
 void string_free_generic(void *dest);
 bool is_upper(string *str);
+char *str_clone (const char *s);
 
 #define ARRAY_STRING(var) ARRAY(var, string, string_free_generic)
 

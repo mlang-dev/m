@@ -4,8 +4,6 @@
  * LLVM IR Code Generation for functions
  */
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "clib/array.h"
 #include "clib/object.h"

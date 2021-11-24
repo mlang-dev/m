@@ -15,7 +15,6 @@
 #include <llvm-c/Core.h>
 #include <llvm-c/TargetMachine.h>
 #include <stdio.h>
-#include <string.h>
 
 const char *module_name = "test_ir";
 

@@ -8,8 +8,6 @@
 #include "clib/util.h"
 #include "parser/ast_node.h"
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 struct ast_node *ast_node_new(symbol node_type)
 {
@@ -35,5 +33,5 @@ void ast_node_free(struct ast_node *node)
         ast_node_free(child);
     }
     array_deinit(&node->children);
-    free(node);
+    FREE(node);
 }

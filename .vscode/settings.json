@@ -133,7 +133,9 @@
         "stdio.h": "c",
         "grammar.h": "c",
         "meta_grammar.h": "c",
-        "keyword.h": "c"
+        "keyword.h": "c",
+        "stddef.h": "c",
+        "stdint.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

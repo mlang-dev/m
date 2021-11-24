@@ -7,8 +7,6 @@
  */
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "clib/array.h"
 #include "clib/queue.h"

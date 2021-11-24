@@ -6,10 +6,9 @@
  * symbol table c file
  * symboltable represents hashtable of symbol (key) and list of pointers
  */
-#include <stdlib.h>
-
 #include "clib/symbol.h"
 #include "clib/symboltable.h"
+#include "clib/util.h"
 
 void symboltable_init(symboltable *st)
 {
@@ -24,7 +23,8 @@ void symboltable_deinit(symboltable *st)
 
 void _add_to_head(struct link_list *ll, void *data)
 {
-    struct link_list_entry *entry = malloc(sizeof(*entry));
+    struct link_list_entry *entry;
+    MALLOC(entry, sizeof(*entry));
     entry->data = data;
     entry->list.next = NULL;
     list_insert_head(ll, entry, list);
@@ -40,7 +40,7 @@ void *_remove_from_head(struct link_list *ll)
         struct link_list_entry *first = ll->first;
         data = first->data;
         list_remove_head(ll, list);
-        free(first);
+        FREE(first);
     }
     return data;
 }
@@ -55,7 +55,7 @@ void symboltable_push(symboltable *st, symbol s, void *data)
 {
     struct link_list *ll = hashtable_get_p(&st->ht, s);
     if (!ll) {
-        ll = malloc(sizeof(*ll));
+        MALLOC(ll, sizeof(*ll));
         ll->first = NULL;
         hashtable_set_p(&st->ht, s, ll);
     }

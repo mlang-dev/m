@@ -6,10 +6,10 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
+#include "clib/string.h"
 #include "compiler/compiler.h"
 #include "compiler/ld.h"
 #include "compiler/repl.h"
-#include <stdlib.h>
 #include <string.h>
 
 extern char *optarg;
