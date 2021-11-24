@@ -29,8 +29,6 @@ IF (EMSCRIPTEN OR WASM)
   )
 
   TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
-    ${sys_libraries}
-    ${clang_lib}
   )
 
   enable_testing()
