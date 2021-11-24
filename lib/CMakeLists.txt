@@ -30,6 +30,8 @@ if (EMSCRIPTEN)
     parser/m_grammar.c
     codegen/wasm_codegen.c
     wasm/mwat.c
+    wasm/sys.c
+    wasm/wasm.c
   )
 else()
   find_package(LLVM REQUIRED CONFIG)
