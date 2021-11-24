@@ -29,7 +29,7 @@ add_subdirectory(lib)
 add_subdirectory(test)
 add_subdirectory(apps)
 
-if (NOT EMSCRIPTEN)
+if (NOT EMSCRIPTEN AND NOT WASM)
     add_subdirectory(samples)
 endif()
 

@@ -4,7 +4,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/include
 )
 
-if (EMSCRIPTEN)
+if (EMSCRIPTEN OR WASM)
   add_library(mlr 
     clib/math.c
     clib/object.c

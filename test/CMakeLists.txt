@@ -2,7 +2,43 @@ cmake_minimum_required(VERSION 3.16)
 
 project(mtest, VERSION 0.0.9 LANGUAGES CXX)
 
-IF (NOT EMSCRIPTEN)
+IF (EMSCRIPTEN OR WASM)
+
+  include_directories(
+    ${CMAKE_SOURCE_DIR}/test
+    ${CMAKE_SOURCE_DIR}/include
+  )
+
+
+  add_executable(mtest
+    clib/test_symbol.cc
+    clib/test_symboltable.cc
+    clib/test_math.cc
+    clib/test_string.cc
+    clib/test_array.cc
+    clib/test_queue.cc
+    clib/test_stack.cc
+    clib/test_hashtable.cc
+    clib/test_hashset.cc
+    clib/test_util.cc
+    parser/test_tok.cc
+    parser/test_g_parser.cc
+    parser/test_grammar.cc
+    codegen/test_wasm_codegen.cc
+    app/test_mwat.cc
+  )
+
+  TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
+    ${sys_libraries}
+    ${clang_lib}
+  )
+
+  enable_testing()
+  include(GoogleTest)
+  gtest_discover_tests(mtest)
+  
+else()
+
   find_package(LLVM REQUIRED CONFIG)
   execute_process(COMMAND llvm-config --libnames
                   OUTPUT_VARIABLE llvm_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -85,41 +121,9 @@ IF (NOT EMSCRIPTEN)
   else()
   file(COPY ${CMAKE_SOURCE_DIR}/mlib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib/)
   endif(WIN32)
-else()
-  include_directories(
-    ${CMAKE_SOURCE_DIR}/test
-    ${CMAKE_SOURCE_DIR}/include
-  )
 
-
-  add_executable(mtest
-    clib/test_symbol.cc
-    clib/test_symboltable.cc
-    clib/test_math.cc
-    clib/test_string.cc
-    clib/test_array.cc
-    clib/test_queue.cc
-    clib/test_stack.cc
-    clib/test_hashtable.cc
-    clib/test_hashset.cc
-    clib/test_util.cc
-    parser/test_tok.cc
-    parser/test_g_parser.cc
-    parser/test_grammar.cc
-    codegen/test_wasm_codegen.cc
-    app/test_mwat.cc
-  )
-
-  TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
-    ${sys_libraries}
-    ${clang_lib}
-  )
-
-  enable_testing()
-  include(GoogleTest)
-  gtest_discover_tests(mtest)
-  
 endif()
+
 add_custom_command(
   TARGET mtest
   POST_BUILD

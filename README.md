@@ -56,7 +56,7 @@ loopprint n =
 * Source code version control: git
 * Build system generator: cmake
 * Build system: GNU make (Unix-like system) or MSBuild (Windows)
-* Compiler: c++ compilers: gcc/clang/vc++(Visual Studio Community Edition with Desktop Developement with C++) 
+* Compiler: c++ compilers: gcc/clang/vc++(Visual Studio 2019 Community Edition with Desktop Developement with C++) 
 
 ## get source codes
 ```
@@ -84,10 +84,11 @@ On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be adde
 ```
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Debug ..
-cmake --build . --config Debug
+cmake ..
+cmake --build .
 ```
 The build system will build m executable under ./tools on macOS/Linux, or .\tools\Debug on Windows
+Note: To use clang on windows, use command: cmake -G"Visual Studio 16 2019" -T ClangCL ..
 
 ## using m REPL
 ```
