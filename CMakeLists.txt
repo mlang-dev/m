@@ -8,6 +8,21 @@ set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
+if(WASM)
+
+message(STATUS "building for wasm")
+
+add_compile_definitions(__wasi__=1)
+add_compile_definitions(__wasm32__=1)
+add_compile_definitions(UNITY_EXCLUDE_SETJMP_H=1)
+add_compile_options(
+                      "--target=wasm32"
+                      "--sysroot=/usr/lib/wasi-libc"
+                      "-nostdlib"
+                      ) 
+endif()
+
+
 if (MSVC)
     # warning level 4 and all warnings as errors
     # add_compile_options(/W4 /WX /Wv:18)
@@ -24,10 +39,14 @@ else()
     add_compile_options(-Wno-null-pointer-arithmetic)
 endif()
 
-add_subdirectory(extern/googletest)
+
 add_subdirectory(lib)
-add_subdirectory(test)
 add_subdirectory(apps)
+
+if(NOT WASM)
+    add_subdirectory(extern/googletest)
+    add_subdirectory(test)
+endif()
 
 if (NOT EMSCRIPTEN AND NOT WASM)
     add_subdirectory(samples)

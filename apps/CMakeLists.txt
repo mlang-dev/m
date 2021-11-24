@@ -1,29 +1,32 @@
 cmake_minimum_required(VERSION 3.16)
 
-if(EMSCRIPTEN OR WASM)
+if(EMSCRIPTEN)
   include_directories(
     ${CMAKE_SOURCE_DIR}/include
   )
 
-  add_executable(mw
-    wasm/mw.c
+  add_executable(wm
+    wasm/wm.c
   )
 
-  set_target_properties(mw PROPERTIES LINKER_LANGUAGE C)
+  set_target_properties(wm PROPERTIES LINKER_LANGUAGE C)
 
-  target_link_libraries(mw PRIVATE 
-    mlr
+  target_link_libraries(wm PRIVATE mlr)
+elseif(WASM)
+  include_directories(
+    ${CMAKE_SOURCE_DIR}/include
   )
-
-  target_link_options(mw PRIVATE
-  -sEXPORTED_FUNCTIONS=['_main','_parse_exp_as_module'])
+  add_library(wm
+    wasm/wm.c
+  )
+  set_target_properties(wm PROPERTIES LINKER_LANGUAGE C)
 
 else()
   find_package(LLVM REQUIRED CONFIG)
   message(STATUS "Found LLVM BIN ${LLVM_TOOLS_BINARY_DIR}")
   execute_process(COMMAND llvm-config --libnames
                   OUTPUT_VARIABLE llvm_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process(COMMAND llvm-config --system-libs
+  execute_process(COMMAND llvm-cmwonfig --system-libs
                   OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
   string(REPLACE " -llibxml2.tbd" "" sys_libraries ${sys_libraries})
   string(REPLACE " " ";" llvm_libraries ${llvm_libraries})

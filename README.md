@@ -66,7 +66,7 @@ git submodule init
 git submodule update
 ```
 
-## build llvm
+## build clang/llvm
 Note: You can skip building llvm from source but just install binary (version 13.0) from [llvm site](https://releases.llvm.org/). 
 
 Replace "Debug" with "Release" in following commands if Release build is desired.
@@ -79,6 +79,12 @@ sudo cmake --build . --config Debug -j NN --target install   (Run under Administ
 cd ../../../
 ```
 On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be added to the Path environment variable so that "llvm-config" command is able to be executed in cmake. 
+
+## build & install wasi-libc
+```
+cd ./extern/wasi-libc
+sudo make install INSTALL_DIR=/usr/lib/wasi-libc
+```
 
 ## build mlang
 ```
