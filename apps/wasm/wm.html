@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<title>m</title>
+		<script src="wm.js"></script>
+	</head>
+	<body>
+		<h1>m</h1>
+		<br/>
+		<div id='terminal'></div><br/>
+		<br/>
+		<script>
+			var t = new Terminal('terminal')
+			t.setHeight("200px")
+			t.setWidth('600px')
+			document.body.appendChild(t.html)
+
+			t.print('welcome to m !')
+			var importObject = {
+				wasi_snapshot_preview1: {
+					fd_close : arg=>console.log("fd close: %s", arg),
+					fd_seek : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4),
+					fd_write : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4)
+				}
+			}
+			WebAssembly.instantiateStreaming(fetch('wm.wasm'), importObject)
+			.then(obj => {
+				t.print(obj.instance.exports.add_math(10, 30));
+			});
+
+			t.input('', function (input) {
+				t.print('Welcome, ' + input)
+			})
+		</script>
+
+	</body>
+</html>

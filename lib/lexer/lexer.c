@@ -313,7 +313,6 @@ struct token *get_token(struct tokenizer *tokenizer)
         else
             return _tokenize_char_token(tokenizer, TOKEN_EOF);
     }else{
-        printf("current char: %c\n", tokenizer->curr_char[0]);
         assert(false);
     }
     return 0;

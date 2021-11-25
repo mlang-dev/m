@@ -24,6 +24,7 @@ add_compile_options(
                       "-o3"  # aggressive optimization
                       "-flto" # add meta data for link time optimization
                       "-fvisibility=hidden"
+                      "-g"
                       ) 
 endif()
 
