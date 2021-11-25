@@ -13,6 +13,8 @@
 extern "C" {
 #endif
 
+typedef signed int i32;
+
 size_t get_mem_size();
 int grow_mem(size_t size);
 

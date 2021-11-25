@@ -26,7 +26,7 @@ elseif(WASM)
     /usr/lib/wasi-libc/lib/wasm32-wasi/libc.a
     --target=wasm32
     -nostdlib
-    -Wl,--no-entry
+    -Wl,--no-entry,--strip-all,--export-dynamic
   )
 
 else()

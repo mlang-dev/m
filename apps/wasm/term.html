@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<title>m</title>
+		<script src="term.js"></script>
+	</head>
+	<body>
+		<h1>m</h1>
+		<br/>
+		<div id='terminal'></div><br/>
+		<br/>
+
+		<script>
+			var t = new Terminal('terminal')
+			t.setHeight("200px")
+			t.setWidth('600px')
+			document.body.appendChild(t.html)
+
+			t.print('welcome to m world !')
+			t.input('', function (input) {
+				t.print('Welcome, ' + input)
+			})
+
+		</script>
+
+	</body>
+</html>
