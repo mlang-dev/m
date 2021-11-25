@@ -6,3 +6,6 @@
 	path = extern/llvm-project
 	url = https://github.com/llvm/llvm-project.git
 	branch = release/12.x
+[submodule "extern/wasi-libc"]
+	path = extern/wasi-libc
+	url = https://github.com/WebAssembly/wasi-libc
