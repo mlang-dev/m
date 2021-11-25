@@ -22,6 +22,7 @@ elseif(WASM)
   set_target_properties(wm PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
   target_link_libraries(wm PRIVATE mlr
+    /usr/lib/wasi-libc/lib/wasm32-wasi/libc.a
     --target=wasm32
     -nostdlib
     -Wl,--no-entry
