@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_VERBOSE_MAKEFILE TRUE)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
@@ -12,6 +12,8 @@ if(WASM)
 
 message(STATUS "building for wasm")
 
+set(CMAKE_AR "llvm-ar")
+set(CMAKE_RANLIB "llvm-ranlib")
 add_compile_definitions(__wasi__=1)
 add_compile_definitions(__wasm32__=1)
 add_compile_definitions(UNITY_EXCLUDE_SETJMP_H=1)

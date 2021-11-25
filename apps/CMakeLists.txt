@@ -16,10 +16,16 @@ elseif(WASM)
   include_directories(
     ${CMAKE_SOURCE_DIR}/include
   )
-  add_library(wm
+  add_executable(wm
     wasm/wm.c
   )
-  set_target_properties(wm PROPERTIES LINKER_LANGUAGE C)
+  set_target_properties(wm PROPERTIES LINKER_LANGUAGE C
+                                      SUFFIX ".wasm")
+  target_link_libraries(wm PRIVATE mlr
+    --target=wasm32
+    -nostdlib
+    -Wl,--no-entry
+  )
 
 else()
   find_package(LLVM REQUIRED CONFIG)
