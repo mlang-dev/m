@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
+
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
 if(WASM)
@@ -21,6 +22,9 @@ add_compile_options(
                       "--target=wasm32"
                       "--sysroot=/usr/lib/wasi-libc"
                       "-nostdlib"
+                      "-o3"  # aggressive optimization
+                      "-flto" # add meta data for link time optimization
+                      "-fvisibility=hidden"
                       ) 
 endif()
 

@@ -19,6 +19,7 @@ elseif(WASM)
   add_executable(wm
     wasm/wm.c
   )
+
   set_target_properties(wm PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
   target_link_libraries(wm PRIVATE mlr
