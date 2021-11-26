@@ -18,13 +18,13 @@ add_compile_definitions(__wasi__=1)
 add_compile_definitions(__wasm32__=1)
 add_compile_definitions(UNITY_EXCLUDE_SETJMP_H=1)
 add_compile_options(
-                      "--target=wasm32"
-                      "--sysroot=/usr/lib/wasi-libc"
-                      "-nostdlib"
-                      "-o3"  # aggressive optimization
-                      "-flto" # add meta data for link time optimization
-                      "-fvisibility=hidden"
-                      "-g"
+                      --target=wasm32
+                      --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot
+                      -nostdlib
+                      -o3  # aggressive optimization
+                      -flto # add meta data for link time optimization
+                      -fvisibility=hidden
+                      -g
                       ) 
 endif()
 

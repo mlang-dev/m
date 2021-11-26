@@ -83,7 +83,7 @@ On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be adde
 ## build & install wasi-libc
 ```
 cd ./extern/wasi-libc
-sudo make install INSTALL_DIR=/usr/lib/wasi-libc
+make
 ```
 
 ## build mlang

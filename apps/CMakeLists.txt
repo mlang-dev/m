@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+ cmake_minimum_required(VERSION 3.16)
 
 if(EMSCRIPTEN)
   include_directories(
@@ -16,6 +16,7 @@ elseif(WASM)
   include_directories(
     ${CMAKE_SOURCE_DIR}/include
   )
+
   add_executable(wm
     wasm/wm.c
   )
@@ -23,7 +24,7 @@ elseif(WASM)
   set_target_properties(wm PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
   target_link_libraries(wm PRIVATE mlr
-    /usr/lib/wasi-libc/lib/wasm32-wasi/libc.a
+    ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     --target=wasm32
     -nostdlib
     -Wl,--no-entry,--strip-all,--export-dynamic
