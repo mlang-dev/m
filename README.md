@@ -83,7 +83,7 @@ On Windows, llvm binary folder(C:\Program Files (x86)\LLVM\bin) needs to be adde
 ## build & install wasi-libc
 ```
 cd ./extern/wasi-libc
-make
+make (required: clang, llvm-ar, llvm-nm)
 ```
 
 ## build mlang
@@ -110,4 +110,18 @@ The above command using m compiler generates an object file "sample_lib.o" under
 ## c calls m functions
 ```
 clang++ ./samples/sample_main.cc ./samples/sample_lib.o ./runtime.o -o ./sample
+```
+
+## install clang-13 on ubuntu:
+```
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
+sudo apt install clang-13 lldb-13 lld-13
+
+sudo ln /usr/bin/clang-13 /usr/bin/clang
+sudo ln /usr/bin/clang++-13 /usr/bin/clang++
+sudo ln /usr/bin/llvm-ar-13 /usr/bin/llvm-ar
+sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
+sudo ln /usr/bin/llvm-ranlib-13 /usr/bin/llvm-ranlib
+sudo ln /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
 ```
