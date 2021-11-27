@@ -90,8 +90,9 @@ Terminal = (function () {
 					}
 					terminalObj.html.removeChild(inputField); // remove input field in the end of each callback	
 					terminalObj.scrollBottom(); // scroll to the bottom of the terminal
-				}
 
+					promptInput(terminalObj, message, PROMPT_TYPE, callback);
+				}
 			}
 		}
 		inputField.focus();
