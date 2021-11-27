@@ -9,7 +9,7 @@ const char * wat_module_start = "\n(module";
 const char * wat_module_end = ")\n";
 const char * fun_def = "run()=";
 
-string parse_exp_as_module(const char *expr)
+const char *parse_exp_as_module(const char *expr)
 {
     symbols_init();
     wasm_codegen_init();
@@ -25,5 +25,7 @@ string parse_exp_as_module(const char *expr)
     string_add2(&wat_mod_code, &wat_fun_code);
     string_add_chars2(&wat_mod_code, wat_module_end, strlen(wat_module_end));
     symbols_deinit();
-    return wat_mod_code;
+    const char *data = (const char*)to_c_str(&wat_mod_code);
+    string_deinit(&wat_mod_code);
+    return data;
 }

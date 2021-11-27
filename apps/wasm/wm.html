@@ -11,27 +11,50 @@
 		<div id='terminal'></div><br/>
 		<br/>
 		<script>
+			function _to_js_str(instance, c_str)
+			{
+				const str_len = instance.exports.str_len(c_str)	
+				let ta = new Uint8Array(instance.exports.memory.buffer, c_str, str_len)
+				return (new TextDecoder()).decode(ta)
+			}
+
+			function _to_array_buffer(instance, str, c_str)
+			{
+				let ta = (new TextEncoder()).encode(str) //Uint8Array
+				let str_len = ta.length + 1;
+				let dst = new Uint8Array(instance.exports.memory.buffer, c_str, str_len)
+				dst.set(ta);
+				dst[ta.length] = 0;
+			}
+
 			var t = new Terminal('terminal')
-			t.setHeight("200px")
-			t.setWidth('600px')
+			t.setHeight("600px")
+			t.setWidth('800px')
 			document.body.appendChild(t.html)
 
-			t.print('welcome to m !')
 			var importObject = {
 				wasi_snapshot_preview1: {
 					fd_close : arg=>console.log("fd close: %s", arg),
 					fd_seek : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4),
-					fd_write : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4)
+					fd_write : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4),
+					proc_exit : arg=>console.log("proc_exit: %s", arg)
 				}
 			}
 			WebAssembly.instantiateStreaming(fetch('wm.wasm'), importObject)
 			.then(obj => {
-				t.print(obj.instance.exports.add_math(10, 30));
-			});
+				c_str = obj.instance.exports.version()
+				t.print(_to_js_str(obj.instance, c_str));
+				obj.instance.exports.free_mem(c_str);
 
-			t.input('', function (input) {
-				t.print('Welcome, ' + input)
-			})
+				t.input('', function (input) {
+					let new_ptr = obj.instance.exports.alloc_mem(128)
+					_to_array_buffer(obj.instance, input, new_ptr)
+
+					let wat = obj.instance.exports.parse_code(new_ptr)
+					t.print(_to_js_str(obj.instance, wat))
+					obj.instance.exports.free_mem(wat)
+				})
+		});
 		</script>
 
 	</body>

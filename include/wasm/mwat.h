@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-string parse_exp_as_module(const char *expr);
+const char *parse_exp_as_module(const char *expr);
 
 
 #ifdef __cplusplus

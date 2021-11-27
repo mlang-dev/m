@@ -21,8 +21,8 @@ add_compile_options(
                       --target=wasm32
                       --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot
                       -nostdlib
-                      -o3  # aggressive optimization
-                      -flto # add meta data for link time optimization
+                      # -o3  # aggressive optimization
+                      # -flto # add meta data for link time optimization
                       -fvisibility=hidden
                       -g
                       ) 
