@@ -27,6 +27,15 @@
 				dst[ta.length] = 0;
 			}
 
+			function _run_wat_code(wat_code)
+			{
+				let module = binaryen.parseText(wat_code);
+				var wasm = module.emitBinary();
+				var compiled = new WebAssembly.Module(wasm);
+			    var instance = new WebAssembly.Instance(compiled, {});
+				return instance.exports.run();
+			}
+
 			var t = new Terminal('terminal')
 			t.setHeight("600px")
 			t.setWidth('800px')
