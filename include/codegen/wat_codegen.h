@@ -5,8 +5,8 @@
  *
  * header file for WASM IR Text Format codegen
  */
-#ifndef __MLANG_WASM_CODEGEN_H__
-#define __MLANG_WASM_CODEGEN_H__
+#ifndef __MLANG_WAT_CODEGEN_H__
+#define __MLANG_WAT_CODEGEN_H__
 
 #include "parser/ast_node.h"
 
@@ -21,4 +21,4 @@ string wat_generate(struct ast_node *ast, const char *text);
 }
 #endif
 
-#endif //__MLANG_CODEGEN_H__
+#endif //__MLANG_WAT_CODEGEN_H__

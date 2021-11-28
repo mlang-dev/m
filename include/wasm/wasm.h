@@ -13,6 +13,9 @@
 extern "C" {
 #endif
 
+#define EXPORT __attribute__((visibility("default")))
+
+
 typedef signed int i32;
 
 size_t get_mem_size();

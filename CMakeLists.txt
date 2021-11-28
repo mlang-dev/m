@@ -48,10 +48,11 @@ endif()
 
 add_subdirectory(lib)
 add_subdirectory(apps)
+add_subdirectory(unity)
+add_subdirectory(test)
 
 if(NOT WASM)
     add_subdirectory(extern/googletest)
-    add_subdirectory(test)
 endif()
 
 if (NOT EMSCRIPTEN AND NOT WASM)

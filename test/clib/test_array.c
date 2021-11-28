@@ -3,14 +3,16 @@
  *
  * unit test for clib array functions
  */
-#include "gtest/gtest.h"
-
+#include "test.h"
 #include "clib/array.h"
 #include "clib/string.h"
 
-TEST(testArray, testArrayInitInt)
+void setUp(){}
+void tearDown(){}
+
+TEST(test_array, init_int)
 {
-    array arr;
+    struct array arr;
     array_init(&arr, sizeof(int));
     int i = 10, j = 20;
     array_push(&arr, &i);
@@ -21,7 +23,7 @@ TEST(testArray, testArrayInitInt)
     array_deinit(&arr);
 }
 
-TEST(testArray, testArrayOfString)
+TEST(test_array, of_string)
 {
     ARRAY_STRING(arr);
     string str1;
@@ -40,7 +42,7 @@ TEST(testArray, testArrayOfString)
     array_deinit(&arr);
 }
 
-TEST(testArray, testArrayOfLongString)
+TEST(test_array, of_long_string)
 {
     ARRAY_STRING(arr);
     string str1;
@@ -57,9 +59,9 @@ TEST(testArray, testArrayOfLongString)
     array_deinit(&arr);
 }
 
-TEST(testArray, testElementWithNoOverhead)
+TEST(test_array, element_with_no_overhead)
 {
-    array arr;
+    struct array arr;
     array_init(&arr, sizeof(char*));
     const char *exp = "hello";
     array_push(&arr, &exp);
@@ -67,12 +69,21 @@ TEST(testArray, testElementWithNoOverhead)
     ASSERT_STREQ("hello", *(const char**)array_get(&arr, 0));
 }
 
-TEST(testArray, testElementWithNoOverheadInt)
+TEST(test_array, element_with_no_overhead_int)
 {
-    array arr;
+    struct array arr;
     array_init(&arr, sizeof(int));
     int i = 1000;
     array_push(&arr, &i);
     ASSERT_EQ(1, array_size(&arr));
     ASSERT_EQ(1000, *((int*)array_get(&arr, 0)));
+}
+
+void test_array()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_array_init_int);
+    RUN_TEST(test_array_of_string);
+    RUN_TEST(test_array_of_long_string);
+    UNITY_END();
 }

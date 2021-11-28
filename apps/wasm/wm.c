@@ -4,7 +4,6 @@
 #include "wasm/mwat.h"
 #include <string.h>
 
-#define EXPORT __attribute__((visibility("default")))
 
 EXPORT void* alloc_mem(size_t bytes)
 {

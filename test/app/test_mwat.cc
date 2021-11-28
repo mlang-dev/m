@@ -20,6 +20,5 @@ TEST(testMwat, testModFunc)
 (export "run" (func $run))
 )
 )";
-    string code = parse_exp_as_module("10+20");
-    ASSERT_STREQ(expected, to_c_str(&code));
+    ASSERT_STREQ(expected, parse_exp_as_module("10+20"));
 }

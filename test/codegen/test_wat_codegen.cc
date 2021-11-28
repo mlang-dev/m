@@ -6,11 +6,11 @@
 #include "parser/grammar.h"
 #include "parser/parser.h"
 #include "parser/m_grammar.h"
-#include "codegen/wasm_codegen.h"
+#include "codegen/wat_codegen.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 
-TEST(testWasmCodegen, testFunc)
+TEST(testWatCodegen, testFunc)
 {
     const char test_code[] = "run()=1+2";
     const char expected[] = R"(
@@ -23,10 +23,10 @@ TEST(testWasmCodegen, testFunc)
 (export "run" (func $run))
 )";
     symbols_init();
-    wasm_codegen_init();
+    wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
-    string code = generate(ast, test_code);
+    string code = wat_generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);

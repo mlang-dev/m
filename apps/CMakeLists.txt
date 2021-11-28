@@ -38,7 +38,7 @@ else()
   message(STATUS "Found LLVM BIN ${LLVM_TOOLS_BINARY_DIR}")
   execute_process(COMMAND llvm-config --libnames
                   OUTPUT_VARIABLE llvm_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process(COMMAND llvm-cmwonfig --system-libs
+  execute_process(COMMAND llvm-config --system-libs
                   OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
   string(REPLACE " -llibxml2.tbd" "" sys_libraries ${sys_libraries})
   string(REPLACE " " ";" llvm_libraries ${llvm_libraries})

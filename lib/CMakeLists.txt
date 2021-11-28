@@ -22,7 +22,7 @@ if (EMSCRIPTEN OR WASM)
  #   clib/win/getopt.c
  #   clib/win/libfmemopen.c
  #   clib/getpath.c
- #   unity/unity.c
+    unity/unity.c
  #   clib/dlmalloc.c
     parser/ast_node.c
     parser/tok.c
@@ -82,7 +82,7 @@ else()
     codegen/x86_64_abi.c
     codegen/winx86_64_abi.c
     codegen/llvm_codegen.c
-    codegen/wasm_codegen.c
+    codegen/wat_codegen.c
     codegen/cg_fun.c
     codegen/cg_var.c
     codegen/cg_call.c

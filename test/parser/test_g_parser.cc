@@ -6,7 +6,7 @@
 #include "parser/grammar.h"
 #include "parser/parser.h"
 #include "parser/m_grammar.h"
-#include "codegen/wasm_codegen.h"
+#include "codegen/wat_codegen.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 
@@ -20,10 +20,10 @@ TEST(testGParser, testArithmeticExp)
 )
 )";
     symbols_init();
-    wasm_codegen_init();
+    wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
-    string code = generate(ast, test_code);
+    string code = wat_generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
@@ -41,10 +41,10 @@ TEST(testGParser, testArithmeticExp1)
 )
 )";
     symbols_init();
-    wasm_codegen_init();
+    wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
-    string code = generate(ast, test_code);
+    string code = wat_generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
@@ -64,10 +64,10 @@ TEST(testGParser, testArithmeticExp2)
 )
 )";
     symbols_init();
-    wasm_codegen_init();
+    wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
-    string code = generate(ast, test_code);
+    string code = wat_generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
@@ -88,10 +88,10 @@ TEST(testGParser, testArithmeticExp3)
 )
 )";
     symbols_init();
-    wasm_codegen_init();
+    wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
-    string code = generate(ast, test_code);
+    string code = wat_generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);
@@ -111,10 +111,10 @@ TEST(testGParser, testArithmeticExp4)
 )
 )";
     symbols_init();
-    wasm_codegen_init();
+    wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
-    string code = generate(ast, test_code);
+    string code = wat_generate(ast, test_code);
     ASSERT_STREQ(expected, to_c_str(&code));
     ast_node_free(ast);
     parser_free(parser);

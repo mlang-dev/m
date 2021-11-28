@@ -3,7 +3,7 @@
 #include "codegen/codegen.h"
 #include "codegen/fun_info.h"
 #include "codegen/type_size_info.h"
-#include "codegen/wasm_codegen.h"
+#include "codegen/wat_codegen.h"
 #include "lexer/lexer.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
@@ -19,7 +19,7 @@ struct env *env_new(bool is_repl)
     env->parser = m_parser_new(is_repl);
     env->sema_context = sema_context_new(env->parser);
     env->cg = cg_new(env->sema_context);
-    wasm_codegen_init();
+    wat_codegen_init();
     g_env = env;
     return env;
 }
