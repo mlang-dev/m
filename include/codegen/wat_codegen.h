@@ -3,7 +3,7 @@
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for WASM IR codegen
+ * header file for WASM IR Text Format codegen
  */
 #ifndef __MLANG_WASM_CODEGEN_H__
 #define __MLANG_WASM_CODEGEN_H__
@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 
-void wasm_codegen_init();
-string generate(struct ast_node *ast, const char *text);
+void wat_codegen_init();
+string wat_generate(struct ast_node *ast, const char *text);
 
 #ifdef __cplusplus
 }

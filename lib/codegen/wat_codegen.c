@@ -1,4 +1,10 @@
-#include "codegen/wasm_codegen.h"
+/*
+ * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * wat codegen functions
+ * 
+ */
+#include "codegen/wat_codegen.h"
 #include "parser/tok.h"
 #include "clib/array.h"
 #include <assert.h>
@@ -7,7 +13,7 @@ symbol BINOP = 0;
 symbol UNOP = 0;
 symbol FUNC = 0;
 const char *ops[256];
-void wasm_codegen_init()
+void wat_codegen_init()
 {
     BINOP = to_symbol2_0("binop");
     UNOP = to_symbol2_0("unop");
@@ -18,7 +24,7 @@ void wasm_codegen_init()
     ops['/'] = "i32.div";
 }
 
-string _generate(struct ast_node *ast, const char *text)
+string _wat_generate(struct ast_node *ast, const char *text)
 {
     string s;
     string_init(&s);
@@ -33,7 +39,7 @@ string _generate(struct ast_node *ast, const char *text)
         string_append(&s, " (result i32)\n");
         //func body
         struct ast_node *fbody = *(struct ast_node**)array_back(&ast->children);
-        string s_fbody = _generate(fbody, text);
+        string s_fbody = _wat_generate(fbody, text);
         string_add2(&s, &s_fbody);
         string_append(&s, ")\n");
 
@@ -53,10 +59,10 @@ string _generate(struct ast_node *ast, const char *text)
         string_append(&s, ops[(int)text[op->loc.start]]);
         string_append(&s, "\n");
         struct ast_node *child = *(struct ast_node**)array_get(&ast->children, 0);
-        string op1 = _generate(child, text);
+        string op1 = _wat_generate(child, text);
         string_add2(&s, &op1);
         child = *(struct ast_node**)array_get(&ast->children, 2);
-        string op2 = _generate(child, text);
+        string op2 = _wat_generate(child, text);
         string_add2(&s, &op2);
         string_append(&s, ")\n");
     }
@@ -87,11 +93,11 @@ string _generate(struct ast_node *ast, const char *text)
     return s;
 }
 
-string generate(struct ast_node *ast, const char *text)
+string wat_generate(struct ast_node *ast, const char *text)
 {
     string s;
     string_init_chars2(&s, "\n", 1);
-    string wat = _generate(ast, text);
+    string wat = _wat_generate(ast, text);
     string_add2(&s, &wat);
     return s;
 }

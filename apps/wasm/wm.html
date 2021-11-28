@@ -3,39 +3,16 @@
 	<head>
 		<meta charset="utf-8"/>
 		<title>m</title>
+		<script src="term.js"></script>
 		<script src="wm.js"></script>
+		<script src="node_modules//binaryen/index.js"></script>
 	</head>
 	<body>
 		<h1>m</h1>
-		<br/>
+		<br/>wm
 		<div id='terminal'></div><br/>
 		<br/>
 		<script>
-			function _to_js_str(instance, c_str)
-			{
-				const str_len = instance.exports.str_len(c_str)	
-				let ta = new Uint8Array(instance.exports.memory.buffer, c_str, str_len)
-				return (new TextDecoder()).decode(ta)
-			}
-
-			function _to_array_buffer(instance, str, c_str)
-			{
-				let ta = (new TextEncoder()).encode(str) //Uint8Array
-				let str_len = ta.length + 1;
-				let dst = new Uint8Array(instance.exports.memory.buffer, c_str, str_len)
-				dst.set(ta);
-				dst[ta.length] = 0;
-			}
-
-			function _run_wat_code(wat_code)
-			{
-				let module = binaryen.parseText(wat_code);
-				var wasm = module.emitBinary();
-				var compiled = new WebAssembly.Module(wasm);
-			    var instance = new WebAssembly.Instance(compiled, {});
-				return instance.exports.run();
-			}
-
 			var t = new Terminal('terminal')
 			t.setHeight("600px")
 			t.setWidth('800px')
@@ -52,15 +29,15 @@
 			WebAssembly.instantiateStreaming(fetch('wm.wasm'), importObject)
 			.then(obj => {
 				c_str = obj.instance.exports.version()
-				t.print(_to_js_str(obj.instance, c_str));
+				t.print(to_js_str(obj.instance, c_str));
 				obj.instance.exports.free_mem(c_str);
 
 				t.input('', function (input) {
 					let new_ptr = obj.instance.exports.alloc_mem(128)
-					_to_array_buffer(obj.instance, input, new_ptr)
+					str_to_ab(obj.instance, input, new_ptr)
 
 					let wat = obj.instance.exports.parse_code(new_ptr)
-					t.print(_to_js_str(obj.instance, wat))
+					t.print(run_wasm_code(binaryen.parseText(to_js_str(obj.instance, wat)).emitBinary()))
 					obj.instance.exports.free_mem(wat)
 				})
 		});

@@ -30,6 +30,7 @@ elseif(WASM)
     -Wl,--no-entry,--strip-all,--export-dynamic
   )
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/wm.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/term.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/wm.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 else()

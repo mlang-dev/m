@@ -29,7 +29,7 @@ if (EMSCRIPTEN OR WASM)
     parser/parser.c
     parser/grammar.c
     parser/m_grammar.c
-    codegen/wasm_codegen.c
+    codegen/wat_codegen.c
     wasm/mwat.c
     wasm/sys.c
     wasm/wasm.c
