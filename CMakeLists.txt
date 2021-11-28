@@ -16,6 +16,7 @@ set(CMAKE_AR "llvm-ar")
 set(CMAKE_RANLIB "llvm-ranlib")
 add_compile_definitions(__wasi__=1)
 add_compile_definitions(__wasm32__=1)
+add_compile_definitions(WASM=1)
 add_compile_definitions(UNITY_EXCLUDE_SETJMP_H=1)
 add_compile_options(
                       --target=wasm32

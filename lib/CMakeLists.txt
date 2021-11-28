@@ -22,7 +22,6 @@ if (EMSCRIPTEN OR WASM)
  #   clib/win/getopt.c
  #   clib/win/libfmemopen.c
  #   clib/getpath.c
-    unity/unity.c
  #   clib/dlmalloc.c
     parser/ast_node.c
     parser/tok.c

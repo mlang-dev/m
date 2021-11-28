@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(mtest, VERSION 0.0.9 LANGUAGES CXX)
 
 IF (EMSCRIPTEN)
-
+  # exclude LLVM codegen testing
   include_directories(
     ${CMAKE_SOURCE_DIR}/test
     ${CMAKE_SOURCE_DIR}/include
@@ -37,13 +37,14 @@ IF (EMSCRIPTEN)
   gtest_discover_tests(mtest)
   
 elseif (WASM)
-
   include_directories(
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/unity
+    ${CMAKE_SOURCE_DIR}/test
   )
 
-
   add_executable(mtest
+    test.c
     clib/test_array.c
     # clib/test_symbol.cc
     # clib/test_symboltable.cc
@@ -63,7 +64,7 @@ elseif (WASM)
 
   set_target_properties(mtest PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
-  target_link_libraries(mtest PRIVATE mlr
+  target_link_libraries(mtest PRIVATE mlr unity
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     --target=wasm32
     -nostdlib
