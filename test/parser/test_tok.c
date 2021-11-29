@@ -5,11 +5,11 @@
  */
 #include "parser/grammar.h"
 #include "parser/tok.h"
-#include "gtest/gtest.h"
+#include "test.h"
 #include <stdio.h>
 
 
-TEST(testTok, testTokenEmptyString)
+TEST(test_tok, empty_string)
 {
     symbols_init();
     struct tok tok;
@@ -20,13 +20,13 @@ TEST(testTok, testTokenEmptyString)
     symbols_deinit();
 }
 
-TEST(testTok, testSkipComment)
+TEST(test_tok, skip_comment)
 {
     symbols_init();
-    char test_code[] = R"(
-#123
-
-)";
+    char test_code[] = 
+"\n"
+"#123\n"
+"\n";
 
     struct tok tok;
     struct lexer lexer;
@@ -36,13 +36,13 @@ TEST(testTok, testSkipComment)
     symbols_deinit();
  }
 
-TEST(testTok, testTokenChar)
+TEST(test_tok, token_char)
 {
     symbols_init();
-    char test_code[] = R"(
-'234'
-
-)";
+    char test_code[] = 
+"\n"
+"'234'\n"
+"\n";
 
     struct tok tok;
     struct lexer lexer;
@@ -56,13 +56,13 @@ TEST(testTok, testTokenChar)
     symbols_deinit();
 }
 
-TEST(testTok, testTokenString)
+TEST(test_tok, token_string)
 {
     symbols_init();
-    char test_code[] = R"(
-"234"
-
-)";
+    char test_code[] = 
+"\n"
+"\"234\"\n"
+"\n";
 
     struct tok tok;
     struct lexer lexer;
@@ -76,13 +76,13 @@ TEST(testTok, testTokenString)
     symbols_deinit();
  }
 
-TEST(testTok, testTokenNumInt)
+TEST(test_tok, token_num_int)
 {
     symbols_init();
-    char test_code[] = R"(
-234
-
-)";
+    char test_code[] = 
+"\n"
+"234\n"
+"\n";
 
     struct tok tok;
     struct lexer lexer;
@@ -96,13 +96,10 @@ TEST(testTok, testTokenNumInt)
     symbols_deinit();
  }
 
-TEST(testTok, testTokenNumFloat)
+TEST(test_tok, token_num_float)
 {
     symbols_init();
-    char test_code[] = R"(
-23.
-
-)";
+    char test_code[] = "\n23.";
 
     struct tok tok;
     struct lexer lexer;
@@ -116,13 +113,10 @@ TEST(testTok, testTokenNumFloat)
     symbols_deinit();
 }
 
-TEST(testTok, testTokenNumFloat2)
+TEST(test_tok, token_num_float2)
 {
     symbols_init();
-    char test_code[] = R"(
-2.3
-
-)";
+    char test_code[] = "\n2.3";
 
     struct tok tok;
     struct lexer lexer;
@@ -136,13 +130,10 @@ TEST(testTok, testTokenNumFloat2)
     symbols_deinit();
  }
 
-TEST(testTok, testTokenNumFloat3)
+TEST(test_tok, token_num_float3)
 {
     symbols_init();
-    char test_code[] = R"(
-.23
-
-)";
+    char test_code[] = "\n.23";
 
     struct tok tok;
     struct lexer lexer;
@@ -156,13 +147,10 @@ TEST(testTok, testTokenNumFloat3)
     symbols_deinit();
  }
 
-TEST(testTok, testTokenID)
+TEST(test_tok, token_id)
 {
     symbols_init();
-    char test_code[] = R"(
-_abc123
-
-)";
+    char test_code[] = "\n_abc123";
     struct tok tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
@@ -175,13 +163,10 @@ _abc123
     symbols_deinit();
  }
 
-TEST(testTok, testTokenMixedNumAndID)
+TEST(test_tok, token_num_id)
 {
     symbols_init();
-    char test_code[] = R"(
-123abc
-
-)";
+    char test_code[] = "\n123abc";
 
     struct tok tok;
     struct lexer lexer;
@@ -202,4 +187,20 @@ TEST(testTok, testTokenMixedNumAndID)
     ASSERT_EQ(4, tok.loc.start);
     ASSERT_EQ(7, tok.loc.end);
     symbols_deinit();
+}
+
+int test_tok()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_tok_empty_string);
+    RUN_TEST(test_tok_skip_comment);
+    RUN_TEST(test_tok_token_char);
+    RUN_TEST(test_tok_token_string);
+    RUN_TEST(test_tok_token_id);
+    RUN_TEST(test_tok_token_num_float);
+    RUN_TEST(test_tok_token_num_float2);
+    RUN_TEST(test_tok_token_num_float3);
+    RUN_TEST(test_tok_token_num_id);
+    RUN_TEST(test_tok_token_num_int);
+    return UNITY_END();
 }

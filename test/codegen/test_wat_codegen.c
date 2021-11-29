@@ -7,21 +7,21 @@
 #include "parser/parser.h"
 #include "parser/m_grammar.h"
 #include "codegen/wat_codegen.h"
-#include "gtest/gtest.h"
+#include "test.h"
 #include <stdio.h>
 
-TEST(testWatCodegen, testFunc)
+TEST(test_wat_codegen, func)
 {
     const char test_code[] = "run()=1+2";
-    const char expected[] = R"(
-(func $run (result i32)
-(i32.add
-(i32.const 1)
-(i32.const 2)
-)
-)
-(export "run" (func $run))
-)";
+    const char expected[] = 
+"\n"
+"(func $run (result i32)\n"
+"(i32.add\n"
+"(i32.const 1)\n"
+"(i32.const 2)\n"
+")\n"
+")\n"
+"(export \"run\" (func $run))\n";
     symbols_init();
     wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
@@ -31,4 +31,11 @@ TEST(testWatCodegen, testFunc)
     ast_node_free(ast);
     parser_free(parser);
     symbols_deinit();
+}
+
+int test_wat_codegen()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_wat_codegen_func);
+    return UNITY_END();
 }

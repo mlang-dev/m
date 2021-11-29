@@ -271,7 +271,7 @@ TEST(test_string, init_long_string_copy_short_string)
     string_deinit(&str);
 }
 
-void test_string()
+int test_string()
 {
     UNITY_BEGIN();
     RUN_TEST(test_string_short_init);
@@ -299,6 +299,6 @@ void test_string()
     RUN_TEST(test_string_long_string_add_long_string);
     RUN_TEST(test_string_long_string_add_short_string);
     RUN_TEST(test_string_init_long_string_copy_short_string);
-    UNITY_END();
+    return UNITY_END();
 }
 

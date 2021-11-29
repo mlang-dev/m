@@ -192,7 +192,7 @@ TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
 }
 */
 
-void test_hashtable()
+int test_hashtable()
 {
     UNITY_BEGIN();
     RUN_TEST(test_hashtable_str_generic);
@@ -201,5 +201,5 @@ void test_hashtable()
     RUN_TEST(test_hashtable_clear);
     RUN_TEST(test_hashtable_collision);
     RUN_TEST(test_hashtable_grow_with_collision);
-    UNITY_END();
+    return UNITY_END();
 }

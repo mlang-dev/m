@@ -25,9 +25,9 @@ TEST(test_hashset, add_and_check)
     hashset_deinit(&hs);
 }
 
-void test_hashset()
+int test_hashset()
 {
     UNITY_BEGIN();
     RUN_TEST(test_hashset_add_and_check);
-    UNITY_END();
+    return UNITY_END();
 }

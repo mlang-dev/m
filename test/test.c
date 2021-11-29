@@ -1,4 +1,5 @@
 #include "wasm/wasm.h"
+#include <stdio.h>
 
 #ifdef WASM
 #define ENTRY _start
@@ -6,16 +7,22 @@
 #define ENTRY main
 #endif
 
-void test_array();
-void test_hashset();
-void test_hashtable();
-void test_math();
-void test_queue();
-void test_stack();
-void test_string();
-void test_symbol();
-void test_symboltable();
-void test_util();
+int test_array();
+int test_hashset();
+int test_hashtable();
+int test_math();
+int test_queue();
+int test_stack();
+int test_string();
+int test_symbol();
+int test_symboltable();
+int test_util();
+
+int test_tok();
+int test_g_parser();
+int test_grammar();
+int test_wat_codegen();
+int test_mwat();
 
 void setUp(){}
 void tearDown(){}
@@ -23,15 +30,26 @@ void tearDown(){}
 
 EXPORT int ENTRY()
 {
-  test_array();
-  test_hashset();
-  test_hashtable();
-  test_math();
-  test_queue();
-  test_stack();
-  test_string();
-  test_symbol();
-  test_symboltable();
-  test_util();
-  return 0;
+  int failures = 0;
+  failures += test_array();
+  failures += test_hashset();
+  failures += test_hashtable();
+  failures += test_math();
+  failures += test_queue();
+  failures += test_stack();
+  failures += test_string();
+  failures += test_symbol();
+  failures += test_symboltable();
+  failures += test_util();
+
+  failures += test_tok();
+  failures += test_g_parser();
+  failures += test_grammar();
+  failures += test_wat_codegen();
+  failures += test_mwat();
+  if (!failures)
+    printf("Unit tests passed !\n");
+  else
+    printf("Unit tests failures: %d\n", failures);
+  return failures;
 }

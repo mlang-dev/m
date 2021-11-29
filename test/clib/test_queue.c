@@ -58,11 +58,11 @@ TEST(test_queue, circle)
     ASSERT_EQ(7, q.items.cap);
 }
 
-void test_queue()
+int test_queue()
 {
     UNITY_BEGIN();
     RUN_TEST(test_queue_push_and_pop);
     RUN_TEST(test_queue_pop_with_value);
     RUN_TEST(test_queue_circle);
-    UNITY_END();
+    return UNITY_END();
 }

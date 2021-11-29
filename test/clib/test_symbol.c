@@ -34,10 +34,10 @@ TEST(test_symbol, support_multiple_values_for_same_key)
     symbols_deinit();
 }
 
-void test_symbol()
+int test_symbol()
 {
     UNITY_BEGIN();
     RUN_TEST(test_symbol_equals_to_same_string_key);
     RUN_TEST(test_symbol_support_multiple_values_for_same_key);
-    UNITY_END();
+    return UNITY_END();
 }

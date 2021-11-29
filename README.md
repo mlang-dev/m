@@ -90,7 +90,7 @@ make (required: clang, llvm-ar, llvm-nm)
 ```
 mkdir build
 cd build
-cmake ..
+cmake ..  (WASM version: cmake -DWASM=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..)
 cmake --build .
 ```
 The build system will build m executable under ./tools on macOS/Linux, or .\tools\Debug on Windows

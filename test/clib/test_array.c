@@ -76,11 +76,13 @@ TEST(test_array, element_with_no_overhead_int)
     ASSERT_EQ(1000, *((int*)array_get(&arr, 0)));
 }
 
-void test_array()
+int test_array()
 {
     UNITY_BEGIN();
     RUN_TEST(test_array_init_int);
     RUN_TEST(test_array_of_string);
     RUN_TEST(test_array_of_long_string);
-    UNITY_END();
+    RUN_TEST(test_array_element_with_no_overhead);
+    RUN_TEST(test_array_element_with_no_overhead_int);
+    return UNITY_END();
 }

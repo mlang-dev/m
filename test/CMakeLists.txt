@@ -55,11 +55,12 @@ elseif (WASM)
     clib/test_hashtable.c
     clib/test_hashset.c
     clib/test_util.c
-    # parser/test_tok.cc
-    # parser/test_g_parser.cc
-    # parser/test_grammar.cc
-    # codegen/test_wasm_codegen.cc
-    # app/test_mwat.cc
+    
+    parser/test_tok.c
+    parser/test_g_parser.c
+    parser/test_grammar.c
+    codegen/test_wat_codegen.c
+    app/test_mwat.c
   )
 
   set_target_properties(mtest PROPERTIES LINKER_LANGUAGE C
@@ -170,6 +171,13 @@ else()
   clib/test_symbol.c
   clib/test_symboltable.c
   clib/test_util.c
+
+  parser/test_tok.c
+  parser/test_g_parser.c
+  parser/test_grammar.c
+
+  codegen/test_wat_codegen.c
+  app/test_mwat.c
   )
 
   TARGET_LINK_LIBRARIES(mctest mlr unity

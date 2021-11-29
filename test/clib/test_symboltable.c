@@ -74,10 +74,10 @@ TEST(test_symboltable, multiple_keys)
 }
 */
 
-void test_symboltable()
+int test_symboltable()
 {
     UNITY_BEGIN();
     //RUN_TEST(test_symboltable_multiple_keys);
     //RUN_TEST(test_symboltable_same_key_multiple_values);
-    UNITY_END();
+    return UNITY_END();
 }

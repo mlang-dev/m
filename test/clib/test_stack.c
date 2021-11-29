@@ -26,9 +26,9 @@ TEST(test_stack, push_and_pop)
     stack_deinit(&s);
 }
 
-void test_stack()
+int test_stack()
 {
     UNITY_BEGIN();
     RUN_TEST(test_stack_push_and_pop);
-    UNITY_END();
+    return UNITY_END();
 }

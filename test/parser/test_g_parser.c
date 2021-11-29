@@ -7,18 +7,18 @@
 #include "parser/parser.h"
 #include "parser/m_grammar.h"
 #include "codegen/wat_codegen.h"
-#include "gtest/gtest.h"
+#include "test.h"
 #include <stdio.h>
 
-TEST(testGParser, testArithmeticExp)
+TEST(test_g_parser, arithmetic_exp)
 {
     const char test_code[] = "1+2";
-    const char expected[] = R"(
-(i32.add
-(i32.const 1)
-(i32.const 2)
-)
-)";
+    const char expected[] = 
+"\n"
+"(i32.add\n"
+"(i32.const 1)\n"
+"(i32.const 2)\n"
+")\n";
     symbols_init();
     wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
@@ -31,15 +31,16 @@ TEST(testGParser, testArithmeticExp)
 }
 
 
-TEST(testGParser, testArithmeticExp1)
+TEST(test_g_parser, arithmetic_exp1)
 {
     const char test_code[] = "(1+2)";
-    const char expected[] = R"(
-(i32.add
-(i32.const 1)
-(i32.const 2)
-)
-)";
+    const char expected[] = 
+"\n"
+"(i32.add\n"
+"(i32.const 1)\n"
+"(i32.const 2)\n"
+")\n";
+
     symbols_init();
     wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
@@ -51,18 +52,18 @@ TEST(testGParser, testArithmeticExp1)
     symbols_deinit();
 }
 
-TEST(testGParser, testArithmeticExp2)
+TEST(test_g_parser, arithmetic_exp2)
 {
     const char test_code[] = "1 + 2 * 4";
-    const char expected[] = R"(
-(i32.add
-(i32.const 1)
-(i32.mul
-(i32.const 2)
-(i32.const 4)
-)
-)
-)";
+    const char expected[] = 
+"\n"
+"(i32.add\n"
+"(i32.const 1)\n"
+"(i32.mul\n"
+"(i32.const 2)\n"
+"(i32.const 4)\n"
+")\n"
+")\n";
     symbols_init();
     wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
@@ -75,18 +76,18 @@ TEST(testGParser, testArithmeticExp2)
 }
 
 
-TEST(testGParser, testArithmeticExp3)
+TEST(test_g_parser, arithmetic_exp3)
 {
     const char test_code[] = "1 * 2 + 3";
-    const char expected[] = R"(
-(i32.add
-(i32.mul
-(i32.const 1)
-(i32.const 2)
-)
-(i32.const 3)
-)
-)";
+    const char expected[] = 
+"\n"
+"(i32.add\n"
+"(i32.mul\n"
+"(i32.const 1)\n"
+"(i32.const 2)\n"
+")\n"
+"(i32.const 3)\n"
+")\n";
     symbols_init();
     wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
@@ -98,18 +99,19 @@ TEST(testGParser, testArithmeticExp3)
     symbols_deinit();
 }
 
-TEST(testGParser, testArithmeticExp4)
+TEST(test_g_parser, arithmetic_exp4)
 {
     const char test_code[] = "(1 + 2) * 3";
-    const char expected[] = R"(
-(i32.mul
-(i32.add
-(i32.const 1)
-(i32.const 2)
-)
-(i32.const 3)
-)
-)";
+    const char expected[] = 
+"\n"
+"(i32.mul\n"
+"(i32.add\n"
+"(i32.const 1)\n"
+"(i32.const 2)\n"
+")\n"
+"(i32.const 3)\n"
+")\n";
+
     symbols_init();
     wat_codegen_init();
     struct parser *parser = parser_new(get_m_grammar());
@@ -119,4 +121,15 @@ TEST(testGParser, testArithmeticExp4)
     ast_node_free(ast);
     parser_free(parser);
     symbols_deinit();
+}
+
+int test_g_parser()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_g_parser_arithmetic_exp);
+    RUN_TEST(test_g_parser_arithmetic_exp1);
+    RUN_TEST(test_g_parser_arithmetic_exp2);
+    RUN_TEST(test_g_parser_arithmetic_exp3);
+    RUN_TEST(test_g_parser_arithmetic_exp4);
+    return UNITY_END();
 }

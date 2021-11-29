@@ -6,15 +6,13 @@
 #include "parser/grammar.h"
 #include "parser/m_grammar.h"
 #include "parser/parser.h"
-#include "gtest/gtest.h"
+#include "test.h"
 #include <stdio.h>
 #include "clib/hashtable.h"
 
-TEST(testGrammar, testNumToken)
+TEST(test_grammar, num_token)
 {
-    char test_grammar[] = R"(
-power       = NUM 
-    )";
+    char test_grammar[] = "power       = NUM";
     symbols_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("power", 5);
@@ -42,23 +40,22 @@ power       = NUM
     symbols_deinit();
 }
 
-TEST(testGrammar, testArithmeticExp)
+TEST(test_grammar, arithmetic_exp)
 {
-    char test_grammar[] = R"(
-sum         = sum '+' term      {}
-            | sum '-' term      {}
-            | term              {}
-term        = term '*' factor   {}
-            | term '/' factor   {}
-            | term '%' factor   {}
-            | factor            {}
-factor      = '+' factor        {}
-            | '-' factor        {}
-            | power             {}
-power       = NUM '^' factor    {}
-            | NUM               {}
+    char test_grammar[] = 
+"sum         = sum '+' term      {}\n"
+"            | sum '-' term      {}\n"
+"            | term              {}\n"
+"term        = term '*' factor   {}\n"
+"            | term '/' factor   {}\n"
+"            | term '%' factor   {}\n"
+"            | factor            {}\n"
+"factor      = '+' factor        {}\n"
+"            | '-' factor        {}\n"
+"            | power             {}\n"
+"power       = NUM '^' factor    {}\n"
+"            | NUM               {}\n";
 
-    )";
     symbols_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("sum", 3);
@@ -84,20 +81,19 @@ power       = NUM '^' factor    {}
     symbols_deinit();
 }
 
-TEST(testGrammar, testArithmeticExpUsingCharSetOr)
+TEST(test_grammar, arithmetic_exp_using_charset)
 {
-    char test_grammar[] = R"(
-sum         = sum [+-] term     { binop 0 1 2 }
-            | term              { 0 }
-term        = term [*/%] factor { binop 0 1 2 }
-            | factor            { 0 }
-factor      = '(' sum ')'       { 1 }
-            | [+-] factor       { unop 0 1 }
-            | power             { 0 }
-power       = NUM '^' factor    { binop 0 1 2 }
-            | NUM               { 0 }
-
-    )";
+    char test_grammar[] = 
+"\n"
+"sum         = sum [+-] term     { binop 0 1 2 }\n"
+"            | term              { 0 }\n"
+"term        = term [*/%] factor { binop 0 1 2 }\n"
+"            | factor            { 0 }\n"
+"factor      = '(' sum ')'       { 1 }\n"
+"            | [+-] factor       { unop 0 1 }\n"
+"            | power             { 0 }\n"
+"power       = NUM '^' factor    { binop 0 1 2 }\n"
+"            | NUM               { 0 }\n";
     symbols_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("sum", 3);
@@ -128,4 +124,13 @@ power       = NUM '^' factor    { binop 0 1 2 }
     ASSERT_EQ(8, hashset_size(&grammar->keywords));
     grammar_free(grammar);
     symbols_deinit();
+}
+
+int test_grammar()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_grammar_num_token);
+    RUN_TEST(test_grammar_arithmetic_exp);
+    RUN_TEST(test_grammar_arithmetic_exp_using_charset);
+    return UNITY_END();
 }
