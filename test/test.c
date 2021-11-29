@@ -8,6 +8,7 @@
 #endif
 
 int test_array();
+int test_byte_array();
 int test_hashset();
 int test_hashtable();
 int test_math();
@@ -32,6 +33,7 @@ EXPORT int ENTRY()
 {
   int failures = 0;
   failures += test_array();
+  failures += test_byte_array();
   failures += test_hashset();
   failures += test_hashtable();
   failures += test_math();

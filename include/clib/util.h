@@ -17,7 +17,6 @@ extern "C" {
 #include <string.h>
 #include "clib/array.h"
 #include "clib/string.h"
-#include "clib/dlmalloc.h"
 #include <stdlib.h>
 #ifdef _WIN32
 #include "clib/win/unistd.h"

@@ -46,6 +46,7 @@ elseif (WASM)
   add_executable(mtest
     test.c
     clib/test_array.c
+    clib/test_byte_array.c
     clib/test_symbol.c
     clib/test_symboltable.c
     clib/test_math.c
@@ -163,6 +164,7 @@ else()
   test.c
   clib/test_hashset.c
   clib/test_array.c
+  clib/test_byte_array.c
   clib/test_hashtable.c
   clib/test_math.c
   clib/test_queue.c

@@ -9,6 +9,7 @@ if (EMSCRIPTEN OR WASM)
     clib/math.c
     clib/object.c
     clib/array.c
+    clib/byte_array.c
     clib/string.c
     clib/symbol.c
     clib/symboltable.c
@@ -22,7 +23,6 @@ if (EMSCRIPTEN OR WASM)
  #   clib/win/getopt.c
  #   clib/win/libfmemopen.c
  #   clib/getpath.c
- #   clib/dlmalloc.c
     parser/ast_node.c
     parser/tok.c
     parser/parser.c
@@ -46,6 +46,7 @@ else()
     clib/math.c
     clib/object.c
     clib/array.c
+    clib/byte_array.c
     clib/string.c
     clib/symbol.c
     clib/symboltable.c
@@ -59,7 +60,6 @@ else()
     clib/win/getopt.c
     clib/win/libfmemopen.c
     clib/getpath.c
-    clib/dlmalloc.c
     tool/cmodule.c
     lexer/lexer.c
     lexer/keyword.c
