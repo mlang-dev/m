@@ -3,7 +3,7 @@
  *
  * unit test for clib hashset functions
  */
-#include "gtest/gtest.h"
+#include "test.h"
 
 
 #include "clib/generic.h"
@@ -34,9 +34,9 @@
 //     hashtable_deinit(&ht);
 // }
 
-TEST(testHashtable, TestStrGeneric)
+TEST(test_hashtable, str_generic)
 {
-    hashtable ht;
+    struct hashtable ht;
     hashtable_init(&ht);
     char str1[] = "hello";
     char str2[] = "world";
@@ -54,9 +54,9 @@ TEST(testHashtable, TestStrGeneric)
     hashtable_deinit(&ht);
 }
 
-TEST(testHashtable, TestSymbolInt)
+TEST(test_hashtable, symbol_int)
 {
-    hashtable ht;
+    struct hashtable ht;
     symbols_init();
     hashtable_init_with_value_size(&ht, sizeof(int), 0);
     symbol str1 = to_symbol("hello");
@@ -75,9 +75,9 @@ TEST(testHashtable, TestSymbolInt)
     symbols_deinit();
 }
 
-TEST(testHashtable, TestRemove)
+TEST(test_hashtable, remove)
 {
-    hashtable ht;
+    struct hashtable ht;
     hashtable_init(&ht);
     char str1[] = "hello";
     char str2[] = "world";
@@ -97,9 +97,9 @@ TEST(testHashtable, TestRemove)
     hashtable_deinit(&ht);
 }
 
-TEST(testHashtable, TestClear)
+TEST(test_hashtable, clear)
 {
-    hashtable ht;
+    struct hashtable ht;
     hashtable_init(&ht);
     char str1[] = "hello";
     char str2[] = "world";
@@ -115,10 +115,10 @@ TEST(testHashtable, TestClear)
     hashtable_deinit(&ht);
 }
 
-TEST(testHashtable, TestHashtableCollision)
+TEST(test_hashtable, collision)
 {
     reset_id_name("a");
-    hashtable ht;
+    struct hashtable ht;
     hashtable_init(&ht);
     int j = 99, k = 100;
     hashtable_set(&ht, "sin", &j);
@@ -129,10 +129,10 @@ TEST(testHashtable, TestHashtableCollision)
     hashtable_deinit(&ht);
 }
 
-TEST(testHashtable, TestHashtableGrowWithCollision)
+TEST(test_hashtable, grow_with_collision)
 {
     reset_id_name("a");
-    hashtable ht;
+    struct hashtable ht;
     hashtable_init(&ht);
     char strs[20][20];
     int value[20];
@@ -191,3 +191,15 @@ TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
     symbols_deinit();
 }
 */
+
+void test_hashtable()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_hashtable_str_generic);
+    RUN_TEST(test_hashtable_symbol_int);
+    RUN_TEST(test_hashtable_remove);
+    RUN_TEST(test_hashtable_clear);
+    RUN_TEST(test_hashtable_collision);
+    RUN_TEST(test_hashtable_grow_with_collision);
+    UNITY_END();
+}

@@ -46,15 +46,15 @@ elseif (WASM)
   add_executable(mtest
     test.c
     clib/test_array.c
-    # clib/test_symbol.cc
-    # clib/test_symboltable.cc
-    # clib/test_math.cc
-    # clib/test_string.cc
-    # clib/test_queue.cc
-    # clib/test_stack.cc
-    # clib/test_hashtable.cc
-    # clib/test_hashset.cc
-    # clib/test_util.cc
+    clib/test_symbol.c
+    clib/test_symboltable.c
+    clib/test_math.c
+    clib/test_string.c
+    clib/test_queue.c
+    clib/test_stack.c
+    clib/test_hashtable.c
+    clib/test_hashset.c
+    clib/test_util.c
     # parser/test_tok.cc
     # parser/test_g_parser.cc
     # parser/test_grammar.cc
@@ -100,15 +100,6 @@ else()
 
   add_executable(mtest
     tutil.cc
-    clib/test_symbol.cc
-    clib/test_symboltable.cc
-    clib/test_math.cc
-    clib/test_string.cc
-    clib/test_queue.cc
-    clib/test_stack.cc
-    clib/test_hashtable.cc
-    clib/test_hashset.cc
-    clib/test_util.cc
     parser/test_tok.cc
     parser/test_g_parser.cc
     parser/test_grammar.cc
@@ -169,7 +160,16 @@ else()
   )
   add_executable(mctest
   test.c
+  clib/test_hashset.c
   clib/test_array.c
+  clib/test_hashtable.c
+  clib/test_math.c
+  clib/test_queue.c
+  clib/test_stack.c
+  clib/test_string.c
+  clib/test_symbol.c
+  clib/test_symboltable.c
+  clib/test_util.c
   )
 
   TARGET_LINK_LIBRARIES(mctest mlr unity

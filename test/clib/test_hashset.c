@@ -3,13 +3,13 @@
  *
  * unit test for clib hashset functions
  */
-#include "gtest/gtest.h"
+#include "test.h"
 
 #include "clib/hashset.h"
 #include "clib/object.h"
 #include "clib/string.h"
 
-TEST(testHashset, TestAddAndCheck)
+TEST(test_hashset, add_and_check)
 {
     hashset hs;
     hashset_init(&hs);
@@ -23,4 +23,11 @@ TEST(testHashset, TestAddAndCheck)
     ASSERT_TRUE(hashset_in(&hs, str2));
     ASSERT_FALSE(hashset_in(&hs, str3));
     hashset_deinit(&hs);
+}
+
+void test_hashset()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_hashset_add_and_check);
+    UNITY_END();
 }

@@ -4,9 +4,9 @@
  * unit test for utility functions
  */
 #include "clib/math.h"
-#include "gtest/gtest.h"
+#include "test.h"
 
-TEST(testMath, testPow)
+TEST(test_math, pow)
 {
     ASSERT_EQ(1, pow_int(2, 0));
     ASSERT_EQ(2, pow_int(2, 1));
@@ -14,4 +14,11 @@ TEST(testMath, testPow)
     ASSERT_EQ(16, pow_int(2, 4));
     ASSERT_EQ(32, pow_int(2, 5));
     ASSERT_EQ(0, pow_int(2, -1));
+}
+
+void test_math()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_math_pow);
+    UNITY_END();
 }

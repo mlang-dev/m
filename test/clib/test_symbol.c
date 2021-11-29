@@ -3,7 +3,7 @@
  *
  * unit test for clib hashset functions
  */
-#include "gtest/gtest.h"
+#include "test.h"
 
 
 #include "clib/generic.h"
@@ -14,7 +14,7 @@
 #include "clib/util.h"
 #include "sema/type.h"
 
-TEST(testSymbol, TestSymbolEqualsWithTheSameStringKey)
+TEST(test_symbol, equals_to_same_string_key)
 {
     symbols_init();
     char str1[] = "hello";
@@ -26,10 +26,18 @@ TEST(testSymbol, TestSymbolEqualsWithTheSameStringKey)
     symbols_deinit();
 }
 
-TEST(testSymbol, TestSymbolSupportMultipleValuesForTheSameKey)
+TEST(test_symbol, support_multiple_values_for_same_key)
 {
     symbols_init();
     symbol symbol1 = to_symbol("hello");
     ASSERT_EQ(symbol1, to_symbol("hello"));
     symbols_deinit();
+}
+
+void test_symbol()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_symbol_equals_to_same_string_key);
+    RUN_TEST(test_symbol_support_multiple_values_for_same_key);
+    UNITY_END();
 }

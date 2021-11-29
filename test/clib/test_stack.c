@@ -3,12 +3,12 @@
  *
  * unit test for clib stack functions
  */
-#include "gtest/gtest.h"
+#include "test.h"
 
 #include "clib/stack.h"
 #include "clib/string.h"
 
-TEST(testStack, TestStackPushAndPop)
+TEST(test_stack, push_and_pop)
 {
     struct stack s;
     stack_init(&s, sizeof(int));
@@ -24,4 +24,11 @@ TEST(testStack, TestStackPushAndPop)
     ASSERT_EQ(20, second);
     ASSERT_EQ(0, stack_size(&s));
     stack_deinit(&s);
+}
+
+void test_stack()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_stack_push_and_pop);
+    UNITY_END();
 }

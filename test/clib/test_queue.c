@@ -3,14 +3,14 @@
  *
  * unit test for clib queue functions
  */
-#include "gtest/gtest.h"
+#include "test.h"
 
 #include "clib/queue.h"
 #include "clib/string.h"
 
-TEST(testQueue, TestQueuePushAndPop)
+TEST(test_queue, push_and_pop)
 {
-    queue q;
+    struct queue q;
     queue_init(&q, sizeof(int));
     int i = 10;
     int j = 20;
@@ -28,9 +28,9 @@ TEST(testQueue, TestQueuePushAndPop)
     queue_deinit(&q);
 }
 
-TEST(testQueue, TestQueuePopWithValue)
+TEST(test_queue, pop_with_value)
 {
-    queue q;
+    struct queue q;
     queue_init(&q, sizeof(int));
     int i = 10;
     int j = 20;
@@ -47,13 +47,22 @@ TEST(testQueue, TestQueuePopWithValue)
     queue_deinit(&q);
 }
 
-TEST(testQueue, TestQueueCircle)
+TEST(test_queue, circle)
 {
-    queue q;
+    struct queue q;
     queue_init(&q, sizeof(int));
     ASSERT_EQ(7, q.items.cap);
     for (int i = 0; i < 10; i++) {
         queue_push(&q, &i);
     }
     ASSERT_EQ(7, q.items.cap);
+}
+
+void test_queue()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_queue_push_and_pop);
+    RUN_TEST(test_queue_pop_with_value);
+    RUN_TEST(test_queue_circle);
+    UNITY_END();
 }

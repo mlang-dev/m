@@ -25,6 +25,7 @@
             "includePath": [
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/test",
+                "${workspaceFolder}/unity",
                 "${workspaceFolder}/extern/googletest/googletest/include",
                 "${workspaceFolder}/extern/googletest/googlemock/include",
                 "/usr/local/include"

@@ -5,9 +5,10 @@
  */
 
 #include "clib/string.h"
-#include "gtest/gtest.h"
+#include "test.h"
+#include <string.h>
 
-TEST(testString, testShortInit)
+TEST(test_string, short_init)
 {
     string str;
     string_init_chars(&str, "hello world");
@@ -16,7 +17,7 @@ TEST(testString, testShortInit)
     string_deinit(&str);
 }
 
-TEST(testString, testEmptyString)
+TEST(test_string, empty_string)
 {
     string str;
     string_init_chars(&str, "");
@@ -25,7 +26,7 @@ TEST(testString, testEmptyString)
     string_deinit(&str);
 }
 
-TEST(testString, testEmptyString2)
+TEST(test_string, empty_string2)
 {
     string str;
     string_init(&str);
@@ -34,7 +35,7 @@ TEST(testString, testEmptyString2)
     string_deinit(&str);
 }
 
-TEST(testString, testLongInit)
+TEST(test_string, long_init)
 {
     string str;
     string_init_chars(&str, "hello world. this is very long string. expected to be dynamically allocated");
@@ -42,7 +43,7 @@ TEST(testString, testLongInit)
     string_deinit(&str);
 }
 
-TEST(testString, testShortAppend)
+TEST(test_string, short_append)
 {
     string str;
     string_init_chars(&str, "hello");
@@ -51,7 +52,7 @@ TEST(testString, testShortAppend)
     string_deinit(&str);
 }
 
-TEST(testString, testShortAppendToLong)
+TEST(test_string, short_append_to_long)
 {
     string str;
     string_init_chars(&str, "hello");
@@ -60,7 +61,7 @@ TEST(testString, testShortAppendToLong)
     string_deinit(&str);
 }
 
-TEST(testString, testLongAppendToLong)
+TEST(test_string, long_append_to_long)
 {
     string str;
     string_init_chars(&str, "hello world!  this will become a very long string.");
@@ -69,7 +70,7 @@ TEST(testString, testLongAppendToLong)
     string_deinit(&str);
 }
 
-TEST(testString, testEq)
+TEST(test_string, eq)
 {
     string str;
     string_init_chars(&str, "hello world!");
@@ -77,7 +78,7 @@ TEST(testString, testEq)
     string_deinit(&str);
 }
 
-TEST(testString, testNotEq)
+TEST(test_string, not_eq)
 {
     string str;
     string_init_chars(&str, "hello world!");
@@ -85,7 +86,7 @@ TEST(testString, testNotEq)
     string_deinit(&str);
 }
 
-TEST(testString, testNotEq2)
+TEST(test_string, not_eq_2)
 {
     string str;
     string_init_chars(&str, "hello world!");
@@ -93,7 +94,7 @@ TEST(testString, testNotEq2)
     string_deinit(&str);
 }
 
-TEST(testString, testCopy)
+TEST(test_string, copy)
 {
     string str;
     char test_char[] = "hello world!";
@@ -105,7 +106,15 @@ TEST(testString, testCopy)
     string_deinit(&str);
 }
 
-TEST(testString, testSubstringUntil)
+TEST(test_string, substring)
+{
+    string str1;
+    string_init_chars(&str1, "abc.h");
+    ASSERT_STREQ("abc", string_get(string_substr(&str1, '.')));
+    string_deinit(&str1);
+}
+
+TEST(test_string, sub_string_until)
 {
     string str;
     string_init_chars(&str, "abc.def.cfg");
@@ -114,7 +123,7 @@ TEST(testString, testSubstringUntil)
     string_deinit(&str);
 }
 
-TEST(testString, testSubstringNoMatch)
+TEST(test_string, sub_string_no_match)
 {
     string str;
     string_init_chars(&str, "abcdef");
@@ -123,22 +132,22 @@ TEST(testString, testSubstringNoMatch)
     string_deinit(&str);
 }
 
-TEST(testString, testSplitNoMatched)
+TEST(test_string, split_no_match)
 {
     string str;
     string_init_chars(&str, "abcdefcfg");
-    array arr = string_split(&str, '.');
+    struct array arr = string_split(&str, '.');
     ASSERT_EQ(1, array_size(&arr));
     ASSERT_STREQ("abcdefcfg", string_get(STRING_POINTER(array_get(&arr, 0))));
     array_deinit(&arr);
     string_deinit(&str);
 }
 
-TEST(testString, testSplit)
+TEST(test_string, split)
 {
     string str;
     string_init_chars(&str, "abc.def.cfg");
-    array arr = string_split(&str, '.');
+    struct array arr = string_split(&str, '.');
     ASSERT_EQ(3, array_size(&arr));
     ASSERT_STREQ("abc", string_get(STRING_POINTER(array_get(&arr, 0))));
     ASSERT_STREQ("def", string_get(STRING_POINTER(array_get(&arr, 1))));
@@ -147,11 +156,11 @@ TEST(testString, testSplit)
     string_deinit(&str);
 }
 
-TEST(testString, testSplitLongString)
+TEST(test_string, split_long_string)
 {
     string str;
     string_init_chars(&str, "this is a very long string.def.cfg");
-    array arr = string_split(&str, '.');
+    struct array arr = string_split(&str, '.');
     ASSERT_EQ(3, array_size(&arr));
     ASSERT_STREQ("this is a very long string", string_get(STRING_POINTER(array_get(&arr, 0))));
     ASSERT_STREQ("def", string_get(STRING_POINTER(array_get(&arr, 1))));
@@ -160,7 +169,7 @@ TEST(testString, testSplitLongString)
     string_deinit(&str);
 }
 
-TEST(testString, testJoin)
+TEST(test_string, join)
 {
     string str;
     ARRAY_STRING(arr);
@@ -172,7 +181,7 @@ TEST(testString, testJoin)
     array_deinit(&arr);
 }
 
-TEST(testString, testJoinMultiString)
+TEST(test_string, join_multi_string)
 {
     string str;
     ARRAY_STRING(arr);
@@ -186,7 +195,7 @@ TEST(testString, testJoinMultiString)
     array_deinit(&arr);
 }
 
-TEST(testString, testJoinMultiLongString)
+TEST(test_string, join_multi_long_string)
 {
     string str;
     ARRAY_STRING(arr);
@@ -202,7 +211,7 @@ TEST(testString, testJoinMultiLongString)
     array_deinit(&arr);
 }
 
-TEST(testString, testShortStringAddShortString)
+TEST(test_string, short_string_add_short_string)
 {
     string str1;
     string str2;
@@ -214,7 +223,7 @@ TEST(testString, testShortStringAddShortString)
     string_deinit(&str2);
 }
 
-TEST(testString, testShortStringAddLongString)
+TEST(test_string, short_string_add_long_string)
 {
     string str1;
     string str2;
@@ -226,7 +235,7 @@ TEST(testString, testShortStringAddLongString)
     string_deinit(&str2);
 }
 
-TEST(testString, testLongStringAddLongString)
+TEST(test_string, long_string_add_long_string)
 {
     string str1;
     string str2;
@@ -238,7 +247,7 @@ TEST(testString, testLongStringAddLongString)
     string_deinit(&str2);
 }
 
-TEST(testString, testLongStringAddShortString)
+TEST(test_string, long_string_add_short_string)
 {
     string str1;
     string str2;
@@ -250,15 +259,7 @@ TEST(testString, testLongStringAddShortString)
     string_deinit(&str2);
 }
 
-TEST(testString, testSubstring)
-{
-    string str1;
-    string_init_chars(&str1, "abc.h");
-    ASSERT_STREQ("abc", string_get(string_substr(&str1, '.')));
-    string_deinit(&str1);
-}
-
-TEST(testString, testInitLongStringWithCopyToShortString)
+TEST(test_string, init_long_string_copy_short_string)
 {
     string str;
     string_init_chars(&str, "this is a very long string");
@@ -269,3 +270,35 @@ TEST(testString, testInitLongStringWithCopyToShortString)
     ASSERT_STREQ("result", string_get(&str));
     string_deinit(&str);
 }
+
+void test_string()
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_string_short_init);
+    RUN_TEST(test_string_empty_string);
+    RUN_TEST(test_string_empty_string2);
+    RUN_TEST(test_string_long_init);
+    RUN_TEST(test_string_short_append);
+    RUN_TEST(test_string_short_append_to_long);
+    RUN_TEST(test_string_long_append_to_long);
+    RUN_TEST(test_string_eq);
+    RUN_TEST(test_string_not_eq);
+    RUN_TEST(test_string_not_eq_2);
+    RUN_TEST(test_string_copy);
+    RUN_TEST(test_string_substring);
+    RUN_TEST(test_string_sub_string_until);
+    RUN_TEST(test_string_sub_string_no_match);
+    RUN_TEST(test_string_split);
+    RUN_TEST(test_string_split_long_string);
+    RUN_TEST(test_string_split_no_match);
+    RUN_TEST(test_string_join);
+    RUN_TEST(test_string_join_multi_long_string);
+    RUN_TEST(test_string_join_multi_string);
+    RUN_TEST(test_string_short_string_add_long_string);
+    RUN_TEST(test_string_short_string_add_short_string);
+    RUN_TEST(test_string_long_string_add_long_string);
+    RUN_TEST(test_string_long_string_add_short_string);
+    RUN_TEST(test_string_init_long_string_copy_short_string);
+    UNITY_END();
+}
+

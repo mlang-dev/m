@@ -7,9 +7,6 @@
 #include "clib/array.h"
 #include "clib/string.h"
 
-void setUp(){}
-void tearDown(){}
-
 TEST(test_array, init_int)
 {
     struct array arr;
