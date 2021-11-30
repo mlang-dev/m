@@ -26,6 +26,7 @@
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/test",
                 "${workspaceFolder}/unity",
+                "${workspaceFolder}/extern/binaryen/src",
                 "${workspaceFolder}/extern/googletest/googletest/include",
                 "${workspaceFolder}/extern/googletest/googlemock/include",
                 "/usr/local/include"

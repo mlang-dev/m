@@ -43,7 +43,6 @@ elseif(EMSCRIPTEN)
 else()
     # lots of warnings and all warnings as errors
     add_compile_options(-Wall -Wextra -pedantic -Werror)
-    add_compile_options(-Wno-null-pointer-arithmetic)
 endif()
 
 

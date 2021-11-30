@@ -23,8 +23,8 @@ void wasm_codegen_init()
     ops['*'] = "i32.mul";
     ops['/'] = "i32.div";
 }
-/*
-unsigned char *_wasm_generate(struct ast_node *ast, const char *text)
+
+struct byte_array _wasm_generate(struct ast_node *ast, const char *text)
 {
     string s;
     string_init(&s);
@@ -84,7 +84,7 @@ unsigned char *_wasm_generate(struct ast_node *ast, const char *text)
     return s;
 }
 
-string wasm_generate(struct ast_node *ast, const char *text)
+struct byte_array wasm_generate(struct ast_node *ast, const char *text)
 {
     string s;
     string_init_chars2(&s, "\n", 1);
@@ -92,4 +92,4 @@ string wasm_generate(struct ast_node *ast, const char *text)
     string_add2(&s, &wat);
     return s;
 }
-*/
+

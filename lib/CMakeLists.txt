@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/include
-)
-
 if (EMSCRIPTEN OR WASM)
+  include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/extern/binaryen/src
+  )
+
   add_library(mlr 
     clib/math.c
     clib/object.c

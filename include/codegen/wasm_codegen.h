@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 void wasm_codegen_init();
-unsigned char *wasm_generate(struct ast_node *ast, const char *text);
+struct byte_array wasm_generate(struct ast_node *ast, const char *text);
 
 #ifdef __cplusplus
 }

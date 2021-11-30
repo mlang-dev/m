@@ -102,9 +102,6 @@ else()
 
   add_executable(mtest
     tutil.cc
-    parser/test_tok.cc
-    parser/test_g_parser.cc
-    parser/test_grammar.cc
 
     lexer/test_lexer.cc
     parser/test_parser.cc
@@ -120,8 +117,6 @@ else()
     codegen/test_type_size_info.cc
     codegen/test_cg_var.cc
     codegen/test_cg_fun_call.cc
-    codegen/test_wat_codegen.cc
-    app/test_mwat.cc
   )
 
   if(WIN32)
