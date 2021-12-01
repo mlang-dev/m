@@ -22,9 +22,9 @@ const char *parse_exp_as_module(const char *expr)
     mod.root_ast = ast;
     mod.code = m_text;
     string wat_mod_code = wat_emit(mod);
-    symbols_deinit();
     const char *data = (const char*)to_c_str(&wat_mod_code);
     string_deinit(&wat_mod_code);
     string_deinit(&m_code);
+    symbols_deinit();
     return data;
 }
