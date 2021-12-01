@@ -136,7 +136,9 @@
         "keyword.h": "c",
         "stddef.h": "c",
         "stdint.h": "c",
-        "binaryen-c.h": "c"
+        "binaryen-c.h": "c",
+        "m_grammar.h": "c",
+        "wat_codegen.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

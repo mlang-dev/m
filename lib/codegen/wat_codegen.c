@@ -105,3 +105,19 @@ string wat_generate(struct ast_node *ast, const char *text)
     string_add2(&s, &wat);
     return s;
 }
+
+const char *wat_module_start = "\n(module";
+const char *wat_module_end = ")\n";
+
+string wat_emit(struct amodule mod)
+{
+    string wat = wat_generate(mod.root_ast, mod.code);
+
+    string wat_mod_code;
+    string_init_chars2(&wat_mod_code, wat_module_start, strlen(wat_module_start));
+    string_add2(&wat_mod_code, &wat);
+    string_add_chars2(&wat_mod_code, wat_module_end, strlen(wat_module_end));
+
+    string_deinit(&wat);
+    return wat_mod_code;
+}

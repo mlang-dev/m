@@ -8,7 +8,7 @@
 #ifndef __MLANG_WAT_CODEGEN_H__
 #define __MLANG_WAT_CODEGEN_H__
 
-#include "parser/ast_node.h"
+#include "parser/amodule.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +16,7 @@ extern "C" {
 
 void wat_codegen_init();
 string wat_generate(struct ast_node *ast, const char *text);
-
+string wat_emit(struct amodule mod);
 #ifdef __cplusplus
 }
 #endif
