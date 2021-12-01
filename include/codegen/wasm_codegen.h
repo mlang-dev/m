@@ -9,13 +9,14 @@
 #define __MLANG_WASM_CODEGEN_H__
 
 #include "parser/ast_node.h"
+#include "clib/byte_array.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void wasm_codegen_init();
-struct byte_array wasm_generate(struct ast_node *ast, const char *text);
+struct byte_array wasm_emit(struct ast_node *ast, const char *code);
 
 #ifdef __cplusplus
 }

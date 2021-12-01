@@ -5,9 +5,6 @@
  * 
  */
 #include "codegen/wat_codegen.h"
-#ifdef WASM
-#include "binaryen-c.h"
-#endif
 #include "parser/tok.h"
 #include "clib/array.h"
 #include <assert.h>
