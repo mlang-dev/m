@@ -12,12 +12,14 @@
 symbol BINOP = 0;
 symbol UNOP = 0;
 symbol FUNC = 0;
+symbol PROG = 0;
 const char *ops[256];
 void wat_codegen_init()
 {
     BINOP = to_symbol2_0("binop");
     UNOP = to_symbol2_0("unop");
     FUNC = to_symbol2_0("func");
+    PROG = to_symbol2_0("prog");
     ops['+'] = "i32.add";
     ops['-'] = "i32.sub";
     ops['*'] = "i32.mul";
@@ -74,11 +76,13 @@ string _wat_generate(struct ast_node *ast, const char *text)
         string_add_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
         string_append(&s, ")\n");
     }
+    else if(ast->node_type == PROG){
+    }
     else if(ast->node_type){
+        assert(false);
         string_init_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
     }
     else {
-        string_init(&s);
     }
     /*
     size_t child_count = array_size(&ast->children);

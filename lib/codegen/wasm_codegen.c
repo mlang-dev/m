@@ -86,7 +86,7 @@ void _wasm_emit(struct context *c, struct ast_node *ast)
 }
 
 struct byte_array wasm_emit(struct ast_node *ast, const char *code)
-{   (void)ast; (void)code;
+{   
     struct context c;
     c.code = code;
     ba_init(&c.ba, 0);
