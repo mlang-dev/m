@@ -27,7 +27,8 @@ elseif(WASM)
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     --target=wasm32
     -nostdlib
-    -Wl,--no-entry,--strip-all,--export-dynamic
+    -g
+    -Wl,--no-entry,--export-dynamic
   )
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/wm.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/term.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
