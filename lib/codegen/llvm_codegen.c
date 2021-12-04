@@ -546,8 +546,8 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
 LLVMValueRef _emit_condition_node(struct code_generator *cg, struct exp_node *node)
 {
     // KSDbgInfo.emitLocation(this);
-    struct condition_node *cond = (struct condition_node *)node;
-    LLVMValueRef cond_v = emit_ir_code(cg, cond->condition_node);
+    struct ast_node *cond = (struct ast_node *)node;
+    LLVMValueRef cond_v = emit_ir_code(cg, cond->cond->if_node);
     assert(cond_v);
 
     cond_v = LLVMBuildICmp(cg->builder, LLVMIntNE, cond_v, cg->ops[TYPE_INT].get_zero(cg->context, cg->builder), "ifcond");
@@ -561,7 +561,7 @@ LLVMValueRef _emit_condition_node(struct code_generator *cg, struct exp_node *no
     LLVMBuildCondBr(cg->builder, cond_v, then_bb, else_bb);
     LLVMPositionBuilderAtEnd(cg->builder, then_bb);
 
-    LLVMValueRef then_v = emit_ir_code(cg, cond->then_node);
+    LLVMValueRef then_v = emit_ir_code(cg, cond->cond->then_node);
     assert(then_v);
     LLVMBuildBr(cg->builder, merge_bb);
     then_bb = LLVMGetInsertBlock(cg->builder);
@@ -569,14 +569,14 @@ LLVMValueRef _emit_condition_node(struct code_generator *cg, struct exp_node *no
     LLVMAppendExistingBasicBlock(fun, else_bb);
     LLVMPositionBuilderAtEnd(cg->builder, else_bb);
 
-    LLVMValueRef else_v = emit_ir_code(cg, cond->else_node);
+    LLVMValueRef else_v = emit_ir_code(cg, cond->cond->else_node);
     assert(else_v);
     LLVMBuildBr(cg->builder, merge_bb);
     else_bb = LLVMGetInsertBlock(cg->builder);
     LLVMAppendExistingBasicBlock(fun, merge_bb);
     LLVMPositionBuilderAtEnd(cg->builder, merge_bb);
-    enum type type = get_type(cond->then_node->type);
-    LLVMValueRef phi_node = LLVMBuildPhi(cg->builder, cg->ops[type].get_type(cg->context, cond->then_node->type), "iftmp");
+    enum type type = get_type(cond->cond->then_node->type);
+    LLVMValueRef phi_node = LLVMBuildPhi(cg->builder, cg->ops[type].get_type(cg->context, cond->cond->then_node->type), "iftmp");
     LLVMAddIncoming(phi_node, &then_v, &then_bb, 1);
     LLVMAddIncoming(phi_node, &else_v, &else_bb, 1);
     return phi_node;

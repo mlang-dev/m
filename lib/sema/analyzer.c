@@ -319,12 +319,12 @@ struct type_exp *_analyze_binary(struct sema_context *context, struct exp_node *
 
 struct type_exp *_analyze_if(struct sema_context *context, struct exp_node *node)
 {
-    struct condition_node *cond_node = (struct condition_node *)node;
-    struct type_exp *cond_type = analyze(context, cond_node->condition_node);
+    struct ast_node *cond_node = (struct ast_node *)node;
+    struct type_exp *cond_type = analyze(context, cond_node->cond->if_node);
     struct type_oper *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
     unify(cond_type, (struct type_exp *)bool_type, &context->nongens);
-    struct type_exp *then_type = analyze(context, cond_node->then_node);
-    struct type_exp *else_type = analyze(context, cond_node->else_node);
+    struct type_exp *then_type = analyze(context, cond_node->cond->then_node);
+    struct type_exp *else_type = analyze(context, cond_node->cond->else_node);
     unify(then_type, else_type, &context->nongens);
     return then_type;
 }

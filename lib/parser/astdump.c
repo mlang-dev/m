@@ -114,17 +114,17 @@ string _dump_call(struct call_node *call)
     return result;
 }
 
-string _dump_if(struct condition_node *cond)
+string _dump_if(struct ast_node *cond)
 {
     string result;
     string_init_chars(&result, "if ");
-    string if_str = dump(cond->condition_node);
-    string then_str = dump(cond->then_node);
+    string if_str = dump(cond->cond->if_node);
+    string then_str = dump(cond->cond->then_node);
     string_add(&result, &if_str);
     string_add_chars(&result, "then ");
     string_add(&result, &then_str);
-    if (cond->else_node) {
-        string else_str = dump(cond->else_node);
+    if (cond->cond->else_node) {
+        string else_str = dump(cond->cond->else_node);
         string_add_chars(&result, " else ");
         string_add(&result, &else_str);
     }
@@ -176,7 +176,7 @@ string dump(struct exp_node *node)
     else if (node->node_type == BINARY_NODE)
         return _dump_binary((struct ast_node *)node);
     else if (node->node_type == CONDITION_NODE)
-        return _dump_if((struct condition_node *)node);
+        return _dump_if((struct ast_node *)node);
     else if (node->node_type == CALL_NODE)
         return _dump_call((struct call_node *)node);
     else if (node->node_type == FOR_NODE)

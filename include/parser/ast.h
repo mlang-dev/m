@@ -100,9 +100,9 @@ struct _binary_node {
     struct exp_node *lhs, *rhs;
 };
 
-struct condition_node {
+struct _if_node {
     struct exp_node base;
-    struct exp_node *condition_node, *then_node, *else_node;
+    struct exp_node *if_node, *then_node, *else_node;
 };
 
 struct for_node {
@@ -183,7 +183,7 @@ struct ast_node {
         struct type_node *type_data; 
         struct type_value_node *type_value;
         
-        struct condition_node *cond;
+        struct _if_node *cond;
         struct for_node *forloop;
         struct block_node *block;
     };
@@ -226,7 +226,7 @@ struct func_type_node *func_type_node_default_new(struct exp_node *parent, struc
     symbol name,
     struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external);
 
-struct condition_node *if_node_new(struct exp_node *parent, struct source_location loc, struct exp_node *condition, struct exp_node *then_node,
+struct ast_node *if_node_new(struct exp_node *parent, struct source_location loc, struct exp_node *condition, struct exp_node *then_node,
     struct exp_node *else_node);
 struct ast_node *unary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *operand);
 struct ast_node *binary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *lhs, struct exp_node *rhs);

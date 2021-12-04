@@ -417,39 +417,34 @@ void _free_function_node(struct function_node *node)
     _free_exp_node(&node->base);
 }
 
-struct condition_node *if_node_new(struct exp_node *parent, struct source_location loc,
-    struct exp_node *condition, struct exp_node *then_node, struct exp_node *else_node)
+struct ast_node *if_node_new(struct exp_node *parent, struct source_location loc,
+    struct exp_node *if_node, struct exp_node *then_node, struct exp_node *else_node)
 {
-    struct condition_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.node_type = CONDITION_NODE;
-    node->base.annotated_type_enum = 0;
-    node->base.annotated_type_name = 0;
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->base.is_ret = false;
-    node->condition_node = condition;
-    node->then_node = then_node;
-    node->else_node = else_node;
+    struct ast_node *node = ast_node_new(0, CONDITION_NODE, 0, loc, parent);
+    MALLOC(node->cond, sizeof(*node->cond));
+    node->cond->if_node = if_node;
+    node->cond->then_node = then_node;
+    node->cond->else_node = else_node;
     return node;
 }
 
-struct condition_node *_copy_if_node(struct condition_node *orig_node)
+struct ast_node *_copy_if_node(struct ast_node *orig_node)
 {
-    return if_node_new(orig_node->base.parent, orig_node->base.loc, orig_node->condition_node,
-        orig_node->then_node, orig_node->else_node);
+    return if_node_new(orig_node->parent, orig_node->loc, orig_node->cond->if_node,
+        orig_node->cond->then_node, orig_node->cond->else_node);
 }
 
-void _free_if_node(struct condition_node *node)
+void _free_if_node(struct ast_node *node)
 {
-    if (node->condition_node)
-        node_free(node->condition_node);
+    /*TODO: memory leak
+    if (node->if_node)
+        node_free(node->if_node);
     if (node->then_node)
         node_free(node->then_node);
     if (node->else_node)
         node_free(node->else_node);
-    _free_exp_node(&node->base);
+    */
+    ast_node_free(node);
 }
 
 struct ast_node *unary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *operand)
@@ -575,7 +570,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case CALL_NODE:
         return (struct exp_node *)_copy_call_node((struct call_node *)node);
     case CONDITION_NODE:
-        return (struct exp_node *)_copy_if_node((struct condition_node *)node);
+        return (struct exp_node *)_copy_if_node((struct ast_node *)node);
     case FOR_NODE:
         return (struct exp_node *)_copy_for_node((struct for_node *)node);
     case UNARY_NODE:
@@ -622,7 +617,7 @@ void node_free(struct exp_node *node)
         _free_call_node((struct call_node *)node);
         break;
     case CONDITION_NODE:
-        _free_if_node((struct condition_node *)node);
+        _free_if_node((struct ast_node *)node);
         break;
     case FOR_NODE:
         _free_for_node((struct for_node *)node);
