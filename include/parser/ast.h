@@ -160,28 +160,38 @@ struct call_node {
 };
 
 struct ast_node {
-    symbol node_type;
-    symbol annotated_type_name;
-
-    struct type_exp *type; // type inferred
-    struct source_location loc;
-    struct exp_node *parent;
-    bool is_ret;
-
-    struct array children; //list of pointer to child ast_node, this is expected to be removed
-};
-
-/*
-struct exp_node {
     enum node_type node_type;
     enum type annotated_type_enum;
+
     symbol annotated_type_name;
     struct type_exp *type; // type inferred
     struct source_location loc;
-    struct exp_node *parent;
-    bool is_ret;
+
+    union{
+        struct liternal_node *liter;
+        
+        struct ident_node *ident;
+        struct unary_node *unop;
+        struct binary_node *binop;
+        struct var_node *var;
+        
+        struct func_type_node *func_type;
+        struct function_node *func;
+        struct call_node *call;
+        
+        struct type_node *type_data; 
+        struct type_value_node *type_value;
+        
+        struct condition_node *cond;
+        struct for_node *forloop;
+        struct block_node *block;
+    };
+
+    bool is_ret;        //tihs is expected to be removed from sema analysis
+    struct exp_node *parent;  //this is expected to be removed from hand-crafted parser
+    symbol node_type_name; //this is expected to be removed from parser generator
+    struct array children; //list of pointer to child ast_node, this is expected to be removed from parser generator
 };
-*/
 
 struct type_exp *get_ret_type(struct function_node *fun_node);
 

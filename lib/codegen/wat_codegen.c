@@ -33,10 +33,10 @@ string _wat_generate(struct ast_node *ast, const char *text)
     if(!ast){
         return s;
     }
-    if(ast->node_type == FUNC){
+    if(ast->node_type_name == FUNC){
         string_append(&s, "(func $");
         struct ast_node *fname = *(struct ast_node**)array_get(&ast->children, 0);
-        assert(fname->node_type == IDENT_TOKEN);
+        assert(fname->node_type_name == IDENT_TOKEN);
         string_add_chars2(&s, &text[fname->loc.start], fname->loc.end - fname->loc.start);
         string_append(&s, " (result i32)\n");
         //func body
@@ -53,7 +53,7 @@ string _wat_generate(struct ast_node *ast, const char *text)
         string_append(&s, ")");
         string_append(&s, ")\n");
     }
-    else if (ast->node_type == BINOP){
+    else if (ast->node_type_name == BINOP){
         //0, 2 is operand, 1 is operator
         assert(array_size(&ast->children)==3);
         struct ast_node *op = *(struct ast_node**)array_get(&ast->children, 1);
@@ -68,17 +68,17 @@ string _wat_generate(struct ast_node *ast, const char *text)
         string_add2(&s, &op2);
         string_append(&s, ")\n");
     }
-    else if(ast->node_type == UNOP){
+    else if(ast->node_type_name == UNOP){
 
     }
-    else if(ast->node_type == NUM_TOKEN){
+    else if(ast->node_type_name == NUM_TOKEN){
         string_append(&s, "(i32.const ");
         string_add_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
         string_append(&s, ")\n");
     }
-    else if(ast->node_type == PROG){
+    else if(ast->node_type_name == PROG){
     }
-    else if(ast->node_type){
+    else if(ast->node_type_name){
         assert(false);
         string_init_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
     }
