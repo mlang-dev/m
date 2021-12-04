@@ -84,13 +84,13 @@ string _dump_unary(struct ast_node *unary)
     return un;
 }
 
-string _dump_binary(struct binary_node *binary)
+string _dump_binary(struct ast_node *binary)
 {
-    string lhs_str = dump(binary->lhs);
-    string rhs_str = dump(binary->rhs);
+    string lhs_str = dump(binary->binop->lhs);
+    string rhs_str = dump(binary->binop->rhs);
     string bin;
     string_init_chars(&bin, "bin:");
-    string_add(&bin, binary->op);
+    string_add(&bin, binary->binop->op);
     string_add_chars(&bin, "[");
     string_add(&bin, &lhs_str);
     string_add_chars(&bin, ",");
@@ -174,7 +174,7 @@ string dump(struct exp_node *node)
     else if (node->node_type == UNARY_NODE)
         return _dump_unary((struct ast_node *)node);
     else if (node->node_type == BINARY_NODE)
-        return _dump_binary((struct binary_node *)node);
+        return _dump_binary((struct ast_node *)node);
     else if (node->node_type == CONDITION_NODE)
         return _dump_if((struct condition_node *)node);
     else if (node->node_type == CALL_NODE)

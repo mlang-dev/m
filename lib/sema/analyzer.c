@@ -298,12 +298,12 @@ struct type_exp *_analyze_unary(struct sema_context *context, struct exp_node *n
 
 struct type_exp *_analyze_binary(struct sema_context *context, struct exp_node *node)
 {
-    struct binary_node *bin = (struct binary_node *)node;
-    struct type_exp *lhs_type = analyze(context, bin->lhs);
-    struct type_exp *rhs_type = analyze(context, bin->rhs);
+    struct ast_node *bin = (struct ast_node *)node;
+    struct type_exp *lhs_type = analyze(context, bin->binop->lhs);
+    struct type_exp *rhs_type = analyze(context, bin->binop->rhs);
     struct type_exp *result = 0;
     if (unify(lhs_type, rhs_type, &context->nongens)) {
-        if (_is_predicate_op(string_get(bin->op)))
+        if (_is_predicate_op(string_get(bin->binop->op)))
             result = (struct type_exp *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         else
             result = lhs_type;
@@ -311,8 +311,8 @@ struct type_exp *_analyze_binary(struct sema_context *context, struct exp_node *
     } else {
         string error;
         string_init_chars(&error, "type not same for binary op: ");
-        string_add(&error, bin->op);
-        _log_err(context, bin->base.loc, string_get(&error));
+        string_add(&error, bin->binop->op);
+        _log_err(context, bin->loc, string_get(&error));
     }
     return result;
 }

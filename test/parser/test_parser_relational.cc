@@ -19,8 +19,8 @@ TEST_F(testParserRelational, testComparisonLessThan)
     block_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
-    auto bin = (binary_node *)node;
-    ASSERT_STREQ("<", string_get(bin->op));
+    auto bin = (ast_node *)node;
+    ASSERT_STREQ("<", string_get(bin->binop->op));
     env_free(env);
 }
 
@@ -29,9 +29,9 @@ TEST_F(testParserRelational, testComparisonGreaterThan)
     char test_code[] = "11 > 10";
     auto env = env_new(false);
     block_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(binary_node **)array_front(&block->nodes);
-    ASSERT_EQ(BINARY_NODE, node->base.node_type);
-    ASSERT_STREQ(">", string_get(node->op));
+    auto node = *(ast_node **)array_front(&block->nodes);
+    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_STREQ(">", string_get(node->binop->op));
     env_free(env);
 }
 
@@ -40,9 +40,9 @@ TEST_F(testParserRelational, testComparisonEqual)
     char test_code[] = "11==10";
     auto env = env_new(false);
     block_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(binary_node **)array_front(&block->nodes);
-    ASSERT_EQ(BINARY_NODE, node->base.node_type);
-    ASSERT_STREQ("==", string_get(node->op));
+    auto node = *(ast_node **)array_front(&block->nodes);
+    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_STREQ("==", string_get(node->binop->op));
     env_free(env);
 }
 
@@ -51,9 +51,9 @@ TEST_F(testParserRelational, testComparisonGE)
     char test_code[] = "11>=10";
     auto env = env_new(false);
     block_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(binary_node **)array_front(&block->nodes);
-    ASSERT_EQ(BINARY_NODE, node->base.node_type);
-    ASSERT_STREQ(">=", string_get(node->op));
+    auto node = *(ast_node **)array_front(&block->nodes);
+    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_STREQ(">=", string_get(node->binop->op));
     env_free(env);
 }
 
@@ -62,8 +62,8 @@ TEST_F(testParserRelational, testComparisonLE)
     char test_code[] = "11<=10";
     auto env = env_new(false);
     block_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(binary_node **)array_front(&block->nodes);
-    ASSERT_EQ(BINARY_NODE, node->base.node_type);
-    ASSERT_STREQ("<=", string_get(node->op));
+    auto node = *(ast_node **)array_front(&block->nodes);
+    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_STREQ("<=", string_get(node->binop->op));
     env_free(env);
 }

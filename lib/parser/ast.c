@@ -474,35 +474,31 @@ void _free_unary_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct binary_node *binary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *lhs, struct exp_node *rhs)
+struct ast_node *binary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *lhs, struct exp_node *rhs)
 {
-    struct binary_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.node_type = BINARY_NODE;
-    node->base.annotated_type_enum = 0;
-    node->base.annotated_type_name = 0;
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->op = op;
-    node->lhs = lhs;
-    node->rhs = rhs;
+    struct ast_node *node = ast_node_new(0, BINARY_NODE, 0, loc, parent);
+    MALLOC(node->binop, sizeof(*node->binop));
+    node->binop->op = op;
+    node->binop->lhs = lhs;
+    node->binop->rhs = rhs;
     return node;
 }
 
-struct binary_node *_copy_binary_node(struct binary_node *orig_node)
+struct ast_node *_copy_binary_node(struct ast_node *orig_node)
 {
-    return binary_node_new(orig_node->base.parent, orig_node->base.loc, orig_node->op,
-        orig_node->lhs, orig_node->rhs);
+    return binary_node_new(orig_node->parent, orig_node->loc, orig_node->binop->op,
+        orig_node->binop->lhs, orig_node->binop->rhs);
 }
 
-void _free_binary_node(struct binary_node *node)
+void _free_binary_node(struct ast_node *node)
 {
+    /*TODO: fix memory leak
     if (node->lhs)
         node_free(node->lhs);
     if (node->rhs)
         node_free(node->rhs);
-    _free_exp_node(&node->base);
+    */
+    ast_node_free(node);
 }
 
 struct for_node *for_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, struct exp_node *start,
@@ -585,7 +581,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case UNARY_NODE:
         return (struct exp_node *)_copy_unary_node((struct ast_node *)node);
     case BINARY_NODE:
-        return (struct exp_node *)_copy_binary_node((struct binary_node *)node);
+        return (struct exp_node *)_copy_binary_node((struct ast_node *)node);
     default:
         assert(false);
     }
@@ -635,7 +631,7 @@ void node_free(struct exp_node *node)
         _free_unary_node((struct ast_node *)node);
         break;
     case BINARY_NODE:
-        _free_binary_node((struct binary_node *)node);
+        _free_binary_node((struct ast_node *)node);
         break;
     default:
         printf("not supported node type: %d\n", node->node_type);

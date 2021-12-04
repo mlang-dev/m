@@ -781,8 +781,8 @@ getx()=
     /*validate inside functions*/
     auto fun = (function_node *)node;
     auto var_x = *(ast_node **)array_get(&fun->body->nodes, 0);
-    auto exp = *(binary_node **)array_get(&fun->body->nodes, 1);
+    auto exp = *(ast_node **)array_get(&fun->body->nodes, 1);
     ASSERT_EQ(false, var_x->is_ret);
-    ASSERT_EQ(BINARY_NODE, exp->base.node_type);
+    ASSERT_EQ(BINARY_NODE, exp->node_type);
     env_free(env);
 }
