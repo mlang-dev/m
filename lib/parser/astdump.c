@@ -145,11 +145,11 @@ string _dump_for(struct for_node *fornode)
     return result;
 }
 
-string _dump_id(struct ident_node *idnode)
+string _dump_id(struct ast_node *idnode)
 {
     string str_id;
     string_init_chars(&str_id, "id: ");
-    string_add(&str_id, idnode->name);
+    string_add(&str_id, idnode->ident->name);
     return str_id;
 }
 
@@ -182,7 +182,7 @@ string dump(struct exp_node *node)
     else if (node->node_type == FOR_NODE)
         return _dump_for((struct for_node *)node);
     else if (node->node_type == IDENT_NODE)
-        return _dump_id((struct ident_node *)node);
+        return _dump_id((struct ast_node *)node);
     else if (node->node_type == LITERAL_NODE)
         return _dump_number((struct ast_node *)node);
     else if (node->node_type == BLOCK_NODE)

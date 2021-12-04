@@ -20,11 +20,10 @@ const char *node_type_strings[] = {
 struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type, struct source_location loc, struct exp_node *parent)
 {
     struct ast_node *node;
-    MALLOC(node, sizeof(*node));
-
+    MALLOC(node, sizeof(*node)); 
     node->node_type_name = node_type_name;
     node->node_type = node_type;
-    node->annotated_type_name = to_symbol(type_strings[annotated_type]);
+    node->annotated_type_name = annotated_type ? to_symbol(type_strings[annotated_type]) : 0;
     node->annotated_type_enum = annotated_type;
     node->type = 0;
     node->parent = parent;
@@ -116,32 +115,26 @@ struct array to_symbol_array(struct array arr)
     return symbols;
 }
 
-struct ident_node *ident_node_new(struct exp_node *parent, struct source_location loc, symbol name)
+struct ast_node *ident_node_new(struct exp_node *parent, struct source_location loc, symbol name)
 {
-    struct ident_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.type = 0;
-    node->base.annotated_type_enum = 0;
-    node->base.annotated_type_name = 0;
-    node->base.node_type = IDENT_NODE;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->base.is_ret = false;
-    node->name = name;
-    node->member_accessors = to_symbol_array(string_split(node->name, '.'));
+
+    struct ast_node *node = ast_node_new(0, IDENT_NODE, 0, loc, parent);
+    MALLOC(node->ident, sizeof(*node->ident));
+    node->ident->name = name;
+    node->ident->member_accessors = to_symbol_array(string_split(node->ident->name, '.'));
     return node;
 }
 
-struct ident_node *_copy_ident_node(struct ident_node *orig_node)
+struct ast_node *_copy_ident_node(struct ast_node *orig_node)
 {
-    return ident_node_new(orig_node->base.parent, orig_node->base.loc,
-        orig_node->name);
+    return ident_node_new(orig_node->parent, orig_node->loc,
+        orig_node->ident->name);
 }
 
-void _free_ident_node(struct ident_node *node)
+void _free_ident_node(struct ast_node *node)
 {
-    array_deinit(&node->member_accessors);
-    _free_exp_node(&node->base);
+    array_deinit(&node->ident->member_accessors);
+    ast_node_free(node);
 }
 
 struct ast_node *_create_literal_node(struct exp_node *parent, struct source_location loc, void *val, enum type type)
@@ -598,7 +591,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case TYPE_VALUE_NODE:
         return (struct exp_node *)_copy_type_value_node((struct type_value_node *)node);
     case IDENT_NODE:
-        return (struct exp_node *)_copy_ident_node((struct ident_node *)node);
+        return (struct exp_node *)_copy_ident_node((struct ast_node *)node);
     case LITERAL_NODE:
         return (struct exp_node *)_copy_literal_node((struct ast_node *)node);
     case CALL_NODE:
@@ -642,7 +635,7 @@ void node_free(struct exp_node *node)
         _free_type_value_node((struct type_value_node *)node);
         break;
     case IDENT_NODE:
-        _free_ident_node((struct ident_node *)node);
+        _free_ident_node((struct ast_node *)node);
         break;
     case LITERAL_NODE:
         _free_literal_node((struct ast_node *)node);

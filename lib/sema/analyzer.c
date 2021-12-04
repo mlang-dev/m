@@ -61,10 +61,10 @@ struct type_exp *retrieve_type_for_var_name(struct sema_context *context, symbol
 
 struct type_exp *_analyze_ident(struct sema_context *context, struct exp_node *node)
 {
-    struct ident_node *ident = (struct ident_node *)node;
+    struct ast_node *ident = (struct ast_node *)node;
     struct type_exp *type = 0;
-    for (size_t i = 0; i < array_size(&ident->member_accessors); i++) {
-        symbol id = *((symbol *)array_get(&ident->member_accessors, i));
+    for (size_t i = 0; i < array_size(&ident->ident->member_accessors); i++) {
+        symbol id = *((symbol *)array_get(&ident->ident->member_accessors, i));
         if (i == 0) {
             type = retrieve_type_for_var_name(context, id);
         } else {
@@ -364,7 +364,7 @@ struct type_exp *_analyze_block(struct sema_context *context, struct exp_node *n
     struct exp_node *ret_node = *(struct exp_node **)array_back(&block->nodes);
     ret_node->is_ret = true;
     if (ret_node->node_type == IDENT_NODE) {
-        symbol var_name = ((struct ident_node *)ret_node)->name;
+        symbol var_name = ((struct ast_node *)ret_node)->ident->name;
         struct var_node *var = (struct var_node *)symboltable_get(&context->varname_2_asts, var_name);
         //struct member reference id node like xy.x is not a variable
         if (var)

@@ -424,10 +424,10 @@ struct exp_node *_parse_function_app_or_def(struct m_parser *parser, struct exp_
         fun_param.base.annotated_type_enum = 0;
         fun_param.base.annotated_type_name = 0;
         for (size_t i = 0; i < array_size(&args); i++) {
-            struct ident_node *id = *(struct ident_node **)array_get(&args, i);
-            fun_param.base.annotated_type_enum = id->base.annotated_type_enum;
-            fun_param.base.annotated_type_name = id->base.annotated_type_name;
-            fun_param.var_name = id->name;
+            struct ast_node *id = *(struct ast_node **)array_get(&args, i);
+            fun_param.base.annotated_type_enum = id->annotated_type_enum;
+            fun_param.base.annotated_type_name = id->annotated_type_name;
+            fun_param.var_name = id->ident->name;
             array_push(&fun_params, &fun_param);
         }
         if (is_operator) {

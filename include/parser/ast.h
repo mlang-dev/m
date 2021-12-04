@@ -79,8 +79,7 @@ struct _literal_node {
     };
 };
 
-struct ident_node {
-    struct exp_node base;
+struct _ident_node {
     symbol name;
     /*if id is x.y, x is variable of object, y is member of the object*/
     struct array member_accessors;
@@ -175,7 +174,7 @@ struct ast_node {
         void *data; //node data represents any of following pointer
         struct _literal_node *liter;
         
-        struct ident_node *ident;
+        struct _ident_node *ident;
         struct unary_node *unop;
         struct binary_node *binop;
         struct var_node *var;
@@ -204,7 +203,7 @@ struct type_exp *get_ret_type(struct function_node *fun_node);
 
 struct function_node *function_node_new(struct func_type_node *func_type,
     struct block_node *body);
-struct ident_node *ident_node_new(struct exp_node *parent, struct source_location loc, symbol name);
+struct ast_node *ident_node_new(struct exp_node *parent, struct source_location loc, symbol name);
 
 struct ast_node *double_node_new(struct exp_node *parent, struct source_location loc, double val);
 struct ast_node *int_node_new(struct exp_node *parent, struct source_location loc, int val);

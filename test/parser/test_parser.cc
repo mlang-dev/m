@@ -543,10 +543,10 @@ xy.x
     ASSERT_EQ(TYPE_EXT, var->base.annotated_type_enum);
     node = *(exp_node **)array_get(&block->nodes, 2);
     ASSERT_EQ(IDENT_NODE, node->node_type);
-    struct ident_node *id_node = (struct ident_node *)node;
-    ASSERT_STREQ("xy.x", string_get(id_node->name));
-    ASSERT_EQ(2, array_size(&id_node->member_accessors));
-    ASSERT_STREQ("xy", string_get(*(symbol *)array_front(&id_node->member_accessors)));
-    ASSERT_STREQ("x", string_get(*(symbol *)array_back(&id_node->member_accessors)));
+    struct ast_node *id_node = (struct ast_node *)node;
+    ASSERT_STREQ("xy.x", string_get(id_node->ident->name));
+    ASSERT_EQ(2, array_size(&id_node->ident->member_accessors));
+    ASSERT_STREQ("xy", string_get(*(symbol *)array_front(&id_node->ident->member_accessors)));
+    ASSERT_STREQ("x", string_get(*(symbol *)array_back(&id_node->ident->member_accessors)));
     env_free(env);
 }
