@@ -35,7 +35,7 @@ extern "C" {
     ENUM_ITEM(CONDITION_NODE)       \
     ENUM_ITEM(FOR_NODE)             \
     ENUM_ITEM(CALL_NODE)            \
-    ENUM_ITEM(PROTOTYPE_NODE)       \
+    ENUM_ITEM(FUNC_TYPE_NODE)       \
     ENUM_ITEM(FUNCTION_NODE)        \
     ENUM_ITEM(BLOCK_NODE)
 
@@ -128,7 +128,7 @@ struct type_value_node {
 
 #define ARRAY_FUN_PARAM(var) ARRAY(var, struct var_node, 0)
 
-struct prototype_node {
+struct func_type_node {
     struct exp_node base;
     symbol name;
     symbol op;
@@ -147,7 +147,7 @@ struct prototype_node {
 
 struct function_node {
     struct exp_node base;
-    struct prototype_node *prototype;
+    struct func_type_node *prototype;
     struct block_node *body;
 };
 
@@ -156,12 +156,12 @@ struct call_node {
     symbol callee;
     symbol specialized_callee;
     struct array args; // args: struct array of exp_node*
-    struct prototype_node *callee_decl;
+    struct func_type_node *callee_decl;
 };
 
 struct type_exp *get_ret_type(struct function_node *fun_node);
 
-struct function_node *function_node_new(struct prototype_node *prototype,
+struct function_node *function_node_new(struct func_type_node *prototype,
     struct block_node *body);
 struct ident_node *ident_node_new(struct exp_node *parent, struct source_loc loc, symbol name);
 struct literal_node *double_node_new(struct exp_node *parent, struct source_loc loc, double val);
@@ -173,7 +173,7 @@ struct literal_node *string_node_new(struct exp_node *parent, struct source_loc 
 struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, symbol var_name, enum type type, symbol ext_type, struct exp_node *init_value);
 struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, symbol callee,
     struct array *args);
-struct prototype_node *prototype_node_new(struct exp_node *parent, struct source_loc loc,
+struct func_type_node *prototype_node_new(struct exp_node *parent, struct source_loc loc,
     symbol name,
     struct array *params,
     struct type_exp *ret_type,
@@ -183,7 +183,7 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
     bool is_variadic, bool is_external);
 struct type_node *type_node_new(struct exp_node *parent, struct source_loc loc, symbol name, struct block_node *body);
 struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_loc loc, struct block_node *body, symbol type_name);
-struct prototype_node *prototype_node_default_new(struct exp_node *parent, struct source_loc loc,
+struct func_type_node *prototype_node_default_new(struct exp_node *parent, struct source_loc loc,
     symbol name,
     struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external);
 
@@ -198,14 +198,14 @@ struct exp_node *node_copy(struct exp_node *node);
 struct module *module_new(const char *mod_name, FILE *file);
 void node_free(struct exp_node *node);
 
-bool is_unary_op(struct prototype_node *pnode);
-bool is_binary_op(struct prototype_node *pnode);
-char get_op_name(struct prototype_node *pnode);
+bool is_unary_op(struct func_type_node *pnode);
+bool is_binary_op(struct func_type_node *pnode);
+char get_op_name(struct func_type_node *pnode);
 bool is_recursive(struct call_node *call);
 symbol get_callee(struct call_node *call);
 int find_member_index(struct type_node *type_node, symbol member);
 
-struct prototype_node *find_parent_proto(struct exp_node *node);
+struct func_type_node *find_parent_proto(struct exp_node *node);
 
 #ifdef __cplusplus
 }

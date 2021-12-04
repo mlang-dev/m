@@ -26,7 +26,7 @@ struct address emit_address_at_offset(struct code_generator *cg, struct address 
     return adr;
 }
 
-void _emit_argument_allocas(struct code_generator *cg, struct prototype_node *node,
+void _emit_argument_allocas(struct code_generator *cg, struct func_type_node *node,
     struct fun_info *fi, LLVMValueRef fun)
 {
     struct type_oper *proto_type = (struct type_oper *)node->base.type;
@@ -105,7 +105,7 @@ LLVMValueRef emit_prototype_node(struct code_generator *cg, struct exp_node *nod
 
 LLVMValueRef emit_prototype_node_fi(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi)
 {
-    struct prototype_node *proto = (struct prototype_node *)node;
+    struct func_type_node *proto = (struct func_type_node *)node;
     assert(proto->base.type);
     hashtable_set_p(&cg->protos, proto->name, proto);
     struct type_oper *proto_type = (struct type_oper *)proto->base.type;

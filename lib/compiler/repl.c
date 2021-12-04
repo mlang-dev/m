@@ -91,7 +91,7 @@ void eval_statement(void *p_jit, struct exp_node *node)
         string type_node_str = to_string(node->type);
         if (!node->type)
             goto exit;
-        if (node->node_type == PROTOTYPE_NODE) {
+        if (node->node_type == FUNC_TYPE_NODE) {
             emit_ir_code(jit->env->cg, node);
         } else if (node->node_type == FUNCTION_NODE || node->node_type == TYPE_NODE) {
             // function definition

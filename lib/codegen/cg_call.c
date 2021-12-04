@@ -16,7 +16,7 @@
 // get parent func sret parameter if exists
 LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct exp_node *node)
 {
-    struct prototype_node *parent_proto = find_parent_proto(node);
+    struct func_type_node *parent_proto = find_parent_proto(node);
     struct fun_info *fi = get_fun_info(parent_proto);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
     LLVMValueRef ret = 0;
@@ -42,7 +42,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     LLVMValueRef *arg_values;
     MALLOC(arg_values, ir_arg_count * sizeof(LLVMValueRef));
     LLVMTypeRef sig_ret_type = get_llvm_type(fi->ret.type);
-    struct prototype_node *parent_proto = find_parent_proto(node);
+    struct func_type_node *parent_proto = find_parent_proto(node);
     struct type_size_info ret_tsi = get_type_size_info(fi->ret.type);
     LLVMValueRef ret_alloca = 0;
     LLVMValueRef parent_fun = 0;
@@ -101,7 +101,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     if (!parent_proto)
         return call_inst;
 
-    assert(parent_proto->base.node_type == PROTOTYPE_NODE);
+    assert(parent_proto->base.node_type == FUNC_TYPE_NODE);
     //TODO: fix return has to be a valid type, not null
     if (fi->ret.info.type && sig_ret_type != fi->ret.info.type) {
         //create temp memory

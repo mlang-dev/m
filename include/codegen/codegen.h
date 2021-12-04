@@ -72,8 +72,8 @@ struct code_generator {
     hashset builtins;
 
     /* 
-     *  symboltable of <symbol, prototype_node*>
-     *  binding prototype name to prototype_node*
+     *  symboltable of <symbol, func_type_node*>
+     *  binding prototype name to func_type_node*
      */
     struct hashtable protos;
 

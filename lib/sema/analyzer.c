@@ -163,7 +163,7 @@ struct type_exp *_analyze_type_value(struct sema_context *context, struct exp_no
 
 struct type_exp *_analyze_proto(struct sema_context *context, struct exp_node *node)
 {
-    struct prototype_node *proto = (struct prototype_node *)node;
+    struct func_type_node *proto = (struct func_type_node *)node;
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
     for (size_t i = 0; i < array_size(&proto->fun_params); i++) {

@@ -329,8 +329,8 @@ TEST_F(testParser, testPrototypeNode)
     auto env = env_new(false);
     block_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
-    ASSERT_EQ(PROTOTYPE_NODE, node->node_type);
-    prototype_node *proto = (prototype_node *)node;
+    ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
+    func_type_node *proto = (func_type_node *)node;
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("printf", string_get(proto->name));
     env_free(env);
@@ -342,8 +342,8 @@ TEST_F(testParser, testPrototypeNodeEmptyArg)
     auto env = env_new(false);
     block_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
-    ASSERT_EQ(PROTOTYPE_NODE, node->node_type);
-    prototype_node *proto = (prototype_node *)node;
+    ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
+    func_type_node *proto = (func_type_node *)node;
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_EQ(0, array_size(&proto->fun_params));
     ASSERT_STREQ("print", string_get(proto->name));

@@ -16,17 +16,17 @@ const char *node_type_strings[] = {
     FOREACH_NODETYPE(GENERATE_ENUM_STRING)
 };
 
-bool is_unary_op(struct prototype_node *node)
+bool is_unary_op(struct func_type_node *node)
 {
     return node->is_operator && array_size(&node->fun_params) == UNARY_PARAM_SIZE;
 }
 
-bool is_binary_op(struct prototype_node *node)
+bool is_binary_op(struct func_type_node *node)
 {
     return node->is_operator && array_size(&node->fun_params) == BINARY_PARAM_SIZE;
 }
 
-char get_op_name(struct prototype_node *node)
+char get_op_name(struct func_type_node *node)
 {
     assert(is_unary_op(node) || is_binary_op(node));
     return string_back(node->name);
@@ -301,22 +301,22 @@ symbol get_callee(struct call_node *call)
     return call->specialized_callee ? call->specialized_callee : call->callee;
 }
 
-struct prototype_node *prototype_node_default_new(struct exp_node *parent, struct source_loc loc, symbol name, struct array *args,
+struct func_type_node *prototype_node_default_new(struct exp_node *parent, struct source_loc loc, symbol name, struct array *args,
     struct type_exp *ret_type, bool is_variadic, bool is_external)
 {
     return prototype_node_new(parent, loc, name, args, ret_type, false, 0,
         0, is_variadic, is_external);
 }
 
-struct prototype_node *prototype_node_new(struct exp_node *parent, struct source_loc loc, symbol name,
+struct func_type_node *prototype_node_new(struct exp_node *parent, struct source_loc loc, symbol name,
     struct array *params,
     struct type_exp *ret_type,
     bool is_operator, unsigned precedence, symbol op,
     bool is_variadic, bool is_external)
 {
-    struct prototype_node *node;
+    struct func_type_node *node;
     MALLOC(node, sizeof(*node));
-    node->base.node_type = PROTOTYPE_NODE;
+    node->base.node_type = FUNC_TYPE_NODE;
     node->base.annotated_type_name = ret_type ? to_symbol(type_strings[ret_type->type]) : 0;
     node->base.annotated_type_enum = ret_type ? ret_type->type : TYPE_UNK;
     node->base.type = 0;
@@ -341,11 +341,11 @@ struct prototype_node *prototype_node_new(struct exp_node *parent, struct source
     return node;
 }
 
-struct prototype_node *_copy_prototype_node(struct prototype_node *proto)
+struct func_type_node *_copy_prototype_node(struct func_type_node *proto)
 {
-    struct prototype_node *node;
+    struct func_type_node *node;
     MALLOC(node, sizeof(*node));
-    node->base.node_type = PROTOTYPE_NODE;
+    node->base.node_type = FUNC_TYPE_NODE;
     node->base.annotated_type_enum = proto->base.annotated_type_enum;
     node->base.annotated_type_name = proto->base.annotated_type_name;
     node->base.type = 0;
@@ -371,14 +371,14 @@ struct prototype_node *_copy_prototype_node(struct prototype_node *proto)
     return node;
 }
 
-void _free_prototype_node(struct prototype_node *node)
+void _free_prototype_node(struct func_type_node *node)
 {
     /*fun_params will be freed in array_deinit*/
     array_deinit(&node->fun_params);
     _free_exp_node(&node->base);
 }
 
-struct function_node *function_node_new(struct prototype_node *prototype,
+struct function_node *function_node_new(struct func_type_node *prototype,
     struct block_node *body)
 {
     struct function_node *node;
@@ -397,7 +397,7 @@ struct function_node *function_node_new(struct prototype_node *prototype,
 
 struct function_node *_copy_function_node(struct function_node *orig_node)
 {
-    struct prototype_node *proto = _copy_prototype_node(orig_node->prototype);
+    struct func_type_node *proto = _copy_prototype_node(orig_node->prototype);
     struct block_node *block = _copy_block_node(orig_node->body);
     return function_node_new(proto, block);
 }
@@ -559,8 +559,8 @@ struct exp_node *node_copy(struct exp_node *node)
     switch (node->node_type) {
     case BLOCK_NODE:
         return (struct exp_node *)_copy_block_node((struct block_node *)node);
-    case PROTOTYPE_NODE:
-        return (struct exp_node *)_copy_prototype_node((struct prototype_node *)node);
+    case FUNC_TYPE_NODE:
+        return (struct exp_node *)_copy_prototype_node((struct func_type_node *)node);
     case FUNCTION_NODE:
         return (struct exp_node *)_copy_function_node((struct function_node *)node);
     case VAR_NODE:
@@ -598,8 +598,8 @@ void node_free(struct exp_node *node)
     case BLOCK_NODE:
         _free_block_node((struct block_node *)node);
         break;
-    case PROTOTYPE_NODE:
-        _free_prototype_node((struct prototype_node *)node);
+    case FUNC_TYPE_NODE:
+        _free_prototype_node((struct func_type_node *)node);
         break;
     case FUNCTION_NODE:
         _free_function_node((struct function_node *)node);
@@ -660,8 +660,8 @@ bool is_recursive(struct call_node *call)
     struct exp_node *parent = call->base.parent;
     symbol fun_name = 0;
     while (parent) {
-        if (parent->node_type == PROTOTYPE_NODE)
-            fun_name = ((struct prototype_node *)parent)->name;
+        if (parent->node_type == FUNC_TYPE_NODE)
+            fun_name = ((struct func_type_node *)parent)->name;
         else if (parent->node_type == FUNCTION_NODE)
             fun_name = ((struct function_node *)parent)->prototype->name;
         if (fun_name && string_eq(fun_name, call->callee))
@@ -682,12 +682,12 @@ int find_member_index(struct type_node *type_node, symbol member)
     return -1;
 }
 
-struct prototype_node *find_parent_proto(struct exp_node *node)
+struct func_type_node *find_parent_proto(struct exp_node *node)
 {
-    struct prototype_node *proto = 0;
+    struct func_type_node *proto = 0;
     while (node->parent) {
-        if (node->parent->node_type == PROTOTYPE_NODE) {
-            proto = (struct prototype_node*)node->parent;
+        if (node->parent->node_type == FUNC_TYPE_NODE) {
+            proto = (struct func_type_node*)node->parent;
             break;
         }
         node = node->parent;

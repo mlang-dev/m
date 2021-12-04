@@ -74,7 +74,7 @@ void _map_to_ir_arg_info(struct fun_info *fi)
     fi->iai.total_ir_args = ir_arg_no;
 }
 
-struct fun_info *get_fun_info(struct prototype_node *proto)
+struct fun_info *get_fun_info(struct func_type_node *proto)
 {
     struct type_oper *fun_type = (struct type_oper *)proto->base.type;
     struct hashtable *fun_infos = get_fun_infos();
