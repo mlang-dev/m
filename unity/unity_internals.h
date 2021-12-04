@@ -51,7 +51,7 @@
     #if __cplusplus >= 201103L
       #define UNITY_NORETURN [[ noreturn ]]
     #endif
-  #elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+  #elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && not defined(_MSC_VER)
     #include <stdnoreturn.h>
     #define UNITY_NORETURN noreturn
   #endif

@@ -81,8 +81,10 @@ int test_util()
     RUN_TEST(test_util_id_name_generator);
     RUN_TEST(test_util_two_letters);
     RUN_TEST(test_util_more_letters);
+#ifndef _WIN32
     RUN_TEST(test_util_join_path);
     RUN_TEST(test_util_join_path2);
+#endif
     RUN_TEST(test_util_join_path_empty);
     RUN_TEST(test_util_join_path_empty2);
     RUN_TEST(test_util_join_path_null);
