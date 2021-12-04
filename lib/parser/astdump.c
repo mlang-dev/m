@@ -74,12 +74,12 @@ string _dump_var(struct ast_node *var)
     return var_str;
 }
 
-string _dump_unary(struct unary_node *unary)
+string _dump_unary(struct ast_node *unary)
 {
     string un;
     string_init_chars(&un, "un: ");
-    string_add(&un, unary->op);
-    string str_op = dump(unary->operand);
+    string_add(&un, unary->unop->op);
+    string str_op = dump(unary->unop->operand);
     string_add(&un, &str_op);
     return un;
 }
@@ -172,7 +172,7 @@ string dump(struct exp_node *node)
     else if (node->node_type == VAR_NODE)
         return _dump_var((struct ast_node *)node);
     else if (node->node_type == UNARY_NODE)
-        return _dump_unary((struct unary_node *)node);
+        return _dump_unary((struct ast_node *)node);
     else if (node->node_type == BINARY_NODE)
         return _dump_binary((struct binary_node *)node);
     else if (node->node_type == CONDITION_NODE)

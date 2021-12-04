@@ -456,20 +456,20 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
 
 LLVMValueRef _emit_unary_node(struct code_generator *cg, struct exp_node *node)
 {
-    struct unary_node *unary = (struct unary_node *)node;
-    LLVMValueRef operand_v = emit_ir_code(cg, unary->operand);
+    struct ast_node *unary = (struct ast_node *)node;
+    LLVMValueRef operand_v = emit_ir_code(cg, unary->unop->operand);
     assert(operand_v);
-    if (unary->op == cg->sema_context->parser->plus_op)
+    if (unary->unop->op == cg->sema_context->parser->plus_op)
         return operand_v;
-    else if (unary->op == cg->sema_context->parser->minus_op) {
+    else if (unary->unop->op == cg->sema_context->parser->minus_op) {
         return cg->ops->neg_op(cg->builder, operand_v, "negtmp");
-    } else if (unary->op == cg->sema_context->parser->not_op) {
+    } else if (unary->unop->op == cg->sema_context->parser->not_op) {
         LLVMValueRef ret = cg->ops->not_op(cg->builder, operand_v, "nottmp");
         return LLVMBuildZExt(cg->builder, ret, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
     }
     string fname;
     string_init_chars(&fname, "unary");
-    string_add(&fname, unary->op);
+    string_add(&fname, unary->unop->op);
     symbol op = to_symbol(string_get(&fname));
     LLVMValueRef fun = get_llvm_function(cg, op);
     if (fun == 0)

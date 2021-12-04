@@ -90,8 +90,7 @@ struct _var_node {
     struct exp_node *init_value;
 };
 
-struct unary_node {
-    struct exp_node base;
+struct _unary_node {
     symbol op;
     struct exp_node *operand;
 };
@@ -174,7 +173,7 @@ struct ast_node {
         struct _literal_node *liter;
         
         struct _ident_node *ident;
-        struct unary_node *unop;
+        struct _unary_node *unop;
         struct binary_node *binop;
         struct _var_node *var;
         
@@ -230,7 +229,7 @@ struct func_type_node *func_type_node_default_new(struct exp_node *parent, struc
 
 struct condition_node *if_node_new(struct exp_node *parent, struct source_location loc, struct exp_node *condition, struct exp_node *then_node,
     struct exp_node *else_node);
-struct unary_node *unary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *operand);
+struct ast_node *unary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *operand);
 struct binary_node *binary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *lhs, struct exp_node *rhs);
 struct for_node *for_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, struct exp_node *start,
     struct exp_node *end, struct exp_node *step, struct exp_node *body);

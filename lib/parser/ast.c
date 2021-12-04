@@ -452,31 +452,26 @@ void _free_if_node(struct condition_node *node)
     _free_exp_node(&node->base);
 }
 
-struct unary_node *unary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *operand)
+struct ast_node *unary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *operand)
 {
-    struct unary_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.node_type = UNARY_NODE;
-    node->base.annotated_type_enum = 0;
-    node->base.annotated_type_name = 0;
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->op = op;
-    node->operand = operand;
+    struct ast_node *node = ast_node_new(0, UNARY_NODE, 0, loc, parent);
+    MALLOC(node->unop, sizeof(*node->unop));
+    node->unop->op = op;
+    node->unop->operand = operand;
     return node;
 }
 
-struct unary_node *_copy_unary_node(struct unary_node *orig_node)
+struct ast_node *_copy_unary_node(struct ast_node *orig_node)
 {
-    return unary_node_new(orig_node->base.parent, orig_node->base.loc, orig_node->op,
-        orig_node->operand);
+    return unary_node_new(orig_node->parent, orig_node->loc, orig_node->unop->op,
+        orig_node->unop->operand);
 }
 
-void _free_unary_node(struct unary_node *node)
+void _free_unary_node(struct ast_node *node)
 {
-    node_free(node->operand);
-    _free_exp_node(&node->base);
+    //TODO: memory leak: need to free operand
+    //node_free(node->unop->operand);
+    ast_node_free(node);
 }
 
 struct binary_node *binary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *lhs, struct exp_node *rhs)
@@ -588,7 +583,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case FOR_NODE:
         return (struct exp_node *)_copy_for_node((struct for_node *)node);
     case UNARY_NODE:
-        return (struct exp_node *)_copy_unary_node((struct unary_node *)node);
+        return (struct exp_node *)_copy_unary_node((struct ast_node *)node);
     case BINARY_NODE:
         return (struct exp_node *)_copy_binary_node((struct binary_node *)node);
     default:
@@ -637,7 +632,7 @@ void node_free(struct exp_node *node)
         _free_for_node((struct for_node *)node);
         break;
     case UNARY_NODE:
-        _free_unary_node((struct unary_node *)node);
+        _free_unary_node((struct ast_node *)node);
         break;
     case BINARY_NODE:
         _free_binary_node((struct binary_node *)node);

@@ -43,7 +43,7 @@ TEST_F(testParserLogicalOperator, testNotOp)
     block_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(UNARY_NODE, node->node_type);
-    auto bin = (binary_node *)node;
-    ASSERT_STREQ("!", string_get(bin->op));
+    auto un = (ast_node *)node;
+    ASSERT_STREQ("!", string_get(un->unop->op));
     env_free(env);
 }

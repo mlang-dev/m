@@ -286,12 +286,12 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
 
 struct type_exp *_analyze_unary(struct sema_context *context, struct exp_node *node)
 {
-    struct unary_node *unary = (struct unary_node *)node;
-    struct type_exp *op_type = analyze(context, unary->operand);
-    if (string_eq_chars(unary->op, "!")) {
+    struct ast_node *unary = (struct ast_node *)node;
+    struct type_exp *op_type = analyze(context, unary->unop->operand);
+    if (string_eq_chars(unary->unop->op, "!")) {
         struct type_exp *bool_type = (struct type_exp *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         unify(op_type, bool_type, &context->nongens);
-        unary->operand->type = op_type;
+        unary->unop->operand->type = op_type;
     }
     return op_type;
 }
