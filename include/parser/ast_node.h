@@ -34,6 +34,13 @@ struct ast_node {
 struct ast_node *ast_node_new(symbol node_type);
 void ast_node_free(struct ast_node *node);
 
+struct ast_context{
+    struct ast_node *parent;
+};
+
+typedef void (*visit)(struct ast_node *node);
+
+void ast_node_walk(struct ast_context *c, struct ast_node *node);
 #ifdef __cplusplus
 }
 #endif

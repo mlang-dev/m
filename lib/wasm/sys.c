@@ -1,29 +1,28 @@
-#include <stdint.h>
-#include "wasm/wasm.h"
-extern size_t __heap_base;
-//extern void log(char *str);
+/*
+ * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * This is to wrap up clang's wasm builtin functions
+ * 
+ */
 
-static uintptr_t hp = (uintptr_t)&__heap_base;
+#include "wasm/sys.h"
+#include <assert.h>
 
-uintptr_t *get_ptr()
+#define PAGE_SIZE (1<<16)
+
+size_t get_mem_size() 
 {
-    if(hp==0){
-        hp = (uintptr_t)&__heap_base;
-    }
-    return &hp;
+  return __builtin_wasm_memory_size(0) * PAGE_SIZE;
 }
 
-void *sbrk(intptr_t inc)
+int grow_mem(size_t size)
 {
-    uintptr_t increment = (uintptr_t)inc;
-    increment = (increment + 3) & ~3;
-    uintptr_t *hp_ptr = get_ptr();
-    uintptr_t heap_ptr = *hp_ptr;
-    uintptr_t new_heap_ptr = heap_ptr + increment;
-    uintptr_t current_size = get_mem_size();
-    if(new_heap_ptr > current_size){
-        grow_mem(new_heap_ptr);
-    }
-    *hp_ptr = new_heap_ptr;
-    return (void*)heap_ptr;
+  size_t old_size = get_mem_size();
+  assert(old_size < size);
+  size_t diff = (size - old_size + PAGE_SIZE - 1) / PAGE_SIZE;
+  size_t result = __builtin_wasm_memory_grow(0, diff);
+  if (result != (size_t)-1) {
+    return 1;
+  }
+  return 0;
 }

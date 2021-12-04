@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * wasm codegen functions
+ * functions to convert ast_node to wasm module
  * 
  */
-#include "codegen/wasm_codegen.h"
+#include "codegen/ast_wasm.h"
 #include "wasm/wasm.h"
 #include "parser/tok.h"
 #include "clib/array.h"
@@ -15,10 +15,6 @@
 symbol BINOP = 0;
 symbol UNOP = 0;
 symbol FUNC = 0;
-
-uint8_t ops[256];
-const char wasm_magic_number[] = {0, 'a', 's', 'm'};
-uint8_t wasm_version[] = {0x01, 0, 0, 0};
 
 void wasm_codegen_init()
 {
@@ -36,7 +32,7 @@ struct context{
     const char *code;
 };
 
-void _wasm_emit(struct context *c, struct ast_node *ast)
+void _wasm_emit(struct ast_node *ast)
 {
     if(!ast){
         return;
@@ -88,18 +84,10 @@ void _wasm_emit(struct context *c, struct ast_node *ast)
     }
 }
 
-struct byte_array wasm_emit(struct amodule mod)
+struct wasm_module * to_wasm_module(struct amodule mod)
 {   
-    struct context c;
-    c.code = mod.code;
-    ba_init(&c.ba, 0);
-    for(size_t i = 0; i < ARRAY_SIZE(wasm_magic_number); i++){
-        ba_add(&c.ba, wasm_magic_number[i]);
-    }
-    for(size_t i = 0; i < ARRAY_SIZE(wasm_version); i++){
-        ba_add(&c.ba, wasm_version[i]);
-    }
-    _wasm_emit(&c, mod.root_ast);
-    return c.ba;
+    struct wasm_module *wm = wasm_module_new();
+
+    return vm;
 }
 

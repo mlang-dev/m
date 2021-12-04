@@ -8,7 +8,7 @@
 #ifndef __MLANG_WASM_CODEGEN_H__
 #define __MLANG_WASM_CODEGEN_H__
 
-#include "parser/ast_node.h"
+#include "parser/amodule.h"
 #include "clib/byte_array.h"
 
 #ifdef __cplusplus
@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 void wasm_codegen_init();
-struct byte_array wasm_emit(struct ast_node *ast, const char *code);
+struct byte_array wasm_emit(struct amodule mod);
 
 #ifdef __cplusplus
 }

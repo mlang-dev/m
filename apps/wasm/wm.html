@@ -37,7 +37,8 @@
 					str_to_ab(obj.instance, input, new_ptr)
 
 					let wat = obj.instance.exports.parse_code(new_ptr)
-					t.print(run_wasm_code(binaryen.parseText(to_js_str(obj.instance, wat)).emitBinary()))
+					t.print(to_js_str(obj.instance, wat))
+					//t.print(run_wasm_code(binaryen.parseText(to_js_str(obj.instance, wat)).emitBinary()))
 					obj.instance.exports.free_mem(wat)
 				})
 		});

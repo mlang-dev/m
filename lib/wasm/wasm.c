@@ -1,21 +1,40 @@
+/*
+ * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * This is to implement wasm module structure and its components
+ * 
+ */
+
 #include "wasm/wasm.h"
-#include <assert.h>
+#include "clib/array.h"
 
-#define PAGE_SIZE (1<<16)
-
-size_t get_mem_size() 
+void _wasm_module_init(struct wasm_module *wm)
 {
-  return __builtin_wasm_memory_size(0) * PAGE_SIZE;
+  array_init(&wm->types);
+  array_init(&wm->functions);
+  array_init(&wm->exports);
+  array_init(&wm->codes);
 }
 
-int grow_mem(size_t size)
+void _wasm_module_deinit(struct wasm_module *wm)
 {
-  size_t old_size = get_mem_size();
-  assert(old_size < size);
-  size_t diff = (size - old_size + PAGE_SIZE - 1) / PAGE_SIZE;
-  size_t result = __builtin_wasm_memory_grow(0, diff);
-  if (result != (size_t)-1) {
-    return 1;
-  }
-  return 0;
+  array_deinit(&wm->codes);
+  array_deinit(&wm->exports);
+  array_deinit(&wm->functions);
+  array_deinit(&wm->types);
 }
+
+struct wasm_module *wasm_module_new()
+{
+  struct wasm_module *wm;
+  MALLOC(wm, sizeof(*wm));
+  _wasm_module_init(wm);
+  return wm;
+}
+
+void wasm_module_free(struct wasm_module *wm)
+{
+  _wasm_module_deinit(wm);
+  free(wm);
+}
+
