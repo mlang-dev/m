@@ -21,18 +21,18 @@ string _dump_block(struct block_node *node)
     return block;
 }
 
-string _dump_prototype(struct func_type_node *proto)
+string _dump_prototype(struct func_type_node *func_type)
 {
     string result;
     string_init(&result);
-    if (proto->is_extern)
+    if (func_type->is_extern)
         string_add_chars(&result, "extern ");
-    string_add_chars(&result, string_get(proto->name));
+    string_add_chars(&result, string_get(func_type->name));
     ARRAY_STRING(args);
     string var_str;
     string_init(&var_str);
-    for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
-        struct var_node *var = (struct var_node *)array_get(&proto->fun_params, i);
+    for (size_t i = 0; i < array_size(&func_type->fun_params); i++) {
+        struct var_node *var = (struct var_node *)array_get(&func_type->fun_params, i);
         string_copy(&var_str, var->var_name);
         if (var->base.annotated_type_enum && var->base.annotated_type_enum != TYPE_GENERIC) {
             string var_type;
@@ -46,8 +46,8 @@ string _dump_prototype(struct func_type_node *proto)
     string_add_chars(&result, "(");
     string_add(&result, &joined);
     string_add_chars(&result, ")");
-    if (proto->base.annotated_type_name) {
-        string_copy_chars(&var_str, string_get(proto->base.annotated_type_name));
+    if (func_type->base.annotated_type_name) {
+        string_copy_chars(&var_str, string_get(func_type->base.annotated_type_name));
         string_add_chars(&result, ":");
         string_add(&result, &var_str);
     }

@@ -39,7 +39,7 @@ bool is_variadic(struct fun_info *fi);
 void fun_info_init(struct fun_info *fi, unsigned required_args);
 void fun_info_deinit(struct fun_info *fi);
 
-struct fun_info *get_fun_info(struct func_type_node *proto);
+struct fun_info *get_fun_info(struct func_type_node *func_type);
 LLVMTypeRef get_fun_type(struct fun_info *fi);
 bool check_rvo(struct fun_info *fi);
 

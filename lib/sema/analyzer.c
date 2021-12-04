@@ -163,23 +163,23 @@ struct type_exp *_analyze_type_value(struct sema_context *context, struct exp_no
 
 struct type_exp *_analyze_proto(struct sema_context *context, struct exp_node *node)
 {
-    struct func_type_node *proto = (struct func_type_node *)node;
+    struct func_type_node *func_type = (struct func_type_node *)node;
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&proto->fun_params); i++) {
-        struct var_node *param = (struct var_node *)array_get(&proto->fun_params, i);
+    for (size_t i = 0; i < array_size(&func_type->fun_params); i++) {
+        struct var_node *param = (struct var_node *)array_get(&func_type->fun_params, i);
         assert(param->base.annotated_type_name);
         assert(param->base.annotated_type_enum == get_type_enum(param->base.annotated_type_name));
         struct type_oper* to = create_nullary_type(param->base.annotated_type_enum, param->base.annotated_type_name);
         param->base.type = &to->base;
         array_push(&fun_sig, &param->base.type);
     }
-    assert(proto->base.annotated_type_name);
-    struct type_oper *to = create_nullary_type(proto->base.annotated_type_enum, proto->base.annotated_type_name);
+    assert(func_type->base.annotated_type_name);
+    struct type_oper *to = create_nullary_type(func_type->base.annotated_type_enum, func_type->base.annotated_type_name);
     array_push(&fun_sig, &to);
-    proto->base.type = (struct type_exp *)create_type_fun(&fun_sig);
-    hashtable_set_p(&context->protos, proto->name, proto);
-    return proto->base.type;
+    func_type->base.type = (struct type_exp *)create_type_fun(&fun_sig);
+    hashtable_set_p(&context->protos, func_type->name, func_type);
+    return func_type->base.type;
 }
 
 struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *node)

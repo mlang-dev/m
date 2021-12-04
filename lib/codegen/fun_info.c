@@ -74,18 +74,18 @@ void _map_to_ir_arg_info(struct fun_info *fi)
     fi->iai.total_ir_args = ir_arg_no;
 }
 
-struct fun_info *get_fun_info(struct func_type_node *proto)
+struct fun_info *get_fun_info(struct func_type_node *func_type)
 {
-    struct type_oper *fun_type = (struct type_oper *)proto->base.type;
+    struct type_oper *fun_type = (struct type_oper *)func_type->base.type;
     struct hashtable *fun_infos = get_fun_infos();
-    struct fun_info *result = hashtable_get_p(fun_infos, proto->name);
+    struct fun_info *result = hashtable_get_p(fun_infos, func_type->name);
     if (result)
         return result;
     struct fun_info fi;
     unsigned param_num = (unsigned)array_size(&fun_type->args) - 1;
-    if (proto->is_variadic)
+    if (func_type->is_variadic)
         param_num -= 1;
-    fun_info_init(&fi, proto->is_variadic ? param_num : ALL_REQUIRED);
+    fun_info_init(&fi, func_type->is_variadic ? param_num : ALL_REQUIRED);
     fi.ret.type = *(struct type_exp **)array_back(&fun_type->args);
     struct ast_abi_arg aa;
     for (unsigned i = 0; i < param_num; i++) {
@@ -104,8 +104,8 @@ struct fun_info *get_fun_info(struct func_type_node *proto)
             aa->info.type = get_llvm_type(aa->type);
     }
     _map_to_ir_arg_info(&fi);
-    hashtable_set_p(fun_infos, proto->name, &fi);
-    return (struct fun_info *)hashtable_get_p(fun_infos, proto->name);
+    hashtable_set_p(fun_infos, func_type->name, &fi);
+    return (struct fun_info *)hashtable_get_p(fun_infos, func_type->name);
 }
 
 LLVMTypeRef get_fun_type(struct fun_info *fi)

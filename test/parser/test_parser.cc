@@ -330,9 +330,9 @@ TEST_F(testParser, testPrototypeNode)
     block_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
-    func_type_node *proto = (func_type_node *)node;
+    func_type_node *func_type = (func_type_node *)node;
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_STREQ("printf", string_get(proto->name));
+    ASSERT_STREQ("printf", string_get(func_type->name));
     env_free(env);
 }
 
@@ -343,11 +343,11 @@ TEST_F(testParser, testPrototypeNodeEmptyArg)
     block_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
-    func_type_node *proto = (func_type_node *)node;
+    func_type_node *func_type = (func_type_node *)node;
     ASSERT_EQ(1, array_size(&block->nodes));
-    ASSERT_EQ(0, array_size(&proto->fun_params));
-    ASSERT_STREQ("print", string_get(proto->name));
-    ASSERT_STREQ("int", string_get(proto->base.annotated_type_name));
+    ASSERT_EQ(0, array_size(&func_type->fun_params));
+    ASSERT_STREQ("print", string_get(func_type->name));
+    ASSERT_STREQ("int", string_get(func_type->base.annotated_type_name));
     env_free(env);
 }
 

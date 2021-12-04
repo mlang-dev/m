@@ -470,8 +470,8 @@ struct exp_node *parse_statement(struct m_parser *parser, struct exp_node *paren
         node = _parse_prototype(parser, parent, true);
     } else if (parser->curr_token.token_type == TOKEN_SYMBOL && (parser->curr_token.val.symbol_val == parser->binary || parser->curr_token.val.symbol_val == parser->unary)) {
         // function def
-        struct exp_node *proto = _parse_prototype(parser, parent, false);
-        node = _parse_function_with_prototype(parser, (struct func_type_node *)proto);
+        struct exp_node *func_type = _parse_prototype(parser, parent, false);
+        node = _parse_function_with_prototype(parser, (struct func_type_node *)func_type);
     } else if (parser->curr_token.token_type == TOKEN_IDENT) {
         symbol id_symbol = parser->curr_token.val.symbol_val;
         struct source_loc current_loc = parser->curr_token.loc;
