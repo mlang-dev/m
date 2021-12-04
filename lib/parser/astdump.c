@@ -21,7 +21,7 @@ string _dump_block(struct block_node *node)
     return block;
 }
 
-string _dump_prototype(struct func_type_node *func_type)
+string _dump_func_type(struct func_type_node *func_type)
 {
     string result;
     string_init(&result);
@@ -56,7 +56,7 @@ string _dump_prototype(struct func_type_node *func_type)
 
 string _dump_function(struct function_node *func)
 {
-    string result = _dump_prototype(func->prototype);
+    string result = _dump_func_type(func->func_type);
     string_add_chars(&result, "\n");
     string block_str = _dump_block(func->body);
     string_add(&result, &block_str);
@@ -168,7 +168,7 @@ string dump(struct exp_node *node)
     if (node->node_type == FUNCTION_NODE)
         return _dump_function((struct function_node *)node);
     else if (node->node_type == FUNC_TYPE_NODE)
-        return _dump_prototype((struct func_type_node *)node);
+        return _dump_func_type((struct func_type_node *)node);
     else if (node->node_type == VAR_NODE)
         return _dump_var((struct var_node *)node);
     else if (node->node_type == UNARY_NODE)

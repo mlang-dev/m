@@ -59,7 +59,7 @@ struct sema_context {
     struct hashtable specialized_ast;
 
     /* 
-     *  prototype declaration ASTs: hashtable of <symbol, struct exp_node*>
+     *  func_type declaration ASTs: hashtable of <symbol, struct exp_node*>
      */
     struct hashtable protos;
 

@@ -185,12 +185,12 @@ struct type_exp *_analyze_proto(struct sema_context *context, struct exp_node *n
 struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *node)
 {
     struct function_node *fun = (struct function_node *)node;
-    hashtable_set_p(&context->protos, fun->prototype->name, fun->prototype);
+    hashtable_set_p(&context->protos, fun->func_type->name, fun->func_type);
     //# create a new non-generic variable for the binder
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&fun->prototype->fun_params); i++) {
-        struct var_node *param = (struct var_node *)array_get(&fun->prototype->fun_params, i);
+    for (size_t i = 0; i < array_size(&fun->func_type->fun_params); i++) {
+        struct var_node *param = (struct var_node *)array_get(&fun->func_type->fun_params, i);
         struct type_exp *exp;
         if (param->base.annotated_type_name) {
             if (param->base.annotated_type_enum == TYPE_EXT)
@@ -208,15 +208,15 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *nod
     }
     /*analyze function body*/
     struct type_exp *fun_type = (struct type_exp *)create_type_var();
-    push_symbol_type(&context->decl_2_typexps, fun->prototype->name, fun_type);
+    push_symbol_type(&context->decl_2_typexps, fun->func_type->name, fun_type);
     struct type_exp *ret_type = analyze(context, (struct exp_node *)fun->body);
     array_push(&fun_sig, &ret_type);
     struct type_exp *result_type = (struct type_exp *)create_type_fun(&fun_sig);
     unify(fun_type, result_type, &context->nongens);
     struct type_exp *result = prune(fun_type);
-    fun->prototype->base.type = result;
+    fun->func_type->base.type = result;
     if (is_generic(result)) {
-        hashtable_set(&context->generic_ast, string_get(fun->prototype->name), node);
+        hashtable_set(&context->generic_ast, string_get(fun->func_type->name), node);
     }
     return result;
 }
@@ -257,14 +257,14 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
         /* specialized callee */
         struct exp_node *generic_fun = (struct exp_node *)hashtable_get(&context->generic_ast, string_get(call->callee));
         struct function_node *sp_fun = (struct function_node *)node_copy(generic_fun);
-        sp_fun->prototype->name = call->specialized_callee;
+        sp_fun->func_type->name = call->specialized_callee;
         fun_type = analyze(env->sema_context, (struct exp_node *)sp_fun);
-        hashtable_set(&context->specialized_ast, string_get(sp_fun->prototype->name), sp_fun);
+        hashtable_set(&context->specialized_ast, string_get(sp_fun->func_type->name), sp_fun);
         push_symbol_type(&context->decl_2_typexps, call->specialized_callee, fun_type);
         specialized_fun = (struct exp_node *)sp_fun;
-        hashtable_set_p(&context->protos, call->specialized_callee, sp_fun->prototype);
+        hashtable_set_p(&context->protos, call->specialized_callee, sp_fun->func_type);
         hashtable_set_p(&context->calls, call->specialized_callee, node);
-        call->callee_decl = sp_fun->prototype;
+        call->callee_decl = sp_fun->func_type;
     }
     struct type_exp *result_type = (struct type_exp *)create_type_var();
     array_push(&args, &result_type);

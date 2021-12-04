@@ -73,7 +73,7 @@ struct code_generator {
 
     /* 
      *  symboltable of <symbol, func_type_node*>
-     *  binding prototype name to func_type_node*
+     *  binding func_type name to func_type_node*
      */
     struct hashtable protos;
 

@@ -147,7 +147,7 @@ struct func_type_node {
 
 struct function_node {
     struct exp_node base;
-    struct func_type_node *prototype;
+    struct func_type_node *func_type;
     struct block_node *body;
 };
 
@@ -161,7 +161,7 @@ struct call_node {
 
 struct type_exp *get_ret_type(struct function_node *fun_node);
 
-struct function_node *function_node_new(struct func_type_node *prototype,
+struct function_node *function_node_new(struct func_type_node *func_type,
     struct block_node *body);
 struct ident_node *ident_node_new(struct exp_node *parent, struct source_loc loc, symbol name);
 struct literal_node *double_node_new(struct exp_node *parent, struct source_loc loc, double val);
@@ -173,7 +173,7 @@ struct literal_node *string_node_new(struct exp_node *parent, struct source_loc 
 struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, symbol var_name, enum type type, symbol ext_type, struct exp_node *init_value);
 struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, symbol callee,
     struct array *args);
-struct func_type_node *prototype_node_new(struct exp_node *parent, struct source_loc loc,
+struct func_type_node *func_type_node_new(struct exp_node *parent, struct source_loc loc,
     symbol name,
     struct array *params,
     struct type_exp *ret_type,
@@ -183,7 +183,7 @@ struct func_type_node *prototype_node_new(struct exp_node *parent, struct source
     bool is_variadic, bool is_external);
 struct type_node *type_node_new(struct exp_node *parent, struct source_loc loc, symbol name, struct block_node *body);
 struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_loc loc, struct block_node *body, symbol type_name);
-struct func_type_node *prototype_node_default_new(struct exp_node *parent, struct source_loc loc,
+struct func_type_node *func_type_node_default_new(struct exp_node *parent, struct source_loc loc,
     symbol name,
     struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external);
 

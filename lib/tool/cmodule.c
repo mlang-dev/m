@@ -29,7 +29,7 @@ enum type _get_type(CXType cxtype)
     return type;
 }
 
-struct func_type_node *create_function_prototype(CXCursor cursor)
+struct func_type_node *create_function_func_type(CXCursor cursor)
 {
     CXType cur_type = clang_getCursorType(cursor);
 
@@ -71,7 +71,7 @@ struct func_type_node *create_function_prototype(CXCursor cursor)
         array_push(&fun_params, &fun_param);
     }
     struct source_loc loc = { 0, 1 };
-    return prototype_node_default_new(0, loc, string_2_symbol(&fun_name), &fun_params, ret_type, is_variadic, true);
+    return func_type_node_default_new(0, loc, string_2_symbol(&fun_name), &fun_params, ret_type, is_variadic, true);
 }
 
 enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClientData client_data)
@@ -82,7 +82,7 @@ enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClien
 
     // Consider functions and methods
     if (kind == CXCursor_FunctionDecl || kind == CXCursor_CXXMethod) {
-        struct func_type_node *node = create_function_prototype(cursor);
+        struct func_type_node *node = create_function_func_type(cursor);
         if (node) {
             struct array *arr = (struct array *)client_data;
             array_push(arr, &node);
@@ -93,8 +93,8 @@ enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClien
 
 struct array parse_c_file(const char *file_path)
 {
-    struct array prototypes;
-    array_init(&prototypes, sizeof(struct func_type_node *));
+    struct array func_types;
+    array_init(&func_types, sizeof(struct func_type_node *));
     CXIndex index = clang_createIndex(0, 0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
         index,
@@ -103,16 +103,16 @@ struct array parse_c_file(const char *file_path)
         CXTranslationUnit_None);
     if (unit == 0) {
         printf("Unable to parse translation unit for %s. Quitting.\n", file_path);
-        return prototypes;
+        return func_types;
     }
     CXCursor cursor = clang_getTranslationUnitCursor(unit);
     clang_visitChildren(
         cursor,
         cursor_visitor,
-        &prototypes);
+        &func_types);
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);
-    return prototypes;
+    return func_types;
 }
 
 void _write_to_file(struct array *codes, const char *mfile)

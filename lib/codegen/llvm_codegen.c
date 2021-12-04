@@ -676,7 +676,7 @@ LLVMValueRef (*cg_fp[])(struct code_generator *, struct exp_node *) = {
     _emit_condition_node,
     _emit_for_node,
     emit_call_node,
-    emit_prototype_node,
+    emit_func_type_node,
     emit_function_node,
     _emit_block_node
 };
