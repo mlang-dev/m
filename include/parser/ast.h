@@ -46,11 +46,12 @@ extern const char *node_type_strings[];
 struct exp_node {
     enum node_type node_type;
     enum type annotated_type_enum;
-    symbol annotated_type_name;
     struct type_exp *type; // type inferred
     struct source_location loc;
-    struct exp_node *parent;
+
+    symbol annotated_type_name;
     bool is_ret;
+    struct exp_node *parent;
 };
 
 struct block_node {
@@ -68,8 +69,7 @@ struct ast {
     struct array modules; // struct array of module*
 };
 
-struct literal_node {
-    struct exp_node base;
+struct _literal_node {
     union {
         double double_val;
         int int_val;
@@ -163,12 +163,17 @@ struct ast_node {
     enum node_type node_type;
     enum type annotated_type_enum;
 
-    symbol annotated_type_name;
     struct type_exp *type; // type inferred
     struct source_location loc;
 
+    symbol annotated_type_name; //this is expected to be removed
+    bool is_ret;        //tihs is expected to be removed from sema analysis
+    struct exp_node *parent;  //this is expected to be removed from hand-crafted parser
+    symbol node_type_name; //this is expected to be removed from parser generator
+    struct array children; //list of pointer to child ast_node, this is expected to be removed from parser generator
     union{
-        struct liternal_node *liter;
+        void *data; //node data represents any of following pointer
+        struct _literal_node *liter;
         
         struct ident_node *ident;
         struct unary_node *unop;
@@ -186,24 +191,28 @@ struct ast_node {
         struct for_node *forloop;
         struct block_node *block;
     };
-
-    bool is_ret;        //tihs is expected to be removed from sema analysis
-    struct exp_node *parent;  //this is expected to be removed from hand-crafted parser
-    symbol node_type_name; //this is expected to be removed from parser generator
-    struct array children; //list of pointer to child ast_node, this is expected to be removed from parser generator
 };
+
+/*
+ * if node type order is changed here, the corresponding order of function pointer
+ * in codegen.c & analyzer.c shall be changed accordingly.
+ */
+struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type, struct source_location loc, struct exp_node *parent);
+void ast_node_free(struct ast_node *node);
 
 struct type_exp *get_ret_type(struct function_node *fun_node);
 
 struct function_node *function_node_new(struct func_type_node *func_type,
     struct block_node *body);
 struct ident_node *ident_node_new(struct exp_node *parent, struct source_location loc, symbol name);
-struct literal_node *double_node_new(struct exp_node *parent, struct source_location loc, double val);
-struct literal_node *int_node_new(struct exp_node *parent, struct source_location loc, int val);
-struct literal_node *bool_node_new(struct exp_node *parent, struct source_location loc, bool val);
-struct literal_node *char_node_new(struct exp_node *parent, struct source_location loc, char val);
-struct literal_node *unit_node_new(struct exp_node *parent, struct source_location loc);
-struct literal_node *string_node_new(struct exp_node *parent, struct source_location loc, const char *val);
+
+struct ast_node *double_node_new(struct exp_node *parent, struct source_location loc, double val);
+struct ast_node *int_node_new(struct exp_node *parent, struct source_location loc, int val);
+struct ast_node *bool_node_new(struct exp_node *parent, struct source_location loc, bool val);
+struct ast_node *char_node_new(struct exp_node *parent, struct source_location loc, char val);
+struct ast_node *unit_node_new(struct exp_node *parent, struct source_location loc);
+struct ast_node *string_node_new(struct exp_node *parent, struct source_location loc, const char *val);
+
 struct var_node *var_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, enum type type, symbol ext_type, struct exp_node *init_value);
 struct call_node *call_node_new(struct exp_node *parent, struct source_location loc, symbol callee,
     struct array *args);

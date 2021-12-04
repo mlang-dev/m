@@ -16,6 +16,40 @@ const char *node_type_strings[] = {
     FOREACH_NODETYPE(GENERATE_ENUM_STRING)
 };
 
+
+struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type, struct source_location loc, struct exp_node *parent)
+{
+    struct ast_node *node;
+    MALLOC(node, sizeof(*node));
+
+    node->node_type_name = node_type_name;
+    node->node_type = node_type;
+    node->annotated_type_name = to_symbol(type_strings[annotated_type]);
+    node->annotated_type_enum = annotated_type;
+    node->type = 0;
+    node->parent = parent;
+    node->loc = loc;
+    node->is_ret = false;
+    node->data = 0;
+   
+    array_init(&node->children, sizeof(struct ast_node *));
+    return node;
+}
+
+void ast_node_free(struct ast_node *node)
+{
+    if(!node) return;
+    size_t len = array_size(&node->children);
+    for(size_t i = 0; i < len; i++){
+        struct ast_node *child = *(struct ast_node **)array_get(&node->children, i);
+        ast_node_free(child);
+    }
+    array_deinit(&node->children);
+    if(node->data)
+        FREE(node->data);
+    FREE(node);
+}
+
 bool is_unary_op(struct func_type_node *node)
 {
     return node->is_operator && array_size(&node->fun_params) == UNARY_PARAM_SIZE;
@@ -110,72 +144,66 @@ void _free_ident_node(struct ident_node *node)
     _free_exp_node(&node->base);
 }
 
-struct literal_node *_create_literal_node(struct exp_node *parent, struct source_location loc, void *val, enum type type)
+struct ast_node *_create_literal_node(struct exp_node *parent, struct source_location loc, void *val, enum type type)
 {
-    struct literal_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.node_type = LITERAL_NODE;
-    node->base.annotated_type_name = to_symbol(type_strings[type]);
-    node->base.annotated_type_enum = type;
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->base.is_ret = false;
+    struct ast_node *node = ast_node_new(0, LITERAL_NODE, type, loc, parent);
+    MALLOC(node->liter, sizeof(*node->liter));
     if (type == TYPE_INT)
-        node->int_val = *(int *)val;
+        node->liter->int_val = *(int *)val;
     else if (type == TYPE_DOUBLE)
-        node->double_val = *(double *)val;
+        node->liter->double_val = *(double *)val;
     else if (type == TYPE_CHAR)
-        node->char_val = *(char *)val;
+        node->liter->char_val = *(char *)val;
     else if (type == TYPE_BOOL)
-        node->bool_val = *(bool *)val;
+        node->liter->bool_val = *(bool *)val;
     else if (type == TYPE_STRING)
-        node->str_val = str_clone((const char *)val);
+        node->liter->str_val = str_clone((const char *)val);
     return node;
 }
 
-void _free_literal_node(struct literal_node *node)
+void _free_literal_node(struct ast_node *node)
 {
-    if (node->base.annotated_type_enum == TYPE_STRING){
-        FREE((void *)node->str_val);
+    assert(node->node_type == LITERAL_NODE);
+    if (node->annotated_type_enum == TYPE_STRING){
+        FREE(node->liter->str_val);
     }
-    _free_exp_node(&node->base);
+    ast_node_free(node);
 }
 
-struct literal_node *double_node_new(struct exp_node *parent, struct source_location loc, double val)
+struct ast_node *double_node_new(struct exp_node *parent, struct source_location loc, double val)
 {
     return _create_literal_node(parent, loc, &val, TYPE_DOUBLE);
 }
 
-struct literal_node *int_node_new(struct exp_node *parent, struct source_location loc, int val)
+struct ast_node *int_node_new(struct exp_node *parent, struct source_location loc, int val)
 {
     return _create_literal_node(parent, loc, &val, TYPE_INT);
 }
 
-struct literal_node *bool_node_new(struct exp_node *parent, struct source_location loc, bool val)
+struct ast_node *bool_node_new(struct exp_node *parent, struct source_location loc, bool val)
 {
     return _create_literal_node(parent, loc, &val, TYPE_BOOL);
 }
 
-struct literal_node *char_node_new(struct exp_node *parent, struct source_location loc, char val)
+struct ast_node *char_node_new(struct exp_node *parent, struct source_location loc, char val)
 {
     return _create_literal_node(parent, loc, &val, TYPE_CHAR);
 }
 
-struct literal_node *unit_node_new(struct exp_node *parent, struct source_location loc)
+struct ast_node *unit_node_new(struct exp_node *parent, struct source_location loc)
 {
     return _create_literal_node(parent, loc, 0, TYPE_UNIT);
 }
 
-struct literal_node *string_node_new(struct exp_node *parent, struct source_location loc, const char *val)
+struct ast_node *string_node_new(struct exp_node *parent, struct source_location loc, const char *val)
 {
     return _create_literal_node(parent, loc, (void *)val, TYPE_STRING);
 }
 
-struct literal_node *_copy_literal_node(struct literal_node *orig_node)
+struct ast_node *_copy_literal_node(struct ast_node *orig_node)
 {
-    return _create_literal_node(orig_node->base.parent, orig_node->base.loc, &orig_node->char_val,
-        orig_node->base.annotated_type_enum);
+    return _create_literal_node(orig_node->parent, orig_node->loc, &orig_node->liter->char_val,
+        orig_node->annotated_type_enum);
 }
 
 struct var_node *var_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, enum type type, symbol ext_type,
@@ -572,7 +600,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case IDENT_NODE:
         return (struct exp_node *)_copy_ident_node((struct ident_node *)node);
     case LITERAL_NODE:
-        return (struct exp_node *)_copy_literal_node((struct literal_node *)node);
+        return (struct exp_node *)_copy_literal_node((struct ast_node *)node);
     case CALL_NODE:
         return (struct exp_node *)_copy_call_node((struct call_node *)node);
     case CONDITION_NODE:
@@ -617,7 +645,7 @@ void node_free(struct exp_node *node)
         _free_ident_node((struct ident_node *)node);
         break;
     case LITERAL_NODE:
-        _free_literal_node((struct literal_node *)node);
+        _free_literal_node((struct ast_node *)node);
         break;
     case CALL_NODE:
         _free_call_node((struct call_node *)node);

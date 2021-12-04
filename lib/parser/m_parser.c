@@ -72,7 +72,7 @@ struct op_prec _op_preces[] = {
 #define MAX_PRECEDENCE 400
 
 int _get_op_precedence(struct m_parser *parser);
-struct exp_node *_parse_number(struct m_parser *parser, struct exp_node *parent);
+struct ast_node *_parse_number(struct m_parser *parser, struct exp_node *parent);
 struct exp_node *_parse_parentheses(struct m_parser *parser, struct exp_node *parent);
 struct exp_node *_parse_node(struct m_parser *parser, struct exp_node *parent);
 struct exp_node *_parse_binary(struct m_parser *parser, struct exp_node *parent, int exp_prec, struct exp_node *lhs);
@@ -246,39 +246,39 @@ int _get_op_precedence(struct m_parser *parser)
     return _get_op_prec(&parser->op_precs, parser->curr_token.val.symbol_val);
 }
 
-struct exp_node *_parse_bool_value(struct m_parser *parser, struct exp_node *parent)
+struct ast_node *_parse_bool_value(struct m_parser *parser, struct exp_node *parent)
 {
-    struct literal_node *result;
+    struct ast_node *result;
     result = bool_node_new(parent, parser->curr_token.loc,
         parser->curr_token.val.symbol_val == parser->true_symbol ? 1 : 0);
     if (parser->curr_token.token_type != TOKEN_NEWLINE)
         parse_next_token(parser);
-    return (struct exp_node *)result;
+    return result;
 }
 
-struct exp_node *_parse_char(struct m_parser *parser, struct exp_node *parent)
+struct ast_node *_parse_char(struct m_parser *parser, struct exp_node *parent)
 {
-    struct literal_node *result;
+    struct ast_node *result;
     result = char_node_new(parent, parser->curr_token.loc,
         parser->curr_token.val.char_val);
     if (parser->curr_token.token_type != TOKEN_NEWLINE)
         parse_next_token(parser);
-    return (struct exp_node *)result;
+    return result;
 }
 
-struct exp_node *_parse_string(struct m_parser *parser, struct exp_node *parent)
+struct ast_node *_parse_string(struct m_parser *parser, struct exp_node *parent)
 {
-    struct literal_node *result;
+    struct ast_node *result;
     result = string_node_new(parent, parser->curr_token.loc,
         string_get(parser->curr_token.val.str_val));
     if (parser->curr_token.token_type != TOKEN_NEWLINE)
         parse_next_token(parser);
-    return (struct exp_node *)result;
+    return result;
 }
 
-struct exp_node *_parse_number(struct m_parser *parser, struct exp_node *parent)
+struct ast_node *_parse_number(struct m_parser *parser, struct exp_node *parent)
 {
-    struct literal_node *result = 0;
+    struct ast_node *result = 0;
     if (parser->curr_token.token_type == TOKEN_INT)
         result = int_node_new(parent, parser->curr_token.loc,
             parser->curr_token.val.int_val);
@@ -289,7 +289,7 @@ struct exp_node *_parse_number(struct m_parser *parser, struct exp_node *parent)
         assert(false);
     if (parser->curr_token.token_type != TOKEN_NEWLINE)
         parse_next_token(parser);
-    return (struct exp_node *)result;
+    return result;
 }
 
 struct exp_node *_parse_parentheses(struct m_parser *parser, struct exp_node *parent)

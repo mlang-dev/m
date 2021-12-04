@@ -11,7 +11,7 @@
 #include "parser/grammar.h"
 #include "parser/tok.h"
 #include "clib/symbol.h"
-#include "parser/ast_node.h"
+#include "parser/ast.h"
 
 #ifdef __cplusplus
 extern "C" {

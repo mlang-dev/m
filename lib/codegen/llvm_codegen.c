@@ -412,19 +412,20 @@ LLVMValueRef _emit_block_node(struct code_generator *cg, struct exp_node *node)
     return codegen;
 }
 
-LLVMValueRef _emit_literal_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_literal_node(struct code_generator *cg, struct ast_node *node)
 {
     assert(node->type);
+    assert(node->node_type == LITERAL_NODE);
     enum type type = get_type(node->type);
     void *value = 0;
     if (type == TYPE_CHAR)
-        value = &((struct literal_node *)node)->char_val;
+        value = &node->liter->char_val;
     else if (is_int_type(type))
-        value = &((struct literal_node *)node)->int_val;
+        value = &node->liter->int_val;
     else if (type == TYPE_DOUBLE)
-        value = &((struct literal_node *)node)->double_val;
+        value = &node->liter->double_val;
     else if (type == TYPE_STRING) {
-        value = (void *)((struct literal_node *)node)->str_val;
+        value = (void *)node->liter->str_val;
     }
     return cg->ops[type].get_const(cg->context, cg->builder, value);
 }

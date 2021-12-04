@@ -8,7 +8,7 @@
 #ifndef __MLANG_AMODULE_H__
 #define __MLANG_AMODULE_H__
 
-#include "parser/ast_node.h"
+#include "parser/ast.h"
 
 #ifdef __cplusplus
 extern "C" {
