@@ -82,7 +82,7 @@ struct array to_symbol_array(struct array arr)
     return symbols;
 }
 
-struct ident_node *ident_node_new(struct exp_node *parent, struct source_loc loc, symbol name)
+struct ident_node *ident_node_new(struct exp_node *parent, struct source_location loc, symbol name)
 {
     struct ident_node *node;
     MALLOC(node, sizeof(*node));
@@ -110,7 +110,7 @@ void _free_ident_node(struct ident_node *node)
     _free_exp_node(&node->base);
 }
 
-struct literal_node *_create_literal_node(struct exp_node *parent, struct source_loc loc, void *val, enum type type)
+struct literal_node *_create_literal_node(struct exp_node *parent, struct source_location loc, void *val, enum type type)
 {
     struct literal_node *node;
     MALLOC(node, sizeof(*node));
@@ -142,32 +142,32 @@ void _free_literal_node(struct literal_node *node)
     _free_exp_node(&node->base);
 }
 
-struct literal_node *double_node_new(struct exp_node *parent, struct source_loc loc, double val)
+struct literal_node *double_node_new(struct exp_node *parent, struct source_location loc, double val)
 {
     return _create_literal_node(parent, loc, &val, TYPE_DOUBLE);
 }
 
-struct literal_node *int_node_new(struct exp_node *parent, struct source_loc loc, int val)
+struct literal_node *int_node_new(struct exp_node *parent, struct source_location loc, int val)
 {
     return _create_literal_node(parent, loc, &val, TYPE_INT);
 }
 
-struct literal_node *bool_node_new(struct exp_node *parent, struct source_loc loc, bool val)
+struct literal_node *bool_node_new(struct exp_node *parent, struct source_location loc, bool val)
 {
     return _create_literal_node(parent, loc, &val, TYPE_BOOL);
 }
 
-struct literal_node *char_node_new(struct exp_node *parent, struct source_loc loc, char val)
+struct literal_node *char_node_new(struct exp_node *parent, struct source_location loc, char val)
 {
     return _create_literal_node(parent, loc, &val, TYPE_CHAR);
 }
 
-struct literal_node *unit_node_new(struct exp_node *parent, struct source_loc loc)
+struct literal_node *unit_node_new(struct exp_node *parent, struct source_location loc)
 {
     return _create_literal_node(parent, loc, 0, TYPE_UNIT);
 }
 
-struct literal_node *string_node_new(struct exp_node *parent, struct source_loc loc, const char *val)
+struct literal_node *string_node_new(struct exp_node *parent, struct source_location loc, const char *val)
 {
     return _create_literal_node(parent, loc, (void *)val, TYPE_STRING);
 }
@@ -178,7 +178,7 @@ struct literal_node *_copy_literal_node(struct literal_node *orig_node)
         orig_node->base.annotated_type_enum);
 }
 
-struct var_node *var_node_new(struct exp_node *parent, struct source_loc loc, symbol var_name, enum type type, symbol ext_type,
+struct var_node *var_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, enum type type, symbol ext_type,
     struct exp_node *init_value)
 {
     (void)ext_type;
@@ -210,7 +210,7 @@ void _free_var_node(struct var_node *node)
     _free_exp_node(&node->base);
 }
 
-struct type_node *type_node_new(struct exp_node *parent, struct source_loc loc, symbol name, struct block_node *body)
+struct type_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct block_node *body)
 {
     struct type_node *node;
     MALLOC(node, sizeof(*node));
@@ -238,7 +238,7 @@ void _free_type_node(struct type_node *node)
     _free_exp_node(&node->base);
 }
 
-struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_loc loc, struct block_node *body, symbol type_symbol)
+struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct block_node *body, symbol type_symbol)
 {
     struct type_value_node *node;
     MALLOC(node, sizeof(*node));
@@ -265,7 +265,7 @@ void _free_type_value_node(struct type_value_node *node)
     _free_exp_node(&node->base);
 }
 
-struct call_node *call_node_new(struct exp_node *parent, struct source_loc loc, symbol callee,
+struct call_node *call_node_new(struct exp_node *parent, struct source_location loc, symbol callee,
     struct array *args)
 {
     struct call_node *node;
@@ -301,14 +301,14 @@ symbol get_callee(struct call_node *call)
     return call->specialized_callee ? call->specialized_callee : call->callee;
 }
 
-struct func_type_node *func_type_node_default_new(struct exp_node *parent, struct source_loc loc, symbol name, struct array *args,
+struct func_type_node *func_type_node_default_new(struct exp_node *parent, struct source_location loc, symbol name, struct array *args,
     struct type_exp *ret_type, bool is_variadic, bool is_external)
 {
     return func_type_node_new(parent, loc, name, args, ret_type, false, 0,
         0, is_variadic, is_external);
 }
 
-struct func_type_node *func_type_node_new(struct exp_node *parent, struct source_loc loc, symbol name,
+struct func_type_node *func_type_node_new(struct exp_node *parent, struct source_location loc, symbol name,
     struct array *params,
     struct type_exp *ret_type,
     bool is_operator, unsigned precedence, symbol op,
@@ -409,7 +409,7 @@ void _free_function_node(struct function_node *node)
     _free_exp_node(&node->base);
 }
 
-struct condition_node *if_node_new(struct exp_node *parent, struct source_loc loc,
+struct condition_node *if_node_new(struct exp_node *parent, struct source_location loc,
     struct exp_node *condition, struct exp_node *then_node, struct exp_node *else_node)
 {
     struct condition_node *node;
@@ -444,7 +444,7 @@ void _free_if_node(struct condition_node *node)
     _free_exp_node(&node->base);
 }
 
-struct unary_node *unary_node_new(struct exp_node *parent, struct source_loc loc, symbol op, struct exp_node *operand)
+struct unary_node *unary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *operand)
 {
     struct unary_node *node;
     MALLOC(node, sizeof(*node));
@@ -471,7 +471,7 @@ void _free_unary_node(struct unary_node *node)
     _free_exp_node(&node->base);
 }
 
-struct binary_node *binary_node_new(struct exp_node *parent, struct source_loc loc, symbol op, struct exp_node *lhs, struct exp_node *rhs)
+struct binary_node *binary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *lhs, struct exp_node *rhs)
 {
     struct binary_node *node;
     MALLOC(node, sizeof(*node));
@@ -502,7 +502,7 @@ void _free_binary_node(struct binary_node *node)
     _free_exp_node(&node->base);
 }
 
-struct for_node *for_node_new(struct exp_node *parent, struct source_loc loc, symbol var_name, struct exp_node *start,
+struct for_node *for_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, struct exp_node *start,
     struct exp_node *end, struct exp_node *step, struct exp_node *body)
 {
     struct for_node *node;

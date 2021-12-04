@@ -49,7 +49,7 @@ TEST(test_tok, token_char)
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
     ASSERT_EQ(CHAR_TOKEN, tok.tok_type);
-    ASSERT_EQ(2, tok.loc.row);
+    ASSERT_EQ(2, tok.loc.line);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(6, tok.loc.end);
@@ -69,7 +69,7 @@ TEST(test_tok, token_string)
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
     ASSERT_EQ(STRING_TOKEN, tok.tok_type);
-    ASSERT_EQ(2, tok.loc.row);
+    ASSERT_EQ(2, tok.loc.line);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(6, tok.loc.end);
@@ -89,7 +89,7 @@ TEST(test_tok, token_num_int)
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
     ASSERT_EQ(NUM_TOKEN, tok.tok_type);
-    ASSERT_EQ(2, tok.loc.row);
+    ASSERT_EQ(2, tok.loc.line);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(4, tok.loc.end);
@@ -106,7 +106,7 @@ TEST(test_tok, token_num_float)
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
     ASSERT_EQ(NUM_TOKEN, tok.tok_type);
-    ASSERT_EQ(2, tok.loc.row);
+    ASSERT_EQ(2, tok.loc.line);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(4, tok.loc.end);
@@ -123,7 +123,7 @@ TEST(test_tok, token_num_float2)
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
     ASSERT_EQ(NUM_TOKEN, tok.tok_type);
-    ASSERT_EQ(2, tok.loc.row);
+    ASSERT_EQ(2, tok.loc.line);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(4, tok.loc.end);
@@ -140,7 +140,7 @@ TEST(test_tok, token_num_float3)
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
     ASSERT_EQ(NUM_TOKEN, tok.tok_type);
-    ASSERT_EQ(2, tok.loc.row);
+    ASSERT_EQ(2, tok.loc.line);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(4, tok.loc.end);
@@ -156,7 +156,7 @@ TEST(test_tok, token_id)
     lexer_init(&lexer, test_code);
     get_tok(&lexer, &tok);
     ASSERT_EQ(IDENT_TOKEN, tok.tok_type);
-    ASSERT_EQ(2, tok.loc.row);
+    ASSERT_EQ(2, tok.loc.line);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(8, tok.loc.end);
@@ -174,7 +174,7 @@ TEST(test_tok, token_num_id)
     //NUM
     get_tok(&lexer, &tok);
     ASSERT_EQ(NUM_TOKEN, tok.tok_type);
-    ASSERT_EQ(2, tok.loc.row);
+    ASSERT_EQ(2, tok.loc.line);
     ASSERT_EQ(1, tok.loc.col);
     ASSERT_EQ(1, tok.loc.start);
     ASSERT_EQ(4, tok.loc.end);
@@ -182,7 +182,7 @@ TEST(test_tok, token_num_id)
     //IDENT
     get_tok(&lexer, &tok);
     ASSERT_EQ(IDENT_TOKEN, tok.tok_type);
-    ASSERT_EQ(2, tok.loc.row);
+    ASSERT_EQ(2, tok.loc.line);
     ASSERT_EQ(4, tok.loc.col);
     ASSERT_EQ(4, tok.loc.start);
     ASSERT_EQ(7, tok.loc.end);

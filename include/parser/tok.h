@@ -10,7 +10,7 @@
 #define __MLANG_TOKEN_H__
 
 #include "clib/symbol.h"
-#include "parser/source_location.h"
+#include "lexer/source_location.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,7 +29,7 @@ extern symbol IDENT_TOKEN;
 struct lexer {
     const char *text;
     int pos;  //current text position
-    int row;
+    int line;
     int col;
 };
 

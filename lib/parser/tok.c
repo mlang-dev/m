@@ -21,7 +21,7 @@ void _move_ahead(struct lexer *lexer)
 {
     if (!lexer->text[lexer->pos]) return;
     if (lexer->text[lexer->pos] == '\n') {
-        lexer->row++;
+        lexer->line++;
         lexer->col = 1;
     } else {
         lexer->col++;
@@ -67,7 +67,7 @@ void _scan_until_no_id(struct lexer *lexer)
 void _mark_token(struct lexer *lexer, struct tok *tok, symbol tok_type)
 {
     tok->loc.start = lexer->pos;
-    tok->loc.row = lexer->row;
+    tok->loc.line = lexer->line;
     tok->loc.col = lexer->col;
     tok->tok_type = tok_type;
 }
@@ -76,7 +76,7 @@ void lexer_init(struct lexer *lexer, const char *text)
 {
     lexer->text = text;
     lexer->pos = 0;
-    lexer->row = 1;
+    lexer->line = 1;
     lexer->col = 1;
 
     IDENT_TOKEN = to_symbol2("IDENT", 5);

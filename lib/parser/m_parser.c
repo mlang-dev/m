@@ -104,7 +104,7 @@ bool _is_exp(struct exp_node *node)
     return node->node_type != VAR_NODE && node->node_type != FUNCTION_NODE && node->node_type != FUNC_TYPE_NODE;
 }
 
-void _log_error(struct m_parser *parser, struct source_loc loc, const char *msg)
+void _log_error(struct m_parser *parser, struct source_location loc, const char *msg)
 {
     char full_msg[512];
     sprintf_s(full_msg, sizeof(full_msg), "%s:%d:%d: %s", string_get(parser->current_module->name), loc.line, loc.col, msg);
@@ -310,7 +310,7 @@ struct exp_node *_parse_parentheses(struct m_parser *parser, struct exp_node *pa
     return v;
 }
 
-struct op_type _parse_op_type(struct m_parser *parser, struct source_loc loc)
+struct op_type _parse_op_type(struct m_parser *parser, struct source_location loc)
 {
     struct op_type optype;
     optype.type_symbol = 0;
@@ -354,7 +354,7 @@ struct exp_node *_parse_type_value_node(struct m_parser *parser, struct exp_node
     return 0;
 }
 
-struct exp_node *_parse_function_app_or_def(struct m_parser *parser, struct exp_node *parent, struct source_loc loc, symbol pid_name, bool is_operator, int precedence)
+struct exp_node *_parse_function_app_or_def(struct m_parser *parser, struct exp_node *parent, struct source_location loc, symbol pid_name, bool is_operator, int precedence)
 {
     if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.val.symbol_val == parser->lparen) {
         parse_next_token(parser); // skip '('
@@ -458,7 +458,7 @@ struct exp_node *_parse_function_app_or_def(struct m_parser *parser, struct exp_
 struct exp_node *parse_statement(struct m_parser *parser, struct exp_node *parent)
 {
     struct exp_node *node = 0;
-    struct source_loc loc = parser->curr_token.loc;
+    struct source_location loc = parser->curr_token.loc;
     if (parser->curr_token.token_type == TOKEN_EOF)
         return 0;
     else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.val.symbol_val == parser->import)
@@ -474,7 +474,7 @@ struct exp_node *parse_statement(struct m_parser *parser, struct exp_node *paren
         node = _parse_function_with_func_type(parser, (struct func_type_node *)func_type);
     } else if (parser->curr_token.token_type == TOKEN_IDENT) {
         symbol id_symbol = parser->curr_token.val.symbol_val;
-        struct source_loc current_loc = parser->curr_token.loc;
+        struct source_location current_loc = parser->curr_token.loc;
         parse_next_token(parser); // skip identifier
         struct op_type optype = _parse_op_type(parser, current_loc);
         if (!optype.success)
@@ -544,7 +544,7 @@ bool _id_is_a_function_call(struct m_parser *parser)
 struct exp_node *_parse_ident(struct m_parser *parser, struct exp_node *parent)
 {
     symbol id_symbol = parser->curr_token.val.symbol_val;
-    struct source_loc loc = parser->curr_token.loc;
+    struct source_location loc = parser->curr_token.loc;
 
     parse_next_token(parser); // take identifier
     if (_id_is_a_function_call(parser)) {
@@ -645,7 +645,7 @@ struct exp_node *parse_exp(struct m_parser *parser, struct exp_node *parent, str
 struct exp_node *_parse_func_type(struct m_parser *parser, struct exp_node *parent, bool is_external)
 {
     string fun_name;
-    struct source_loc loc = parser->curr_token.loc;
+    struct source_location loc = parser->curr_token.loc;
     // SourceLocation FnLoc = CurLoc;
     unsigned proto_type = 0; // 0 = identifier, 1 = unary, 2 = binary.
     unsigned bin_prec = 30;
@@ -785,7 +785,7 @@ struct exp_node *parse_import(struct m_parser *parser, struct exp_node *parent)
 
 struct exp_node *_parse_type(struct m_parser *parser, struct exp_node *parent)
 {
-    struct source_loc loc = parser->curr_token.loc;
+    struct source_location loc = parser->curr_token.loc;
     parse_next_token(parser); /*eat type keyword*/
     symbol name = parser->curr_token.val.symbol_val;
     parser->id_is_var_decl = true;
@@ -809,7 +809,7 @@ struct exp_node *_parse_unary(struct m_parser *parser, struct exp_node *parent)
         || parser->curr_token.token_type == TOKEN_NEWLINE
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
-    struct source_loc loc = parser->curr_token.loc;
+    struct source_location loc = parser->curr_token.loc;
     if (!IS_OP(parser) || (parser->curr_token.token_type == TOKEN_SYMBOL && (parser->curr_token.val.symbol_val == parser->lparen || parser->curr_token.val.symbol_val == parser->comma))) {
         return _parse_node(parser, parent);
     }
@@ -826,7 +826,7 @@ struct exp_node *_parse_unary(struct m_parser *parser, struct exp_node *parent)
 /// forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
 struct exp_node *_parse_for(struct m_parser *parser, struct exp_node *parent)
 {
-    struct source_loc loc = parser->curr_token.loc;
+    struct source_location loc = parser->curr_token.loc;
     parse_next_token(parser); // eat the for.
 
     if (parser->curr_token.token_type != TOKEN_IDENT)
@@ -874,7 +874,7 @@ struct exp_node *_parse_for(struct m_parser *parser, struct exp_node *parent)
 
 struct exp_node *_parse_if(struct m_parser *parser, struct exp_node *parent)
 {
-    struct source_loc loc = parser->curr_token.loc;
+    struct source_location loc = parser->curr_token.loc;
     parse_next_token(parser); // eat the if.
 
     // condition.

@@ -33,7 +33,7 @@ bool _is_predicate_op(const char *op)
     return false;
 }
 
-void _log_err(struct sema_context *context, struct source_loc loc, const char *msg)
+void _log_err(struct sema_context *context, struct source_location loc, const char *msg)
 {
     (void)context;
     char full_msg[512];
@@ -227,7 +227,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
     struct env *env = get_env();
     struct type_exp *fun_type = retrieve_type_for_var_name(context, call->callee);
     if (!fun_type) {
-        struct source_loc loc = { 1, 1 };
+        struct source_location loc = { 1, 1 };
         string error;
         string_copy(&error, call->callee);
         string_add_chars(&error, " not defined");

@@ -13,7 +13,7 @@
 #include "clib/symbol.h"
 #include "clib/array.h"
 #include "sema/type.h"
-#include "parser/source_location.h"
+#include "lexer/source_location.h"
 
 #ifdef __cplusplus
 extern "C" {

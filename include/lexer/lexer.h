@@ -12,6 +12,7 @@
 #include "clib/symbol.h"
 #include "clib/util.h"
 #include "lexer/keyword.h"
+#include "lexer/source_location.h"
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -34,14 +35,9 @@ enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 
 extern const char *token_type_strings[];
 
-struct source_loc {
-    int line;
-    int col;
-};
-
 struct token {
     enum token_type token_type;
-    struct source_loc loc;
+    struct source_location loc;
     union {
         string *str_val; //string literal
         double double_val; //double literal
@@ -56,8 +52,8 @@ void token_copy(struct token *dst, struct token *src);
 struct tokenizer {
     FILE *file;
     const char *filename;
-    struct source_loc loc;
-    struct source_loc tok_loc;
+    struct source_location loc;
+    struct source_location tok_loc;
     struct token cur_token;
     char curr_char[2];
     string str_val;

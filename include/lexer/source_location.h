@@ -15,10 +15,10 @@ extern "C" {
 #endif
 
 struct source_location {
+    int line; // 1-based, line no of starting position
+    int col; // 1-based, col no of starting position
     int start;
     int end;
-    int row; // 1-based, row no of starting position
-    int col; // 1-based, col no of starting position
 };
 
 #ifdef __cplusplus

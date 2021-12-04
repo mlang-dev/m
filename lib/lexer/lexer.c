@@ -94,7 +94,7 @@ struct tokenizer *create_tokenizer(FILE *file, const char *filename, const char 
     struct tokenizer *tokenizer;
     MALLOC(tokenizer, sizeof(*tokenizer));
     _lexer_init(tokenizer, keyword_symbols, keyword_count);
-    struct source_loc loc = { 1, 0 };
+    struct source_location loc = { 1, 0, 0, 0 };
     tokenizer->loc = loc;
     tokenizer->curr_char[0] = ' ';
     tokenizer->curr_char[1] = '\0';

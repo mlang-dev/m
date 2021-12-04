@@ -18,7 +18,7 @@ struct ast_node *ast_node_new(symbol node_type)
     node->type = 0;
     node->loc.start = 0;
     node->loc.end = 0;
-    node->loc.row = 0;
+    node->loc.line = 0;
     node->loc.col = 0;
     array_init(&node->children, sizeof(struct ast_node *));
     return node;

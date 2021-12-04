@@ -70,7 +70,7 @@ struct func_type_node *create_function_func_type(CXCursor cursor)
         fun_param.base.type = (struct type_exp *)create_nullary_type(arg_type, fun_param.base.annotated_type_name);
         array_push(&fun_params, &fun_param);
     }
-    struct source_loc loc = { 0, 1 };
+    struct source_location loc = { 0, 1 };
     return func_type_node_default_new(0, loc, string_2_symbol(&fun_name), &fun_params, ret_type, is_variadic, true);
 }
 
