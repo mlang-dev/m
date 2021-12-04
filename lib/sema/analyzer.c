@@ -331,23 +331,23 @@ struct type_exp *_analyze_if(struct sema_context *context, struct exp_node *node
 
 struct type_exp *_analyze_for(struct sema_context *context, struct exp_node *node)
 {
-    struct for_node *for_node = (struct for_node *)node;
+    struct ast_node *for_loop = (struct ast_node *)node;
     struct type_exp *int_type = (struct type_exp *)create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
     struct type_exp *bool_type = (struct type_exp *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
-    push_symbol_type(&context->decl_2_typexps, for_node->var_name, int_type);
-    struct type_exp *start_type = analyze(context, for_node->start);
-    struct type_exp *step_type = analyze(context, for_node->step);
-    struct type_exp *end_type = analyze(context, for_node->end);
-    struct type_exp *body_type = analyze(context, for_node->body);
+    push_symbol_type(&context->decl_2_typexps, for_loop->forloop->var_name, int_type);
+    struct type_exp *start_type = analyze(context, for_loop->forloop->start);
+    struct type_exp *step_type = analyze(context, for_loop->forloop->step);
+    struct type_exp *end_type = analyze(context, for_loop->forloop->end);
+    struct type_exp *body_type = analyze(context, for_loop->forloop->body);
     if (!unify(start_type, int_type, &context->nongens)) {
-        printf("failed to unify start type as int: %s, %s\n", kind_strings[start_type->kind], node_type_strings[for_node->start->node_type]);
+        printf("failed to unify start type as int: %s, %s\n", kind_strings[start_type->kind], node_type_strings[for_loop->forloop->start->node_type]);
     }
     unify(step_type, int_type, &context->nongens);
     unify(end_type, bool_type, &context->nongens);
-    for_node->start->type = start_type;
-    for_node->step->type = step_type;
-    for_node->end->type = end_type;
-    for_node->body->type = body_type;
+    for_loop->forloop->start->type = start_type;
+    for_loop->forloop->step->type = step_type;
+    for_loop->forloop->end->type = end_type;
+    for_loop->forloop->body->type = body_type;
     return (struct type_exp *)create_nullary_type(TYPE_UNIT, get_type_symbol(TYPE_UNIT));
 }
 

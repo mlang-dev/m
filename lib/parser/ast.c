@@ -496,33 +496,28 @@ void _free_binary_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct for_node *for_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, struct exp_node *start,
+struct ast_node *for_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, struct exp_node *start,
     struct exp_node *end, struct exp_node *step, struct exp_node *body)
 {
-    struct for_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.node_type = FOR_NODE;
-    node->base.annotated_type_enum = 0;
-    node->base.annotated_type_name = 0;
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->var_name = var_name;
-    node->start = start;
-    node->end = end;
-    node->step = step;
-    node->body = body;
+    struct ast_node *node = ast_node_new(0, FOR_NODE, 0, loc, parent);
+    MALLOC(node->forloop, sizeof(*node->forloop));
+    node->forloop->var_name = var_name;
+    node->forloop->start = start;
+    node->forloop->end = end;
+    node->forloop->step = step;
+    node->forloop->body = body;
     return node;
 }
 
-struct for_node *_copy_for_node(struct for_node *orig_node)
+struct ast_node *_copy_for_node(struct ast_node *orig_node)
 {
-    return for_node_new(orig_node->base.parent, orig_node->base.loc,
-        orig_node->var_name, orig_node->start, orig_node->end, orig_node->step, orig_node->body);
+    return for_node_new(orig_node->parent, orig_node->loc,
+        orig_node->forloop->var_name, orig_node->forloop->start, orig_node->forloop->end, orig_node->forloop->step, orig_node->forloop->body);
 }
 
-void _free_for_node(struct for_node *node)
+void _free_for_node(struct ast_node *node)
 {
+    /*TODO: memory leak
     if (node->start)
         node_free(node->start);
     if (node->end)
@@ -531,7 +526,8 @@ void _free_for_node(struct for_node *node)
         node_free(node->step);
     if (node->body)
         node_free(node->body);
-    _free_exp_node(&node->base);
+    */
+    ast_node_free(node);
 }
 
 struct block_node *block_node_new(struct exp_node *parent, struct array *nodes)
@@ -572,7 +568,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case CONDITION_NODE:
         return (struct exp_node *)_copy_if_node((struct ast_node *)node);
     case FOR_NODE:
-        return (struct exp_node *)_copy_for_node((struct for_node *)node);
+        return (struct exp_node *)_copy_for_node((struct ast_node *)node);
     case UNARY_NODE:
         return (struct exp_node *)_copy_unary_node((struct ast_node *)node);
     case BINARY_NODE:
@@ -620,7 +616,7 @@ void node_free(struct exp_node *node)
         _free_if_node((struct ast_node *)node);
         break;
     case FOR_NODE:
-        _free_for_node((struct for_node *)node);
+        _free_for_node((struct ast_node *)node);
         break;
     case UNARY_NODE:
         _free_unary_node((struct ast_node *)node);

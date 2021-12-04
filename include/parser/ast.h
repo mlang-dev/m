@@ -101,12 +101,10 @@ struct _binary_node {
 };
 
 struct _if_node {
-    struct exp_node base;
     struct exp_node *if_node, *then_node, *else_node;
 };
 
-struct for_node {
-    struct exp_node base;
+struct _for_node {
     symbol var_name;
     struct exp_node *start, *end, *step, *body;
 };
@@ -184,7 +182,7 @@ struct ast_node {
         struct type_value_node *type_value;
         
         struct _if_node *cond;
-        struct for_node *forloop;
+        struct _for_node *forloop;
         struct block_node *block;
     };
 };
@@ -230,7 +228,7 @@ struct ast_node *if_node_new(struct exp_node *parent, struct source_location loc
     struct exp_node *else_node);
 struct ast_node *unary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *operand);
 struct ast_node *binary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *lhs, struct exp_node *rhs);
-struct for_node *for_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, struct exp_node *start,
+struct ast_node *for_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, struct exp_node *start,
     struct exp_node *end, struct exp_node *step, struct exp_node *body);
 struct block_node *block_node_new(struct exp_node *parent, struct array *nodes);
 struct exp_node *node_copy(struct exp_node *node);

@@ -131,14 +131,14 @@ string _dump_if(struct ast_node *cond)
     return result;
 }
 
-string _dump_for(struct for_node *fornode)
+string _dump_for(struct ast_node *fornode)
 {
     string result;
     string_init_chars(&result, "for ");
-    string_add(&result, fornode->var_name);
+    string_add(&result, fornode->forloop->var_name);
     string_add_chars(&result, " in ");
-    string str_start = dump(fornode->start);
-    string str_end = dump(fornode->end);
+    string str_start = dump(fornode->forloop->start);
+    string str_end = dump(fornode->forloop->end);
     string_add(&result, &str_start);
     string_add_chars(&result, "..");
     string_add(&result, &str_end);
@@ -180,7 +180,7 @@ string dump(struct exp_node *node)
     else if (node->node_type == CALL_NODE)
         return _dump_call((struct call_node *)node);
     else if (node->node_type == FOR_NODE)
-        return _dump_for((struct for_node *)node);
+        return _dump_for((struct ast_node *)node);
     else if (node->node_type == IDENT_NODE)
         return _dump_id((struct ast_node *)node);
     else if (node->node_type == LITERAL_NODE)

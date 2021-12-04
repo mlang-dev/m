@@ -203,14 +203,14 @@ TEST_F(testParser, testForLoop)
     auto env = env_new(false);
     block_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(function_node **)array_front(&block->nodes);
-    for_node *body_node = *(for_node **)array_front(&node->body->nodes);
+    ast_node *body_node = *(ast_node **)array_front(&node->body->nodes);
     ASSERT_EQ(1, array_size(&block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->func_type->name));
-    ASSERT_EQ(FOR_NODE, body_node->base.node_type);
-    ASSERT_EQ(TYPE_INT, body_node->start->annotated_type_enum);
-    ASSERT_EQ(TYPE_INT, body_node->step->annotated_type_enum);
-    ASSERT_EQ(BINARY_NODE, body_node->end->node_type);
-    ASSERT_EQ(3, ((ast_node *)body_node->start)->liter->int_val);
+    ASSERT_EQ(FOR_NODE, body_node->node_type);
+    ASSERT_EQ(TYPE_INT, body_node->forloop->start->annotated_type_enum);
+    ASSERT_EQ(TYPE_INT, body_node->forloop->step->annotated_type_enum);
+    ASSERT_EQ(BINARY_NODE, body_node->forloop->end->node_type);
+    ASSERT_EQ(3, ((ast_node *)body_node->forloop->start)->liter->int_val);
     env_free(env);
 }
 

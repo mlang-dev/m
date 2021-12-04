@@ -599,8 +599,8 @@ LLVMValueRef _emit_type_value_node(struct code_generator *cg, struct exp_node *n
 
 LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
 {
-    struct for_node *forn = (struct for_node *)node;
-    symbol var_name = forn->var_name;
+    struct ast_node *forn = (struct ast_node *)node;
+    symbol var_name = forn->forloop->var_name;
     LLVMBasicBlockRef bb = LLVMGetInsertBlock(cg->builder);
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
@@ -608,7 +608,7 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
     LLVMValueRef alloca = create_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), 4, fun, string_get(var_name));
 
     // KSDbgInfo.emitLocation(this);
-    LLVMValueRef start_v = emit_ir_code(cg, forn->start);
+    LLVMValueRef start_v = emit_ir_code(cg, forn->forloop->start);
     assert(start_v);
 
     LLVMBuildStore(cg->builder, start_v, alloca);
@@ -618,15 +618,15 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
 
     LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, var_name);
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
-    emit_ir_code(cg, forn->body);
+    emit_ir_code(cg, forn->forloop->body);
     LLVMValueRef step_v;
-    if (forn->step) {
-        step_v = emit_ir_code(cg, forn->step);
+    if (forn->forloop->step) {
+        step_v = emit_ir_code(cg, forn->forloop->step);
         assert(step_v);
     } else {
         step_v = get_int_one(cg->context);
     }
-    LLVMValueRef end_cond = emit_ir_code(cg, forn->end);
+    LLVMValueRef end_cond = emit_ir_code(cg, forn->forloop->end);
     assert(end_cond);
 
     LLVMValueRef cur_var = LLVMBuildLoad(cg->builder, alloca, string_get(var_name));

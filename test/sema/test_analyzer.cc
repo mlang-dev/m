@@ -282,11 +282,11 @@ loopprint n =
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->base.type);
     ASSERT_STREQ("int -> ()", string_get(&type_str));
-    for_node *forn = *(for_node **)array_front(&node->body->nodes);
-    ASSERT_EQ(TYPE_INT, get_type(forn->step->type));
-    ASSERT_EQ(TYPE_INT, get_type(forn->start->type));
-    ASSERT_EQ(TYPE_BOOL, get_type(forn->end->type));
-    ASSERT_EQ(TYPE_INT, get_type(forn->body->type));
+    ast_node *forn = *(ast_node **)array_front(&node->body->nodes);
+    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->step->type));
+    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->start->type));
+    ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->end->type));
+    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->body->type));
     env_free(env);
 }
 
