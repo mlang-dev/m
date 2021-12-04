@@ -78,8 +78,8 @@ struct code_generator {
     struct hashtable protos;
 
     /* 
-     *  symboltable of <symbol, var_node*>
-     *  binding global variable name to var_node*
+     *  symboltable of <symbol, var as_node*>
+     *  binding global variable name to var ast_node*
      */
     struct hashtable gvs;
 

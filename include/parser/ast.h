@@ -85,8 +85,7 @@ struct _ident_node {
     struct array member_accessors;
 };
 
-struct var_node {
-    struct exp_node base;
+struct _var_node {
     symbol var_name;
     struct exp_node *init_value;
 };
@@ -125,13 +124,13 @@ struct type_value_node {
     struct block_node *body; /**/
 };
 
-#define ARRAY_FUN_PARAM(var) ARRAY(var, struct var_node, 0)
+#define ARRAY_FUN_PARAM(var) ARRAY(var, struct ast_node*, 0)
 
 struct func_type_node {
     struct exp_node base;
     symbol name;
     symbol op;
-    struct array fun_params; /*struct array of var_node*/
+    struct array fun_params; /*struct array of var ast_node*/
     char is_operator;
     int precedence;
     bool is_variadic;
@@ -177,7 +176,7 @@ struct ast_node {
         struct _ident_node *ident;
         struct unary_node *unop;
         struct binary_node *binop;
-        struct var_node *var;
+        struct _var_node *var;
         
         struct func_type_node *func_type;
         struct function_node *func;
@@ -196,7 +195,7 @@ struct ast_node {
  * if node type order is changed here, the corresponding order of function pointer
  * in codegen.c & analyzer.c shall be changed accordingly.
  */
-struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type, struct source_location loc, struct exp_node *parent);
+struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type_enum, struct source_location loc, struct exp_node *parent);
 void ast_node_free(struct ast_node *node);
 
 struct type_exp *get_ret_type(struct function_node *fun_node);
@@ -212,7 +211,7 @@ struct ast_node *char_node_new(struct exp_node *parent, struct source_location l
 struct ast_node *unit_node_new(struct exp_node *parent, struct source_location loc);
 struct ast_node *string_node_new(struct exp_node *parent, struct source_location loc, const char *val);
 
-struct var_node *var_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, enum type type, symbol ext_type, struct exp_node *init_value);
+struct ast_node *var_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, enum type type, symbol ext_type, struct exp_node *init_value);
 struct call_node *call_node_new(struct exp_node *parent, struct source_location loc, symbol callee,
     struct array *args);
 struct func_type_node *func_type_node_new(struct exp_node *parent, struct source_location loc,

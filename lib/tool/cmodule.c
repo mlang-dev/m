@@ -44,11 +44,6 @@ struct func_type_node *create_function_func_type(CXCursor cursor)
     }
     struct type_exp *ret_type = (struct type_exp *)create_nullary_type(type, get_type_symbol(type));
     ARRAY_FUN_PARAM(fun_params);
-    struct var_node fun_param;
-    fun_param.base.annotated_type_enum = 0;
-    fun_param.base.annotated_type_name = 0;
-    fun_param.base.type = 0;
-    fun_param.base.node_type = VAR_NODE;
     int num_args = clang_Cursor_getNumArguments(cursor);
     bool is_variadic = clang_isFunctionTypeVariadic(cur_type);
     for (int i = 0; i < num_args; ++i) {
@@ -59,18 +54,20 @@ struct func_type_node *create_function_func_type(CXCursor cursor)
         }
         CXCursor arg_cursor = clang_Cursor_getArgument(cursor, i);
         CXString cx_arg_name = clang_getCursorSpelling(arg_cursor);
-        fun_param.var_name = to_symbol(clang_getCString(cx_arg_name));
+
+        symbol var_name = to_symbol(clang_getCString(cx_arg_name));
         clang_disposeString(cx_arg_name);
-        if (!string_size(fun_param.var_name)) {
+        if (!string_size(var_name)) {
             string format = str_format("arg%d", i);
-            fun_param.var_name = to_symbol(string_get(&format));
+            var_name = to_symbol(string_get(&format));
         }
-        fun_param.base.annotated_type_name = get_type_symbol(arg_type);
-        fun_param.base.annotated_type_enum = 0;
-        fun_param.base.type = (struct type_exp *)create_nullary_type(arg_type, fun_param.base.annotated_type_name);
+        symbol annotated_type_name = get_type_symbol(arg_type);
+        struct source_location param_loc = {0, 0, 0, 0};
+        struct ast_node *fun_param = var_node_new(0, param_loc, var_name, 0, annotated_type_name, 0);
+        fun_param->type = (struct type_exp *)create_nullary_type(arg_type, annotated_type_name);
         array_push(&fun_params, &fun_param);
     }
-    struct source_location loc = { 0, 1 };
+    struct source_location loc = { 0, 1, 0, 0 };
     return func_type_node_default_new(0, loc, string_2_symbol(&fun_name), &fun_params, ret_type, is_variadic, true);
 }
 

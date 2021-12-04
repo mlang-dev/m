@@ -17,14 +17,14 @@ const char *node_type_strings[] = {
 };
 
 
-struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type, struct source_location loc, struct exp_node *parent)
+struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type_enum, struct source_location loc, struct exp_node *parent)
 {
     struct ast_node *node;
     MALLOC(node, sizeof(*node)); 
     node->node_type_name = node_type_name;
     node->node_type = node_type;
-    node->annotated_type_name = annotated_type ? to_symbol(type_strings[annotated_type]) : 0;
-    node->annotated_type_enum = annotated_type;
+    node->annotated_type_name = annotated_type_enum ? to_symbol(type_strings[annotated_type_enum]) : 0;
+    node->annotated_type_enum = annotated_type_enum;
     node->type = 0;
     node->parent = parent;
     node->loc = loc;
@@ -199,36 +199,30 @@ struct ast_node *_copy_literal_node(struct ast_node *orig_node)
         orig_node->annotated_type_enum);
 }
 
-struct var_node *var_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, enum type type, symbol ext_type,
+struct ast_node *var_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, enum type annotated_type_enum, symbol ext_type_name,
     struct exp_node *init_value)
 {
-    (void)ext_type;
-    struct var_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.node_type = VAR_NODE;
-    node->base.annotated_type_enum = type;
-    node->base.annotated_type_name = ext_type;
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->base.is_ret = false;
-    node->var_name = var_name;
-    node->init_value = init_value;
+    struct ast_node *node = ast_node_new(0, VAR_NODE, annotated_type_enum, loc, parent);
+    MALLOC(node->var, sizeof(*node->var));
+    if (ext_type_name)
+        node->annotated_type_name = ext_type_name;
+    node->var->var_name = var_name;
+    node->var->init_value = init_value;
     return node;
 }
 
-struct var_node *_copy_var_node(struct var_node *orig_node)
+struct ast_node *_copy_var_node(struct ast_node *orig_node)
 {
-    return var_node_new(orig_node->base.parent, orig_node->base.loc,
-        orig_node->var_name, orig_node->base.type ? orig_node->base.type->type : TYPE_UNK, 0,
-        node_copy(orig_node->init_value));
+    return var_node_new(orig_node->parent, orig_node->loc,
+        orig_node->var->var_name, orig_node->type ? orig_node->type->type : TYPE_UNK, 0,
+        node_copy(orig_node->var->init_value));
 }
 
-void _free_var_node(struct var_node *node)
+void _free_var_node(struct ast_node *node)
 {
-    if (node->init_value)
-        node_free(node->init_value);
-    _free_exp_node(&node->base);
+    if (node->var->init_value)
+        node_free(node->var->init_value);
+    ast_node_free(node);
 }
 
 struct type_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct block_node *body)
@@ -351,12 +345,9 @@ struct func_type_node *func_type_node_new(struct exp_node *parent, struct source
     node->is_variadic = is_variadic;
     node->is_extern = is_external;
     node->op = op;
-    struct var_node fun_param;
     if (is_variadic) {
-        fun_param.var_name = to_symbol(type_strings[TYPE_GENERIC]);
-        fun_param.base.annotated_type_name = to_symbol(type_strings[TYPE_GENERIC]);
-        fun_param.base.annotated_type_enum = TYPE_GENERIC;
-        fun_param.base.type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param.base.annotated_type_name);
+        struct ast_node *fun_param = var_node_new(node, loc, to_symbol(type_strings[TYPE_GENERIC]), TYPE_GENERIC, 0, 0);
+        fun_param->type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param->annotated_type_name);
         array_push(&node->fun_params, &fun_param);
     }
     return node;
@@ -380,13 +371,9 @@ struct func_type_node *_copy_func_type_node(struct func_type_node *func_type)
     node->is_variadic = func_type->is_variadic;
     node->is_extern = func_type->is_extern;
     node->op = func_type->op;
-    struct var_node fun_param;
-    fun_param.base.type = 0;
-    fun_param.base.node_type = VAR_NODE;
     if (func_type->is_variadic) {
-        fun_param.var_name = to_symbol(type_strings[TYPE_GENERIC]);
-        fun_param.base.annotated_type_name = to_symbol(type_strings[TYPE_GENERIC]);
-        fun_param.base.annotated_type_enum = TYPE_GENERIC;
+        symbol var_name = to_symbol(type_strings[TYPE_GENERIC]);
+        struct ast_node *fun_param = var_node_new(node, node->base.loc, var_name, TYPE_GENERIC, 0, 0);
         array_push(&node->fun_params, &fun_param);
     }
     return node;
@@ -585,7 +572,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case FUNCTION_NODE:
         return (struct exp_node *)_copy_function_node((struct function_node *)node);
     case VAR_NODE:
-        return (struct exp_node *)_copy_var_node((struct var_node *)node);
+        return (struct exp_node *)_copy_var_node((struct ast_node *)node);
     case TYPE_NODE:
         return (struct exp_node *)_copy_type_node((struct type_node *)node);
     case TYPE_VALUE_NODE:
@@ -626,7 +613,7 @@ void node_free(struct exp_node *node)
         _free_function_node((struct function_node *)node);
         break;
     case VAR_NODE:
-        _free_var_node((struct var_node *)node);
+        _free_var_node((struct ast_node *)node);
         break;
     case TYPE_NODE:
         _free_type_node((struct type_node *)node);
@@ -695,8 +682,8 @@ bool is_recursive(struct call_node *call)
 int find_member_index(struct type_node *type_node, symbol member)
 {
     for (int i = 0; i < (int)array_size(&type_node->body->nodes); i++) {
-        struct var_node *var = *(struct var_node **)array_get(&type_node->body->nodes, i);
-        if (var->var_name == member) {
+        struct ast_node *var = *(struct ast_node **)array_get(&type_node->body->nodes, i);
+        if (var->var->var_name == member) {
             return i;
         }
     }

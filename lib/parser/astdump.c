@@ -32,11 +32,11 @@ string _dump_func_type(struct func_type_node *func_type)
     string var_str;
     string_init(&var_str);
     for (size_t i = 0; i < array_size(&func_type->fun_params); i++) {
-        struct var_node *var = (struct var_node *)array_get(&func_type->fun_params, i);
-        string_copy(&var_str, var->var_name);
-        if (var->base.annotated_type_enum && var->base.annotated_type_enum != TYPE_GENERIC) {
+        struct ast_node *var = *(struct ast_node **)array_get(&func_type->fun_params, i);
+        string_copy(&var_str, var->var->var_name);
+        if (var->annotated_type_enum && var->annotated_type_enum != TYPE_GENERIC) {
             string var_type;
-            string_init_chars(&var_type, string_get(var->base.annotated_type_name));
+            string_init_chars(&var_type, string_get(var->annotated_type_name));
             string_add_chars(&var_str, ":");
             string_add(&var_str, &var_type);
         }
@@ -63,13 +63,13 @@ string _dump_function(struct function_node *func)
     return result;
 }
 
-string _dump_var(struct var_node *var)
+string _dump_var(struct ast_node *var)
 {
     string var_str;
     string_init_chars(&var_str, "var: ");
-    string_add(&var_str, var->var_name);
+    string_add(&var_str, var->var->var_name);
     string_add_chars(&var_str, "=");
-    string init_value = dump(var->init_value);
+    string init_value = dump(var->var->init_value);
     string_add(&var_str, &init_value);
     return var_str;
 }
@@ -170,7 +170,7 @@ string dump(struct exp_node *node)
     else if (node->node_type == FUNC_TYPE_NODE)
         return _dump_func_type((struct func_type_node *)node);
     else if (node->node_type == VAR_NODE)
-        return _dump_var((struct var_node *)node);
+        return _dump_var((struct ast_node *)node);
     else if (node->node_type == UNARY_NODE)
         return _dump_unary((struct unary_node *)node);
     else if (node->node_type == BINARY_NODE)

@@ -420,14 +420,9 @@ struct exp_node *_parse_function_app_or_def(struct m_parser *parser, struct exp_
     // log_info(DEBUG, "is %s a function def: %d, %d, %zu", string_get(&id_name), func_definition, is_variadic, array_size(&args));
     if (func_definition) {
         ARRAY_FUN_PARAM(fun_params);
-        struct var_node fun_param;
-        fun_param.base.annotated_type_enum = 0;
-        fun_param.base.annotated_type_name = 0;
         for (size_t i = 0; i < array_size(&args); i++) {
             struct ast_node *id = *(struct ast_node **)array_get(&args, i);
-            fun_param.base.annotated_type_enum = id->annotated_type_enum;
-            fun_param.base.annotated_type_name = id->annotated_type_name;
-            fun_param.var_name = id->ident->name;
+            struct ast_node *fun_param = var_node_new(parent, parser->curr_token.loc, id->ident->name, id->annotated_type_enum, id->annotated_type_name, 0);
             array_push(&fun_params, &fun_param);
         }
         if (is_operator) {
@@ -683,19 +678,15 @@ struct exp_node *_parse_func_type(struct m_parser *parser, struct exp_node *pare
     if (has_parenthese)
         parse_next_token(parser); // skip '('
     ARRAY_FUN_PARAM(fun_params);
-    struct var_node fun_param;
     struct op_type optype;
     while (parser->curr_token.token_type == TOKEN_IDENT) {
-        fun_param.var_name = parser->curr_token.val.symbol_val;
+        symbol var_name = parser->curr_token.val.symbol_val;
         parse_next_token(parser);
         optype = _parse_op_type(parser, parser->curr_token.loc);
-        fun_param.base.annotated_type_name = 0;
-        fun_param.base.annotated_type_enum = TYPE_UNK;
-        fun_param.base.type = 0;
-        fun_param.base.annotated_type_name = 0;
+        struct ast_node *fun_param = var_node_new(0, parser->curr_token.loc, var_name, 0, 0, 0);
         if (optype.success && optype.type) {
-            fun_param.base.annotated_type_name = optype.type_symbol;
-            fun_param.base.annotated_type_enum = optype.type;
+            fun_param->annotated_type_name = optype.type_symbol;
+            fun_param->annotated_type_enum = optype.type;
         }
         array_push(&fun_params, &fun_param);
         if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.val.symbol_val == parser->comma)
@@ -750,14 +741,14 @@ struct exp_node *_parse_var(struct m_parser *parser, struct exp_node *parent, sy
         parse_next_token(parser); // skip '='
             // token
     struct exp_node *exp = 0;
-    struct var_node *var = (struct var_node *)var_node_new(parent, parser->curr_token.loc, name, type, ext_type, 0);
+    struct ast_node *var = var_node_new(parent, parser->curr_token.loc, name, type, ext_type, 0);
     if (type == TYPE_EXT) {
-        exp = _parse_type_value_node(parser, &var->base, ext_type);
+        exp = _parse_type_value_node(parser, var, ext_type);
     } else {
         exp = parse_exp(parser, (struct exp_node *)var, 0);
     }
-    var->init_value = exp;
-    symboltable_push(&parser->vars, var->var_name, var);
+    var->var->init_value = exp;
+    symboltable_push(&parser->vars, var->var->var_name, var);
     return (struct exp_node *)var;
 }
 

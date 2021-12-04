@@ -35,7 +35,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct func_type_node *no
     struct array params;
     array_init(&params, sizeof(struct address));
     for (unsigned i = 0; i < param_count; i++) {
-        struct var_node *param = (struct var_node *)array_get(&node->fun_params, i);
+        struct ast_node *param = *(struct ast_node **)array_get(&node->fun_params, i);
         //struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
         struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
@@ -60,7 +60,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct func_type_node *no
                 }
             }
             array_push(&params, &param_value);
-            hashtable_set_p(&cg->varname_2_irvalues, param->var_name, param_value.pointer);
+            hashtable_set_p(&cg->varname_2_irvalues, param->var->var_name, param_value.pointer);
             break;
         }
         case AK_DIRECT: {
@@ -71,7 +71,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct func_type_node *no
             if (LLVMGetTypeKind(aaa->info.type) != LLVMStructTypeKind && aaa->info.align.direct_offset == 0
                 && aaa->info.type == sig_type) {
                 alloca = create_alloca(
-                    aaa->info.type, align, fun, string_get(param->var_name));
+                    aaa->info.type, align, fun, string_get(param->var->var_name));
                 LLVMBuildStore(cg->builder, arg_value, alloca);
             } else {
                 //TODO: if struct type
@@ -82,10 +82,10 @@ void _emit_argument_allocas(struct code_generator *cg, struct func_type_node *no
                 string_add_chars(&arg_name, ".coerce");
                 LLVMSetValueName2(arg_value, string_get(&arg_name), string_size(&arg_name));
                 alloca = create_alloca(
-                    sig_type, align, fun, string_get(param->var_name));
+                    sig_type, align, fun, string_get(param->var->var_name));
                 create_coerced_store(cg->builder, arg_value, alloca, align);
             }
-            hashtable_set_p(&cg->varname_2_irvalues, param->var_name, alloca);
+            hashtable_set_p(&cg->varname_2_irvalues, param->var->var_name, alloca);
             break;
         }
         default: {
@@ -126,11 +126,11 @@ LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct exp_node *
     unsigned param_count = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < param_count; i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
-        struct var_node *fun_param = (struct var_node *)array_get(&func_type->fun_params, i);
-        LLVMSetValueName2(param, string_get(fun_param->var_name), string_size(fun_param->var_name));
+        struct ast_node *fun_param = *(struct ast_node **)array_get(&func_type->fun_params, i);
+        LLVMSetValueName2(param, string_get(fun_param->var->var_name), string_size(fun_param->var->var_name));
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
         if (aa->type->type == TYPE_EXT)
-            hashtable_set_p(&cg->varname_2_typename, fun_param->var_name, aa->type->name);
+            hashtable_set_p(&cg->varname_2_typename, fun_param->var->var_name, aa->type->name);
     }
     return fun;
 }
