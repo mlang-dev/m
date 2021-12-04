@@ -14,7 +14,7 @@ struct ast_node *ast_node_new(symbol node_type)
     struct ast_node *node;
     MALLOC(node, sizeof(*node));
     node->node_type = node_type;
-    node->type_name = 0;
+    node->annotated_type_name = 0;
     node->type = 0;
     node->loc.start = 0;
     node->loc.end = 0;

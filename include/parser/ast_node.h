@@ -14,6 +14,7 @@
 #include "clib/array.h"
 #include "sema/type.h"
 #include "lexer/source_location.h"
+#include "parser/ast.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,14 +24,6 @@ extern "C" {
  * if node type order is changed here, the corresponding order of function pointer
  * in codegen.c & analyzer.c shall be changed accordingly.
  */
-struct ast_node {
-    symbol node_type;
-    symbol type_name;
-    struct type_exp *type; // type inferred
-    struct source_location loc;
-    struct array children; //list of pointer to child ast_node
-};
-
 struct ast_node *ast_node_new(symbol node_type);
 void ast_node_free(struct ast_node *node);
 

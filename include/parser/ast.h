@@ -159,6 +159,30 @@ struct call_node {
     struct func_type_node *callee_decl;
 };
 
+struct ast_node {
+    symbol node_type;
+    symbol annotated_type_name;
+
+    struct type_exp *type; // type inferred
+    struct source_location loc;
+    struct exp_node *parent;
+    bool is_ret;
+
+    struct array children; //list of pointer to child ast_node, this is expected to be removed
+};
+
+/*
+struct exp_node {
+    enum node_type node_type;
+    enum type annotated_type_enum;
+    symbol annotated_type_name;
+    struct type_exp *type; // type inferred
+    struct source_location loc;
+    struct exp_node *parent;
+    bool is_ret;
+};
+*/
+
 struct type_exp *get_ret_type(struct function_node *fun_node);
 
 struct function_node *function_node_new(struct func_type_node *func_type,
