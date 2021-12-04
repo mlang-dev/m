@@ -418,13 +418,13 @@ LLVMValueRef _emit_literal_node(struct code_generator *cg, struct exp_node *node
     enum type type = get_type(node->type);
     void *value = 0;
     if (type == TYPE_CHAR)
-        value = &((struct literal_node *)node)->val.char_val;
+        value = &((struct literal_node *)node)->char_val;
     else if (is_int_type(type))
-        value = &((struct literal_node *)node)->val.int_val;
+        value = &((struct literal_node *)node)->int_val;
     else if (type == TYPE_DOUBLE)
-        value = &((struct literal_node *)node)->val.double_val;
+        value = &((struct literal_node *)node)->double_val;
     else if (type == TYPE_STRING) {
-        value = (void *)((struct literal_node *)node)->val.str_val;
+        value = (void *)((struct literal_node *)node)->str_val;
     }
     return cg->ops[type].get_const(cg->context, cg->builder, value);
 }

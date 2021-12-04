@@ -122,22 +122,22 @@ struct literal_node *_create_literal_node(struct exp_node *parent, struct source
     node->base.loc = loc;
     node->base.is_ret = false;
     if (type == TYPE_INT)
-        node->val.int_val = *(int *)val;
+        node->int_val = *(int *)val;
     else if (type == TYPE_DOUBLE)
-        node->val.double_val = *(double *)val;
+        node->double_val = *(double *)val;
     else if (type == TYPE_CHAR)
-        node->val.char_val = *(char *)val;
+        node->char_val = *(char *)val;
     else if (type == TYPE_BOOL)
-        node->val.bool_val = *(bool *)val;
+        node->bool_val = *(bool *)val;
     else if (type == TYPE_STRING)
-        node->val.str_val = str_clone((const char *)val);
+        node->str_val = str_clone((const char *)val);
     return node;
 }
 
 void _free_literal_node(struct literal_node *node)
 {
     if (node->base.annotated_type_enum == TYPE_STRING){
-        FREE((void *)node->val.str_val);
+        FREE((void *)node->str_val);
     }
     _free_exp_node(&node->base);
 }
@@ -174,7 +174,7 @@ struct literal_node *string_node_new(struct exp_node *parent, struct source_loc 
 
 struct literal_node *_copy_literal_node(struct literal_node *orig_node)
 {
-    return _create_literal_node(orig_node->base.parent, orig_node->base.loc, &orig_node->val.char_val,
+    return _create_literal_node(orig_node->base.parent, orig_node->base.loc, &orig_node->char_val,
         orig_node->base.annotated_type_enum);
 }
 

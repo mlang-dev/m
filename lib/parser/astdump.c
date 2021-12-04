@@ -158,7 +158,7 @@ string _dump_number(struct literal_node *node)
     string str_num;
     string_init_chars(&str_num, "num: ");
     char double_str[64];
-    snprintf(double_str, sizeof(double_str), "%.2f", node->val.double_val);
+    snprintf(double_str, sizeof(double_str), "%.2f", node->double_val);
     string_add_chars(&str_num, double_str);
     return str_num;
 }
