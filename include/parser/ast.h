@@ -54,14 +54,13 @@ struct exp_node {
     struct exp_node *parent;
 };
 
-struct block_node {
-    struct exp_node base;
+struct _block_node {
     struct array nodes; // struct array of exp_node*
 };
 
 struct module {
     symbol name;
-    struct block_node *block;
+    struct ast_node *block;
     struct tokenizer *tokenizer;
 };
 
@@ -111,13 +110,13 @@ struct _for_node {
 
 struct type_node {
     struct exp_node base;
-    struct block_node *body;
+    struct ast_node *body; //body block
     symbol name; /*type name*/
 };
 
 struct type_value_node {
     struct exp_node base;
-    struct block_node *body; /**/
+    struct ast_node *body; /*body block*/
 };
 
 #define ARRAY_FUN_PARAM(var) ARRAY(var, struct ast_node*, 0)
@@ -142,7 +141,7 @@ struct func_type_node {
 struct function_node {
     struct exp_node base;
     struct func_type_node *func_type;
-    struct block_node *body;
+    struct ast_node *body; /*body block*/
 };
 
 struct call_node {
@@ -183,7 +182,7 @@ struct ast_node {
         
         struct _if_node *cond;
         struct _for_node *forloop;
-        struct block_node *block;
+        struct _block_node *block;
     };
 };
 
@@ -197,7 +196,7 @@ void ast_node_free(struct ast_node *node);
 struct type_exp *get_ret_type(struct function_node *fun_node);
 
 struct function_node *function_node_new(struct func_type_node *func_type,
-    struct block_node *body);
+    struct ast_node *body);
 struct ast_node *ident_node_new(struct exp_node *parent, struct source_location loc, symbol name);
 
 struct ast_node *double_node_new(struct exp_node *parent, struct source_location loc, double val);
@@ -218,8 +217,8 @@ struct func_type_node *func_type_node_new(struct exp_node *parent, struct source
     unsigned precedence,
     symbol op,
     bool is_variadic, bool is_external);
-struct type_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct block_node *body);
-struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct block_node *body, symbol type_name);
+struct type_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct ast_node *body);
+struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct ast_node *body, symbol type_name);
 struct func_type_node *func_type_node_default_new(struct exp_node *parent, struct source_location loc,
     symbol name,
     struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external);
@@ -230,7 +229,7 @@ struct ast_node *unary_node_new(struct exp_node *parent, struct source_location 
 struct ast_node *binary_node_new(struct exp_node *parent, struct source_location loc, symbol op, struct exp_node *lhs, struct exp_node *rhs);
 struct ast_node *for_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, struct exp_node *start,
     struct exp_node *end, struct exp_node *step, struct exp_node *body);
-struct block_node *block_node_new(struct exp_node *parent, struct array *nodes);
+struct ast_node *block_node_new(struct exp_node *parent, struct array *nodes);
 struct exp_node *node_copy(struct exp_node *node);
 struct module *module_new(const char *mod_name, FILE *file);
 void node_free(struct exp_node *node);

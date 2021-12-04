@@ -20,8 +20,8 @@ TEST_F(testAstDump, testPrototypeNodeDump)
 {
     char test_code[] = "extern printf(format:string ...):int";
     auto env = env_new(false);
-    block_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node **)array_front(&block->nodes);
+    ast_node *block = parse_string(env->parser, "test", test_code);
+    auto node = *(exp_node **)array_front(&block->block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     auto func_type = (func_type_node *)node;
     ASSERT_STREQ("printf", string_get((string *)func_type->name));

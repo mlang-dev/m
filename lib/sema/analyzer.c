@@ -136,9 +136,9 @@ struct type_exp *_analyze_type(struct sema_context *context, struct exp_node *no
     struct type_node *type = (struct type_node *)node;
     struct array args;
     array_init(&args, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&type->body->nodes); i++) {
+    for (size_t i = 0; i < array_size(&type->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
-        struct type_exp *arg = _analyze_var(context, *(struct exp_node **)array_get(&type->body->nodes, i));
+        struct type_exp *arg = _analyze_var(context, *(struct exp_node **)array_get(&type->body->block->nodes, i));
         array_push(&args, &arg);
     }
     struct type_oper *result_type = create_type_oper_ext(type->name, &args);
@@ -154,9 +154,9 @@ struct type_exp *_analyze_type_value(struct sema_context *context, struct exp_no
     struct env *env = get_env();
     if (type_value->base.annotated_type_name)
         type_value->base.type = retrieve_type_with_type_name(context, type_value->base.annotated_type_name);
-    for (size_t i = 0; i < array_size(&type_value->body->nodes); i++) {
+    for (size_t i = 0; i < array_size(&type_value->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
-        analyze(env->sema_context, *(struct exp_node **)array_get(&type_value->body->nodes, i));
+        analyze(env->sema_context, *(struct exp_node **)array_get(&type_value->body->block->nodes, i));
     }
     return type_value->base.type;
 }
@@ -353,15 +353,15 @@ struct type_exp *_analyze_for(struct sema_context *context, struct exp_node *nod
 
 struct type_exp *_analyze_block(struct sema_context *context, struct exp_node *node)
 {
-    struct block_node *block = (struct block_node *)node;
+    struct ast_node *block = (struct ast_node *)node;
     enter_scope(context);
     struct type_exp *type = 0;
-    for (size_t i = 0; i < array_size(&block->nodes); i++) {
-        struct exp_node *n = *(struct exp_node **)array_get(&block->nodes, i);
+    for (size_t i = 0; i < array_size(&block->block->nodes); i++) {
+        struct exp_node *n = *(struct exp_node **)array_get(&block->block->nodes, i);
         type = analyze(context, n);
     }
     //tag variable node as returning variable if exists
-    struct exp_node *ret_node = *(struct exp_node **)array_back(&block->nodes);
+    struct exp_node *ret_node = *(struct exp_node **)array_back(&block->block->nodes);
     ret_node->is_ret = true;
     if (ret_node->node_type == IDENT_NODE) {
         symbol var_name = ((struct ast_node *)ret_node)->ident->name;

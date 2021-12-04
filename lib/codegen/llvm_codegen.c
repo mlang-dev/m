@@ -403,10 +403,10 @@ LLVMTypeRef _get_llvm_type(struct code_generator *cg, struct type_exp *type)
 
 LLVMValueRef _emit_block_node(struct code_generator *cg, struct exp_node *node)
 {
-    struct block_node *block = (struct block_node *)node;
+    struct ast_node *block = (struct ast_node *)node;
     LLVMValueRef codegen = 0;
-    for (size_t i = 0; i < array_size(&block->nodes); i++) {
-        struct exp_node *exp = *(struct exp_node **)array_get(&block->nodes, i);
+    for (size_t i = 0; i < array_size(&block->block->nodes); i++) {
+        struct exp_node *exp = *(struct exp_node **)array_get(&block->block->nodes, i);
         codegen = emit_ir_code(cg, exp);
     }
     return codegen;

@@ -7,12 +7,12 @@
 #include "clib/string.h"
 #include "clib/util.h"
 
-string _dump_block(struct block_node *node)
+string _dump_block(struct ast_node *node)
 {
     string block;
     string_init_chars(&block, "blk: \n");
-    for (size_t i = 0; i < array_size(&node->nodes); i++) {
-        struct exp_node *stmt = *(struct exp_node **)array_get(&node->nodes, i);
+    for (size_t i = 0; i < array_size(&node->block->nodes); i++) {
+        struct exp_node *stmt = *(struct exp_node **)array_get(&node->block->nodes, i);
         string str_stmt = dump(stmt);
         string_add_chars(&block, "  ");
         string_add(&block, &str_stmt);
@@ -186,7 +186,7 @@ string dump(struct exp_node *node)
     else if (node->node_type == LITERAL_NODE)
         return _dump_number((struct ast_node *)node);
     else if (node->node_type == BLOCK_NODE)
-        return _dump_block((struct block_node *)node);
+        return _dump_block((struct ast_node *)node);
     else {
         string not_supported;
         string_init_chars(&not_supported, "ast->node_type not supported: ");

@@ -164,8 +164,8 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
     //         LLVMValueRef ret_alloca = create_alloca(ret_type, align, fun, "retval");
     //     }
     // }
-    for (size_t i = 0; i < array_size(&fun_node->body->nodes); i++) {
-        struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->body->nodes, i);
+    for (size_t i = 0; i < array_size(&fun_node->body->block->nodes); i++) {
+        struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->body->block->nodes, i);
         ret_val = emit_ir_code(cg, stmt);
     }
     if (!ret_val || !fi->ret.info.type) {

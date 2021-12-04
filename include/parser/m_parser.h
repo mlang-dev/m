@@ -91,10 +91,10 @@ bool is_binary_op(struct func_type_node *pnode);
 char get_op_name(struct func_type_node *pnode);
 void queue_token(struct m_parser *parser, struct token tkn);
 void queue_tokens(struct m_parser *psr, struct array *tokens);
-struct block_node *parse_file(struct m_parser *parser, const char *file_name);
-struct block_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file);
-struct block_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct exp_node *), void *jit);
-struct block_node *parse_string(struct m_parser *parser, const char *mod_name, const char *code);
+struct ast_node *parse_file(struct m_parser *parser, const char *file_name);
+struct ast_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file);
+struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct exp_node *), void *jit);
+struct ast_node *parse_string(struct m_parser *parser, const char *mod_name, const char *code);
 enum type get_type_enum(symbol type_symbol);
 symbol get_type_symbol(enum type type_enum);
 

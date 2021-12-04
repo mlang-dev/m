@@ -83,7 +83,7 @@ struct exp_node *_parse_unary(struct m_parser *parser, struct exp_node *parent);
 struct exp_node *_parse_func_type(struct m_parser *parser, struct exp_node *parent, bool is_external);
 struct exp_node *_parse_var(struct m_parser *parser, struct exp_node *parent, symbol name, enum type type, symbol ext_type);
 struct exp_node *_parse_function_with_func_type(struct m_parser *parser, struct func_type_node *func_type);
-struct block_node *_parse_block(struct m_parser *parser, struct exp_node *parent, void (*fun)(void *, struct exp_node *), void *jit);
+struct ast_node *_parse_block(struct m_parser *parser, struct exp_node *parent, void (*fun)(void *, struct exp_node *), void *jit);
 
 struct op_type {
     symbol op;
@@ -346,9 +346,9 @@ struct exp_node *_parse_type_value_node(struct m_parser *parser, struct exp_node
     assert(ext_type_symbol);
     struct type_node *type = (struct type_node *)hashtable_get_p(&parser->ext_types, ext_type_symbol);
     assert(type);
-    struct block_node *block = _parse_block(parser, (struct exp_node *)parent, 0, 0);
+    struct ast_node *block = _parse_block(parser, (struct exp_node *)parent, 0, 0);
     if (block) {
-        assert(array_size(&type->body->nodes) == array_size(&block->nodes));
+        assert(array_size(&type->body->block->nodes) == array_size(&block->block->nodes));
         return (struct exp_node *)type_value_node_new(parent, parser->curr_token.loc, block, ext_type_symbol);
     }
     return 0;
@@ -713,7 +713,7 @@ struct exp_node *_parse_func_type(struct m_parser *parser, struct exp_node *pare
     return ret;
 }
 
-struct exp_node *_create_fun_node(struct m_parser *parser, struct func_type_node *func_type, struct block_node *block)
+struct exp_node *_create_fun_node(struct m_parser *parser, struct func_type_node *func_type, struct ast_node *block)
 {
     if (is_binary_op(func_type)) {
         _set_op_prec(&parser->op_precs, func_type->op, func_type->precedence);
@@ -727,7 +727,7 @@ struct exp_node *_parse_function_with_func_type(struct m_parser *parser,
 {
     assert(parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.val.symbol_val == parser->assignment);
     parse_next_token(parser);
-    struct block_node *block = _parse_block(parser, (struct exp_node *)func_type, 0, 0);
+    struct ast_node *block = _parse_block(parser, (struct exp_node *)func_type, 0, 0);
     if (block) {
         return _create_fun_node(parser, func_type, block);
     }
@@ -762,7 +762,7 @@ struct exp_node *parse_exp_to_function(struct m_parser *parser, struct exp_node 
         struct array nodes;
         array_init(&nodes, sizeof(struct exp_node *));
         array_push(&nodes, &exp);
-        struct block_node *block = block_node_new((struct exp_node *)func_type, &nodes);
+        struct ast_node *block = block_node_new((struct exp_node *)func_type, &nodes);
         return _create_fun_node(parser, func_type, block);
     }
     return 0;
@@ -784,7 +784,7 @@ struct exp_node *_parse_type(struct m_parser *parser, struct exp_node *parent)
     assert(parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.val.symbol_val == parser->assignment);
     parse_next_token(parser);
     struct type_node *type = type_node_new(parent, loc, name, 0);
-    struct block_node *body = _parse_block(parser, &type->base, 0, 0);
+    struct ast_node *body = _parse_block(parser, &type->base, 0, 0);
     type->body = body;
     assert(body);
     parser->id_is_var_decl = false;
@@ -857,7 +857,7 @@ struct exp_node *_parse_for(struct m_parser *parser, struct exp_node *parent)
     // convert end variable to a logic
     struct exp_node *id_node = (struct exp_node *)ident_node_new(parent, start->loc, id_symbol);
     struct exp_node *end = (struct exp_node *)binary_node_new(parent, end_val->loc, parser->lessthan_op, id_node, end_val);
-    struct block_node *body = _parse_block(parser, parent, 0, 0);
+    struct ast_node *body = _parse_block(parser, parent, 0, 0);
     if (body == 0)
         return 0;
     return (struct exp_node *)for_node_new(parent, loc, id_symbol, start, end, step, (struct exp_node *)body);
@@ -895,7 +895,7 @@ struct exp_node *_parse_if(struct m_parser *parser, struct exp_node *parent)
     return (struct exp_node *)if_node_new(parent, loc, cond, then, else_exp);
 }
 
-struct block_node *_parse_block(struct m_parser *parser, struct exp_node *parent, void (*fun)(void *, struct exp_node *), void *jit)
+struct ast_node *_parse_block(struct m_parser *parser, struct exp_node *parent, void (*fun)(void *, struct exp_node *), void *jit)
 {
     int base_col = parent ? parent->loc.col : 1;
     struct array nodes;
@@ -922,14 +922,14 @@ struct block_node *_parse_block(struct m_parser *parser, struct exp_node *parent
     return array_size(&nodes) ? block_node_new(parent, &nodes) : 0;
 }
 
-struct block_node *parse_block(struct m_parser *parser, struct exp_node *parent, void (*fun)(void *, struct exp_node *), void *jit)
+struct ast_node *parse_block(struct m_parser *parser, struct exp_node *parent, void (*fun)(void *, struct exp_node *), void *jit)
 {
     parse_next_token(parser); /*start parsing*/
     parser->current_module->block = _parse_block(parser, parent, fun, jit);
     return parser->current_module->block;
 }
 
-struct block_node *parse_file(struct m_parser *parser, const char *file_name)
+struct ast_node *parse_file(struct m_parser *parser, const char *file_name)
 {
     FILE *file= fopen(file_name, "r");
     if (!file) {
@@ -942,23 +942,23 @@ struct block_node *parse_file(struct m_parser *parser, const char *file_name)
     return parse_block(parser, 0, 0, 0);
 }
 
-struct block_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file)
+struct ast_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file)
 {
     parser->current_module = module_new(mod_name, file);
     array_push(&parser->ast->modules, &parser->current_module);
     return parse_block(parser, 0, 0, 0);
 }
 
-struct block_node *parse_string(struct m_parser *parser, const char *mod_name, const char *code)
+struct ast_node *parse_string(struct m_parser *parser, const char *mod_name, const char *code)
 {
     FILE *file = fmemopen((void *)code, strlen(code), "r");
-    struct block_node *node = parse_file_object(parser, mod_name, file);
+    struct ast_node *node = parse_file_object(parser, mod_name, file);
     fclose(file);
     parser->current_module->tokenizer->file = 0;
     return node;
 }
 
-struct block_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct exp_node *), void *jit)
+struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct exp_node *), void *jit)
 {
     const char *mod_name = "intepreter_main";
     parser->current_module = module_new(mod_name, stdin);
