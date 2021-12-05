@@ -29,7 +29,8 @@ void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct a
 
 LLVMValueRef emit_type_value_node(struct code_generator *cg, struct ast_node *type_values, bool is_ret, const char *name)
 {
-    struct ast_node *ft_node = (struct ast_node *)find_parent_proto(type_values);
+    struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->sema_context->func_stack);
+    struct ast_node *ft_node = parent_func->func->func_type;
     struct type_exp *te = type_values->type;
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
