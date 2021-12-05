@@ -148,7 +148,7 @@ void _free_literal_node(struct ast_node *node)
 {
     assert(node->node_type == LITERAL_NODE);
     if (node->annotated_type_enum == TYPE_STRING){
-        FREE(node->liter->str_val);
+        FREE((void*)node->liter->str_val);
     }
     ast_node_free(node);
 }
