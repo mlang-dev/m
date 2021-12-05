@@ -7,13 +7,14 @@
 
 #include "wasm/wasm.h"
 #include "clib/array.h"
+#include "clib/util.h"
 
 void _wasm_module_init(struct wasm_module *wm)
 {
-  array_init(&wm->types);
-  array_init(&wm->functions);
-  array_init(&wm->exports);
-  array_init(&wm->codes);
+  array_init(&wm->types, sizeof(void*));
+  array_init(&wm->functions, sizeof(void*));
+  array_init(&wm->exports, sizeof(void*));
+  array_init(&wm->codes, sizeof(void*));
 }
 
 void _wasm_module_deinit(struct wasm_module *wm)
