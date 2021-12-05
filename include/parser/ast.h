@@ -170,7 +170,7 @@ struct ast_node {
         struct _binary_node *binop;
         struct _var_node *var;
         
-        struct _func_type_node *func_type;
+        struct _func_type_node *ft;
         struct function_node *func;
         struct call_node *call;
         

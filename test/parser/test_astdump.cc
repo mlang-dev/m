@@ -24,7 +24,7 @@ TEST_F(testAstDump, testPrototypeNodeDump)
     auto node = *(exp_node **)array_front(&block->block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     auto func_type = (ast_node *)node;
-    ASSERT_STREQ("printf", string_get((string *)func_type->func_type->name));
+    ASSERT_STREQ("printf", string_get((string *)func_type->ft->name));
     string dump_str = dump(node);
     ASSERT_STREQ(test_code, string_get(&dump_str));
     env_free(env);

@@ -21,7 +21,7 @@ LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct exp
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
     LLVMValueRef ret = 0;
     if (has_sret && node->is_ret) {
-        LLVMValueRef fun = get_llvm_function(cg, parent_ft->func_type->name);
+        LLVMValueRef fun = get_llvm_function(cg, parent_ft->ft->name);
         ret = LLVMGetParam(fun, fi->iai.sret_arg_no);
     }
     return ret;
@@ -47,7 +47,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     LLVMValueRef ret_alloca = 0;
     LLVMValueRef parent_fun = 0;
     if (parent_ft) { //TODO: JIT call code in global scope, no parent
-        parent_fun = get_llvm_function(cg, parent_ft->func_type->name);
+        parent_fun = get_llvm_function(cg, parent_ft->ft->name);
     }
 
     if (has_sret) { //the first is return struct

@@ -70,8 +70,8 @@ struct sema_context *sema_context_new(struct m_parser *parser)
         assert(node->node_type == FUNC_TYPE_NODE);
         struct ast_node *func_type = (struct ast_node *)node;
         analyze(context, node);
-        push_symbol_type(&context->decl_2_typexps, func_type->func_type->name, func_type->type);
-        hashtable_set_p(&context->builtin_ast, func_type->func_type->name, node);
+        push_symbol_type(&context->decl_2_typexps, func_type->ft->name, func_type->type);
+        hashtable_set_p(&context->builtin_ast, func_type->ft->name, node);
         //string type = to_string(func_type->base.type);
     }
     return context;

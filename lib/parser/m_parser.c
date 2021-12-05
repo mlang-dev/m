@@ -716,9 +716,9 @@ struct exp_node *_parse_func_type(struct m_parser *parser, struct exp_node *pare
 struct exp_node *_create_fun_node(struct m_parser *parser, struct ast_node *func_type, struct ast_node *block)
 {
     if (is_binary_op(func_type)) {
-        _set_op_prec(&parser->op_precs, func_type->func_type->op, func_type->func_type->precedence);
+        _set_op_prec(&parser->op_precs, func_type->ft->op, func_type->ft->precedence);
     }
-    hashtable_set_int(&parser->symbol_2_int_types, func_type->func_type->name, TYPE_FUNCTION);
+    hashtable_set_int(&parser->symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
     return (struct exp_node *)function_node_new(func_type, block);
 }
 

@@ -166,8 +166,8 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct exp_nod
     struct ast_node *func_type = (struct ast_node *)node;
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&func_type->func_type->fun_params); i++) {
-        struct ast_node *param = *(struct ast_node **)array_get(&func_type->func_type->fun_params, i);
+    for (size_t i = 0; i < array_size(&func_type->ft->fun_params); i++) {
+        struct ast_node *param = *(struct ast_node **)array_get(&func_type->ft->fun_params, i);
         assert(param->annotated_type_name);
         assert(param->annotated_type_enum == get_type_enum(param->annotated_type_name));
         struct type_oper* to = create_nullary_type(param->annotated_type_enum, param->annotated_type_name);
@@ -178,19 +178,19 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct exp_nod
     struct type_oper *to = create_nullary_type(func_type->annotated_type_enum, func_type->annotated_type_name);
     array_push(&fun_sig, &to);
     func_type->type = (struct type_exp *)create_type_fun(&fun_sig);
-    hashtable_set_p(&context->protos, func_type->func_type->name, func_type);
+    hashtable_set_p(&context->protos, func_type->ft->name, func_type);
     return func_type->type;
 }
 
 struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *node)
 {
     struct function_node *fun = (struct function_node *)node;
-    hashtable_set_p(&context->protos, fun->func_type->func_type->name, fun->func_type);
+    hashtable_set_p(&context->protos, fun->func_type->ft->name, fun->func_type);
     //# create a new non-generic variable for the binder
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&fun->func_type->func_type->fun_params); i++) {
-        struct ast_node *param = *(struct ast_node **)array_get(&fun->func_type->func_type->fun_params, i);
+    for (size_t i = 0; i < array_size(&fun->func_type->ft->fun_params); i++) {
+        struct ast_node *param = *(struct ast_node **)array_get(&fun->func_type->ft->fun_params, i);
         struct type_exp *exp;
         if (param->annotated_type_name) {
             if (param->annotated_type_enum == TYPE_EXT)
@@ -208,7 +208,7 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *nod
     }
     /*analyze function body*/
     struct type_exp *fun_type = (struct type_exp *)create_type_var();
-    push_symbol_type(&context->decl_2_typexps, fun->func_type->func_type->name, fun_type);
+    push_symbol_type(&context->decl_2_typexps, fun->func_type->ft->name, fun_type);
     struct type_exp *ret_type = analyze(context, (struct exp_node *)fun->body);
     array_push(&fun_sig, &ret_type);
     struct type_exp *result_type = (struct type_exp *)create_type_fun(&fun_sig);
@@ -216,7 +216,7 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *nod
     struct type_exp *result = prune(fun_type);
     fun->func_type->type = result;
     if (is_generic(result)) {
-        hashtable_set(&context->generic_ast, string_get(fun->func_type->func_type->name), node);
+        hashtable_set(&context->generic_ast, string_get(fun->func_type->ft->name), node);
     }
     return result;
 }
@@ -257,9 +257,9 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
         /* specialized callee */
         struct exp_node *generic_fun = (struct exp_node *)hashtable_get(&context->generic_ast, string_get(call->callee));
         struct function_node *sp_fun = (struct function_node *)node_copy(generic_fun);
-        sp_fun->func_type->func_type->name = call->specialized_callee;
+        sp_fun->func_type->ft->name = call->specialized_callee;
         fun_type = analyze(env->sema_context, (struct exp_node *)sp_fun);
-        hashtable_set(&context->specialized_ast, string_get(sp_fun->func_type->func_type->name), sp_fun);
+        hashtable_set(&context->specialized_ast, string_get(sp_fun->func_type->ft->name), sp_fun);
         push_symbol_type(&context->decl_2_typexps, call->specialized_callee, fun_type);
         specialized_fun = (struct exp_node *)sp_fun;
         hashtable_set_p(&context->protos, call->specialized_callee, sp_fun->func_type);
