@@ -43,7 +43,7 @@ void _wasm_emit(struct context *c, struct ast_node *ast)
     }
     if(ast->node_type_name == FUNC){
         struct ast_node *fname = *(struct ast_node**)array_get(&ast->children, 0);
-        assert(fname->node_type == IDENT_TOKEN);
+        assert(fname->node_type_name == IDENT_TOKEN);
         //string_add_chars2(&s, &c->code[fname->loc.start], fname->loc.end - fname->loc.start);
         //func body
         struct ast_node *fbody = *(struct ast_node**)array_back(&ast->children);
