@@ -105,17 +105,16 @@ LLVMValueRef emit_func_type_node(struct code_generator *cg, struct ast_node *nod
 
 LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct ast_node *node, struct fun_info **out_fi)
 {
-    struct ast_node *func_type = (struct ast_node *)node;
-    assert(func_type->type);
-    hashtable_set_p(&cg->protos, func_type->ft->name, func_type);
-    struct type_oper *proto_type = (struct type_oper *)func_type->type;
+    assert(node->type);
+    hashtable_set_p(&cg->protos, node->ft->name, node);
+    struct type_oper *proto_type = (struct type_oper *)node->type;
     assert(proto_type->base.kind == KIND_OPER);
-    struct fun_info *fi = get_fun_info(func_type);
+    struct fun_info *fi = get_fun_info(node);
     if (out_fi)
         *out_fi = fi;
     assert(fi);
     LLVMTypeRef fun_type = get_fun_type(fi);
-    LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(func_type->ft->name), fun_type);
+    LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(node->ft->name), fun_type);
     if (fi->iai.sret_arg_no != InvalidIndex) {
         LLVMValueRef ai = LLVMGetParam(fun, fi->iai.sret_arg_no);
         const char *sret_var = "agg.result";
@@ -126,7 +125,7 @@ LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct ast_node *
     unsigned param_count = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < param_count; i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
-        struct ast_node *fun_param = *(struct ast_node **)array_get(&func_type->ft->fun_params, i);
+        struct ast_node *fun_param = *(struct ast_node **)array_get(&node->ft->fun_params, i);
         LLVMSetValueName2(param, string_get(fun_param->var->var_name), string_size(fun_param->var->var_name));
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
         if (aa->type->type == TYPE_EXT)
@@ -137,19 +136,18 @@ LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct ast_node *
 
 LLVMValueRef emit_function_node(struct code_generator *cg, struct ast_node *node)
 {
-    struct ast_node *fun_node = (struct ast_node *)node;
     if (is_generic(node->type)) {
         return 0;
     }
-    assert(fun_node->type->kind == KIND_OPER);
+    assert(node->type->kind == KIND_OPER);
     hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
-    LLVMValueRef fun = emit_func_type_node_fi(cg, (struct ast_node *)fun_node->func->func_type, &fi);
+    LLVMValueRef fun = emit_func_type_node_fi(cg, (struct ast_node *)node->func->func_type, &fi);
     assert(fun && fi);
 
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
     LLVMPositionBuilderAtEnd(cg->builder, bb);
-    _emit_argument_allocas(cg, fun_node->func->func_type, fi, fun);
+    _emit_argument_allocas(cg, node->func->func_type, fi, fun);
     LLVMValueRef ret_val = 0;
     //handle ret value
     // if (fi->ret.type->type == TYPE_UNIT) {
@@ -164,8 +162,8 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct ast_node *node
     //         LLVMValueRef ret_alloca = create_alloca(ret_type, align, fun, "retval");
     //     }
     // }
-    for (size_t i = 0; i < array_size(&fun_node->func->body->block->nodes); i++) {
-        struct ast_node *stmt = *(struct ast_node **)array_get(&fun_node->func->body->block->nodes, i);
+    for (size_t i = 0; i < array_size(&node->func->body->block->nodes); i++) {
+        struct ast_node *stmt = *(struct ast_node **)array_get(&node->func->body->block->nodes, i);
         ret_val = emit_ir_code(cg, stmt);
     }
     if (!ret_val || !fi->ret.info.type) {

@@ -505,31 +505,31 @@ struct ast_node *node_copy(struct ast_node *node)
 {
     switch (node->node_type) {
     case BLOCK_NODE:
-        return (struct ast_node *)_copy_block_node((struct ast_node *)node);
+        return _copy_block_node(node);
     case FUNC_TYPE_NODE:
-        return (struct ast_node *)_copy_func_type_node((struct ast_node *)node);
+        return _copy_func_type_node(node);
     case FUNCTION_NODE:
-        return (struct ast_node *)_copy_function_node((struct ast_node *)node);
+        return _copy_function_node(node);
     case VAR_NODE:
-        return (struct ast_node *)_copy_var_node((struct ast_node *)node);
+        return _copy_var_node(node);
     case TYPE_NODE:
-        return (struct ast_node *)_copy_type_node((struct ast_node *)node);
+        return _copy_type_node(node);
     case TYPE_VALUE_NODE:
-        return (struct ast_node *)_copy_type_value_node((struct ast_node *)node);
+        return _copy_type_value_node(node);
     case IDENT_NODE:
-        return (struct ast_node *)_copy_ident_node((struct ast_node *)node);
+        return _copy_ident_node(node);
     case LITERAL_NODE:
-        return (struct ast_node *)_copy_literal_node((struct ast_node *)node);
+        return _copy_literal_node(node);
     case CALL_NODE:
-        return (struct ast_node *)_copy_call_node((struct ast_node *)node);
+        return _copy_call_node(node);
     case CONDITION_NODE:
-        return (struct ast_node *)_copy_if_node((struct ast_node *)node);
+        return _copy_if_node(node);
     case FOR_NODE:
-        return (struct ast_node *)_copy_for_node((struct ast_node *)node);
+        return _copy_for_node(node);
     case UNARY_NODE:
-        return (struct ast_node *)_copy_unary_node((struct ast_node *)node);
+        return _copy_unary_node(node);
     case BINARY_NODE:
-        return (struct ast_node *)_copy_binary_node((struct ast_node *)node);
+        return _copy_binary_node(node);
     default:
         assert(false);
     }
@@ -543,43 +543,43 @@ void node_free(struct ast_node *node)
         FREE(node);
         break;
     case BLOCK_NODE:
-        _free_block_node((struct ast_node *)node);
+        _free_block_node(node);
         break;
     case FUNC_TYPE_NODE:
-        _free_func_type_node((struct ast_node *)node);
+        _free_func_type_node(node);
         break;
     case FUNCTION_NODE:
-        _free_function_node((struct ast_node *)node);
+        _free_function_node(node);
         break;
     case VAR_NODE:
-        _free_var_node((struct ast_node *)node);
+        _free_var_node(node);
         break;
     case TYPE_NODE:
-        _free_type_node((struct ast_node *)node);
+        _free_type_node(node);
         break;
     case TYPE_VALUE_NODE:
-        _free_type_value_node((struct ast_node *)node);
+        _free_type_value_node(node);
         break;
     case IDENT_NODE:
-        _free_ident_node((struct ast_node *)node);
+        _free_ident_node(node);
         break;
     case LITERAL_NODE:
-        _free_literal_node((struct ast_node *)node);
+        _free_literal_node(node);
         break;
     case CALL_NODE:
-        _free_call_node((struct ast_node *)node);
+        _free_call_node(node);
         break;
     case CONDITION_NODE:
-        _free_if_node((struct ast_node *)node);
+        _free_if_node(node);
         break;
     case FOR_NODE:
-        _free_for_node((struct ast_node *)node);
+        _free_for_node(node);
         break;
     case UNARY_NODE:
-        _free_unary_node((struct ast_node *)node);
+        _free_unary_node(node);
         break;
     case BINARY_NODE:
-        _free_binary_node((struct ast_node *)node);
+        _free_binary_node(node);
         break;
     default:
         printf("not supported node type: %d\n", node->node_type);
@@ -607,9 +607,9 @@ bool is_recursive(struct ast_node *call)
     symbol fun_name = 0;
     while (parent) {
         if (parent->node_type == FUNC_TYPE_NODE)
-            fun_name = ((struct ast_node *)parent)->ft->name;
+            fun_name = parent->ft->name;
         else if (parent->node_type == FUNCTION_NODE)
-            fun_name = ((struct ast_node *)parent)->func->func_type->ft->name;
+            fun_name = parent->func->func_type->ft->name;
         if (fun_name && string_eq(fun_name, call->call->callee))
             return true;
         parent = parent->parent;
@@ -633,7 +633,7 @@ struct ast_node *find_parent_proto(struct ast_node *node)
     struct ast_node *func_type = 0;
     while (node->parent) {
         if (node->parent->node_type == FUNC_TYPE_NODE) {
-            func_type = (struct ast_node*)node->parent;
+            func_type = node->parent;
             break;
         }
         node = node->parent;

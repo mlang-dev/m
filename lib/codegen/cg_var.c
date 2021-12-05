@@ -58,7 +58,7 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct ast_nod
     if (node->var->init_value->node_type == TYPE_VALUE_NODE) {
         assert(node->type->name == node->var->init_value->type->name);
         //bool is_ret = node->base.is_ret;
-        alloca = emit_type_value_node(cg, (struct ast_node *)node->var->init_value, node->is_ret, string_get(var_name));
+        alloca = emit_type_value_node(cg, node->var->init_value, node->is_ret, string_get(var_name));
     } else {
         alloca = emit_ir_code(cg, node->var->init_value);
         LLVMSetValueName2(alloca, string_get(var_name), string_size(var_name));
@@ -140,7 +140,7 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct ast_no
             gVar = LLVMAddGlobal(cg->module, type, var_name);
             LLVMValueRef init_value;
             if (node->var->init_value)
-                init_value = _get_const_value_ext_type(cg, type, (struct ast_node *)node->var->init_value);
+                init_value = _get_const_value_ext_type(cg, type, node->var->init_value);
             else
                 init_value = _get_zero_value_ext_type(cg, type, (struct type_oper *)node->type);
             LLVMSetInitializer(gVar, init_value);
@@ -150,7 +150,7 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct ast_no
     if (!cg->sema_context->parser->is_repl)
         return 0;
     //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
-    struct ast_node *values = (struct ast_node *)node->var->init_value;
+    struct ast_node *values = node->var->init_value;
     char tempname[64];
     for (size_t i = 0; i < array_size(&values->type_value->body->block->nodes); i++) {
         struct ast_node *arg = *(struct ast_node **)array_get(&values->type_value->body->block->nodes, i);
@@ -200,11 +200,10 @@ LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct ast_node *n
 
 LLVMValueRef emit_var_node(struct code_generator *cg, struct ast_node *node)
 {
-    struct ast_node *var = (struct ast_node *)node;
-    if (!var->parent)
-        return _emit_global_var_node(cg, var, false);
+    if (!node->parent)
+        return _emit_global_var_node(cg, node, false);
     else
-        return _emit_local_var_node(cg, var);
+        return _emit_local_var_node(cg, node);
 }
 
 LLVMValueRef get_global_variable(struct code_generator *cg, symbol gv_name)
