@@ -79,7 +79,7 @@ struct type_exp *_analyze_ident(struct sema_context *context, struct ast_node *n
     return type;
 }
 
-struct type_exp *_analyze_num(struct sema_context *context, struct ast_node *node)
+struct type_exp *_analyze_liter(struct sema_context *context, struct ast_node *node)
 {
     return retrieve_type_with_type_name(context, node->annotated_type_name);
 }
@@ -354,26 +354,53 @@ struct type_exp *_analyze_block(struct sema_context *context, struct ast_node *n
     return type;
 }
 
-struct type_exp *(*analyze_fp[])(struct sema_context *, struct ast_node *) = {
-    _analyze_unk,
-    _analyze_num,
-    _analyze_ident,
-    _analyze_var,
-    _analyze_type,
-    _analyze_type_value,
-    _analyze_unary,
-    _analyze_binary,
-    _analyze_if,
-    _analyze_for,
-    _analyze_call,
-    _analyze_func_type,
-    _analyze_fun,
-    _analyze_block,
-};
-
 struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
 {
-    struct type_exp *type = analyze_fp[node->node_type](context, node);
+    struct type_exp *type = 0;
+    switch(node->node_type){
+        default:
+            type = _analyze_unk(context, node);
+            break;
+        case LITERAL_NODE:
+            type = _analyze_liter(context, node);
+            break;
+        case IDENT_NODE:
+            type = _analyze_ident(context, node);
+            break;
+        case VAR_NODE:
+            type = _analyze_var(context, node);
+            break;
+        case TYPE_NODE:
+            type = _analyze_type(context, node);
+            break;
+        case TYPE_VALUE_NODE:
+            type = _analyze_type_value(context, node);
+            break;
+        case UNARY_NODE:
+            type = _analyze_unary(context, node);
+            break;
+        case BINARY_NODE:
+            type = _analyze_binary(context, node);
+            break;
+        case CONDITION_NODE:
+            type = _analyze_if(context, node);
+            break;
+        case FOR_NODE:
+            type = _analyze_for(context, node);
+            break;
+        case CALL_NODE:
+            type = _analyze_call(context, node);
+            break;
+        case FUNC_TYPE_NODE:
+            type = _analyze_func_type(context, node);
+            break;
+        case FUNCTION_NODE:
+            type = _analyze_fun(context, node);
+            break;
+        case BLOCK_NODE:
+            type = _analyze_block(context, node);
+            break;
+    }
     type = prune(type);
     node->type = type;
     return type;

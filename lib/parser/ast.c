@@ -613,14 +613,11 @@ struct module *module_new(const char *mod_name, FILE *file)
 bool is_recursive(struct ast_node *call)
 {
     struct ast_node *parent = call->parent;
-    symbol fun_name = 0;
     while (parent) {
-        if (parent->node_type == FUNC_TYPE_NODE)
-            fun_name = parent->ft->name;
-        else if (parent->node_type == FUNCTION_NODE)
-            fun_name = parent->func->func_type->ft->name;
-        if (fun_name && fun_name == call->call->callee)
-            return true;
+        if (parent->node_type == FUNC_TYPE_NODE){
+            if (parent->ft->name == call->call->callee)
+                return true;
+        }
         parent = parent->parent;
     }
     return false;
