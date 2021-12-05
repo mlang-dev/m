@@ -86,26 +86,26 @@ struct _ident_node {
 
 struct _var_node {
     symbol var_name;
-    struct exp_node *init_value;
+    struct ast_node *init_value;
 };
 
 struct _unary_node {
     symbol op;
-    struct exp_node *operand;
+    struct ast_node *operand;
 };
 
 struct _binary_node {
     symbol op;
-    struct exp_node *lhs, *rhs;
+    struct ast_node *lhs, *rhs;
 };
 
 struct _if_node {
-    struct exp_node *if_node, *then_node, *else_node;
+    struct ast_node *if_node, *then_node, *else_node;
 };
 
 struct _for_node {
     symbol var_name;
-    struct exp_node *start, *end, *step, *body;
+    struct ast_node *start, *end, *step, *body;
 };
 
 struct _type_node {
@@ -156,7 +156,7 @@ struct ast_node {
 
     symbol annotated_type_name; //this is expected to be removed
     bool is_ret;        //tihs is expected to be removed from sema analysis
-    struct exp_node *parent;  //this is expected to be removed from hand-crafted parser
+    struct ast_node *parent;  //this is expected to be removed from hand-crafted parser
     symbol node_type_name; //this is expected to be removed from parser generator
     struct array children; //list of pointer to child ast_node, this is expected to be removed from parser generator
     union{
