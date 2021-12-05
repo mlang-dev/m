@@ -54,11 +54,11 @@ string _dump_func_type(struct ast_node *func_type)
     return result;
 }
 
-string _dump_function(struct function_node *func)
+string _dump_function(struct ast_node *func)
 {
-    string result = _dump_func_type(func->func_type);
+    string result = _dump_func_type(func->func->func_type);
     string_add_chars(&result, "\n");
-    string block_str = _dump_block(func->body);
+    string block_str = _dump_block(func->func->body);
     string_add(&result, &block_str);
     return result;
 }
@@ -166,7 +166,7 @@ string _dump_number(struct ast_node *node)
 string dump(struct exp_node *node)
 {
     if (node->node_type == FUNCTION_NODE)
-        return _dump_function((struct function_node *)node);
+        return _dump_function((struct ast_node *)node);
     else if (node->node_type == FUNC_TYPE_NODE)
         return _dump_func_type((struct ast_node *)node);
     else if (node->node_type == VAR_NODE)

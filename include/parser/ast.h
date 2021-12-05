@@ -135,8 +135,7 @@ struct _func_type_node {
 #define BINARY_PARAM_SIZE 2
 #define BINARY_SIG_SIZE (BINARY_PARAM_SIZE + 1)
 
-struct function_node {
-    struct exp_node base;
+struct _function_node {
     struct ast_node *func_type;
     struct ast_node *body; /*body block*/
 };
@@ -171,7 +170,7 @@ struct ast_node {
         struct _var_node *var;
         
         struct _func_type_node *ft;
-        struct function_node *func;
+        struct _function_node *func;
         struct call_node *call;
         
         struct _type_node *type_def; 
@@ -190,9 +189,9 @@ struct ast_node {
 struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type_enum, struct source_location loc, struct exp_node *parent);
 void ast_node_free(struct ast_node *node);
 
-struct type_exp *get_ret_type(struct function_node *fun_node);
+struct type_exp *get_ret_type(struct ast_node *fun_node);
 
-struct function_node *function_node_new(struct ast_node *func_type,
+struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body);
 struct ast_node *ident_node_new(struct exp_node *parent, struct source_location loc, symbol name);
 

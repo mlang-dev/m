@@ -66,9 +66,9 @@ char get_op_name(struct ast_node *node)
     return string_back(node->ft->name);
 }
 
-struct type_exp *get_ret_type(struct function_node *fun_node)
+struct type_exp *get_ret_type(struct ast_node *fun_node)
 {
-    struct type_oper *oper = (struct type_oper *)fun_node->base.type;
+    struct type_oper *oper = (struct type_oper *)fun_node->type;
     return *(struct type_exp **)array_back(&oper->args);
 }
 
@@ -364,35 +364,28 @@ void _free_func_type_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct function_node *function_node_new(struct ast_node *func_type,
+struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body)
 {
-    struct function_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.type = 0;
-    node->base.annotated_type_enum = 0;
-    node->base.annotated_type_name = 0;
-    node->base.node_type = FUNCTION_NODE;
-    node->base.parent = (struct exp_node *)func_type;
-    node->base.loc = func_type->loc;
-    node->base.is_ret = false;
-    node->func_type = func_type;
-    node->body = body;
+    struct ast_node *node = ast_node_new(0, FUNCTION_NODE, 0, func_type->loc, func_type);
+    MALLOC(node->func, sizeof(*node->func));
+    node->func->func_type = func_type;
+    node->func->body = body;
     return node;
 }
 
-struct function_node *_copy_function_node(struct function_node *orig_node)
+struct ast_node *_copy_function_node(struct ast_node *orig_node)
 {
-    struct ast_node *func_type = _copy_func_type_node(orig_node->func_type);
-    struct ast_node *block = _copy_block_node(orig_node->body);
+    struct ast_node *func_type = _copy_func_type_node(orig_node->func->func_type);
+    struct ast_node *block = _copy_block_node(orig_node->func->body);
     return function_node_new(func_type, block);
 }
 
-void _free_function_node(struct function_node *node)
+void _free_function_node(struct ast_node *node)
 {
-    _free_func_type_node(node->func_type);
-    _free_block_node(node->body);
-    _free_exp_node(&node->base);
+    _free_func_type_node(node->func->func_type);
+    _free_block_node(node->func->body);
+    ast_node_free(node);
 }
 
 struct ast_node *if_node_new(struct exp_node *parent, struct source_location loc,
@@ -526,7 +519,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case FUNC_TYPE_NODE:
         return (struct exp_node *)_copy_func_type_node((struct ast_node *)node);
     case FUNCTION_NODE:
-        return (struct exp_node *)_copy_function_node((struct function_node *)node);
+        return (struct exp_node *)_copy_function_node((struct ast_node *)node);
     case VAR_NODE:
         return (struct exp_node *)_copy_var_node((struct ast_node *)node);
     case TYPE_NODE:
@@ -566,7 +559,7 @@ void node_free(struct exp_node *node)
         _free_func_type_node((struct ast_node *)node);
         break;
     case FUNCTION_NODE:
-        _free_function_node((struct function_node *)node);
+        _free_function_node((struct ast_node *)node);
         break;
     case VAR_NODE:
         _free_var_node((struct ast_node *)node);
@@ -626,7 +619,7 @@ bool is_recursive(struct call_node *call)
         if (parent->node_type == FUNC_TYPE_NODE)
             fun_name = ((struct ast_node *)parent)->ft->name;
         else if (parent->node_type == FUNCTION_NODE)
-            fun_name = ((struct function_node *)parent)->func_type->ft->name;
+            fun_name = ((struct ast_node *)parent)->func->func_type->ft->name;
         if (fun_name && string_eq(fun_name, call->callee))
             return true;
         parent = parent->parent;

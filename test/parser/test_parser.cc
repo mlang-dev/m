@@ -145,10 +145,10 @@ f 10
 )";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(function_node **)array_front(&block->block->nodes);
-    auto body_node = *(exp_node **)array_front(&node->body->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto body_node = *(exp_node **)array_front(&node->func->body->block->nodes);
     ASSERT_EQ(2, array_size(&block->block->nodes));
-    ASSERT_STREQ("f", string_get(node->func_type->ft->name));
+    ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(IDENT_NODE, body_node->node_type);
     env_free(env);
 }
@@ -158,10 +158,10 @@ TEST_F(testParser, testBlockBinaryFunction)
     char test_code[] = "f x = x * x";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(function_node **)array_front(&block->block->nodes);
-    auto body_node = *(exp_node **)array_front(&node->body->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto body_node = *(exp_node **)array_front(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("f", string_get(node->func_type->ft->name));
+    ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(BINARY_NODE, body_node->node_type);
     env_free(env);
 }
@@ -171,10 +171,10 @@ TEST_F(testParser, testBlockBinaryFunctionName)
     char test_code[] = "f_sq x = x * x";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(function_node **)array_front(&block->block->nodes);
-    auto body_node = *(exp_node **)array_front(&node->body->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto body_node = *(exp_node **)array_front(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("f_sq", string_get(node->func_type->ft->name));
+    ASSERT_STREQ("f_sq", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(BINARY_NODE, body_node->node_type);
     env_free(env);
 }
@@ -186,10 +186,10 @@ TEST_F(testParser, testFacIfCondition)
     else n * fac (n-1))";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(function_node **)array_front(&block->block->nodes);
-    auto body_node = *(exp_node **)array_front(&node->body->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto body_node = *(exp_node **)array_front(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("fac", string_get(node->func_type->ft->name));
+    ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(CONDITION_NODE, body_node->node_type);
     env_free(env);
 }
@@ -202,10 +202,10 @@ TEST_F(testParser, testForLoop)
   )";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(function_node **)array_front(&block->block->nodes);
-    ast_node *body_node = *(ast_node **)array_front(&node->body->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    ast_node *body_node = *(ast_node **)array_front(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("loopprint", string_get(node->func_type->ft->name));
+    ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FOR_NODE, body_node->node_type);
     ASSERT_EQ(TYPE_INT, body_node->forloop->start->annotated_type_enum);
     ASSERT_EQ(TYPE_INT, body_node->forloop->step->annotated_type_enum);
@@ -223,10 +223,10 @@ TEST_F(testParser, testVariableInFunction)
   )";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(function_node **)array_front(&block->block->nodes);
-    auto body = *(exp_node **)array_front(&node->body->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto body = *(exp_node **)array_front(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("distance", string_get(node->func_type->ft->name));
+    ASSERT_STREQ("distance", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(VAR_NODE, body->node_type);
     env_free(env);
 }
@@ -238,9 +238,9 @@ avg x y = (x + y) / 2
     )";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto func = *(function_node **)array_front(&block->block->nodes);
-    auto body_node = *(exp_node **)array_front(&func->body->block->nodes);
-    ASSERT_STREQ("avg", string_get(func->func_type->ft->name));
+    auto func = *(ast_node **)array_front(&block->block->nodes);
+    auto body_node = *(exp_node **)array_front(&func->func->body->block->nodes);
+    ASSERT_STREQ("avg", string_get(func->func->func_type->ft->name));
     ASSERT_STREQ("BINARY_NODE", node_type_strings[body_node->node_type]);
     env_free(env);
 }
@@ -252,8 +252,8 @@ avg x y = (x + y) / 2
 //    auto env = env_new(false);
 //    ast_node *block = parse_string(env->parser, "test", test_code);
 //    auto node = *(exp_node **)array_front(&block->block->nodes);
-//    ASSERT_EQ(FUNCTION_NODE, node->node_type);
-//    function_node *func = (function_node *)node;
+//    ASSERT_EQ(ast_node, node->node_type);
+//    ast_node *func = (ast_node *)node;
 //    ASSERT_STREQ("unary|>", string_get(func->func_type->name));
 //    env_free(env);
 //}
@@ -264,8 +264,8 @@ avg x y = (x + y) / 2
 //    auto env = env_new(false);
 //    ast_node *block = parse_string(env->parser, "test", test_code);
 //    auto node = *(exp_node **)array_front(&block->block->nodes);
-//    ASSERT_EQ(FUNCTION_NODE, node->node_type);
-//    function_node *func = (function_node *)node;
+//    ASSERT_EQ(ast_node, node->node_type);
+//    ast_node *func = (ast_node *)node;
 //    ASSERT_STREQ("unary|>", string_get(func->func_type->name));
 //    env_free(env);
 //}
@@ -276,8 +276,8 @@ avg x y = (x + y) / 2
 //    auto env = env_new(false);
 //    ast_node *block = parse_string(env->parser, "test", test_code);
 //    auto node = *(exp_node **)array_front(&block->block->nodes);
-//    ASSERT_STREQ("FUNCTION_NODE", node_type_strings[node->node_type]);
-//    function_node *func = (function_node *)node;
+//    ASSERT_STREQ("ast_node", node_type_strings[node->node_type]);
+//    ast_node *func = (ast_node *)node;
 //    ASSERT_STREQ("binary|>", string_get(func->func_type->name));
 //    env_free(env);
 //}
@@ -289,8 +289,8 @@ TEST_F(testParser, testVariadicFunction)
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(exp_node **)array_front(&block->block->nodes);
     ASSERT_STREQ("FUNCTION_NODE", node_type_strings[node->node_type]);
-    function_node *func = (function_node *)node;
-    ASSERT_EQ(true, func->func_type->ft->is_variadic);
+    ast_node *func = (ast_node *)node;
+    ASSERT_EQ(true, func->func->func_type->ft->is_variadic);
     env_free(env);
 }
 
@@ -315,11 +315,11 @@ to_string () =
 )";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(FUNCTION_NODE, node->node_type);
-    function_node *fun = (function_node *)node;
+    ast_node *fun = (ast_node *)node;
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("to_string", string_get(fun->func_type->ft->name));
+    ASSERT_STREQ("to_string", string_get(fun->func->func_type->ft->name));
     env_free(env);
 }
 
@@ -463,10 +463,10 @@ get_point() = Point2D 10.0 20.0
     ASSERT_STREQ("y", string_get(var2->var->var_name));
 
     //2. second line is to define a one line function
-    auto fun_node = *(struct function_node **)array_back(&block->block->nodes);
-    ASSERT_EQ(FUNCTION_NODE, fun_node->base.node_type);
-    ASSERT_EQ(1, array_size(&fun_node->body->block->nodes));
-    auto tv_node = *(struct ast_node **)array_back(&fun_node->body->block->nodes);
+    auto fun_node = *(struct ast_node **)array_back(&block->block->nodes);
+    ASSERT_EQ(FUNCTION_NODE, fun_node->node_type);
+    ASSERT_EQ(1, array_size(&fun_node->func->body->block->nodes));
+    auto tv_node = *(struct ast_node **)array_back(&fun_node->func->body->block->nodes);
     ASSERT_EQ(TYPE_VALUE_NODE, tv_node->node_type);
     auto value1 = *(struct ast_node **)array_front(&tv_node->type_value->body->block->nodes);
     auto value2 = *(struct ast_node **)array_back(&tv_node->type_value->body->block->nodes);
@@ -503,8 +503,8 @@ get_point() = Point2D 10.0 20.0
 //    ASSERT_STREQ("y", string_get(var2->var->var_name));
 //
 //    //2. second line is to define a one line function
-//    auto fun_node = *(struct function_node **)array_back(&block->block->nodes);
-//    ASSERT_EQ(FUNCTION_NODE, fun_node->base.node_type);
+//    auto fun_node = *(struct ast_node **)array_back(&block->block->nodes);
+//    ASSERT_EQ(ast_node, fun_node->base.node_type);
 //    ASSERT_EQ(1, array_size(&fun_node->body->block->nodes));
 //    auto type_value_node = *(struct type_value_node **)array_back(&fun_node->body->block->nodes);
 //    ASSERT_EQ(TYPE_VALUE_NODE, type_value_node->base.node_type);

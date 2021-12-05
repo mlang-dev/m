@@ -137,19 +137,19 @@ LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct exp_node *
 
 LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node)
 {
-    struct function_node *fun_node = (struct function_node *)node;
+    struct ast_node *fun_node = (struct ast_node *)node;
     if (is_generic(node->type)) {
         return 0;
     }
-    assert(fun_node->base.type->kind == KIND_OPER);
+    assert(fun_node->type->kind == KIND_OPER);
     hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
-    LLVMValueRef fun = emit_func_type_node_fi(cg, (struct exp_node *)fun_node->func_type, &fi);
+    LLVMValueRef fun = emit_func_type_node_fi(cg, (struct exp_node *)fun_node->func->func_type, &fi);
     assert(fun && fi);
 
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
     LLVMPositionBuilderAtEnd(cg->builder, bb);
-    _emit_argument_allocas(cg, fun_node->func_type, fi, fun);
+    _emit_argument_allocas(cg, fun_node->func->func_type, fi, fun);
     LLVMValueRef ret_val = 0;
     //handle ret value
     // if (fi->ret.type->type == TYPE_UNIT) {
@@ -164,8 +164,8 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
     //         LLVMValueRef ret_alloca = create_alloca(ret_type, align, fun, "retval");
     //     }
     // }
-    for (size_t i = 0; i < array_size(&fun_node->body->block->nodes); i++) {
-        struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->body->block->nodes, i);
+    for (size_t i = 0; i < array_size(&fun_node->func->body->block->nodes); i++) {
+        struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->func->body->block->nodes, i);
         ret_val = emit_ir_code(cg, stmt);
     }
     if (!ret_val || !fi->ret.info.type) {

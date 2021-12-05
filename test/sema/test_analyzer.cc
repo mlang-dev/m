@@ -150,14 +150,14 @@ TEST(testAnalyzer, testIdentityFunc)
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("id", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("id", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("a -> a", string_get(&type_str));
     env_free(env);
 }
@@ -169,14 +169,14 @@ TEST(testAnalyzer, testIntIntFunc)
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("f", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     env_free(env);
 }
@@ -188,14 +188,14 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("f", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("double -> double", string_get(&type_str));
     env_free(env);
 }
@@ -207,14 +207,14 @@ TEST(testAnalyzer, testBoolFunc)
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("f", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("bool -> bool", string_get(&type_str));
     env_free(env);
 }
@@ -226,14 +226,14 @@ TEST(testAnalyzer, testMultiParamFunc)
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("avg", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("avg", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(3, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("double * double -> double", string_get(&type_str));
     env_free(env);
 }
@@ -249,14 +249,14 @@ factorial n =
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("factorial", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("factorial", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     env_free(env);
 }
@@ -273,16 +273,16 @@ loopprint n =
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("loopprint", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("int -> ()", string_get(&type_str));
-    ast_node *forn = *(ast_node **)array_front(&node->body->block->nodes);
+    ast_node *forn = *(ast_node **)array_front(&node->func->body->block->nodes);
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->step->type));
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->start->type));
     ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->end->type));
@@ -304,14 +304,14 @@ distance x1 y1 x2 y2 =
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("distance", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("distance", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(5, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("double * double * double * double -> double", string_get(&type_str));
     env_free(env);
 }
@@ -328,14 +328,14 @@ to_string () =
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("to_string", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("to_string", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(1, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("() -> string", string_get(&type_str));
     env_free(env);
 }
@@ -349,15 +349,15 @@ var_func ... = 0
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("var_func", string_get(node->func_type->ft->name));
-    ASSERT_EQ(true, node->func_type->ft->is_variadic);
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("var_func", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(true, node->func->func_type->ft->is_variadic);
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("... -> int", string_get(&type_str));
     env_free(env);
 }
@@ -406,14 +406,14 @@ TEST(testAnalyzer, testFunctionTypeAnnotation)
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("print", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("print", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     env_free(env);
 }
@@ -427,14 +427,14 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithParentheses)
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("prt", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("prt", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     env_free(env);
 }
@@ -448,14 +448,14 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(function_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("prt", string_get(node->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->base.node_type);
-    auto var = (type_oper *)node->base.type;
+    ASSERT_STREQ("prt", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
-    string type_str = to_string(node->base.type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     env_free(env);
 }
@@ -753,9 +753,9 @@ getx()=
     ASSERT_STREQ("() -> int", string_get(&type_str));
 
     /*validate inside functions*/
-    auto fun = (function_node *)node;
-    auto var_x = *(ast_node **)array_get(&fun->body->block->nodes, 0);
-    auto var_y = *(ast_node **)array_get(&fun->body->block->nodes, 1);
+    auto fun = (ast_node *)node;
+    auto var_x = *(ast_node **)array_get(&fun->func->body->block->nodes, 0);
+    auto var_y = *(ast_node **)array_get(&fun->func->body->block->nodes, 1);
     ASSERT_EQ(false, var_x->is_ret);
     ASSERT_EQ(true, var_y->is_ret);
     env_free(env);
@@ -779,9 +779,9 @@ getx()=
     ASSERT_STREQ("() -> int", string_get(&type_str));
 
     /*validate inside functions*/
-    auto fun = (function_node *)node;
-    auto var_x = *(ast_node **)array_get(&fun->body->block->nodes, 0);
-    auto exp = *(ast_node **)array_get(&fun->body->block->nodes, 1);
+    auto fun = (ast_node *)node;
+    auto var_x = *(ast_node **)array_get(&fun->func->body->block->nodes, 0);
+    auto exp = *(ast_node **)array_get(&fun->func->body->block->nodes, 1);
     ASSERT_EQ(false, var_x->is_ret);
     ASSERT_EQ(BINARY_NODE, exp->node_type);
     env_free(env);
