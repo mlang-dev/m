@@ -75,6 +75,7 @@ struct _ident_node {
 
 struct _var_node {
     symbol var_name;
+    bool is_global;
     struct ast_node *init_value;
 };
 
@@ -193,7 +194,7 @@ struct ast_node *char_node_new(struct ast_node *parent, struct source_location l
 struct ast_node *unit_node_new(struct ast_node *parent, struct source_location loc);
 struct ast_node *string_node_new(struct ast_node *parent, struct source_location loc, const char *val);
 
-struct ast_node *var_node_new(struct ast_node *parent, struct source_location loc, symbol var_name, enum type type, symbol ext_type, struct ast_node *init_value);
+struct ast_node *var_node_new(struct source_location loc, symbol var_name, enum type type, symbol ext_type, struct ast_node *init_value, bool is_global);
 struct ast_node *call_node_new(struct ast_node *parent, struct source_location loc, symbol callee,
     struct array *args);
 struct ast_node *func_type_node_new(struct ast_node *parent, struct source_location loc,

@@ -198,10 +198,12 @@ LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct ast_node *n
 
 LLVMValueRef emit_var_node(struct code_generator *cg, struct ast_node *node)
 {
-    if (!node->parent)
+    if (node->var->is_global){
         return _emit_global_var_node(cg, node, false);
-    else
+    }
+    else{
         return _emit_local_var_node(cg, node);
+    }
 }
 
 LLVMValueRef get_global_variable(struct code_generator *cg, symbol gv_name)

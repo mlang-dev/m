@@ -422,7 +422,7 @@ struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_
         ARRAY_FUN_PARAM(fun_params);
         for (size_t i = 0; i < array_size(&args); i++) {
             struct ast_node *id = *(struct ast_node **)array_get(&args, i);
-            struct ast_node *fun_param = var_node_new(parent, parser->curr_token.loc, id->ident->name, id->annotated_type_enum, id->annotated_type_name, 0);
+            struct ast_node *fun_param = var_node_new(parser->curr_token.loc, id->ident->name, id->annotated_type_enum, id->annotated_type_name, 0, !parent);
             array_push(&fun_params, &fun_param);
         }
         if (is_operator) {
@@ -476,7 +476,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
             return 0;
         if (parser->id_is_var_decl) {
             /*id is var decl*/
-            node = (struct ast_node *)var_node_new(parent, current_loc, id_symbol, optype.type, optype.type_symbol, 0);
+            node = (struct ast_node *)var_node_new(current_loc, id_symbol, optype.type, optype.type_symbol, 0, !parent);
         } else if (optype.op == parser->assignment || optype.type) { //|| !has_symbol(&parser->vars, id_symbol)
             // variable definition
             node = _parse_var(parser, parent, id_symbol, optype.type, optype.type_symbol);
@@ -683,7 +683,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
         symbol var_name = parser->curr_token.val.symbol_val;
         parse_next_token(parser);
         optype = _parse_op_type(parser, parser->curr_token.loc);
-        struct ast_node *fun_param = var_node_new(0, parser->curr_token.loc, var_name, 0, 0, 0);
+        struct ast_node *fun_param = var_node_new(parser->curr_token.loc, var_name, 0, 0, 0, true);
         if (optype.success && optype.type) {
             fun_param->annotated_type_name = optype.type_symbol;
             fun_param->annotated_type_enum = optype.type;
@@ -741,7 +741,7 @@ struct ast_node *_parse_var(struct m_parser *parser, struct ast_node *parent, sy
         parse_next_token(parser); // skip '='
             // token
     struct ast_node *exp = 0;
-    struct ast_node *var = var_node_new(parent, parser->curr_token.loc, name, type, ext_type, 0);
+    struct ast_node *var = var_node_new(parser->curr_token.loc, name, type, ext_type, 0, !parent);
     if (type == TYPE_EXT) {
         exp = _parse_type_value_node(parser, var, ext_type);
     } else {
