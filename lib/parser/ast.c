@@ -619,7 +619,7 @@ bool is_recursive(struct ast_node *call)
             fun_name = parent->ft->name;
         else if (parent->node_type == FUNCTION_NODE)
             fun_name = parent->func->func_type->ft->name;
-        if (fun_name && string_eq(fun_name, call->call->callee))
+        if (fun_name && fun_name == call->call->callee)
             return true;
         parent = parent->parent;
     }
