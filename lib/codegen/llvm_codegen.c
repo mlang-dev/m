@@ -659,26 +659,54 @@ LLVMValueRef _emit_unk_node(struct code_generator *cg, struct ast_node *node)
     return 0;
 }
 
-LLVMValueRef (*cg_fp[])(struct code_generator *, struct ast_node *) = {
-    _emit_unk_node,
-    _emit_literal_node,
-    _emit_ident_node,
-    emit_var_node,
-    _emit_type_node,
-    _emit_type_value_node,
-    _emit_unary_node,
-    _emit_binary_node,
-    _emit_condition_node,
-    _emit_for_node,
-    emit_call_node,
-    emit_func_type_node,
-    emit_function_node,
-    _emit_block_node
-};
-
 LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node)
 {
-    return cg_fp[node->node_type](cg, node);
+    LLVMValueRef value = 0;
+    switch(node->node_type){
+        case UNK_NODE:
+            value = _emit_unk_node(cg, node);
+            break;
+        case LITERAL_NODE:
+            value = _emit_literal_node(cg, node);
+            break;
+        case IDENT_NODE:
+            value = _emit_ident_node(cg, node);
+            break;
+        case VAR_NODE:
+            value = emit_var_node(cg, node);
+            break;
+        case TYPE_NODE:
+            value = _emit_type_node(cg, node);
+            break;
+        case TYPE_VALUE_NODE:
+            value = _emit_type_value_node(cg, node);
+            break;
+        case UNARY_NODE:
+            value = _emit_unary_node(cg, node);
+            break;
+        case BINARY_NODE:
+            value = _emit_binary_node(cg, node);
+            break;
+        case CONDITION_NODE:
+            value = _emit_condition_node(cg, node);
+            break;
+        case FOR_NODE:
+            value = _emit_for_node(cg, node);
+            break;
+        case CALL_NODE:
+            value = emit_call_node(cg, node);
+            break;
+        case FUNC_TYPE_NODE:
+            value = emit_func_type_node(cg, node);
+            break;
+        case FUNCTION_NODE:
+            value = emit_function_node(cg, node);
+            break;
+        case BLOCK_NODE:
+            value = _emit_block_node(cg, node);
+            break;
+    }
+    return value;
 }
 
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
