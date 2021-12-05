@@ -344,11 +344,11 @@ struct op_type _parse_op_type(struct m_parser *parser, struct source_location lo
 struct exp_node *_parse_type_value_node(struct m_parser *parser, struct exp_node *parent, symbol ext_type_symbol)
 {
     assert(ext_type_symbol);
-    struct type_node *type = (struct type_node *)hashtable_get_p(&parser->ext_types, ext_type_symbol);
+    struct ast_node *type = (struct ast_node *)hashtable_get_p(&parser->ext_types, ext_type_symbol);
     assert(type);
     struct ast_node *block = _parse_block(parser, (struct exp_node *)parent, 0, 0);
     if (block) {
-        assert(array_size(&type->body->block->nodes) == array_size(&block->block->nodes));
+        assert(array_size(&type->type_def->body->block->nodes) == array_size(&block->block->nodes));
         return (struct exp_node *)type_value_node_new(parent, parser->curr_token.loc, block, ext_type_symbol);
     }
     return 0;
@@ -783,9 +783,9 @@ struct exp_node *_parse_type(struct m_parser *parser, struct exp_node *parent)
     parse_next_token(parser); /*pointing to '='*/
     assert(parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.val.symbol_val == parser->assignment);
     parse_next_token(parser);
-    struct type_node *type = type_node_new(parent, loc, name, 0);
-    struct ast_node *body = _parse_block(parser, &type->base, 0, 0);
-    type->body = body;
+    struct ast_node *type = type_node_new(parent, loc, name, 0);
+    struct ast_node *body = _parse_block(parser, type, 0, 0);
+    type->type_def->body = body;
     assert(body);
     parser->id_is_var_decl = false;
     hashtable_set_int(&parser->symbol_2_int_types, name, TYPE_EXT);

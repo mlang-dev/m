@@ -102,7 +102,7 @@ struct code_generator {
     struct hashtable typename_2_irtypes;
 
     /* 
-     *  symboltable of <symbol, type_node*>
+     *  symboltable of <symbol, ast_node*>, type ast_node
      *  binding type name to AST definition node
      */
     struct hashtable typename_2_ast;

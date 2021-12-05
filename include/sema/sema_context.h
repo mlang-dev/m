@@ -38,7 +38,7 @@ struct sema_context {
     struct symboltable typename_2_typexps;
 
     /* 
-     *  new type AST def: hashtable of <symbol, struct exp_node （type_node)*> 
+     *  new type AST def: hashtable of <symbol, struct ast_node （type_node)*> 
      *      example: type Point2D = x:int y:int
      */
     struct hashtable ext_typename_2_asts;

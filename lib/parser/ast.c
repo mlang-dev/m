@@ -228,32 +228,25 @@ void _free_var_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct type_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct ast_node *body)
+struct ast_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct ast_node *body)
 {
-    struct type_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.node_type = TYPE_NODE;
-    node->base.annotated_type_enum = 0;
-    node->base.annotated_type_name = 0;
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->base.is_ret = false;
-    node->name = name;
-    node->body = body;
+    struct ast_node *node = ast_node_new(0, TYPE_NODE, 0, loc, parent);
+    MALLOC(node->type_def, sizeof(*node->type_def));
+    node->type_def->name = name;
+    node->type_def->body = body;
     return node;
 }
 
-struct type_node *_copy_type_node(struct type_node *orig_node)
+struct ast_node *_copy_type_node(struct ast_node *orig_node)
 {
-    return type_node_new(orig_node->base.parent, orig_node->base.loc,
-        orig_node->name, _copy_block_node(orig_node->body));
+    return type_node_new(orig_node->parent, orig_node->loc,
+        orig_node->type_def->name, _copy_block_node(orig_node->type_def->body));
 }
 
-void _free_type_node(struct type_node *node)
+void _free_type_node(struct ast_node *node)
 {
-    _free_block_node(node->body);
-    _free_exp_node(&node->base);
+    _free_block_node(node->type_def->body);
+    ast_node_free(node);
 }
 
 struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct ast_node *body, symbol type_symbol)
@@ -555,7 +548,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case VAR_NODE:
         return (struct exp_node *)_copy_var_node((struct ast_node *)node);
     case TYPE_NODE:
-        return (struct exp_node *)_copy_type_node((struct type_node *)node);
+        return (struct exp_node *)_copy_type_node((struct ast_node *)node);
     case TYPE_VALUE_NODE:
         return (struct exp_node *)_copy_type_value_node((struct type_value_node *)node);
     case IDENT_NODE:
@@ -597,7 +590,7 @@ void node_free(struct exp_node *node)
         _free_var_node((struct ast_node *)node);
         break;
     case TYPE_NODE:
-        _free_type_node((struct type_node *)node);
+        _free_type_node((struct ast_node *)node);
         break;
     case TYPE_VALUE_NODE:
         _free_type_value_node((struct type_value_node *)node);
@@ -659,10 +652,10 @@ bool is_recursive(struct call_node *call)
     return false;
 }
 
-int find_member_index(struct type_node *type_node, symbol member)
+int find_member_index(struct ast_node *type_node, symbol member)
 {
-    for (int i = 0; i < (int)array_size(&type_node->body->block->nodes); i++) {
-        struct ast_node *var = *(struct ast_node **)array_get(&type_node->body->block->nodes, i);
+    for (int i = 0; i < (int)array_size(&type_node->type_def->body->block->nodes); i++) {
+        struct ast_node *var = *(struct ast_node **)array_get(&type_node->type_def->body->block->nodes, i);
         if (var->var->var_name == member) {
             return i;
         }

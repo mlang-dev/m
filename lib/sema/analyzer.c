@@ -70,7 +70,7 @@ struct type_exp *_analyze_ident(struct sema_context *context, struct exp_node *n
         } else {
             assert(type);
             struct type_oper *oper = (struct type_oper *)type;
-            struct type_node *type_node = (struct type_node *)hashtable_get_p(&context->ext_typename_2_asts, oper->base.name);
+            struct ast_node *type_node = (struct ast_node *)hashtable_get_p(&context->ext_typename_2_asts, oper->base.name);
             int index = find_member_index(type_node, id);
             if (index < 0) {
                 _log_err(context, node->loc, "%s member not matched.");
@@ -133,18 +133,18 @@ struct type_exp *_analyze_var(struct sema_context *context, struct exp_node *nod
 
 struct type_exp *_analyze_type(struct sema_context *context, struct exp_node *node)
 {
-    struct type_node *type = (struct type_node *)node;
+    struct ast_node *type = (struct ast_node *)node;
     struct array args;
     array_init(&args, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&type->body->block->nodes); i++) {
+    for (size_t i = 0; i < array_size(&type->type_def->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
-        struct type_exp *arg = _analyze_var(context, *(struct exp_node **)array_get(&type->body->block->nodes, i));
+        struct type_exp *arg = _analyze_var(context, *(struct exp_node **)array_get(&type->type_def->body->block->nodes, i));
         array_push(&args, &arg);
     }
-    struct type_oper *result_type = create_type_oper_ext(type->name, &args);
-    assert(type->name == result_type->base.name);
-    push_symbol_type(&context->typename_2_typexps, type->name, result_type);
-    hashtable_set_p(&context->ext_typename_2_asts, type->name, node);
+    struct type_oper *result_type = create_type_oper_ext(type->type_def->name, &args);
+    assert(type->type_def->name == result_type->base.name);
+    push_symbol_type(&context->typename_2_typexps, type->type_def->name, result_type);
+    hashtable_set_p(&context->ext_typename_2_asts, type->type_def->name, node);
     return &result_type->base;
 }
 

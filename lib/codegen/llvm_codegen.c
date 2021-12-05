@@ -443,7 +443,7 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
     }
     if (array_size(&ident->ident->member_accessors) > 1) {
         string *type_name = hashtable_get_p(&cg->varname_2_typename, id);
-        struct type_node *type_node = (struct type_node *)hashtable_get_p(&cg->typename_2_ast, type_name);
+        struct ast_node *type_node = (struct ast_node *)hashtable_get_p(&cg->typename_2_ast, type_name);
         symbol attr = *((symbol *)array_get(&ident->ident->member_accessors, 1));
         int index = find_member_index(type_node, attr);
         v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));

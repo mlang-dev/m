@@ -108,8 +108,7 @@ struct _for_node {
     struct exp_node *start, *end, *step, *body;
 };
 
-struct type_node {
-    struct exp_node base;
+struct _type_node {
     struct ast_node *body; //body block
     symbol name; /*type name*/
 };
@@ -177,7 +176,7 @@ struct ast_node {
         struct function_node *func;
         struct call_node *call;
         
-        struct type_node *type_data; 
+        struct _type_node *type_def; 
         struct type_value_node *type_value;
         
         struct _if_node *cond;
@@ -217,7 +216,7 @@ struct func_type_node *func_type_node_new(struct exp_node *parent, struct source
     unsigned precedence,
     symbol op,
     bool is_variadic, bool is_external);
-struct type_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct ast_node *body);
+struct ast_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct ast_node *body);
 struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct ast_node *body, symbol type_name);
 struct func_type_node *func_type_node_default_new(struct exp_node *parent, struct source_location loc,
     symbol name,
@@ -239,7 +238,7 @@ bool is_binary_op(struct func_type_node *pnode);
 char get_op_name(struct func_type_node *pnode);
 bool is_recursive(struct call_node *call);
 symbol get_callee(struct call_node *call);
-int find_member_index(struct type_node *type_node, symbol member);
+int find_member_index(struct ast_node *type_node, symbol member);
 
 struct func_type_node *find_parent_proto(struct exp_node *node);
 
