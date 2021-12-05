@@ -273,6 +273,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
     // TODO: this should be moved to codegen phase
     if (specialized_fun) {
         #ifndef WASM
+        printf("debug: %p\n", (void*)specialized_fun);
         emit_ir_code(get_env()->cg, specialized_fun);
         #endif
     }
