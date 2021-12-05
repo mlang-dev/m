@@ -173,9 +173,10 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct ast_nod
     return node->type;
 }
 
-struct type_exp *_analyze_fun(struct sema_context *context, struct ast_node *node)
+struct type_exp *_analyze_func(struct sema_context *context, struct ast_node *node)
 {
     hashtable_set_p(&context->func_types, node->func->func_type->ft->name, node->func->func_type);
+    stack_push(&context->func_stack, &node);
     //# create a new non-generic variable for the binder
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
@@ -208,6 +209,8 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct ast_node *nod
     if (is_generic(result)) {
         hashtable_set(&context->generic_ast, string_get(node->func->func_type->ft->name), node);
     }
+    struct ast_node *saved_node = *(struct ast_node **)stack_pop(&context->func_stack);
+    assert(node == saved_node);
     return result;
 }
 
@@ -233,27 +236,32 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
     }
 
     /* monomorphization of generic */
-    if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args)) && !is_recursive(node)) {
-        string sp_callee = monomorphize(string_get(node->call->callee), &args);
-        node->call->specialized_callee = to_symbol(string_get(&sp_callee));
-        if (has_symbol(&context->decl_2_typexps, node->call->specialized_callee)) {
-            fun_type = retrieve_type_for_var_name(context, node->call->specialized_callee);
-            struct type_oper *fun_op = (struct type_oper *)fun_type;
-            return *(struct type_exp **)array_back(&fun_op->args);
-        }
-        /* specialized callee */
-        struct ast_node *generic_fun = (struct ast_node *)hashtable_get(&context->generic_ast, string_get(node->call->callee));
-        struct ast_node *sp_fun = node_copy(generic_fun);
-        array_push(&generic_fun->func->sp_funs, &sp_fun);
+    if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args))) {
+        //struct ast_node *parent_func = *(struct ast_node**)stack_top(&context->func_stack);
+        bool is_rec = is_recursive(node);
+        //assert(is_rec == (parent_func && parent_func->func->func_type->ft->name == node->call->callee));
+        if (!is_rec){
+            string sp_callee = monomorphize(string_get(node->call->callee), &args);
+            node->call->specialized_callee = to_symbol(string_get(&sp_callee));
+            if (has_symbol(&context->decl_2_typexps, node->call->specialized_callee)) {
+                fun_type = retrieve_type_for_var_name(context, node->call->specialized_callee);
+                struct type_oper *fun_op = (struct type_oper *)fun_type;
+                return *(struct type_exp **)array_back(&fun_op->args);
+            }
+            /* specialized callee */
+            struct ast_node *generic_fun = (struct ast_node *)hashtable_get(&context->generic_ast, string_get(node->call->callee));
+            struct ast_node *sp_fun = node_copy(generic_fun);
+            array_push(&generic_fun->func->sp_funs, &sp_fun);
 
-        sp_fun->func->func_type->ft->name = node->call->specialized_callee;
-        fun_type = analyze(context, sp_fun);
-        hashtable_set(&context->specialized_ast, string_get(sp_fun->func->func_type->ft->name), sp_fun);
-        array_push(&context->new_specialized_asts, &sp_fun);     
-        push_symbol_type(&context->decl_2_typexps, node->call->specialized_callee, fun_type);
-        hashtable_set_p(&context->func_types, node->call->specialized_callee, sp_fun->func->func_type);
-        hashtable_set_p(&context->calls, node->call->specialized_callee, node);
-        node->call->callee_func_type = sp_fun->func->func_type;
+            sp_fun->func->func_type->ft->name = node->call->specialized_callee;
+            fun_type = analyze(context, sp_fun);
+            hashtable_set(&context->specialized_ast, string_get(sp_fun->func->func_type->ft->name), sp_fun);
+            array_push(&context->new_specialized_asts, &sp_fun);     
+            push_symbol_type(&context->decl_2_typexps, node->call->specialized_callee, fun_type);
+            hashtable_set_p(&context->func_types, node->call->specialized_callee, sp_fun->func->func_type);
+            hashtable_set_p(&context->calls, node->call->specialized_callee, node);
+            node->call->callee_func_type = sp_fun->func->func_type;
+        }
     }
     struct type_exp *result_type = (struct type_exp *)create_type_var();
     array_push(&args, &result_type);
@@ -358,7 +366,7 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
 {
     struct type_exp *type = 0;
     switch(node->node_type){
-        default:
+        case UNK_NODE:
             type = _analyze_unk(context, node);
             break;
         case LITERAL_NODE:
@@ -395,7 +403,7 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_func_type(context, node);
             break;
         case FUNCTION_NODE:
-            type = _analyze_fun(context, node);
+            type = _analyze_func(context, node);
             break;
         case BLOCK_NODE:
             type = _analyze_block(context, node);

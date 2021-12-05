@@ -35,6 +35,14 @@ void *stack_pop(struct stack *s)
     return 0;
 }
 
+void *stack_top(struct stack *s)
+{
+    if (s->top > 0) {
+        return array_get(&s->items, s->top);
+    }
+    return 0;
+}
+
 void stack_deinit(struct stack *q)
 {
     array_deinit(&q->items);

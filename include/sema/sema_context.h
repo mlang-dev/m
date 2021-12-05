@@ -10,6 +10,7 @@
 #define __MLANG_SEMA_CONTEXT_H__
 
 #include "clib/array.h"
+#include "clib/stack.h"
 #include "clib/symboltable.h"
 #include "parser/m_parser.h"
 
@@ -35,6 +36,12 @@ struct sema_context {
      *  binding type name to type expression
      */
     struct symboltable typename_2_typexps;
+
+    /* 
+     *  type env: symboltable of <symbol, struct ast_node*>
+     *  binding type name to type expression
+     */
+    struct stack func_stack;
 
     /* 
      *  new type AST def: hashtable of <symbol, struct ast_node （type_node)*> 
