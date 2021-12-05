@@ -216,7 +216,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
 {
     struct type_exp *fun_type = retrieve_type_for_var_name(context, node->call->callee);
     if (!fun_type) {
-        struct source_location loc = { 1, 1 };
+        struct source_location loc = { 1, 1, 0, 0 };
         string error;
         string_copy(&error, node->call->callee);
         string_add_chars(&error, " not defined");

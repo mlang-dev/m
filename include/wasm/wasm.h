@@ -15,7 +15,11 @@
 extern "C" {
 #endif
 
+#if WASM
 #define EXPORT __attribute__((visibility("default")))
+#else 
+#define EXPORT 
+#endif 
 
 typedef int32_t i32;
 #define OPCODE_I32ADD   0x6A

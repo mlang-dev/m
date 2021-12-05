@@ -5,7 +5,6 @@
 #define ENTRY _start
 #else
 #define ENTRY main
-#define EXPORT
 #endif
 
 int test_array();
