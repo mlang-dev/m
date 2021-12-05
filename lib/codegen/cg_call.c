@@ -16,12 +16,12 @@
 // get parent func sret parameter if exists
 LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct exp_node *node)
 {
-    struct func_type_node *parent_proto = find_parent_proto(node);
-    struct fun_info *fi = get_fun_info(parent_proto);
+    struct ast_node *parent_ft = find_parent_proto(node);
+    struct fun_info *fi = get_fun_info(parent_ft);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
     LLVMValueRef ret = 0;
     if (has_sret && node->is_ret) {
-        LLVMValueRef fun = get_llvm_function(cg, parent_proto->name);
+        LLVMValueRef fun = get_llvm_function(cg, parent_ft->func_type->name);
         ret = LLVMGetParam(fun, fi->iai.sret_arg_no);
     }
     return ret;
@@ -30,9 +30,9 @@ LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct exp
 LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
 {
     struct call_node *call = (struct call_node *)node;
-    assert(call->callee_decl);
+    assert(call->callee_func_type);
     symbol callee_name = get_callee(call);
-    struct fun_info *fi = get_fun_info(call->callee_decl);
+    struct fun_info *fi = get_fun_info(call->callee_func_type);
     assert(fi);
     LLVMValueRef callee = get_llvm_function(cg, callee_name);
     assert(callee);
@@ -42,12 +42,12 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     LLVMValueRef *arg_values;
     MALLOC(arg_values, ir_arg_count * sizeof(LLVMValueRef));
     LLVMTypeRef sig_ret_type = get_llvm_type(fi->ret.type);
-    struct func_type_node *parent_proto = find_parent_proto(node);
+    struct ast_node *parent_ft = find_parent_proto(node);
     struct type_size_info ret_tsi = get_type_size_info(fi->ret.type);
     LLVMValueRef ret_alloca = 0;
     LLVMValueRef parent_fun = 0;
-    if (parent_proto) { //TODO: JIT call code in global scope, no parent
-        parent_fun = get_llvm_function(cg, parent_proto->name);
+    if (parent_ft) { //TODO: JIT call code in global scope, no parent
+        parent_fun = get_llvm_function(cg, parent_ft->func_type->name);
     }
 
     if (has_sret) { //the first is return struct
@@ -98,10 +98,10 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
         return ret_alloca;
     }
 
-    if (!parent_proto)
+    if (!parent_ft)
         return call_inst;
 
-    assert(parent_proto->base.node_type == FUNC_TYPE_NODE);
+    assert(parent_ft->node_type == FUNC_TYPE_NODE);
     //TODO: fix return has to be a valid type, not null
     if (fi->ret.info.type && sig_ret_type != fi->ret.info.type) {
         //create temp memory

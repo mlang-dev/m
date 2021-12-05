@@ -119,8 +119,7 @@ struct _type_value_node {
 
 #define ARRAY_FUN_PARAM(var) ARRAY(var, struct ast_node*, 0)
 
-struct func_type_node {
-    struct exp_node base;
+struct _func_type_node {
     symbol name;
     symbol op;
     struct array fun_params; /*struct array of var ast_node*/
@@ -138,7 +137,7 @@ struct func_type_node {
 
 struct function_node {
     struct exp_node base;
-    struct func_type_node *func_type;
+    struct ast_node *func_type;
     struct ast_node *body; /*body block*/
 };
 
@@ -147,7 +146,7 @@ struct call_node {
     symbol callee;
     symbol specialized_callee;
     struct array args; // args: struct array of exp_node*
-    struct func_type_node *callee_decl;
+    struct ast_node *callee_func_type;
 };
 
 struct ast_node {
@@ -171,7 +170,7 @@ struct ast_node {
         struct _binary_node *binop;
         struct _var_node *var;
         
-        struct func_type_node *func_type;
+        struct _func_type_node *func_type;
         struct function_node *func;
         struct call_node *call;
         
@@ -193,7 +192,7 @@ void ast_node_free(struct ast_node *node);
 
 struct type_exp *get_ret_type(struct function_node *fun_node);
 
-struct function_node *function_node_new(struct func_type_node *func_type,
+struct function_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body);
 struct ast_node *ident_node_new(struct exp_node *parent, struct source_location loc, symbol name);
 
@@ -207,7 +206,7 @@ struct ast_node *string_node_new(struct exp_node *parent, struct source_location
 struct ast_node *var_node_new(struct exp_node *parent, struct source_location loc, symbol var_name, enum type type, symbol ext_type, struct exp_node *init_value);
 struct call_node *call_node_new(struct exp_node *parent, struct source_location loc, symbol callee,
     struct array *args);
-struct func_type_node *func_type_node_new(struct exp_node *parent, struct source_location loc,
+struct ast_node *func_type_node_new(struct exp_node *parent, struct source_location loc,
     symbol name,
     struct array *params,
     struct type_exp *ret_type,
@@ -217,7 +216,7 @@ struct func_type_node *func_type_node_new(struct exp_node *parent, struct source
     bool is_variadic, bool is_external);
 struct ast_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct ast_node *body);
 struct ast_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct ast_node *body, symbol type_name);
-struct func_type_node *func_type_node_default_new(struct exp_node *parent, struct source_location loc,
+struct ast_node *func_type_node_default_new(struct exp_node *parent, struct source_location loc,
     symbol name,
     struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external);
 
@@ -232,14 +231,14 @@ struct exp_node *node_copy(struct exp_node *node);
 struct module *module_new(const char *mod_name, FILE *file);
 void node_free(struct exp_node *node);
 
-bool is_unary_op(struct func_type_node *pnode);
-bool is_binary_op(struct func_type_node *pnode);
-char get_op_name(struct func_type_node *pnode);
+bool is_unary_op(struct ast_node *pnode);
+bool is_binary_op(struct ast_node *pnode);
+char get_op_name(struct ast_node *pnode);
 bool is_recursive(struct call_node *call);
 symbol get_callee(struct call_node *call);
 int find_member_index(struct ast_node *type_node, symbol member);
 
-struct func_type_node *find_parent_proto(struct exp_node *node);
+struct ast_node *find_parent_proto(struct exp_node *node);
 
 #ifdef __cplusplus
 }

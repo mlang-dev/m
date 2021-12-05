@@ -68,10 +68,10 @@ struct sema_context *sema_context_new(struct m_parser *parser)
     for (size_t i = 0; i < array_size(&builtins); i++) {
         struct exp_node *node = *(struct exp_node **)array_get(&builtins, i);
         assert(node->node_type == FUNC_TYPE_NODE);
-        struct func_type_node *func_type = (struct func_type_node *)node;
+        struct ast_node *func_type = (struct ast_node *)node;
         analyze(context, node);
-        push_symbol_type(&context->decl_2_typexps, func_type->name, func_type->base.type);
-        hashtable_set_p(&context->builtin_ast, func_type->name, node);
+        push_symbol_type(&context->decl_2_typexps, func_type->func_type->name, func_type->type);
+        hashtable_set_p(&context->builtin_ast, func_type->func_type->name, node);
         //string type = to_string(func_type->base.type);
     }
     return context;

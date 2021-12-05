@@ -26,16 +26,16 @@ struct address emit_address_at_offset(struct code_generator *cg, struct address 
     return adr;
 }
 
-void _emit_argument_allocas(struct code_generator *cg, struct func_type_node *node,
+void _emit_argument_allocas(struct code_generator *cg, struct ast_node *node,
     struct fun_info *fi, LLVMValueRef fun)
 {
-    struct type_oper *proto_type = (struct type_oper *)node->base.type;
+    struct type_oper *proto_type = (struct type_oper *)node->type;
     //assert (LLVMCountParams(fun) == array_size(&proto_type->args) - 1);
     unsigned param_count = (unsigned)array_size(&fi->args);
     struct array params;
     array_init(&params, sizeof(struct address));
     for (unsigned i = 0; i < param_count; i++) {
-        struct ast_node *param = *(struct ast_node **)array_get(&node->fun_params, i);
+        struct ast_node *param = *(struct ast_node **)array_get(&node->func_type->fun_params, i);
         //struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
         struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
@@ -105,17 +105,17 @@ LLVMValueRef emit_func_type_node(struct code_generator *cg, struct exp_node *nod
 
 LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi)
 {
-    struct func_type_node *func_type = (struct func_type_node *)node;
-    assert(func_type->base.type);
-    hashtable_set_p(&cg->protos, func_type->name, func_type);
-    struct type_oper *proto_type = (struct type_oper *)func_type->base.type;
+    struct ast_node *func_type = (struct ast_node *)node;
+    assert(func_type->type);
+    hashtable_set_p(&cg->protos, func_type->func_type->name, func_type);
+    struct type_oper *proto_type = (struct type_oper *)func_type->type;
     assert(proto_type->base.kind == KIND_OPER);
     struct fun_info *fi = get_fun_info(func_type);
     if (out_fi)
         *out_fi = fi;
     assert(fi);
     LLVMTypeRef fun_type = get_fun_type(fi);
-    LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(func_type->name), fun_type);
+    LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(func_type->func_type->name), fun_type);
     if (fi->iai.sret_arg_no != InvalidIndex) {
         LLVMValueRef ai = LLVMGetParam(fun, fi->iai.sret_arg_no);
         const char *sret_var = "agg.result";
@@ -126,7 +126,7 @@ LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct exp_node *
     unsigned param_count = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < param_count; i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
-        struct ast_node *fun_param = *(struct ast_node **)array_get(&func_type->fun_params, i);
+        struct ast_node *fun_param = *(struct ast_node **)array_get(&func_type->func_type->fun_params, i);
         LLVMSetValueName2(param, string_get(fun_param->var->var_name), string_size(fun_param->var->var_name));
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
         if (aa->type->type == TYPE_EXT)

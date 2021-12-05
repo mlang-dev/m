@@ -21,18 +21,18 @@ string _dump_block(struct ast_node *node)
     return block;
 }
 
-string _dump_func_type(struct func_type_node *func_type)
+string _dump_func_type(struct ast_node *func_type)
 {
     string result;
     string_init(&result);
-    if (func_type->is_extern)
+    if (func_type->func_type->is_extern)
         string_add_chars(&result, "extern ");
-    string_add_chars(&result, string_get(func_type->name));
+    string_add_chars(&result, string_get(func_type->func_type->name));
     ARRAY_STRING(args);
     string var_str;
     string_init(&var_str);
-    for (size_t i = 0; i < array_size(&func_type->fun_params); i++) {
-        struct ast_node *var = *(struct ast_node **)array_get(&func_type->fun_params, i);
+    for (size_t i = 0; i < array_size(&func_type->func_type->fun_params); i++) {
+        struct ast_node *var = *(struct ast_node **)array_get(&func_type->func_type->fun_params, i);
         string_copy(&var_str, var->var->var_name);
         if (var->annotated_type_enum && var->annotated_type_enum != TYPE_GENERIC) {
             string var_type;
@@ -46,8 +46,8 @@ string _dump_func_type(struct func_type_node *func_type)
     string_add_chars(&result, "(");
     string_add(&result, &joined);
     string_add_chars(&result, ")");
-    if (func_type->base.annotated_type_name) {
-        string_copy_chars(&var_str, string_get(func_type->base.annotated_type_name));
+    if (func_type->annotated_type_name) {
+        string_copy_chars(&var_str, string_get(func_type->annotated_type_name));
         string_add_chars(&result, ":");
         string_add(&result, &var_str);
     }
@@ -168,7 +168,7 @@ string dump(struct exp_node *node)
     if (node->node_type == FUNCTION_NODE)
         return _dump_function((struct function_node *)node);
     else if (node->node_type == FUNC_TYPE_NODE)
-        return _dump_func_type((struct func_type_node *)node);
+        return _dump_func_type((struct ast_node *)node);
     else if (node->node_type == VAR_NODE)
         return _dump_var((struct ast_node *)node);
     else if (node->node_type == UNARY_NODE)

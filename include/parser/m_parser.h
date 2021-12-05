@@ -86,9 +86,9 @@ struct exp_node *parse_exp_to_function(struct m_parser *parser, struct exp_node 
 struct exp_node *parse_import(struct m_parser *parser, struct exp_node *parent);
 struct exp_node *parse_statement(struct m_parser *parser, struct exp_node *parent);
 struct exp_node *parse_exp(struct m_parser *parser, struct exp_node *parent, struct exp_node *lhs);
-bool is_unary_op(struct func_type_node *pnode);
-bool is_binary_op(struct func_type_node *pnode);
-char get_op_name(struct func_type_node *pnode);
+bool is_unary_op(struct ast_node *ft_node);
+bool is_binary_op(struct ast_node *ft_node);
+char get_op_name(struct ast_node *ft_node);
 void queue_token(struct m_parser *parser, struct token tkn);
 void queue_tokens(struct m_parser *psr, struct array *tokens);
 struct ast_node *parse_file(struct m_parser *parser, const char *file_name);

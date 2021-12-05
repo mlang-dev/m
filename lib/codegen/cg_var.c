@@ -29,12 +29,12 @@ void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct a
 
 LLVMValueRef emit_type_value_node(struct code_generator *cg, struct ast_node *type_values, bool is_ret, const char *name)
 {
-    struct func_type_node *proto_node = (struct func_type_node *)find_parent_proto(type_values);
+    struct ast_node *ft_node = (struct ast_node *)find_parent_proto(type_values);
     struct type_exp *te = type_values->type;
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
     struct type_size_info tsi = get_type_size_info(te);
-    struct fun_info *fi = get_fun_info(proto_node);
+    struct fun_info *fi = get_fun_info(ft_node);
     bool is_rvo = check_rvo(fi);
     is_ret = is_ret || type_values->is_ret;
     LLVMValueRef alloca = 0;

@@ -72,13 +72,13 @@ struct code_generator {
     hashset builtins;
 
     /* 
-     *  symboltable of <symbol, func_type_node*>
-     *  binding func_type name to func_type_node*
+     *  symboltable of <symbol, ast_node*>
+     *  binding func_type name to func type ast_node*
      */
     struct hashtable protos;
 
     /* 
-     *  symboltable of <symbol, var as_node*>
+     *  symboltable of <symbol, var ast_node*>
      *  binding global variable name to var ast_node*
      */
     struct hashtable gvs;

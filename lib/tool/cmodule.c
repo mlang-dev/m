@@ -29,7 +29,7 @@ enum type _get_type(CXType cxtype)
     return type;
 }
 
-struct func_type_node *create_function_func_type(CXCursor cursor)
+struct ast_node *create_function_func_type(CXCursor cursor)
 {
     CXType cur_type = clang_getCursorType(cursor);
 
@@ -79,7 +79,7 @@ enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClien
 
     // Consider functions and methods
     if (kind == CXCursor_FunctionDecl || kind == CXCursor_CXXMethod) {
-        struct func_type_node *node = create_function_func_type(cursor);
+        struct ast_node *node = create_function_func_type(cursor);
         if (node) {
             struct array *arr = (struct array *)client_data;
             array_push(arr, &node);
@@ -91,7 +91,7 @@ enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClien
 struct array parse_c_file(const char *file_path)
 {
     struct array func_types;
-    array_init(&func_types, sizeof(struct func_type_node *));
+    array_init(&func_types, sizeof(struct ast_node *));
     CXIndex index = clang_createIndex(0, 0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
         index,
