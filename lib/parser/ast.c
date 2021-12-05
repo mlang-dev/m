@@ -191,7 +191,7 @@ struct ast_node *_copy_literal_node(struct ast_node *orig_node)
 struct ast_node *var_node_new(struct source_location loc, symbol var_name, enum type annotated_type_enum, symbol ext_type_name,
     struct ast_node *init_value, bool is_global)
 {
-    struct ast_node *node = ast_node_new(0, VAR_NODE, annotated_type_enum, loc, 0);
+    struct ast_node *node = ast_node_new(0, VAR_NODE, annotated_type_enum, loc);
     MALLOC(node->var, sizeof(*node->var));
     if (ext_type_name)
         node->annotated_type_name = ext_type_name;
@@ -347,7 +347,7 @@ void _free_func_type_node(struct ast_node *node)
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body)
 {
-    struct ast_node *node = ast_node_new(0, FUNCTION_NODE, 0, func_type->loc, func_type);
+    struct ast_node *node = ast_node_new(0, FUNCTION_NODE, 0, func_type->loc);
     MALLOC(node->func, sizeof(*node->func));
     node->func->func_type = func_type;
     node->func->body = body;
