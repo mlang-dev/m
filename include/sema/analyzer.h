@@ -9,7 +9,6 @@
 #define __MLANG_ANALYZER_H__
 
 #include "clib/symbol.h"
-#include "codegen/codegen.h"
 #include "parser/ast.h"
 #include "sema/sema_context.h"
 
