@@ -311,7 +311,7 @@ struct ast_node *func_type_node_new(struct ast_node *parent, struct source_locat
     node->ft->is_extern = is_external;
     node->ft->op = op;
     if (is_variadic) {
-        struct ast_node *fun_param = var_node_new(loc, to_symbol(type_strings[TYPE_GENERIC]), TYPE_GENERIC, 0, 0, !node);
+        struct ast_node *fun_param = var_node_new(loc, to_symbol(type_strings[TYPE_GENERIC]), TYPE_GENERIC, 0, 0, false);
         fun_param->type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param->annotated_type_name);
         array_push(&node->ft->fun_params, &fun_param);
     }
@@ -332,7 +332,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
     node->ft->op = func_type->ft->op;
     if (func_type->ft->is_variadic) {
         symbol var_name = to_symbol(type_strings[TYPE_GENERIC]);
-        struct ast_node *fun_param = var_node_new(node->loc, var_name, TYPE_GENERIC, 0, 0, !node);
+        struct ast_node *fun_param = var_node_new(node->loc, var_name, TYPE_GENERIC, 0, 0, false);
         array_push(&node->ft->fun_params, &fun_param);
     }
     return node;
