@@ -99,16 +99,16 @@ string _dump_binary(struct ast_node *binary)
     return bin;
 }
 
-string _dump_call(struct call_node *call)
+string _dump_call(struct ast_node *call)
 {
     ARRAY_STRING(args);
-    for (size_t i = 0; i < array_size(&call->args); i++) {
-        string dp = dump(*(struct exp_node **)array_get(&call->args, i));
+    for (size_t i = 0; i < array_size(&call->call->args); i++) {
+        string dp = dump(*(struct exp_node **)array_get(&call->call->args, i));
         array_push(&args, &dp);
     }
     string args_str = string_join(&args, " ");
     string result;
-    string_init_chars(&result, string_get(call->callee));
+    string_init_chars(&result, string_get(call->call->callee));
     string_add_chars(&result, " ");
     string_add(&result, &args_str);
     return result;
@@ -178,7 +178,7 @@ string dump(struct exp_node *node)
     else if (node->node_type == CONDITION_NODE)
         return _dump_if((struct ast_node *)node);
     else if (node->node_type == CALL_NODE)
-        return _dump_call((struct call_node *)node);
+        return _dump_call((struct ast_node *)node);
     else if (node->node_type == FOR_NODE)
         return _dump_for((struct ast_node *)node);
     else if (node->node_type == IDENT_NODE)

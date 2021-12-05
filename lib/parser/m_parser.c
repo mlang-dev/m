@@ -446,8 +446,8 @@ struct exp_node *_parse_function_app_or_def(struct m_parser *parser, struct exp_
     }
     // function application
     symbol name_symbol = string_2_symbol(&id_name);
-    struct exp_node *call_node = (struct exp_node *)call_node_new(parent, loc, name_symbol, &args);
-    return parse_exp(parser, parent, call_node);
+    struct exp_node *call = (struct exp_node *)call_node_new(parent, loc, name_symbol, &args);
+    return parse_exp(parser, parent, call);
 }
 
 struct exp_node *parse_statement(struct m_parser *parser, struct exp_node *parent)

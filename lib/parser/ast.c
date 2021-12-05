@@ -270,40 +270,35 @@ void _free_type_value_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct call_node *call_node_new(struct exp_node *parent, struct source_location loc, symbol callee,
+struct ast_node *call_node_new(struct exp_node *parent, struct source_location loc, symbol callee,
     struct array *args)
 {
-    struct call_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.node_type = CALL_NODE;
-    node->base.annotated_type_enum = 0;
-    node->base.annotated_type_name = 0;
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->base.is_ret = false;
-    node->callee = callee;
-    array_copy(&node->args, args);
-    node->specialized_callee = 0;
-    node->callee_func_type = 0;
+    struct ast_node *node = ast_node_new(0, CALL_NODE, 0, loc, parent);
+    MALLOC(node->call, sizeof(*node->call));
+    node->call->callee = callee;
+    array_copy(&node->call->args, args);
+    node->call->specialized_callee = 0;
+    node->call->callee_func_type = 0;
     return node;
 }
 
-struct call_node *_copy_call_node(struct call_node *orig_node)
+struct ast_node *_copy_call_node(struct ast_node *orig_node)
 {
-    return call_node_new(orig_node->base.parent, orig_node->base.loc, orig_node->callee,
-        &orig_node->args);
+    return call_node_new(orig_node->parent, orig_node->loc, orig_node->call->callee,
+        &orig_node->call->args);
 }
 
-void _free_call_node(struct call_node *node)
+void _free_call_node(struct ast_node *node)
 {
+    /*TODO mem leak
     _free_exp_nodes(&node->args);
-    _free_exp_node(&node->base);
+    */
+    ast_node_free(node);
 }
 
-symbol get_callee(struct call_node *call)
+symbol get_callee(struct ast_node *call)
 {
-    return call->specialized_callee ? call->specialized_callee : call->callee;
+    return call->call->specialized_callee ? call->call->specialized_callee : call->call->callee;
 }
 
 struct ast_node *func_type_node_default_new(struct exp_node *parent, struct source_location loc, symbol name, struct array *args,
@@ -531,7 +526,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case LITERAL_NODE:
         return (struct exp_node *)_copy_literal_node((struct ast_node *)node);
     case CALL_NODE:
-        return (struct exp_node *)_copy_call_node((struct call_node *)node);
+        return (struct exp_node *)_copy_call_node((struct ast_node *)node);
     case CONDITION_NODE:
         return (struct exp_node *)_copy_if_node((struct ast_node *)node);
     case FOR_NODE:
@@ -577,7 +572,7 @@ void node_free(struct exp_node *node)
         _free_literal_node((struct ast_node *)node);
         break;
     case CALL_NODE:
-        _free_call_node((struct call_node *)node);
+        _free_call_node((struct ast_node *)node);
         break;
     case CONDITION_NODE:
         _free_if_node((struct ast_node *)node);
@@ -611,16 +606,16 @@ struct module *module_new(const char *mod_name, FILE *file)
     return mod;
 }
 
-bool is_recursive(struct call_node *call)
+bool is_recursive(struct ast_node *call)
 {
-    struct exp_node *parent = call->base.parent;
+    struct exp_node *parent = call->parent;
     symbol fun_name = 0;
     while (parent) {
         if (parent->node_type == FUNC_TYPE_NODE)
             fun_name = ((struct ast_node *)parent)->ft->name;
         else if (parent->node_type == FUNCTION_NODE)
             fun_name = ((struct ast_node *)parent)->func->func_type->ft->name;
-        if (fun_name && string_eq(fun_name, call->callee))
+        if (fun_name && string_eq(fun_name, call->call->callee))
             return true;
         parent = parent->parent;
     }

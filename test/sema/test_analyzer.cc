@@ -102,11 +102,11 @@ TEST(testAnalyzer, testCallNode)
     create_ir_module(env->cg, "test");
     ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
     emit_code(env, (exp_node *)block);
-    auto node = *(call_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_EQ(CALL_NODE, node->base.node_type);
-    ASSERT_EQ(TYPE_INT, node->base.type->type);
-    string type_str = to_string(node->base.type);
+    ASSERT_EQ(CALL_NODE, node->node_type);
+    ASSERT_EQ(TYPE_INT, node->type->type);
+    string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
     env_free(env);
 }

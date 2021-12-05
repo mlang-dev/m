@@ -223,13 +223,13 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct exp_node *nod
 
 struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *node)
 {
-    struct call_node *call = (struct call_node *)node;
+    struct ast_node *call = (struct ast_node *)node;
     struct env *env = get_env();
-    struct type_exp *fun_type = retrieve_type_for_var_name(context, call->callee);
+    struct type_exp *fun_type = retrieve_type_for_var_name(context, call->call->callee);
     if (!fun_type) {
         struct source_location loc = { 1, 1 };
         string error;
-        string_copy(&error, call->callee);
+        string_copy(&error, call->call->callee);
         string_add_chars(&error, " not defined");
         _log_err(context, loc, string_get(&error));
         string_deinit(&error);
@@ -237,8 +237,8 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
     }
     struct array args;
     array_init(&args, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&call->args); i++) {
-        struct exp_node *arg = *(struct exp_node **)array_get(&call->args, i);
+    for (size_t i = 0; i < array_size(&call->call->args); i++) {
+        struct exp_node *arg = *(struct exp_node **)array_get(&call->call->args, i);
         struct type_exp *type = analyze(context, arg);
         assert(type);
         array_push(&args, &type);
@@ -247,35 +247,35 @@ struct type_exp *_analyze_call(struct sema_context *context, struct exp_node *no
     /* monomorphization of generic */
     struct exp_node *specialized_fun = 0;
     if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args)) && !is_recursive(call)) {
-        string sp_callee = monomorphize(string_get(call->callee), &args);
-        call->specialized_callee = to_symbol(string_get(&sp_callee));
-        if (has_symbol(&context->decl_2_typexps, call->specialized_callee)) {
-            fun_type = retrieve_type_for_var_name(context, call->specialized_callee);
+        string sp_callee = monomorphize(string_get(call->call->callee), &args);
+        call->call->specialized_callee = to_symbol(string_get(&sp_callee));
+        if (has_symbol(&context->decl_2_typexps, call->call->specialized_callee)) {
+            fun_type = retrieve_type_for_var_name(context, call->call->specialized_callee);
             struct type_oper *fun_op = (struct type_oper *)fun_type;
             return *(struct type_exp **)array_back(&fun_op->args);
         }
         /* specialized callee */
-        struct exp_node *generic_fun = (struct exp_node *)hashtable_get(&context->generic_ast, string_get(call->callee));
+        struct exp_node *generic_fun = (struct exp_node *)hashtable_get(&context->generic_ast, string_get(call->call->callee));
         struct ast_node *sp_fun = (struct ast_node *)node_copy(generic_fun);
-        sp_fun->func->func_type->ft->name = call->specialized_callee;
+        sp_fun->func->func_type->ft->name = call->call->specialized_callee;
         fun_type = analyze(env->sema_context, (struct exp_node *)sp_fun);
         hashtable_set(&context->specialized_ast, string_get(sp_fun->func->func_type->ft->name), sp_fun);
-        push_symbol_type(&context->decl_2_typexps, call->specialized_callee, fun_type);
+        push_symbol_type(&context->decl_2_typexps, call->call->specialized_callee, fun_type);
         specialized_fun = (struct exp_node *)sp_fun;
-        hashtable_set_p(&context->protos, call->specialized_callee, sp_fun->func->func_type);
-        hashtable_set_p(&context->calls, call->specialized_callee, node);
-        call->callee_func_type = sp_fun->func->func_type;
+        hashtable_set_p(&context->protos, call->call->specialized_callee, sp_fun->func->func_type);
+        hashtable_set_p(&context->calls, call->call->specialized_callee, node);
+        call->call->callee_func_type = sp_fun->func->func_type;
     }
     struct type_exp *result_type = (struct type_exp *)create_type_var();
     array_push(&args, &result_type);
     struct type_exp *call_fun = (struct type_exp *)create_type_fun(&args);
     unify(call_fun, fun_type, &context->nongens);
-    if (hashtable_in_p(&context->builtin_ast, call->callee)) {
-        array_push(&context->used_builtin_names, &call->callee);
+    if (hashtable_in_p(&context->builtin_ast, call->call->callee)) {
+        array_push(&context->used_builtin_names, &call->call->callee);
     }
-    if (!call->specialized_callee) {
-        hashtable_set_p(&context->calls, call->callee, node);
-        call->callee_func_type = hashtable_get_p(&context->protos, call->callee);
+    if (!call->call->specialized_callee) {
+        hashtable_set_p(&context->calls, call->call->callee, node);
+        call->call->callee_func_type = hashtable_get_p(&context->protos, call->call->callee);
     }
     // TODO: this should be moved to codegen phase
     if (specialized_fun) {

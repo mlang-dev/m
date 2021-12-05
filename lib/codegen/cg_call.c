@@ -29,14 +29,14 @@ LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct exp
 
 LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
 {
-    struct call_node *call = (struct call_node *)node;
-    assert(call->callee_func_type);
+    struct ast_node *call = (struct ast_node *)node;
+    assert(call->call->callee_func_type);
     symbol callee_name = get_callee(call);
-    struct fun_info *fi = get_fun_info(call->callee_func_type);
+    struct fun_info *fi = get_fun_info(call->call->callee_func_type);
     assert(fi);
     LLVMValueRef callee = get_llvm_function(cg, callee_name);
     assert(callee);
-    size_t arg_count = array_size(&call->args);
+    size_t arg_count = array_size(&call->call->args);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
     size_t ir_arg_count =  has_sret ? arg_count + 1 : arg_count;
     LLVMValueRef *arg_values;
@@ -59,7 +59,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     for (size_t i = 0; i < arg_count; ++i) {
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
         struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
-        struct exp_node *arg = *(struct exp_node **)array_get(&call->args, i);
+        struct exp_node *arg = *(struct exp_node **)array_get(&call->call->args, i);
         struct type_size_info tsi = get_type_size_info(arg->type);
         LLVMValueRef arg_value = emit_ir_code(cg, arg);
         switch (aaa->info.kind) {
