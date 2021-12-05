@@ -16,7 +16,8 @@
 // get parent func sret parameter if exists
 LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct ast_node *node)
 {
-    struct ast_node *parent_ft = find_parent_proto(node);
+    struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->sema_context->func_stack);
+    struct ast_node *parent_ft = parent_func->func->func_type;
     struct fun_info *fi = get_fun_info(parent_ft);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
     LLVMValueRef ret = 0;

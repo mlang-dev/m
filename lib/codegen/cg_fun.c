@@ -139,6 +139,7 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct ast_node *node
     if (is_generic(node->type)) {
         return 0;
     }
+    stack_push(&cg->sema_context->func_stack, &node);
     assert(node->type->kind == KIND_OPER);
     hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
@@ -187,6 +188,8 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct ast_node *node
         }
         LLVMBuildRet(cg->builder, ret_val);
     }
+    struct ast_node *saved_node = *(struct ast_node **)stack_pop(&cg->sema_context->func_stack);
+    assert(node == saved_node);
     return fun;
 }
 
