@@ -237,10 +237,8 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
 
     /* monomorphization of generic */
     if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args))) {
-        //struct ast_node *parent_func = *(struct ast_node**)stack_top(&context->func_stack);
-        bool is_rec = is_recursive(node);
-        //assert(is_rec == (parent_func && parent_func->func->func_type->ft->name == node->call->callee));
-        if (!is_rec){
+        struct ast_node *parent_func = stack_size(&context->func_stack) ? *(struct ast_node**)stack_top(&context->func_stack) : 0;
+        if (!parent_func || (parent_func->func->func_type->ft->name != node->call->callee)){
             string sp_callee = monomorphize(string_get(node->call->callee), &args);
             node->call->specialized_callee = to_symbol(string_get(&sp_callee));
             if (has_symbol(&context->decl_2_typexps, node->call->specialized_callee)) {

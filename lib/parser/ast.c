@@ -610,19 +610,6 @@ struct module *module_new(const char *mod_name, FILE *file)
     return mod;
 }
 
-bool is_recursive(struct ast_node *call)
-{
-    struct ast_node *parent = call->parent;
-    while (parent) {
-        if (parent->node_type == FUNC_TYPE_NODE){
-            if (parent->ft->name == call->call->callee)
-                return true;
-        }
-        parent = parent->parent;
-    }
-    return false;
-}
-
 int find_member_index(struct ast_node *type_node, symbol member)
 {
     for (int i = 0; i < (int)array_size(&type_node->type_def->body->block->nodes); i++) {

@@ -224,7 +224,6 @@ void node_free(struct ast_node *node);
 bool is_unary_op(struct ast_node *pnode);
 bool is_binary_op(struct ast_node *pnode);
 char get_op_name(struct ast_node *pnode);
-bool is_recursive(struct ast_node *call);
 symbol get_callee(struct ast_node *call);
 int find_member_index(struct ast_node *type_node, symbol member);
 
