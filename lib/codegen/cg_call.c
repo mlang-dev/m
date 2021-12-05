@@ -49,7 +49,8 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct ast_node *node)
     LLVMValueRef *arg_values;
     MALLOC(arg_values, ir_arg_count * sizeof(LLVMValueRef));
     LLVMTypeRef sig_ret_type = get_llvm_type(fi->ret.type);
-    struct ast_node *parent_ft = find_parent_proto(node);
+    struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->sema_context->func_stack);
+    struct ast_node *parent_ft = parent_func->func->func_type;
     struct type_size_info ret_tsi = get_type_size_info(fi->ret.type);
     LLVMValueRef ret_alloca = 0;
     LLVMValueRef parent_fun = 0;

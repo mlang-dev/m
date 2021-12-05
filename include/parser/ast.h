@@ -227,7 +227,6 @@ char get_op_name(struct ast_node *pnode);
 symbol get_callee(struct ast_node *call);
 int find_member_index(struct ast_node *type_node, symbol member);
 
-struct ast_node *find_parent_proto(struct ast_node *node);
 struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name);
 
 #ifdef __cplusplus

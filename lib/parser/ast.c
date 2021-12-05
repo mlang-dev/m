@@ -620,16 +620,3 @@ int find_member_index(struct ast_node *type_node, symbol member)
     }
     return -1;
 }
-
-struct ast_node *find_parent_proto(struct ast_node *node)
-{
-    struct ast_node *func_type = 0;
-    while (node->parent) {
-        if (node->parent->node_type == FUNC_TYPE_NODE) {
-            func_type = node->parent;
-            break;
-        }
-        node = node->parent;
-    }
-    return func_type;
-}
