@@ -249,31 +249,25 @@ void _free_type_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct ast_node *body, symbol type_symbol)
+struct ast_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct ast_node *body, symbol type_symbol)
 {
-    struct type_value_node *node;
-    MALLOC(node, sizeof(*node));
-    node->base.node_type = TYPE_VALUE_NODE;
-    node->base.annotated_type_enum = TYPE_EXT;
-    node->base.annotated_type_name = type_symbol;
-    node->base.type = 0;
-    node->base.parent = parent;
-    node->base.loc = loc;
-    node->base.is_ret = false;
-    node->body = body;
+    struct ast_node *node = ast_node_new(0, TYPE_VALUE_NODE, TYPE_EXT, loc, parent);
+    node->annotated_type_name = type_symbol;
+    MALLOC(node->type_value, sizeof(*node->type_value));
+    node->type_value->body = body;
     return node;
 }
 
-struct type_value_node *_copy_type_value_node(struct type_value_node *orig_node)
+struct ast_node *_copy_type_value_node(struct ast_node *orig_node)
 {
-    return type_value_node_new(orig_node->base.parent, orig_node->base.loc,
-        _copy_block_node(orig_node->body), orig_node->base.annotated_type_name);
+    return type_value_node_new(orig_node->parent, orig_node->loc,
+        _copy_block_node(orig_node->type_value->body), orig_node->annotated_type_name);
 }
 
-void _free_type_value_node(struct type_value_node *node)
+void _free_type_value_node(struct ast_node *node)
 {
-    _free_block_node(node->body);
-    _free_exp_node(&node->base);
+    _free_block_node(node->type_value->body);
+    ast_node_free(node);
 }
 
 struct call_node *call_node_new(struct exp_node *parent, struct source_location loc, symbol callee,
@@ -550,7 +544,7 @@ struct exp_node *node_copy(struct exp_node *node)
     case TYPE_NODE:
         return (struct exp_node *)_copy_type_node((struct ast_node *)node);
     case TYPE_VALUE_NODE:
-        return (struct exp_node *)_copy_type_value_node((struct type_value_node *)node);
+        return (struct exp_node *)_copy_type_value_node((struct ast_node *)node);
     case IDENT_NODE:
         return (struct exp_node *)_copy_ident_node((struct ast_node *)node);
     case LITERAL_NODE:
@@ -593,7 +587,7 @@ void node_free(struct exp_node *node)
         _free_type_node((struct ast_node *)node);
         break;
     case TYPE_VALUE_NODE:
-        _free_type_value_node((struct type_value_node *)node);
+        _free_type_value_node((struct ast_node *)node);
         break;
     case IDENT_NODE:
         _free_ident_node((struct ast_node *)node);

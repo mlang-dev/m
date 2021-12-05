@@ -150,15 +150,15 @@ struct type_exp *_analyze_type(struct sema_context *context, struct exp_node *no
 
 struct type_exp *_analyze_type_value(struct sema_context *context, struct exp_node *node)
 {
-    struct type_value_node *type_value = (struct type_value_node *)node;
+    struct ast_node *type_value = (struct ast_node *)node;
     struct env *env = get_env();
-    if (type_value->base.annotated_type_name)
-        type_value->base.type = retrieve_type_with_type_name(context, type_value->base.annotated_type_name);
-    for (size_t i = 0; i < array_size(&type_value->body->block->nodes); i++) {
+    if (type_value->annotated_type_name)
+        type_value->type = retrieve_type_with_type_name(context, type_value->annotated_type_name);
+    for (size_t i = 0; i < array_size(&type_value->type_value->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
-        analyze(env->sema_context, *(struct exp_node **)array_get(&type_value->body->block->nodes, i));
+        analyze(env->sema_context, *(struct exp_node **)array_get(&type_value->type_value->body->block->nodes, i));
     }
-    return type_value->base.type;
+    return type_value->type;
 }
 
 struct type_exp *_analyze_func_type(struct sema_context *context, struct exp_node *node)

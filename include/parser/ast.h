@@ -113,8 +113,7 @@ struct _type_node {
     symbol name; /*type name*/
 };
 
-struct type_value_node {
-    struct exp_node base;
+struct _type_value_node {
     struct ast_node *body; /*body block*/
 };
 
@@ -177,7 +176,7 @@ struct ast_node {
         struct call_node *call;
         
         struct _type_node *type_def; 
-        struct type_value_node *type_value;
+        struct _type_value_node *type_value;
         
         struct _if_node *cond;
         struct _for_node *forloop;
@@ -217,7 +216,7 @@ struct func_type_node *func_type_node_new(struct exp_node *parent, struct source
     symbol op,
     bool is_variadic, bool is_external);
 struct ast_node *type_node_new(struct exp_node *parent, struct source_location loc, symbol name, struct ast_node *body);
-struct type_value_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct ast_node *body, symbol type_name);
+struct ast_node *type_value_node_new(struct exp_node *parent, struct source_location loc, struct ast_node *body, symbol type_name);
 struct func_type_node *func_type_node_default_new(struct exp_node *parent, struct source_location loc,
     symbol name,
     struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external);

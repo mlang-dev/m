@@ -594,7 +594,7 @@ LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
 
 LLVMValueRef _emit_type_value_node(struct code_generator *cg, struct exp_node *node)
 {
-    return emit_type_value_node(cg, (struct type_value_node *)node, false, "tmp");
+    return emit_type_value_node(cg, (struct ast_node *)node, false, "tmp");
 }
 
 LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
