@@ -85,6 +85,7 @@ struct sema_context *sema_context_new(struct m_parser *parser);
 void sema_context_free(struct sema_context *env);
 void enter_scope(struct sema_context *env);
 void leave_scope(struct sema_context *env);
+struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name);
 
 #ifdef __cplusplus
 }

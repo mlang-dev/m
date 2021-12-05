@@ -88,7 +88,6 @@ struct type_exp *_analyze_num(struct sema_context *context, struct ast_node *nod
 struct type_exp *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
     struct type_exp *type;
-    struct env *env = get_env();
     assert(node->annotated_type_name || node->var->init_value);
     if (node->annotated_type_name && hashtable_get_int(&context->parser->symbol_2_int_types, node->annotated_type_name) == TYPE_EXT) {
         assert(node->annotated_type_name);
@@ -96,7 +95,7 @@ struct type_exp *_analyze_var(struct sema_context *context, struct ast_node *nod
         push_symbol_type(&context->decl_2_typexps, node->var->var_name, type);
         push_symbol_type(&context->varname_2_asts, node->var->var_name, node);
         if (node->var->init_value)
-            analyze(env->sema_context, node->var->init_value);
+            analyze(context, node->var->init_value);
         return type;
     } else if (node->annotated_type_name && !node->var->init_value) {
         type = retrieve_type_with_type_name(context, node->annotated_type_name);
@@ -146,12 +145,11 @@ struct type_exp *_analyze_type(struct sema_context *context, struct ast_node *no
 
 struct type_exp *_analyze_type_value(struct sema_context *context, struct ast_node *node)
 {
-    struct env *env = get_env();
     if (node->annotated_type_name)
         node->type = retrieve_type_with_type_name(context, node->annotated_type_name);
     for (size_t i = 0; i < array_size(&node->type_value->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
-        analyze(env->sema_context, *(struct ast_node **)array_get(&node->type_value->body->block->nodes, i));
+        analyze(context, *(struct ast_node **)array_get(&node->type_value->body->block->nodes, i));
     }
     return node->type;
 }
@@ -216,7 +214,6 @@ struct type_exp *_analyze_fun(struct sema_context *context, struct ast_node *nod
 
 struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *node)
 {
-    struct env *env = get_env();
     struct type_exp *fun_type = retrieve_type_for_var_name(context, node->call->callee);
     if (!fun_type) {
         struct source_location loc = { 1, 1 };
@@ -249,8 +246,10 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
         /* specialized callee */
         struct ast_node *generic_fun = (struct ast_node *)hashtable_get(&context->generic_ast, string_get(node->call->callee));
         struct ast_node *sp_fun = node_copy(generic_fun);
+        array_push(&generic_fun->func->sp_funs, &sp_fun);
+
         sp_fun->func->func_type->ft->name = node->call->specialized_callee;
-        fun_type = analyze(env->sema_context, sp_fun);
+        fun_type = analyze(context, sp_fun);
         hashtable_set(&context->specialized_ast, string_get(sp_fun->func->func_type->ft->name), sp_fun);
         push_symbol_type(&context->decl_2_typexps, node->call->specialized_callee, fun_type);
         specialized_fun = sp_fun;
@@ -271,7 +270,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
     }
     // TODO: this should be moved to codegen phase
     if (specialized_fun) {
-        emit_ir_code(env->cg, specialized_fun);
+        emit_ir_code(get_env()->cg, specialized_fun);
     }
     return result_type;
 }

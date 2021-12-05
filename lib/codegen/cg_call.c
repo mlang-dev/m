@@ -31,10 +31,17 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct ast_node *node)
 {
     assert(node->call->callee_func_type);
     symbol callee_name = get_callee(node);
+    LLVMValueRef callee = get_llvm_function(cg, callee_name);
+    if(!callee && node->call->specialized_callee){
+        //try codegen the sp fun on the demand
+        struct ast_node *generic_fun = find_generic_fun(cg->sema_context, node->call->callee);
+        struct ast_node *sp_fun = find_sp_fun(generic_fun, node->call->specialized_callee);
+        assert(sp_fun);
+        callee = emit_ir_code(cg, sp_fun);
+    }
+    assert(callee);
     struct fun_info *fi = get_fun_info(node->call->callee_func_type);
     assert(fi);
-    LLVMValueRef callee = get_llvm_function(cg, callee_name);
-    assert(callee);
     size_t arg_count = array_size(&node->call->args);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
     size_t ir_arg_count =  has_sret ? arg_count + 1 : arg_count;

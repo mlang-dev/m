@@ -339,7 +339,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
 
 void _free_func_type_node(struct ast_node *node)
 {
-    /*fun_params will be freed in array_deinit*/
+    /*TODO: fun_params will be freed in array_deinit, make sure free function is provided*/
     array_deinit(&node->ft->fun_params);
     ast_node_free(node);
 }
@@ -351,6 +351,7 @@ struct ast_node *function_node_new(struct ast_node *func_type,
     MALLOC(node->func, sizeof(*node->func));
     node->func->func_type = func_type;
     node->func->body = body;
+    array_init(&node->func->sp_funs, sizeof(struct ast_node*));
     return node;
 }
 
@@ -361,10 +362,26 @@ struct ast_node *_copy_function_node(struct ast_node *orig_node)
     return function_node_new(func_type, block);
 }
 
+struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name)
+{
+    assert(generic_fun->node_type == FUNCTION_NODE);
+    struct ast_node *sp_fun = 0;
+    for(size_t i = 0; i < array_size(&generic_fun->func->sp_funs); i++){
+        struct ast_node *fun = *(struct ast_node **)array_get(&generic_fun->func->sp_funs, i);
+        if(fun->func->func_type->ft->name == sp_fun_name){
+            sp_fun = fun;
+            break;
+        } 
+    }
+    return sp_fun;
+}
+
 void _free_function_node(struct ast_node *node)
 {
     _free_func_type_node(node->func->func_type);
     _free_block_node(node->func->body);
+    /*TODO: sp_funs make sure free function is provided*/
+    array_deinit(&node->func->sp_funs);
     ast_node_free(node);
 }
 

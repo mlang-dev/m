@@ -127,6 +127,9 @@ struct _func_type_node {
 struct _function_node {
     struct ast_node *func_type;
     struct ast_node *body; /*body block*/
+
+    /*array of specialized functions if current is generic func*/
+    struct array sp_funs; 
 };
 
 struct _call_node {
@@ -226,6 +229,7 @@ symbol get_callee(struct ast_node *call);
 int find_member_index(struct ast_node *type_node, symbol member);
 
 struct ast_node *find_parent_proto(struct ast_node *node);
+struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name);
 
 #ifdef __cplusplus
 }
