@@ -13,6 +13,9 @@
 
 struct source_location default_loc = {0, 0, 0, 0};
 
+//forward decl
+void nodes_free(struct array *nodes);
+
 const char *node_type_strings[] = {
     FOREACH_NODETYPE(GENERATE_ENUM_STRING)
 };
@@ -51,15 +54,6 @@ void ast_node_free(struct ast_node *node)
     FREE(node);
 }
 
-void ast_nodes_free(struct array *nodes)
-{
-    for (size_t i = 0; i < array_size(nodes); i++) {
-        struct ast_node *elem = *(struct ast_node **)array_get(nodes, i);
-        ast_node_free(elem);
-    }
-    array_deinit(nodes);
-}
-
 bool is_unary_op(struct ast_node *node)
 {
     return node->ft->is_operator && array_size(&node->ft->fun_params) == UNARY_PARAM_SIZE;
@@ -96,9 +90,7 @@ struct ast_node *_copy_block_node(struct ast_node *orig_node)
 
 void _free_block_node(struct ast_node *node)
 {
-    /* TODO mem leak
-    _free_exp_nodes(&node->nodes);
-    */
+    nodes_free(&node->block->nodes);
     ast_node_free(node);
 }
 
@@ -285,9 +277,7 @@ struct ast_node *_copy_call_node(struct ast_node *orig_node)
 
 void _free_call_node(struct ast_node *node)
 {
-    /*TODO mem leak
-    _free_exp_nodes(&node->args);
-    */
+    nodes_free(&node->call->args);   
     ast_node_free(node);
 }
 
@@ -397,14 +387,12 @@ struct ast_node *_copy_if_node(struct ast_node *orig_node)
 
 void _free_if_node(struct ast_node *node)
 {
-    /*TODO: memory leak
-    if (node->if_node)
-        node_free(node->if_node);
-    if (node->then_node)
-        node_free(node->then_node);
-    if (node->else_node)
-        node_free(node->else_node);
-    */
+    if (node->cond->if_node)
+        node_free(node->cond->if_node);
+    if (node->cond->then_node)
+        node_free(node->cond->then_node);
+    if (node->cond->else_node)
+        node_free(node->cond->else_node);
     ast_node_free(node);
 }
 
@@ -425,8 +413,7 @@ struct ast_node *_copy_unary_node(struct ast_node *orig_node)
 
 void _free_unary_node(struct ast_node *node)
 {
-    //TODO: memory leak: need to free operand
-    //node_free(node->unop->operand);
+    node_free(node->unop->operand);
     ast_node_free(node);
 }
 
@@ -448,12 +435,10 @@ struct ast_node *_copy_binary_node(struct ast_node *orig_node)
 
 void _free_binary_node(struct ast_node *node)
 {
-    /*TODO: fix memory leak
-    if (node->lhs)
-        node_free(node->lhs);
-    if (node->rhs)
-        node_free(node->rhs);
-    */
+    if (node->binop->lhs)
+        node_free(node->binop->lhs);
+    if (node->binop->rhs)
+        node_free(node->binop->rhs);
     ast_node_free(node);
 }
 
@@ -478,16 +463,14 @@ struct ast_node *_copy_for_node(struct ast_node *orig_node)
 
 void _free_for_node(struct ast_node *node)
 {
-    /*TODO: memory leak
-    if (node->start)
-        node_free(node->start);
-    if (node->end)
-        node_free(node->end);
-    if (node->step)
-        node_free(node->step);
-    if (node->body)
-        node_free(node->body);
-    */
+    if (node->forloop->start)
+        node_free(node->forloop->start);
+    if (node->forloop->end)
+        node_free(node->forloop->end);
+    if (node->forloop->step)
+        node_free(node->forloop->step);
+    if (node->forloop->body)
+        node_free(node->forloop->body);
     ast_node_free(node);
 }
 
@@ -585,6 +568,15 @@ void node_free(struct ast_node *node)
         printf("not supported node type: %d\n", node->node_type);
         assert(false);
     }
+}
+
+void nodes_free(struct array *nodes)
+{
+    for (size_t i = 0; i < array_size(nodes); i++) {
+        struct ast_node *elem = *(struct ast_node **)array_get(nodes, i);
+        node_free(elem);
+    }
+    array_deinit(nodes);
 }
 
 struct module *module_new(const char *mod_name, FILE *file)
