@@ -14,7 +14,6 @@
 #include "clib/symboltable.h"
 #include "codegen/codegen.h"
 #include "parser/m_parser.h"
-#include "sema/sema_context.h"
 #include "sema/type.h"
 
 #ifdef __cplusplus
@@ -24,7 +23,6 @@ extern "C" {
 struct env {
     struct m_parser *parser;
     struct code_generator *cg;
-    struct sema_context *sema_context;
 };
 
 struct env *env_new(bool is_repl);

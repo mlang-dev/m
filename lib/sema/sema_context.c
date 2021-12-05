@@ -42,7 +42,7 @@ struct sema_context *sema_context_new(struct m_parser *parser)
     hashtable_init(&context->generic_ast);
     hashtable_init(&context->specialized_ast);
     array_init(&context->new_specialized_asts, sizeof(struct ast_node *));
-    hashtable_init(&context->protos);
+    hashtable_init(&context->func_types);
     hashtable_init(&context->calls);
     context->scope_marker = to_symbol("<enter_scope_marker>");
     struct array args;
@@ -84,7 +84,7 @@ void sema_context_free(struct sema_context *context)
     hashtable_deinit(&context->specialized_ast);
     hashtable_deinit(&context->generic_ast);
     hashtable_deinit(&context->builtin_ast);
-    hashtable_deinit(&context->protos);
+    hashtable_deinit(&context->func_types);
     hashtable_deinit(&context->calls);
     symboltable_deinit(&context->varname_2_asts);
     symboltable_deinit(&context->decl_2_typexps);

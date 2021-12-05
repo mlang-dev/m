@@ -17,8 +17,7 @@ struct env *env_new(bool is_repl)
     struct env *env;
     MALLOC(env, sizeof(struct env));
     env->parser = m_parser_new(is_repl);
-    env->sema_context = sema_context_new(env->parser);
-    env->cg = cg_new(env->sema_context);
+    env->cg = cg_new(sema_context_new(env->parser));
     wat_codegen_init();
     g_env = env;
     return env;
@@ -27,7 +26,7 @@ struct env *env_new(bool is_repl)
 void env_free(struct env *env)
 {
     m_parser_free(env->parser);
-    sema_context_free(env->sema_context);
+    sema_context_free(env->cg->sema_context);
     cg_free(env->cg);
     FREE(env);
     g_env = 0;
@@ -51,18 +50,18 @@ void emit_sp_code(struct code_generator *cg)
 
 struct type_exp *emit_code(struct env *env, struct ast_node *node)
 {
-    struct type_exp *type = analyze(env->sema_context, node);
+    struct type_exp *type = analyze(env->cg->sema_context, node);
     emit_sp_code(env->cg);
-    if (array_size(&env->sema_context->used_builtin_names)) {
-        for (size_t i = 0; i < array_size(&env->sema_context->used_builtin_names); i++) {
-            symbol built_name = *((symbol *)array_get(&env->sema_context->used_builtin_names, i));
-            struct ast_node *n = hashtable_get_p(&env->sema_context->builtin_ast, built_name);
+    if (array_size(&env->cg->sema_context->used_builtin_names)) {
+        for (size_t i = 0; i < array_size(&env->cg->sema_context->used_builtin_names); i++) {
+            symbol built_name = *((symbol *)array_get(&env->cg->sema_context->used_builtin_names, i));
+            struct ast_node *n = hashtable_get_p(&env->cg->sema_context->builtin_ast, built_name);
             if (!hashset_in_p(&env->cg->builtins, built_name)) {
                 hashset_set_p(&env->cg->builtins, built_name);
                 emit_ir_code(env->cg, n);
             }
         }
-        array_clear(&env->sema_context->used_builtin_names);
+        array_clear(&env->cg->sema_context->used_builtin_names);
     }
     return type;
 }

@@ -57,7 +57,6 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct ast_nod
 
     if (node->var->init_value->node_type == TYPE_VALUE_NODE) {
         assert(node->type->name == node->var->init_value->type->name);
-        //bool is_ret = node->base.is_ret;
         alloca = emit_type_value_node(cg, node->var->init_value, node->is_ret, string_get(var_name));
     } else {
         alloca = emit_ir_code(cg, node->var->init_value);
@@ -87,8 +86,6 @@ LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct ast_node *no
     LLVMValueRef alloca = create_alloca(cg->ops[type].get_type(cg->context, node->type), tsi.align_bits / 8, fun, string_get(var_name));
     LLVMBuildStore(cg->builder, init_val, alloca);
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
-    if (type == TYPE_EXT)
-        assert(!node->is_ret);
     return 0;
     // KSDbgInfo.emitLocation(this);
 }

@@ -169,13 +169,13 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct ast_nod
     struct type_oper *to = create_nullary_type(node->annotated_type_enum, node->annotated_type_name);
     array_push(&fun_sig, &to);
     node->type = (struct type_exp *)create_type_fun(&fun_sig);
-    hashtable_set_p(&context->protos, node->ft->name, node);
+    hashtable_set_p(&context->func_types, node->ft->name, node);
     return node->type;
 }
 
 struct type_exp *_analyze_fun(struct sema_context *context, struct ast_node *node)
 {
-    hashtable_set_p(&context->protos, node->func->func_type->ft->name, node->func->func_type);
+    hashtable_set_p(&context->func_types, node->func->func_type->ft->name, node->func->func_type);
     //# create a new non-generic variable for the binder
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
@@ -251,7 +251,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
         hashtable_set(&context->specialized_ast, string_get(sp_fun->func->func_type->ft->name), sp_fun);
         array_push(&context->new_specialized_asts, &sp_fun);     
         push_symbol_type(&context->decl_2_typexps, node->call->specialized_callee, fun_type);
-        hashtable_set_p(&context->protos, node->call->specialized_callee, sp_fun->func->func_type);
+        hashtable_set_p(&context->func_types, node->call->specialized_callee, sp_fun->func->func_type);
         hashtable_set_p(&context->calls, node->call->specialized_callee, node);
         node->call->callee_func_type = sp_fun->func->func_type;
     }
@@ -264,7 +264,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
     }
     if (!node->call->specialized_callee) {
         hashtable_set_p(&context->calls, node->call->callee, node);
-        node->call->callee_func_type = hashtable_get_p(&context->protos, node->call->callee);
+        node->call->callee_func_type = hashtable_get_p(&context->func_types, node->call->callee);
     }
     return result_type;
 }

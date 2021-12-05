@@ -19,7 +19,7 @@ no_exist_function_call ()
 )";
     testing::internal::CaptureStderr();
     env *env = env_new(false);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
     emit_code(env, (ast_node *)block);
@@ -35,7 +35,7 @@ TEST(testAnalyzerError, testRemError)
 )";
     testing::internal::CaptureStderr();
     env *env = env_new(false);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     emit_code(env, (ast_node *)block);
@@ -51,7 +51,7 @@ x:int = true
 )";
     testing::internal::CaptureStderr();
     env *env = env_new(false);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
     emit_code(env, (ast_node *)block);

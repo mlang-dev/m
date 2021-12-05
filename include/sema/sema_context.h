@@ -65,7 +65,7 @@ struct sema_context {
     /* 
      *  func_type declaration ASTs: hashtable of <symbol, struct ast_node*>
      */
-    struct hashtable protos;
+    struct hashtable func_types;
 
     /* 
      *  call ASTs: hashtable of <symbol, struct ast_node*>

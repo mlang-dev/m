@@ -26,7 +26,7 @@ TEST(testJIT, testNumber)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     auto node2 = *(ast_node **)array_back(&block->block->nodes);
@@ -44,7 +44,7 @@ TEST(testJIT, testNegNumber)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
@@ -60,7 +60,7 @@ TEST(testJIT, testRemainderOp)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
@@ -76,7 +76,7 @@ TEST(testJIT, testPositiveNumber)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
@@ -92,7 +92,7 @@ TEST(testJIT, testChar)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_CHAR, result.type);
@@ -108,7 +108,7 @@ TEST(testJIT, testString)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_STRING, result.type);
@@ -124,7 +124,7 @@ TEST(testJIT, testTypeError)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     eval_statement(jit, node);
     ASSERT_EQ(0, node->type);
@@ -140,7 +140,7 @@ y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
@@ -157,7 +157,7 @@ y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
@@ -175,7 +175,7 @@ y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto node2 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node3 = *(ast_node **)array_get(&block->block->nodes, 2);
@@ -194,7 +194,7 @@ TEST(testJIT, testIdFunc)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto node2 = *(ast_node **)array_back(&block->block->nodes);
     eval_statement(jit, node1);
@@ -213,7 +213,7 @@ TEST(testJIT, testIdGenericFunc)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node2 = *(ast_node **)array_back(&block->block->nodes);
@@ -234,7 +234,7 @@ TEST(testJIT, testSquareFunc)
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
@@ -255,7 +255,7 @@ TEST(testJIT, testIfFunc)
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node2 = *(ast_node **)array_get(&block->block->nodes, 2);
@@ -278,7 +278,7 @@ TEST(testJIT, testForLoopFunc)
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_back(&block->block->nodes);
     eval_statement(jit, node);
@@ -297,7 +297,7 @@ y=100
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node2 = *(ast_node **)array_get(&block->block->nodes, 2);
@@ -318,7 +318,7 @@ if z>99 then -z else z
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     for (int i = 0; i < 3; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
         eval_statement(jit, node);
@@ -339,7 +339,7 @@ if z>99 then -z else z
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto end = 3;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -362,7 +362,7 @@ to_string()
 )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto end = 1;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -383,7 +383,7 @@ printf "hello\n"
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto end = 1;
     testing::internal::CaptureStdout();
     for (int i = 0; i < end; i++) {
@@ -403,7 +403,7 @@ printf "hello:%d" 1
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     testing::internal::CaptureStdout();
     auto end = 1;
     for (int i = 0; i < end; i++) {
@@ -427,7 +427,7 @@ xy.y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -451,7 +451,7 @@ xy.y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -475,7 +475,7 @@ xy.y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -500,7 +500,7 @@ getx()
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->sema_context->parser, "test", test_code);
+    ast_node *block = parse_string(env->cg->sema_context->parser, "test", test_code);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
