@@ -41,7 +41,7 @@ void _wasm_emit(struct context *c, struct ast_node *ast)
     if(!ast){
         return;
     }
-    if(ast->node_type == FUNC){
+    if(ast->node_type_name == FUNC){
         struct ast_node *fname = *(struct ast_node**)array_get(&ast->children, 0);
         assert(fname->node_type == IDENT_TOKEN);
         //string_add_chars2(&s, &c->code[fname->loc.start], fname->loc.end - fname->loc.start);
@@ -57,7 +57,7 @@ void _wasm_emit(struct context *c, struct ast_node *ast)
         // string_append(&s, ")");
         // string_append(&s, ")\n");
     }
-    else if (ast->node_type == BINOP){
+    else if (ast->node_type_name == BINOP){
         //0, 2 is operand, 1 is operator
         // assert(array_size(&ast->children)==3);
         // struct ast_node *op = *(struct ast_node**)array_get(&ast->children, 1);
@@ -72,15 +72,15 @@ void _wasm_emit(struct context *c, struct ast_node *ast)
         // string_add2(&s, &op2);
         // string_append(&s, ")\n");
     }
-    else if(ast->node_type == UNOP){
+    else if(ast->node_type_name == UNOP){
 
     }
-    else if(ast->node_type == NUM_TOKEN){
+    else if(ast->node_type_name == NUM_TOKEN){
         // string_append(&s, "(i32.const ");
         // string_add_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
         // string_append(&s, ")\n");
     }
-    else if(ast->node_type){
+    else if(ast->node_type_name){
         // string_init_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
     }
     else {
