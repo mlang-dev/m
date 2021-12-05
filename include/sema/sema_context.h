@@ -26,7 +26,7 @@ struct sema_context {
     struct symboltable decl_2_typexps;
 
     /* 
-     *  value ast env: symboltable of <symbol, struct exp_node>*>
+     *  value ast env: symboltable of <symbol, struct ast_node>*>
      *  binding variable name to ast node expression
      */
     struct symboltable varname_2_asts;
@@ -44,27 +44,27 @@ struct sema_context {
     struct hashtable ext_typename_2_asts;
 
     /* 
-     *  builtin ASTs: symbol to exp_node*, only used for codegen
+     *  builtin ASTs: symbol to ast_node*, only used for codegen
      */
     struct hashtable builtin_ast;
 
     /* 
-     *  generic value ASTs: hashtable of <symbol, struct exp_node*>
+     *  generic value ASTs: hashtable of <symbol, struct ast_node*>
      */
     struct hashtable generic_ast;
 
     /* 
-     *  specialized value ASTs: hashtable of <symbol, struct exp_node*>
+     *  specialized value ASTs: hashtable of <symbol, struct ast_node*>
      */
     struct hashtable specialized_ast;
 
     /* 
-     *  func_type declaration ASTs: hashtable of <symbol, struct exp_node*>
+     *  func_type declaration ASTs: hashtable of <symbol, struct ast_node*>
      */
     struct hashtable protos;
 
     /* 
-     *  call ASTs: hashtable of <symbol, struct exp_node*>
+     *  call ASTs: hashtable of <symbol, struct ast_node*>
      */
     struct hashtable calls;
     /* 

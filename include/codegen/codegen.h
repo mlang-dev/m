@@ -129,7 +129,7 @@ struct code_generator *cg_new(struct sema_context *sema_context);
 void cg_free(struct code_generator *cg);
 
 void create_ir_module(struct code_generator *cg, const char *module_name);
-LLVMValueRef emit_ir_code(struct code_generator *cg, struct exp_node *node);
+LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
 LLVMContextRef get_llvm_context();
 LLVMTypeRef get_llvm_type(struct type_exp *type);

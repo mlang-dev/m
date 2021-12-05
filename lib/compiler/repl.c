@@ -43,7 +43,7 @@ void _create_jit_module(struct env *env)
     string_deinit(&mod_name);
 }
 
-struct eval_result eval_exp(struct JIT *jit, struct exp_node *node)
+struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
 {
     string fn = make_unique_name("main-fn");
     symbol fn_symbol = string_2_symbol(&fn);
@@ -82,7 +82,7 @@ struct eval_result eval_exp(struct JIT *jit, struct exp_node *node)
     return result;
 }
 
-void eval_statement(void *p_jit, struct exp_node *node)
+void eval_statement(void *p_jit, struct ast_node *node)
 {
     if (node) {
         //printf("node->type: %s\n", node_type_strings[node->node_type]);

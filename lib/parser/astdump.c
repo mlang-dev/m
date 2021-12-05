@@ -12,7 +12,7 @@ string _dump_block(struct ast_node *node)
     string block;
     string_init_chars(&block, "blk: \n");
     for (size_t i = 0; i < array_size(&node->block->nodes); i++) {
-        struct exp_node *stmt = *(struct exp_node **)array_get(&node->block->nodes, i);
+        struct ast_node *stmt = *(struct ast_node **)array_get(&node->block->nodes, i);
         string str_stmt = dump(stmt);
         string_add_chars(&block, "  ");
         string_add(&block, &str_stmt);
@@ -103,7 +103,7 @@ string _dump_call(struct ast_node *call)
 {
     ARRAY_STRING(args);
     for (size_t i = 0; i < array_size(&call->call->args); i++) {
-        string dp = dump(*(struct exp_node **)array_get(&call->call->args, i));
+        string dp = dump(*(struct ast_node **)array_get(&call->call->args, i));
         array_push(&args, &dp);
     }
     string args_str = string_join(&args, " ");
@@ -163,7 +163,7 @@ string _dump_number(struct ast_node *node)
     return str_num;
 }
 
-string dump(struct exp_node *node)
+string dump(struct ast_node *node)
 {
     if (node->node_type == FUNCTION_NODE)
         return _dump_function((struct ast_node *)node);

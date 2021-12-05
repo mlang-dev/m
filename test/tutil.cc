@@ -47,7 +47,7 @@ void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)
     create_ir_module(env->cg, module_name);
     make_module_ir(env->cg->module, module_name, ir_code, module_ir);
     ast_node *block = parse_string(env->sema_context->parser, "test", m_code);
-    char *ir_string = emit_ir_string(env->cg, (exp_node*)block);
+    char *ir_string = emit_ir_string(env->cg, (ast_node*)block);
     ASSERT_STREQ(module_ir, ir_string);
     free_ir_string(ir_string);
     env_free(env);

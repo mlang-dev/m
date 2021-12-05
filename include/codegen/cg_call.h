@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node);
+LLVMValueRef emit_call_node(struct code_generator *cg, struct ast_node *node);
 
 #ifdef __cplusplus
 }

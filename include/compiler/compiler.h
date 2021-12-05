@@ -23,7 +23,7 @@ enum object_file_type {
 };
 
 int compile(const char *fn, enum object_file_type file_type);
-char *emit_ir_string(struct code_generator *cg, struct exp_node *ast_node);
+char *emit_ir_string(struct code_generator *cg, struct ast_node *ast_node);
 void free_ir_string(char *ir_string);
 
 #ifdef __cplusplus

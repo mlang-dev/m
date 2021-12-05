@@ -401,12 +401,12 @@ LLVMTypeRef _get_llvm_type(struct code_generator *cg, struct type_exp *type)
     return cg->ops[en_type].get_type(cg->context, type);
 }
 
-LLVMValueRef _emit_block_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_block_node(struct code_generator *cg, struct ast_node *node)
 {
     struct ast_node *block = (struct ast_node *)node;
     LLVMValueRef codegen = 0;
     for (size_t i = 0; i < array_size(&block->block->nodes); i++) {
-        struct exp_node *exp = *(struct exp_node **)array_get(&block->block->nodes, i);
+        struct ast_node *exp = *(struct ast_node **)array_get(&block->block->nodes, i);
         codegen = emit_ir_code(cg, exp);
     }
     return codegen;
@@ -431,7 +431,7 @@ LLVMValueRef _emit_literal_node(struct code_generator *cg, struct ast_node *node
 }
 
 /*xy->TypeNode*/
-LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_ident_node(struct code_generator *cg, struct ast_node *node)
 {
     struct ast_node *ident = (struct ast_node *)node;
     symbol id = *((symbol *)array_get(&ident->ident->member_accessors, 0));
@@ -454,7 +454,7 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct exp_node *node)
         return v;
 }
 
-LLVMValueRef _emit_unary_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_unary_node(struct code_generator *cg, struct ast_node *node)
 {
     struct ast_node *unary = (struct ast_node *)node;
     LLVMValueRef operand_v = emit_ir_code(cg, unary->unop->operand);
@@ -479,7 +479,7 @@ LLVMValueRef _emit_unary_node(struct code_generator *cg, struct exp_node *node)
     return LLVMBuildCall(cg->builder, fun, &operand_v, 1, "unop");
 }
 
-LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_binary_node(struct code_generator *cg, struct ast_node *node)
 {
     struct ast_node *bin = (struct ast_node *)node;
     LLVMValueRef lv = emit_ir_code(cg, bin->binop->lhs);
@@ -543,7 +543,7 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct exp_node *node)
     }
 }
 
-LLVMValueRef _emit_condition_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_condition_node(struct code_generator *cg, struct ast_node *node)
 {
     // KSDbgInfo.emitLocation(this);
     struct ast_node *cond = (struct ast_node *)node;
@@ -582,7 +582,7 @@ LLVMValueRef _emit_condition_node(struct code_generator *cg, struct exp_node *no
     return phi_node;
 }
 
-LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_type_node(struct code_generator *cg, struct ast_node *node)
 {
     struct type_oper *type = (struct type_oper *)node->type;
     assert(node->type);
@@ -592,12 +592,12 @@ LLVMValueRef _emit_type_node(struct code_generator *cg, struct exp_node *node)
     return 0;
 }
 
-LLVMValueRef _emit_type_value_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_type_value_node(struct code_generator *cg, struct ast_node *node)
 {
     return emit_type_value_node(cg, (struct ast_node *)node, false, "tmp");
 }
 
-LLVMValueRef _emit_for_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_for_node(struct code_generator *cg, struct ast_node *node)
 {
     struct ast_node *forn = (struct ast_node *)node;
     symbol var_name = forn->forloop->var_name;
@@ -657,7 +657,7 @@ void create_ir_module(struct code_generator *cg,
     cg->module = module;
 }
 
-LLVMValueRef _emit_unk_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _emit_unk_node(struct code_generator *cg, struct ast_node *node)
 {
     if (!cg || !node)
         return 0;
@@ -665,7 +665,7 @@ LLVMValueRef _emit_unk_node(struct code_generator *cg, struct exp_node *node)
     return 0;
 }
 
-LLVMValueRef (*cg_fp[])(struct code_generator *, struct exp_node *) = {
+LLVMValueRef (*cg_fp[])(struct code_generator *, struct ast_node *) = {
     _emit_unk_node,
     _emit_literal_node,
     _emit_ident_node,
@@ -682,7 +682,7 @@ LLVMValueRef (*cg_fp[])(struct code_generator *, struct exp_node *) = {
     _emit_block_node
 };
 
-LLVMValueRef emit_ir_code(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node)
 {
     return cg_fp[node->node_type](cg, node);
 }

@@ -22,7 +22,7 @@ struct m_parser {
     /* mapping type string into type enum: hashtable of (symbol, int) */
     struct hashtable symbol_2_int_types;
 
-    /* hashtable of (symbol, exp_node*) for ext types */
+    /* hashtable of (symbol, ast_node*) for ext types */
     struct hashtable ext_types;
 
     /* hashtable of (symbol, int of precdence level*/
@@ -77,15 +77,15 @@ struct m_parser {
     struct queue queued_tokens; //queue of token
 };
 
-typedef void (*exp_executor)(void *, struct exp_node *);
+typedef void (*exp_executor)(void *, struct ast_node *);
 
 struct m_parser *m_parser_new(bool is_repl);
 void m_parser_free(struct m_parser *parser);
 void parse_next_token(struct m_parser *parser);
-struct exp_node *parse_exp_to_function(struct m_parser *parser, struct exp_node *exp, symbol fn);
-struct exp_node *parse_import(struct m_parser *parser, struct exp_node *parent);
-struct exp_node *parse_statement(struct m_parser *parser, struct exp_node *parent);
-struct exp_node *parse_exp(struct m_parser *parser, struct exp_node *parent, struct exp_node *lhs);
+struct ast_node *parse_exp_to_function(struct m_parser *parser, struct ast_node *exp, symbol fn);
+struct ast_node *parse_import(struct m_parser *parser, struct ast_node *parent);
+struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *parent);
+struct ast_node *parse_exp(struct m_parser *parser, struct ast_node *parent, struct ast_node *lhs);
 bool is_unary_op(struct ast_node *ft_node);
 bool is_binary_op(struct ast_node *ft_node);
 char get_op_name(struct ast_node *ft_node);
@@ -93,7 +93,7 @@ void queue_token(struct m_parser *parser, struct token tkn);
 void queue_tokens(struct m_parser *psr, struct array *tokens);
 struct ast_node *parse_file(struct m_parser *parser, const char *file_name);
 struct ast_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file);
-struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct exp_node *), void *jit);
+struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct ast_node *), void *jit);
 struct ast_node *parse_string(struct m_parser *parser, const char *mod_name, const char *code);
 enum type get_type_enum(symbol type_symbol);
 symbol get_type_symbol(enum type type_enum);

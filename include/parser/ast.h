@@ -43,17 +43,6 @@ enum node_type { FOREACH_NODETYPE(GENERATE_ENUM) };
 
 extern const char *node_type_strings[];
 
-struct exp_node {
-    enum node_type node_type;
-    enum type annotated_type_enum;
-    struct type_exp *type; // type inferred
-    struct source_location loc;
-
-    symbol annotated_type_name;
-    bool is_ret;
-    struct exp_node *parent;
-};
-
 struct _block_node {
     struct array nodes; // struct array of ast_node*
 };

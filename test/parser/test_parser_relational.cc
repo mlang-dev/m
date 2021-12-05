@@ -17,7 +17,7 @@ TEST_F(testParserRelational, testComparisonLessThan)
     char test_code[] = "10 < 11";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     auto bin = (ast_node *)node;
     ASSERT_STREQ("<", string_get(bin->binop->op));

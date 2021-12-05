@@ -40,13 +40,13 @@ struct env *get_env()
     return g_env;
 }
 
-struct type_exp *emit_code(struct env *env, struct exp_node *node)
+struct type_exp *emit_code(struct env *env, struct ast_node *node)
 {
     struct type_exp *type = analyze(env->sema_context, node);
     if (array_size(&env->sema_context->used_builtin_names)) {
         for (size_t i = 0; i < array_size(&env->sema_context->used_builtin_names); i++) {
             symbol built_name = *((symbol *)array_get(&env->sema_context->used_builtin_names, i));
-            struct exp_node *n = hashtable_get_p(&env->sema_context->builtin_ast, built_name);
+            struct ast_node *n = hashtable_get_p(&env->sema_context->builtin_ast, built_name);
             if (!hashset_in_p(&env->cg->builtins, built_name)) {
                 hashset_set_p(&env->cg->builtins, built_name);
                 emit_ir_code(env->cg, n);

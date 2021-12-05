@@ -26,9 +26,9 @@
 extern "C" {
 #endif
 
-LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi);
-LLVMValueRef emit_func_type_node(struct code_generator *cg, struct exp_node *node);
-LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node);
+LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct ast_node *node, struct fun_info **out_fi);
+LLVMValueRef emit_func_type_node(struct code_generator *cg, struct ast_node *node);
+LLVMValueRef emit_function_node(struct code_generator *cg, struct ast_node *node);
 LLVMValueRef get_llvm_function(struct code_generator *cg, symbol fun_name);
 
 #ifdef __cplusplus

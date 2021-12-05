@@ -127,7 +127,7 @@ bool transpile_2_m(const char *head, const char *mfile)
     struct array protos = parse_c_file(head);
     ARRAY_STRING(codes);
     for (size_t i = 0; i < array_size(&protos); i++) {
-        struct exp_node *node = *(struct exp_node **)array_get(&protos, i);
+        struct ast_node *node = *(struct ast_node **)array_get(&protos, i);
         string code = dump(node);
         array_push(&codes, &code);
     }

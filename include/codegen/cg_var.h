@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-LLVMValueRef emit_var_node(struct code_generator *cg, struct exp_node *node);
+LLVMValueRef emit_var_node(struct code_generator *cg, struct ast_node *node);
 LLVMValueRef get_global_variable(struct code_generator *cg, symbol gv_name);
 LLVMValueRef emit_type_value_node(struct code_generator *cg, struct ast_node *type_values, bool is_ret, const char *name);
 

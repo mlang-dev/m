@@ -98,12 +98,12 @@ void _emit_argument_allocas(struct code_generator *cg, struct ast_node *node,
     array_deinit(&params);
 }
 
-LLVMValueRef emit_func_type_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef emit_func_type_node(struct code_generator *cg, struct ast_node *node)
 {
     return emit_func_type_node_fi(cg, node, 0);
 }
 
-LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct exp_node *node, struct fun_info **out_fi)
+LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct ast_node *node, struct fun_info **out_fi)
 {
     struct ast_node *func_type = (struct ast_node *)node;
     assert(func_type->type);
@@ -135,7 +135,7 @@ LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct exp_node *
     return fun;
 }
 
-LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef emit_function_node(struct code_generator *cg, struct ast_node *node)
 {
     struct ast_node *fun_node = (struct ast_node *)node;
     if (is_generic(node->type)) {
@@ -144,7 +144,7 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
     assert(fun_node->type->kind == KIND_OPER);
     hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
-    LLVMValueRef fun = emit_func_type_node_fi(cg, (struct exp_node *)fun_node->func->func_type, &fi);
+    LLVMValueRef fun = emit_func_type_node_fi(cg, (struct ast_node *)fun_node->func->func_type, &fi);
     assert(fun && fi);
 
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
@@ -165,7 +165,7 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct exp_node *node
     //     }
     // }
     for (size_t i = 0; i < array_size(&fun_node->func->body->block->nodes); i++) {
-        struct exp_node *stmt = *(struct exp_node **)array_get(&fun_node->func->body->block->nodes, i);
+        struct ast_node *stmt = *(struct ast_node **)array_get(&fun_node->func->body->block->nodes, i);
         ret_val = emit_ir_code(cg, stmt);
     }
     if (!ret_val || !fi->ret.info.type) {
@@ -198,7 +198,7 @@ LLVMValueRef get_llvm_function(struct code_generator *cg, symbol fun_name)
     LLVMValueRef f = LLVMGetNamedFunction(cg->module, name);
     if (f)
         return f;
-    struct exp_node *fp = (struct exp_node *)hashtable_get_p(&cg->protos, fun_name);
+    struct ast_node *fp = (struct ast_node *)hashtable_get_p(&cg->protos, fun_name);
     if (fp)
         return emit_func_type_node(cg, fp);
     return 0;

@@ -68,10 +68,10 @@ int compile(const char *source_file, enum object_file_type file_type)
     struct env *env = env_new(false);
     create_ir_module(env->cg, string_get(&filename));
     struct ast_node *block = parse_file(env->sema_context->parser, source_file);
-    emit_code(env, (struct exp_node *)block);
+    emit_code(env, (struct ast_node *)block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->block->nodes); i++) {
-            struct exp_node *node = *(struct exp_node **)array_get(&block->block->nodes, i);
+            struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
             emit_ir_code(env->cg, node);
         }
         if (file_type == FT_OBJECT) {
@@ -92,7 +92,7 @@ int compile(const char *source_file, enum object_file_type file_type)
     return 0;
 }
 
-char *emit_ir_string(struct code_generator *cg, struct exp_node *ast_node)
+char *emit_ir_string(struct code_generator *cg, struct ast_node *ast_node)
 {
     if (!ast_node)
         return 0;

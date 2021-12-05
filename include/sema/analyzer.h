@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 struct type_exp *retrieve_type_for_var_name(struct sema_context *env, symbol name);
-struct type_exp *analyze(struct sema_context *env, struct exp_node *node);
+struct type_exp *analyze(struct sema_context *env, struct ast_node *node);
 
 #ifdef __cplusplus
 }

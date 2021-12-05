@@ -17,7 +17,7 @@ TEST_F(testParserLogicalOperator, testOrOp)
     char test_code[] = "true || false";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     auto bin = (ast_node *)node;
     ASSERT_STREQ("||", string_get(bin->binop->op));
@@ -29,7 +29,7 @@ TEST_F(testParserLogicalOperator, testAndOp)
     char test_code[] = "true && false";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     auto bin = (ast_node *)node;
     ASSERT_STREQ("&&", string_get(bin->binop->op));
@@ -41,7 +41,7 @@ TEST_F(testParserLogicalOperator, testNotOp)
     char test_code[] = "! true";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(exp_node **)array_front(&block->block->nodes);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(UNARY_NODE, node->node_type);
     auto un = (ast_node *)node;
     ASSERT_STREQ("!", string_get(un->unop->op));

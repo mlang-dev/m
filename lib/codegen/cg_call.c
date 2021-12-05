@@ -14,7 +14,7 @@
 
 
 // get parent func sret parameter if exists
-LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct ast_node *node)
 {
     struct ast_node *parent_ft = find_parent_proto(node);
     struct fun_info *fi = get_fun_info(parent_ft);
@@ -27,7 +27,7 @@ LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct exp
     return ret;
 }
 
-LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef emit_call_node(struct code_generator *cg, struct ast_node *node)
 {
     struct ast_node *call = (struct ast_node *)node;
     assert(call->call->callee_func_type);
@@ -59,7 +59,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct exp_node *node)
     for (size_t i = 0; i < arg_count; ++i) {
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
         struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
-        struct exp_node *arg = *(struct exp_node **)array_get(&call->call->args, i);
+        struct ast_node *arg = *(struct ast_node **)array_get(&call->call->args, i);
         struct type_size_info tsi = get_type_size_info(arg->type);
         LLVMValueRef arg_value = emit_ir_code(cg, arg);
         switch (aaa->info.kind) {

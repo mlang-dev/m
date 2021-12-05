@@ -20,7 +20,7 @@
 void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct ast_node *values)
 {
     for (size_t i = 0; i < array_size(&values->type_value->body->block->nodes); i++) {
-        struct exp_node *arg = *(struct exp_node **)array_get(&values->type_value->body->block->nodes, i);
+        struct ast_node *arg = *(struct ast_node **)array_get(&values->type_value->body->block->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
         LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, (unsigned)i, "");
         LLVMBuildStore(cg->builder, exp, member);
@@ -99,7 +99,7 @@ LLVMValueRef _get_const_value_ext_type(struct code_generator *cg, LLVMTypeRef ty
     LLVMValueRef *values;
     MALLOC(values, element_count * sizeof(LLVMValueRef));
     for (size_t i = 0; i < element_count; i++) {
-        struct exp_node *arg = *(struct exp_node **)array_get(&struct_values->type_value->body->block->nodes, i);
+        struct ast_node *arg = *(struct ast_node **)array_get(&struct_values->type_value->body->block->nodes, i);
         values[i] = emit_ir_code(cg, arg);
     }
     LLVMValueRef value = LLVMConstNamedStruct(type, values, (unsigned int)element_count);
@@ -153,7 +153,7 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct ast_no
     struct ast_node *values = (struct ast_node *)node->var->init_value;
     char tempname[64];
     for (size_t i = 0; i < array_size(&values->type_value->body->block->nodes); i++) {
-        struct exp_node *arg = *(struct exp_node **)array_get(&values->type_value->body->block->nodes, i);
+        struct ast_node *arg = *(struct ast_node **)array_get(&values->type_value->body->block->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
         sprintf_s(tempname, sizeof(tempname), "temp%zu", i);
         LLVMValueRef member = LLVMBuildStructGEP(cg->builder, gVar, (unsigned int)i, tempname);
@@ -198,7 +198,7 @@ LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct ast_node *n
     return 0;
 }
 
-LLVMValueRef emit_var_node(struct code_generator *cg, struct exp_node *node)
+LLVMValueRef emit_var_node(struct code_generator *cg, struct ast_node *node)
 {
     struct ast_node *var = (struct ast_node *)node;
     if (!var->parent)
