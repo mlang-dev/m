@@ -28,6 +28,9 @@ if (EMSCRIPTEN OR WASM)
     parser/parser.c
     parser/grammar.c
     parser/m_grammar.c
+    sema/type.c
+    sema/sema_context.c
+    sema/analyzer.c
     codegen/wat_codegen.c
     codegen/wasm_codegen.c
     wasm/mwat.c
