@@ -68,7 +68,7 @@ struct ast_node *create_function_func_type(CXCursor cursor)
         array_push(&fun_params, &fun_param);
     }
     struct source_location loc = { 0, 1, 0, 0 };
-    return func_type_node_default_new(0, loc, string_2_symbol(&fun_name), &fun_params, ret_type, is_variadic, true);
+    return func_type_node_default_new(loc, string_2_symbol(&fun_name), &fun_params, ret_type, is_variadic, true);
 }
 
 enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClientData client_data)

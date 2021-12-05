@@ -249,7 +249,7 @@ int _get_op_precedence(struct m_parser *parser)
 struct ast_node *_parse_bool_value(struct m_parser *parser, struct ast_node *parent)
 {
     struct ast_node *result;
-    result = bool_node_new(parent, parser->curr_token.loc,
+    result = bool_node_new(parser->curr_token.loc,
         parser->curr_token.val.symbol_val == parser->true_symbol ? 1 : 0);
     if (parser->curr_token.token_type != TOKEN_NEWLINE)
         parse_next_token(parser);
@@ -259,7 +259,7 @@ struct ast_node *_parse_bool_value(struct m_parser *parser, struct ast_node *par
 struct ast_node *_parse_char(struct m_parser *parser, struct ast_node *parent)
 {
     struct ast_node *result;
-    result = char_node_new(parent, parser->curr_token.loc,
+    result = char_node_new(parser->curr_token.loc,
         parser->curr_token.val.char_val);
     if (parser->curr_token.token_type != TOKEN_NEWLINE)
         parse_next_token(parser);
@@ -269,7 +269,7 @@ struct ast_node *_parse_char(struct m_parser *parser, struct ast_node *parent)
 struct ast_node *_parse_string(struct m_parser *parser, struct ast_node *parent)
 {
     struct ast_node *result;
-    result = string_node_new(parent, parser->curr_token.loc,
+    result = string_node_new(parser->curr_token.loc,
         string_get(parser->curr_token.val.str_val));
     if (parser->curr_token.token_type != TOKEN_NEWLINE)
         parse_next_token(parser);
@@ -280,10 +280,10 @@ struct ast_node *_parse_number(struct m_parser *parser, struct ast_node *parent)
 {
     struct ast_node *result = 0;
     if (parser->curr_token.token_type == TOKEN_INT)
-        result = int_node_new(parent, parser->curr_token.loc,
+        result = int_node_new(parser->curr_token.loc,
             parser->curr_token.val.int_val);
     else if (parser->curr_token.token_type == TOKEN_FLOAT)
-        result = double_node_new(parent, parser->curr_token.loc,
+        result = double_node_new(parser->curr_token.loc,
             parser->curr_token.val.double_val);
     else
         assert(false);
@@ -297,7 +297,7 @@ struct ast_node *_parse_parentheses(struct m_parser *parser, struct ast_node *pa
     struct ast_node *v;
     parse_next_token(parser);
     if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.val.symbol_val == parser->rparen) {
-        v = (struct ast_node *)unit_node_new(parent, parser->curr_token.loc);
+        v = (struct ast_node *)unit_node_new(parser->curr_token.loc);
         parse_next_token(parser);
         return v;
     }
@@ -349,7 +349,7 @@ struct ast_node *_parse_type_value_node(struct m_parser *parser, struct ast_node
     struct ast_node *block = _parse_block(parser, (struct ast_node *)parent, 0, 0);
     if (block) {
         assert(array_size(&type->type_def->body->block->nodes) == array_size(&block->block->nodes));
-        return (struct ast_node *)type_value_node_new(parent, parser->curr_token.loc, block, ext_type_symbol);
+        return (struct ast_node *)type_value_node_new(parser->curr_token.loc, block, ext_type_symbol);
     }
     return 0;
 }
@@ -440,13 +440,13 @@ struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_
             }
         }
         symbol id_symbol = string_2_symbol(&id_name);
-        struct ast_node *func_type = func_type_node_new(parent, loc, id_symbol, &fun_params, ret_type,
+        struct ast_node *func_type = func_type_node_new(loc, id_symbol, &fun_params, ret_type,
             is_operator, precedence, is_operator ? id_symbol : EmptySymbol, is_variadic, false);
         return _parse_function_with_func_type(parser, func_type);
     }
     // function application
     symbol name_symbol = string_2_symbol(&id_name);
-    struct ast_node *call = (struct ast_node *)call_node_new(parent, loc, name_symbol, &args);
+    struct ast_node *call = (struct ast_node *)call_node_new(loc, name_symbol, &args);
     return parse_exp(parser, parent, call);
 }
 
@@ -482,7 +482,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
             node = _parse_var(parser, parent, id_symbol, optype.type, optype.type_symbol);
         } else if (parser->curr_token.token_type == TOKEN_NEWLINE || parser->curr_token.token_type == TOKEN_EOF || _get_op_prec(&parser->op_precs, optype.op) > 0) {
             // just id expression evaluation
-            struct ast_node *lhs = (struct ast_node *)ident_node_new(parent, parser->curr_token.loc, id_symbol);
+            struct ast_node *lhs = (struct ast_node *)ident_node_new(parser->curr_token.loc, id_symbol);
             node = parse_exp(parser, parent, lhs);
         } else {
             // function definition or application
@@ -520,7 +520,6 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
         }
     }
     if (node) {
-        node->parent = parent;
         node->loc = loc;
     }
     return node;
@@ -558,12 +557,12 @@ struct ast_node *_parse_ident(struct m_parser *parser, struct ast_node *parent)
                     break;
             }
             parse_next_token(parser);
-            exp = (struct ast_node *)call_node_new(parent, loc, id_symbol, &args);
+            exp = (struct ast_node *)call_node_new(loc, id_symbol, &args);
             array_deinit(&args);
         }
         return exp;
     }
-    return (struct ast_node *)ident_node_new(parent, loc, id_symbol);
+    return (struct ast_node *)ident_node_new(loc, id_symbol);
 }
 
 struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
@@ -618,7 +617,7 @@ struct ast_node *_parse_binary(struct m_parser *parser, struct ast_node *parent,
             if (!rhs)
                 return 0;
         }
-        lhs = (struct ast_node *)binary_node_new(parent, lhs->loc, binary_op, lhs, rhs);
+        lhs = (struct ast_node *)binary_node_new(lhs->loc, binary_op, lhs, rhs);
     }
 }
 
@@ -708,7 +707,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
     if (proto_type && array_size(&fun_params) != proto_type)
         return (struct ast_node *)log_info(ERROR, "Invalid number of operands for operator");
     symbol fun_name_symbol = string_2_symbol(&fun_name);
-    struct ast_node *ret = (struct ast_node *)func_type_node_new(parent, loc, fun_name_symbol, &fun_params,
+    struct ast_node *ret = (struct ast_node *)func_type_node_new(loc, fun_name_symbol, &fun_params,
         ret_type, proto_type != 0, bin_prec, EmptySymbol, is_variadic, is_external);
     return ret;
 }
@@ -758,11 +757,11 @@ struct ast_node *parse_exp_to_function(struct m_parser *parser, struct ast_node 
         exp = parse_exp(parser, 0, 0);
     if (exp) {
         ARRAY_FUN_PARAM(fun_params);
-        struct ast_node *func_type = func_type_node_default_new(0, exp->loc, fn, &fun_params, 0, false, false);
+        struct ast_node *func_type = func_type_node_default_new(exp->loc, fn, &fun_params, 0, false, false);
         struct array nodes;
         array_init(&nodes, sizeof(struct ast_node *));
         array_push(&nodes, &exp);
-        struct ast_node *block = block_node_new((struct ast_node *)func_type, &nodes);
+        struct ast_node *block = block_node_new(&nodes);
         return _create_fun_node(parser, func_type, block);
     }
     return 0;
@@ -783,7 +782,7 @@ struct ast_node *_parse_type(struct m_parser *parser, struct ast_node *parent)
     parse_next_token(parser); /*pointing to '='*/
     assert(parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.val.symbol_val == parser->assignment);
     parse_next_token(parser);
-    struct ast_node *type = type_node_new(parent, loc, name, 0);
+    struct ast_node *type = type_node_new(loc, name, 0);
     struct ast_node *body = _parse_block(parser, type, 0, 0);
     type->type_def->body = body;
     assert(body);
@@ -809,7 +808,7 @@ struct ast_node *_parse_unary(struct m_parser *parser, struct ast_node *parent)
     parse_next_token(parser);
     struct ast_node *operand = _parse_unary(parser, parent);
     if (operand) {
-        return (struct ast_node *)unary_node_new(parent, loc, op, operand);
+        return (struct ast_node *)unary_node_new(loc, op, operand);
     }
     return 0;
 }
@@ -852,15 +851,15 @@ struct ast_node *_parse_for(struct m_parser *parser, struct ast_node *parent)
         if (end_val == 0)
             return 0;
     } else { // default 1
-        step = (struct ast_node *)int_node_new(parent, parser->curr_token.loc, 1);
+        step = (struct ast_node *)int_node_new(parser->curr_token.loc, 1);
     }
     // convert end variable to a logic
-    struct ast_node *id_node = (struct ast_node *)ident_node_new(parent, start->loc, id_symbol);
-    struct ast_node *end = (struct ast_node *)binary_node_new(parent, end_val->loc, parser->lessthan_op, id_node, end_val);
+    struct ast_node *id_node = (struct ast_node *)ident_node_new(start->loc, id_symbol);
+    struct ast_node *end = (struct ast_node *)binary_node_new(end_val->loc, parser->lessthan_op, id_node, end_val);
     struct ast_node *body = _parse_block(parser, parent, 0, 0);
     if (body == 0)
         return 0;
-    return (struct ast_node *)for_node_new(parent, loc, id_symbol, start, end, step, (struct ast_node *)body);
+    return (struct ast_node *)for_node_new(loc, id_symbol, start, end, step, (struct ast_node *)body);
 }
 
 struct ast_node *_parse_if(struct m_parser *parser, struct ast_node *parent)
@@ -892,7 +891,7 @@ struct ast_node *_parse_if(struct m_parser *parser, struct ast_node *parent)
     if (!else_exp)
         return 0;
 
-    return (struct ast_node *)if_node_new(parent, loc, cond, then, else_exp);
+    return (struct ast_node *)if_node_new(loc, cond, then, else_exp);
 }
 
 struct ast_node *_parse_block(struct m_parser *parser, struct ast_node *parent, void (*fun)(void *, struct ast_node *), void *jit)
@@ -919,7 +918,7 @@ struct ast_node *_parse_block(struct m_parser *parser, struct ast_node *parent, 
         if (parser->curr_token.token_type == TOKEN_EOF)
             break;
     }
-    return array_size(&nodes) ? block_node_new(parent, &nodes) : 0;
+    return array_size(&nodes) ? block_node_new(&nodes) : 0;
 }
 
 struct ast_node *parse_block(struct m_parser *parser, struct ast_node *parent, void (*fun)(void *, struct ast_node *), void *jit)

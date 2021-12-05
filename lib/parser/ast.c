@@ -21,7 +21,7 @@ const char *node_type_strings[] = {
 };
 
 
-struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type_enum, struct source_location loc, struct ast_node *parent)
+struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type_enum, struct source_location loc)
 {
     struct ast_node *node;
     MALLOC(node, sizeof(*node)); 
@@ -30,7 +30,6 @@ struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, e
     node->annotated_type_name = annotated_type_enum ? to_symbol(type_strings[annotated_type_enum]) : 0;
     node->annotated_type_enum = annotated_type_enum;
     node->type = 0;
-    node->parent = parent;
 
     node->loc = loc;
     node->is_ret = false;
@@ -85,7 +84,7 @@ struct ast_node *_copy_block_node(struct ast_node *orig_node)
         // printf("block node copy: %s\n", node_type_strings[node->node_type]);
         array_push(&nodes, &node);
     }
-    return block_node_new(orig_node->parent, &nodes);
+    return block_node_new(&nodes);
 }
 
 void _free_block_node(struct ast_node *node)
@@ -105,10 +104,10 @@ struct array to_symbol_array(struct array arr)
     return symbols;
 }
 
-struct ast_node *ident_node_new(struct ast_node *parent, struct source_location loc, symbol name)
+struct ast_node *ident_node_new(struct source_location loc, symbol name)
 {
 
-    struct ast_node *node = ast_node_new(0, IDENT_NODE, 0, loc, parent);
+    struct ast_node *node = ast_node_new(0, IDENT_NODE, 0, loc);
     MALLOC(node->ident, sizeof(*node->ident));
     node->ident->name = name;
     node->ident->member_accessors = to_symbol_array(string_split(node->ident->name, '.'));
@@ -117,7 +116,7 @@ struct ast_node *ident_node_new(struct ast_node *parent, struct source_location 
 
 struct ast_node *_copy_ident_node(struct ast_node *orig_node)
 {
-    return ident_node_new(orig_node->parent, orig_node->loc,
+    return ident_node_new(orig_node->loc,
         orig_node->ident->name);
 }
 
@@ -127,9 +126,9 @@ void _free_ident_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *_create_literal_node(struct ast_node *parent, struct source_location loc, void *val, enum type type)
+struct ast_node *_create_literal_node(struct source_location loc, void *val, enum type type)
 {
-    struct ast_node *node = ast_node_new(0, LITERAL_NODE, type, loc, parent);
+    struct ast_node *node = ast_node_new(0, LITERAL_NODE, type, loc);
     MALLOC(node->liter, sizeof(*node->liter));
     if (type == TYPE_INT)
         node->liter->int_val = *(int *)val;
@@ -153,39 +152,39 @@ void _free_literal_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *double_node_new(struct ast_node *parent, struct source_location loc, double val)
+struct ast_node *double_node_new(struct source_location loc, double val)
 {
-    return _create_literal_node(parent, loc, &val, TYPE_DOUBLE);
+    return _create_literal_node(loc, &val, TYPE_DOUBLE);
 }
 
-struct ast_node *int_node_new(struct ast_node *parent, struct source_location loc, int val)
+struct ast_node *int_node_new(struct source_location loc, int val)
 {
-    return _create_literal_node(parent, loc, &val, TYPE_INT);
+    return _create_literal_node(loc, &val, TYPE_INT);
 }
 
-struct ast_node *bool_node_new(struct ast_node *parent, struct source_location loc, bool val)
+struct ast_node *bool_node_new(struct source_location loc, bool val)
 {
-    return _create_literal_node(parent, loc, &val, TYPE_BOOL);
+    return _create_literal_node(loc, &val, TYPE_BOOL);
 }
 
-struct ast_node *char_node_new(struct ast_node *parent, struct source_location loc, char val)
+struct ast_node *char_node_new(struct source_location loc, char val)
 {
-    return _create_literal_node(parent, loc, &val, TYPE_CHAR);
+    return _create_literal_node(loc, &val, TYPE_CHAR);
 }
 
-struct ast_node *unit_node_new(struct ast_node *parent, struct source_location loc)
+struct ast_node *unit_node_new(struct source_location loc)
 {
-    return _create_literal_node(parent, loc, 0, TYPE_UNIT);
+    return _create_literal_node(loc, 0, TYPE_UNIT);
 }
 
-struct ast_node *string_node_new(struct ast_node *parent, struct source_location loc, const char *val)
+struct ast_node *string_node_new(struct source_location loc, const char *val)
 {
-    return _create_literal_node(parent, loc, (void *)val, TYPE_STRING);
+    return _create_literal_node(loc, (void *)val, TYPE_STRING);
 }
 
 struct ast_node *_copy_literal_node(struct ast_node *orig_node)
 {
-    return _create_literal_node(orig_node->parent, orig_node->loc, &orig_node->liter->char_val,
+    return _create_literal_node(orig_node->loc, &orig_node->liter->char_val,
         orig_node->annotated_type_enum);
 }
 
@@ -216,9 +215,9 @@ void _free_var_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *type_node_new(struct ast_node *parent, struct source_location loc, symbol name, struct ast_node *body)
+struct ast_node *type_node_new(struct source_location loc, symbol name, struct ast_node *body)
 {
-    struct ast_node *node = ast_node_new(0, TYPE_NODE, 0, loc, parent);
+    struct ast_node *node = ast_node_new(0, TYPE_NODE, 0, loc);
     MALLOC(node->type_def, sizeof(*node->type_def));
     node->type_def->name = name;
     node->type_def->body = body;
@@ -227,7 +226,7 @@ struct ast_node *type_node_new(struct ast_node *parent, struct source_location l
 
 struct ast_node *_copy_type_node(struct ast_node *orig_node)
 {
-    return type_node_new(orig_node->parent, orig_node->loc,
+    return type_node_new(orig_node->loc,
         orig_node->type_def->name, _copy_block_node(orig_node->type_def->body));
 }
 
@@ -237,9 +236,9 @@ void _free_type_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *type_value_node_new(struct ast_node *parent, struct source_location loc, struct ast_node *body, symbol type_symbol)
+struct ast_node *type_value_node_new(struct source_location loc, struct ast_node *body, symbol type_symbol)
 {
-    struct ast_node *node = ast_node_new(0, TYPE_VALUE_NODE, TYPE_EXT, loc, parent);
+    struct ast_node *node = ast_node_new(0, TYPE_VALUE_NODE, TYPE_EXT, loc);
     node->annotated_type_name = type_symbol;
     MALLOC(node->type_value, sizeof(*node->type_value));
     node->type_value->body = body;
@@ -248,7 +247,7 @@ struct ast_node *type_value_node_new(struct ast_node *parent, struct source_loca
 
 struct ast_node *_copy_type_value_node(struct ast_node *orig_node)
 {
-    return type_value_node_new(orig_node->parent, orig_node->loc,
+    return type_value_node_new(orig_node->loc,
         _copy_block_node(orig_node->type_value->body), orig_node->annotated_type_name);
 }
 
@@ -258,10 +257,10 @@ void _free_type_value_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *call_node_new(struct ast_node *parent, struct source_location loc, symbol callee,
+struct ast_node *call_node_new(struct source_location loc, symbol callee,
     struct array *args)
 {
-    struct ast_node *node = ast_node_new(0, CALL_NODE, 0, loc, parent);
+    struct ast_node *node = ast_node_new(0, CALL_NODE, 0, loc);
     MALLOC(node->call, sizeof(*node->call));
     node->call->callee = callee;
     array_copy(&node->call->args, args);
@@ -272,7 +271,7 @@ struct ast_node *call_node_new(struct ast_node *parent, struct source_location l
 
 struct ast_node *_copy_call_node(struct ast_node *orig_node)
 {
-    return call_node_new(orig_node->parent, orig_node->loc, orig_node->call->callee,
+    return call_node_new(orig_node->loc, orig_node->call->callee,
         &orig_node->call->args);
 }
 
@@ -287,21 +286,21 @@ symbol get_callee(struct ast_node *call)
     return call->call->specialized_callee ? call->call->specialized_callee : call->call->callee;
 }
 
-struct ast_node *func_type_node_default_new(struct ast_node *parent, struct source_location loc, symbol name, struct array *args,
+struct ast_node *func_type_node_default_new(struct source_location loc, symbol name, struct array *args,
     struct type_exp *ret_type, bool is_variadic, bool is_external)
 {
-    return func_type_node_new(parent, loc, name, args, ret_type, false, 0,
+    return func_type_node_new(loc, name, args, ret_type, false, 0,
         0, is_variadic, is_external);
 }
 
-struct ast_node *func_type_node_new(struct ast_node *parent, struct source_location loc, symbol name,
+struct ast_node *func_type_node_new(struct source_location loc, symbol name,
     struct array *params,
     struct type_exp *ret_type,
     bool is_operator, unsigned precedence, symbol op,
     bool is_variadic, bool is_external)
 {
     enum type type = ret_type ? ret_type->type : TYPE_UNK;
-    struct ast_node *node = ast_node_new(0, FUNC_TYPE_NODE, type, loc, parent);
+    struct ast_node *node = ast_node_new(0, FUNC_TYPE_NODE, type, loc);
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = name;
     node->ft->fun_params = *params;
@@ -321,7 +320,7 @@ struct ast_node *func_type_node_new(struct ast_node *parent, struct source_locat
 struct ast_node *_copy_func_type_node(struct ast_node *func_type)
 {
     struct ast_node *node = ast_node_new(0, func_type->node_type, 
-        func_type->annotated_type_enum, func_type->loc, func_type->parent);
+        func_type->annotated_type_enum, func_type->loc);
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = func_type->ft->name;
     node->ft->fun_params = func_type->ft->fun_params;
@@ -386,10 +385,10 @@ void _free_function_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *if_node_new(struct ast_node *parent, struct source_location loc,
+struct ast_node *if_node_new(struct source_location loc,
     struct ast_node *if_node, struct ast_node *then_node, struct ast_node *else_node)
 {
-    struct ast_node *node = ast_node_new(0, CONDITION_NODE, 0, loc, parent);
+    struct ast_node *node = ast_node_new(0, CONDITION_NODE, 0, loc);
     MALLOC(node->cond, sizeof(*node->cond));
     node->cond->if_node = if_node;
     node->cond->then_node = then_node;
@@ -399,7 +398,7 @@ struct ast_node *if_node_new(struct ast_node *parent, struct source_location loc
 
 struct ast_node *_copy_if_node(struct ast_node *orig_node)
 {
-    return if_node_new(orig_node->parent, orig_node->loc, orig_node->cond->if_node,
+    return if_node_new(orig_node->loc, orig_node->cond->if_node,
         orig_node->cond->then_node, orig_node->cond->else_node);
 }
 
@@ -414,9 +413,9 @@ void _free_if_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *unary_node_new(struct ast_node *parent, struct source_location loc, symbol op, struct ast_node *operand)
+struct ast_node *unary_node_new(struct source_location loc, symbol op, struct ast_node *operand)
 {
-    struct ast_node *node = ast_node_new(0, UNARY_NODE, 0, loc, parent);
+    struct ast_node *node = ast_node_new(0, UNARY_NODE, 0, loc);
     MALLOC(node->unop, sizeof(*node->unop));
     node->unop->op = op;
     node->unop->operand = operand;
@@ -425,7 +424,7 @@ struct ast_node *unary_node_new(struct ast_node *parent, struct source_location 
 
 struct ast_node *_copy_unary_node(struct ast_node *orig_node)
 {
-    return unary_node_new(orig_node->parent, orig_node->loc, orig_node->unop->op,
+    return unary_node_new(orig_node->loc, orig_node->unop->op,
         orig_node->unop->operand);
 }
 
@@ -435,9 +434,9 @@ void _free_unary_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *binary_node_new(struct ast_node *parent, struct source_location loc, symbol op, struct ast_node *lhs, struct ast_node *rhs)
+struct ast_node *binary_node_new(struct source_location loc, symbol op, struct ast_node *lhs, struct ast_node *rhs)
 {
-    struct ast_node *node = ast_node_new(0, BINARY_NODE, 0, loc, parent);
+    struct ast_node *node = ast_node_new(0, BINARY_NODE, 0, loc);
     MALLOC(node->binop, sizeof(*node->binop));
     node->binop->op = op;
     node->binop->lhs = lhs;
@@ -447,7 +446,7 @@ struct ast_node *binary_node_new(struct ast_node *parent, struct source_location
 
 struct ast_node *_copy_binary_node(struct ast_node *orig_node)
 {
-    return binary_node_new(orig_node->parent, orig_node->loc, orig_node->binop->op,
+    return binary_node_new(orig_node->loc, orig_node->binop->op,
         orig_node->binop->lhs, orig_node->binop->rhs);
 }
 
@@ -460,10 +459,10 @@ void _free_binary_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *for_node_new(struct ast_node *parent, struct source_location loc, symbol var_name, struct ast_node *start,
+struct ast_node *for_node_new(struct source_location loc, symbol var_name, struct ast_node *start,
     struct ast_node *end, struct ast_node *step, struct ast_node *body)
 {
-    struct ast_node *node = ast_node_new(0, FOR_NODE, 0, loc, parent);
+    struct ast_node *node = ast_node_new(0, FOR_NODE, 0, loc);
     MALLOC(node->forloop, sizeof(*node->forloop));
     node->forloop->var_name = var_name;
     node->forloop->start = start;
@@ -475,7 +474,7 @@ struct ast_node *for_node_new(struct ast_node *parent, struct source_location lo
 
 struct ast_node *_copy_for_node(struct ast_node *orig_node)
 {
-    return for_node_new(orig_node->parent, orig_node->loc,
+    return for_node_new(orig_node->loc,
         orig_node->forloop->var_name, orig_node->forloop->start, orig_node->forloop->end, orig_node->forloop->step, orig_node->forloop->body);
 }
 
@@ -492,10 +491,10 @@ void _free_for_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *block_node_new(struct ast_node *parent, struct array *nodes)
+struct ast_node *block_node_new(struct array *nodes)
 {
     struct source_location loc = nodes ? (*(struct ast_node **)array_front(nodes))->loc : default_loc;
-    struct ast_node *node = ast_node_new(0, BLOCK_NODE, 0, loc, parent);
+    struct ast_node *node = ast_node_new(0, BLOCK_NODE, 0, loc);
     MALLOC(node->block, sizeof(*node->block));
     if(nodes)
         node->block->nodes = *nodes;
@@ -604,7 +603,7 @@ struct module *module_new(const char *mod_name, FILE *file)
     // printf("new module: %s\n", mod_name);
     mod->name = to_symbol(mod_name);
     // printf("got new module: %s\n", mod_name);
-    struct ast_node *node = block_node_new(0, 0);
+    struct ast_node *node = block_node_new(0);
     array_init(&node->block->nodes, sizeof(struct ast_node *));
     mod->block = node;
     mod->tokenizer = create_tokenizer(file, mod_name, keyword_symbols, keyword_count);
