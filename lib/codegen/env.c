@@ -40,9 +40,19 @@ struct env *get_env()
     return g_env;
 }
 
+void emit_sp_code(struct code_generator *cg)
+{
+    for(size_t i = 0; i < array_size(&cg->sema_context->new_specialized_asts); i++){
+        struct ast_node *new_sp = *(struct ast_node **)array_get(&cg->sema_context->new_specialized_asts, i);
+        emit_ir_code(cg, new_sp);
+    }
+    array_reset(&cg->sema_context->new_specialized_asts);
+}
+
 struct type_exp *emit_code(struct env *env, struct ast_node *node)
 {
     struct type_exp *type = analyze(env->sema_context, node);
+    emit_sp_code(env->cg);
     if (array_size(&env->sema_context->used_builtin_names)) {
         for (size_t i = 0; i < array_size(&env->sema_context->used_builtin_names); i++) {
             symbol built_name = *((symbol *)array_get(&env->sema_context->used_builtin_names, i));

@@ -40,6 +40,8 @@ size_t array_size(struct array *arr);
 void array_free(struct array *arr);
 void array_add(struct array *dest, struct array *src);
 void array_clear(struct array *arr);
+/*reset the size to zero, without freeing memory*/
+void array_reset(struct array *a);
 
 #define ARRAY(var, elem_type, elem_deinit_fun) \
     struct array var;                          \

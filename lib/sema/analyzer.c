@@ -9,9 +9,6 @@
 #include "clib/hashtable.h"
 #include "clib/symboltable.h"
 #include "clib/util.h"
-#ifndef WASM
-#include "codegen/env.h"
-#endif
 #include "tool/cmodule.h"
 #include <assert.h>
 #include <limits.h>
@@ -236,7 +233,6 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
     }
 
     /* monomorphization of generic */
-    struct ast_node *specialized_fun = 0;
     if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args)) && !is_recursive(node)) {
         string sp_callee = monomorphize(string_get(node->call->callee), &args);
         node->call->specialized_callee = to_symbol(string_get(&sp_callee));
@@ -253,8 +249,8 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
         sp_fun->func->func_type->ft->name = node->call->specialized_callee;
         fun_type = analyze(context, sp_fun);
         hashtable_set(&context->specialized_ast, string_get(sp_fun->func->func_type->ft->name), sp_fun);
+        array_push(&context->new_specialized_asts, &sp_fun);     
         push_symbol_type(&context->decl_2_typexps, node->call->specialized_callee, fun_type);
-        specialized_fun = sp_fun;
         hashtable_set_p(&context->protos, node->call->specialized_callee, sp_fun->func->func_type);
         hashtable_set_p(&context->calls, node->call->specialized_callee, node);
         node->call->callee_func_type = sp_fun->func->func_type;
@@ -269,13 +265,6 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
     if (!node->call->specialized_callee) {
         hashtable_set_p(&context->calls, node->call->callee, node);
         node->call->callee_func_type = hashtable_get_p(&context->protos, node->call->callee);
-    }
-    // TODO: this should be moved to codegen phase
-    if (specialized_fun) {
-        #ifndef WASM
-        printf("debug: %p\n", (void*)specialized_fun);
-        emit_ir_code(get_env()->cg, specialized_fun);
-        #endif
     }
     return result_type;
 }

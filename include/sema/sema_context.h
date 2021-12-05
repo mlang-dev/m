@@ -58,6 +58,11 @@ struct sema_context {
     struct hashtable specialized_ast;
 
     /* 
+     *  new specialized value ASTs in one analysis
+     */
+    struct array new_specialized_asts;
+
+    /* 
      *  func_type declaration ASTs: hashtable of <symbol, struct ast_node*>
      */
     struct hashtable protos;

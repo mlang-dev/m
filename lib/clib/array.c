@@ -141,3 +141,8 @@ void array_clear(struct array *arr)
     array_deinit(arr);
     array_init_free(arr, arr->_element_size, arr->fun_free);
 }
+
+void array_reset(struct array *a)
+{
+    a->base.size = 0;
+}

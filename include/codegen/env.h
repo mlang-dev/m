@@ -31,6 +31,7 @@ struct env *env_new(bool is_repl);
 void env_free(struct env *env);
 struct env *get_env();
 struct type_exp *emit_code(struct env *env, struct ast_node *node);
+void emit_sp_code(struct code_generator *cg);
 
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
 

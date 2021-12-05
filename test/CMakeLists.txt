@@ -127,6 +127,10 @@ else()
     set(clang_lib clang)
   endif(WIN32)
 
+  if(MSVC)
+      set_property(TARGET mtest APPEND PROPERTY LINK_FLAGS /DEBUG)
+  endif()
+
   TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
     ${llvm_libraries}
     ${sys_libraries}

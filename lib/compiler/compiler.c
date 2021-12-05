@@ -97,6 +97,7 @@ char *emit_ir_string(struct code_generator *cg, struct ast_node *ast_node)
     if (!ast_node)
         return 0;
     analyze(cg->sema_context, ast_node);
+    emit_sp_code(cg);
     emit_ir_code(cg, ast_node);
     return LLVMPrintModuleToString(cg->module);
 }
