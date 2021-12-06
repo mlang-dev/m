@@ -183,39 +183,39 @@ void ast_node_free(struct ast_node *node);
 struct type_exp *get_ret_type(struct ast_node *fun_node);
 
 struct ast_node *function_node_new(struct ast_node *func_type,
-    struct ast_node *body);
-struct ast_node *ident_node_new(struct source_location loc, symbol name);
+    struct ast_node *body, struct source_location loc);
+struct ast_node *ident_node_new(symbol name, struct source_location loc);
 
-struct ast_node *double_node_new(struct source_location loc, double val);
-struct ast_node *int_node_new(struct source_location loc, int val);
-struct ast_node *bool_node_new(struct source_location loc, bool val);
-struct ast_node *char_node_new(struct source_location loc, char val);
+struct ast_node *double_node_new(double val, struct source_location loc);
+struct ast_node *int_node_new(int val, struct source_location loc);
+struct ast_node *bool_node_new(bool val, struct source_location loc);
+struct ast_node *char_node_new(char val, struct source_location loc);
 struct ast_node *unit_node_new(struct source_location loc);
-struct ast_node *string_node_new(struct source_location loc, const char *val);
+struct ast_node *string_node_new(const char *val, struct source_location loc);
 
-struct ast_node *var_node_new(struct source_location loc, symbol var_name, enum type type, symbol ext_type, struct ast_node *init_value, bool is_global);
-struct ast_node *call_node_new(struct source_location loc, symbol callee,
-    struct array *args);
-struct ast_node *func_type_node_new(struct source_location loc,
+struct ast_node *var_node_new(symbol var_name, enum type type, symbol ext_type, struct ast_node *init_value, bool is_global, struct source_location loc);
+struct ast_node *call_node_new(symbol callee,
+    struct array *args, struct source_location loc);
+struct ast_node *func_type_node_new(
     symbol name,
     struct array *params,
     struct type_exp *ret_type,
     bool is_operator,
     unsigned precedence,
     symbol op,
-    bool is_variadic, bool is_external);
-struct ast_node *type_node_new(struct source_location loc, symbol name, struct ast_node *body);
-struct ast_node *type_value_node_new(struct source_location loc, struct ast_node *body, symbol type_name);
-struct ast_node *func_type_node_default_new(struct source_location loc,
+    bool is_variadic, bool is_external, struct source_location loc);
+struct ast_node *type_node_new(symbol name, struct ast_node *body, struct source_location loc);
+struct ast_node *type_value_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
+struct ast_node *func_type_node_default_new(
     symbol name,
-    struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external);
+    struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external, struct source_location loc);
 
-struct ast_node *if_node_new(struct source_location loc, struct ast_node *condition, struct ast_node *then_node,
-    struct ast_node *else_node);
-struct ast_node *unary_node_new(struct source_location loc, symbol op, struct ast_node *operand);
-struct ast_node *binary_node_new(struct source_location loc, symbol op, struct ast_node *lhs, struct ast_node *rhs);
-struct ast_node *for_node_new(struct source_location loc, symbol var_name, struct ast_node *start,
-    struct ast_node *end, struct ast_node *step, struct ast_node *body);
+struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_node,
+    struct ast_node *else_node, struct source_location loc);
+struct ast_node *unary_node_new(symbol op, struct ast_node *operand, struct source_location loc);
+struct ast_node *binary_node_new(symbol op, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
+struct ast_node *for_node_new(symbol var_name, struct ast_node *start,
+    struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc);
 struct ast_node *block_node_new(struct array *nodes);
 struct ast_node *node_copy(struct ast_node *node);
 struct module *module_new(const char *mod_name, FILE *file);
