@@ -11,7 +11,6 @@
 #include "clib/win/libfmemopen.h"
 #include "parser/astdump.h"
 #include "parser/m_parser.h"
-#include "parser/parser.h"
 
 #define exit_block(parser, parent, base_col) (parent && parser->curr_token.loc.col < base_col && (parser->curr_token.token_type != TOKEN_NEWLINE || parser->is_repl))
 

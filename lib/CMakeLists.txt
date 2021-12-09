@@ -25,7 +25,7 @@ if (EMSCRIPTEN OR WASM)
  #   clib/getpath.c
     parser/ast.c
     parser/tok.c
-    parser/parser.c
+    parser/earley_parser.c
     parser/grammar.c
     parser/m_grammar.c
     sema/type.c
@@ -69,7 +69,7 @@ else()
     lexer/keyword.c
     parser/ast.c
     parser/tok.c
-    parser/parser.c
+    parser/earley_parser.c
     parser/astdump.c
     parser/grammar.c
     parser/m_parser.c

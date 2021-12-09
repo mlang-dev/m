@@ -6,7 +6,7 @@
  * This is to implement a generic parser, taking a EBNF grammar text and parse text 
  * into ast according to the grammar
  */
-#include "parser/parser.h"
+#include "parser/earley_parser.h"
 #include "clib/array.h"
 #include "clib/stack.h"
 #include "clib/util.h"

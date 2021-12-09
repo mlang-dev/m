@@ -3,7 +3,7 @@
 #include "clib/string.h"
 #include "codegen/wat_codegen.h"
 #include "parser/m_grammar.h"
-#include "parser/parser.h"
+#include "parser/earley_parser.h"
 #include "parser/amodule.h"
 
 const char * fun_def = "run()=";

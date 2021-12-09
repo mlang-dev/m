@@ -139,7 +139,8 @@
         "binaryen-c.h": "c",
         "m_grammar.h": "c",
         "wat_codegen.h": "c",
-        "parser.h": "c"
+        "parser.h": "c",
+        "test.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
