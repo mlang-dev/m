@@ -29,6 +29,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
     ENUM_ITEM(TOKEN_SYMBOL)          \
+    ENUM_ITEM(TOKEN_PLUS)            \
     ENUM_ITEM(TOKEN_TOTAL)
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };

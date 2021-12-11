@@ -18,7 +18,7 @@ extern "C" {
 
 struct tok {
     struct source_location loc;
-    symbol tok_type; // IDENT, NUM, STRING keywords like 'if', 'for' etc
+    symbol tok_type_name; // IDENT, NUM, STRING keywords like 'if', 'for' etc
 };
 
 extern symbol STRING_TOKEN;

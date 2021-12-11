@@ -7,19 +7,13 @@
 #include "codegen/wat_codegen.h"
 #include "parser/tok.h"
 #include "clib/array.h"
+#include "parser/ast.h"
 #include <assert.h>
 
-symbol BINOP = 0;
-symbol UNOP = 0;
-symbol FUNC = 0;
-symbol PROG = 0;
+
 const char *ops[256];
 void wat_codegen_init()
 {
-    BINOP = to_symbol2_0("binop");
-    UNOP = to_symbol2_0("unop");
-    FUNC = to_symbol2_0("func");
-    PROG = to_symbol2_0("prog");
     ops['+'] = "i32.add";
     ops['-'] = "i32.sub";
     ops['*'] = "i32.mul";
@@ -33,10 +27,10 @@ string _wat_generate(struct ast_node *ast, const char *text)
     if(!ast){
         return s;
     }
-    if(ast->node_type_name == FUNC){
+    if(ast->node_type == FUNCTION_NODE){
         string_append(&s, "(func $");
         struct ast_node *fname = *(struct ast_node**)array_get(&ast->children, 0);
-        assert(fname->node_type_name == IDENT_TOKEN);
+        assert(fname->node_type == IDENT_NODE);
         string_add_chars2(&s, &text[fname->loc.start], fname->loc.end - fname->loc.start);
         string_append(&s, " (result i32)\n");
         //func body
@@ -53,7 +47,7 @@ string _wat_generate(struct ast_node *ast, const char *text)
         string_append(&s, ")");
         string_append(&s, ")\n");
     }
-    else if (ast->node_type_name == BINOP){
+    else if (ast->node_type == BINARY_NODE){
         //0, 2 is operand, 1 is operator
         assert(array_size(&ast->children)==3);
         struct ast_node *op = *(struct ast_node**)array_get(&ast->children, 1);
@@ -68,15 +62,13 @@ string _wat_generate(struct ast_node *ast, const char *text)
         string_add2(&s, &op2);
         string_append(&s, ")\n");
     }
-    else if(ast->node_type_name == UNOP){
+    else if(ast->node_type == UNARY_NODE){
 
     }
-    else if(ast->node_type_name == NUM_TOKEN){
+    else if(ast->node_type == LITERAL_NODE){
         string_append(&s, "(i32.const ");
         string_add_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
         string_append(&s, ")\n");
-    }
-    else if(ast->node_type_name == PROG){
     }
     else if(ast->node_type_name){
         assert(false);

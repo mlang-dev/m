@@ -11,7 +11,13 @@
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
+#include "lexer/lexer.h"
 #include <assert.h>
+
+symbol BINOP = 0;
+symbol UNOP = 0;
+symbol FUNC = 0;
+symbol PROG = 0;
 
 struct parser *parser_new(const char *grammar_text)
 {
@@ -19,6 +25,11 @@ struct parser *parser_new(const char *grammar_text)
     struct parser *parser;
     MALLOC(parser, sizeof(*parser));
     parser->grammar = grammar;
+
+    BINOP = to_symbol2_0("binop");
+    UNOP = to_symbol2_0("unop");
+    FUNC = to_symbol2_0("func");
+    PROG = to_symbol2_0("prog");
     return parser;
 }
 
@@ -160,9 +171,9 @@ bool _is_match(struct tok *tok, struct expr_item *ei)
         return false;
     case EI_TOKEN_MATCH: // like ID, NUM, STRING, CHAR token
     case EI_EXACT_MATCH: // keyword
-        return tok->tok_type == ei->sym;
+        return tok->tok_type_name == ei->sym;
     case EI_IN_MATCH:
-        return expr_item_exists_symbol(ei, string_get(tok->tok_type)[0]);
+        return expr_item_exists_symbol(ei, string_get(tok->tok_type_name)[0]);
     }    
 }
 
@@ -198,6 +209,22 @@ struct _child_parse{
     enum expr_item_type ei_type;
     struct complete_parse *child_cp;
 };
+
+enum node_type _to_node_type_enum(symbol node_type_name)
+{
+    if (node_type_name == BINOP){
+        return BINARY_NODE;
+    }else if(node_type_name == UNOP){
+        return UNARY_NODE;
+    }else if(node_type_name == FUNC){
+        return FUNCTION_NODE;
+    }else if(node_type_name == IDENT_TOKEN){
+        return IDENT_NODE;
+    }else if(node_type_name == NUM_TOKEN){
+        return LITERAL_NODE;
+    }
+    return UNK_NODE;
+}
 
 struct ast_node *_build_ast(struct parse_states *states, size_t from, struct complete_parse *cp)
 {
@@ -263,7 +290,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
     assert(state_index == cp->end_state_index);
     //build ast
     struct source_location loc = {0, 0, 0, 0};
-    struct ast_node *node = (cp->ep->expr->action.exp_item_index_count > 1) ? ast_node_new(cp->ep->expr->action.action, 0, 0, loc) : 0;
+    struct ast_node *node = (cp->ep->expr->action.exp_item_index_count > 1) ? ast_node_new(0, _to_node_type_enum(cp->ep->expr->action.action), 0, loc) : 0;
     for(size_t i = 0; i < array_size(&child_parses); i++){
         struct _child_parse *c_p = (struct _child_parse *)array_get(&child_parses, i);
         struct ast_node *child = 0; 
@@ -271,7 +298,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
             continue;
         }
         if(c_p->ei_type){ //terminal
-            child = ast_node_new(c_p->state->tok.tok_type, 0, 0, c_p->state->tok.loc);
+            child = ast_node_new(0, _to_node_type_enum(c_p->state->tok.tok_type_name), 0, c_p->state->tok.loc);
         }else{ //noterminal
             child = _build_ast(states, c_p->state->state_index, c_p->child_cp);
         }
@@ -313,7 +340,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
                 struct parse_state* ss = (struct parse_state*)array_get(&states.states, ep->start_state_index);
                 _complete(state, ep, ss);
 
-            }else if(state->tok.tok_type){
+            }else if(state->tok.tok_type_name){
                 struct expr_item *ei = (struct expr_item *)array_get(&ep->expr->items, ep->parsed);
                 if (ei->ei_type == EI_NONTERM && ei->sym != ep->rule->nonterm) {
                     // expects non-terminal, we're adding the rule's exprs into current state

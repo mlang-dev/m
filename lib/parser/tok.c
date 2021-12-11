@@ -64,12 +64,12 @@ void _scan_until_no_id(struct lexer *lexer)
     while (ch == '_' || isalpha(ch) || isdigit(ch));
 }
 
-void _mark_token(struct lexer *lexer, struct tok *tok, symbol tok_type)
+void _mark_token(struct lexer *lexer, struct tok *tok, symbol tok_type_name)
 {
     tok->loc.start = lexer->pos;
     tok->loc.line = lexer->line;
     tok->loc.col = lexer->col;
-    tok->tok_type = tok_type;
+    tok->tok_type_name = tok_type_name;
 }
 
 void lexer_init(struct lexer *lexer, const char *text)
@@ -89,7 +89,7 @@ void lexer_init(struct lexer *lexer, const char *text)
 
 void get_tok(struct lexer *lexer, struct tok *tok)
 {
-    tok->tok_type = 0;
+    tok->tok_type_name = 0;
     char ch = lexer->text[lexer->pos];
     switch (ch)
     {
@@ -129,7 +129,7 @@ void get_tok(struct lexer *lexer, struct tok *tok)
         _move_ahead(lexer); // skip the double quote
         break;
     }
-    if(tok->tok_type){
+    if(tok->tok_type_name){
         tok->loc.end = lexer->pos;
     }
 }

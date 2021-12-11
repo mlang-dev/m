@@ -92,7 +92,6 @@ else()
     lldReaderWriter
     lldCommon
     lldCore
-    pthread
     ${llvm_libraries}
     ${sys_libraries}
   )
