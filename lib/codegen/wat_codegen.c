@@ -70,10 +70,6 @@ string _wat_generate(struct ast_node *ast, const char *text)
         string_add_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
         string_append(&s, ")\n");
     }
-    else if(ast->node_type_name){
-        assert(false);
-        string_init_chars2(&s, &text[ast->loc.start], ast->loc.end - ast->loc.start);
-    }
     else {
     }
     /*

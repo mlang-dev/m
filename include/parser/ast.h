@@ -149,7 +149,6 @@ struct ast_node {
 
     symbol annotated_type_name; //this is expected to be removed
     bool is_ret;        //tihs is expected to be removed from sema analysis
-    symbol node_type_name; //this is expected to be removed from parser generator
     struct array children; //list of pointer to child ast_node, this is expected to be removed from parser generator
     union{
         void *data; //node data represents any of following pointer
@@ -177,7 +176,7 @@ struct ast_node {
  * if node type order is changed here, the corresponding order of function pointer
  * in codegen.c & analyzer.c shall be changed accordingly.
  */
-struct ast_node *ast_node_new(symbol node_type_name, enum node_type node_type, enum type annotated_type_enum, struct source_location loc);
+struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type_enum, struct source_location loc);
 void ast_node_free(struct ast_node *node);
 
 struct type_exp *get_ret_type(struct ast_node *fun_node);

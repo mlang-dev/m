@@ -290,7 +290,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
     assert(state_index == cp->end_state_index);
     //build ast
     struct source_location loc = {0, 0, 0, 0};
-    struct ast_node *node = (cp->ep->expr->action.exp_item_index_count > 1) ? ast_node_new(0, _to_node_type_enum(cp->ep->expr->action.action), 0, loc) : 0;
+    struct ast_node *node = (cp->ep->expr->action.exp_item_index_count > 1) ? ast_node_new(_to_node_type_enum(cp->ep->expr->action.action), 0, loc) : 0;
     for(size_t i = 0; i < array_size(&child_parses); i++){
         struct _child_parse *c_p = (struct _child_parse *)array_get(&child_parses, i);
         struct ast_node *child = 0; 
@@ -298,7 +298,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
             continue;
         }
         if(c_p->ei_type){ //terminal
-            child = ast_node_new(0, _to_node_type_enum(c_p->state->tok.tok_type_name), 0, c_p->state->tok.loc);
+            child = ast_node_new(_to_node_type_enum(c_p->state->tok.tok_type_name), 0, c_p->state->tok.loc);
         }else{ //noterminal
             child = _build_ast(states, c_p->state->state_index, c_p->child_cp);
         }
