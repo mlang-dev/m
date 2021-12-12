@@ -91,7 +91,7 @@ string _dump_binary(struct ast_node *binary)
     string rhs_str = dump(binary->binop->rhs);
     string bin;
     string_init_chars(&bin, "bin:");
-    string_add(&bin, binary->binop->op);
+    string_add_chars(&bin, get_opcode(binary->binop->opcode));
     string_add_chars(&bin, "[");
     string_add(&bin, &lhs_str);
     string_add_chars(&bin, ",");

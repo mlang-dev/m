@@ -64,6 +64,8 @@ enum op_code{
     OP_GT,
     OP_GE,
     OP_NE,
+
+    END_TOKENS //mark end of all tokens
 };
 
 extern const char *token_type_strings[];

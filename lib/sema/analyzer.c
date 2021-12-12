@@ -10,6 +10,7 @@
 #include "clib/symboltable.h"
 #include "clib/util.h"
 #include "tool/cmodule.h"
+#include "parser/m_grammar.h"
 #include <assert.h>
 #include <limits.h>
 
@@ -292,7 +293,7 @@ struct type_exp *_analyze_binary(struct sema_context *context, struct ast_node *
     struct type_exp *rhs_type = analyze(context, node->binop->rhs);
     struct type_exp *result = 0;
     if (unify(lhs_type, rhs_type, &context->nongens)) {
-        if (_is_predicate_op(string_get(node->binop->op)))
+        if (_is_predicate_op(get_opcode(node->binop->opcode)))
             result = (struct type_exp *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         else
             result = lhs_type;
@@ -300,7 +301,7 @@ struct type_exp *_analyze_binary(struct sema_context *context, struct ast_node *
     } else {
         string error;
         string_init_chars(&error, "type not same for binary op: ");
-        string_add(&error, node->binop->op);
+        string_add_chars(&error, get_opcode(node->binop->opcode));
         _log_err(context, node->loc, string_get(&error));
     }
     return result;

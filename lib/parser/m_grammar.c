@@ -11,6 +11,9 @@
 #include <assert.h>
 
 struct keyword_token keyword_tokens[] = {
+    {"", TOKEN_NULL},
+    {"\n", TOKEN_NEWLINE},
+    {"\0", TOKEN_EOF},
     {"import", TOKEN_IMPORT},
     {"extern", TOKEN_EXTERN},
     {"type", TOKEN_TYPE},
@@ -47,12 +50,13 @@ struct keyword_token keyword_tokens[] = {
     {"-", OP_MINUS},
  
     {"<",  OP_LT},
-    {">",  OP_GE},
+    {">",  OP_GT},
     {"<=", OP_LE},
     {">=", OP_GE},
     {"==", OP_EQ},
     {"!=", OP_NE},
 };
+
 
 int keyword_count = ARRAY_SIZE(keyword_tokens);
 
@@ -60,7 +64,7 @@ const char * get_opcode(enum op_code opcode)
 {
     static const char **opcodes = 0;
     if(!opcodes){
-        MALLOC(opcodes, keyword_count * sizeof(const char *));
+        CALLOC(opcodes, END_TOKENS, sizeof(const char *));
         for (int i = 0; i < keyword_count; i++){
             struct keyword_token kw_tt = keyword_tokens[i];
             assert(kw_tt.token_type < keyword_count);

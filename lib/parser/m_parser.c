@@ -605,7 +605,6 @@ struct ast_node *_parse_binary(struct m_parser *parser, struct ast_node *parent,
         int tok_prec = _get_op_precedence(parser);
         if (tok_prec < exp_prec)
             return lhs;
-        symbol binary_op = parser->curr_token.symbol_val;
         enum op_code opcode = parser->curr_token.opcode;
         parse_next_token(parser);
         struct ast_node *rhs = _parse_unary(parser, parent);
@@ -617,7 +616,7 @@ struct ast_node *_parse_binary(struct m_parser *parser, struct ast_node *parent,
             if (!rhs)
                 return 0;
         }
-        lhs = (struct ast_node *)binary_node_new(binary_op, opcode, lhs, rhs, lhs->loc);
+        lhs = (struct ast_node *)binary_node_new(opcode, lhs, rhs, lhs->loc);
     }
 }
 
@@ -856,7 +855,7 @@ struct ast_node *_parse_for(struct m_parser *parser, struct ast_node *parent)
     }
     // convert end variable to a logic
     struct ast_node *id_node = (struct ast_node *)ident_node_new(id_symbol, start->loc);
-    struct ast_node *end = (struct ast_node *)binary_node_new(parser->lessthan_op, OP_LT, id_node, end_val, end_val->loc);
+    struct ast_node *end = (struct ast_node *)binary_node_new(OP_LT, id_node, end_val, end_val->loc);
     struct ast_node *body = _parse_block(parser, parent, 0, 0);
     if (body == 0)
         return 0;

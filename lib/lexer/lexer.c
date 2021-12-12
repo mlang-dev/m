@@ -69,7 +69,7 @@ char peek_char(struct tokenizer *tokenizer)
     return tokenizer->peek;
 }
 
-void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_symbols, int keyword_count)
+void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_tokens, int keyword_count)
 {
     hashtable_init_with_value_size(&tokenizer->keyword_2_tokens, sizeof(enum token_type), 0);
     // for (size_t i = 0; i < ARRAY_SIZE(keyword_symbols); ++i) {
@@ -81,7 +81,7 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_symb
     //struct keyword_state *ks;
     //struct keyword_state *next_ks;
     for (int i = 0; i < keyword_count; ++i) {
-        kss_add_string(&tokenizer->keyword_states, keyword_symbols[i].keyword, keyword_symbols[i].token_type);
+        kss_add_string(&tokenizer->keyword_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
     }
 }
 

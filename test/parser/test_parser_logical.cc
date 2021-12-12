@@ -21,7 +21,7 @@ TEST_F(testParserLogicalOperator, testOrOp)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     auto bin = (ast_node *)node;
-    ASSERT_STREQ("||", string_get(bin->binop->op));
+    ASSERT_STREQ("||", get_opcode(bin->binop->opcode));
     env_free(env);
 }
 
@@ -33,7 +33,7 @@ TEST_F(testParserLogicalOperator, testAndOp)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     auto bin = (ast_node *)node;
-    ASSERT_STREQ("&&", string_get(bin->binop->op));
+    ASSERT_STREQ("&&", get_opcode(bin->binop->opcode));
     env_free(env);
 }
 

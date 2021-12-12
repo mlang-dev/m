@@ -6,6 +6,7 @@
 #include "codegen/env.h"
 #include "test_base.h"
 #include "tutil.h"
+#include "parser/m_grammar.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 
@@ -20,7 +21,7 @@ TEST_F(testParserRelational, testComparisonLessThan)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     auto bin = (ast_node *)node;
-    ASSERT_STREQ("<", string_get(bin->binop->op));
+    ASSERT_STREQ("<", get_opcode(bin->binop->opcode));
     env_free(env);
 }
 
@@ -31,7 +32,8 @@ TEST_F(testParserRelational, testComparisonGreaterThan)
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
-    ASSERT_STREQ(">", string_get(node->binop->op));
+    ASSERT_EQ(OP_GT, node->binop->opcode);
+    ASSERT_STREQ(">", get_opcode(node->binop->opcode));
     env_free(env);
 }
 
@@ -42,7 +44,7 @@ TEST_F(testParserRelational, testComparisonEqual)
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
-    ASSERT_STREQ("==", string_get(node->binop->op));
+    ASSERT_STREQ("==", get_opcode(node->binop->opcode));
     env_free(env);
 }
 
@@ -53,7 +55,7 @@ TEST_F(testParserRelational, testComparisonGE)
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
-    ASSERT_STREQ(">=", string_get(node->binop->op));
+    ASSERT_STREQ(">=", get_opcode(node->binop->opcode));
     env_free(env);
 }
 
@@ -64,6 +66,6 @@ TEST_F(testParserRelational, testComparisonLE)
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
-    ASSERT_STREQ("<=", string_get(node->binop->op));
+    ASSERT_STREQ("<=", get_opcode(node->binop->opcode));
     env_free(env);
 }

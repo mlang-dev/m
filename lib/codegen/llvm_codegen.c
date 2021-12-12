@@ -532,7 +532,7 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct ast_node *node)
         default:
             string f_name;
             string_init_chars(&f_name, "binary");
-            string_add(&f_name, node->binop->op);
+            string_add_chars(&f_name, get_opcode(node->binop->opcode));
             symbol op = to_symbol(string_get(&f_name));
             LLVMValueRef fun = get_llvm_function(cg, op);
             assert(fun && "binary operator not found!");
