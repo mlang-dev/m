@@ -54,7 +54,7 @@ struct rcg_state *rcg_find_next_state(struct rcg_state *state, char ch)
     return 0;
 }
 
-void rcg_add_string(struct rcg_states *rss, const char *str, enum token_type token_type)
+void rcg_exact_match(struct rcg_states *rss, const char *str, enum token_type token_type)
 {
     struct rcg_state *rs;
     struct rcg_state *next_rs;

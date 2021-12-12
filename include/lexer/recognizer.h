@@ -27,7 +27,7 @@ struct rcg_states {
 };
 
 void rcg_init(struct rcg_states *rss);
-void rcg_add_string(struct rcg_states *rss, const char *str, enum token_type token_type);
+void rcg_exact_match(struct rcg_states *rss, const char *str, enum token_type token_type);
 void rcg_deinit(struct rcg_states *rss);
 struct rcg_state *rcg_find_next_state(struct rcg_state *state, char ch);
 
