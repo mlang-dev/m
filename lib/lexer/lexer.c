@@ -76,19 +76,19 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_toke
     //     symbol keyword = to_symbol(keyword_symbols[i].keyword);
     //     hashtable_set_p(&keyword_2_tokens, keyword, &keyword_symbols[i].token);
     // }
-    kss_init(&tokenizer->keyword_states);
+    rcg_init(&tokenizer->rcg_states);
     //char ch;
-    //struct keyword_state *ks;
-    //struct keyword_state *next_ks;
+    //struct rcg_state *ks;
+    //struct rcg_state *next_ks;
     for (int i = 0; i < keyword_count; ++i) {
-        kss_add_string(&tokenizer->keyword_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
+        rcg_add_string(&tokenizer->rcg_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
     }
 }
 
 void _lexer_deinit(struct tokenizer *tokenizer)
 {
     hashtable_deinit(&tokenizer->keyword_2_tokens);
-    kss_deinit(&tokenizer->keyword_states);
+    rcg_deinit(&tokenizer->rcg_states);
 }
 
 struct tokenizer *create_tokenizer(FILE *file, const char *filename, struct keyword_token *keyword_tokens, int keyword_count)
@@ -201,11 +201,11 @@ struct token *_tokenize_number_literal(struct tokenizer *tokenizer)
 struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
 {
     string_copy_chars(&tokenizer->str_val, tokenizer->curr_char);
-    struct keyword_state *ks = tokenizer->keyword_states.states[(int)tokenizer->curr_char[0]];
-    struct keyword_state *ks_next = 0;
+    struct rcg_state *ks = tokenizer->rcg_states.states[(int)tokenizer->curr_char[0]];
+    struct rcg_state *ks_next = 0;
     while (true) {
         char ch = tokenizer->curr_char[0] = get_char(tokenizer);
-        ks_next = find_next_keyword_state(ks, ch);
+        ks_next = rcg_find_next_state(ks, ch);
         if (ks && ks->accepted_token_or_opcode && !ks->identifiable && !ks_next)
             break;
         else if (isalnum(ch) || ch == '_' || ch == '.' || ks_next) {
@@ -217,7 +217,9 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
     }
     if (!ks){
         tokenizer->cur_token.token_type = TOKEN_IDENT;
-    }else if(ks->accepted_token_or_opcode == TOKEN_TRUE || ks->accepted_token_or_opcode == TOKEN_FALSE){
+    }else if(
+        ks->accepted_token_or_opcode == TOKEN_TRUE || 
+        ks->accepted_token_or_opcode == TOKEN_FALSE){
         tokenizer->cur_token.token_type = ks->accepted_token_or_opcode;
     }else{
         tokenizer->cur_token.token_type = ks->accepted_token_or_opcode ? TOKEN_SYMBOL : TOKEN_IDENT;
@@ -317,7 +319,7 @@ struct token *get_token(struct tokenizer *tokenizer)
         return _tokenize_dot(tokenizer);
     } else if (isdigit(tokenizer->curr_char[0])) {
         return _tokenize_number_literal(tokenizer);
-    } else if (isalpha(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '_' || tokenizer->keyword_states.states[(int)tokenizer->curr_char[0]]) {
+    } else if (isalpha(tokenizer->curr_char[0]) || tokenizer->curr_char[0] == '_' || tokenizer->rcg_states.states[(int)tokenizer->curr_char[0]]) {
         return _tokenize_id_keyword(tokenizer);
     } else if (tokenizer->curr_char[0] == '#') {
         // skip comments

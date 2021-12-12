@@ -11,7 +11,7 @@
 #include "clib/string.h"
 #include "clib/symbol.h"
 #include "clib/util.h"
-#include "lexer/keyword.h"
+#include "lexer/recognizer.h"
 #include "lexer/source_location.h"
 #include <stdio.h>
 
@@ -40,6 +40,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_IN)              \
     ENUM_ITEM(TOKEN_FOR)             \
     ENUM_ITEM(TOKEN_RANGE)           \
+    ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_ASSIGN)          \
     ENUM_ITEM(TOKEN_SYMBOL)          \
     ENUM_ITEM(TOKEN_TOTAL)
@@ -95,7 +96,7 @@ struct tokenizer {
     char curr_char[2];
     string str_val;
     char peek;
-    struct keyword_states keyword_states;
+    struct rcg_states rcg_states;
     struct hashtable keyword_2_tokens;
 };
 

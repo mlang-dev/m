@@ -25,7 +25,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/test/Debug/mtest",
             "args": [
-                "--gtest_filter=testParserRelational.testComparisonGreaterThan"
+                "--gtest_filter=testLexer.testRangeOnly"
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
