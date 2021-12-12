@@ -9,10 +9,12 @@
 #ifndef __MLANG_KEYWORD_H__
 #define __MLANG_KEYWORD_H__
 #include "clib/array.h"
+#include "lexer/token.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 struct rcg_state {
     char ch;
     int accepted_token_or_opcode;

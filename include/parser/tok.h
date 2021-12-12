@@ -6,8 +6,8 @@
  * header file for a generic tokenizer
  */
 
-#ifndef __MLANG_TOKEN_H__
-#define __MLANG_TOKEN_H__
+#ifndef __MLANG_TOK_H__
+#define __MLANG_TOK_H__
 
 #include "clib/symbol.h"
 #include "lexer/source_location.h"

@@ -65,6 +65,7 @@ else()
     clib/win/libfmemopen.c
     clib/getpath.c
     tool/cmodule.c
+    lexer/token.c
     lexer/lexer.c
     lexer/recognizer.c
     parser/ast.c

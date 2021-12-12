@@ -20,7 +20,7 @@ void rcg_init(struct rcg_states *kss)
     }
 }
 
-struct rcg_state *_new_rcg_state(char ch)
+struct rcg_state *_rcg_state_new(char ch)
 {
     struct rcg_state *ks;
     MALLOC(ks, sizeof(*ks));
@@ -30,12 +30,12 @@ struct rcg_state *_new_rcg_state(char ch)
     return ks;
 }
 
-void _free_rcg_state(struct rcg_state *ks)
+void _rcg_state_free(struct rcg_state *ks)
 {
     struct rcg_state *elemt = 0;
     for (size_t i = 0; i < array_size(&ks->nexts); i++) {
         elemt = *(struct rcg_state **)array_get(&ks->nexts, i);
-        _free_rcg_state(elemt);
+        _rcg_state_free(elemt);
     }
     array_deinit(&ks->nexts);
     FREE(ks);
@@ -61,14 +61,14 @@ void rcg_add_string(struct rcg_states *rss, const char *str, enum token_type tok
     char ch = str[0];
     rs = rss->states[(int)ch];
     if (!rs) {
-        rs = _new_rcg_state(ch);
+        rs = _rcg_state_new(ch);
         rss->states[(int)ch] = rs;
     }
     for (size_t j = 1; j < strlen(str); ++j) {
         ch = str[j];
         next_rs = rcg_find_next_state(rs, ch);
         if (!next_rs) {
-            next_rs = _new_rcg_state(ch);
+            next_rs = _rcg_state_new(ch);
             array_push(&rs->nexts, &next_rs);
         }
         rs = next_rs;
@@ -81,7 +81,7 @@ void rcg_deinit(struct rcg_states *kss)
 {
     for (size_t i = 0; i < ARRAY_SIZE(kss->states); i++) {
         if (kss->states[i]) {
-            _free_rcg_state(kss->states[i]);
+            _rcg_state_free(kss->states[i]);
         }
     }
 }

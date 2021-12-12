@@ -185,7 +185,7 @@ struct m_parser *m_parser_new(bool is_repl)
     parser->id_is_var_decl = false;
     parser->is_repl = is_repl;
     parser->current_module = 0;
-    init_token(&parser->curr_token);
+    token_init(&parser->curr_token);
     g_parser = parser;
 
     return parser;

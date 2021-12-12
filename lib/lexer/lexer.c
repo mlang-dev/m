@@ -14,29 +14,8 @@
 #include "clib/win/libfmemopen.h"
 #include "parser/m_grammar.h"
 
-/*
-IDENT ::= [_a-zA-Z][_a-zA-Z0-9]{0,30}
-
-*/
-const char *token_type_strings[] = {
-    FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
-};
 
 #define CUR_CHAR(tokenizer) tokenizer->curr_char[0]
-
-void token_copy(struct token *dst, struct token *src)
-{
-    if(dst->token_type == TOKEN_STRING){
-        string_free(dst->str_val);
-    }
-    if(src->token_type == TOKEN_STRING){
-        dst->token_type = src->token_type;
-        dst->loc = src->loc;
-        dst->str_val = string_new(string_get(src->str_val));
-    }else{
-        *dst = *src;
-    }
-}
 
 void log_error(struct tokenizer *tokenizer, const char *msg)
 {
@@ -332,11 +311,4 @@ struct token *get_token(struct tokenizer *tokenizer)
         assert(false);
     }
     return 0;
-}
-
-void init_token(struct token *token)
-{
-    token->token_type = TOKEN_NULL;
-    token->loc.line = 0;
-    token->loc.col = 0;
 }

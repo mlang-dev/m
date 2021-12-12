@@ -24,6 +24,7 @@ struct keyword_token keyword_tokens[] = {
     {"for", TOKEN_FOR},
     {"unary", TOKEN_SYMBOL},
     {"binary", TOKEN_SYMBOL},
+    {".", TOKEN_DOT},
     {"..", TOKEN_RANGE},
     {"...", TOKEN_SYMBOL},
     {"true", TOKEN_TRUE},
