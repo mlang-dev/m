@@ -219,6 +219,11 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
     tokenizer->cur_token.token_type = (ks && ks->accepted_token_type) ? TOKEN_SYMBOL : TOKEN_IDENT;
     tokenizer->cur_token.symbol_val = to_symbol(string_get(&tokenizer->str_val));
     tokenizer->cur_token.loc = tokenizer->tok_loc;
+    if(ks&&ks->accepted_token_type > TOKEN_TOTAL){
+        tokenizer->cur_token.opcode = ks->accepted_token_type;
+    }else{
+        tokenizer->cur_token.opcode = 0;
+    }
     return &tokenizer->cur_token;
 }
 

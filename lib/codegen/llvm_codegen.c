@@ -456,11 +456,11 @@ LLVMValueRef _emit_unary_node(struct code_generator *cg, struct ast_node *node)
 {
     LLVMValueRef operand_v = emit_ir_code(cg, node->unop->operand);
     assert(operand_v);
-    if (node->unop->op == cg->sema_context->parser->plus_op)
+    if (node->unop->opcode == OP_PLUS)
         return operand_v;
-    else if (node->unop->op == cg->sema_context->parser->minus_op) {
+    else if (node->unop->opcode == OP_MINUS) {
         return cg->ops->neg_op(cg->builder, operand_v, "negtmp");
-    } else if (node->unop->op == cg->sema_context->parser->not_op) {
+    } else if (node->unop->opcode == OP_NOT) {
         LLVMValueRef ret = cg->ops->not_op(cg->builder, operand_v, "nottmp");
         return LLVMBuildZExt(cg->builder, ret, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
     }
@@ -485,57 +485,58 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct ast_node *node)
     assert(lv && rv);
     assert(LLVMTypeOf(lv) == LLVMTypeOf(rv));
     struct ops *ops = &cg->ops[prune(node->binop->lhs->type)->type];
-    if (node->binop->op == cg->sema_context->parser->plus_op)
-        return ops->add(cg->builder, lv, rv, "");
-    else if (node->binop->op == cg->sema_context->parser->minus_op)
-        return ops->sub(cg->builder, lv, rv, "");
-    else if (node->binop->op == cg->sema_context->parser->times_op)
-        return ops->mul(cg->builder, lv, rv, "");
-    else if (node->binop->op == cg->sema_context->parser->division_op)
-        return ops->div(cg->builder, lv, rv, "");
-    else if (node->binop->op == cg->sema_context->parser->modulo_op)
-        return ops->rem(cg->builder, lv, rv, "");
-    else if (node->binop->op == cg->sema_context->parser->lessthan_op) {
-        lv = ops->cmp(cg->builder, ops->cmp_lt, lv, rv, "cmplttmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
-        return lv;
-    } else if (node->binop->op == cg->sema_context->parser->greaterthan_op) {
-        lv = ops->cmp(cg->builder, ops->cmp_gt, lv, rv, "cmpgttmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
-        return lv;
-    } else if (node->binop->op == cg->sema_context->parser->equal_op) {
-        lv = ops->cmp(cg->builder, ops->cmp_eq, lv, rv, "cmpeqtmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
-        return lv;
-    } else if (node->binop->op == cg->sema_context->parser->notequal_op) {
-        lv = ops->cmp(cg->builder, ops->cmp_neq, lv, rv, "cmpneqtmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
-        return lv;
-    } else if (node->binop->op == cg->sema_context->parser->lessthanequal_op) {
-        lv = ops->cmp(cg->builder, ops->cmp_le, lv, rv, "cmpletmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
-        return lv;
-    } else if (node->binop->op == cg->sema_context->parser->greaterthanequal_op) {
-        lv = ops->cmp(cg->builder, ops->cmp_ge, lv, rv, "cmpgetmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
-        return lv;
-    } else if (node->binop->op == cg->sema_context->parser->or_op) {
-        lv = ops->or_op(cg->builder, lv, rv, "ortmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
-        return lv;
-    } else if (node->binop->op == cg->sema_context->parser->and_op) {
-        lv = ops->and_op(cg->builder, lv, rv, "andtmp");
-        lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
-        return lv;
-    } else {
-        string f_name;
-        string_init_chars(&f_name, "binary");
-        string_add(&f_name, node->binop->op);
-        symbol op = to_symbol(string_get(&f_name));
-        LLVMValueRef fun = get_llvm_function(cg, op);
-        assert(fun && "binary operator not found!");
-        LLVMValueRef lrv[2] = { lv, rv };
-        return LLVMBuildCall(cg->builder, fun, lrv, 2, "binop");
+    switch(node->binop->opcode){
+        case OP_PLUS:
+            return ops->add(cg->builder, lv, rv, "");
+        case OP_MINUS:
+            return ops->sub(cg->builder, lv, rv, "");
+        case OP_TIMES:
+            return ops->mul(cg->builder, lv, rv, "");
+        case OP_DIVISION:
+            return ops->div(cg->builder, lv, rv, "");
+        case OP_MODULUS:
+            return ops->rem(cg->builder, lv, rv, "");
+        case OP_LT:
+            lv = ops->cmp(cg->builder, ops->cmp_lt, lv, rv, "cmplttmp");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
+            return lv;
+        case OP_GT:
+            lv = ops->cmp(cg->builder, ops->cmp_gt, lv, rv, "cmpgttmp");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
+            return lv;
+        case OP_EQ:
+            lv = ops->cmp(cg->builder, ops->cmp_eq, lv, rv, "cmpeqtmp");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
+            return lv;
+        case OP_NE:
+            lv = ops->cmp(cg->builder, ops->cmp_neq, lv, rv, "cmpneqtmp");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
+            return lv;
+        case OP_LE:
+            lv = ops->cmp(cg->builder, ops->cmp_le, lv, rv, "cmpletmp");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
+            return lv;
+        case OP_GE:
+            lv = ops->cmp(cg->builder, ops->cmp_ge, lv, rv, "cmpgetmp");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
+            return lv;
+        case OP_OR:
+            lv = ops->or_op(cg->builder, lv, rv, "ortmp");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
+            return lv;
+        case OP_AND:
+            lv = ops->and_op(cg->builder, lv, rv, "andtmp");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
+            return lv;
+        default:
+            string f_name;
+            string_init_chars(&f_name, "binary");
+            string_add(&f_name, node->binop->op);
+            symbol op = to_symbol(string_get(&f_name));
+            LLVMValueRef fun = get_llvm_function(cg, op);
+            assert(fun && "binary operator not found!");
+            LLVMValueRef lrv[2] = { lv, rv };
+            return LLVMBuildCall(cg->builder, fun, lrv, 2, "binop");
     }
 }
 

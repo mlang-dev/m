@@ -411,18 +411,19 @@ void _free_if_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *unary_node_new(symbol op, struct ast_node *operand, struct source_location loc)
+struct ast_node *unary_node_new(symbol op, enum op_code opcode, struct ast_node *operand, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(UNARY_NODE, 0, loc);
     MALLOC(node->unop, sizeof(*node->unop));
     node->unop->op = op;
+    node->unop->opcode = opcode;
     node->unop->operand = operand;
     return node;
 }
 
 struct ast_node *_copy_unary_node(struct ast_node *orig_node)
 {
-    return unary_node_new(orig_node->unop->op,
+    return unary_node_new(orig_node->unop->op, orig_node->unop->opcode,
         orig_node->unop->operand, orig_node->loc);
 }
 
@@ -432,11 +433,12 @@ void _free_unary_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *binary_node_new(symbol op, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc)
+struct ast_node *binary_node_new(symbol op, enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(BINARY_NODE, 0, loc);
     MALLOC(node->binop, sizeof(*node->binop));
     node->binop->op = op;
+    node->binop->opcode = opcode;
     node->binop->lhs = lhs;
     node->binop->rhs = rhs;
     return node;
@@ -444,7 +446,7 @@ struct ast_node *binary_node_new(symbol op, struct ast_node *lhs, struct ast_nod
 
 struct ast_node *_copy_binary_node(struct ast_node *orig_node)
 {
-    return binary_node_new(orig_node->binop->op,
+    return binary_node_new(orig_node->binop->op, orig_node->binop->opcode,
         orig_node->binop->lhs, orig_node->binop->rhs, orig_node->loc);
 }
 

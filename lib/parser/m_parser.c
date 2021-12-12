@@ -606,6 +606,7 @@ struct ast_node *_parse_binary(struct m_parser *parser, struct ast_node *parent,
         if (tok_prec < exp_prec)
             return lhs;
         symbol binary_op = parser->curr_token.symbol_val;
+        enum op_code opcode = parser->curr_token.opcode;
         parse_next_token(parser);
         struct ast_node *rhs = _parse_unary(parser, parent);
         if (!rhs)
@@ -616,7 +617,7 @@ struct ast_node *_parse_binary(struct m_parser *parser, struct ast_node *parent,
             if (!rhs)
                 return 0;
         }
-        lhs = (struct ast_node *)binary_node_new(binary_op, lhs, rhs, lhs->loc);
+        lhs = (struct ast_node *)binary_node_new(binary_op, opcode, lhs, rhs, lhs->loc);
     }
 }
 
@@ -804,10 +805,11 @@ struct ast_node *_parse_unary(struct m_parser *parser, struct ast_node *parent)
     }
     // If this is a unary operator, read it.
     symbol op = parser->curr_token.symbol_val;
+    enum op_code opcode = parser->curr_token.opcode;
     parse_next_token(parser);
     struct ast_node *operand = _parse_unary(parser, parent);
     if (operand) {
-        return (struct ast_node *)unary_node_new(op, operand, loc);
+        return (struct ast_node *)unary_node_new(op, opcode, operand, loc);
     }
     return 0;
 }
@@ -854,7 +856,7 @@ struct ast_node *_parse_for(struct m_parser *parser, struct ast_node *parent)
     }
     // convert end variable to a logic
     struct ast_node *id_node = (struct ast_node *)ident_node_new(id_symbol, start->loc);
-    struct ast_node *end = (struct ast_node *)binary_node_new(parser->lessthan_op, id_node, end_val, end_val->loc);
+    struct ast_node *end = (struct ast_node *)binary_node_new(parser->lessthan_op, OP_LT, id_node, end_val, end_val->loc);
     struct ast_node *body = _parse_block(parser, parent, 0, 0);
     if (body == 0)
         return 0;

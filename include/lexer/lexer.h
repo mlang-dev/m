@@ -78,6 +78,7 @@ struct token {
         char char_val; //char literal
         symbol symbol_val;
     };
+    enum op_code opcode;
 };
 
 void token_copy(struct token *dst, struct token *src);
