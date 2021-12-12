@@ -166,8 +166,6 @@ struct m_parser *m_parser_new(bool is_repl)
     parser->for_symbol = to_symbol("for");
     parser->in_symbol = to_symbol("in");
     parser->range_symbol = to_symbol("..");
-    parser->true_symbol = to_symbol("true");
-    parser->false_symbol = to_symbol("false");
 
     symboltable_init(&parser->vars);
     queue_init(&parser->queued_tokens, sizeof(struct token));
@@ -234,7 +232,7 @@ struct ast_node *_parse_bool_value(struct m_parser *parser, struct ast_node *par
 {
     struct ast_node *result;
     result = bool_node_new(
-        parser->curr_token.symbol_val == parser->true_symbol ? 1 : 0, parser->curr_token.loc);
+        parser->curr_token.token_type == TOKEN_TRUE ? 1 : 0, parser->curr_token.loc);
     if (parser->curr_token.token_type != TOKEN_NEWLINE)
         parse_next_token(parser);
     return result;
@@ -551,10 +549,13 @@ struct ast_node *_parse_ident(struct m_parser *parser, struct ast_node *parent)
 
 struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
 {
+    switch(parser->curr_token.token_type){
+        case TOKEN_TRUE:
+        case TOKEN_FALSE:
+            return _parse_bool_value(parser, parent);
+    }
     if (parser->curr_token.token_type == TOKEN_IDENT)
         return _parse_ident(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && (parser->curr_token.symbol_val == parser->true_symbol || parser->curr_token.symbol_val == parser->false_symbol))
-        return _parse_bool_value(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_INT || parser->curr_token.token_type == TOKEN_FLOAT)
         return _parse_number(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_CHAR)

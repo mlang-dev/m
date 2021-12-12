@@ -60,18 +60,18 @@ struct keyword_token keyword_tokens[] = {
 
 int keyword_count = ARRAY_SIZE(keyword_tokens);
 
-const char * get_opcode(enum op_code opcode)
+const char * get_opcode(int token_or_opcode)
 {
-    static const char **opcodes = 0;
-    if(!opcodes){
-        CALLOC(opcodes, END_TOKENS, sizeof(const char *));
+    static const char **token_opcodes = 0;
+    if(!token_opcodes){
+        CALLOC(token_opcodes, END_TOKENS, sizeof(const char *));
         for (int i = 0; i < keyword_count; i++){
             struct keyword_token kw_tt = keyword_tokens[i];
             assert(kw_tt.token_type < keyword_count);
-            opcodes[kw_tt.token_type] = kw_tt.keyword; //token type includes opcodes
+            token_opcodes[kw_tt.token_type] = kw_tt.keyword; //token type includes opcodes
         }
     }
-    return opcodes[opcode];
+    return token_opcodes[token_or_opcode];
 }
 
 const char *get_m_grammar()

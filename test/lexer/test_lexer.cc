@@ -5,6 +5,7 @@
  */
 #include "lexer/lexer.h"
 #include "tutil.h"
+#include "parser/m_grammar.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 
@@ -140,8 +141,8 @@ TEST(testLexer, testTrueBool)
     char test_code[] = "true";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_SYMBOL, token->token_type);
-    ASSERT_EQ(to_symbol("true"), token->symbol_val);
+    ASSERT_EQ(TOKEN_TRUE, token->token_type);
+    ASSERT_STREQ("true", get_opcode(token->token_type));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -152,8 +153,8 @@ TEST(testLexer, testFalseBool)
     char test_code[] = "false";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_SYMBOL, token->token_type);
-    ASSERT_EQ(to_symbol("false"), token->symbol_val);
+    ASSERT_EQ(TOKEN_FALSE, token->token_type);
+    ASSERT_STREQ("false", get_opcode(token->token_type));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }

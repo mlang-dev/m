@@ -50,8 +50,6 @@ struct m_parser {
     symbol for_symbol;
     symbol in_symbol;
     symbol range_symbol;
-    symbol true_symbol;
-    symbol false_symbol;
 
     struct token curr_token;
     struct ast *ast;

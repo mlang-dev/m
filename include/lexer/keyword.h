@@ -14,7 +14,7 @@ extern "C" {
 #endif
 struct keyword_state {
     char ch;
-    int accepted_token_type;
+    int accepted_token_or_opcode;
     bool identifiable;
     struct array nexts;
 };

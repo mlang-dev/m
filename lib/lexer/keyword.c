@@ -15,7 +15,7 @@ struct keyword_state *_new_keyword_state(char ch)
 {
     struct keyword_state *ks;
     MALLOC(ks, sizeof(*ks));
-    ks->accepted_token_type = TOKEN_NULL;
+    ks->accepted_token_or_opcode = TOKEN_NULL;
     ks->ch = ch;
     array_init(&ks->nexts, sizeof(struct keyword_state *));
     return ks;
@@ -64,7 +64,7 @@ void kss_add_string(struct keyword_states *kss, const char *str, enum token_type
         }
         ks = next_ks;
     }
-    ks->accepted_token_type = token_type;
+    ks->accepted_token_or_opcode = token_type;
     ks->identifiable = isalnum(str[0]);
 }
 

@@ -35,11 +35,11 @@ extern "C" {
     ENUM_ITEM(TOKEN_IF)              \
     ENUM_ITEM(TOKEN_THEN)            \
     ENUM_ITEM(TOKEN_ELSE)            \
+    ENUM_ITEM(TOKEN_TRUE)            \
+    ENUM_ITEM(TOKEN_FALSE)           \
     ENUM_ITEM(TOKEN_IN)              \
     ENUM_ITEM(TOKEN_FOR)             \
     ENUM_ITEM(TOKEN_RANGE)           \
-    ENUM_ITEM(TOKEN_TRUE)            \
-    ENUM_ITEM(TOKEN_FALSE)           \
     ENUM_ITEM(TOKEN_ASSIGN)          \
     ENUM_ITEM(TOKEN_SYMBOL)          \
     ENUM_ITEM(TOKEN_TOTAL)
@@ -78,6 +78,7 @@ struct token {
         double double_val; //double literal
         int int_val; //int literal
         char char_val; //char literal
+        bool bool_val; //bool literal
         symbol symbol_val;
     };
     enum op_code opcode;
