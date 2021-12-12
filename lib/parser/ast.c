@@ -605,7 +605,7 @@ struct module *module_new(const char *mod_name, FILE *file)
     struct ast_node *node = block_node_new(0);
     array_init(&node->block->nodes, sizeof(struct ast_node *));
     mod->block = node;
-    mod->tokenizer = create_tokenizer(file, mod_name, keyword_symbols, keyword_count);
+    mod->tokenizer = create_tokenizer(file, mod_name, keyword_tokens, keyword_count);
     return mod;
 }
 

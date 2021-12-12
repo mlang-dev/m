@@ -27,7 +27,7 @@ FILE *open_file_from_string(const char *code)
 tokenizer *create_tokenizer_for_string(const char *str)
 {
     FILE *file = fmemopen((void *)str, strlen(str), "r");
-    return create_tokenizer(file, "", keyword_symbols, keyword_count);
+    return create_tokenizer(file, "", keyword_tokens, keyword_count);
 }
 
 void make_module_ir(LLVMModuleRef module, const char *module_name, const char *ir_string, char *module_ir)

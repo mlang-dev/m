@@ -14,7 +14,7 @@ extern "C" {
 #endif
 struct keyword_state {
     char ch;
-    bool accept;
+    int accepted_token_type;
     bool identifiable;
     struct array nexts;
 };
@@ -24,7 +24,7 @@ struct keyword_states {
 };
 
 void kss_init(struct keyword_states *kss);
-void kss_add_string(struct keyword_states *kss, const char *str);
+void kss_add_string(struct keyword_states *kss, const char *str, enum token_type token_type);
 void kss_deinit(struct keyword_states *kss);
 struct keyword_state *find_next_keyword_state(struct keyword_state *state, char ch);
 

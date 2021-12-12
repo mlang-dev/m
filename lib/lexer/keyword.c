@@ -1,5 +1,6 @@
 #include "lexer/keyword.h"
 #include "clib/util.h"
+#include "lexer/lexer.h"
 #include <ctype.h>
 
 
@@ -14,7 +15,7 @@ struct keyword_state *_new_keyword_state(char ch)
 {
     struct keyword_state *ks;
     MALLOC(ks, sizeof(*ks));
-    ks->accept = false;
+    ks->accepted_token_type = TOKEN_NULL;
     ks->ch = ch;
     array_init(&ks->nexts, sizeof(struct keyword_state *));
     return ks;
@@ -44,7 +45,7 @@ struct keyword_state *find_next_keyword_state(struct keyword_state *state, char 
     return 0;
 }
 
-void kss_add_string(struct keyword_states *kss, const char *str)
+void kss_add_string(struct keyword_states *kss, const char *str, enum token_type token_type)
 {
     struct keyword_state *ks;
     struct keyword_state *next_ks;
@@ -63,7 +64,7 @@ void kss_add_string(struct keyword_states *kss, const char *str)
         }
         ks = next_ks;
     }
-    ks->accept = true;
+    ks->accepted_token_type = token_type;
     ks->identifiable = isalnum(str[0]);
 }
 

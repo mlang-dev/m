@@ -12,7 +12,15 @@
 extern "C" {
 #endif
 
-extern const char *keyword_symbols[];
+struct keyword_token{
+    const char *keyword;
+    union{
+        enum token_type token_type;
+        enum op_code opcode;
+    };
+};
+
+extern struct keyword_token keyword_tokens[];
 
 extern int keyword_count;
 

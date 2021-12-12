@@ -9,58 +9,6 @@
 #include "lexer/lexer.h"
 #include "clib/util.h"
 
-struct keyword_token{
-    const char *kw;
-    union{
-        enum token_type token_type;
-        enum op_code opcode;
-    };
-};
-
-const char *keyword_symbols[] = {
-    "import",
-    "extern",
-    "type",
-    "if",
-    "else",
-    "then",
-    "in",
-    "for",
-    "unary",
-    "binary",
-    "..",
-    "...",
-    "true",
-    "false",
-
-    "||",
-    "&&",
-    "!",
-    "%",
-    "&",
-    "^",
-    "*",
-    "/",
-    "+",
-    "-",
-    "<",
-    "=",
-    ">",
-    "<=",
-    ">=",
-    "==",
-    "!=",
-    "?",
-    "@",
-    "|",
-    ":",
-    "(",
-    ")",
-    "[",
-    "]"
-};
-
-
 struct keyword_token keyword_tokens[] = {
     {"import", TOKEN_IMPORT},
     {"extern", TOKEN_EXTERN},
@@ -105,7 +53,7 @@ struct keyword_token keyword_tokens[] = {
     {"!=", OP_NE},
 };
 
-int keyword_count = ARRAY_SIZE(keyword_symbols);
+int keyword_count = ARRAY_SIZE(keyword_tokens);
 
 const char *get_m_grammar()
 {

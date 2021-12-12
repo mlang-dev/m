@@ -95,8 +95,8 @@ struct tokenizer {
     struct hashtable keyword_2_tokens;
 };
 
-struct tokenizer *create_tokenizer(FILE *file, const char *filename, const char **keyword_symbols, int keyword_count);
-struct tokenizer *create_tokenizer_for_string(const char *content, const char **keyword_symbols, int keyword_count);
+struct tokenizer *create_tokenizer(FILE *file, const char *filename, struct keyword_token *keyword_symbols, int keyword_count);
+struct tokenizer *create_tokenizer_for_string(const char *content, struct keyword_token *keyword_symbols, int keyword_count);
 void destroy_tokenizer(struct tokenizer *tokenizer);
 struct token *get_token(struct tokenizer *tokenizer);
 void init_token(struct token *token);
