@@ -7,6 +7,7 @@
 #include "test_base.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
+#include "parser/m_grammar.h"
 #include <stdio.h>
 
 class testParserLogicalOperator : public TestBase {
@@ -44,6 +45,6 @@ TEST_F(testParserLogicalOperator, testNotOp)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(UNARY_NODE, node->node_type);
     auto un = (ast_node *)node;
-    ASSERT_STREQ("!", string_get(un->unop->op));
+    ASSERT_STREQ("!", get_opcode(un->unop->opcode));
     env_free(env);
 }

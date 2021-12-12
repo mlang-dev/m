@@ -278,7 +278,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
 struct type_exp *_analyze_unary(struct sema_context *context, struct ast_node *node)
 {
     struct type_exp *op_type = analyze(context, node->unop->operand);
-    if (string_eq_chars(node->unop->op, "!")) {
+    if (node->unop->opcode == OP_NOT) {
         struct type_exp *bool_type = (struct type_exp *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         unify(op_type, bool_type, &context->nongens);
         node->unop->operand->type = op_type;

@@ -6,6 +6,7 @@
 #include "parser/astdump.h"
 #include "clib/string.h"
 #include "clib/util.h"
+#include "parser/m_grammar.h"
 
 string _dump_block(struct ast_node *node)
 {
@@ -78,7 +79,7 @@ string _dump_unary(struct ast_node *unary)
 {
     string un;
     string_init_chars(&un, "un: ");
-    string_add(&un, unary->unop->op);
+    string_add_chars(&un, get_opcode(unary->unop->opcode));
     string str_op = dump(unary->unop->operand);
     string_add(&un, &str_op);
     return un;

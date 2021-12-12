@@ -411,11 +411,10 @@ void _free_if_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *unary_node_new(symbol op, enum op_code opcode, struct ast_node *operand, struct source_location loc)
+struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(UNARY_NODE, 0, loc);
     MALLOC(node->unop, sizeof(*node->unop));
-    node->unop->op = op;
     node->unop->opcode = opcode;
     node->unop->operand = operand;
     return node;
@@ -423,7 +422,7 @@ struct ast_node *unary_node_new(symbol op, enum op_code opcode, struct ast_node 
 
 struct ast_node *_copy_unary_node(struct ast_node *orig_node)
 {
-    return unary_node_new(orig_node->unop->op, orig_node->unop->opcode,
+    return unary_node_new(orig_node->unop->opcode,
         orig_node->unop->operand, orig_node->loc);
 }
 

@@ -21,10 +21,10 @@ struct keyword_token{
 };
 
 extern struct keyword_token keyword_tokens[];
-
 extern int keyword_count;
 
 const char * get_m_grammar();
+const char * get_opcode(enum op_code opcode);
 
 #ifdef __cplusplus
 }

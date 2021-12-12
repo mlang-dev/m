@@ -8,6 +8,7 @@
 #include "parser/m_grammar.h"
 #include "lexer/lexer.h"
 #include "clib/util.h"
+#include <assert.h>
 
 struct keyword_token keyword_tokens[] = {
     {"import", TOKEN_IMPORT},
@@ -54,6 +55,20 @@ struct keyword_token keyword_tokens[] = {
 };
 
 int keyword_count = ARRAY_SIZE(keyword_tokens);
+
+const char * get_opcode(enum op_code opcode)
+{
+    static const char **opcodes = 0;
+    if(!opcodes){
+        MALLOC(opcodes, keyword_count * sizeof(const char *));
+        for (int i = 0; i < keyword_count; i++){
+            struct keyword_token kw_tt = keyword_tokens[i];
+            assert(kw_tt.token_type < keyword_count);
+            opcodes[kw_tt.token_type] = kw_tt.keyword; //token type includes opcodes
+        }
+    }
+    return opcodes[opcode];
+}
 
 const char *get_m_grammar()
 {

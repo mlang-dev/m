@@ -23,9 +23,9 @@
             "name": "VC Launch",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test/Debug/mctest",
+            "program": "${workspaceFolder}/build/test/Debug/mtest",
             "args": [
-                "${workspaceFolder}/test/test.m"
+                "--gtest_filter=testParserLogicalOperator.testNotOp"
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",

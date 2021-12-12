@@ -16,6 +16,7 @@
 #include "codegen/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
+#include "parser/m_grammar.h"
 #include <llvm-c/Support.h>
 
 struct code_generator *g_cg = 0;
@@ -466,7 +467,7 @@ LLVMValueRef _emit_unary_node(struct code_generator *cg, struct ast_node *node)
     }
     string fname;
     string_init_chars(&fname, "unary");
-    string_add(&fname, node->unop->op);
+    string_add_chars(&fname, get_opcode(node->unop->opcode));
     symbol op = to_symbol(string_get(&fname));
     LLVMValueRef fun = get_llvm_function(cg, op);
     if (fun == 0)

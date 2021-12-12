@@ -809,7 +809,7 @@ struct ast_node *_parse_unary(struct m_parser *parser, struct ast_node *parent)
     parse_next_token(parser);
     struct ast_node *operand = _parse_unary(parser, parent);
     if (operand) {
-        return (struct ast_node *)unary_node_new(op, opcode, operand, loc);
+        return (struct ast_node *)unary_node_new(opcode, operand, loc);
     }
     return 0;
 }
