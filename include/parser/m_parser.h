@@ -31,6 +31,7 @@ struct m_parser {
     struct symboltable vars; /*symbol table of */
 
     symbol type_of; //type-of symbol, the syntax is :
+ 
     symbol assignment; //assignment symbol: =
     symbol comma;
     symbol binary;
@@ -54,7 +55,7 @@ struct m_parser {
 
     symbol plus_op;
     symbol minus_op;
-    symbol multiply_op;
+    symbol times_op;
     symbol division_op;
     symbol modulo_op;
     symbol lessthan_op;

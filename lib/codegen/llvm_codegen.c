@@ -489,7 +489,7 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct ast_node *node)
         return ops->add(cg->builder, lv, rv, "");
     else if (node->binop->op == cg->sema_context->parser->minus_op)
         return ops->sub(cg->builder, lv, rv, "");
-    else if (node->binop->op == cg->sema_context->parser->multiply_op)
+    else if (node->binop->op == cg->sema_context->parser->times_op)
         return ops->mul(cg->builder, lv, rv, "");
     else if (node->binop->op == cg->sema_context->parser->division_op)
         return ops->div(cg->builder, lv, rv, "");

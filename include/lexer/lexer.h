@@ -28,11 +28,43 @@ extern "C" {
     ENUM_ITEM(TOKEN_FLOAT)           \
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
+    ENUM_ITEM(TOKEN_OP)              \
+    ENUM_ITEM(TOKEN_IMPORT)          \
+    ENUM_ITEM(TOKEN_EXTERN)          \
+    ENUM_ITEM(TOKEN_TYPE)            \
+    ENUM_ITEM(TOKEN_IF)              \
+    ENUM_ITEM(TOKEN_THEN)            \
+    ENUM_ITEM(TOKEN_ELSE)            \
+    ENUM_ITEM(TOKEN_IN)              \
+    ENUM_ITEM(TOKEN_FOR)             \
+    ENUM_ITEM(TOKEN_RANGE)           \
+    ENUM_ITEM(TOKEN_TRUE)            \
+    ENUM_ITEM(TOKEN_FALSE)           \
+    ENUM_ITEM(TOKEN_ASSIGN)          \
     ENUM_ITEM(TOKEN_SYMBOL)          \
-    ENUM_ITEM(TOKEN_PLUS)            \
     ENUM_ITEM(TOKEN_TOTAL)
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
+
+enum op_code{
+    OP_OR = TOKEN_TOTAL + 1, //'||'
+    OP_AND,
+    OP_NOT,
+
+    OP_EXPO,
+    OP_TIMES,
+    OP_DIVISION,
+    OP_MODULUS,
+    OP_PLUS,
+    OP_MINUS,
+
+    OP_LT,
+    OP_LE,
+    OP_EQ,
+    OP_GT,
+    OP_GE,
+    OP_NE,
+};
 
 extern const char *token_type_strings[];
 
@@ -45,7 +77,7 @@ struct token {
         int int_val; //int literal
         char char_val; //char literal
         symbol symbol_val;
-    }val;
+    };
 };
 
 void token_copy(struct token *dst, struct token *src);

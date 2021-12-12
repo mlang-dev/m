@@ -6,8 +6,16 @@
  */
 
 #include "parser/m_grammar.h"
+#include "lexer/lexer.h"
 #include "clib/util.h"
 
+struct keyword_token{
+    const char *kw;
+    union{
+        enum token_type token_type;
+        enum op_code opcode;
+    };
+};
 
 const char *keyword_symbols[] = {
     "import",
@@ -24,6 +32,7 @@ const char *keyword_symbols[] = {
     "...",
     "true",
     "false",
+
     "||",
     "&&",
     "!",
@@ -49,6 +58,51 @@ const char *keyword_symbols[] = {
     ")",
     "[",
     "]"
+};
+
+
+struct keyword_token keyword_tokens[] = {
+    {"import", TOKEN_IMPORT},
+    {"extern", TOKEN_EXTERN},
+    {"type", TOKEN_TYPE},
+    {"if", TOKEN_IF},
+    {"else", TOKEN_ELSE},
+    {"then", TOKEN_THEN},
+    {"in", TOKEN_IN},
+    {"for", TOKEN_FOR},
+    {"unary", TOKEN_SYMBOL},
+    {"binary", TOKEN_SYMBOL},
+    {"..", TOKEN_RANGE},
+    {"...", TOKEN_SYMBOL},
+    {"true", TOKEN_TRUE},
+    {"false", TOKEN_FALSE},
+    {"&", TOKEN_SYMBOL},
+    {"=", TOKEN_ASSIGN},
+    {"?", TOKEN_SYMBOL},
+    {"@", TOKEN_SYMBOL},
+    {"|", TOKEN_SYMBOL},
+    {":", TOKEN_SYMBOL},
+    {"(", TOKEN_SYMBOL},
+    {")", TOKEN_SYMBOL},
+    {"[", TOKEN_SYMBOL},
+    {"]", TOKEN_SYMBOL},
+
+    {"||", OP_OR},
+    {"&&", OP_AND},
+    {"!", OP_NOT},
+    {"^", OP_EXPO},
+    {"*", OP_TIMES},
+    {"/", OP_DIVISION},
+    {"%", OP_MODULUS},
+    {"+", OP_PLUS},
+    {"-", OP_MINUS},
+ 
+    {"<",  OP_LT},
+    {">",  OP_GE},
+    {"<=", OP_LE},
+    {">=", OP_GE},
+    {"==", OP_EQ},
+    {"!=", OP_NE},
 };
 
 int keyword_count = ARRAY_SIZE(keyword_symbols);
