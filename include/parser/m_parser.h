@@ -53,22 +53,6 @@ struct m_parser {
     symbol true_symbol;
     symbol false_symbol;
 
-    symbol plus_op;
-    symbol minus_op;
-    symbol times_op;
-    symbol division_op;
-    symbol modulo_op;
-    symbol lessthan_op;
-    symbol greaterthan_op;
-    symbol lessthanequal_op;
-    symbol greaterthanequal_op;
-    symbol equal_op;
-    symbol notequal_op;
-
-    symbol or_op;
-    symbol and_op;
-    symbol not_op;
-
     struct token curr_token;
     struct ast *ast;
     bool allow_id_as_a_func;

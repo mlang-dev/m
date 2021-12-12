@@ -169,21 +169,6 @@ struct m_parser *m_parser_new(bool is_repl)
     parser->true_symbol = to_symbol("true");
     parser->false_symbol = to_symbol("false");
 
-    parser->plus_op = to_symbol("+");
-    parser->minus_op = to_symbol("-");
-    parser->times_op = to_symbol("*");
-    parser->division_op = to_symbol("/");
-    parser->modulo_op = to_symbol("%");
-    parser->lessthan_op = to_symbol("<");
-    parser->greaterthan_op = to_symbol(">");
-    parser->lessthanequal_op = to_symbol("<=");
-    parser->greaterthanequal_op = to_symbol(">=");
-    parser->equal_op = to_symbol("==");
-    parser->notequal_op = to_symbol("!=");
-    parser->or_op = to_symbol("||");
-    parser->and_op = to_symbol("&&");
-    parser->not_op = to_symbol("!");
-
     symboltable_init(&parser->vars);
     queue_init(&parser->queued_tokens, sizeof(struct token));
     hashtable_init(&parser->ext_types);
@@ -582,7 +567,7 @@ struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
         return _parse_for(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->lparen)
         return _parse_parentheses(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->not_op)
+    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.opcode == OP_NOT)
         return _parse_unary(parser, parent);
     else {
         string error;
