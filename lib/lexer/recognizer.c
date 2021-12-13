@@ -54,7 +54,7 @@ struct rcg_state *rcg_find_next_state(struct rcg_state *state, char ch)
     return 0;
 }
 
-void rcg_exact_match(struct rcg_states *rss, const char *str, enum token_type token_type)
+void rcg_add_exact_match(struct rcg_states *rss, const char *str, enum token_type token_type)
 {
     struct rcg_state *rs;
     struct rcg_state *next_rs;
@@ -64,7 +64,8 @@ void rcg_exact_match(struct rcg_states *rss, const char *str, enum token_type to
         rs = _rcg_state_new(ch);
         rss->states[(int)ch] = rs;
     }
-    for (size_t j = 1; j < strlen(str); ++j) {
+    size_t len = strlen(str);
+    for (size_t j = 1; j < len; ++j) {
         ch = str[j];
         next_rs = rcg_find_next_state(rs, ch);
         if (!next_rs) {
@@ -77,11 +78,11 @@ void rcg_exact_match(struct rcg_states *rss, const char *str, enum token_type to
     rs->identifiable = isalnum(str[0]);
 }
 
-void rcg_deinit(struct rcg_states *kss)
+void rcg_deinit(struct rcg_states *rss)
 {
-    for (size_t i = 0; i < ARRAY_SIZE(kss->states); i++) {
-        if (kss->states[i]) {
-            _rcg_state_free(kss->states[i]);
+    for (size_t i = 0; i < ARRAY_SIZE(rss->states); i++) {
+        if (rss->states[i]) {
+            _rcg_state_free(rss->states[i]);
         }
     }
 }

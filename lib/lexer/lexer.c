@@ -60,7 +60,7 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_toke
     //struct rcg_state *ks;
     //struct rcg_state *next_ks;
     for (int i = 0; i < keyword_count; ++i) {
-        rcg_exact_match(&tokenizer->rcg_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
+        rcg_add_exact_match(&tokenizer->rcg_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
     }
 }
 
