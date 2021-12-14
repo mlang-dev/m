@@ -18,6 +18,7 @@ int test_string();
 int test_symbol();
 int test_symboltable();
 int test_util();
+int test_regex();
 
 int test_tok();
 int test_g_parser();
@@ -43,12 +44,14 @@ EXPORT int ENTRY()
   failures += test_symbol();
   failures += test_symboltable();
   failures += test_util();
-
+  failures += test_regex();
+ 
   failures += test_tok();
   failures += test_g_parser();
   failures += test_grammar();
   failures += test_wat_codegen();
   failures += test_mwat();
+  
   if (!failures)
     printf("Unit tests passed !\n");
   else

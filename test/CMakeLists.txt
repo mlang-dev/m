@@ -174,7 +174,7 @@ else()
   clib/test_symbol.c
   clib/test_symboltable.c
   clib/test_util.c
-
+  clib/test_regex.c
   parser/test_tok.c
   parser/test_g_parser.c
   parser/test_grammar.c

@@ -20,6 +20,7 @@ if (EMSCRIPTEN OR WASM)
     clib/hashtable.c
     clib/util.c
     clib/generic.c
+    clib/regex.c
  #   clib/win/getopt.c
  #   clib/win/libfmemopen.c
  #   clib/getpath.c
@@ -63,6 +64,7 @@ else()
     clib/generic.c
     clib/win/getopt.c
     clib/win/libfmemopen.c
+    clib/regex.c
     clib/getpath.c
     tool/cmodule.c
     lexer/token.c
