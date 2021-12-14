@@ -9,10 +9,12 @@
 #include "clib/regex.h"
 #include "clib/list.h"
 
+#define RE_MAX_PAREN 100
+#define RE_CONCAT '.'
+
+
 const char* to_postfix(const char *re)
 {
-    #define MAX_PAREN 100
-    #define CONCAT '.'
 	int nalt, natom, ncharset;
 	static char buf[8000];
 	char *dst;
@@ -20,7 +22,7 @@ const char* to_postfix(const char *re)
 		int nalt;
 		int natom;
         int ncharset;
-	} paren[MAX_PAREN], *p;
+	} paren[RE_MAX_PAREN], *p;
 	
 	p = paren;
 	dst = buf;
@@ -32,13 +34,26 @@ const char* to_postfix(const char *re)
 		return 0;
     const char *orig = re;
 	for(; *re; re++){
+        if(*re == '\\'){
+            *dst++ = *re;
+            continue;
+        }
+        else if(re > orig && *(re-1) == '\\'){
+            *dst++ = *re;
+            natom++;
+            if(natom > 1){
+                --natom;
+                *dst++ = RE_CONCAT;
+            }
+            continue;
+        }
 		switch(*re){
 		case '(':
 			if(natom > 1){
 				--natom;
-				*dst++ = CONCAT;
+				*dst++ = RE_CONCAT;
 			}
-			if(p >= paren+MAX_PAREN)
+			if(p >= paren+RE_MAX_PAREN)
 				return 0;
 			p->nalt = nalt;
 			p->natom = natom;
@@ -52,7 +67,7 @@ const char* to_postfix(const char *re)
 			if(natom == 0)
 				return 0;
 			while(--natom > 0)
-				*dst++ = CONCAT;
+				*dst++ = RE_CONCAT;
 			nalt++;
 			break;
         case '[':
@@ -75,7 +90,7 @@ const char* to_postfix(const char *re)
 			if(natom == 0)
 				return 0;
 			while(--natom > 0)
-				*dst++ = CONCAT;
+				*dst++ = RE_CONCAT;
 			for(; nalt > 0; nalt--)
 				*dst++ = '|';
 			--p;
@@ -112,7 +127,7 @@ const char* to_postfix(const char *re)
             }else{
                 if(natom > 1){
                     --natom;
-                    *dst++ = CONCAT;
+                    *dst++ = RE_CONCAT;
                 }
                 *dst++ = *re;
                 natom++;
@@ -123,7 +138,7 @@ const char* to_postfix(const char *re)
 	if(p != paren)
 		return 0;
 	while(--natom > 0)
-		*dst++ = CONCAT;
+		*dst++ = RE_CONCAT;
 	for(; nalt > 0; nalt--)
 		*dst++ = '|';
 	*dst = 0;

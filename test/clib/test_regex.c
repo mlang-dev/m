@@ -31,6 +31,11 @@ TEST(test_regex, to_postfix_charset)
     ASSERT_STREQ("_abcABC||||||_abcABC012|||||||||*.", to_postfix("[_a-cA-C][_a-cA-C0-2]*"));
 }
 
+TEST(test_regex, to_postfix_escaping_char)
+{
+    ASSERT_STREQ("\\[\\].", to_postfix("\\[\\]"));
+}
+
 TEST(test_regex, exact_match)
 {
     void *re = regex_new("if|while");
@@ -53,5 +58,6 @@ int test_regex()
     RUN_TEST(test_regex_to_postfix_charset);
     RUN_TEST(test_regex_exact_match);
     RUN_TEST(test_regex_ident_match);
+    RUN_TEST(test_regex_to_postfix_escaping_char);
     return UNITY_END();
 }
