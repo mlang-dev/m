@@ -16,23 +16,10 @@
 extern "C" {
 #endif
 
-struct nstate{
-    int op; //character if op < 256
-    struct nstate *out1;
-    struct nstate *out2;
-};
-
-union list_ptr{
-    union list_ptr *next;
-    struct nstate *state;
-};
-
-struct nfa{
-    struct nstate *in;
-    union list_ptr *out;
-};
-
-const char* to_postfix(const char *re);
+const char* to_postfix(const char *re_pattern);
+void *regex_new(const char *re_pattern);
+int regex_match(void *re, const char *text);
+void regex_free(void *re);
 
 #ifdef __cplusplus
 }
