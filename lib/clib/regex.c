@@ -11,77 +11,119 @@
 
 const char* to_postfix(const char *re)
 {
-	int nalt, natom;
+    #define MAX_PAREN 100
+    #define CONCAT '.'
+	int nalt, natom, ncharset;
 	static char buf[8000];
 	char *dst;
 	struct {
 		int nalt;
 		int natom;
-	} paren[100], *p;
+        int ncharset;
+	} paren[MAX_PAREN], *p;
 	
 	p = paren;
 	dst = buf;
 	nalt = 0;
 	natom = 0;
+    ncharset = 0;
+    int nalt_charset = 0;
 	if(strlen(re) >= sizeof buf/2)
-		return NULL;
+		return 0;
+    const char *orig = re;
 	for(; *re; re++){
 		switch(*re){
 		case '(':
 			if(natom > 1){
 				--natom;
-				*dst++ = '.';
+				*dst++ = CONCAT;
 			}
-			if(p >= paren+100)
-				return NULL;
+			if(p >= paren+MAX_PAREN)
+				return 0;
 			p->nalt = nalt;
 			p->natom = natom;
+            p->ncharset = ncharset;
 			p++;
 			nalt = 0;
 			natom = 0;
+            ncharset = 0;
 			break;
 		case '|':
 			if(natom == 0)
-				return NULL;
+				return 0;
 			while(--natom > 0)
-				*dst++ = '.';
+				*dst++ = CONCAT;
 			nalt++;
 			break;
+        case '[':
+            nalt_charset = nalt;
+            ncharset++;
+            break;
+        case ']':
+            /*for each char, we add 1 to nalt, we need to reduce by 1*/
+            nalt--;
+            /*convert to alternation*/
+			for(; nalt > nalt_charset; nalt--)
+				*dst++ = '|';
+            ncharset--;
+            natom++;
+            nalt_charset = 0;
+            break;
 		case ')':
 			if(p == paren)
-				return NULL;
+				return 0;
 			if(natom == 0)
-				return NULL;
+				return 0;
 			while(--natom > 0)
-				*dst++ = '.';
+				*dst++ = CONCAT;
 			for(; nalt > 0; nalt--)
 				*dst++ = '|';
 			--p;
 			nalt = p->nalt;
 			natom = p->natom;
+            ncharset = p->ncharset;
 			natom++;
 			break;
 		case '*':
 		case '+':
 		case '?':
 			if(natom == 0)
-				return NULL;
+				return 0;
 			*dst++ = *re;
 			break;
 		default:
-			if(natom > 1){
-				--natom;
-				*dst++ = '.';
-			}
-			*dst++ = *re;
-			natom++;
+            if(ncharset > 0){
+                if(ncharset > 1) return 0;
+                if(*re != '-'){
+                    /*add missed range chars*/
+                    if(*(re-1) == '-'){
+                        if(re-2 < orig) return 0;
+                        char from = *(re-2);
+                        if (from > *re) return 0;
+                        for(char c = from + 1; c <= *re; c++){
+                            *dst++ = c;
+                            nalt++;
+                        }
+                    }else{
+                        *dst++ = *re;
+                        nalt++;
+                    }
+                }
+            }else{
+                if(natom > 1){
+                    --natom;
+                    *dst++ = CONCAT;
+                }
+                *dst++ = *re;
+                natom++;
+            }
 			break;
 		}
 	}
 	if(p != paren)
-		return NULL;
+		return 0;
 	while(--natom > 0)
-		*dst++ = '.';
+		*dst++ = CONCAT;
 	for(; nalt > 0; nalt--)
 		*dst++ = '|';
 	*dst = 0;
