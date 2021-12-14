@@ -8,10 +8,6 @@
 #ifndef __CLIB_REGEX_H__
 #define __CLIB_REGEX_H__
 
-#define NS_SPLIT 256
-#define NS_ACCEPT 257
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif

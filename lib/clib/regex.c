@@ -7,7 +7,7 @@
  */
 #include "clib/util.h"
 #include "clib/regex.h"
-
+#include "clib/list.h"
 
 const char* to_postfix(const char *re)
 {
@@ -130,11 +130,14 @@ const char* to_postfix(const char *re)
 	return buf;
 }
 
+#define NS_SPLIT 256
+#define NS_ACCEPT 257
+
 struct nstate{
     int op; //character if op < 256
     struct nstate *out1;
     struct nstate *out2;
-    int lastlist;
+    int last_listid;
 };
 
 union list_ptr{
@@ -147,18 +150,62 @@ struct nfa{
     union list_ptr *out;
 };
 
-struct nstate accepted_state = {NS_ACCEPT, 0, 0};
-int nstate_count;
+struct nstate_list{
+    struct nstate **states;
+    int len;
+};
 
-struct nstate *nstate_new(int op, struct nstate *out1, struct nstate *out2)
+struct nstate_link_entry {
+    list_entry(nstate_link_entry) list;
+    struct nstate *state;
+};
+
+list_head(nstate_link_list, nstate_link_entry);
+
+
+struct re{
+    struct nstate_link_list states;
+    int nstate_count;
+    struct nstate_list l1, l2;
+    int listid;
+    struct nstate *start;
+    struct nstate accepted_state;
+};
+
+void _ll_add_to_head(struct nstate_link_list *ll, struct nstate *state)
+{
+    struct nstate_link_entry *entry;
+    MALLOC(entry, sizeof(*entry));
+    entry->state = state;
+    entry->list.next = 0;
+    list_insert_head(ll, entry, list);
+}
+
+struct nstate *_ll_remove_from_head(struct nstate_link_list *ll)
+{
+    struct nstate *state = 0;
+    if (!ll) {
+        return 0;
+    }
+    if (ll->first) {
+        struct nstate_link_entry *first = ll->first;
+        state = first->state;
+        list_remove_head(ll, list);
+        FREE(first);
+    }
+    return state;
+}
+
+struct nstate *nstate_new(struct re *re, int op, struct nstate *out1, struct nstate *out2)
 {
     struct nstate *s;
     MALLOC(s, sizeof(*s));
     s->op = op;
     s->out1 = out1;
     s->out2 = out2;
-    s->lastlist = 0;
-    nstate_count++;
+    s->last_listid = 0;
+    _add_to_head(&re->states, s);
+    re->nstate_count++;
     return s;
 }
 
@@ -192,7 +239,7 @@ struct nfa _nfa(struct nstate *in, union list_ptr *out)
     return a;
 }
 
-struct nstate *to_nfa(const char *pattern)
+struct nstate *to_nfa(struct re *re, const char *pattern)
 {
     const char *p;
     struct nfa stack[1024];
@@ -203,7 +250,7 @@ struct nstate *to_nfa(const char *pattern)
     for(p=pattern; *p; p++){
         switch(*p){
             default:
-                s = nstate_new(*p, 0, 0);
+                s = nstate_new(re, *p, 0, 0);
                *sp++ = _nfa(s, to_list(&s->out1)); //push to the stack
                 break;
             case '.':
@@ -215,23 +262,23 @@ struct nstate *to_nfa(const char *pattern)
             case '|':
                 a2 = *--sp;
                 a1 = *--sp;
-                s = nstate_new(NS_SPLIT, a1.in, a2.in);
+                s = nstate_new(re, NS_SPLIT, a1.in, a2.in);
                 *sp++ = _nfa(s, join(a1.out, a2.out));
                 break;
             case '?':
                 a = *--sp;
-                s = nstate_new(NS_SPLIT, a.in, 0);
+                s = nstate_new(re, NS_SPLIT, a.in, 0);
                 *sp++ = _nfa(s, join(a.out, to_list(&s->out2)));
                 break;
             case '*':
                 a = *--sp;
-                s = nstate_new(NS_SPLIT, a.in, 0);
+                s = nstate_new(re, NS_SPLIT, a.in, 0);
                 connect(a.out, s);
                 *sp++ = _nfa(s, to_list(&s->out2));
                 break;
             case '+':
                 a = *--sp;
-                s = nstate_new(NS_SPLIT, a.in, 0);
+                s = nstate_new(re, NS_SPLIT, a.in, 0);
                 connect(a.out, s);
                 *sp++ = _nfa(a.in, to_list(&s->out2));
                 break;
@@ -239,95 +286,99 @@ struct nstate *to_nfa(const char *pattern)
     }
     a = *--sp;
     if(sp != stack) return 0;
-    connect(a.out, &accepted_state);
+    connect(a.out, &re->accepted_state);
     return a.in;
 }
 
-struct nstate_list{
-    struct nstate **s;
-    int len;
-};
-
-struct nstate_list l1, l2;
-static int listid;
-
-void _nstates_add_state(struct nstate_list *l, struct nstate *s)
+void _nstates_add_state(struct re* re, struct nstate_list *l, struct nstate *s)
 {
-	if(s == NULL || s->lastlist == listid)
+	if(s == NULL || s->last_listid == re->listid)
 		return;
-	s->lastlist = listid;
+	s->last_listid = re->listid;
 	if(s->op == NS_SPLIT){
 		/* follow unlabeled arrows */
-		_nstates_add_state(l, s->out1);
-		_nstates_add_state(l, s->out2);
+		_nstates_add_state(re, l, s->out1);
+		_nstates_add_state(re, l, s->out2);
 		return;
 	}
-	l->s[l->len++] = s;
+	l->states[l->len++] = s;
 }
 
-struct nstate_list *_nstates_init(struct nstate *start, struct nstate_list *l)
+struct nstate_list *_nstates_init(struct re *re, struct nstate_list *l, struct nstate *start)
 {
 	l->len = 0;
-	listid++;
-	_nstates_add_state(l, start);
+	re->listid++;
+	_nstates_add_state(re, l, start);
 	return l;
 }
 
-void _nstates_step(struct nstate_list *clist, int c, struct nstate_list *nlist)
+void _nstates_step(struct re *re, struct nstate_list *clist, int c, struct nstate_list *nlist)
 {
 	int i;
 	struct nstate *s;
 
-	listid++;
+	re->listid++;
 	nlist->len = 0;
 	for(i=0; i<clist->len; i++){
-		s = clist->s[i];
+		s = clist->states[i];
 		if(s->op == c)
-			_nstates_add_state(nlist, s->out1);
+			_nstates_add_state(re, nlist, s->out1);
 	}
 }
 
-int _nstates_is_accepted(struct nstate_list *l)
+int _nstates_is_accepted(struct re *re, struct nstate_list *l)
 {
 	int i;
 	for(i=0; i<l->len; i++)
-		if(l->s[i] == &accepted_state)
+		if(l->states[i] == &re->accepted_state)
 			return 1;
 	return 0;
 }
 
-int _nstate_match(struct nstate *start, const char *s)
+int _nstate_match(struct re *re, const char *text)
 {
 	int i, c;
 	struct nstate_list *clist, *nlist, *t;
-
-	clist = _nstates_init(start, &l1);
-	nlist = &l2;
-	for(; *s; s++){
-		c = *s & 0xFF;
-		_nstates_step(clist, c, nlist);
+	clist = _nstates_init(re, &re->l1, re->start);
+	nlist = &re->l2;
+    const char *p = text;
+	for(; *p; p++){
+		c = *p & 0xFF;
+		_nstates_step(re, clist, c, nlist);
 		t = clist; clist = nlist; nlist = t;	/* swap clist, nlist */
 	}
-	return _nstates_is_accepted(clist);
+	return _nstates_is_accepted(re, clist);
 }
 
 void *regex_new(const char *re_pattern)
 {
-    nstate_count = 0;
+    struct re *re;
+    MALLOC(re, sizeof(*re));
+    re->states.first = 0;
+    re->nstate_count = 0;
+    re->listid = 0;
+    re->start = 0;
     const char *re_postfix = to_postfix(re_pattern);
     if(!re_postfix) return 0;
-    struct nstate *s = to_nfa(re_postfix);
-	l1.s = malloc(nstate_count*sizeof l1.s[0]);
-	l2.s = malloc(nstate_count*sizeof l2.s[0]);
-    return s;
+    re->start = to_nfa(re, re_postfix);
+	MALLOC(re->l1.states, re->nstate_count*sizeof re->l1.states[0]);
+	MALLOC(re->l2.states, re->nstate_count*sizeof re->l2.states[0]);
+    return re;
 }
 
 int regex_match(void *re, const char *text)
 {
-    return _nstate_match((struct nstate*)re, text);
+    return _nstate_match((struct re*)re, text);
 }
 
-void regex_free(void *re)
-{
-
+void regex_free(void *regex)
+{   
+    struct re *re = (struct re *)regex;
+    FREE(re->l1.states);
+    FREE(re->l2.states);
+    struct nstate *s;
+    while(s = _ll_remove_from_head(&re->states)){
+        FREE(s);
+    }
+    FREE(re);
 }
