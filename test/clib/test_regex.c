@@ -4,7 +4,6 @@
  * unit test for clib regex functions
  */
 #include "test.h"
-
 #include "clib/regex.h"
 
 TEST(test_regex, to_postfix)
@@ -40,24 +39,32 @@ TEST(test_regex, to_postfix_escaping_char)
 
 TEST(test_regex, exact_match)
 {
-    void *re = regex_new("if|while");
-    ASSERT_TRUE(regex_match(re, "if"));
-    ASSERT_TRUE(regex_match(re, "while"));
+    void *re = regex_new("if|while", 0);
+    ASSERT_EQ(2, regex_match(re, "if"));
+    ASSERT_EQ(5, regex_match(re, "while"));
     regex_free(re);
 }
 
 TEST(test_regex, exact_match_escape)
 {
-    void *re = regex_new("\\.3");
-    ASSERT_TRUE(regex_match(re, ".3"));
+    void *re = regex_new("\\.3", 0);
+    ASSERT_EQ(2, regex_match(re, ".3"));
     ASSERT_FALSE(regex_match(re, ".30"));
     regex_free(re);
 }
 
 TEST(test_regex, ident_match)
 {
-    void *re = regex_new("if");
-    ASSERT_TRUE(regex_match(re, "if"));
+    void *re = regex_new("[_a-zA-Z][_a-zA-Z0-9]*", 0);
+    ASSERT_EQ(6, regex_match(re, "_test3"));
+    ASSERT_FALSE(regex_match(re, "3test"));
+    regex_free(re);
+}
+
+TEST(test_regex, ident_match_space)
+{
+    void *re = regex_new("[_a-zA-Z][_a-zA-Z0-9]*", " \r\n");
+    ASSERT_EQ(6, regex_match(re, "_test3 !"));
     regex_free(re);
 }
 
@@ -69,6 +76,7 @@ int test_regex()
     RUN_TEST(test_regex_exact_match);
     RUN_TEST(test_regex_exact_match_escape);
     RUN_TEST(test_regex_ident_match);
+    RUN_TEST(test_regex_ident_match_space);
     RUN_TEST(test_regex_to_postfix_escaping_char);
     return UNITY_END();
 }

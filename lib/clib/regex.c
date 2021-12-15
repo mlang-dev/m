@@ -185,6 +185,7 @@ struct re{
     int listid;
     struct nstate *start;
     struct nstate accepted_state;
+    const char *stop_chars;
 };
 
 void _ll_add_to_head(struct nstate_link_list *ll, struct nstate *state)
@@ -272,7 +273,7 @@ struct nstate *to_nfa(struct re *re, const char *pattern)
         switch(*p){
             default:
                 s = nstate_new(re, *p, 0, 0);
-               *sp++ = _nfa(s, to_list(&s->out1)); //push to the stack
+                *sp++ = _nfa(s, to_list(&s->out1)); //push to the stack
                 break;
             case '\\':
                 break;
@@ -366,14 +367,16 @@ int _nstate_match(struct re *re, const char *text)
 	nlist = &re->l2;
     const char *p = text;
 	for(; *p; p++){
+        if(re->stop_chars && strchr(re->stop_chars, *p)) break;
 		c = *p & 0xFF;
 		_nstates_step(re, clist, c, nlist);
 		t = clist; clist = nlist; nlist = t;	/* swap clist, nlist */
 	}
-	return _nstates_is_accepted(re, clist);
+	return _nstates_is_accepted(re, clist) ? p - text : 0;
+
 }
 
-void *regex_new(const char *re_pattern)
+void *regex_new(const char *re_pattern, const char *stop_chars)
 {
     struct re *re;
     MALLOC(re, sizeof(*re));
@@ -381,6 +384,7 @@ void *regex_new(const char *re_pattern)
     re->nstate_count = 0;
     re->listid = 0;
     re->start = 0;
+    re->stop_chars = stop_chars;
     const char *re_postfix = to_postfix(re_pattern);
     if(!re_postfix) return 0;
     re->start = to_nfa(re, re_postfix);

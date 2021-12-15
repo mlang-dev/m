@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 const char* to_postfix(const char *re_pattern);
-void *regex_new(const char *re_pattern);
+void *regex_new(const char *re_pattern, const char *stop_chars);
 int regex_match(void *re, const char *text);
 void regex_free(void *re);
 
