@@ -220,7 +220,7 @@ struct nstate *nstate_new(struct re *re, int op, struct nstate *out1, struct nst
     s->out1 = out1;
     s->out2 = out2;
     s->last_listid = 0;
-    _add_to_head(&re->states, s);
+    _ll_add_to_head(&re->states, s);
     re->nstate_count++;
     return s;
 }
@@ -361,7 +361,7 @@ int _nstates_is_accepted(struct re *re, struct nstate_list *l)
 
 int _nstate_match(struct re *re, const char *text)
 {
-	int i, c;
+	int c;
 	struct nstate_list *clist, *nlist, *t;
 	clist = _nstates_init(re, &re->l1, re->start);
 	nlist = &re->l2;
@@ -404,7 +404,7 @@ void regex_free(void *regex)
     FREE(re->l1.states);
     FREE(re->l2.states);
     struct nstate *s;
-    while(s = _ll_remove_from_head(&re->states)){
+    while((s = _ll_remove_from_head(&re->states))){
         FREE(s);
     }
     FREE(re);
