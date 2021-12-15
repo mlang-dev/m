@@ -34,6 +34,8 @@ TEST(test_regex, to_postfix_charset)
 TEST(test_regex, to_postfix_escaping_char)
 {
     ASSERT_STREQ("\\[\\].", to_postfix("\\[\\]"));
+    ASSERT_STREQ("\\[\\]|", to_postfix("\\[|\\]"));
+    ASSERT_STREQ("0\\..3.", to_postfix("0\\.3"));
 }
 
 TEST(test_regex, exact_match)
@@ -41,6 +43,14 @@ TEST(test_regex, exact_match)
     void *re = regex_new("if|while");
     ASSERT_TRUE(regex_match(re, "if"));
     ASSERT_TRUE(regex_match(re, "while"));
+    regex_free(re);
+}
+
+TEST(test_regex, exact_match_escape)
+{
+    void *re = regex_new("\\.3");
+    ASSERT_TRUE(regex_match(re, ".3"));
+    ASSERT_FALSE(regex_match(re, ".30"));
     regex_free(re);
 }
 
@@ -57,6 +67,7 @@ int test_regex()
     RUN_TEST(test_regex_to_postfix);
     RUN_TEST(test_regex_to_postfix_charset);
     RUN_TEST(test_regex_exact_match);
+    RUN_TEST(test_regex_exact_match_escape);
     RUN_TEST(test_regex_ident_match);
     RUN_TEST(test_regex_to_postfix_escaping_char);
     return UNITY_END();

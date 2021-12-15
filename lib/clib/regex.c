@@ -263,10 +263,18 @@ struct nstate *to_nfa(struct re *re, const char *pattern)
     struct nstate *s;
     if(!pattern) return 0;
     for(p=pattern; *p; p++){
+        if (p>pattern && *(p-1) == '\\'){
+            //this is escaping character, so treated as literal char
+            s = nstate_new(re, *p, 0, 0);
+            *sp++ = _nfa(s, to_list(&s->out1)); //push to the stack
+            continue;
+        }
         switch(*p){
             default:
                 s = nstate_new(re, *p, 0, 0);
                *sp++ = _nfa(s, to_list(&s->out1)); //push to the stack
+                break;
+            case '\\':
                 break;
             case '.':
                 a2 = *--sp;
