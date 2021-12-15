@@ -19,7 +19,7 @@ jobs:
 
     steps:
     - name: Install LLVM & LLD
-      run: sudo apt install llvm lld
+      run: sudo apt-get install llvm lld
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
