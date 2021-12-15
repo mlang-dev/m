@@ -4,7 +4,7 @@
 #include "codegen/fun_info.h"
 #include "codegen/type_size_info.h"
 #include "codegen/wat_codegen.h"
-#include "lexer/lexer.h"
+#include "lexer/m_lexer.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
 #include <assert.h>

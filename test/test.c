@@ -20,7 +20,8 @@ int test_symboltable();
 int test_util();
 int test_regex();
 
-int test_tok();
+int test_token();
+int test_lexer();
 int test_g_parser();
 int test_grammar();
 int test_wat_codegen();
@@ -46,7 +47,8 @@ EXPORT int ENTRY()
   failures += test_util();
   failures += test_regex();
  
-  failures += test_tok();
+  failures += test_token();
+  failures += test_lexer();
   failures += test_g_parser();
   failures += test_grammar();
   failures += test_wat_codegen();

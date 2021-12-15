@@ -41,6 +41,8 @@ extern "C" {
     ENUM_ITEM(TOKEN_RANGE)           \
     ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_ASSIGN)          \
+    ENUM_ITEM(TOKEN_INDENT)          \
+    ENUM_ITEM(TOKEN_DEDENT)          \
     ENUM_ITEM(TOKEN_SYMBOL)          \
     ENUM_ITEM(TOKEN_TOTAL)
 
@@ -70,6 +72,16 @@ enum op_code{
 
 extern const char *token_type_strings[];
 
+struct token_pattern{
+    const char *pattern;
+    int token_opcode; //token or opcode
+};
+
+struct token_patterns{
+    struct token_pattern *patterns;
+    size_t pattern_count;
+};
+
 struct token {
     enum token_type token_type;
     struct source_location loc;
@@ -86,6 +98,7 @@ struct token {
 
 void token_init(struct token *token);
 
+struct token_patterns get_token_patterns();
 
 #ifdef __cplusplus
 }

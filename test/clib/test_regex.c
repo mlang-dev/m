@@ -63,7 +63,7 @@ TEST(test_regex, ident_match)
 
 TEST(test_regex, ident_match_space)
 {
-    void *re = regex_new("[_a-zA-Z][_a-zA-Z0-9]*", " \r\n");
+    void *re = regex_new("[_a-zA-Z][_a-zA-Z0-9]*", " \t\r\n");
     ASSERT_EQ(6, regex_match(re, "_test3 !"));
     regex_free(re);
 }

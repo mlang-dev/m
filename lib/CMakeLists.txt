@@ -24,8 +24,8 @@ if (EMSCRIPTEN OR WASM)
  #   clib/win/getopt.c
  #   clib/win/libfmemopen.c
  #   clib/getpath.c
+    lexer/lexer.c
     parser/ast.c
-    parser/tok.c
     parser/earley_parser.c
     parser/grammar.c
     parser/m_grammar.c
@@ -68,10 +68,10 @@ else()
     clib/getpath.c
     tool/cmodule.c
     lexer/token.c
+    lexer/m_lexer.c
     lexer/lexer.c
     lexer/recognizer.c
     parser/ast.c
-    parser/tok.c
     parser/earley_parser.c
     parser/astdump.c
     parser/grammar.c

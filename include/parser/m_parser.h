@@ -11,7 +11,7 @@
 #include "clib/hashtable.h"
 #include "clib/queue.h"
 #include "clib/symboltable.h"
-#include "lexer/lexer.h"
+#include "lexer/m_lexer.h"
 #include "parser/ast.h"
 
 #ifdef __cplusplus

@@ -6,7 +6,7 @@
  */
 
 #include "parser/m_grammar.h"
-#include "lexer/lexer.h"
+#include "lexer/m_lexer.h"
 #include "clib/util.h"
 #include <assert.h>
 

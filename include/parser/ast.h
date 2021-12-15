@@ -12,7 +12,7 @@
 
 #include "clib/symbol.h"
 #include "clib/util.h"
-#include "lexer/lexer.h"
+#include "lexer/m_lexer.h"
 #include "sema/type.h"
 
 #ifdef __cplusplus

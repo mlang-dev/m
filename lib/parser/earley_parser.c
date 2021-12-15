@@ -11,7 +11,7 @@
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
-#include "lexer/lexer.h"
+#include "lexer/m_lexer.h"
 #include <assert.h>
 
 symbol BINOP = 0;

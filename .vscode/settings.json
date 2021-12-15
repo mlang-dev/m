@@ -140,7 +140,8 @@
         "m_grammar.h": "c",
         "wat_codegen.h": "c",
         "parser.h": "c",
-        "test.h": "c"
+        "test.h": "c",
+        "tok.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

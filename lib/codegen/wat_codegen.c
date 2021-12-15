@@ -5,7 +5,7 @@
  * 
  */
 #include "codegen/wat_codegen.h"
-#include "parser/tok.h"
+#include "lexer/lexer.h"
 #include "clib/array.h"
 #include "parser/ast.h"
 #include <assert.h>

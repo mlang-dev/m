@@ -20,24 +20,26 @@
 extern "C" {
 #endif
 
-struct tokenizer {
-    FILE *file;
-    const char *filename;
-    struct source_location loc;
-    struct source_location tok_loc;
-    struct token cur_token;
-    char curr_char[2];
-    string str_val;
-    char peek;
-    struct rcg_states rcg_states;
-    struct hashtable keyword_2_tokens;
+struct lexer {
+    const char *text;
+    int pos;  //current text position
+    int line;
+    int col;
 };
 
-struct tokenizer *create_tokenizer(FILE *file, const char *filename, struct keyword_token *keyword_symbols, int keyword_count);
-struct tokenizer *create_tokenizer_for_string(const char *content, struct keyword_token *keyword_symbols, int keyword_count);
-void destroy_tokenizer(struct tokenizer *tokenizer);
-struct token *get_token(struct tokenizer *tokenizer);
-extern const char *boolean_values[2];
+struct tok {
+    struct source_location loc;
+    enum token_type tok_type;
+    symbol tok_type_name; // IDENT, NUM, STRING keywords like 'if', 'for' etc
+};
+
+extern symbol STRING_TOKEN;
+extern symbol CHAR_TOKEN;
+extern symbol NUM_TOKEN;
+extern symbol IDENT_TOKEN;
+
+void lexer_init(struct lexer *lexer, const char *text);
+void get_tok(struct lexer *lexer, struct tok *tok);
 
 #ifdef __cplusplus
 }

@@ -9,7 +9,7 @@
 #define __MLANG_PARSER_H__
 
 #include "parser/grammar.h"
-#include "parser/tok.h"
+#include "lexer/lexer.h"
 #include "clib/symbol.h"
 #include "parser/ast.h"
 

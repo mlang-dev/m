@@ -105,7 +105,7 @@ else()
   add_executable(mtest
     tutil.cc
 
-    lexer/test_lexer.cc
+    lexer/test_m_lexer.cc
     parser/test_parser.cc
     parser/test_parser_logical.cc
     parser/test_parser_relational.cc
@@ -175,10 +175,10 @@ else()
   clib/test_symboltable.c
   clib/test_util.c
   clib/test_regex.c
-  parser/test_tok.c
+  lexer/test_lexer.c
   parser/test_g_parser.c
   parser/test_grammar.c
-
+  lexer/test_token.c
   codegen/test_wat_codegen.c
   app/test_mwat.c
   )

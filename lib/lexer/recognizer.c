@@ -9,7 +9,7 @@
 
 #include "lexer/recognizer.h"
 #include "clib/util.h"
-#include "lexer/lexer.h"
+#include "lexer/m_lexer.h"
 #include <ctype.h>
 
 

@@ -4,12 +4,12 @@
  * Unit tests for grammar parser
  */
 #include "parser/grammar.h"
-#include "parser/tok.h"
+#include "lexer/lexer.h"
 #include "test.h"
 #include <stdio.h>
 
 
-TEST(test_tok, empty_string)
+TEST(test_lexer, empty_string)
 {
     symbols_init();
     struct tok tok;
@@ -20,7 +20,7 @@ TEST(test_tok, empty_string)
     symbols_deinit();
 }
 
-TEST(test_tok, skip_comment)
+TEST(test_lexer, skip_comment)
 {
     symbols_init();
     char test_code[] = 
@@ -36,7 +36,7 @@ TEST(test_tok, skip_comment)
     symbols_deinit();
  }
 
-TEST(test_tok, token_char)
+TEST(test_lexer, token_char)
 {
     symbols_init();
     char test_code[] = 
@@ -56,7 +56,7 @@ TEST(test_tok, token_char)
     symbols_deinit();
 }
 
-TEST(test_tok, token_string)
+TEST(test_lexer, token_string)
 {
     symbols_init();
     char test_code[] = 
@@ -76,7 +76,7 @@ TEST(test_tok, token_string)
     symbols_deinit();
  }
 
-TEST(test_tok, token_num_int)
+TEST(test_lexer, token_num_int)
 {
     symbols_init();
     char test_code[] = 
@@ -96,7 +96,7 @@ TEST(test_tok, token_num_int)
     symbols_deinit();
  }
 
-TEST(test_tok, token_num_float)
+TEST(test_lexer, token_num_float)
 {
     symbols_init();
     char test_code[] = "\n23.";
@@ -113,7 +113,7 @@ TEST(test_tok, token_num_float)
     symbols_deinit();
 }
 
-TEST(test_tok, token_num_float2)
+TEST(test_lexer, token_num_float2)
 {
     symbols_init();
     char test_code[] = "\n2.3";
@@ -130,7 +130,7 @@ TEST(test_tok, token_num_float2)
     symbols_deinit();
  }
 
-TEST(test_tok, token_num_float3)
+TEST(test_lexer, token_num_float3)
 {
     symbols_init();
     char test_code[] = "\n.23";
@@ -147,7 +147,7 @@ TEST(test_tok, token_num_float3)
     symbols_deinit();
  }
 
-TEST(test_tok, token_id)
+TEST(test_lexer, token_id)
 {
     symbols_init();
     char test_code[] = "\n_abc123";
@@ -163,7 +163,7 @@ TEST(test_tok, token_id)
     symbols_deinit();
  }
 
-TEST(test_tok, token_num_id)
+TEST(test_lexer, token_num_id)
 {
     symbols_init();
     char test_code[] = "\n123abc";
@@ -189,18 +189,18 @@ TEST(test_tok, token_num_id)
     symbols_deinit();
 }
 
-int test_tok()
+int test_lexer()
 {
     UNITY_BEGIN();
-    RUN_TEST(test_tok_empty_string);
-    RUN_TEST(test_tok_skip_comment);
-    RUN_TEST(test_tok_token_char);
-    RUN_TEST(test_tok_token_string);
-    RUN_TEST(test_tok_token_id);
-    RUN_TEST(test_tok_token_num_float);
-    RUN_TEST(test_tok_token_num_float2);
-    RUN_TEST(test_tok_token_num_float3);
-    RUN_TEST(test_tok_token_num_id);
-    RUN_TEST(test_tok_token_num_int);
+    RUN_TEST(test_lexer_empty_string);
+    RUN_TEST(test_lexer_skip_comment);
+    RUN_TEST(test_lexer_token_char);
+    RUN_TEST(test_lexer_token_string);
+    RUN_TEST(test_lexer_token_id);
+    RUN_TEST(test_lexer_token_num_float);
+    RUN_TEST(test_lexer_token_num_float2);
+    RUN_TEST(test_lexer_token_num_float3);
+    RUN_TEST(test_lexer_token_num_id);
+    RUN_TEST(test_lexer_token_num_int);
     return UNITY_END();
 }
