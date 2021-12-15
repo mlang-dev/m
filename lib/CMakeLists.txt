@@ -24,6 +24,7 @@ if (EMSCRIPTEN OR WASM)
  #   clib/win/getopt.c
  #   clib/win/libfmemopen.c
  #   clib/getpath.c
+    lexer/token.c
     lexer/lexer.c
     parser/ast.c
     parser/earley_parser.c
