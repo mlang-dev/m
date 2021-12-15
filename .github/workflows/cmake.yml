@@ -23,6 +23,7 @@ jobs:
 
     - name: Install LLD
       run: sudo apt-get install lld
+      run: sudo ln /usr/bin/wasm-ld-11 /usr/bin/wasm-ld
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
