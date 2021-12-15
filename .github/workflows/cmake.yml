@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Install LLVM
+      run: sudo apt install llvm
+      
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
       with:
