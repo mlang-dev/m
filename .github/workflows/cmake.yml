@@ -18,17 +18,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install LLVM
-      run: sudo apt-get install llvm
-
-    - name: Install LLD
+    - name: Prepare Env
       run: |
-        sudo apt-get install lld
-        sudo ln /usr/bin/llvm-ar-11 /usr/bin/llvm-ar
-        sudo ln /usr/bin/llvm-nm-11 /usr/bin/llvm-nm
-        sudo ln /usr/bin/llvm-ranlib-11 /usr/bin/llvm-ranlib
-        sudo ln /usr/bin/wasm-ld-11 /usr/bin/wasm-ld
-        sudo ln /usr/bin/llvm-config-11 /usr/bin/llvm-config
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main"
+
+    - name: Install LLVM & LLD
+      run: sudo apt-get install clang llvm lld
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
