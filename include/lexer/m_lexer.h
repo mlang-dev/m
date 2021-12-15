@@ -14,6 +14,7 @@
 #include "lexer/token.h"
 #include "lexer/recognizer.h"
 #include "lexer/source_location.h"
+#include "parser/m_grammar.h"
 #include <stdio.h>
 
 #ifdef __cplusplus

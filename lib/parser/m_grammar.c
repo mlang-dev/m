@@ -68,7 +68,7 @@ const char * get_opcode(int token_or_opcode)
         CALLOC(token_opcodes, END_TOKENS, sizeof(const char *));
         for (int i = 0; i < keyword_count; i++){
             struct keyword_token kw_tt = keyword_tokens[i];
-            assert(kw_tt.token_type < keyword_count);
+            assert((int)kw_tt.token_type < keyword_count);
             token_opcodes[kw_tt.token_type] = kw_tt.keyword; //token type includes opcodes
         }
     }

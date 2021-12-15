@@ -553,6 +553,8 @@ struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
         case TOKEN_TRUE:
         case TOKEN_FALSE:
             return _parse_bool_value(parser, parent);
+        default:
+            break;
     }
     if (parser->curr_token.token_type == TOKEN_IDENT)
         return _parse_ident(parser, parent);
@@ -789,7 +791,6 @@ struct ast_node *_parse_unary(struct m_parser *parser, struct ast_node *parent)
         return _parse_node(parser, parent);
     }
     // If this is a unary operator, read it.
-    symbol op = parser->curr_token.symbol_val;
     enum op_code opcode = parser->curr_token.opcode;
     parse_next_token(parser);
     struct ast_node *operand = _parse_unary(parser, parent);

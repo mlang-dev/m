@@ -8,6 +8,8 @@
 #ifndef __MLANG_M_GRAMMAR_H__
 #define __MLANG_M_GRAMMAR_H__
 
+#include "lexer/token.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

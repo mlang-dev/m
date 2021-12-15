@@ -486,6 +486,7 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct ast_node *node)
     assert(lv && rv);
     assert(LLVMTypeOf(lv) == LLVMTypeOf(rv));
     struct ops *ops = &cg->ops[prune(node->binop->lhs->type)->type];
+    string f_name;
     switch(node->binop->opcode){
         case OP_PLUS:
             return ops->add(cg->builder, lv, rv, "");
@@ -530,7 +531,6 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct ast_node *node)
             lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg->context, 0), "ret_val_int");
             return lv;
         default:
-            string f_name;
             string_init_chars(&f_name, "binary");
             string_add_chars(&f_name, get_opcode(node->binop->opcode));
             symbol op = to_symbol(string_get(&f_name));
