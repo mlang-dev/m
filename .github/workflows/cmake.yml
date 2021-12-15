@@ -18,8 +18,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install LLVM & LLD
-      run: sudo apt-get install llvm lld
+    - name: Install LLVM
+      run: sudo apt-get install llvm
+
+    - name: Install LLD
+      run: sudo apt-get install lld
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2

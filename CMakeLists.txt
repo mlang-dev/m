@@ -43,7 +43,7 @@ elseif(EMSCRIPTEN)
 else()
     # lots of warnings and all warnings as errors
     add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-unused-parameter 
-    -Wno-missing-braces -Wno-enum-conversion -g)
+    -Wno-missing-braces -Wno-enum-conversion -g -v)
 endif()
 
 
