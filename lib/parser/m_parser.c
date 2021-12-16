@@ -43,7 +43,7 @@ bool is_op_char(char op)
 
 bool IS_OP(struct m_parser *parser)
 {
-    return parser->curr_token.token_type == TOKEN_SYMBOL && is_op_char(string_get(parser->curr_token.symbol_val)[0]);
+    return parser->curr_token.token_type == TOKEN_ISTYPEOF || (parser->curr_token.token_type == TOKEN_SYMBOL && is_op_char(string_get(parser->curr_token.symbol_val)[0]));
 }
 
 struct op_prec {
@@ -147,7 +147,6 @@ struct m_parser *m_parser_new(bool is_repl)
 {
     struct m_parser *parser;
     MALLOC(parser, sizeof(*parser));
-    parser->type_of = to_symbol(":");
     parser->assignment = to_symbol("=");
     parser->comma = to_symbol(",");
     parser->binary = to_symbol("binary");
@@ -155,7 +154,7 @@ struct m_parser *m_parser_new(bool is_repl)
     parser->import = to_symbol("import");
     parser->extern_symbol = to_symbol("extern");
     parser->type = to_symbol("type");
-    //parser->variadic = to_symbol("...");
+
     parser->lparen = to_symbol("(");
     parser->rparen = to_symbol(")");
     parser->lbracket = to_symbol("[");
@@ -300,7 +299,8 @@ struct op_type _parse_op_type(struct m_parser *parser, struct source_location lo
     if (IS_OP(parser)) {
         optype.op = parser->curr_token.symbol_val;
     }
-    if (optype.op == parser->type_of) {
+    if(parser->curr_token.token_type == TOKEN_ISTYPEOF){
+    //if (optype.op == parser->type_of) {
         // type of definition
         parse_next_token(parser); /* skip ':'*/
         symbol type_symbol = parser->curr_token.symbol_val;

@@ -30,7 +30,6 @@ struct m_parser {
 
     struct symboltable vars; /*symbol table of */
 
-    symbol type_of; //type-of symbol, the syntax is :
  
     symbol assignment; //assignment symbol: =
     symbol comma;
