@@ -31,7 +31,6 @@ struct m_parser {
     struct symboltable vars; /*symbol table of */
 
  
-    symbol assignment; //assignment symbol: =
     symbol comma;
     symbol binary;
     symbol unary;
