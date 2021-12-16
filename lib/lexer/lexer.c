@@ -17,6 +17,8 @@ symbol DEDENT_TOKEN = 0;
 symbol DEF_TOKEN = 0;
 symbol LCBRACKET_TOKEN = 0;
 symbol RCBRACKET_TOKEN = 0;
+symbol LBRACKET_TOKEN = 0;
+symbol RBRACKET_TOKEN = 0;
 symbol VBAR_TOKEN = 0;
 
 enum token_type get_token_type(symbol tok_type_name)
@@ -39,10 +41,15 @@ enum token_type get_token_type(symbol tok_type_name)
         return TOKEN_LCBRACKET;
     else if(tok_type_name == RCBRACKET_TOKEN)
         return TOKEN_RCBRACKET;
+    else if(tok_type_name == LBRACKET_TOKEN)
+        return TOKEN_LBRACKET;
+    else if(tok_type_name == RBRACKET_TOKEN)
+        return TOKEN_RBRACKET;
     else if(tok_type_name == VBAR_TOKEN)
         return OP_BOR;
-    else
+    else{
         return TOKEN_SYMBOL;
+    }
 }
 
 void lexer_init(struct lexer *lexer, const char *text)
@@ -61,6 +68,8 @@ void lexer_init(struct lexer *lexer, const char *text)
     DEF_TOKEN = to_symbol2("=", 1);
     LCBRACKET_TOKEN = to_symbol2_0("{");
     RCBRACKET_TOKEN = to_symbol2_0("}");
+    LBRACKET_TOKEN = to_symbol2_0("[");
+    RBRACKET_TOKEN = to_symbol2_0("]");
     VBAR_TOKEN = to_symbol2_0("|");
 }
 

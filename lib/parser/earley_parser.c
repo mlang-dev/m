@@ -340,7 +340,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
                 struct parse_state* ss = (struct parse_state*)array_get(&states.states, ep->start_state_index);
                 _complete(state, ep, ss);
 
-            }else if(state->tok.tok_type_name){
+            }else if(state->tok.tok_type){
                 struct expr_item *ei = (struct expr_item *)array_get(&ep->expr->items, ep->parsed);
                 if (ei->ei_type == EI_NONTERM && ei->sym != ep->rule->nonterm) {
                     // expects non-terminal, we're adding the rule's exprs into current state

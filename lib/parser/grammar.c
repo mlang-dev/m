@@ -111,9 +111,9 @@ struct grammar *grammar_parse(const char *grammar_text)
     symbol ACTION_E = to_symbol2(&meta_chars[5], 1);
     while (tok.tok_type) {
         get_tok(&lexer, &next_tok);
-        if(tok.tok_type_name == IDENT_TOKEN){
+        if(tok.tok_type == TOKEN_IDENT){
             s = to_symbol2(&grammar_text[tok.loc.start], tok.loc.end - tok.loc.start);
-            if(next_tok.tok_type_name == DEFINITION){
+            if(next_tok.tok_type == TOKEN_ASSIGN){
                 //nonterm
                 rule = grammar_add_rule(g, s, rule_no++);
                 expr = rule_add_expr(rule);
@@ -121,16 +121,16 @@ struct grammar *grammar_parse(const char *grammar_text)
             }else if(expr){
                 expr_add_symbol(expr, s, is_upper((string*)s) ? EI_TOKEN_MATCH : EI_NONTERM);
             }
-        } else if (tok.tok_type_name == STRING_TOKEN || tok.tok_type_name == CHAR_TOKEN) {
+        } else if (tok.tok_type == TOKEN_STRING || tok.tok_type == TOKEN_CHAR) {
             s = to_symbol2(&grammar_text[tok.loc.start+1], tok.loc.end - tok.loc.start - 2); //stripping off two single quote
             expr_add_symbol(expr, s, EI_EXACT_MATCH);
             hashset_set2(&g->keywords, string_get(s), string_size(s));
         }
-        if(tok.tok_type_name == ALTERNATION){
+        if(tok.tok_type == OP_BOR){
             expr = rule_add_expr(rule);
-        } else if (tok.tok_type_name == OPTION_S){ //regex
+        } else if (tok.tok_type == TOKEN_LBRACKET){ //regex
             string_init_chars2(&group, "", 0);
-            while(next_tok.tok_type_name != OPTION_E){
+            while(next_tok.tok_type != TOKEN_RBRACKET){
                 const char *p = &grammar_text[next_tok.loc.start];
                 for(int i = 0; i < next_tok.loc.end - next_tok.loc.start; i ++){
                     hashset_set2(&g->keywords, p + i, 1);
@@ -140,14 +140,14 @@ struct grammar *grammar_parse(const char *grammar_text)
             }
             expr_add_symbol(expr, string_2_symbol2(&group), EI_IN_MATCH);
             get_tok(&lexer, &next_tok); // skip ']'
-        }else if (tok.tok_type_name == ACTION_S){
-            while(next_tok.tok_type_name != ACTION_E){
+        }else if (tok.tok_type == TOKEN_LCBRACKET){
+            while(next_tok.tok_type != TOKEN_RCBRACKET){
                 //next tok is action
-                if(next_tok.tok_type_name == IDENT_TOKEN){
+                if(next_tok.tok_type == TOKEN_IDENT){
                     assert(expr->action.action == 0);
                     expr->action.action  = to_symbol2(&grammar_text[next_tok.loc.start], next_tok.loc.end - next_tok.loc.start);
                 }
-                else if(next_tok.tok_type_name == NUM_TOKEN){
+                else if(next_tok.tok_type == TOKEN_INT){
                     expr->action.exp_item_index[expr->action.exp_item_index_count++] = grammar_text[next_tok.loc.start] - '0'; 
                 }
                 else
@@ -157,6 +157,7 @@ struct grammar *grammar_parse(const char *grammar_text)
             get_tok(&lexer, &next_tok); //skip '}
         }
         tok = next_tok;
+        next_tok.tok_type = TOKEN_NULL;
         next_tok.tok_type_name = 0;
     }
     if (array_size(&g->rules)) {
