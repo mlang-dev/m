@@ -24,12 +24,6 @@ FILE *open_file_from_string(const char *code)
     return fmemopen(file_content, strlen(file_content), "r");
 }
 
-tokenizer *create_tokenizer_for_string(const char *str)
-{
-    FILE *file = fmemopen((void *)str, strlen(str), "r");
-    return create_tokenizer(file, "", keyword_tokens, keyword_count);
-}
-
 void make_module_ir(LLVMModuleRef module, const char *module_name, const char *ir_string, char *module_ir)
 {
     sprintf(module_ir, R"(; ModuleID = '%s'

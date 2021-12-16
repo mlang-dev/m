@@ -13,6 +13,7 @@
 #include "lexer/m_lexer.h"
 #include "clib/win/libfmemopen.h"
 #include "parser/m_grammar.h"
+#include "lexer/token.h"
 
 
 #define CUR_CHAR(tokenizer) tokenizer->curr_char[0]
@@ -65,7 +66,7 @@ char peek_char(struct tokenizer *tokenizer)
     return tokenizer->peek;
 }
 
-void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_tokens, int keyword_count)
+void _lexer_init(struct tokenizer *tokenizer)
 {
     hashtable_init_with_value_size(&tokenizer->keyword_2_tokens, sizeof(enum token_type), 0);
     // for (size_t i = 0; i < ARRAY_SIZE(keyword_symbols); ++i) {
@@ -76,9 +77,10 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_toke
     //char ch;
     //struct rcg_state *ks;
     //struct rcg_state *next_ks;
-    for (int i = 0; i < keyword_count; ++i) {
-        if (keyword_tokens[i].keyword && keyword_tokens[i].token_type > TOKEN_IDENT)
-            rcg_add_exact_match(&tokenizer->rcg_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
+    struct token_patterns tps = get_token_patterns();
+    for (int i = 0; i < tps.pattern_count; ++i) {
+        if (tps.patterns[i].pattern && tps.patterns[i].token_opcode > TOKEN_IDENT)
+            rcg_add_exact_match(&tokenizer->rcg_states, tps.patterns[i].pattern, tps.patterns[i].token_opcode);
     }
     VARIADIC = to_symbol("...");
     RANGE = to_symbol("..");
@@ -105,11 +107,11 @@ void _lexer_deinit(struct tokenizer *tokenizer)
     rcg_deinit(&tokenizer->rcg_states);
 }
 
-struct tokenizer *create_tokenizer(FILE *file, const char *filename, struct keyword_token *keyword_tokens, int keyword_count)
+struct tokenizer *create_tokenizer(FILE *file, const char *filename)
 {
     struct tokenizer *tokenizer;
     MALLOC(tokenizer, sizeof(*tokenizer));
-    _lexer_init(tokenizer, keyword_tokens, keyword_count);
+    _lexer_init(tokenizer);
     struct source_location loc = { 1, 0, 0, 0 };
     tokenizer->loc = loc;
     tokenizer->curr_char[0] = ' ';
@@ -121,10 +123,10 @@ struct tokenizer *create_tokenizer(FILE *file, const char *filename, struct keyw
     return tokenizer;
 }
 
-struct tokenizer *create_tokenizer_for_string(const char *content, struct keyword_token *keyword_tokens, int keyword_count)
+struct tokenizer *create_tokenizer_for_string(const char *content)
 {
     FILE *file = fmemopen((void *)content, strlen(content), "r");
-    struct tokenizer *tokenizer = create_tokenizer(file, "", keyword_tokens, keyword_count);
+    struct tokenizer *tokenizer = create_tokenizer(file, "");
     return tokenizer;
 }
 
