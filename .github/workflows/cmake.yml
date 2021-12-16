@@ -21,8 +21,9 @@ jobs:
     - name: Install wasmtime
       run: |
         curl https://wasmtime.dev/install.sh -sSf | bash
-        echo 'load bashrc..'
-        sudo . ~/.bashrc
+        echo 'add to path..'
+        export PATH=$PATH:~/.wasmtime/bin
+        echo $PATH
 
     - name: Install LLVM & LLD
       run: |
