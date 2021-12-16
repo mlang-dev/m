@@ -48,7 +48,6 @@ extern "C" {
     ENUM_ITEM(TOKEN_BINOPDEF)        \
     ENUM_ITEM(TOKEN_COMMA)           \
     ENUM_ITEM(TOKEN_SYMBOL)          \
-    ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_DOT)             \
     ENUM_ITEM(TOKEN_RANGE)           \
     ENUM_ITEM(TOKEN_VARIADIC)        \

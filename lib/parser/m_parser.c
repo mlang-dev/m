@@ -14,36 +14,9 @@
 
 #define exit_block(parser, parent, base_col) (parent && parser->curr_token.loc.col < base_col && (parser->curr_token.token_type != TOKEN_NEWLINE || parser->is_repl))
 
-char op_chars[] = {
-    '!',
-    '%',
-    '&',
-    '*',
-    '+',
-    '-',
-    '/',
-    '<',
-    '=',
-    '>',
-    '?',
-    '@',
-    '^',
-    '|',
-    ':',
-};
-
-bool is_op_char(char op)
-{
-    for (size_t i = 0; i < ARRAY_SIZE(op_chars); i++) {
-        if (op_chars[i] == op)
-            return true;
-    }
-    return false;
-}
-
 bool IS_OP(struct m_parser *parser)
 {
-    return (parser->curr_token.token_type > TOKEN_OP) || (parser->curr_token.token_type == TOKEN_SYMBOL && is_op_char(string_get(parser->curr_token.symbol_val)[0]));
+    return parser->curr_token.token_type >= TOKEN_SYMBOL;
 }
 
 struct op_prec {
