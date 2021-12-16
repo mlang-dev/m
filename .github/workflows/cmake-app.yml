@@ -20,12 +20,11 @@ jobs:
     steps:
     - name: Install LLVM & LLD
       run: |
+        sudo apt remove llvm-11
+        sudo apt autoclean && sudo apt autoremove
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
-        sudo apt install clang-13 lldb-13 lld-13 libclang-13-dev liblld-13-dev
-        sudo ln -f /usr/bin/clang-13 /usr/bin/clang
-        sudo ln -f /usr/bin/clang++-13 /usr/bin/clang++
-        sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
+        sudo apt-get install llvm-13 libclang-13-dev
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
