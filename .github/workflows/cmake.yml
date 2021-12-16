@@ -22,7 +22,7 @@ jobs:
       run: |
         curl https://wasmtime.dev/install.sh -sSf | bash
         echo 'load bashrc..'
-        sudo source ~/.bashrc
+        sudo . ~/.bashrc
 
     - name: Install LLVM & LLD
       run: |
