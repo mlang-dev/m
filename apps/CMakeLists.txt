@@ -24,7 +24,7 @@ elseif(WASM)
   set_target_properties(wm PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
   target_link_libraries(wm PRIVATE mlr
-    ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
+    ${CMAKE_SOURCE_DIR}/extern/wasi-sdk-14.0/share/wasi-sysroot/lib/wasm32-wasi/libc.a
     --target=wasm32
     -nostdlib
     -g

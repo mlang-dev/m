@@ -20,7 +20,7 @@ add_compile_definitions(WASM=1)
 add_compile_definitions(UNITY_EXCLUDE_SETJMP_H=1)
 add_compile_options(
                       --target=wasm32
-                      --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot
+                      --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-sdk-14.0/share/wasi-sysroot
                       -nostdlib
                       # -o3  # aggressive optimization
                       # -flto # add meta data for link time optimization
@@ -47,14 +47,16 @@ else()
 endif()
 
 
+if(WASM)
+#    add_subdirectory(extern/wasm3)
+else()
+    add_subdirectory(extern/googletest)
+endif()
+
 add_subdirectory(lib)
 add_subdirectory(apps)
 add_subdirectory(unity)
 add_subdirectory(test)
-
-if(NOT WASM)
-    add_subdirectory(extern/googletest)
-endif()
 
 if (NOT EMSCRIPTEN AND NOT WASM)
     add_subdirectory(samples)

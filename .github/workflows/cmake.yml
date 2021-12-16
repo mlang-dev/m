@@ -18,13 +18,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Prepare Env
+    - name: Install wasmtime
       run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main"
+        curl https://wasmtime.dev/install.sh -sSf | bash
+        source ~/.bashrc
+
+    - name: Install wasi-sdk
+        export WASI_VERSION=14
+        export WASI_VERSION_FULL=${WASI_VERSION}.0
+        wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_VERSION}/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz -P ${{github.workspace}}/extern
+        tar xvf ${{github.workspace}}/extern/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz -C ${{github.workspace}}/extern
+        rm -rf ${{github.workspace}}/extern/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz
 
     - name: Install LLVM & LLD
-      run: sudo apt-get install clang llvm lld
+      run: |
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
+        sudo apt-get install clang llvm lld
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
