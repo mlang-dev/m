@@ -153,11 +153,13 @@ else()
 endif()
 
 if(WASM)
-  add_custom_command(
-    TARGET mtest
-    POST_BUILD
-    COMMAND ~/.wasmtime/bin/wasmtime mtest.wasm
-  )
+  if(WASMTEST)
+    add_custom_command(
+      TARGET mtest
+      POST_BUILD
+      COMMAND wasmtime mtest.wasm
+    )
+  endif()
 else()
   include_directories(
     ${CMAKE_SOURCE_DIR}/unity
