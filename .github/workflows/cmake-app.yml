@@ -18,9 +18,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-#    - name: Install wasmtime
-#      run: |
-#        curl https://wasmtime.dev/install.sh -sSf | bash
 
     - name: Install LLVM & LLD
       run: |
