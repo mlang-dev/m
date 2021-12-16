@@ -46,6 +46,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_RCBRACKET)       \
     ENUM_ITEM(TOKEN_UNOPDEF)         \
     ENUM_ITEM(TOKEN_BINOPDEF)        \
+    ENUM_ITEM(TOKEN_COMMA)           \
     ENUM_ITEM(TOKEN_SYMBOL)          \
     ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_DOT)             \

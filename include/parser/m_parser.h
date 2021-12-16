@@ -29,11 +29,7 @@ struct m_parser {
     struct hashtable op_precs;
 
     struct symboltable vars; /*symbol table of */
-
  
-    symbol comma;
-    symbol binary;
-    symbol unary;
     symbol import;
     symbol extern_symbol;
     symbol type;

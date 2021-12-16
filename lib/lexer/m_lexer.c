@@ -20,6 +20,9 @@ symbol VARIADIC = 0;
 symbol RANGE = 0;
 symbol TYPEOF = 0;
 symbol ASSIGN = 0;
+symbol COMMA = 0;
+symbol BINOPDEF = 0;
+symbol UNOPDEF = 0;
 
 void log_error(struct tokenizer *tokenizer, const char *msg)
 {
@@ -71,6 +74,9 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_toke
     RANGE = to_symbol("..");
     TYPEOF = to_symbol(":");
     ASSIGN = to_symbol("=");
+    COMMA = to_symbol(",");
+    BINOPDEF = to_symbol("binary");
+    UNOPDEF = to_symbol("unary");
 }
 
 void _lexer_deinit(struct tokenizer *tokenizer)
@@ -222,6 +228,12 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
         tokenizer->cur_token.token_type = TOKEN_ISTYPEOF;
     else if (tokenizer->cur_token.symbol_val == ASSIGN)
         tokenizer->cur_token.token_type = TOKEN_ASSIGN;
+    else if (tokenizer->cur_token.symbol_val == COMMA)
+        tokenizer->cur_token.token_type = TOKEN_COMMA;
+    else if (tokenizer->cur_token.symbol_val == BINOPDEF)
+        tokenizer->cur_token.token_type = TOKEN_BINOPDEF;
+    else if (tokenizer->cur_token.symbol_val == UNOPDEF)
+        tokenizer->cur_token.token_type = TOKEN_UNOPDEF;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     if(ks&&ks->accepted_token_or_opcode > TOKEN_TOTAL){
         tokenizer->cur_token.opcode = ks->accepted_token_or_opcode;
