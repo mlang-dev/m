@@ -20,6 +20,7 @@ jobs:
     steps:
     - name: Install LLVM & LLD
       run: |
+        sudo apt remove llvm-10
         sudo apt remove llvm-11
         sudo apt autoclean && sudo apt autoremove
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
