@@ -29,24 +29,7 @@ struct m_parser {
     struct hashtable op_precs;
 
     struct symboltable vars; /*symbol table of */
-
  
-    symbol comma;
-    symbol binary;
-    symbol unary;
-    symbol import;
-    symbol extern_symbol;
-    symbol type;
-    symbol lparen;
-    symbol rparen;
-    symbol lbracket;
-    symbol rbracket;
-    symbol if_symbol;
-    symbol else_symbol;
-    symbol then_symbol;
-    symbol for_symbol;
-    symbol in_symbol;
-
     struct token curr_token;
     struct ast *ast;
     bool allow_id_as_a_func;

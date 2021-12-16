@@ -37,6 +37,8 @@ struct token_pattern token_patterns[END_TOKENS] = {
     {"unary", TOKEN_UNOPDEF},
     {"binary", TOKEN_BINOPDEF},
 
+    {",", TOKEN_COMMA},
+
     {0, TOKEN_SYMBOL},
     {0, TOKEN_OP},
     {".", TOKEN_DOT},

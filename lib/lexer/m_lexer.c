@@ -20,6 +20,19 @@ symbol VARIADIC = 0;
 symbol RANGE = 0;
 symbol TYPEOF = 0;
 symbol ASSIGN = 0;
+symbol COMMA = 0;
+symbol BINOPDEF = 0;
+symbol UNOPDEF = 0;
+symbol IMPORT = 0;
+symbol EXTERN = 0;
+symbol LPAREN = 0;
+symbol RPAREN = 0;
+symbol IF = 0;
+symbol ELSE = 0;
+symbol THEN = 0;
+symbol FOR = 0;
+symbol IN = 0;
+symbol TYPE = 0;
 
 void log_error(struct tokenizer *tokenizer, const char *msg)
 {
@@ -71,6 +84,19 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_toke
     RANGE = to_symbol("..");
     TYPEOF = to_symbol(":");
     ASSIGN = to_symbol("=");
+    COMMA = to_symbol(",");
+    BINOPDEF = to_symbol("binary");
+    UNOPDEF = to_symbol("unary");
+    IMPORT = to_symbol("import");
+    EXTERN = to_symbol("extern");
+    LPAREN = to_symbol("(");
+    RPAREN = to_symbol(")");
+    IF = to_symbol("if");
+    ELSE = to_symbol("else");
+    THEN = to_symbol("then");
+    FOR = to_symbol("for");
+    IN = to_symbol("in");
+    TYPE = to_symbol("type");
 }
 
 void _lexer_deinit(struct tokenizer *tokenizer)
@@ -222,6 +248,32 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
         tokenizer->cur_token.token_type = TOKEN_ISTYPEOF;
     else if (tokenizer->cur_token.symbol_val == ASSIGN)
         tokenizer->cur_token.token_type = TOKEN_ASSIGN;
+    else if (tokenizer->cur_token.symbol_val == COMMA)
+        tokenizer->cur_token.token_type = TOKEN_COMMA;
+    else if (tokenizer->cur_token.symbol_val == BINOPDEF)
+        tokenizer->cur_token.token_type = TOKEN_BINOPDEF;
+    else if (tokenizer->cur_token.symbol_val == UNOPDEF)
+        tokenizer->cur_token.token_type = TOKEN_UNOPDEF;
+    else if (tokenizer->cur_token.symbol_val == IMPORT)
+        tokenizer->cur_token.token_type = TOKEN_IMPORT;
+    else if (tokenizer->cur_token.symbol_val == EXTERN)
+        tokenizer->cur_token.token_type = TOKEN_EXTERN;
+    else if (tokenizer->cur_token.symbol_val == LPAREN)
+        tokenizer->cur_token.token_type = TOKEN_LPAREN;
+    else if (tokenizer->cur_token.symbol_val == RPAREN)
+        tokenizer->cur_token.token_type = TOKEN_RPAREN;
+    else if (tokenizer->cur_token.symbol_val == IF)
+        tokenizer->cur_token.token_type = TOKEN_IF;
+    else if (tokenizer->cur_token.symbol_val == ELSE)
+        tokenizer->cur_token.token_type = TOKEN_ELSE;
+    else if (tokenizer->cur_token.symbol_val == THEN)
+        tokenizer->cur_token.token_type = TOKEN_THEN;
+    else if (tokenizer->cur_token.symbol_val == FOR)
+        tokenizer->cur_token.token_type = TOKEN_FOR;
+    else if (tokenizer->cur_token.symbol_val == IN)
+        tokenizer->cur_token.token_type = TOKEN_IN;
+    else if (tokenizer->cur_token.symbol_val == TYPE)
+        tokenizer->cur_token.token_type = TOKEN_TYPE;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     if(ks&&ks->accepted_token_or_opcode > TOKEN_TOTAL){
         tokenizer->cur_token.opcode = ks->accepted_token_or_opcode;

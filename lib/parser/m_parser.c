@@ -147,22 +147,6 @@ struct m_parser *m_parser_new(bool is_repl)
 {
     struct m_parser *parser;
     MALLOC(parser, sizeof(*parser));
-    parser->comma = to_symbol(",");
-    parser->binary = to_symbol("binary");
-    parser->unary = to_symbol("unary");
-    parser->import = to_symbol("import");
-    parser->extern_symbol = to_symbol("extern");
-    parser->type = to_symbol("type");
-
-    parser->lparen = to_symbol("(");
-    parser->rparen = to_symbol(")");
-    parser->lbracket = to_symbol("[");
-    parser->rbracket = to_symbol("]");
-    parser->if_symbol = to_symbol("if");
-    parser->else_symbol = to_symbol("else");
-    parser->then_symbol = to_symbol("then");
-    parser->for_symbol = to_symbol("for");
-    parser->in_symbol = to_symbol("in");
 
     symboltable_init(&parser->vars);
     queue_init(&parser->queued_tokens, sizeof(struct token));
@@ -275,7 +259,7 @@ struct ast_node *_parse_parentheses(struct m_parser *parser, struct ast_node *pa
 {
     struct ast_node *v;
     parse_next_token(parser);
-    if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->rparen) {
+    if (parser->curr_token.token_type == TOKEN_RPAREN) {
         v = (struct ast_node *)unit_node_new(parser->curr_token.loc);
         parse_next_token(parser);
         return v;
@@ -283,7 +267,7 @@ struct ast_node *_parse_parentheses(struct m_parser *parser, struct ast_node *pa
     v = parse_exp(parser, parent, 0);
     if (!v)
         return 0;
-    if (parser->curr_token.token_type != TOKEN_SYMBOL || parser->curr_token.symbol_val != parser->rparen)
+    if (parser->curr_token.token_type != TOKEN_RPAREN)
         return (struct ast_node *)log_info(ERROR, "expected ')'");
     parse_next_token(parser);
     return v;
@@ -336,7 +320,7 @@ struct ast_node *_parse_type_value_node(struct m_parser *parser, struct ast_node
 
 struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_node *parent, struct source_location loc, symbol pid_name, bool is_operator, int precedence)
 {
-    if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->lparen) {
+    if (parser->curr_token.token_type == TOKEN_LPAREN) {
         parse_next_token(parser); // skip '('
     }
     bool func_definition = false;
@@ -353,7 +337,7 @@ struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_
         return _parse_type_value_node(parser, parent, pid_name);
     }
 
-    if (parser->curr_token.token_type != TOKEN_SYMBOL || parser->curr_token.symbol_val != parser->rparen) {
+    if (parser->curr_token.token_type != TOKEN_RPAREN) {
         while (true) {
             if (parser->curr_token.token_type == TOKEN_VARIADIC) {
                 is_variadic = true;
@@ -375,7 +359,7 @@ struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_
                     array_push(&args, &arg);
                 }
             }
-            if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->rparen) {
+            if (parser->curr_token.token_type == TOKEN_RPAREN) {
                 parse_next_token(parser);
                 struct op_type optype = _parse_op_type(parser, parser->curr_token.loc);
                 if (optype.type) {
@@ -387,7 +371,7 @@ struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_
                 break;
             } else if (parser->curr_token.token_type == TOKEN_NEWLINE || parser->curr_token.token_type == TOKEN_EOF)
                 break;
-            else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->comma)
+            else if (parser->curr_token.token_type == TOKEN_COMMA)
                 parse_next_token(parser);
         }
     } else {
@@ -436,14 +420,14 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
     struct source_location loc = parser->curr_token.loc;
     if (parser->curr_token.token_type == TOKEN_EOF)
         return 0;
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->import)
+    else if (parser->curr_token.token_type == TOKEN_IMPORT)
         node = parse_import(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->type)
+    else if (parser->curr_token.token_type == TOKEN_TYPE)
         node = _parse_type(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->extern_symbol) {
+    else if (parser->curr_token.token_type == TOKEN_EXTERN) {
         parse_next_token(parser);
         node = _parse_func_type(parser, parent, true);
-    } else if (parser->curr_token.token_type == TOKEN_SYMBOL && (parser->curr_token.symbol_val == parser->binary || parser->curr_token.symbol_val == parser->unary)) {
+    } else if (parser->curr_token.token_type == TOKEN_BINOPDEF || parser->curr_token.token_type == TOKEN_UNOPDEF) {
         // function def
         struct ast_node *func_type = _parse_func_type(parser, parent, false);
         node = _parse_function_with_func_type(parser, (struct ast_node *)func_type);
@@ -469,7 +453,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
             node = _parse_function_app_or_def(parser, parent, current_loc, id_symbol, false, 0);
         }
     } else {
-        if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->lparen) {
+        if (parser->curr_token.token_type == TOKEN_LPAREN) {
             struct array queued;
             array_init(&queued, sizeof(struct token));
             array_push(&queued, &parser->curr_token);
@@ -479,7 +463,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
                 // it is operator overloading
                 symbol op = parser->curr_token.symbol_val;
                 parse_next_token(parser);
-                if (parser->curr_token.token_type != TOKEN_SYMBOL || parser->curr_token.symbol_val != parser->rparen)
+                if (parser->curr_token.token_type != TOKEN_RPAREN)
                     return (struct ast_node *)log_info(ERROR, "expected ')'");
                 parse_next_token(parser);
                 int precedence = 0;
@@ -512,7 +496,7 @@ bool _is_new_line(int cha)
 
 bool _id_is_a_function_call(struct m_parser *parser)
 {
-    return parser->allow_id_as_a_func && (parser->curr_token.token_type == TOKEN_IDENT || parser->curr_token.token_type == TOKEN_INT || parser->curr_token.token_type == TOKEN_FLOAT || (parser->curr_token.token_type == TOKEN_SYMBOL && (parser->curr_token.symbol_val == parser->unary || parser->curr_token.symbol_val == parser->lparen || parser->curr_token.symbol_val == parser->if_symbol)));
+    return parser->allow_id_as_a_func && (parser->curr_token.token_type == TOKEN_IDENT || parser->curr_token.token_type == TOKEN_INT || parser->curr_token.token_type == TOKEN_FLOAT || parser->curr_token.token_type == TOKEN_UNOPDEF || parser->curr_token.token_type == TOKEN_LPAREN || parser->curr_token.token_type == TOKEN_IF);
 }
 
 struct ast_node *_parse_ident(struct m_parser *parser, struct ast_node *parent)
@@ -562,11 +546,11 @@ struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
         return _parse_char(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_STRING)
         return _parse_string(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->if_symbol)
+    else if (parser->curr_token.token_type == TOKEN_IF)
         return _parse_if(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->for_symbol)
+    else if (parser->curr_token.token_type == TOKEN_FOR)
         return _parse_for(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->lparen)
+    else if (parser->curr_token.token_type == TOKEN_LPAREN)
         return _parse_parentheses(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.opcode == OP_NOT)
         return _parse_unary(parser, parent);
@@ -632,7 +616,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
         string_copy(&fun_name, parser->curr_token.symbol_val);
         proto_type = 0;
         parse_next_token(parser);
-    } else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->unary) {
+    } else if (parser->curr_token.token_type == TOKEN_UNOPDEF) {
         parse_next_token(parser);
         if (!IS_OP(parser))
             return (struct ast_node *)log_info(ERROR, "Expected unary operator");
@@ -640,7 +624,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
         string_add(&fun_name, parser->curr_token.symbol_val);
         proto_type = 1;
         parse_next_token(parser);
-    } else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->binary) {
+    } else if (parser->curr_token.token_type == TOKEN_BINOPDEF) {
         parse_next_token(parser);
         if (!IS_OP(parser))
             return (struct ast_node *)log_info(ERROR, "Expected binary operator");
@@ -658,7 +642,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
     } else {
         return (struct ast_node *)log_info(ERROR, "Expected function name in func_type");
     }
-    bool has_parenthese = parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->lparen;
+    bool has_parenthese = parser->curr_token.token_type == TOKEN_LPAREN;
     if (has_parenthese)
         parse_next_token(parser); // skip '('
     ARRAY_FUN_PARAM(fun_params);
@@ -673,13 +657,13 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
             fun_param->annotated_type_enum = optype.type;
         }
         array_push(&fun_params, &fun_param);
-        if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->comma)
+        if (parser->curr_token.token_type == TOKEN_COMMA)
             parse_next_token(parser);
     }
     bool is_variadic = parser->curr_token.token_type == TOKEN_VARIADIC;
     if (is_variadic)
         parse_next_token(parser);
-    if (has_parenthese && parser->curr_token.symbol_val != parser->rparen)
+    if (has_parenthese && parser->curr_token.token_type != TOKEN_RPAREN)
         return (struct ast_node *)log_info(ERROR, "Expected ')' to match '('");
     // success.
     if (has_parenthese)
@@ -785,7 +769,7 @@ struct ast_node *_parse_unary(struct m_parser *parser, struct ast_node *parent)
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
     struct source_location loc = parser->curr_token.loc;
-    if (!IS_OP(parser) || (parser->curr_token.token_type == TOKEN_SYMBOL && (parser->curr_token.symbol_val == parser->lparen || parser->curr_token.symbol_val == parser->comma))) {
+    if (!IS_OP(parser) || parser->curr_token.token_type == TOKEN_COMMA || parser->curr_token.token_type == TOKEN_LPAREN) {
         return _parse_node(parser, parent);
     }
     // If this is a unary operator, read it.
@@ -810,7 +794,7 @@ struct ast_node *_parse_for(struct m_parser *parser, struct ast_node *parent)
     symbol id_symbol = parser->curr_token.symbol_val;
     parse_next_token(parser); // eat identifier.
 
-    if (parser->curr_token.token_type != TOKEN_SYMBOL || parser->curr_token.symbol_val != parser->in_symbol)
+    if (parser->curr_token.token_type != TOKEN_IN)
         return (struct ast_node *)log_info(ERROR, "expected 'in' after for %s", parser->curr_token.symbol_val);
     parse_next_token(parser); // eat 'in'.
 
@@ -856,7 +840,7 @@ struct ast_node *_parse_if(struct m_parser *parser, struct ast_node *parent)
     struct ast_node *cond = parse_exp(parser, parent, 0);
     if (!cond)
         return 0;
-    if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->then_symbol) {
+    if (parser->curr_token.token_type == TOKEN_THEN) {
         parse_next_token(parser); // eat the then
     }
     while (parser->curr_token.token_type == TOKEN_NEWLINE)
@@ -867,7 +851,7 @@ struct ast_node *_parse_if(struct m_parser *parser, struct ast_node *parent)
 
     while (parser->curr_token.token_type == TOKEN_NEWLINE)
         parse_next_token(parser);
-    if (parser->curr_token.token_type != TOKEN_SYMBOL || parser->curr_token.symbol_val != parser->else_symbol)
+    if (parser->curr_token.token_type != TOKEN_ELSE)
         return (struct ast_node *)log_info(ERROR, "expected else, got type: %s", node_type_strings[parser->curr_token.token_type]);
 
     parse_next_token(parser);
