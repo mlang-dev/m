@@ -24,6 +24,7 @@ jobs:
         echo 'add to path..'
         export PATH=$PATH:~/.wasmtime/bin
         echo $PATH
+        wasmtime
 
     - name: Install LLVM & LLD
       run: |
