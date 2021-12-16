@@ -147,8 +147,6 @@ struct m_parser *m_parser_new(bool is_repl)
 {
     struct m_parser *parser;
     MALLOC(parser, sizeof(*parser));
-    parser->import = to_symbol("import");
-    parser->extern_symbol = to_symbol("extern");
     parser->type = to_symbol("type");
 
     parser->lparen = to_symbol("(");
@@ -433,11 +431,11 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
     struct source_location loc = parser->curr_token.loc;
     if (parser->curr_token.token_type == TOKEN_EOF)
         return 0;
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->import)
+    else if (parser->curr_token.token_type == TOKEN_IMPORT)
         node = parse_import(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->type)
         node = _parse_type(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->extern_symbol) {
+    else if (parser->curr_token.token_type == TOKEN_EXTERN) {
         parse_next_token(parser);
         node = _parse_func_type(parser, parent, true);
     } else if (parser->curr_token.token_type == TOKEN_BINOPDEF || parser->curr_token.token_type == TOKEN_UNOPDEF) {

@@ -23,6 +23,8 @@ symbol ASSIGN = 0;
 symbol COMMA = 0;
 symbol BINOPDEF = 0;
 symbol UNOPDEF = 0;
+symbol IMPORT = 0;
+symbol EXTERN = 0;
 
 void log_error(struct tokenizer *tokenizer, const char *msg)
 {
@@ -77,6 +79,9 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_toke
     COMMA = to_symbol(",");
     BINOPDEF = to_symbol("binary");
     UNOPDEF = to_symbol("unary");
+    IMPORT = to_symbol("import");
+    EXTERN = to_symbol("extern");
+
 }
 
 void _lexer_deinit(struct tokenizer *tokenizer)
@@ -234,6 +239,10 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
         tokenizer->cur_token.token_type = TOKEN_BINOPDEF;
     else if (tokenizer->cur_token.symbol_val == UNOPDEF)
         tokenizer->cur_token.token_type = TOKEN_UNOPDEF;
+    else if (tokenizer->cur_token.symbol_val == IMPORT)
+        tokenizer->cur_token.token_type = TOKEN_IMPORT;
+    else if (tokenizer->cur_token.symbol_val == EXTERN)
+        tokenizer->cur_token.token_type = TOKEN_EXTERN;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     if(ks&&ks->accepted_token_or_opcode > TOKEN_TOTAL){
         tokenizer->cur_token.opcode = ks->accepted_token_or_opcode;

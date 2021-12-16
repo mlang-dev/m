@@ -30,8 +30,6 @@ struct m_parser {
 
     struct symboltable vars; /*symbol table of */
  
-    symbol import;
-    symbol extern_symbol;
     symbol type;
     symbol lparen;
     symbol rparen;
