@@ -21,7 +21,8 @@ jobs:
     - name: Install wasmtime
       run: |
         curl https://wasmtime.dev/install.sh -sSf | bash
-        source ~/.bashrc
+        echo 'load bashrc..'
+        sudo source ~/.bashrc
 
     - name: Install LLVM & LLD
       run: |
