@@ -1,12 +1,6 @@
 #include "lexer/token.h"
 #include <assert.h>
-/*
 
-    {"?", TOKEN_SYMBOL},
-    {"@", TOKEN_SYMBOL},
- 
- 
-*/
 struct token_pattern token_patterns[END_TOKENS] = {
     {0, TOKEN_NULL},
     {"\0", TOKEN_EOF},
@@ -86,10 +80,9 @@ struct token_patterns get_token_patterns()
     struct token_patterns tps = {token_patterns, END_TOKENS};
     return tps;
 }
-/*
+
 const char *get_opcode(int opcode)
 {
-    assert(opcode > TOKEN_TOTAL && opcode < END_TOKENS);
+    assert(opcode > 0 && opcode < END_TOKENS);
     return token_patterns[opcode].pattern;
 }
-*/

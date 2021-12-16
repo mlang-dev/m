@@ -34,8 +34,8 @@ struct tokenizer {
     struct hashtable keyword_2_tokens;
 };
 
-struct tokenizer *create_tokenizer(FILE *file, const char *filename, struct keyword_token *keyword_symbols, int keyword_count);
-struct tokenizer *create_tokenizer_for_string(const char *content, struct keyword_token *keyword_symbols, int keyword_count);
+struct tokenizer *create_tokenizer(FILE *file, const char *filename);
+struct tokenizer *create_tokenizer_for_string(const char *content);
 void destroy_tokenizer(struct tokenizer *tokenizer);
 struct token *get_token(struct tokenizer *tokenizer);
 extern const char *boolean_values[2];
