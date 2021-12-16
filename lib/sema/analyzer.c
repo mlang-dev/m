@@ -210,8 +210,9 @@ struct type_exp *_analyze_func(struct sema_context *context, struct ast_node *no
     if (is_generic(result)) {
         hashtable_set(&context->generic_ast, string_get(node->func->func_type->ft->name), node);
     }
-    //struct ast_node *saved_node = *(struct ast_node **)stack_pop(&context->func_stack);
-    //assert(node == saved_node);
+    struct ast_node *saved_node = *(struct ast_node **)stack_pop(&context->func_stack);
+    (void)saved_node;
+    assert(node == saved_node);
     return result;
 }
 
