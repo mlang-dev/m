@@ -23,14 +23,6 @@ jobs:
         curl https://wasmtime.dev/install.sh -sSf | bash
         source ~/.bashrc
 
-    - name: Install wasi-sdk
-      run: |
-        export WASI_VERSION=14
-        export WASI_VERSION_FULL=${WASI_VERSION}.0
-        wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_VERSION}/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz -P ${{github.workspace}}/extern
-        tar xvf ${{github.workspace}}/extern/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz -C ${{github.workspace}}/extern
-        rm -rf ${{github.workspace}}/extern/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz
-
     - name: Install LLVM & LLD
       run: |
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -50,7 +42,7 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build -DWASM=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 
-    - name: Build
+    - name: Build wm.wasm
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 

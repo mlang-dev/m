@@ -20,7 +20,7 @@ add_compile_definitions(WASM=1)
 add_compile_definitions(UNITY_EXCLUDE_SETJMP_H=1)
 add_compile_options(
                       --target=wasm32
-                      --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-sdk-14.0/share/wasi-sysroot
+                      --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot
                       -nostdlib
                       # -o3  # aggressive optimization
                       # -flto # add meta data for link time optimization

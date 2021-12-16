@@ -68,7 +68,7 @@ elseif (WASM)
   set_target_properties(mtest PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
   target_link_libraries(mtest PRIVATE mlr unity
-    ${CMAKE_SOURCE_DIR}/extern/wasi-sdk-14.0/share/wasi-sysroot/lib/wasm32-wasi/libc.a
+    ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     --target=wasm32
     -nostdlib
     -v
