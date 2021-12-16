@@ -31,11 +31,8 @@ struct m_parser {
     struct symboltable vars; /*symbol table of */
  
     symbol type;
-    symbol lparen;
-    symbol rparen;
     symbol lbracket;
     symbol rbracket;
-    symbol if_symbol;
     symbol else_symbol;
     symbol then_symbol;
     symbol for_symbol;
