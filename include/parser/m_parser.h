@@ -30,16 +30,13 @@ struct m_parser {
 
     struct symboltable vars; /*symbol table of */
 
-    symbol type_of; //type-of symbol, the syntax is :
  
-    symbol assignment; //assignment symbol: =
     symbol comma;
     symbol binary;
     symbol unary;
     symbol import;
     symbol extern_symbol;
     symbol type;
-    symbol variadic;
     symbol lparen;
     symbol rparen;
     symbol lbracket;
@@ -49,7 +46,6 @@ struct m_parser {
     symbol then_symbol;
     symbol for_symbol;
     symbol in_symbol;
-    symbol range_symbol;
 
     struct token curr_token;
     struct ast *ast;

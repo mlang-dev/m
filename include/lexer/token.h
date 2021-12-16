@@ -20,13 +20,14 @@ extern "C" {
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
     ENUM_ITEM(TOKEN_NULL)            \
     ENUM_ITEM(TOKEN_EOF)             \
+    ENUM_ITEM(TOKEN_INDENT)          \
+    ENUM_ITEM(TOKEN_DEDENT)          \
     ENUM_ITEM(TOKEN_NEWLINE)         \
-    ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_INT)             \
     ENUM_ITEM(TOKEN_FLOAT)           \
+    ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
-    ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_IMPORT)          \
     ENUM_ITEM(TOKEN_EXTERN)          \
     ENUM_ITEM(TOKEN_TYPE)            \
@@ -37,13 +38,21 @@ extern "C" {
     ENUM_ITEM(TOKEN_FALSE)           \
     ENUM_ITEM(TOKEN_IN)              \
     ENUM_ITEM(TOKEN_FOR)             \
+    ENUM_ITEM(TOKEN_LPAREN)          \
+    ENUM_ITEM(TOKEN_RPAREN)          \
+    ENUM_ITEM(TOKEN_LBRACKET)        \
+    ENUM_ITEM(TOKEN_RBRACKET)        \
+    ENUM_ITEM(TOKEN_LCBRACKET)       \
+    ENUM_ITEM(TOKEN_RCBRACKET)       \
+    ENUM_ITEM(TOKEN_UNOPDEF)         \
+    ENUM_ITEM(TOKEN_BINOPDEF)        \
+    ENUM_ITEM(TOKEN_SYMBOL)          \
+    ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_DOT)             \
     ENUM_ITEM(TOKEN_RANGE)           \
     ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_ASSIGN)          \
-    ENUM_ITEM(TOKEN_INDENT)          \
-    ENUM_ITEM(TOKEN_DEDENT)          \
-    ENUM_ITEM(TOKEN_SYMBOL)          \
+    ENUM_ITEM(TOKEN_ISTYPEOF)        \
     ENUM_ITEM(TOKEN_TOTAL)
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
@@ -52,6 +61,9 @@ enum op_code{
     OP_OR = TOKEN_TOTAL + 1, //'||'
     OP_AND,
     OP_NOT,
+
+    OP_BOR, //'|'
+    OP_BAND, //'&'
 
     OP_EXPO,
     OP_TIMES,
@@ -99,6 +111,8 @@ struct token {
 void token_init(struct token *token);
 
 struct token_patterns get_token_patterns();
+
+//const char *get_opcode(int opcode);
 
 #ifdef __cplusplus
 }

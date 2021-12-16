@@ -109,7 +109,7 @@ struct grammar *grammar_parse(const char *grammar_text)
     symbol OPTION_E = to_symbol2(&meta_chars[3], 1);
     symbol ACTION_S = to_symbol2(&meta_chars[4], 1);
     symbol ACTION_E = to_symbol2(&meta_chars[5], 1);
-    while (tok.tok_type_name) {
+    while (tok.tok_type) {
         get_tok(&lexer, &next_tok);
         if(tok.tok_type_name == IDENT_TOKEN){
             s = to_symbol2(&grammar_text[tok.loc.start], tok.loc.end - tok.loc.start);

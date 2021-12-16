@@ -16,6 +16,10 @@
 
 
 #define CUR_CHAR(tokenizer) tokenizer->curr_char[0]
+symbol VARIADIC = 0;
+symbol RANGE = 0;
+symbol TYPEOF = 0;
+symbol ASSIGN = 0;
 
 void log_error(struct tokenizer *tokenizer, const char *msg)
 {
@@ -60,8 +64,13 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_toke
     //struct rcg_state *ks;
     //struct rcg_state *next_ks;
     for (int i = 0; i < keyword_count; ++i) {
-        rcg_add_exact_match(&tokenizer->rcg_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
+        if (keyword_tokens[i].keyword && keyword_tokens[i].token_type > TOKEN_IDENT)
+            rcg_add_exact_match(&tokenizer->rcg_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
     }
+    VARIADIC = to_symbol("...");
+    RANGE = to_symbol("..");
+    TYPEOF = to_symbol(":");
+    ASSIGN = to_symbol("=");
 }
 
 void _lexer_deinit(struct tokenizer *tokenizer)
@@ -127,7 +136,12 @@ struct token *_tokenize_dot(struct tokenizer *tokenizer)
     if (tokenizer->curr_char[0] == '.') {
         _collect_all_dots(tokenizer, &str);
         tokenizer->cur_token.symbol_val = to_symbol(string_get(&str));
-        tokenizer->cur_token.token_type = TOKEN_SYMBOL;
+        if(tokenizer->cur_token.symbol_val == VARIADIC)
+            tokenizer->cur_token.token_type = TOKEN_VARIADIC;
+        else if(tokenizer->cur_token.symbol_val == RANGE)
+            tokenizer->cur_token.token_type = TOKEN_RANGE;
+        else
+            tokenizer->cur_token.token_type = TOKEN_SYMBOL;
         tokenizer->cur_token.loc = tokenizer->tok_loc;
         return &tokenizer->cur_token;
     } else if (isdigit(tokenizer->curr_char[0])) {
@@ -203,8 +217,11 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
     }else{
         tokenizer->cur_token.token_type = ks->accepted_token_or_opcode ? TOKEN_SYMBOL : TOKEN_IDENT;
     }
-    //tokenizer->cur_token.token_type = (ks && ks->accepted_token_or_opcode) ? TOKEN_SYMBOL : TOKEN_IDENT;
     tokenizer->cur_token.symbol_val = to_symbol(string_get(&tokenizer->str_val));
+    if (tokenizer->cur_token.symbol_val == TYPEOF)
+        tokenizer->cur_token.token_type = TOKEN_ISTYPEOF;
+    else if (tokenizer->cur_token.symbol_val == ASSIGN)
+        tokenizer->cur_token.token_type = TOKEN_ASSIGN;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     if(ks&&ks->accepted_token_or_opcode > TOKEN_TOTAL){
         tokenizer->cur_token.opcode = ks->accepted_token_or_opcode;

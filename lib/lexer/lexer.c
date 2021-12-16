@@ -6,6 +6,7 @@
 
 #include <ctype.h>
 #include "lexer/lexer.h"
+#include <assert.h>
 
 symbol IDENT_TOKEN = 0;
 symbol NUM_TOKEN = 0;
@@ -13,8 +14,12 @@ symbol STRING_TOKEN = 0;
 symbol CHAR_TOKEN = 0;
 symbol INDENT_TOKEN = 0;
 symbol DEDENT_TOKEN = 0;
+symbol DEF_TOKEN = 0;
+symbol LCBRACKET_TOKEN = 0;
+symbol RCBRACKET_TOKEN = 0;
+symbol VBAR_TOKEN = 0;
 
-enum token_type _get_tok_type(symbol tok_type_name)
+enum token_type get_token_type(symbol tok_type_name)
 {
     if(tok_type_name == IDENT_TOKEN)
         return TOKEN_IDENT;
@@ -28,7 +33,16 @@ enum token_type _get_tok_type(symbol tok_type_name)
         return TOKEN_IDENT;
     else if(tok_type_name == DEDENT_TOKEN)
         return TOKEN_DEDENT;
-    return TOKEN_NULL;
+    else if(tok_type_name == DEF_TOKEN)
+        return TOKEN_ASSIGN;
+    else if(tok_type_name == LCBRACKET_TOKEN)
+        return TOKEN_LCBRACKET;
+    else if(tok_type_name == RCBRACKET_TOKEN)
+        return TOKEN_RCBRACKET;
+    else if(tok_type_name == VBAR_TOKEN)
+        return OP_BOR;
+    else
+        return TOKEN_SYMBOL;
 }
 
 void lexer_init(struct lexer *lexer, const char *text)
@@ -44,6 +58,10 @@ void lexer_init(struct lexer *lexer, const char *text)
     CHAR_TOKEN = to_symbol2("CHAR", 4);
     INDENT_TOKEN = to_symbol2("INDENT", 6);
     DEDENT_TOKEN = to_symbol2("DEDENT", 6);
+    DEF_TOKEN = to_symbol2("=", 1);
+    LCBRACKET_TOKEN = to_symbol2_0("{");
+    RCBRACKET_TOKEN = to_symbol2_0("}");
+    VBAR_TOKEN = to_symbol2_0("|");
 }
 
 void _move_ahead(struct lexer *lexer)
@@ -104,6 +122,7 @@ void _mark_token(struct lexer *lexer, struct tok *tok, symbol tok_type_name)
 void get_tok(struct lexer *lexer, struct tok *tok)
 {
     tok->tok_type_name = 0;
+    tok->tok_type = TOKEN_NULL;
     char ch = lexer->text[lexer->pos];
     switch (ch)
     {
@@ -145,5 +164,6 @@ void get_tok(struct lexer *lexer, struct tok *tok)
     }
     if(tok->tok_type_name){
         tok->loc.end = lexer->pos;
+        tok->tok_type = get_token_type(tok->tok_type_name);
     }
 }
