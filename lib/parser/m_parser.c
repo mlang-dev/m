@@ -151,8 +151,6 @@ struct m_parser *m_parser_new(bool is_repl)
 
     parser->lbracket = to_symbol("[");
     parser->rbracket = to_symbol("]");
-    parser->else_symbol = to_symbol("else");
-    parser->then_symbol = to_symbol("then");
     parser->for_symbol = to_symbol("for");
     parser->in_symbol = to_symbol("in");
 
@@ -848,7 +846,7 @@ struct ast_node *_parse_if(struct m_parser *parser, struct ast_node *parent)
     struct ast_node *cond = parse_exp(parser, parent, 0);
     if (!cond)
         return 0;
-    if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->then_symbol) {
+    if (parser->curr_token.token_type == TOKEN_THEN) {
         parse_next_token(parser); // eat the then
     }
     while (parser->curr_token.token_type == TOKEN_NEWLINE)
@@ -859,7 +857,7 @@ struct ast_node *_parse_if(struct m_parser *parser, struct ast_node *parent)
 
     while (parser->curr_token.token_type == TOKEN_NEWLINE)
         parse_next_token(parser);
-    if (parser->curr_token.token_type != TOKEN_SYMBOL || parser->curr_token.symbol_val != parser->else_symbol)
+    if (parser->curr_token.token_type != TOKEN_ELSE)
         return (struct ast_node *)log_info(ERROR, "expected else, got type: %s", node_type_strings[parser->curr_token.token_type]);
 
     parse_next_token(parser);

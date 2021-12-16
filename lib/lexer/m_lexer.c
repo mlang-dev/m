@@ -28,6 +28,8 @@ symbol EXTERN = 0;
 symbol LPAREN = 0;
 symbol RPAREN = 0;
 symbol IF = 0;
+symbol ELSE = 0;
+symbol THEN = 0;
 
 void log_error(struct tokenizer *tokenizer, const char *msg)
 {
@@ -87,6 +89,8 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_toke
     LPAREN = to_symbol("(");
     RPAREN = to_symbol(")");
     IF = to_symbol("if");
+    ELSE = to_symbol("else");
+    THEN = to_symbol("then");
 }
 
 void _lexer_deinit(struct tokenizer *tokenizer)
@@ -254,6 +258,10 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
         tokenizer->cur_token.token_type = TOKEN_RPAREN;
     else if (tokenizer->cur_token.symbol_val == IF)
         tokenizer->cur_token.token_type = TOKEN_IF;
+    else if (tokenizer->cur_token.symbol_val == ELSE)
+        tokenizer->cur_token.token_type = TOKEN_ELSE;
+    else if (tokenizer->cur_token.symbol_val == THEN)
+        tokenizer->cur_token.token_type = TOKEN_THEN;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     if(ks&&ks->accepted_token_or_opcode > TOKEN_TOTAL){
         tokenizer->cur_token.opcode = ks->accepted_token_or_opcode;

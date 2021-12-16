@@ -33,8 +33,6 @@ struct m_parser {
     symbol type;
     symbol lbracket;
     symbol rbracket;
-    symbol else_symbol;
-    symbol then_symbol;
     symbol for_symbol;
     symbol in_symbol;
 
