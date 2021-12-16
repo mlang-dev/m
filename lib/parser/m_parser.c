@@ -147,12 +147,6 @@ struct m_parser *m_parser_new(bool is_repl)
 {
     struct m_parser *parser;
     MALLOC(parser, sizeof(*parser));
-    parser->type = to_symbol("type");
-
-    parser->lbracket = to_symbol("[");
-    parser->rbracket = to_symbol("]");
-    parser->for_symbol = to_symbol("for");
-    parser->in_symbol = to_symbol("in");
 
     symboltable_init(&parser->vars);
     queue_init(&parser->queued_tokens, sizeof(struct token));
@@ -428,7 +422,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
         return 0;
     else if (parser->curr_token.token_type == TOKEN_IMPORT)
         node = parse_import(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->type)
+    else if (parser->curr_token.token_type == TOKEN_TYPE)
         node = _parse_type(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_EXTERN) {
         parse_next_token(parser);
@@ -554,7 +548,7 @@ struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
         return _parse_string(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_IF)
         return _parse_if(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->for_symbol)
+    else if (parser->curr_token.token_type == TOKEN_FOR)
         return _parse_for(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_LPAREN)
         return _parse_parentheses(parser, parent);
@@ -800,7 +794,7 @@ struct ast_node *_parse_for(struct m_parser *parser, struct ast_node *parent)
     symbol id_symbol = parser->curr_token.symbol_val;
     parse_next_token(parser); // eat identifier.
 
-    if (parser->curr_token.token_type != TOKEN_SYMBOL || parser->curr_token.symbol_val != parser->in_symbol)
+    if (parser->curr_token.token_type != TOKEN_IN)
         return (struct ast_node *)log_info(ERROR, "expected 'in' after for %s", parser->curr_token.symbol_val);
     parse_next_token(parser); // eat 'in'.
 

@@ -30,12 +30,6 @@ struct m_parser {
 
     struct symboltable vars; /*symbol table of */
  
-    symbol type;
-    symbol lbracket;
-    symbol rbracket;
-    symbol for_symbol;
-    symbol in_symbol;
-
     struct token curr_token;
     struct ast *ast;
     bool allow_id_as_a_func;
