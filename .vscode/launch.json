@@ -23,7 +23,7 @@
             "name": "VC Launch",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test/Debug/mctest",
+            "program": "${workspaceFolder}/build/test/Debug/mtest",
             "args": [
                // "--gtest_filter=testLexer.testRangeOnly"
             ],
