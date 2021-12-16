@@ -165,7 +165,6 @@ struct m_parser *m_parser_new(bool is_repl)
     parser->then_symbol = to_symbol("then");
     parser->for_symbol = to_symbol("for");
     parser->in_symbol = to_symbol("in");
-    parser->range_symbol = to_symbol("..");
 
     symboltable_init(&parser->vars);
     queue_init(&parser->queued_tokens, sizeof(struct token));
@@ -782,7 +781,7 @@ struct ast_node *_parse_type(struct m_parser *parser, struct ast_node *parent)
 struct ast_node *_parse_unary(struct m_parser *parser, struct ast_node *parent)
 {
     // If the current token is not an operator, it must be a primary expr.
-    if ((parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->range_symbol)
+    if ((parser->curr_token.token_type == TOKEN_RANGE)
         || parser->curr_token.token_type == TOKEN_NEWLINE
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
@@ -819,7 +818,7 @@ struct ast_node *_parse_for(struct m_parser *parser, struct ast_node *parent)
     struct ast_node *start = parse_exp(parser, parent, 0);
     if (start == 0)
         return 0;
-    if (parser->curr_token.token_type != TOKEN_SYMBOL || parser->curr_token.symbol_val != parser->range_symbol)
+    if (parser->curr_token.token_type != TOKEN_RANGE)
         return (struct ast_node *)log_info(ERROR, "expected '..' after for start value got token: %s: %s",
             token_type_strings[parser->curr_token.token_type], parser->curr_token.symbol_val);
     parse_next_token(parser);
@@ -831,7 +830,7 @@ struct ast_node *_parse_for(struct m_parser *parser, struct ast_node *parent)
 
     // The step value is optional.
     struct ast_node *step = 0;
-    if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->range_symbol) {
+    if (parser->curr_token.token_type == TOKEN_RANGE) {
         step = end_val;
         parse_next_token(parser);
         end_val = parse_exp(parser, parent, 0);

@@ -39,7 +39,6 @@ struct m_parser {
     symbol import;
     symbol extern_symbol;
     symbol type;
-    //symbol variadic;
     symbol lparen;
     symbol rparen;
     symbol lbracket;
@@ -49,7 +48,6 @@ struct m_parser {
     symbol then_symbol;
     symbol for_symbol;
     symbol in_symbol;
-    symbol range_symbol;
 
     struct token curr_token;
     struct ast *ast;

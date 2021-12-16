@@ -126,7 +126,7 @@ TEST(testLexer, testRange)
     ASSERT_EQ(TOKEN_INT, token->token_type);
     ASSERT_EQ(2, token->int_val);
     token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_SYMBOL, token->token_type);
+    ASSERT_EQ(TOKEN_RANGE, token->token_type);
     ASSERT_EQ(to_symbol(".."), token->symbol_val);
     token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_INT, token->token_type);
