@@ -237,7 +237,7 @@ TEST(testLexer, testVariadic)
     char test_code[] = "...";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_SYMBOL, token->token_type);
+    ASSERT_EQ(TOKEN_VARIADIC, token->token_type);
     ASSERT_EQ(to_symbol("..."), token->symbol_val);
     destroy_tokenizer(tokenizer);
     symbols_deinit();

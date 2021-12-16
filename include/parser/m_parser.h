@@ -39,7 +39,7 @@ struct m_parser {
     symbol import;
     symbol extern_symbol;
     symbol type;
-    symbol variadic;
+    //symbol variadic;
     symbol lparen;
     symbol rparen;
     symbol lbracket;

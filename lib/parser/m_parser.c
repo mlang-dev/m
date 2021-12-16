@@ -155,7 +155,7 @@ struct m_parser *m_parser_new(bool is_repl)
     parser->import = to_symbol("import");
     parser->extern_symbol = to_symbol("extern");
     parser->type = to_symbol("type");
-    parser->variadic = to_symbol("...");
+    //parser->variadic = to_symbol("...");
     parser->lparen = to_symbol("(");
     parser->rparen = to_symbol(")");
     parser->lbracket = to_symbol("[");
@@ -357,7 +357,7 @@ struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_
 
     if (parser->curr_token.token_type != TOKEN_SYMBOL || parser->curr_token.symbol_val != parser->rparen) {
         while (true) {
-            if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->variadic) {
+            if (parser->curr_token.token_type == TOKEN_VARIADIC) {
                 is_variadic = true;
                 parse_next_token(parser);
             } else {
@@ -678,7 +678,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
         if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->comma)
             parse_next_token(parser);
     }
-    bool is_variadic = parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.symbol_val == parser->variadic;
+    bool is_variadic = parser->curr_token.token_type == TOKEN_VARIADIC;
     if (is_variadic)
         parse_next_token(parser);
     if (has_parenthese && parser->curr_token.symbol_val != parser->rparen)

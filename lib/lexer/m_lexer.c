@@ -16,6 +16,7 @@
 
 
 #define CUR_CHAR(tokenizer) tokenizer->curr_char[0]
+symbol VARIADIC = 0;
 
 void log_error(struct tokenizer *tokenizer, const char *msg)
 {
@@ -60,8 +61,10 @@ void _lexer_init(struct tokenizer *tokenizer, struct keyword_token *keyword_toke
     //struct rcg_state *ks;
     //struct rcg_state *next_ks;
     for (int i = 0; i < keyword_count; ++i) {
-        rcg_add_exact_match(&tokenizer->rcg_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
+        if (keyword_tokens[i].keyword && keyword_tokens[i].token_type > TOKEN_IDENT)
+            rcg_add_exact_match(&tokenizer->rcg_states, keyword_tokens[i].keyword, keyword_tokens[i].token_type);
     }
+    VARIADIC = to_symbol("...");
 }
 
 void _lexer_deinit(struct tokenizer *tokenizer)
@@ -127,7 +130,7 @@ struct token *_tokenize_dot(struct tokenizer *tokenizer)
     if (tokenizer->curr_char[0] == '.') {
         _collect_all_dots(tokenizer, &str);
         tokenizer->cur_token.symbol_val = to_symbol(string_get(&str));
-        tokenizer->cur_token.token_type = TOKEN_SYMBOL;
+        tokenizer->cur_token.token_type = (tokenizer->cur_token.symbol_val == VARIADIC)? TOKEN_VARIADIC : TOKEN_SYMBOL;
         tokenizer->cur_token.loc = tokenizer->tok_loc;
         return &tokenizer->cur_token;
     } else if (isdigit(tokenizer->curr_char[0])) {
