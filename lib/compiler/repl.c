@@ -18,15 +18,15 @@ const char *boolean_values[2] = {
 void _print(struct eval_result result)
 {
     if (result.type == TYPE_INT) {
-        printf("%d", result.value.i_value);
+        printf("%d", result.i_value);
     } else if (result.type == TYPE_BOOL) {
-        printf("%s", boolean_values[result.value.b_value]);
+        printf("%s", boolean_values[result.b_value]);
     } else if (result.type == TYPE_DOUBLE) {
-        printf("%f", result.value.d_value);
+        printf("%f", result.d_value);
     } else if (result.type == TYPE_CHAR) {
-        printf("%c", result.value.c_value);
+        printf("%c", result.c_value);
     } else if (result.type == TYPE_STRING) {
-        printf("%s", result.value.s_value);
+        printf("%s", result.s_value);
     }
 }
 
@@ -63,13 +63,13 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
             // keep global variables in the jit
             enum type ret_type = get_type(type);
             if (is_int_type(ret_type)) {
-                result.value.i_value = fp.fp.i_fp();
+                result.i_value = fp.fp.i_fp();
                 result.type = ret_type;
             } else if (ret_type == TYPE_DOUBLE || ret_type == TYPE_EXT) {
-                result.value.d_value = fp.fp.d_fp();
+                result.d_value = fp.fp.d_fp();
                 result.type = TYPE_DOUBLE;
             } else if (ret_type == TYPE_STRING) {
-                result.value.s_value = fp.fp.s_fp();
+                result.s_value = fp.fp.s_fp();
                 result.type = TYPE_STRING;
             }
             if (node_type != VAR_NODE) {

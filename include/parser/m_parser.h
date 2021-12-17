@@ -25,9 +25,6 @@ struct m_parser {
     /* hashtable of (symbol, ast_node*) for ext types */
     struct hashtable ext_types;
 
-    /* hashtable of (symbol, int of precdence level*/
-    struct hashtable op_precs;
-
     struct symboltable vars; /*symbol table of */
  
     struct token curr_token;

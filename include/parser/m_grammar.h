@@ -14,8 +14,6 @@
 extern "C" {
 #endif
 
-extern int keyword_count;
-
 const char * get_m_grammar();
 
 #ifdef __cplusplus

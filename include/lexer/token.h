@@ -44,16 +44,13 @@ extern "C" {
     ENUM_ITEM(TOKEN_RBRACKET)        \
     ENUM_ITEM(TOKEN_LCBRACKET)       \
     ENUM_ITEM(TOKEN_RCBRACKET)       \
-    ENUM_ITEM(TOKEN_UNOPDEF)         \
-    ENUM_ITEM(TOKEN_BINOPDEF)        \
     ENUM_ITEM(TOKEN_COMMA)           \
-    ENUM_ITEM(TOKEN_SYMBOL)          \
-    ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_DOT)             \
     ENUM_ITEM(TOKEN_RANGE)           \
     ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_ASSIGN)          \
     ENUM_ITEM(TOKEN_ISTYPEOF)        \
+    ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_TOTAL)
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
@@ -105,8 +102,8 @@ struct token {
         char char_val; //char literal
         bool bool_val; //bool literal
         symbol symbol_val;
+        enum op_code opcode;
     };
-    enum op_code opcode;
 };
 
 void token_init(struct token *token);
