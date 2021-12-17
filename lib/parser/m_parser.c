@@ -14,7 +14,7 @@
 
 #define exit_block(parser, parent, base_col) (parent && parser->curr_token.loc.col < base_col && (parser->curr_token.token_type != TOKEN_NEWLINE || parser->is_repl))
 
-int _op_preces[END_TOKENS];
+int _op_preces[OP_TOTAL];
 
 #define MAX_PRECEDENCE 400
 
@@ -84,7 +84,7 @@ struct m_parser *m_parser_new(bool is_repl)
     for (int i = 0; i < TYPE_TYPES; i++) {
         hashtable_set_int(&parser->symbol_2_int_types, to_symbol(type_strings[i]), i);
     }
-    for(int i = 0; i < END_TOKENS; i++){
+    for(int i = 0; i < OP_TOTAL; i++){
         _op_preces[i] = -1;
     }
     _op_preces[OP_OR] = 50;
@@ -149,7 +149,7 @@ void parse_next_token(struct m_parser *parser)
 
 int _get_op_precedence(struct m_parser *parser)
 {
-    if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.opcode > END_TOKENS || parser->curr_token.opcode < 0)
+    if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.opcode > OP_TOTAL || parser->curr_token.opcode < 0)
         return -1;
     return _op_preces[parser->curr_token.opcode];
 }

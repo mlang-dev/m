@@ -79,8 +79,8 @@ void _lexer_init(struct tokenizer *tokenizer)
     //struct rcg_state *next_ks;
     struct token_patterns tps = get_token_patterns();
     for (size_t i = 0; i < tps.pattern_count; ++i) {
-        if (tps.patterns[i].pattern && tps.patterns[i].token_opcode > TOKEN_IDENT)
-            rcg_add_exact_match(&tokenizer->rcg_states, tps.patterns[i].pattern, tps.patterns[i].token_opcode);
+        if (tps.patterns[i].pattern && tps.patterns[i].token_type > TOKEN_IDENT)
+            rcg_add_exact_match(&tokenizer->rcg_states, tps.patterns[i].pattern, tps.patterns[i].token_type, tps.patterns[i].opcode);
     }
     VARIADIC = to_symbol("...");
     RANGE = to_symbol("..");
@@ -273,7 +273,7 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
     else if (tokenizer->cur_token.symbol_val == TYPE)
         tokenizer->cur_token.token_type = TOKEN_TYPE;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    if(ks&&ks->accepted_token_type > TOKEN_OP){
+    if(ks&&ks->accepted_token_type == TOKEN_OP){
         tokenizer->cur_token.opcode = ks->accepted_opcode;
     }
     // }else{

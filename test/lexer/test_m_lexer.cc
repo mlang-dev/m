@@ -142,7 +142,6 @@ TEST(testLexer, testTrueBool)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_TRUE, token->token_type);
-    ASSERT_STREQ("true", get_opcode(token->token_type));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
@@ -154,7 +153,6 @@ TEST(testLexer, testFalseBool)
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
     ASSERT_EQ(TOKEN_FALSE, token->token_type);
-    ASSERT_STREQ("false", get_opcode(token->token_type));
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }

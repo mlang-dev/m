@@ -81,7 +81,7 @@ enum op_code{
     OP_TOTAL //mark end of all tokens
 };
 
-#define KEYWORD_COUNT ((int)TOKEN_OP + (int)OP_TOTAL)
+#define PATTERN_COUNT ((int)TOKEN_OP + (int)OP_TOTAL)
 
 extern const char *token_type_strings[];
 

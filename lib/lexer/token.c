@@ -1,7 +1,7 @@
 #include "lexer/token.h"
 #include <assert.h>
 
-struct token_pattern token_patterns[KEYWORD_COUNT] = {
+struct token_pattern token_patterns[PATTERN_COUNT] = {
     {0, TOKEN_NULL, OP_NULL},
     {"\0", TOKEN_EOF, OP_NULL},
     {0, TOKEN_INDENT, OP_NULL},
@@ -73,12 +73,12 @@ void token_init(struct token *token)
 
 struct token_patterns get_token_patterns()
 {
-    struct token_patterns tps = {token_patterns, END_TOKENS};
+    struct token_patterns tps = {token_patterns, PATTERN_COUNT};
     return tps;
 }
 
 const char *get_opcode(int opcode)
 {
-    assert(opcode > 0 && opcode < END_TOKENS);
-    return token_patterns[opcode].pattern;
+    assert(opcode > 0 && opcode < PATTERN_COUNT);
+    return token_patterns[(int)TOKEN_OP + opcode].pattern;
 }
