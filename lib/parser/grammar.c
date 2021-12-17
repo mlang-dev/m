@@ -102,13 +102,6 @@ struct grammar *grammar_parse(const char *grammar_text)
     struct expr *expr = 0;
     symbol s = 0;
     string group;
-    const char meta_chars[] = "=|[]{}";
-    symbol DEFINITION = to_symbol2(&meta_chars[0], 1);
-    symbol ALTERNATION = to_symbol2(&meta_chars[1], 1);
-    symbol OPTION_S = to_symbol2(&meta_chars[2], 1);
-    symbol OPTION_E = to_symbol2(&meta_chars[3], 1);
-    symbol ACTION_S = to_symbol2(&meta_chars[4], 1);
-    symbol ACTION_E = to_symbol2(&meta_chars[5], 1);
     while (tok.tok_type) {
         get_tok(&lexer, &next_tok);
         if(tok.tok_type == TOKEN_IDENT){
@@ -126,7 +119,8 @@ struct grammar *grammar_parse(const char *grammar_text)
             expr_add_symbol(expr, s, EI_EXACT_MATCH);
             hashset_set2(&g->keywords, string_get(s), string_size(s));
         }
-        if(tok.tok_type == OP_BOR){
+        /*TODO: opcode should be */
+        if(tok.tok_type == (enum TOKEN_TYPE)OP_BOR){
             expr = rule_add_expr(rule);
         } else if (tok.tok_type == TOKEN_LBRACKET){ //regex
             string_init_chars2(&group, "", 0);
