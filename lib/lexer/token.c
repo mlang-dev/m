@@ -77,8 +77,8 @@ struct token_patterns get_token_patterns()
     return tps;
 }
 
-const char *get_opcode(int opcode)
+const char *get_opcode(enum op_code opcode)
 {
     assert(opcode > 0 && opcode < PATTERN_COUNT);
-    return token_patterns[(int)TOKEN_OP + opcode].pattern;
+    return token_patterns[(int)TOKEN_OP + (int)opcode].pattern;
 }

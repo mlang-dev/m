@@ -114,7 +114,7 @@ void token_init(struct token *token);
 
 struct token_patterns get_token_patterns();
 
-const char *get_opcode(int opcode);
+const char *get_opcode(enum op_code opcode);
 
 #ifdef __cplusplus
 }
