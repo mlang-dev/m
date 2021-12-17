@@ -252,10 +252,6 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
         tokenizer->cur_token.token_type = TOKEN_ASSIGN;
     else if (tokenizer->cur_token.symbol_val == COMMA)
         tokenizer->cur_token.token_type = TOKEN_COMMA;
-    else if (tokenizer->cur_token.symbol_val == BINOPDEF)
-        tokenizer->cur_token.token_type = TOKEN_BINOPDEF;
-    else if (tokenizer->cur_token.symbol_val == UNOPDEF)
-        tokenizer->cur_token.token_type = TOKEN_UNOPDEF;
     else if (tokenizer->cur_token.symbol_val == IMPORT)
         tokenizer->cur_token.token_type = TOKEN_IMPORT;
     else if (tokenizer->cur_token.symbol_val == EXTERN)
@@ -279,9 +275,10 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
     tokenizer->cur_token.loc = tokenizer->tok_loc;
     if(ks&&ks->accepted_token_or_opcode > TOKEN_TOTAL){
         tokenizer->cur_token.opcode = ks->accepted_token_or_opcode;
-    }else{
-        tokenizer->cur_token.opcode = 0;
     }
+    // }else{
+    //     tokenizer->cur_token.opcode = 0;
+    // }
         
     return &tokenizer->cur_token;
 }

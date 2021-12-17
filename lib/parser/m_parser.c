@@ -19,28 +19,9 @@ bool IS_OP(struct m_parser *parser)
     return parser->curr_token.token_type >= TOKEN_SYMBOL;
 }
 
-struct op_prec {
-    char op[4];
-    int prec;
-};
 
-struct op_prec _op_preces[] = {
-    { "||", 50 },
-    { "&&", 50 },
-    { "!", 50 },
-    { "<", 100 },
-    { ">", 100 },
-    { "==", 100 },
-    { "!=", 100 },
-    { "<=", 100 },
-    { ">=", 100 },
-    { "+", 200 },
-    { "-", 200 },
-    { "*", 400 },
-    { "/", 400 },
-    { "%", 400 },
-    { "^", 500 },
-};
+int _op_preces[END_TOKENS];
+
 #define MAX_PRECEDENCE 400
 
 int _get_op_precedence(struct m_parser *parser);
@@ -58,7 +39,8 @@ struct ast_node *_parse_function_with_func_type(struct m_parser *parser, struct 
 struct ast_node *_parse_block(struct m_parser *parser, struct ast_node *parent, void (*fun)(void *, struct ast_node *), void *jit);
 
 struct op_type {
-    symbol op;
+    //symbol op;
+    enum op_code op;
     enum type type;
     symbol type_symbol;
     bool success;
@@ -96,26 +78,6 @@ void queue_tokens(struct m_parser *psr, struct array *tokens)
     }
 }
 
-void _build_op_precs(struct hashtable *op_precs)
-{
-    for (size_t i = 0; i < ARRAY_SIZE(_op_preces); i++) {
-        symbol op = to_symbol(_op_preces[i].op);
-        hashtable_set_int(op_precs, op, _op_preces[i].prec);
-    }
-}
-
-void _set_op_prec(struct hashtable *op_precs, symbol op, int prec)
-{
-    hashtable_set(op_precs, string_get(op), &prec);
-}
-
-int _get_op_prec(struct hashtable *op_precs, symbol op)
-{
-    if (!op || !hashtable_in_p(op_precs, op))
-        return -1;
-    return hashtable_get_int(op_precs, op);
-}
-
 struct m_parser *m_parser_new(bool is_repl)
 {
     struct m_parser *parser;
@@ -128,8 +90,24 @@ struct m_parser *m_parser_new(bool is_repl)
     for (int i = 0; i < TYPE_TYPES; i++) {
         hashtable_set_int(&parser->symbol_2_int_types, to_symbol(type_strings[i]), i);
     }
-    hashtable_init_with_value_size(&parser->op_precs, sizeof(int), 0);
-    _build_op_precs(&parser->op_precs);
+    for(int i = 0; i < END_TOKENS; i++){
+        _op_preces[i] = -1;
+    }
+    _op_preces[OP_OR] = 50;
+    _op_preces[OP_AND] = 50;
+    _op_preces[OP_NOT] = 50;
+    _op_preces[OP_LT] = 100;
+    _op_preces[OP_GT] = 100;
+    _op_preces[OP_EQ] = 100;
+    _op_preces[OP_NE] = 100;
+    _op_preces[OP_LE] = 100;
+    _op_preces[OP_GE] = 100;
+    _op_preces[OP_PLUS] = 200;
+    _op_preces[OP_MINUS] = 200;
+    _op_preces[OP_TIMES] = 400;
+    _op_preces[OP_DIVISION] = 400;
+    _op_preces[OP_MODULUS] = 400;
+    _op_preces[OP_EXPO] = 500;
 
     struct ast *ast;
     MALLOC(ast, sizeof(*ast));
@@ -177,9 +155,9 @@ void parse_next_token(struct m_parser *parser)
 
 int _get_op_precedence(struct m_parser *parser)
 {
-    if (!IS_OP(parser))
+    if (!IS_OP(parser) || parser->curr_token.opcode > END_TOKENS || parser->curr_token.opcode < 0)
         return -1;
-    return _get_op_prec(&parser->op_precs, parser->curr_token.symbol_val);
+    return _op_preces[parser->curr_token.opcode];
 }
 
 struct ast_node *_parse_bool_value(struct m_parser *parser, struct ast_node *parent)
@@ -253,7 +231,7 @@ struct op_type _parse_op_type(struct m_parser *parser, struct source_location lo
     optype.op = 0;
     optype.type = TYPE_UNK;
     if (IS_OP(parser)) {
-        optype.op = parser->curr_token.symbol_val;
+        optype.op = parser->curr_token.opcode;
     }
     if(parser->curr_token.token_type == TOKEN_ISTYPEOF){
     //if (optype.op == parser->type_of) {
@@ -272,7 +250,7 @@ struct op_type _parse_op_type(struct m_parser *parser, struct source_location lo
         optype.type_symbol = type_symbol;
         parse_next_token(parser); /*skip type*/
         if (IS_OP(parser))
-            optype.op = parser->curr_token.symbol_val;
+            optype.op = parser->curr_token.opcode;
     }
     optype.success = true;
     return optype;
@@ -400,10 +378,12 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
     else if (parser->curr_token.token_type == TOKEN_EXTERN) {
         parse_next_token(parser);
         node = _parse_func_type(parser, parent, true);
+    /*TODO: not supported
     } else if (parser->curr_token.token_type == TOKEN_BINOPDEF || parser->curr_token.token_type == TOKEN_UNOPDEF) {
         // function def
         struct ast_node *func_type = _parse_func_type(parser, parent, false);
         node = _parse_function_with_func_type(parser, (struct ast_node *)func_type);
+    */
     } else if (parser->curr_token.token_type == TOKEN_IDENT) {
         symbol id_symbol = parser->curr_token.symbol_val;
         struct source_location current_loc = parser->curr_token.loc;
@@ -417,7 +397,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
         } else if (parser->curr_token.token_type == TOKEN_ASSIGN || optype.type) { //|| !has_symbol(&parser->vars, id_symbol)
             // variable definition
             node = _parse_var(parser, parent, id_symbol, optype.type, optype.type_symbol);
-        } else if (parser->curr_token.token_type == TOKEN_NEWLINE || parser->curr_token.token_type == TOKEN_EOF || _get_op_prec(&parser->op_precs, optype.op) > 0) {
+        } else if (parser->curr_token.token_type == TOKEN_NEWLINE || parser->curr_token.token_type == TOKEN_EOF || (parser->curr_token.token_type == TOKEN_SYMBOL &&_op_preces[optype.op] > 0)) {
             // just id expression evaluation
             struct ast_node *lhs = (struct ast_node *)ident_node_new(id_symbol, parser->curr_token.loc);
             node = parse_exp(parser, parent, lhs);
@@ -469,7 +449,7 @@ bool _is_new_line(int cha)
 
 bool _id_is_a_function_call(struct m_parser *parser)
 {
-    return parser->allow_id_as_a_func && (parser->curr_token.token_type == TOKEN_IDENT || parser->curr_token.token_type == TOKEN_INT || parser->curr_token.token_type == TOKEN_FLOAT || parser->curr_token.token_type == TOKEN_UNOPDEF || parser->curr_token.token_type == TOKEN_LPAREN || parser->curr_token.token_type == TOKEN_IF);
+    return parser->allow_id_as_a_func && (parser->curr_token.token_type == TOKEN_IDENT || parser->curr_token.token_type == TOKEN_INT || parser->curr_token.token_type == TOKEN_FLOAT || /*TODO NOT SUPPORTED parser->curr_token.token_type == TOKEN_UNOPDEF ||*/ parser->curr_token.token_type == TOKEN_LPAREN || parser->curr_token.token_type == TOKEN_IF);
 }
 
 struct ast_node *_parse_ident(struct m_parser *parser, struct ast_node *parent)
@@ -589,6 +569,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
         string_copy(&fun_name, parser->curr_token.symbol_val);
         proto_type = 0;
         parse_next_token(parser);
+    /*TODO NOT SUPPORTED
     } else if (parser->curr_token.token_type == TOKEN_UNOPDEF) {
         parse_next_token(parser);
         if (!IS_OP(parser))
@@ -612,6 +593,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
             }
             parse_next_token(parser);
         }
+    */
     } else {
         return (struct ast_node *)log_info(ERROR, "Expected function name in func_type");
     }
@@ -657,7 +639,8 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
 struct ast_node *_create_fun_node(struct m_parser *parser, struct ast_node *func_type, struct ast_node *block)
 {
     if (is_binary_op(func_type)) {
-        _set_op_prec(&parser->op_precs, func_type->ft->op, func_type->ft->precedence);
+        //TODO: this is broken now
+        //_set_op_prec(&parser->op_precs, func_type->ft->op, func_type->ft->precedence);
     }
     hashtable_set_int(&parser->symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
     return (struct ast_node *)function_node_new(func_type, block, block->loc);
