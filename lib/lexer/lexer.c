@@ -59,7 +59,7 @@ void lexer_init(struct lexer *lexer, const char *text)
     lexer->line = 1;
     lexer->col = 1;
 
-    IDENT_TOKEN = to_symbol2("IDENT", 5);
+    IDENT_TOKEN = to_symbol2_0("IDENT");
     NUM_TOKEN = to_symbol2("NUM", 3);
     STRING_TOKEN = to_symbol2("STRING", 6);
     CHAR_TOKEN = to_symbol2("CHAR", 4);
@@ -71,6 +71,8 @@ void lexer_init(struct lexer *lexer, const char *text)
     LBRACKET_TOKEN = to_symbol2_0("[");
     RBRACKET_TOKEN = to_symbol2_0("]");
     VBAR_TOKEN = to_symbol2_0("|");
+
+
 }
 
 void _move_ahead(struct lexer *lexer)
