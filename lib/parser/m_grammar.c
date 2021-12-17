@@ -24,7 +24,7 @@ const char *get_m_grammar()
         "factor     = '(' expr ')'      { 1 }"
         "           | [+-] factor       { unop 0 1 }"
         "           | power             { 0 }"
-        "power      = NUM '^' factor    { binop 0 1 2 }"
-        "           | NUM               { 0 }";
+        "power      = INT '^' factor    { binop 0 1 2 }"
+        "           | INT               { 0 }";
     return m_grammar;
 }

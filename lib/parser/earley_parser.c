@@ -218,9 +218,17 @@ enum node_type _to_node_type_enum(symbol node_type_name)
         return UNARY_NODE;
     }else if(node_type_name == FUNC){
         return FUNCTION_NODE;
-    }else if(node_type_name == IDENT_TOKEN){
+    }
+    return UNK_NODE;
+}
+
+enum node_type _to_node_type(enum token_type token_type)
+{
+    if(token_type == TOKEN_IDENT){
         return IDENT_NODE;
-    }else if(node_type_name == NUM_TOKEN){
+    }else if(token_type == TOKEN_INT){
+        return LITERAL_NODE;
+    }else if(token_type == TOKEN_FLOAT){
         return LITERAL_NODE;
     }
     return UNK_NODE;
@@ -298,7 +306,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
             continue;
         }
         if(c_p->ei_type){ //terminal
-            child = ast_node_new(_to_node_type_enum(c_p->state->tok.tok_type_name), 0, c_p->state->tok.loc);
+            child = ast_node_new(_to_node_type(c_p->state->tok.tok_type), 0, c_p->state->tok.loc);
         }else{ //noterminal
             child = _build_ast(states, c_p->state->state_index, c_p->child_cp);
         }
@@ -367,5 +375,6 @@ struct ast_node *parse(struct parser *parser, const char *text)
     struct complete_parse *cp = parse_state_find_completed_expr_parse(start_state, g->start_symbol, to-1);
     struct ast_node *ast = cp ? _build_ast(&states, 0, cp) : 0;
     parse_states_deinit(&states);
+    lexer_deinit();
     return ast;
 }

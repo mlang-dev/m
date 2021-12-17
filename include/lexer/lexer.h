@@ -30,16 +30,13 @@ struct lexer {
 struct tok {
     struct source_location loc;
     enum token_type tok_type;
-    enum op_code opcode;
     symbol tok_type_name; // IDENT, NUM, STRING keywords like 'if', 'for' etc
+    enum op_code opcode;
 };
 
-extern symbol STRING_TOKEN;
-extern symbol CHAR_TOKEN;
-extern symbol NUM_TOKEN;
-extern symbol IDENT_TOKEN;
 
 void lexer_init(struct lexer *lexer, const char *text);
+void lexer_deinit();
 void get_tok(struct lexer *lexer, struct tok *tok);
 
 #ifdef __cplusplus

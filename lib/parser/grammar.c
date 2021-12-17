@@ -120,8 +120,7 @@ struct grammar *grammar_parse(const char *grammar_text)
             expr_add_symbol(expr, s, EI_EXACT_MATCH);
             hashset_set2(&g->keywords, string_get(s), string_size(s));
         }
-        /*TODO: opcode should be */
-        if(tok.tok_type == (int)OP_BOR){
+        if(tok.opcode == OP_BOR){
             expr = rule_add_expr(rule);
         } else if (tok.tok_type == TOKEN_LBRACKET){ //regex
             string_init_chars2(&group, "", 0);
@@ -145,7 +144,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                 else if(next_tok.tok_type == TOKEN_INT){
                     expr->action.exp_item_index[expr->action.exp_item_index_count++] = grammar_text[next_tok.loc.start] - '0'; 
                 }
-                else
+                else    
                     assert(false);
                 get_tok(&lexer, &next_tok);//'}'
             }
@@ -158,6 +157,7 @@ struct grammar *grammar_parse(const char *grammar_text)
     if (array_size(&g->rules)) {
         g->start_symbol = (*(struct rule **)array_front(&g->rules))->nonterm;
     }
+    lexer_deinit();
     return g;
 }
 

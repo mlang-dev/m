@@ -82,6 +82,8 @@ void _lexer_init(struct tokenizer *tokenizer)
         if (tps.patterns[i].pattern && tps.patterns[i].token_type > TOKEN_IDENT)
             rcg_add_exact_match(&tokenizer->rcg_states, tps.patterns[i].pattern, tps.patterns[i].token_type, tps.patterns[i].opcode);
     }
+
+    token_init();
     VARIADIC = to_symbol("...");
     RANGE = to_symbol("..");
     TYPEOF = to_symbol(":");
@@ -105,6 +107,7 @@ void _lexer_deinit(struct tokenizer *tokenizer)
 {
     hashtable_deinit(&tokenizer->keyword_2_tokens);
     rcg_deinit(&tokenizer->rcg_states);
+    token_deinit();
 }
 
 struct tokenizer *create_tokenizer(FILE *file, const char *filename)
