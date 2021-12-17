@@ -48,7 +48,7 @@ enum token_type get_token_type(symbol tok_type_name)
     else if(tok_type_name == VBAR_TOKEN)
         return OP_BOR;
     else{
-        return TOKEN_SYMBOL;
+        return TOKEN_OP;
     }
 }
 

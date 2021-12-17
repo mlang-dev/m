@@ -63,7 +63,7 @@ TEST(testLexer, testEqualOp)
     char test_code[] = "==";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_SYMBOL, token->token_type);
+    ASSERT_EQ(TOKEN_OP, token->token_type);
     ASSERT_EQ(OP_EQ, token->opcode);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -75,7 +75,7 @@ TEST(testLexer, testLEOp)
     char test_code[] = "<=";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_SYMBOL, token->token_type);
+    ASSERT_EQ(TOKEN_OP, token->token_type);
     ASSERT_EQ(OP_LE, token->opcode);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -87,7 +87,7 @@ TEST(testLexer, testGEOp)
     char test_code[] = ">=";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_SYMBOL, token->token_type);
+    ASSERT_EQ(TOKEN_OP, token->token_type);
     ASSERT_EQ(OP_GE, token->opcode);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -99,7 +99,7 @@ TEST(testLexer, testNEOp)
     char test_code[] = "!=";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_SYMBOL, token->token_type);
+    ASSERT_EQ(TOKEN_OP, token->token_type);
     ASSERT_EQ(OP_NE, token->opcode);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
@@ -242,19 +242,18 @@ TEST(testLexer, testVariadic)
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
-/*
+
 TEST(testLexer, testRangeOnly)
 {
     symbols_init();
     char test_code[] = "..";
     auto tokenizer = create_tokenizer_for_string(test_code);
     auto token = get_token(tokenizer);
-    ASSERT_EQ(TOKEN_SYMBOL, token->token_type);
-    ASSERT_STREQ("..", get_opcode(token->token_type));
+    ASSERT_EQ(TOKEN_RANGE, token->token_type);
     destroy_tokenizer(tokenizer);
     symbols_deinit();
 }
-*/
+
 TEST(testLexer, testCharLiteral)
 {
     symbols_init();

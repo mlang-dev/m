@@ -16,7 +16,7 @@
 
 bool IS_OP(struct m_parser *parser)
 {
-    return parser->curr_token.token_type >= TOKEN_SYMBOL;
+    return parser->curr_token.token_type >= TOKEN_OP;
 }
 
 
@@ -397,7 +397,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
         } else if (parser->curr_token.token_type == TOKEN_ASSIGN || optype.type) { //|| !has_symbol(&parser->vars, id_symbol)
             // variable definition
             node = _parse_var(parser, parent, id_symbol, optype.type, optype.type_symbol);
-        } else if (parser->curr_token.token_type == TOKEN_NEWLINE || parser->curr_token.token_type == TOKEN_EOF || (parser->curr_token.token_type == TOKEN_SYMBOL &&_op_preces[optype.op] > 0)) {
+        } else if (parser->curr_token.token_type == TOKEN_NEWLINE || parser->curr_token.token_type == TOKEN_EOF || (parser->curr_token.token_type == TOKEN_OP &&_op_preces[optype.op] > 0)) {
             // just id expression evaluation
             struct ast_node *lhs = (struct ast_node *)ident_node_new(id_symbol, parser->curr_token.loc);
             node = parse_exp(parser, parent, lhs);
@@ -505,7 +505,7 @@ struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
         return _parse_for(parser, parent);
     else if (parser->curr_token.token_type == TOKEN_LPAREN)
         return _parse_parentheses(parser, parent);
-    else if (parser->curr_token.token_type == TOKEN_SYMBOL && parser->curr_token.opcode == OP_NOT)
+    else if (parser->curr_token.token_type == TOKEN_OP && parser->curr_token.opcode == OP_NOT)
         return _parse_unary(parser, parent);
     else {
         string error;
