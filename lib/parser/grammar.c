@@ -9,6 +9,7 @@
 #include "lexer/lexer.h"
 #include "clib/util.h"
 #include <assert.h>
+#include "lexer/token.h"
 
 void expr_item_init(struct expr_item *ei, symbol sym, enum expr_item_type type)
 {
@@ -120,7 +121,7 @@ struct grammar *grammar_parse(const char *grammar_text)
             hashset_set2(&g->keywords, string_get(s), string_size(s));
         }
         /*TODO: opcode should be */
-        if(tok.tok_type == (enum TOKEN_TYPE)OP_BOR){
+        if(tok.tok_type == (int)OP_BOR){
             expr = rule_add_expr(rule);
         } else if (tok.tok_type == TOKEN_LBRACKET){ //regex
             string_init_chars2(&group, "", 0);
