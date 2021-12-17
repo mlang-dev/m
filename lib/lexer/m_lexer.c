@@ -227,7 +227,7 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
     while (true) {
         char ch = tokenizer->curr_char[0] = get_char(tokenizer);
         ks_next = rcg_find_next_state(ks, ch);
-        if (ks && ks->accepted_token_or_opcode && !ks->identifiable && !ks_next)
+        if (ks && ks->accepted_token_type && !ks->identifiable && !ks_next)
             break;
         else if (isalnum(ch) || ch == '_' || ch == '.' || ks_next) {
             string_add_chars(&tokenizer->str_val, tokenizer->curr_char);
@@ -239,11 +239,11 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
     if (!ks){
         tokenizer->cur_token.token_type = TOKEN_IDENT;
     }else if(
-        ks->accepted_token_or_opcode == TOKEN_TRUE || 
-        ks->accepted_token_or_opcode == TOKEN_FALSE){
-        tokenizer->cur_token.token_type = ks->accepted_token_or_opcode;
+        ks->accepted_token_type == TOKEN_TRUE || 
+        ks->accepted_token_type == TOKEN_FALSE){
+        tokenizer->cur_token.token_type = ks->accepted_token_type;
     }else{
-        tokenizer->cur_token.token_type = ks->accepted_token_or_opcode ? TOKEN_OP : TOKEN_IDENT;
+        tokenizer->cur_token.token_type = ks->accepted_token_type ? TOKEN_OP : TOKEN_IDENT;
     }
     tokenizer->cur_token.symbol_val = to_symbol(string_get(&tokenizer->str_val));
     if (tokenizer->cur_token.symbol_val == TYPEOF)
@@ -273,8 +273,8 @@ struct token *_tokenize_id_keyword(struct tokenizer *tokenizer)
     else if (tokenizer->cur_token.symbol_val == TYPE)
         tokenizer->cur_token.token_type = TOKEN_TYPE;
     tokenizer->cur_token.loc = tokenizer->tok_loc;
-    if(ks&&ks->accepted_token_or_opcode > TOKEN_TOTAL){
-        tokenizer->cur_token.opcode = ks->accepted_token_or_opcode;
+    if(ks&&ks->accepted_token_type > TOKEN_OP){
+        tokenizer->cur_token.opcode = ks->accepted_opcode;
     }
     // }else{
     //     tokenizer->cur_token.opcode = 0;
