@@ -56,7 +56,8 @@ extern "C" {
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 
 enum op_code{
-    OP_OR = TOKEN_TOTAL + 1, //'||'
+    OP_NULL,
+    OP_OR,//'||'
     OP_AND,
     OP_NOT,
 
@@ -77,14 +78,17 @@ enum op_code{
     OP_GE,
     OP_NE,
 
-    END_TOKENS //mark end of all tokens
+    OP_TOTAL //mark end of all tokens
 };
+
+#define KEYWORD_COUNT ((int)TOKEN_OP + (int)OP_TOTAL)
 
 extern const char *token_type_strings[];
 
 struct token_pattern{
     const char *pattern;
-    int token_opcode; //token or opcode
+    enum token_type token_type;
+    enum op_code opcode; 
 };
 
 struct token_patterns{

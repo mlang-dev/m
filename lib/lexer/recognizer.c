@@ -24,7 +24,8 @@ struct rcg_state *_rcg_state_new(char ch)
 {
     struct rcg_state *ks;
     MALLOC(ks, sizeof(*ks));
-    ks->accepted_token_or_opcode = TOKEN_NULL;
+    ks->accepted_token_type = TOKEN_NULL;
+    ks->accepted_opcode = OP_NULL;
     ks->ch = ch;
     array_init(&ks->nexts, sizeof(struct rcg_state *));
     return ks;
@@ -54,7 +55,7 @@ struct rcg_state *rcg_find_next_state(struct rcg_state *state, char ch)
     return 0;
 }
 
-void rcg_add_exact_match(struct rcg_states *rss, const char *str, enum token_type token_type)
+void rcg_add_exact_match(struct rcg_states *rss, const char *str, enum token_type token_type, enum op_code opcode)
 {
     struct rcg_state *rs;
     struct rcg_state *next_rs;
@@ -74,7 +75,8 @@ void rcg_add_exact_match(struct rcg_states *rss, const char *str, enum token_typ
         }
         rs = next_rs;
     }
-    rs->accepted_token_or_opcode = token_type;
+    rs->accepted_token_type = token_type;
+    rs->accepted_opcode = opcode;
     rs->identifiable = isalnum(str[0]);
 }
 

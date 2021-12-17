@@ -17,7 +17,8 @@ extern "C" {
 
 struct rcg_state {
     char ch;
-    int accepted_token_or_opcode;
+    enum token_type accepted_token_type;
+    enum op_code accepted_opcode;
     bool identifiable;
     struct array nexts; //array of <struct rcg_state *>
 };
@@ -27,7 +28,7 @@ struct rcg_states {
 };
 
 void rcg_init(struct rcg_states *rss);
-void rcg_add_exact_match(struct rcg_states *rss, const char *str, enum token_type token_type);
+void rcg_add_exact_match(struct rcg_states *rss, const char *str, enum token_type token_type, enum op_code opcode);
 void rcg_deinit(struct rcg_states *rss);
 struct rcg_state *rcg_find_next_state(struct rcg_state *state, char ch);
 
