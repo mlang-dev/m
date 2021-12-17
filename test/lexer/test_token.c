@@ -12,8 +12,12 @@
 TEST(test_token, patterns)
 {
     struct token_patterns tps = get_token_patterns();
-    for(size_t i = 0; i < tps.pattern_count; i++){
-        ASSERT_EQ(i, tps.patterns[i].token_opcode);
+    for(size_t i = 0; i < TOKEN_OP + 1; i++){
+        ASSERT_EQ(i, tps.patterns[i].token_type);
+    }
+
+    for(size_t i = 0; i < OP_TOTAL; i++){
+        ASSERT_EQ(i, tps.patterns[TOKEN_OP + i].opcode);
     }
 }
 
