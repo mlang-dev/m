@@ -120,7 +120,7 @@ struct grammar *grammar_parse(const char *grammar_text)
             hashset_set2(&g->keywords, string_get(s), string_size(s));
         }
         /*TODO: opcode should be */
-        if(tok.tok_type == (enum TOKEN_TYPE)OP_BOR){
+        if(tok.tok_type == (int)OP_BOR){
             expr = rule_add_expr(rule);
         } else if (tok.tok_type == TOKEN_LBRACKET){ //regex
             string_init_chars2(&group, "", 0);
