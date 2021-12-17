@@ -31,12 +31,12 @@ struct token_pattern token_patterns[END_TOKENS] = {
 
     {",", TOKEN_COMMA},
 
-    {0, TOKEN_OP},
     {".", TOKEN_DOT},
     {"..", TOKEN_RANGE},
     {"...", TOKEN_VARIADIC},
     {"=", TOKEN_ASSIGN},
     {":", TOKEN_ISTYPEOF},
+    {0, TOKEN_OP},
     {0, TOKEN_TOTAL},
 
     {"||", OP_OR},

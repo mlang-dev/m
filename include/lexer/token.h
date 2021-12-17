@@ -45,12 +45,12 @@ extern "C" {
     ENUM_ITEM(TOKEN_LCBRACKET)       \
     ENUM_ITEM(TOKEN_RCBRACKET)       \
     ENUM_ITEM(TOKEN_COMMA)           \
-    ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_DOT)             \
     ENUM_ITEM(TOKEN_RANGE)           \
     ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_ASSIGN)          \
     ENUM_ITEM(TOKEN_ISTYPEOF)        \
+    ENUM_ITEM(TOKEN_OP)              \
     ENUM_ITEM(TOKEN_TOTAL)
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };

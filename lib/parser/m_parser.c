@@ -14,12 +14,6 @@
 
 #define exit_block(parser, parent, base_col) (parent && parser->curr_token.loc.col < base_col && (parser->curr_token.token_type != TOKEN_NEWLINE || parser->is_repl))
 
-bool IS_OP(struct m_parser *parser)
-{
-    return parser->curr_token.token_type >= TOKEN_OP;
-}
-
-
 int _op_preces[END_TOKENS];
 
 #define MAX_PRECEDENCE 400
@@ -155,7 +149,7 @@ void parse_next_token(struct m_parser *parser)
 
 int _get_op_precedence(struct m_parser *parser)
 {
-    if (!IS_OP(parser) || parser->curr_token.opcode > END_TOKENS || parser->curr_token.opcode < 0)
+    if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.opcode > END_TOKENS || parser->curr_token.opcode < 0)
         return -1;
     return _op_preces[parser->curr_token.opcode];
 }
@@ -230,7 +224,7 @@ struct op_type _parse_op_type(struct m_parser *parser, struct source_location lo
     optype.type_symbol = 0;
     optype.op = 0;
     optype.type = TYPE_UNK;
-    if (IS_OP(parser)) {
+    if (parser->curr_token.token_type == TOKEN_OP) {
         optype.op = parser->curr_token.opcode;
     }
     if(parser->curr_token.token_type == TOKEN_ISTYPEOF){
@@ -249,7 +243,7 @@ struct op_type _parse_op_type(struct m_parser *parser, struct source_location lo
         optype.type = hashtable_get_int(&parser->symbol_2_int_types, type_symbol);
         optype.type_symbol = type_symbol;
         parse_next_token(parser); /*skip type*/
-        if (IS_OP(parser))
+        if (parser->curr_token.token_type == TOKEN_OP)
             optype.op = parser->curr_token.opcode;
     }
     optype.success = true;
@@ -412,7 +406,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
             array_push(&queued, &parser->curr_token);
             parse_next_token(parser); // skip (
             array_push(&queued, &parser->curr_token);
-            if (IS_OP(parser)) {
+            if (parser->curr_token.token_type == TOKEN_OP) {
                 // it is operator overloading
                 symbol op = parser->curr_token.symbol_val;
                 parse_next_token(parser);
@@ -511,7 +505,7 @@ struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
         string error;
         string_init_chars(&error, "unknown token: ");
         string_add_chars(&error, token_type_strings[parser->curr_token.token_type]);
-        if (IS_OP(parser)) {
+        if (parser->curr_token.token_type == TOKEN_OP) {
             string_add_chars(&error, " op: ");
             string_add(&error, parser->curr_token.symbol_val);
         }
@@ -572,7 +566,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
     /*TODO NOT SUPPORTED
     } else if (parser->curr_token.token_type == TOKEN_UNOPDEF) {
         parse_next_token(parser);
-        if (!IS_OP(parser))
+        if (parser->curr_token.token_type != TOKEN_OP)
             return (struct ast_node *)log_info(ERROR, "Expected unary operator");
         string_init_chars(&fun_name, "unary");
         string_add(&fun_name, parser->curr_token.symbol_val);
@@ -580,7 +574,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
         parse_next_token(parser);
     } else if (parser->curr_token.token_type == TOKEN_BINOPDEF) {
         parse_next_token(parser);
-        if (!IS_OP(parser))
+        if (parser->curr_token.token_type != TOKEN_OP)
             return (struct ast_node *)log_info(ERROR, "Expected binary operator");
         string_init_chars(&fun_name, "binary");
         string_add(&fun_name, parser->curr_token.symbol_val);
@@ -725,7 +719,7 @@ struct ast_node *_parse_unary(struct m_parser *parser, struct ast_node *parent)
         || parser->curr_token.token_type == TOKEN_EOF)
         return 0;
     struct source_location loc = parser->curr_token.loc;
-    if (!IS_OP(parser) || parser->curr_token.token_type == TOKEN_COMMA || parser->curr_token.token_type == TOKEN_LPAREN) {
+    if (parser->curr_token.token_type != TOKEN_OP || parser->curr_token.token_type == TOKEN_COMMA || parser->curr_token.token_type == TOKEN_LPAREN) {
         return _parse_node(parser, parent);
     }
     // If this is a unary operator, read it.

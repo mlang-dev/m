@@ -301,7 +301,7 @@ TEST_F(testParser, testVariadicFunctionInvalidPosition)
     auto env = env_new(false);
     parse_string(env->parser, "", test_code);
     auto error = testing::internal::GetCapturedStderr();
-    ASSERT_STREQ("error: :1:7: no parameter allowed after variadic\n", error.c_str());
+    ASSERT_STREQ("error: :1:7: no parameter allowed after variadic\nerror: unknown token: TOKEN_ASSIGN\n", error.c_str());
     env_free(env);
 }
 
