@@ -25,9 +25,9 @@ struct parser *parser_new(const char *grammar_text)
     MALLOC(parser, sizeof(*parser));
     parser->grammar = grammar;
 
-    BINOP = to_symbol2_0("binop");
-    UNOP = to_symbol2_0("unop");
-    FUNC = to_symbol2_0("func");
+    BINOP = to_symbol("binop");
+    UNOP = to_symbol("unop");
+    FUNC = to_symbol("func");
     return parser;
 }
 

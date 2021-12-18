@@ -29,18 +29,18 @@ string _wat_generate(struct ast_node *ast, const char *text)
     }
     if(ast->node_type == FUNCTION_NODE){
         string_append(&s, "(func $");
-        string_add2(&s, ast->func->func_type->ft->name);
+        string_add(&s, ast->func->func_type->ft->name);
         string_append(&s, " (result i32)\n");
         //func body
         string s_fbody = _wat_generate(ast->func->body, text);
-        string_add2(&s, &s_fbody);
+        string_add(&s, &s_fbody);
         string_append(&s, ")\n");
 
         //export the function
         string_append(&s, "(export \"");
-        string_add2(&s, ast->func->func_type->ft->name);
+        string_add(&s, ast->func->func_type->ft->name);
         string_append(&s, "\" (func $");
-        string_add2(&s, ast->func->func_type->ft->name);
+        string_add(&s, ast->func->func_type->ft->name);
         string_append(&s, ")");
         string_append(&s, ")\n");
     }
@@ -49,9 +49,9 @@ string _wat_generate(struct ast_node *ast, const char *text)
         string_append(&s, ops[(int)ast->binop->opcode]);
         string_append(&s, "\n");
         string op1 = _wat_generate(ast->binop->lhs, text);
-        string_add2(&s, &op1);
+        string_add(&s, &op1);
         string op2 = _wat_generate(ast->binop->rhs, text);
-        string_add2(&s, &op2);
+        string_add(&s, &op2);
         string_append(&s, ")\n");
     }
     else if(ast->node_type == UNARY_NODE){
@@ -82,7 +82,7 @@ string wat_generate(struct ast_node *ast, const char *text)
     string s;
     string_init_chars2(&s, "\n", 1);
     string wat = _wat_generate(ast, text);
-    string_add2(&s, &wat);
+    string_add(&s, &wat);
     return s;
 }
 
@@ -94,9 +94,9 @@ string wat_emit(struct amodule mod)
     string wat = wat_generate(mod.root_ast, mod.code);
 
     string wat_mod_code;
-    string_init_chars2(&wat_mod_code, wat_module_start, strlen(wat_module_start));
-    string_add2(&wat_mod_code, &wat);
-    string_add_chars2(&wat_mod_code, wat_module_end, strlen(wat_module_end));
+    string_init_chars(&wat_mod_code, wat_module_start);
+    string_add(&wat_mod_code, &wat);
+    string_add_chars(&wat_mod_code, wat_module_end);
 
     string_deinit(&wat);
     return wat_mod_code;

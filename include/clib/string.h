@@ -49,7 +49,6 @@ void string_copy(string *dest, string *src);
 bool string_eq_chars(string *str1, const char *chars);
 bool string_eq(string *str1, string *str2);
 void string_add(string *str1, string *str2);
-void string_add2(string *str1, string *str2);
 void string_add_chars(string *str1, const char *chars);
 void string_append(string *str1, const char *chars);
 void string_add_chars2(string *str1, const char *chars, size_t str_len);
@@ -62,7 +61,7 @@ char string_back(string *str);
 char string_pop(string *str); // from back
 void string_push(string *str, char ch); //push to back
 char *string_get(string *str);
-char *to_c_str(string *str);
+const char *string_cstr(string *str);
 size_t string_size(string *str);
 //generic interface
 void string_init_generic(object *dest, object *src);

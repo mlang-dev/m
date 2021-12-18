@@ -37,12 +37,6 @@ symbol to_symbol2(const char *name, size_t name_size)
     return sym;
 }
 
-symbol to_symbol2_0(const char *name)
-{
-    return to_symbol(name);
-}
-
-
 symbol string_2_symbol(string *name)
 {
     return to_symbol(string_get(name));

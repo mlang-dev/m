@@ -24,7 +24,7 @@ TEST(test_g_parser, arithmetic_exp)
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = wat_generate(ast, test_code);
-    ASSERT_STREQ(expected, to_c_str(&code));
+    ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     parser_free(parser);
     symbols_deinit();
@@ -46,7 +46,7 @@ TEST(test_g_parser, arithmetic_exp1)
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = wat_generate(ast, test_code);
-    ASSERT_STREQ(expected, to_c_str(&code));
+    ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     parser_free(parser);
     symbols_deinit();
@@ -69,7 +69,7 @@ TEST(test_g_parser, arithmetic_exp2)
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = wat_generate(ast, test_code);
-    ASSERT_STREQ(expected, to_c_str(&code));
+    ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     parser_free(parser);
     symbols_deinit();
@@ -93,7 +93,7 @@ TEST(test_g_parser, arithmetic_exp3)
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = wat_generate(ast, test_code);
-    ASSERT_STREQ(expected, to_c_str(&code));
+    ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     parser_free(parser);
     symbols_deinit();
@@ -117,7 +117,8 @@ TEST(test_g_parser, arithmetic_exp4)
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = wat_generate(ast, test_code);
-    ASSERT_STREQ(expected, to_c_str(&code));
+    ASSERT_STREQ(expected, string_get(&code));
+    string_deinit(&code);
     ast_node_free(ast);
     parser_free(parser);
     symbols_deinit();

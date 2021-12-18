@@ -56,7 +56,7 @@ char *string_get(string *str)
     return str->cap <= SSO_LENGTH ? str->_reserved : str->base.data.p_data;
 }
 
-char *to_c_str(string *str)
+const char *string_cstr(string *str)
 {
     size_t str_len = string_size(str);
     char *p;
@@ -98,7 +98,7 @@ void string_copy_with_len(string *dest, const char *data, size_t len)
     }
     char *dest_data = string_get(dest);
     memcpy(dest_data, data, len);
-    dest_data[len] = '\0';
+    dest_data[len] = 0;
     dest->base.size = len;
 }
 
@@ -120,54 +120,26 @@ void string_add(string *str1, string *str2)
     //printf("string sizes: %zu, %zu\n", string_size(str1), string_size(str2));
     assert(string_size(str1) < 1000 && string_size(str2) < 1000);
     size_t len = str1->base.size + str2->base.size;
+    char *data;
     if (len > SSO_LENGTH - 1) {
         //allocate in dynamic struct array
-        char *data;
         if (str1->cap > SSO_LENGTH) {
             //allocated in heap already
             REALLOC(data, str1->base.data.p_data, len + 1);
-            memcpy(data + str1->base.size, string_get(str2), str2->base.size + 1);
+            memcpy(data + str1->base.size, string_get(str2), str2->base.size);
         } else {
             //previously in reserved
             MALLOC(data, len+1);
             memcpy(data, str1->_reserved, str1->base.size + 1);
-            memcpy(data + str1->base.size, string_get(str2), str2->base.size + 1);
+            memcpy(data + str1->base.size, string_get(str2), str2->base.size);
         }
         str1->base.data.p_data = data;
         str1->cap = len + 1;
     } else {
-        char *dst = (str1->cap > SSO_LENGTH) ? (char *)str1->base.data.p_data : str1->_reserved;
-        memcpy(dst + str1->base.size, string_get(str2), str2->base.size + 1);
+        data = (str1->cap > SSO_LENGTH) ? (char *)str1->base.data.p_data : str1->_reserved;
+        memcpy(data + str1->base.size, string_get(str2), str2->base.size);
     }
-    str1->base.size = len;
-}
-
-void string_add2(string *str1, string *str2)
-{
-    if (!str2 || !string_size(str2))
-        return;
-    //printf("string sizes: %zu, %zu\n", string_size(str1), string_size(str2));
-    assert(string_size(str1) < 1000 && string_size(str2) < 1000);
-    size_t len = str1->base.size + str2->base.size;
-    if (len > SSO_LENGTH) {
-        //allocate in dynamic struct array
-        char *data;
-        if (str1->cap > SSO_LENGTH) {
-            //allocated in heap already
-            REALLOC(data, str1->base.data.p_data, len);
-            memcpy(data + str1->base.size, string_get(str2), str2->base.size);
-        } else {
-            //previously in reserved
-            MALLOC(data, len);
-            memcpy(data, str1->_reserved, str1->base.size);
-            memcpy(data + str1->base.size, string_get(str2), str2->base.size);
-        }
-        str1->base.data.p_data = data;
-        str1->cap = len;
-    } else {
-        char *dst = (str1->cap > SSO_LENGTH) ? (char *)str1->base.data.p_data : str1->_reserved;
-        memcpy(dst + str1->base.size, string_get(str2), str2->base.size);
-    }
+    data[len] = 0;
     str1->base.size = len;
 }
 
@@ -183,7 +155,7 @@ void string_add_chars2(string *str1, const char *str, size_t str_len)
 {
     string str2;
     string_init_chars2(&str2, str, str_len);
-    string_add2(str1, &str2);
+    string_add(str1, &str2);
     string_deinit(&str2);
 }
 
@@ -191,7 +163,7 @@ void string_append(string *str1, const char *str)
 {
     string str2;
     string_init_chars2(&str2, str, strlen(str));
-    string_add2(str1, &str2);
+    string_add(str1, &str2);
     string_deinit(&str2);
 }
 

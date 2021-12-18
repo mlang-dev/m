@@ -18,9 +18,9 @@ symbol FUNC = 0;
 
 void wasm_codegen_init()
 {
-    BINOP = to_symbol2_0("binop");
-    UNOP = to_symbol2_0("unop");
-    FUNC = to_symbol2_0("func");
+    BINOP = to_symbol("binop");
+    UNOP = to_symbol("unop");
+    FUNC = to_symbol("func");
     ops['+'] = OPCODE_I32ADD;
     ops['-'] = OPCODE_I32SUB;
     ops['*'] = OPCODE_I32MUL;
