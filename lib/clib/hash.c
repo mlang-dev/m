@@ -31,5 +31,5 @@ void *hashbox_get_key(struct hashbox *box)
 
 void *hashbox_get_value(struct hashbox *box)
 {
-    return box->key_value_pair + box->key_size;
+    return box->key_value_pair + box->key_store_size;
 }

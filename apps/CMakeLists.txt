@@ -104,7 +104,7 @@ else()
     target_link_libraries(m PRIVATE 
       pthread
     )
-endif()
+  endif()
 
   message(STATUS "${CMAKE_BUILD_TYPE} COPY ${CMAKE_SOURCE_DIR}/mlib DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib")
 

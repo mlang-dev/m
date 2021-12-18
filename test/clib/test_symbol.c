@@ -26,6 +26,13 @@ TEST(test_symbol, equals_to_same_string_key)
     symbols_deinit();
 }
 
+TEST(test_symbol, two_version)
+{
+    symbols_init();
+    ASSERT_EQ(to_symbol2_0("world"), to_symbol("world"));
+    symbols_deinit();
+}
+
 TEST(test_symbol, support_multiple_values_for_same_key)
 {
     symbols_init();
@@ -37,6 +44,7 @@ TEST(test_symbol, support_multiple_values_for_same_key)
 int test_symbol()
 {
     UNITY_BEGIN();
+    RUN_TEST(test_symbol_two_version);
     RUN_TEST(test_symbol_equals_to_same_string_key);
     RUN_TEST(test_symbol_support_multiple_values_for_same_key);
     return UNITY_END();

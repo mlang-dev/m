@@ -76,8 +76,10 @@ void token_init()
 {
     hashtable_init(&token_patterns_by_symbol);
     for(int i = 0; i < PATTERN_COUNT; i++){
-        token_patterns[i].symbol_name = token_patterns[i].name ? to_symbol2_0(token_patterns[i].name) : 0;
-        hashtable_set_p(&token_patterns_by_symbol, token_patterns[i].symbol_name, &token_patterns[i]);
+        if(token_patterns[i].name){
+            token_patterns[i].symbol_name = to_symbol2_0(token_patterns[i].name);
+            hashtable_set_p(&token_patterns_by_symbol, token_patterns[i].symbol_name, &token_patterns[i]);
+        }
     }
 }
 

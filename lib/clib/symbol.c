@@ -58,7 +58,7 @@ void symbols_init()
     if (g_symbols)
         return;
     MALLOC(g_symbols, sizeof(*g_symbols));
-    hashtable_init(g_symbols);
+    hashtable_c_str_key_init(g_symbols);
     EmptySymbol = to_symbol("");
 }
 

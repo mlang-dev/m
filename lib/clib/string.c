@@ -85,7 +85,7 @@ void string_init_chars(string *str, const char *chars)
 void string_init_chars2(string *str, const char *chars, size_t str_len)
 {
     _init_str(str);
-    string_copy_chars2(str, chars, str_len);
+    string_copy_with_len(str, chars, str_len);
 }
 
 void string_copy_with_len(string *dest, const char *data, size_t len)
@@ -102,27 +102,9 @@ void string_copy_with_len(string *dest, const char *data, size_t len)
     dest->base.size = len;
 }
 
-void string_copy_with_len2(string *dest, const char *data, size_t len)
-{
-    if (len >= dest->cap) {
-        void* p;
-        MALLOC(p, len);
-        dest->base.data.p_data = p;
-        dest->cap = len;
-    }
-    char *dest_data = string_get(dest);
-    memcpy(dest_data, data, len);
-    dest->base.size = len;
-}
-
 void string_copy_chars(string *dest, const char *chars)
 {
     string_copy_with_len(dest, chars, strlen(chars));
-}
-
-void string_copy_chars2(string *dest, const char *chars, size_t str_len)
-{
-    string_copy_with_len2(dest, chars, str_len);
 }
 
 void string_copy(string *dest, string *src)
