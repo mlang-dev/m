@@ -27,7 +27,7 @@ TEST(test_wat_codegen, func)
     struct parser *parser = parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = wat_generate(ast, test_code);
-    ASSERT_STREQ(expected, to_c_str(&code));
+    ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     parser_free(parser);
     symbols_deinit();

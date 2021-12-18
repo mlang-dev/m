@@ -24,9 +24,7 @@ typedef string *symbol;
 
 symbol to_symbol(const char *name);
 symbol to_symbol2(const char *name, size_t name_size);
-symbol to_symbol2_0(const char *name);
 symbol string_2_symbol(string *name);
-symbol string_2_symbol2(string *name);
 extern symbol EmptySymbol;
 void symbols_init();
 void symbols_deinit();

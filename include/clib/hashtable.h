@@ -31,10 +31,12 @@ struct hashtable {
     size_t cap;
     size_t value_size;
     free_fun free_element;
+    bool key_is_c_str;
 };
 
 //default hashtable without value size will store object pointer
 void hashtable_init(struct hashtable *ht);
+void hashtable_c_str_key_init(struct hashtable *ht);
 
 void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size, free_fun free_element);
 void hashtable_deinit(struct hashtable *ht);

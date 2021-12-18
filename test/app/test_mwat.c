@@ -4,6 +4,7 @@
  * Unit tests for grammar parser
  */
 #include "wasm/mwat.h"
+#include "clib/util.h"
 #include "test.h"
 #include <stdio.h>
 
@@ -20,7 +21,9 @@ TEST(test_mwat, parse_as_module)
 ")\n"
 "(export \"run\" (func $run))\n"
 ")\n";
-    ASSERT_STREQ(expected, parse_exp_as_module("10+20"));
+    const char *result = parse_exp_as_module("10+20");
+    ASSERT_STREQ(expected, result);
+    FREE((void*)result);
 }
 
 int test_mwat()

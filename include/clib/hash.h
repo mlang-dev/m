@@ -22,7 +22,7 @@ unsigned int hash(unsigned char *str, size_t len);
 
 struct hashbox {
     unsigned int status : 2; //00: empty  01: occupied  10: deleted with open addressing hash
-    unsigned int key_size : 15;
+    unsigned int key_store_size : 15;  //key store size could be 1 more byte than key_size for null terminated string as key
     unsigned int value_size : 15;
     unsigned char *key_value_pair;
 };

@@ -37,20 +37,9 @@ symbol to_symbol2(const char *name, size_t name_size)
     return sym;
 }
 
-symbol to_symbol2_0(const char *name)
-{
-    return to_symbol2(name, strlen(name));
-}
-
-
 symbol string_2_symbol(string *name)
 {
     return to_symbol(string_get(name));
-}
-
-symbol string_2_symbol2(string *name)
-{
-    return to_symbol2(string_get(name), string_size(name));
 }
 
 void symbols_init()
@@ -58,7 +47,7 @@ void symbols_init()
     if (g_symbols)
         return;
     MALLOC(g_symbols, sizeof(*g_symbols));
-    hashtable_init(g_symbols);
+    hashtable_c_str_key_init(g_symbols);
     EmptySymbol = to_symbol("");
 }
 

@@ -16,13 +16,13 @@ const char *parse_exp_as_module(const char *expr)
     string_init_chars2(&m_code, fun_def, strlen(fun_def));
     string_add_chars2(&m_code, expr, strlen(expr));
     struct parser *parser = parser_new(get_m_grammar());
-    char *m_text = to_c_str(&m_code);
+    const char *m_text = string_get(&m_code);
     struct ast_node *ast = parse(parser, m_text);
     struct amodule mod;
     mod.root_ast = ast;
     mod.code = m_text;
     string wat_mod_code = wat_emit(mod);
-    const char *data = (const char*)to_c_str(&wat_mod_code);
+    const char *data = string_cstr(&wat_mod_code);
     string_deinit(&wat_mod_code);
     string_deinit(&m_code);
     symbols_deinit();
