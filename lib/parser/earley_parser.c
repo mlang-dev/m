@@ -17,7 +17,6 @@
 symbol BINOP = 0;
 symbol UNOP = 0;
 symbol FUNC = 0;
-symbol PROG = 0;
 
 struct parser *parser_new(const char *grammar_text)
 {
@@ -29,7 +28,6 @@ struct parser *parser_new(const char *grammar_text)
     BINOP = to_symbol2_0("binop");
     UNOP = to_symbol2_0("unop");
     FUNC = to_symbol2_0("func");
-    PROG = to_symbol2_0("prog");
     return parser;
 }
 
@@ -223,7 +221,7 @@ enum node_type _to_node_type_enum(symbol node_type_name)
     return UNK_NODE;
 }
 
-enum node_type _to_node_type(enum token_type token_type)
+enum node_type _to_node_type(enum token_type token_type, enum op_code opcode)
 {
     if(token_type == TOKEN_IDENT){
         return IDENT_NODE;
@@ -231,11 +229,14 @@ enum node_type _to_node_type(enum token_type token_type)
         return LITERAL_NODE;
     }else if(token_type == TOKEN_FLOAT){
         return LITERAL_NODE;
+    }else if(token_type == TOKEN_OP){
+        //*hacky way to transfer opcode
+        return (token_type << 16) | opcode;
     }
     return UNK_NODE;
 }
 
-struct ast_node *_build_ast(struct parse_states *states, size_t from, struct complete_parse *cp)
+struct ast_node *_build_ast(struct parser *parser, struct parse_states *states, size_t from, struct complete_parse *cp)
 {
     struct parse_state *state = array_get(&states->states, from);
     assert(state->state_index == from);   
@@ -248,6 +249,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
     struct _child_parse child_parse;
     struct expr_item *item = 0;
     struct complete_parse *child_cp = 0;
+    enum node_type node_type;
     array_init(&child_parses, sizeof(child_parse));
     for(size_t i = 0; i < item_count; i++){
         if(item && !item->ei_type && !child_cp){
@@ -299,27 +301,76 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
     assert(state_index == cp->end_state_index);
     //build ast
     struct source_location loc = {0, 0, 0, 0};
-    struct ast_node *node = (cp->ep->expr->action.exp_item_index_count > 1) ? ast_node_new(_to_node_type_enum(cp->ep->expr->action.action), 0, loc) : 0;
+    bool parent_child_tree = cp->ep->expr->action.exp_item_index_count > 1;
+    struct ast_node *node, *child;
+    struct array child_nodes;
+    array_init(&child_nodes, sizeof(struct ast_node *));
     for(size_t i = 0; i < array_size(&child_parses); i++){
         struct _child_parse *c_p = (struct _child_parse *)array_get(&child_parses, i);
-        struct ast_node *child = 0; 
+        child = 0; 
         if (expr_item_2_ast_node_index(cp->ep->expr, i) < 0){
             continue;
         }
         if(c_p->ei_type){ //terminal
-            child = ast_node_new(_to_node_type(c_p->state->tok.token_type), 0, c_p->state->tok.loc);
+            //terminal symbol could be IDENT, literal
+            node_type = _to_node_type(c_p->state->tok.token_type, c_p->state->tok.opcode);
+            symbol ident;
+            switch(node_type){
+                default:
+                    child = ast_node_new(node_type, 0, c_p->state->tok.loc);
+                    break;
+                case IDENT_NODE:
+                    ident = to_symbol2(&parser->lexer.text[c_p->state->tok.loc.start], c_p->state->tok.loc.end - c_p->state->tok.loc.start);
+                    child = ident_node_new(ident, c_p->state->tok.loc);
+                    break;
+            }
         }else{ //noterminal
-            child = _build_ast(states, c_p->state->state_index, c_p->child_cp);
+            child = _build_ast(parser, states, c_p->state->state_index, c_p->child_cp);
         }
-        if(node){
-            array_push(&node->children, &child);
+        if(parent_child_tree){
+            array_push(&child_nodes, &child);
         }
         else{
             node = child;
             break;
         }
     }
+    if(parent_child_tree){
+        enum op_code opcode;
+        node_type = _to_node_type_enum(cp->ep->expr->action.action);
 
+        switch(node_type){
+            default:
+                assert(false);
+                break;
+            case UNARY_NODE:
+                assert(array_size(&child_nodes) == 2);
+                child = *(struct ast_node **)array_get(&child_nodes, 0);
+                opcode = child->node_type & 0xFFFF;
+                child = *(struct ast_node **)array_get(&child_nodes, 1);
+                //child->liter->
+                node = unary_node_new(opcode, child, loc);
+                break;
+            case BINARY_NODE:
+                assert(array_size(&child_nodes) == 3);
+                child = *(struct ast_node **)array_get(&child_nodes, 1);
+                opcode = child->node_type & 0xFFFF;
+                child = *(struct ast_node **)array_get(&child_nodes, 0);
+                struct ast_node *rhs = *(struct ast_node **)array_get(&child_nodes, 2);
+                node = binary_node_new(opcode, child, rhs, loc);
+                break;
+            case FUNCTION_NODE:
+                child = *(struct ast_node **)array_get(&child_nodes, 0);
+                assert(child->node_type == IDENT_NODE);
+                ARRAY_FUN_PARAM(fun_params);
+                struct ast_node *ft = func_type_node_default_new(child->ident->name, &fun_params, 0, false, false, loc);
+                child = *(struct ast_node **)array_get(&child_nodes, 1);
+                node = function_node_new(ft, child, loc);
+                break;
+        }
+        
+    }
+    array_deinit(&child_nodes);
     stack_deinit(&s);
     array_deinit(&child_parses);
     return node;
@@ -374,7 +425,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
     if(!to) return 0;
     struct parse_state *start_state = (struct parse_state *)array_get(&states.states, 0);
     struct complete_parse *cp = parse_state_find_completed_expr_parse(start_state, g->start_symbol, to-1);
-    struct ast_node *ast = cp ? _build_ast(&states, 0, cp) : 0;
+    struct ast_node *ast = cp ? _build_ast(parser, &states, 0, cp) : 0;
     parse_states_deinit(&states);
     lexer_deinit();
     return ast;

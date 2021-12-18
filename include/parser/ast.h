@@ -149,7 +149,6 @@ struct ast_node {
 
     symbol annotated_type_name; //this is expected to be removed
     bool is_ret;        //tihs is expected to be removed from sema analysis
-    struct array children; //list of pointer to child ast_node, this is expected to be removed from parser generator
     union{
         void *data; //node data represents any of following pointer
         struct _literal_node *liter;
