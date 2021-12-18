@@ -92,11 +92,19 @@ else()
     lldReaderWriter
     lldCommon
     lldCore
-    pthread
-    xar
     ${llvm_libraries}
     ${sys_libraries}
   )
+
+  if(APPLE)
+    target_link_libraries(m PRIVATE 
+      xar
+    )
+  elseif(UNIX)
+    target_link_libraries(m PRIVATE 
+      pthread
+    )
+endif()
 
   message(STATUS "${CMAKE_BUILD_TYPE} COPY ${CMAKE_SOURCE_DIR}/mlib DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib")
 
