@@ -72,18 +72,18 @@ void _scan_until_no_id(struct lexer *lexer)
     while (ch == '_' || isalpha(ch) || isdigit(ch));
 }
 
-void _mark_token(struct lexer *lexer, struct tok *tok, enum token_type tok_type, enum op_code opcode)
+void _mark_token(struct lexer *lexer, struct token *tok, enum token_type token_type, enum op_code opcode)
 {
     tok->loc.start = lexer->pos;
     tok->loc.line = lexer->line;
     tok->loc.col = lexer->col;
-    tok->tok_type = tok_type;
+    tok->token_type = token_type;
     tok->opcode = opcode;
 }
 
-void get_tok(struct lexer *lexer, struct tok *tok)
+void get_tok(struct lexer *lexer, struct token *tok)
 {
-    tok->tok_type = TOKEN_NULL;
+    tok->token_type = TOKEN_NULL;
     char ch = lexer->text[lexer->pos];
     switch (ch)
     {
@@ -96,7 +96,7 @@ void get_tok(struct lexer *lexer, struct tok *tok)
             (ch == '.' && isdigit(lexer->text[lexer->pos + 1])) /*.123*/){
             _mark_token(lexer, tok, ch == '.' ? TOKEN_FLOAT : TOKEN_INT, 0);
             bool has_dot = _scan_until_no_digit(lexer);
-            if(has_dot) tok->tok_type = TOKEN_FLOAT;
+            if(has_dot) tok->token_type = TOKEN_FLOAT;
         }
         else if(isalpha(ch) || ch == '_'){
             _mark_token(lexer, tok, TOKEN_IDENT, 0);
@@ -126,7 +126,7 @@ void get_tok(struct lexer *lexer, struct tok *tok)
         _move_ahead(lexer); // skip the double quote
         break;
     }
-    if(tok->tok_type){
+    if(tok->token_type){
         tok->loc.end = lexer->pos;
     }
 }

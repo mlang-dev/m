@@ -164,9 +164,9 @@ void parse_states_deinit(struct parse_states *states)
     array_deinit(&states->states);
 }
 
-bool _is_match(struct tok *tok, struct expr_item *ei)
+bool _is_match(struct token *tok, struct expr_item *ei)
 {
-    symbol sym = get_symbol_by_token_opcode(tok->tok_type, tok->opcode);
+    symbol sym = get_symbol_by_token_opcode(tok->token_type, tok->opcode);
     switch (ei->ei_type){
     default:
         return false;
@@ -307,7 +307,7 @@ struct ast_node *_build_ast(struct parse_states *states, size_t from, struct com
             continue;
         }
         if(c_p->ei_type){ //terminal
-            child = ast_node_new(_to_node_type(c_p->state->tok.tok_type), 0, c_p->state->tok.loc);
+            child = ast_node_new(_to_node_type(c_p->state->tok.token_type), 0, c_p->state->tok.loc);
         }else{ //noterminal
             child = _build_ast(states, c_p->state->state_index, c_p->child_cp);
         }
@@ -349,7 +349,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
                 struct parse_state* ss = (struct parse_state*)array_get(&states.states, ep->start_state_index);
                 _complete(state, ep, ss);
 
-            }else if(state->tok.tok_type){
+            }else if(state->tok.token_type){
                 struct expr_item *ei = (struct expr_item *)array_get(&ep->expr->items, ep->parsed);
                 if (ei->ei_type == EI_NONTERM && ei->sym != ep->rule->nonterm) {
                     // expects non-terminal, we're adding the rule's exprs into current state

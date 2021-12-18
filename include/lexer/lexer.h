@@ -27,16 +27,9 @@ struct lexer {
     int col;
 };
 
-struct tok {
-    struct source_location loc;
-    enum token_type tok_type;
-    enum op_code opcode;
-};
-
-
 void lexer_init(struct lexer *lexer, const char *text);
 void lexer_deinit();
-void get_tok(struct lexer *lexer, struct tok *tok);
+void get_tok(struct lexer *lexer, struct token *tok);
 
 #ifdef __cplusplus
 }
