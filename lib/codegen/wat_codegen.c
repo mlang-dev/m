@@ -11,13 +11,13 @@
 #include <assert.h>
 
 
-const char *ops[256];
+const char *ops[OP_TOTAL];
 void wat_codegen_init()
 {
-    ops['+'] = "i32.add";
-    ops['-'] = "i32.sub";
-    ops['*'] = "i32.mul";
-    ops['/'] = "i32.div";
+    ops[OP_PLUS] = "i32.add";
+    ops[OP_MINUS] = "i32.sub";
+    ops[OP_TIMES] = "i32.mul";
+    ops[OP_DIVISION] = "i32.div";
 }
 
 string _wat_generate(struct ast_node *ast, const char *text)
@@ -29,36 +29,28 @@ string _wat_generate(struct ast_node *ast, const char *text)
     }
     if(ast->node_type == FUNCTION_NODE){
         string_append(&s, "(func $");
-        struct ast_node *fname = *(struct ast_node**)array_get(&ast->children, 0);
-        assert(fname->node_type == IDENT_NODE);
-        string_add_chars2(&s, &text[fname->loc.start], fname->loc.end - fname->loc.start);
+        string_add2(&s, ast->func->func_type->ft->name);
         string_append(&s, " (result i32)\n");
         //func body
-        struct ast_node *fbody = *(struct ast_node**)array_back(&ast->children);
-        string s_fbody = _wat_generate(fbody, text);
+        string s_fbody = _wat_generate(ast->func->body, text);
         string_add2(&s, &s_fbody);
         string_append(&s, ")\n");
 
         //export the function
         string_append(&s, "(export \"");
-        string_add_chars2(&s, &text[fname->loc.start], fname->loc.end - fname->loc.start);
+        string_add2(&s, ast->func->func_type->ft->name);
         string_append(&s, "\" (func $");
-        string_add_chars2(&s, &text[fname->loc.start], fname->loc.end - fname->loc.start);
+        string_add2(&s, ast->func->func_type->ft->name);
         string_append(&s, ")");
         string_append(&s, ")\n");
     }
     else if (ast->node_type == BINARY_NODE){
-        //0, 2 is operand, 1 is operator
-        assert(array_size(&ast->children)==3);
-        struct ast_node *op = *(struct ast_node**)array_get(&ast->children, 1);
         string_append(&s, "(");
-        string_append(&s, ops[(int)text[op->loc.start]]);
+        string_append(&s, ops[(int)ast->binop->opcode]);
         string_append(&s, "\n");
-        struct ast_node *child = *(struct ast_node**)array_get(&ast->children, 0);
-        string op1 = _wat_generate(child, text);
+        string op1 = _wat_generate(ast->binop->lhs, text);
         string_add2(&s, &op1);
-        child = *(struct ast_node**)array_get(&ast->children, 2);
-        string op2 = _wat_generate(child, text);
+        string op2 = _wat_generate(ast->binop->rhs, text);
         string_add2(&s, &op2);
         string_append(&s, ")\n");
     }

@@ -34,19 +34,12 @@ struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type
     node->is_ret = false;
     node->data = 0;
    
-    array_init(&node->children, sizeof(struct ast_node *));
     return node;
 }
 
 void ast_node_free(struct ast_node *node)
 {
     if(!node) return;
-    size_t len = array_size(&node->children);
-    for(size_t i = 0; i < len; i++){
-        struct ast_node *child = *(struct ast_node **)array_get(&node->children, i);
-        ast_node_free(child);
-    }
-    array_deinit(&node->children);
     if(node->data)
         FREE(node->data);
     FREE(node);
