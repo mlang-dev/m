@@ -30,7 +30,6 @@ struct lexer {
 struct tok {
     struct source_location loc;
     enum token_type tok_type;
-    symbol tok_type_name; // IDENT, NUM, STRING keywords like 'if', 'for' etc
     enum op_code opcode;
 };
 
