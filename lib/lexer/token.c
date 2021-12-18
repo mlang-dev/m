@@ -1,74 +1,89 @@
 #include "lexer/token.h"
+#include "clib/hashtable.h"
 #include <assert.h>
 
+#define NULL_PATTERN(pattern, tok_name, op_name) {0, 0, pattern, TOKEN_##tok_name, OP_##op_name}
+#define TOKEN_PATTERN(pattern, tok_name, op_name) {#tok_name, 0, pattern, TOKEN_##tok_name, OP_##op_name}
+#define KEYWORD_PATTERN(keyword, tok_name, op_name) {keyword, 0, keyword, TOKEN_##tok_name, OP_##op_name}
+
 struct token_pattern token_patterns[PATTERN_COUNT] = {
-    {0, TOKEN_NULL, OP_NULL},
-    {"\0", TOKEN_EOF, OP_NULL},
-    {0, TOKEN_INDENT, OP_NULL},
-    {0, TOKEN_DEDENT, OP_NULL},
-    {"\n", TOKEN_NEWLINE, OP_NULL},
-    {"[0-9]+", TOKEN_INT, OP_NULL},
-    {"[+-]?([0-9]*[.])?[0-9]+", TOKEN_FLOAT, OP_NULL},
-    {"[_a-zA-Z][_a-zA-Z0-9]*", TOKEN_IDENT, OP_NULL},
-    {0, TOKEN_CHAR, OP_NULL}, 
-    {0, TOKEN_STRING, OP_NULL},
-    {"import", TOKEN_IMPORT, OP_NULL},
-    {"extern", TOKEN_EXTERN, OP_NULL},
-    {"type", TOKEN_TYPE, OP_NULL},
-    {"if", TOKEN_IF, OP_NULL},
-    {"then", TOKEN_THEN, OP_NULL},
-    {"else", TOKEN_ELSE, OP_NULL},
-    {"true", TOKEN_TRUE, OP_NULL},
-    {"false", TOKEN_FALSE, OP_NULL},
-    {"in", TOKEN_IN, OP_NULL},
-    {"for", TOKEN_FOR, OP_NULL},
-    {"(", TOKEN_LPAREN, OP_NULL},
-    {")", TOKEN_RPAREN, OP_NULL},
-    {"[", TOKEN_LBRACKET, OP_NULL},
-    {"]", TOKEN_RBRACKET, OP_NULL},
-    {"{", TOKEN_LCBRACKET, OP_NULL},
-    {"}", TOKEN_RCBRACKET, OP_NULL},
+    NULL_PATTERN(0, NULL, NULL),
+    TOKEN_PATTERN("\0", EOF, NULL),
+    TOKEN_PATTERN(0, INDENT, NULL),
+    TOKEN_PATTERN(0, DEDENT, NULL),
+    TOKEN_PATTERN("\n", NEWLINE, NULL),
+    TOKEN_PATTERN("[0-9]+", INT, NULL),
+    TOKEN_PATTERN("[+-]?([0-9]*[.])?[0-9]+", FLOAT, NULL),
+    TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL),
+    TOKEN_PATTERN(0, CHAR, NULL), 
+    TOKEN_PATTERN(0, STRING, NULL),
 
-    {",", TOKEN_COMMA, OP_NULL},
+    KEYWORD_PATTERN("import", IMPORT, NULL),
+    KEYWORD_PATTERN("extern", EXTERN, NULL),
+    KEYWORD_PATTERN("type", TYPE, NULL),
+    KEYWORD_PATTERN("if", IF, NULL),
+    KEYWORD_PATTERN("then", THEN, NULL),
+    KEYWORD_PATTERN("else", ELSE, NULL),
+    KEYWORD_PATTERN("true", TRUE, NULL),
+    KEYWORD_PATTERN("false", FALSE, NULL),
+    KEYWORD_PATTERN("in", IN, NULL),
+    KEYWORD_PATTERN("for", FOR, NULL),
+    KEYWORD_PATTERN("(", LPAREN, NULL),
+    KEYWORD_PATTERN(")", RPAREN, NULL),
+    KEYWORD_PATTERN("[", LBRACKET, NULL),
+    KEYWORD_PATTERN("]", RBRACKET, NULL),
+    KEYWORD_PATTERN("{", LCBRACKET, NULL),
+    KEYWORD_PATTERN("}", RCBRACKET, NULL),
 
-    {".", TOKEN_DOT, OP_NULL},
-    {"..", TOKEN_RANGE, OP_NULL},
-    {"...", TOKEN_VARIADIC, OP_NULL},
-    {"=", TOKEN_ASSIGN, OP_NULL},
-    {":", TOKEN_ISTYPEOF, OP_NULL},
+    KEYWORD_PATTERN(",", COMMA, NULL),
 
-    {0, TOKEN_OP, OP_NULL},
-    {"||", TOKEN_OP, OP_OR},
-    {"&&", TOKEN_OP, OP_AND},
-    {"!", TOKEN_OP, OP_NOT},
+    KEYWORD_PATTERN(".", DOT, NULL),
+    KEYWORD_PATTERN("..", RANGE, NULL),
+    KEYWORD_PATTERN("...", VARIADIC, NULL),
+    KEYWORD_PATTERN("=", ASSIGN, NULL),
+    KEYWORD_PATTERN(":", ISTYPEOF, NULL),
 
-    {"|", TOKEN_OP, OP_BOR}, 
-    {"&", TOKEN_OP, OP_BAND},
+    TOKEN_PATTERN(0, OP, NULL),
+    KEYWORD_PATTERN("||", OP, OR),
+    KEYWORD_PATTERN("&&", OP, AND),
+    KEYWORD_PATTERN("!", OP, NOT),
+
+    KEYWORD_PATTERN("|", OP, BOR), 
+    KEYWORD_PATTERN("&", OP, BAND),
    
-    {"^", TOKEN_OP, OP_EXPO},
-    {"*", TOKEN_OP, OP_TIMES},
-    {"/", TOKEN_OP, OP_DIVISION},
-    {"%", TOKEN_OP, OP_MODULUS},
-    {"+", TOKEN_OP, OP_PLUS},
-    {"-", TOKEN_OP, OP_MINUS},
+    KEYWORD_PATTERN("^", OP, EXPO),
+    KEYWORD_PATTERN("*", OP, TIMES),
+    KEYWORD_PATTERN("/", OP, DIVISION),
+    KEYWORD_PATTERN("%", OP, MODULUS),
+    KEYWORD_PATTERN("+", OP, PLUS),
+    KEYWORD_PATTERN("-", OP, MINUS),
 
-    {"<", TOKEN_OP, OP_LT},
-    {"<=", TOKEN_OP, OP_LE},
-    {"==", TOKEN_OP, OP_EQ},
-    {">", TOKEN_OP, OP_GT},
-    {">=", TOKEN_OP, OP_GE},
-    {"!=", TOKEN_OP, OP_NE},
+    KEYWORD_PATTERN("<", OP, LT),
+    KEYWORD_PATTERN("<=", OP, LE),
+    KEYWORD_PATTERN("==", OP, EQ),
+    KEYWORD_PATTERN(">", OP, GT),
+    KEYWORD_PATTERN(">=", OP, GE),
+    KEYWORD_PATTERN("!=", OP, NE),
 };
+
+struct hashtable token_patterns_by_symbol;
 
 const char *token_type_strings[] = {
     FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
 };
 
-void token_init(struct token *token)
+void token_init()
 {
-    token->token_type = TOKEN_NULL;
-    token->loc.line = 0;
-    token->loc.col = 0;
+    hashtable_init(&token_patterns_by_symbol);
+    for(int i = 0; i < PATTERN_COUNT; i++){
+        token_patterns[i].symbol_name = token_patterns[i].name ? to_symbol2_0(token_patterns[i].name) : 0;
+        hashtable_set_p(&token_patterns_by_symbol, token_patterns[i].symbol_name, &token_patterns[i]);
+    }
+}
+
+void token_deinit()
+{
+    hashtable_deinit(&token_patterns_by_symbol);
 }
 
 struct token_patterns get_token_patterns()
@@ -77,8 +92,34 @@ struct token_patterns get_token_patterns()
     return tps;
 }
 
-const char *get_opcode(int opcode)
+const char *get_opcode(enum op_code opcode)
+{
+    assert(opcode > 0 && opcode < OP_TOTAL);
+    return get_token_pattern_by_opcode(opcode)->pattern;
+}
+
+symbol get_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode)
+{
+    assert(opcode >= 0 && opcode < OP_TOTAL);
+    if (token_type == TOKEN_OP)
+        return get_token_pattern_by_opcode(opcode)->symbol_name;
+    else
+        return get_token_pattern_by_token_type(token_type)->symbol_name;
+}
+
+struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode)
 {
     assert(opcode > 0 && opcode < PATTERN_COUNT);
-    return token_patterns[(int)TOKEN_OP + opcode].pattern;
+    return &token_patterns[(int)TOKEN_OP + (int)opcode];
+}
+
+struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type)
+{
+    assert(token_type > 0 && token_type <= TOKEN_OP);
+    return &token_patterns[(int)token_type];
+}
+
+struct token_pattern *get_token_pattern_by_symbol(symbol symbol)
+{
+    return (struct token_pattern *)hashtable_get_p(&token_patterns_by_symbol, symbol);
 }

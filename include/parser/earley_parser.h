@@ -38,7 +38,7 @@ struct complete_parse{
 // for each position of tokens we maintain a partial parse state: n tokens will have n parse states
 struct parse_state{
     size_t state_index;
-    struct tok tok;   
+    struct token tok;   
     struct array expr_parses; //number of parses for current position of tokens
     //struct array complete_parses;
     struct hashtable complete_parses;

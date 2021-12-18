@@ -28,7 +28,7 @@ power       ::= primary '^' factor  {}
 primary     ::= primary '.' ID       {}
                 | atom              {}
 atom        ::= ID                  {}
-                | NUM               {}
+                | INT               {}
                 | STR               {}
 
 )";

@@ -11,7 +11,7 @@
 
 TEST(test_grammar, num_token)
 {
-    char test_grammar[] = "power       = NUM";
+    char test_grammar[] = "power       = INT";
     symbols_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("power", 5);
@@ -33,7 +33,7 @@ TEST(test_grammar, num_token)
     struct expr *expr = (struct expr*)array_front(&rule->exprs);
     struct expr_item *ei = (struct expr_item*)array_front(&expr->items);
     ASSERT_EQ(ei->ei_type, EI_TOKEN_MATCH);
-    ASSERT_EQ(ei->sym, to_symbol2("NUM", 3));
+    ASSERT_EQ(ei->sym, to_symbol2("INT", 3));
     ASSERT_EQ(0, hashset_size(&grammar->keywords));
     grammar_free(grammar);
     symbols_deinit();
@@ -52,8 +52,8 @@ TEST(test_grammar, arithmetic_exp)
 "factor      = '+' factor        {}\n"
 "            | '-' factor        {}\n"
 "            | power             {}\n"
-"power       = NUM '^' factor    {}\n"
-"            | NUM               {}\n";
+"power       = INT '^' factor    {}\n"
+"            | INT               {}\n";
 
     symbols_init();
     struct grammar *grammar = grammar_parse(test_grammar);
@@ -91,8 +91,8 @@ TEST(test_grammar, arithmetic_exp_using_charset)
 "factor      = '(' sum ')'       { 1 }\n"
 "            | [+-] factor       { unop 0 1 }\n"
 "            | power             { 0 }\n"
-"power       = NUM '^' factor    { binop 0 1 2 }\n"
-"            | NUM               { 0 }\n";
+"power       = INT '^' factor    { binop 0 1 2 }\n"
+"            | INT               { 0 }\n";
     symbols_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("sum", 3);

@@ -86,6 +86,8 @@ enum op_code{
 extern const char *token_type_strings[];
 
 struct token_pattern{
+    const char *name;
+    symbol symbol_name;
     const char *pattern;
     enum token_type token_type;
     enum op_code opcode; 
@@ -110,11 +112,21 @@ struct token {
     };
 };
 
-void token_init(struct token *token);
+void token_init();
+
+void token_deinit();
 
 struct token_patterns get_token_patterns();
 
-const char *get_opcode(int opcode);
+const char *get_opcode(enum op_code opcode);
+
+symbol get_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode);
+
+struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode);
+
+struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type);
+
+struct token_pattern *get_token_pattern_by_symbol(symbol symbol);
 
 #ifdef __cplusplus
 }

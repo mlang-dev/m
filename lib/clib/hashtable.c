@@ -292,6 +292,8 @@ size_t hashtable_size(struct hashtable *ht)
 
 void hashtable_deinit(struct hashtable *ht)
 {
+    if(!ht->heads) return;
     hashtable_clear(ht);
     FREE(ht->heads);
+    ht->heads = 0;
 }

@@ -72,6 +72,13 @@ void queue_tokens(struct m_parser *psr, struct array *tokens)
     }
 }
 
+void _token_init(struct token *token)
+{
+    token->token_type = TOKEN_NULL;
+    token->loc.line = 0;
+    token->loc.col = 0;
+}
+
 struct m_parser *m_parser_new(bool is_repl)
 {
     struct m_parser *parser;
@@ -111,7 +118,7 @@ struct m_parser *m_parser_new(bool is_repl)
     parser->id_is_var_decl = false;
     parser->is_repl = is_repl;
     parser->current_module = 0;
-    token_init(&parser->curr_token);
+    _token_init(&parser->curr_token);
     g_parser = parser;
 
     return parser;

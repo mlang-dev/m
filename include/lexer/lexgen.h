@@ -22,7 +22,7 @@ struct lexgen {
 
 
 void lexer_init(struct lexer *lexer, const char *text);
-string to_lexer(struct lexer *lexer, struct tok *tok);
+string to_lexer(struct lexer *lexer, struct token *tok);
 
 #ifdef __cplusplus
 }
