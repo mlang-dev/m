@@ -42,11 +42,6 @@ symbol string_2_symbol(string *name)
     return to_symbol(string_get(name));
 }
 
-symbol string_2_symbol2(string *name)
-{
-    return to_symbol2(string_get(name), string_size(name));
-}
-
 void symbols_init()
 {
     if (g_symbols)

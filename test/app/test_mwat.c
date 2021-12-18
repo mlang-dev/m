@@ -23,7 +23,7 @@ TEST(test_mwat, parse_as_module)
 ")\n";
     const char *result = parse_exp_as_module("10+20");
     ASSERT_STREQ(expected, result);
-    FREE(result);
+    FREE((void*)result);
 }
 
 int test_mwat()

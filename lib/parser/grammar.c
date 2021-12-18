@@ -132,7 +132,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                 string_add_chars2(&group, p, next_tok.loc.end - next_tok.loc.start);
                 get_tok(&lexer, &next_tok);
             }
-            expr_add_symbol(expr, string_2_symbol2(&group), EI_IN_MATCH);
+            expr_add_symbol(expr, string_2_symbol(&group), EI_IN_MATCH);
             get_tok(&lexer, &next_tok); // skip ']'
         }else if (tok.token_type == TOKEN_LCBRACKET){
             while(next_tok.token_type != TOKEN_RCBRACKET){
