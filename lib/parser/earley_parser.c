@@ -314,12 +314,13 @@ struct ast_node *_build_ast(struct parser *parser, struct parse_states *states, 
         if(c_p->ei_type){ //terminal
             //terminal symbol could be IDENT, literal
             node_type = _to_node_type(c_p->state->tok.token_type, c_p->state->tok.opcode);
+            symbol ident;
             switch(node_type){
                 default:
                     child = ast_node_new(node_type, 0, c_p->state->tok.loc);
                     break;
                 case IDENT_NODE:
-                    symbol ident = to_symbol2(&parser->lexer.text[c_p->state->tok.loc.start], c_p->state->tok.loc.end - c_p->state->tok.loc.start);
+                    ident = to_symbol2(&parser->lexer.text[c_p->state->tok.loc.start], c_p->state->tok.loc.end - c_p->state->tok.loc.start);
                     child = ident_node_new(ident, c_p->state->tok.loc);
                     break;
             }
