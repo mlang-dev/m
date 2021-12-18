@@ -77,14 +77,12 @@ void _mark_token(struct lexer *lexer, struct tok *tok, enum token_type tok_type,
     tok->loc.start = lexer->pos;
     tok->loc.line = lexer->line;
     tok->loc.col = lexer->col;
-    tok->tok_type_name = get_symbol_by_token_opcode(tok_type, opcode);
     tok->tok_type = tok_type;
     tok->opcode = opcode;
 }
 
 void get_tok(struct lexer *lexer, struct tok *tok)
 {
-    tok->tok_type_name = 0;
     tok->tok_type = TOKEN_NULL;
     char ch = lexer->text[lexer->pos];
     switch (ch)

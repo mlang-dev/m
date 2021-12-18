@@ -166,14 +166,15 @@ void parse_states_deinit(struct parse_states *states)
 
 bool _is_match(struct tok *tok, struct expr_item *ei)
 {
+    symbol sym = get_symbol_by_token_opcode(tok->tok_type, tok->opcode);
     switch (ei->ei_type){
     default:
         return false;
     case EI_TOKEN_MATCH: // like ID, NUM, STRING, CHAR token
     case EI_EXACT_MATCH: // keyword
-        return tok->tok_type_name == ei->sym;
+        return sym == ei->sym;
     case EI_IN_MATCH:
-        return expr_item_exists_symbol(ei, string_get(tok->tok_type_name)[0]);
+        return expr_item_exists_symbol(ei, string_get(sym)[0]);
     }    
 }
 

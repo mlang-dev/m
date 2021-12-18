@@ -152,7 +152,6 @@ struct grammar *grammar_parse(const char *grammar_text)
         }
         tok = next_tok;
         next_tok.tok_type = TOKEN_NULL;
-        next_tok.tok_type_name = 0;
     }
     if (array_size(&g->rules)) {
         g->start_symbol = (*(struct rule **)array_front(&g->rules))->nonterm;
