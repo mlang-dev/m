@@ -93,6 +93,7 @@ else()
     lldCommon
     lldCore
     pthread
+    xar
     ${llvm_libraries}
     ${sys_libraries}
   )
