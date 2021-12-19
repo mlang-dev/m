@@ -260,7 +260,7 @@ struct op_type _parse_op_type(struct m_parser *parser, struct source_location lo
 struct ast_node *_parse_type_value_node(struct m_parser *parser, struct ast_node *parent, symbol ext_type_symbol)
 {
     assert(ext_type_symbol);
-    struct ast_node *type = (struct ast_node *)hashtable_get_p(&parser->ext_types, ext_type_symbol);
+    struct ast_node *type = hashtable_get_p(&parser->ext_types, ext_type_symbol);
     assert(type);
     struct ast_node *block = _parse_block(parser, parent, 0, 0);
     if (block) {
