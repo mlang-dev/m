@@ -40,39 +40,44 @@ TEST(test_regex, to_postfix_escaping_char)
 TEST(test_regex, exact_match)
 {
     void *re = regex_new("if|while", 0);
-    ASSERT_EQ(2, regex_match(re, "if"));
-    ASSERT_EQ(5, regex_match(re, "while"));
+    ASSERT_EQ(2, regex_match(re, "if", 0));
+    ASSERT_EQ(5, regex_match(re, "while", 0));
+    size_t matched;
+    ASSERT_EQ(0, regex_match(re, "t", &matched));
+    ASSERT_EQ(0, matched);
+    ASSERT_EQ(0, regex_match(re, "i", &matched));
+    ASSERT_EQ(1, matched);
     regex_free(re);
 }
 
 TEST(test_regex, exact_match_escape)
 {
     void *re = regex_new("\\.3", 0);
-    ASSERT_EQ(2, regex_match(re, ".3"));
-    ASSERT_FALSE(regex_match(re, ".30"));
+    ASSERT_EQ(2, regex_match(re, ".3", 0));
+    ASSERT_FALSE(regex_match(re, ".30", 0));
     regex_free(re);
 }
 
 TEST(test_regex, exact_match_escape_braket)
 {
     void *re = regex_new("\\[", 0);
-    ASSERT_EQ(1, regex_match(re, "["));
-    ASSERT_FALSE(regex_match(re, "]"));
+    ASSERT_EQ(1, regex_match(re, "[", 0));
+    ASSERT_FALSE(regex_match(re, "]", 0));
     regex_free(re);
 }
 
 TEST(test_regex, ident_match)
 {
     void *re = regex_new("[_a-zA-Z][_a-zA-Z0-9]*", 0);
-    ASSERT_EQ(6, regex_match(re, "_test3"));
-    ASSERT_FALSE(regex_match(re, "3test"));
+    ASSERT_EQ(6, regex_match(re, "_test3", 0));
+    ASSERT_FALSE(regex_match(re, "3test", 0));
     regex_free(re);
 }
 
 TEST(test_regex, ident_match_space)
 {
     void *re = regex_new("[_a-zA-Z][_a-zA-Z0-9]*", " \t\r\n");
-    ASSERT_EQ(6, regex_match(re, "_test3 !"));
+    ASSERT_EQ(6, regex_match(re, "_test3 !", 0));
     regex_free(re);
 }
 

@@ -360,7 +360,7 @@ int _nstates_is_accepted(struct re *re, struct nstate_list *l)
 	return 0;
 }
 
-int _nstate_match(struct re *re, const char *text)
+int _nstate_match(struct re *re, const char *text, size_t *matched_len)
 {
 	int c;
 	struct nstate_list *clist, *nlist, *t;
@@ -368,11 +368,15 @@ int _nstate_match(struct re *re, const char *text)
 	nlist = &re->l2;
     const char *p = text;
 	for(; *p; p++){
-        if(re->stop_on_space && isspace(*p)) break;
+        if(re->stop_on_space && isspace(*p)) {
+            break;
+        }
 		c = *p & 0xFF;
 		_nstates_step(re, clist, c, nlist);
 		t = clist; clist = nlist; nlist = t;	/* swap clist, nlist */
+        if(!clist->len) break;
 	}
+    if(matched_len) *matched_len = p - text;
 	return _nstates_is_accepted(re, clist) ? p - text : 0;
 
 }
@@ -394,9 +398,9 @@ void *regex_new(const char *re_pattern, bool stop_on_space)
     return re;
 }
 
-int regex_match(void *re, const char *text)
+int regex_match(void *re, const char *text, size_t *matched_len)
 {
-    return _nstate_match((struct re*)re, text);
+    return _nstate_match((struct re*)re, text, matched_len);
 }
 
 void regex_free(void *regex)
