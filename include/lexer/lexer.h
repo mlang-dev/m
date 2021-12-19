@@ -20,12 +20,18 @@
 extern "C" {
 #endif
 
+struct pattern_matches {
+    struct token_pattern *patterns[8];
+    int pattern_match_count;
+};
+
 struct lexer {
     const char *text;
     struct token tok;
     int pos;  //current text position
     int line;
     int col;
+    struct pattern_matches char_matches[128];
 };
 
 void lexer_init(struct lexer *lexer, const char *text);

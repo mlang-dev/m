@@ -7,6 +7,8 @@
 #include <ctype.h>
 #include "lexer/lexer.h"
 #include <assert.h>
+#include "lexer/token.h"
+#include "clib/regex.h"
 
 void lexer_init(struct lexer *lexer, const char *text)
 {
@@ -15,6 +17,25 @@ void lexer_init(struct lexer *lexer, const char *text)
     lexer->line = 1;
     lexer->col = 1;
     token_init();
+    //register pattern matcher for each character
+    char test[2]; test[1] = 0;
+    struct token_patterns tps = get_token_patterns();
+    for(int i=0; i < 128; i++){
+        test[0] = (char)i;
+        lexer->char_matches[i].pattern_match_count = 0;
+        for(int j = tps.pattern_count - 1; j >= 0; j--){
+            size_t matched_len;
+            if(tps.patterns[j].re){
+                regex_match(tps.patterns[j].re, test, &matched_len);
+                if(!matched_len) continue;
+                if(lexer->char_matches[i].pattern_match_count == 8){
+                    printf("maximum number of pattern matcher is 8.\n");
+                    exit(-1);
+                }
+                lexer->char_matches[i].patterns[lexer->char_matches[i].pattern_match_count++] = &tps.patterns[j];
+            }
+        }
+    }
 }
 
 void lexer_deinit()
