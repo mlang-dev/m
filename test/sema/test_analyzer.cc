@@ -534,7 +534,7 @@ xy.x
     ASSERT_STREQ("Point2D", string_get(&type_str));
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(IDENT_NODE, node->node_type);
-    struct ast_node *id_node = (struct ast_node *)node;
+    struct ast_node *id_node = node;
     ASSERT_STREQ("xy.x", string_get(id_node->ident->name));
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
@@ -561,7 +561,7 @@ xy.x
     ASSERT_STREQ("Point2D", string_get(&type_str));
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(IDENT_NODE, node->node_type);
-    struct ast_node *id_node = (struct ast_node *)node;
+    struct ast_node *id_node = node;
     ASSERT_STREQ("xy.x", string_get(id_node->ident->name));
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
@@ -649,7 +649,7 @@ z = getx()
     /*variable node*/
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(VAR_NODE, node->node_type);
-    struct ast_node *var = (struct ast_node *)node;
+    struct ast_node *var = node;
 
     /*initial value is a call expression*/
     ASSERT_EQ(CALL_NODE, var->var->init_value->node_type);
@@ -690,7 +690,7 @@ z = getx()
     /*variable node*/
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(VAR_NODE, node->node_type);
-    struct ast_node *var = (struct ast_node *)node;
+    struct ast_node *var = node;
 
     /*initial value is a call expression*/
     ASSERT_EQ(CALL_NODE, var->var->init_value->node_type);

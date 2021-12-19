@@ -167,27 +167,27 @@ string _dump_number(struct ast_node *node)
 string dump(struct ast_node *node)
 {
     if (node->node_type == FUNCTION_NODE)
-        return _dump_function((struct ast_node *)node);
+        return _dump_function(node);
     else if (node->node_type == FUNC_TYPE_NODE)
-        return _dump_func_type((struct ast_node *)node);
+        return _dump_func_type(node);
     else if (node->node_type == VAR_NODE)
-        return _dump_var((struct ast_node *)node);
+        return _dump_var(node);
     else if (node->node_type == UNARY_NODE)
-        return _dump_unary((struct ast_node *)node);
+        return _dump_unary(node);
     else if (node->node_type == BINARY_NODE)
-        return _dump_binary((struct ast_node *)node);
+        return _dump_binary(node);
     else if (node->node_type == CONDITION_NODE)
-        return _dump_if((struct ast_node *)node);
+        return _dump_if(node);
     else if (node->node_type == CALL_NODE)
-        return _dump_call((struct ast_node *)node);
+        return _dump_call(node);
     else if (node->node_type == FOR_NODE)
-        return _dump_for((struct ast_node *)node);
+        return _dump_for(node);
     else if (node->node_type == IDENT_NODE)
-        return _dump_id((struct ast_node *)node);
+        return _dump_id(node);
     else if (node->node_type == LITERAL_NODE)
-        return _dump_number((struct ast_node *)node);
+        return _dump_number(node);
     else if (node->node_type == BLOCK_NODE)
-        return _dump_block((struct ast_node *)node);
+        return _dump_block(node);
     else {
         string not_supported;
         string_init_chars(&not_supported, "ast->node_type not supported: ");
