@@ -113,7 +113,7 @@ struct token *get_tok(struct lexer *lexer)
         break;
     case '\0':
         break;
-    case '#':
+    case '#': //comments
         _scan_until(lexer, '\n');
         get_tok(lexer);
         break;

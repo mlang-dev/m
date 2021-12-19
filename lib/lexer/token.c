@@ -2,9 +2,10 @@
 #include "clib/hashtable.h"
 #include <assert.h>
 
-#define NULL_PATTERN(pattern, tok_name, op_name) {0, 0, pattern, TOKEN_##tok_name, OP_##op_name}
-#define TOKEN_PATTERN(pattern, tok_name, op_name) {#tok_name, 0, pattern, TOKEN_##tok_name, OP_##op_name}
-#define KEYWORD_PATTERN(keyword, tok_name, op_name) {keyword, 0, keyword, TOKEN_##tok_name, OP_##op_name}
+#define NULL_PATTERN(pattern, tok_name, op_name) {0, 0, pattern, 0, TOKEN_##tok_name, OP_##op_name}
+#define TOKEN_PATTERN(pattern, tok_name, op_name) {#tok_name, 0, pattern, 0, TOKEN_##tok_name, OP_##op_name}
+#define KEYWORD_PATTERN(keyword, tok_name, op_name) {keyword, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
+#define NAME_KEYWORD_PATTERN(name, keyword, tok_name, op_name) {name, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
 
 struct token_pattern token_patterns[PATTERN_COUNT] = {
     NULL_PATTERN(0, NULL, NULL),
@@ -37,25 +38,25 @@ struct token_pattern token_patterns[PATTERN_COUNT] = {
 
     KEYWORD_PATTERN(",", COMMA, NULL),
 
-    KEYWORD_PATTERN(".", DOT, NULL),
-    KEYWORD_PATTERN("..", RANGE, NULL),
-    KEYWORD_PATTERN("...", VARIADIC, NULL),
+    NAME_KEYWORD_PATTERN(".", "\\.", DOT, NULL),      //literal dot
+    NAME_KEYWORD_PATTERN("..", "\\.\\.", RANGE, NULL),
+    NAME_KEYWORD_PATTERN("...", "\\.\\.\\.", VARIADIC, NULL), 
     KEYWORD_PATTERN("=", ASSIGN, NULL),
     KEYWORD_PATTERN(":", ISTYPEOF, NULL),
 
     TOKEN_PATTERN(0, OP, NULL),
-    KEYWORD_PATTERN("||", OP, OR),
+    NAME_KEYWORD_PATTERN("||", "\\|\\|", OP, OR),
     KEYWORD_PATTERN("&&", OP, AND),
     KEYWORD_PATTERN("!", OP, NOT),
 
-    KEYWORD_PATTERN("|", OP, BOR), 
+    NAME_KEYWORD_PATTERN("|", "\\|", OP, BOR), 
     KEYWORD_PATTERN("&", OP, BAND),
    
     KEYWORD_PATTERN("^", OP, EXPO),
-    KEYWORD_PATTERN("*", OP, TIMES),
+    NAME_KEYWORD_PATTERN("*", "\\*", OP, TIMES),
     KEYWORD_PATTERN("/", OP, DIVISION),
     KEYWORD_PATTERN("%", OP, MODULUS),
-    KEYWORD_PATTERN("+", OP, PLUS),
+    NAME_KEYWORD_PATTERN("+", "\\+", OP, PLUS),
     KEYWORD_PATTERN("-", OP, MINUS),
 
     KEYWORD_PATTERN("<", OP, LT),
@@ -76,15 +77,25 @@ void token_init()
 {
     hashtable_init(&token_patterns_by_symbol);
     for(int i = 0; i < PATTERN_COUNT; i++){
-        if(token_patterns[i].name){
-            token_patterns[i].symbol_name = to_symbol(token_patterns[i].name);
-            hashtable_set_p(&token_patterns_by_symbol, token_patterns[i].symbol_name, &token_patterns[i]);
+        struct token_pattern *tp = &token_patterns[i];
+        if(tp->name&&tp->pattern&&!tp->re){
+            //printf("building regex: %s\n", tp->pattern);
+            tp->re = regex_new(tp->pattern, true);
+            tp->symbol_name = to_symbol(tp->name);
+            hashtable_set_p(&token_patterns_by_symbol, tp->symbol_name, tp);
         }
     }
 }
 
 void token_deinit()
 {
+    for(int i = 0; i < PATTERN_COUNT; i++){
+        struct token_pattern *tp = &token_patterns[i];
+        if(tp->re){
+            regex_free(tp->re);
+            tp->re = 0;
+        }
+    }
     hashtable_deinit(&token_patterns_by_symbol);
 }
 
@@ -97,7 +108,7 @@ struct token_patterns get_token_patterns()
 const char *get_opcode(enum op_code opcode)
 {
     assert(opcode > 0 && opcode < OP_TOTAL);
-    return get_token_pattern_by_opcode(opcode)->pattern;
+    return get_token_pattern_by_opcode(opcode)->name;
 }
 
 symbol get_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode)

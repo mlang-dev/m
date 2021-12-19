@@ -53,6 +53,14 @@ TEST(test_regex, exact_match_escape)
     regex_free(re);
 }
 
+TEST(test_regex, exact_match_escape_braket)
+{
+    void *re = regex_new("\\[", 0);
+    ASSERT_EQ(1, regex_match(re, "["));
+    ASSERT_FALSE(regex_match(re, "]"));
+    regex_free(re);
+}
+
 TEST(test_regex, ident_match)
 {
     void *re = regex_new("[_a-zA-Z][_a-zA-Z0-9]*", 0);

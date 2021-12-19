@@ -12,6 +12,7 @@
 #include "clib/string.h"
 #include "clib/symbol.h"
 #include "clib/util.h"
+#include "clib/regex.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,6 +90,7 @@ struct token_pattern{
     const char *name;
     symbol symbol_name;
     const char *pattern;
+    struct re *re;
     enum token_type token_type;
     enum op_code opcode; 
 };
