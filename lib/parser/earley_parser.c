@@ -314,14 +314,12 @@ struct ast_node *_build_ast(struct parser *parser, struct parse_states *states, 
         if(c_p->ei_type){ //terminal
             //terminal symbol could be IDENT, literal
             node_type = _to_node_type(c_p->state->tok.token_type, c_p->state->tok.opcode);
-            symbol ident;
             switch(node_type){
                 default:
                     child = ast_node_new(node_type, 0, c_p->state->tok.loc);
                     break;
                 case IDENT_NODE:
-                    ident = to_symbol2(&parser->lexer.text[c_p->state->tok.loc.start], c_p->state->tok.loc.end - c_p->state->tok.loc.start);
-                    child = ident_node_new(ident, c_p->state->tok.loc);
+                    child = ident_node_new(c_p->state->tok.symbol_val, c_p->state->tok.loc);
                     break;
             }
         }else{ //noterminal
@@ -386,7 +384,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
     struct grammar *g = parser->grammar;
     //0. get the first token and jumpstart parsing process by initiating the start rule
     state = parse_states_add_state(&states);
-    get_tok(&parser->lexer, &state->tok);
+    state->tok = *get_tok(&parser->lexer);
     struct rule *rule = hashtable_get_p(&parser->grammar->rule_map, parser->grammar->start_symbol);
     parse_state_init_rule(state, rule);
     while(state)
@@ -417,8 +415,9 @@ struct ast_node *parse(struct parser *parser, const char *text)
             }
         }
         state = next_state;
-        if (state)
-            get_tok(&parser->lexer, &state->tok);
+        if (state){
+            state->tok = *get_tok(&parser->lexer);
+        }
         next_state = 0;
     }
     size_t to = array_size(&states.states);

@@ -8,12 +8,14 @@
 #ifndef __CLIB_REGEX_H__
 #define __CLIB_REGEX_H__
 
+#include "stdbool.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 const char* to_postfix(const char *re_pattern);
-void *regex_new(const char *re_pattern, const char *stop_chars);
+void *regex_new(const char *re_pattern, bool stop_on_space);
 int regex_match(void *re, const char *text);
 void regex_free(void *re);
 

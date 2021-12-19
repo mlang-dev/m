@@ -72,17 +72,18 @@ void _scan_until_no_id(struct lexer *lexer)
     while (ch == '_' || isalpha(ch) || isdigit(ch));
 }
 
-void _mark_token(struct lexer *lexer, struct token *tok, enum token_type token_type, enum op_code opcode)
+void _mark_token(struct lexer *lexer, enum token_type token_type, enum op_code opcode)
 {
-    tok->loc.start = lexer->pos;
-    tok->loc.line = lexer->line;
-    tok->loc.col = lexer->col;
-    tok->token_type = token_type;
-    tok->opcode = opcode;
+    lexer->tok.loc.start = lexer->pos;
+    lexer->tok.loc.line = lexer->line;
+    lexer->tok.loc.col = lexer->col;
+    lexer->tok.token_type = token_type;
+    lexer->tok.opcode = opcode;
 }
 
-void get_tok(struct lexer *lexer, struct token *tok)
+struct token *get_tok(struct lexer *lexer)
 {
+    struct token *tok = &lexer->tok;
     tok->token_type = TOKEN_NULL;
     char ch = lexer->text[lexer->pos];
     switch (ch)
@@ -90,43 +91,57 @@ void get_tok(struct lexer *lexer, struct token *tok)
     default:
         if(isspace(ch)){
             _scan_until_no_space(lexer);
-            get_tok(lexer, tok);
+            get_tok(lexer);
         }
         else if(isdigit(ch) || 
             (ch == '.' && isdigit(lexer->text[lexer->pos + 1])) /*.123*/){
-            _mark_token(lexer, tok, ch == '.' ? TOKEN_FLOAT : TOKEN_INT, 0);
+            _mark_token(lexer, ch == '.' ? TOKEN_FLOAT : TOKEN_INT, 0);
             bool has_dot = _scan_until_no_digit(lexer);
-            if(has_dot) tok->token_type = TOKEN_FLOAT;
+            if(has_dot) {
+                tok->token_type = TOKEN_FLOAT;
+                tok->double_val = strtod(&lexer->text[lexer->tok.loc.start], 0);
+            }else{
+                tok->int_val = (int)strtol(&lexer->text[lexer->tok.loc.start], 0, 10);
+            }
         }
         else if(isalpha(ch) || ch == '_'){
-            _mark_token(lexer, tok, TOKEN_IDENT, 0);
+            _mark_token(lexer, TOKEN_IDENT, 0);
             _scan_until_no_id(lexer);
+            lexer->tok.symbol_val = to_symbol2(&lexer->text[tok->loc.start], lexer->pos - tok->loc.start);
         }
         else{
             symbol symbol = to_symbol2(&ch, 1);
             struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
-            _mark_token(lexer, tok, tp->token_type, tp->opcode);
+            _mark_token(lexer, tp->token_type, tp->opcode);
             _move_ahead(lexer);
         }
         break;
     case '\0':
         break;
-    case '#':
+    case '#': //comments
         _scan_until(lexer, '\n');
-        get_tok(lexer, tok);
+        get_tok(lexer);
         break;
     case '\'':
-        _mark_token(lexer, tok, TOKEN_CHAR, 0);
+        _mark_token(lexer, TOKEN_CHAR, 0);
         _scan_until(lexer, '\'');
         _move_ahead(lexer); //skip the single quote
+        if(lexer->pos - lexer->tok.loc.start != 3){
+            printf("character is supposed to be 1 char long.\n");
+            exit(-1);
+            return 0;
+        }
+        lexer->tok.char_val = lexer->text[lexer->tok.loc.start + 1];
         break;
     case '"':
-        _mark_token(lexer, tok, TOKEN_STRING, 0);
+        _mark_token(lexer, TOKEN_STRING, 0);
         _scan_until(lexer, '"');
         _move_ahead(lexer); // skip the double quote
+        lexer->tok.str_val = string_new2(&lexer->text[lexer->tok.loc.start + 1], lexer->pos - lexer->tok.loc.start - 2);
         break;
     }
     if(tok->token_type){
         tok->loc.end = lexer->pos;
     }
+    return tok;
 }

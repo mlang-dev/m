@@ -8,6 +8,7 @@
 #include "clib/util.h"
 #include "clib/regex.h"
 #include "clib/list.h"
+#include <ctype.h>
 
 #define RE_MAX_PAREN 100
 #define RE_CONCAT '.'
@@ -185,7 +186,7 @@ struct re{
     int listid;
     struct nstate *start;
     struct nstate accepted_state;
-    const char *stop_chars;
+    bool stop_on_space;
 };
 
 void _ll_add_to_head(struct nstate_link_list *ll, struct nstate *state)
@@ -283,24 +284,24 @@ struct nstate *to_nfa(struct re *re, const char *pattern)
                 connect(a1.out, a2.in);
                 *sp++ = _nfa(a1.in, a2.out); //push to the stack
                 break;
-            case '|':
+            case '|':  //or
                 a2 = *--sp;
                 a1 = *--sp;
                 s = nstate_new(re, NS_SPLIT, a1.in, a2.in);
                 *sp++ = _nfa(s, join(a1.out, a2.out));
                 break;
-            case '?':
+            case '?':   //zero or one
                 a = *--sp;
                 s = nstate_new(re, NS_SPLIT, a.in, 0);
                 *sp++ = _nfa(s, join(a.out, to_list(&s->out2)));
                 break;
-            case '*':
+            case '*':  //zero or more
                 a = *--sp;
                 s = nstate_new(re, NS_SPLIT, a.in, 0);
                 connect(a.out, s);
                 *sp++ = _nfa(s, to_list(&s->out2));
                 break;
-            case '+':
+            case '+':  //one or more
                 a = *--sp;
                 s = nstate_new(re, NS_SPLIT, a.in, 0);
                 connect(a.out, s);
@@ -367,7 +368,7 @@ int _nstate_match(struct re *re, const char *text)
 	nlist = &re->l2;
     const char *p = text;
 	for(; *p; p++){
-        if(re->stop_chars && strchr(re->stop_chars, *p)) break;
+        if(re->stop_on_space && isspace(*p)) break;
 		c = *p & 0xFF;
 		_nstates_step(re, clist, c, nlist);
 		t = clist; clist = nlist; nlist = t;	/* swap clist, nlist */
@@ -376,7 +377,7 @@ int _nstate_match(struct re *re, const char *text)
 
 }
 
-void *regex_new(const char *re_pattern, const char *stop_chars)
+void *regex_new(const char *re_pattern, bool stop_on_space)
 {
     struct re *re;
     MALLOC(re, sizeof(*re));
@@ -384,7 +385,7 @@ void *regex_new(const char *re_pattern, const char *stop_chars)
     re->nstate_count = 0;
     re->listid = 0;
     re->start = 0;
-    re->stop_chars = stop_chars;
+    re->stop_on_space = stop_on_space;
     const char *re_postfix = to_postfix(re_pattern);
     if(!re_postfix) return 0;
     re->start = to_nfa(re, re_postfix);

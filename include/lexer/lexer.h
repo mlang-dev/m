@@ -22,6 +22,7 @@ extern "C" {
 
 struct lexer {
     const char *text;
+    struct token tok;
     int pos;  //current text position
     int line;
     int col;
@@ -29,7 +30,7 @@ struct lexer {
 
 void lexer_init(struct lexer *lexer, const char *text);
 void lexer_deinit();
-void get_tok(struct lexer *lexer, struct token *tok);
+struct token *get_tok(struct lexer *lexer);
 
 #ifdef __cplusplus
 }
