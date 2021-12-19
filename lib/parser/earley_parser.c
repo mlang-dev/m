@@ -386,7 +386,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
     struct grammar *g = parser->grammar;
     //0. get the first token and jumpstart parsing process by initiating the start rule
     state = parse_states_add_state(&states);
-    get_tok(&parser->lexer, &state->tok);
+    state->tok = *get_tok(&parser->lexer);
     struct rule *rule = hashtable_get_p(&parser->grammar->rule_map, parser->grammar->start_symbol);
     parse_state_init_rule(state, rule);
     while(state)
@@ -417,8 +417,9 @@ struct ast_node *parse(struct parser *parser, const char *text)
             }
         }
         state = next_state;
-        if (state)
-            get_tok(&parser->lexer, &state->tok);
+        if (state){
+            state->tok = *get_tok(&parser->lexer);
+        }
         next_state = 0;
     }
     size_t to = array_size(&states.states);

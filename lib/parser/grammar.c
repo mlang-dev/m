@@ -97,21 +97,21 @@ struct grammar *grammar_parse(const char *grammar_text)
     struct token tok, next_tok;
     struct lexer lexer;
     lexer_init(&lexer, grammar_text);
-    get_tok(&lexer, &tok);
+    tok = *get_tok(&lexer);
     int rule_no = 0;
     struct rule *rule = 0;
     struct expr *expr = 0;
     symbol s = 0;
     string group;
     while (tok.token_type) {
-        get_tok(&lexer, &next_tok);
+        next_tok = *get_tok(&lexer);
         if(tok.token_type == TOKEN_IDENT){
             s = to_symbol2(&grammar_text[tok.loc.start], tok.loc.end - tok.loc.start);
             if(next_tok.token_type == TOKEN_ASSIGN){
                 //nonterm
                 rule = grammar_add_rule(g, s, rule_no++);
                 expr = rule_add_expr(rule);
-                get_tok(&lexer, &next_tok); //skip the '='
+                next_tok = *get_tok(&lexer); //skip the '='
             }else if(expr){
                 expr_add_symbol(expr, s, is_upper((string*)s) ? EI_TOKEN_MATCH : EI_NONTERM);
             }
@@ -130,10 +130,10 @@ struct grammar *grammar_parse(const char *grammar_text)
                     hashset_set2(&g->keywords, p + i, 1);
                 }
                 string_add_chars2(&group, p, next_tok.loc.end - next_tok.loc.start);
-                get_tok(&lexer, &next_tok);
+                next_tok = *get_tok(&lexer);
             }
             expr_add_symbol(expr, string_2_symbol(&group), EI_IN_MATCH);
-            get_tok(&lexer, &next_tok); // skip ']'
+            next_tok = *get_tok(&lexer); // skip ']'
         }else if (tok.token_type == TOKEN_LCBRACKET){
             while(next_tok.token_type != TOKEN_RCBRACKET){
                 //next tok is action
@@ -146,9 +146,9 @@ struct grammar *grammar_parse(const char *grammar_text)
                 }
                 else    
                     assert(false);
-                get_tok(&lexer, &next_tok);//'}'
+            next_tok = *get_tok(&lexer); // skip ']'
             }
-            get_tok(&lexer, &next_tok); //skip '}
+            next_tok = *get_tok(&lexer); // skip ']'
         }
         tok = next_tok;
         next_tok.token_type = TOKEN_NULL;

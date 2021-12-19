@@ -72,40 +72,42 @@ void _scan_until_no_id(struct lexer *lexer)
     while (ch == '_' || isalpha(ch) || isdigit(ch));
 }
 
-void _mark_token(struct lexer *lexer, struct token *tok, enum token_type token_type, enum op_code opcode)
+void _mark_token(struct lexer *lexer, enum token_type token_type, enum op_code opcode)
 {
-    tok->loc.start = lexer->pos;
-    tok->loc.line = lexer->line;
-    tok->loc.col = lexer->col;
-    tok->token_type = token_type;
-    tok->opcode = opcode;
+    lexer->tok.loc.start = lexer->pos;
+    lexer->tok.loc.line = lexer->line;
+    lexer->tok.loc.col = lexer->col;
+    lexer->tok.token_type = token_type;
+    lexer->tok.opcode = opcode;
 }
 
-void get_tok(struct lexer *lexer, struct token *tok)
+struct token *get_tok(struct lexer *lexer)
 {
-    tok->token_type = TOKEN_NULL;
+    lexer->tok.token_type = TOKEN_NULL;
     char ch = lexer->text[lexer->pos];
     switch (ch)
     {
     default:
         if(isspace(ch)){
             _scan_until_no_space(lexer);
-            get_tok(lexer, tok);
+            get_tok(lexer);
         }
         else if(isdigit(ch) || 
             (ch == '.' && isdigit(lexer->text[lexer->pos + 1])) /*.123*/){
-            _mark_token(lexer, tok, ch == '.' ? TOKEN_FLOAT : TOKEN_INT, 0);
+            _mark_token(lexer, ch == '.' ? TOKEN_FLOAT : TOKEN_INT, 0);
             bool has_dot = _scan_until_no_digit(lexer);
-            if(has_dot) tok->token_type = TOKEN_FLOAT;
+            if(has_dot) {
+                lexer->tok.token_type = TOKEN_FLOAT;
+            }
         }
         else if(isalpha(ch) || ch == '_'){
-            _mark_token(lexer, tok, TOKEN_IDENT, 0);
+            _mark_token(lexer, TOKEN_IDENT, 0);
             _scan_until_no_id(lexer);
         }
         else{
             symbol symbol = to_symbol2(&ch, 1);
             struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
-            _mark_token(lexer, tok, tp->token_type, tp->opcode);
+            _mark_token(lexer, tp->token_type, tp->opcode);
             _move_ahead(lexer);
         }
         break;
@@ -113,20 +115,21 @@ void get_tok(struct lexer *lexer, struct token *tok)
         break;
     case '#':
         _scan_until(lexer, '\n');
-        get_tok(lexer, tok);
+        get_tok(lexer);
         break;
     case '\'':
-        _mark_token(lexer, tok, TOKEN_CHAR, 0);
+        _mark_token(lexer, TOKEN_CHAR, 0);
         _scan_until(lexer, '\'');
         _move_ahead(lexer); //skip the single quote
         break;
     case '"':
-        _mark_token(lexer, tok, TOKEN_STRING, 0);
+        _mark_token(lexer, TOKEN_STRING, 0);
         _scan_until(lexer, '"');
         _move_ahead(lexer); // skip the double quote
         break;
     }
-    if(tok->token_type){
-        tok->loc.end = lexer->pos;
+    if(lexer->tok.token_type){
+        lexer->tok.loc.end = lexer->pos;
     }
+    return &lexer->tok;
 }
