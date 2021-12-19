@@ -68,7 +68,7 @@ struct type_exp *_analyze_ident(struct sema_context *context, struct ast_node *n
         } else {
             assert(type);
             struct type_oper *oper = (struct type_oper *)type;
-            struct ast_node *type_node = (struct ast_node *)hashtable_get_p(&context->ext_typename_2_asts, oper->base.name);
+            struct ast_node *type_node = hashtable_get_p(&context->ext_typename_2_asts, oper->base.name);
             int index = find_member_index(type_node, id);
             if (index < 0) {
                 _log_err(context, node->loc, "%s member not matched.");
@@ -249,7 +249,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
                 return *(struct type_exp **)array_back(&fun_op->args);
             }
             /* specialized callee */
-            struct ast_node *generic_fun = (struct ast_node *)hashtable_get(&context->generic_ast, string_get(node->call->callee));
+            struct ast_node *generic_fun = hashtable_get(&context->generic_ast, string_get(node->call->callee));
             struct ast_node *sp_fun = node_copy(generic_fun);
             array_push(&generic_fun->func->sp_funs, &sp_fun);
 
@@ -353,7 +353,7 @@ struct type_exp *_analyze_block(struct sema_context *context, struct ast_node *n
     ret_node->is_ret = true;
     if (ret_node->node_type == IDENT_NODE) {
         symbol var_name = ret_node->ident->name;
-        struct ast_node *var = (struct ast_node *)symboltable_get(&context->varname_2_asts, var_name);
+        struct ast_node *var = symboltable_get(&context->varname_2_asts, var_name);
         //struct member reference id node like xy.x is not a variable
         if (var)
             var->is_ret = true;

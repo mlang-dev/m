@@ -212,7 +212,7 @@ LLVMValueRef get_global_variable(struct code_generator *cg, symbol gv_name)
     LLVMValueRef gv = LLVMGetNamedGlobal(cg->module, name);
     if (gv)
         return gv;
-    struct ast_node *var = (struct ast_node *)hashtable_get_p(&cg->gvs, gv_name);
+    struct ast_node *var = hashtable_get_p(&cg->gvs, gv_name);
     if (var) {
         LLVMTypeRef type = get_llvm_type(var->type);
         gv = LLVMAddGlobal(cg->module, type, name);

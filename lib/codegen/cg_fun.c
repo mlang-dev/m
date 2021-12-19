@@ -199,7 +199,7 @@ LLVMValueRef get_llvm_function(struct code_generator *cg, symbol fun_name)
     LLVMValueRef f = LLVMGetNamedFunction(cg->module, name);
     if (f)
         return f;
-    struct ast_node *fp = (struct ast_node *)hashtable_get_p(&cg->protos, fun_name);
+    struct ast_node *fp = hashtable_get_p(&cg->protos, fun_name);
     if (fp)
         return emit_func_type_node(cg, fp);
     return 0;

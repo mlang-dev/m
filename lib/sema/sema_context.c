@@ -99,5 +99,5 @@ void sema_context_free(struct sema_context *context)
 
 struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name)
 {
-    return (struct ast_node *)hashtable_get(&context->generic_ast, string_get(fun_name));
+    return hashtable_get(&context->generic_ast, string_get(fun_name));
 }
