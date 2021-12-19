@@ -8,6 +8,7 @@
 #include "clib/util.h"
 #include "clib/regex.h"
 #include "clib/list.h"
+#include <ctype.h>
 
 #define RE_MAX_PAREN 100
 #define RE_CONCAT '.'
@@ -378,7 +379,6 @@ int _nstate_match(struct re *re, const char *text)
 
 void *regex_new(const char *re_pattern, bool stop_on_space)
 {
-    char re_pat[1024]; /*for special char, we need to add escape char*/
     struct re *re;
     MALLOC(re, sizeof(*re));
     re->states.first = 0;
