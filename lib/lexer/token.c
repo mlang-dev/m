@@ -79,7 +79,6 @@ void token_init()
     for(int i = 0; i < PATTERN_COUNT; i++){
         struct token_pattern *tp = &token_patterns[i];
         if(tp->name&&tp->pattern&&!tp->re){
-            //printf("building regex: %s\n", tp->pattern);
             tp->re = regex_new(tp->pattern, true);
             tp->symbol_name = to_symbol(tp->name);
             hashtable_set_p(&token_patterns_by_symbol, tp->symbol_name, tp);
@@ -113,11 +112,12 @@ const char *get_opcode(enum op_code opcode)
 
 symbol get_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode)
 {
-    assert(opcode >= 0 && opcode < OP_TOTAL);
-    if (token_type == TOKEN_OP)
+    if (token_type == TOKEN_OP){
+        assert(opcode >= 0 && opcode < OP_TOTAL);
         return get_token_pattern_by_opcode(opcode)->symbol_name;
-    else
+    }else{
         return get_token_pattern_by_token_type(token_type)->symbol_name;
+    }
 }
 
 struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode)

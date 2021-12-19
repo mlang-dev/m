@@ -43,7 +43,7 @@ TEST(test_lexer, token_char)
     symbols_init();
     char test_code[] = 
 "\n"
-"'234'\n"
+"'4'\n"
 "\n";
 
     struct token *tok;
@@ -54,7 +54,7 @@ TEST(test_lexer, token_char)
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
-    ASSERT_EQ(6, tok->loc.end);
+    ASSERT_EQ(4, tok->loc.end);
     lexer_deinit();
     symbols_deinit();
 }

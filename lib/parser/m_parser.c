@@ -415,7 +415,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
             array_push(&queued, &parser->curr_token);
             if (parser->curr_token.token_type == TOKEN_OP) {
                 // it is operator overloading
-                symbol op = parser->curr_token.symbol_val;
+                symbol op = get_symbol_by_token_opcode(parser->curr_token.token_type, parser->curr_token.opcode);
                 parse_next_token(parser);
                 if (parser->curr_token.token_type != TOKEN_RPAREN)
                     return log_info(ERROR, "expected ')'");
@@ -513,8 +513,9 @@ struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
         string_init_chars(&error, "unknown token: ");
         string_add_chars(&error, token_type_strings[parser->curr_token.token_type]);
         if (parser->curr_token.token_type == TOKEN_OP) {
+            symbol sym_op = get_symbol_by_token_opcode(parser->curr_token.token_type, parser->curr_token.opcode);
             string_add_chars(&error, " op: ");
-            string_add(&error, parser->curr_token.symbol_val);
+            string_add(&error, sym_op);
         }
         parse_next_token(parser);
         return log_info(ERROR, string_get(&error));

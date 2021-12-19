@@ -83,7 +83,8 @@ void _mark_token(struct lexer *lexer, enum token_type token_type, enum op_code o
 
 struct token *get_tok(struct lexer *lexer)
 {
-    lexer->tok.token_type = TOKEN_NULL;
+    struct token *tok = &lexer->tok;
+    tok->token_type = TOKEN_NULL;
     char ch = lexer->text[lexer->pos];
     switch (ch)
     {
@@ -97,12 +98,16 @@ struct token *get_tok(struct lexer *lexer)
             _mark_token(lexer, ch == '.' ? TOKEN_FLOAT : TOKEN_INT, 0);
             bool has_dot = _scan_until_no_digit(lexer);
             if(has_dot) {
-                lexer->tok.token_type = TOKEN_FLOAT;
+                tok->token_type = TOKEN_FLOAT;
+                tok->double_val = strtod(&lexer->text[lexer->tok.loc.start], 0);
+            }else{
+                tok->int_val = (int)strtol(&lexer->text[lexer->tok.loc.start], 0, 10);
             }
         }
         else if(isalpha(ch) || ch == '_'){
             _mark_token(lexer, TOKEN_IDENT, 0);
             _scan_until_no_id(lexer);
+            lexer->tok.symbol_val = to_symbol2(&lexer->text[tok->loc.start], lexer->pos - tok->loc.start);
         }
         else{
             symbol symbol = to_symbol2(&ch, 1);
@@ -121,15 +126,22 @@ struct token *get_tok(struct lexer *lexer)
         _mark_token(lexer, TOKEN_CHAR, 0);
         _scan_until(lexer, '\'');
         _move_ahead(lexer); //skip the single quote
+        if(lexer->pos - lexer->tok.loc.start != 3){
+            printf("character is supposed to be 1 char long.\n");
+            exit(-1);
+            return 0;
+        }
+        lexer->tok.char_val = lexer->text[lexer->tok.loc.start + 1];
         break;
     case '"':
         _mark_token(lexer, TOKEN_STRING, 0);
         _scan_until(lexer, '"');
         _move_ahead(lexer); // skip the double quote
+        lexer->tok.str_val = string_new2(&lexer->text[lexer->tok.loc.start + 1], lexer->pos - lexer->tok.loc.start - 2);
         break;
     }
-    if(lexer->tok.token_type){
-        lexer->tok.loc.end = lexer->pos;
+    if(tok->token_type){
+        tok->loc.end = lexer->pos;
     }
-    return &lexer->tok;
+    return tok;
 }
