@@ -58,7 +58,7 @@ loopprint n =
 * Source code version control: git
 * Build system generator: cmake
 * Build system: GNU make (Unix-like system) or MSBuild (Windows)
-* Compiler: c++ compilers: gcc/clang/vc++(Visual Studio 2019 Community Edition with Desktop Developement with C++) 
+* Compiler: c/c++ compilers: gcc/clang/vc++(Visual Studio 2019 Community Edition with Desktop Developement with C++) 
 
 ## get source codes
 ```
@@ -73,7 +73,10 @@ Note: You can skip building llvm from source but just install binary (version 13
 
 Replace "Debug" with "Release" in following commands if Release build is desired.
 ```
-cd ./extern/llvm-project
+cd ./extern
+git clone https://github.com/llvm/llvm-project
+cd ./llvm-project
+git checkout release/13.x
 mkdir build
 cd build
 cmake -DLLVM_ENABLE_RTTI=ON -DCMAKE_BUILD_TYPE=Debug -DLLVM_ENABLE_PROJECTS="clang;lld" ../llvm

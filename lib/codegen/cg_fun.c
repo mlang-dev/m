@@ -143,7 +143,7 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct ast_node *node
     assert(node->type->kind == KIND_OPER);
     hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
-    LLVMValueRef fun = emit_func_type_node_fi(cg, (struct ast_node *)node->func->func_type, &fi);
+    LLVMValueRef fun = emit_func_type_node_fi(cg, node->func->func_type, &fi);
     assert(fun && fi);
 
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");

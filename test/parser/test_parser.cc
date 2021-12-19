@@ -55,7 +55,7 @@ TEST_F(testParser, testBlockVariable)
     ASSERT_STREQ("x", string_get(node->var->var_name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
-    struct ast_node *literal = (struct ast_node *)node->var->init_value;
+    struct ast_node *literal = node->var->init_value;
     ASSERT_EQ(11, literal->liter->int_val);
     env_free(env);
 }
@@ -72,7 +72,7 @@ TEST_F(testParser, testVariableWithType)
     ASSERT_STREQ("x", string_get(node->var->var_name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
-    struct ast_node *literal = (struct ast_node *)node->var->init_value;
+    struct ast_node *literal = node->var->init_value;
     ASSERT_EQ(11, literal->liter->int_val);
     env_free(env);
 }
@@ -88,7 +88,7 @@ TEST_F(testParser, testBool)
     ASSERT_STREQ("x", string_get(node->var->var_name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
-    struct ast_node *literal = (struct ast_node *)node->var->init_value;
+    struct ast_node *literal = node->var->init_value;
     ASSERT_EQ(true, literal->liter->bool_val);
     env_free(env);
 }
@@ -104,7 +104,7 @@ TEST_F(testParser, testChar)
     ASSERT_STREQ("x", string_get(node->var->var_name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
-    struct ast_node *literal = (struct ast_node *)node->var->init_value;
+    struct ast_node *literal = node->var->init_value;
     ASSERT_EQ('c', literal->liter->char_val);
     env_free(env);
 }
@@ -119,7 +119,7 @@ TEST_F(testParser, testString)
     ASSERT_STREQ("x", string_get(node->var->var_name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
-    struct ast_node *literal = (struct ast_node *)node->var->init_value;
+    struct ast_node *literal = node->var->init_value;
     ASSERT_STREQ("hello world!", literal->liter->str_val);
     env_free(env);
 }
@@ -396,7 +396,7 @@ xy:Point2D = 10.0 20.0
     auto var = *(struct ast_node **)array_back(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, var->node_type);
     ASSERT_EQ(TYPE_VALUE_NODE, var->var->init_value->node_type);
-    auto value_node = (struct ast_node *)var->var->init_value;
+    auto value_node = var->var->init_value;
     auto value1 = *(struct ast_node **)array_front(&value_node->type_value->body->block->nodes);
     auto value2 = *(struct ast_node **)array_back(&value_node->type_value->body->block->nodes);
     ASSERT_EQ(LITERAL_NODE, value1->node_type);
@@ -430,7 +430,7 @@ xy = Point2D 10.0 20.0
     auto var = *(struct ast_node **)array_back(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, var->node_type);
     ASSERT_EQ(TYPE_VALUE_NODE, var->var->init_value->node_type);
-    auto value_node = (struct ast_node *)var->var->init_value;
+    auto value_node = var->var->init_value;
     auto value1 = *(struct ast_node **)array_front(&value_node->type_value->body->block->nodes);
     auto value2 = *(struct ast_node **)array_back(&value_node->type_value->body->block->nodes);
     ASSERT_EQ(LITERAL_NODE, value1->node_type);
@@ -531,13 +531,13 @@ xy.x
     ASSERT_EQ(TYPE_NODE, node->node_type);
     node = *(ast_node **)array_get(&block->block->nodes, 1);
     ASSERT_EQ(VAR_NODE, node->node_type);
-    struct ast_node *var = (struct ast_node *)node;
+    struct ast_node *var = node;
     ASSERT_STREQ("xy", string_get(var->var->var_name));
     ASSERT_STREQ("Point2D", string_get(var->annotated_type_name));
     ASSERT_EQ(TYPE_EXT, var->annotated_type_enum);
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(IDENT_NODE, node->node_type);
-    struct ast_node *id_node = (struct ast_node *)node;
+    struct ast_node *id_node = node;
     ASSERT_STREQ("xy.x", string_get(id_node->ident->name));
     ASSERT_EQ(2, array_size(&id_node->ident->member_accessors));
     ASSERT_STREQ("xy", string_get(*(symbol *)array_front(&id_node->ident->member_accessors)));

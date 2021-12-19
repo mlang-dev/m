@@ -71,10 +71,9 @@ struct sema_context *sema_context_new(struct m_parser *parser)
     for (size_t i = 0; i < array_size(&builtins); i++) {
         struct ast_node *node = *(struct ast_node **)array_get(&builtins, i);
         assert(node->node_type == FUNC_TYPE_NODE);
-        struct ast_node *func_type = (struct ast_node *)node;
         analyze(context, node);
-        push_symbol_type(&context->decl_2_typexps, func_type->ft->name, func_type->type);
-        hashtable_set_p(&context->builtin_ast, func_type->ft->name, node);
+        push_symbol_type(&context->decl_2_typexps, node->ft->name, node->type);
+        hashtable_set_p(&context->builtin_ast, node->ft->name, node);
         //string type = to_string(func_type->base.type);
     }
     return context;
