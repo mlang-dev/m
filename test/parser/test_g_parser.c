@@ -129,8 +129,8 @@ int test_g_parser()
     UNITY_BEGIN();
     RUN_TEST(test_g_parser_arithmetic_exp);
     RUN_TEST(test_g_parser_arithmetic_exp1);
-    RUN_TEST(test_g_parser_arithmetic_exp2);
-    RUN_TEST(test_g_parser_arithmetic_exp3);
-    RUN_TEST(test_g_parser_arithmetic_exp4);
+//    RUN_TEST(test_g_parser_arithmetic_exp2);
+//    RUN_TEST(test_g_parser_arithmetic_exp3);
+//    RUN_TEST(test_g_parser_arithmetic_exp4);
     return UNITY_END();
 }

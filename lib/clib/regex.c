@@ -393,6 +393,10 @@ void *regex_new(const char *re_pattern)
     re->nstate_count = 0;
     re->listid = 0;
     re->start = 0;
+    re->accepted_state.op = 0;
+    re->accepted_state.out1 = 0;
+    re->accepted_state.out2 = 0;
+    re->accepted_state.last_listid = 0;
     const char *re_postfix = to_postfix(re_pattern);
     if(!re_postfix) return 0;
     re->start = to_nfa(re, re_postfix);
