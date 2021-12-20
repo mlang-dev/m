@@ -8,14 +8,13 @@
 #define NAME_KEYWORD_PATTERN(name, keyword, tok_name, op_name) {name, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
 
 struct token_pattern token_patterns[PATTERN_COUNT] = {
-    NULL_PATTERN(0, NULL, NULL),
-    TOKEN_PATTERN("\0", EOF, NULL),
+    TOKEN_PATTERN(0, EOF, NULL),
     TOKEN_PATTERN(0, INDENT, NULL),
     TOKEN_PATTERN(0, DEDENT, NULL),
     TOKEN_PATTERN("\n", NEWLINE, NULL),
     TOKEN_PATTERN("[0-9]+", INT, NULL),
-    TOKEN_PATTERN("[+-]?([0-9]*[.])?[0-9]+", FLOAT, NULL),
-    TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL),
+    TOKEN_PATTERN("([0-9]*.)?[0-9]+", FLOAT, NULL),
+
     TOKEN_PATTERN(0, CHAR, NULL), 
     TOKEN_PATTERN(0, STRING, NULL),
 
@@ -29,10 +28,13 @@ struct token_pattern token_patterns[PATTERN_COUNT] = {
     KEYWORD_PATTERN("false", FALSE, NULL),
     KEYWORD_PATTERN("in", IN, NULL),
     KEYWORD_PATTERN("for", FOR, NULL),
-    KEYWORD_PATTERN("(", LPAREN, NULL),
-    KEYWORD_PATTERN(")", RPAREN, NULL),
-    KEYWORD_PATTERN("[", LBRACKET, NULL),
-    KEYWORD_PATTERN("]", RBRACKET, NULL),
+
+    TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL),
+
+    NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL),
+    NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL),
+    NAME_KEYWORD_PATTERN("[", "\\[", LBRACKET, NULL),
+    NAME_KEYWORD_PATTERN("]", "\\]", RBRACKET, NULL),
     KEYWORD_PATTERN("{", LCBRACKET, NULL),
     KEYWORD_PATTERN("}", RCBRACKET, NULL),
 
@@ -79,7 +81,8 @@ void token_init()
     for(int i = 0; i < PATTERN_COUNT; i++){
         struct token_pattern *tp = &token_patterns[i];
         if(tp->name&&tp->pattern&&!tp->re){
-            tp->re = regex_new(tp->pattern, true);
+            tp->re = regex_new(tp->pattern);
+            assert(tp->re);
             tp->symbol_name = to_symbol(tp->name);
             hashtable_set_p(&token_patterns_by_symbol, tp->symbol_name, tp);
         }

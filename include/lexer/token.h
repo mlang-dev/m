@@ -19,14 +19,12 @@ extern "C" {
 #endif
 
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
-    ENUM_ITEM(TOKEN_NULL)            \
     ENUM_ITEM(TOKEN_EOF)             \
     ENUM_ITEM(TOKEN_INDENT)          \
     ENUM_ITEM(TOKEN_DEDENT)          \
     ENUM_ITEM(TOKEN_NEWLINE)         \
     ENUM_ITEM(TOKEN_INT)             \
     ENUM_ITEM(TOKEN_FLOAT)           \
-    ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
     ENUM_ITEM(TOKEN_IMPORT)          \
@@ -39,6 +37,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_FALSE)           \
     ENUM_ITEM(TOKEN_IN)              \
     ENUM_ITEM(TOKEN_FOR)             \
+    ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_LPAREN)          \
     ENUM_ITEM(TOKEN_RPAREN)          \
     ENUM_ITEM(TOKEN_LBRACKET)        \

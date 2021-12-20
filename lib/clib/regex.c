@@ -11,7 +11,7 @@
 #include <ctype.h>
 
 #define RE_MAX_PAREN 100
-#define RE_CONCAT '.'
+#define RE_CONCAT '#'
 
 
 const char* to_postfix(const char *re)
@@ -41,10 +41,14 @@ const char* to_postfix(const char *re)
         }
         else if(re > orig && *(re-1) == '\\'){
             *dst++ = *re;
-            natom++;
-            if(natom > 1){
-                --natom;
-                *dst++ = RE_CONCAT;
+            if(ncharset){
+                nalt++;        
+            }else{
+                natom++;
+                if(natom > 1){
+                    --natom;
+                    *dst++ = RE_CONCAT;
+                }
             }
             continue;
         }
@@ -103,14 +107,19 @@ const char* to_postfix(const char *re)
 		case '*':
 		case '+':
 		case '?':
-			if(natom == 0)
-				return 0;
-			*dst++ = *re;
-			break;
+            if(!ncharset){
+                if(natom == 0)
+                    return 0;
+                *dst++ = *re;
+                break;
+            }
+        #ifndef _WIN32    
+            __attribute__ ((fallthrough));
+        #endif
 		default:
             if(ncharset > 0){
                 if(ncharset > 1) return 0;
-                if(*re != '-'){
+                if(*re != '-' || *(re+1) == ']'){
                     /*add missed range chars*/
                     if(*(re-1) == '-'){
                         if(re-2 < orig) return 0;
@@ -186,7 +195,6 @@ struct re{
     int listid;
     struct nstate *start;
     struct nstate accepted_state;
-    bool stop_on_space;
 };
 
 void _ll_add_to_head(struct nstate_link_list *ll, struct nstate *state)
@@ -278,7 +286,7 @@ struct nstate *to_nfa(struct re *re, const char *pattern)
                 break;
             case '\\':
                 break;
-            case '.':
+            case RE_CONCAT:
                 a2 = *--sp;
                 a1 = *--sp;
                 connect(a1.out, a2.in);
@@ -368,20 +376,16 @@ int _nstate_match(struct re *re, const char *text, size_t *matched_len)
 	nlist = &re->l2;
     const char *p = text;
 	for(; *p; p++){
-        if(re->stop_on_space && isspace(*p)) {
-            break;
-        }
 		c = *p & 0xFF;
 		_nstates_step(re, clist, c, nlist);
+        if(!nlist->len) break;
 		t = clist; clist = nlist; nlist = t;	/* swap clist, nlist */
-        if(!clist->len) break;
 	}
     if(matched_len) *matched_len = p - text;
 	return _nstates_is_accepted(re, clist) ? p - text : 0;
-
 }
 
-void *regex_new(const char *re_pattern, bool stop_on_space)
+void *regex_new(const char *re_pattern)
 {
     struct re *re;
     MALLOC(re, sizeof(*re));
@@ -389,7 +393,10 @@ void *regex_new(const char *re_pattern, bool stop_on_space)
     re->nstate_count = 0;
     re->listid = 0;
     re->start = 0;
-    re->stop_on_space = stop_on_space;
+    re->accepted_state.op = 0;
+    re->accepted_state.out1 = 0;
+    re->accepted_state.out2 = 0;
+    re->accepted_state.last_listid = 0;
     const char *re_postfix = to_postfix(re_pattern);
     if(!re_postfix) return 0;
     re->start = to_nfa(re, re_postfix);

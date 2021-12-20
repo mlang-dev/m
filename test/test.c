@@ -46,7 +46,7 @@ EXPORT int ENTRY()
   failures += test_symboltable();
   failures += test_util();
   failures += test_regex();
- 
+
   failures += test_token();
   failures += test_lexer();
   failures += test_g_parser();

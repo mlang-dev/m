@@ -189,16 +189,16 @@ else()
   TARGET_LINK_LIBRARIES(mctest mlr unity
   )
 
-  add_custom_command(
-    TARGET mctest
-    POST_BUILD
-    COMMAND mctest
-  )
+ add_custom_command(
+   TARGET mctest
+   POST_BUILD
+   COMMAND mctest
+ )
   
-  add_custom_command(
-    TARGET mtest
-    POST_BUILD
-    COMMAND mtest
-  )
+ add_custom_command(
+   TARGET mtest
+   POST_BUILD
+   COMMAND mtest
+ )
 endif()
 
