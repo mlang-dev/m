@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 const char* to_postfix(const char *re_pattern);
-void *regex_new(const char *re_pattern, bool stop_on_space);
+void *regex_new(const char *re_pattern);
 int regex_match(void *re, const char *text, size_t *matched_len);
 void regex_free(void *re);
 

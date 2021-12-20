@@ -16,7 +16,7 @@ TEST(test_lexer, empty_string)
     struct lexer lexer;
     lexer_init(&lexer, "");
     tok = get_tok(&lexer);
-    ASSERT_EQ(0, tok->token_type);
+    ASSERT_EQ(TOKEN_EOF, tok->token_type);
     lexer_deinit();
     symbols_deinit();
 }
@@ -32,8 +32,9 @@ TEST(test_lexer, skip_comment)
     struct token *tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
-    tok = get_tok(&lexer);
-    ASSERT_EQ(0, tok->token_type);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
     lexer_deinit();
     symbols_deinit();
  }
@@ -42,19 +43,18 @@ TEST(test_lexer, token_char)
 {
     symbols_init();
     char test_code[] = 
-"\n"
-"'4'\n"
-"\n";
+"'4'\n";
 
     struct token *tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
     tok = get_tok(&lexer);
     ASSERT_EQ(TOKEN_CHAR, tok->token_type);
-    ASSERT_EQ(2, tok->loc.line);
+    ASSERT_EQ(1, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
-    ASSERT_EQ(1, tok->loc.start);
-    ASSERT_EQ(4, tok->loc.end);
+    ASSERT_EQ(0, tok->loc.start);
+    ASSERT_EQ(3, tok->loc.end);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
     lexer_deinit();
     symbols_deinit();
 }
@@ -63,7 +63,6 @@ TEST(test_lexer, token_string)
 {
     symbols_init();
     char test_code[] = 
-"\n"
 "\"234\"\n"
 "\n";
 
@@ -72,10 +71,11 @@ TEST(test_lexer, token_string)
     lexer_init(&lexer, test_code);
     tok = get_tok(&lexer);
     ASSERT_EQ(TOKEN_STRING, tok->token_type);
-    ASSERT_EQ(2, tok->loc.line);
+    ASSERT_EQ(1, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
-    ASSERT_EQ(1, tok->loc.start);
-    ASSERT_EQ(6, tok->loc.end);
+    ASSERT_EQ(0, tok->loc.start);
+    ASSERT_EQ(5, tok->loc.end);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
     lexer_deinit();
     symbols_deinit();
  }
@@ -91,6 +91,7 @@ TEST(test_lexer, token_num_int)
     struct token *tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
     tok = get_tok(&lexer);
     ASSERT_EQ(TOKEN_INT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
@@ -104,17 +105,18 @@ TEST(test_lexer, token_num_int)
 TEST(test_lexer, token_num_float)
 {
     symbols_init();
-    char test_code[] = "\n23.";
+    char test_code[] = "\n23.1";
 
     struct token *tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
     tok = get_tok(&lexer);
     ASSERT_EQ(TOKEN_FLOAT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
-    ASSERT_EQ(4, tok->loc.end);
+    ASSERT_EQ(5, tok->loc.end);
     lexer_deinit();
     symbols_deinit();
 }
@@ -127,6 +129,7 @@ TEST(test_lexer, token_num_float2)
     struct token *tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
     tok = get_tok(&lexer);
     ASSERT_EQ(TOKEN_FLOAT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
@@ -145,6 +148,7 @@ TEST(test_lexer, token_num_float3)
     struct token *tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
     tok = get_tok(&lexer);
     ASSERT_EQ(TOKEN_FLOAT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
@@ -162,6 +166,7 @@ TEST(test_lexer, token_id)
     struct token *tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
     tok = get_tok(&lexer);
     ASSERT_EQ(TOKEN_IDENT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
@@ -175,11 +180,12 @@ TEST(test_lexer, token_id)
 TEST(test_lexer, token_num_id)
 {
     symbols_init();
-    char test_code[] = "\n123abc";
+    char test_code[] = "\n123 abc";
 
     struct token *tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);
     //NUM
     tok = get_tok(&lexer);
     ASSERT_EQ(TOKEN_INT, tok->token_type);
@@ -192,9 +198,67 @@ TEST(test_lexer, token_num_id)
     tok = get_tok(&lexer);
     ASSERT_EQ(TOKEN_IDENT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
-    ASSERT_EQ(4, tok->loc.col);
-    ASSERT_EQ(4, tok->loc.start);
-    ASSERT_EQ(7, tok->loc.end);
+    ASSERT_EQ(5, tok->loc.col);
+    ASSERT_EQ(5, tok->loc.start);
+    ASSERT_EQ(8, tok->loc.end);
+    lexer_deinit();
+    symbols_deinit();
+}
+
+TEST(test_lexer, expr)
+{
+    symbols_init();
+    char test_code[] = "10+20.0";
+
+    struct token *tok;
+    struct lexer lexer;
+    lexer_init(&lexer, test_code);
+    tok = get_tok(&lexer);
+    ASSERT_EQ(TOKEN_INT, tok->token_type);
+    tok = get_tok(&lexer);
+    ASSERT_EQ(TOKEN_OP, tok->token_type);
+    ASSERT_EQ(OP_PLUS, tok->opcode);
+    tok = get_tok(&lexer);
+    ASSERT_EQ(TOKEN_FLOAT, tok->token_type);
+
+    lexer_deinit();
+    symbols_deinit();
+}
+
+TEST(test_lexer, other_symbols)
+{
+    symbols_init();
+    char test_code[] = "()[]{}. .. ... < <= == != >= > || && ! |&+-*/^";
+
+    struct lexer lexer;
+    lexer_init(&lexer, test_code);
+    //'('
+    ASSERT_EQ(TOKEN_LPAREN, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_RPAREN, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_LBRACKET, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_RBRACKET, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_LCBRACKET, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_RCBRACKET, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_DOT, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_RANGE, get_tok(&lexer)->token_type);
+    ASSERT_EQ(TOKEN_VARIADIC, get_tok(&lexer)->token_type);
+    ASSERT_EQ(OP_LT, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_LE, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_EQ, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_NE, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_GE, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_GT, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_OR, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_AND, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_NOT, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_BOR, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_BAND, get_tok(&lexer)->opcode);
+
+    ASSERT_EQ(OP_PLUS, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_MINUS, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_TIMES, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_DIVISION, get_tok(&lexer)->opcode);
+    ASSERT_EQ(OP_EXPO, get_tok(&lexer)->opcode);
     lexer_deinit();
     symbols_deinit();
 }
@@ -212,5 +276,7 @@ int test_lexer()
     RUN_TEST(test_lexer_token_num_float3);
     RUN_TEST(test_lexer_token_num_id);
     RUN_TEST(test_lexer_token_num_int);
+    RUN_TEST(test_lexer_expr);
+    RUN_TEST(test_lexer_other_symbols);
     return UNITY_END();
 }

@@ -74,7 +74,7 @@ void queue_tokens(struct m_parser *psr, struct array *tokens)
 
 void _token_init(struct token *token)
 {
-    token->token_type = TOKEN_NULL;
+    token->token_type = TOKEN_EOF;
     token->loc.line = 0;
     token->loc.col = 0;
 }

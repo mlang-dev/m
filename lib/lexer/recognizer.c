@@ -24,7 +24,7 @@ struct rcg_state *_rcg_state_new(char ch)
 {
     struct rcg_state *ks;
     MALLOC(ks, sizeof(*ks));
-    ks->accepted_token_type = TOKEN_NULL;
+    ks->accepted_token_type = TOKEN_EOF;
     ks->accepted_opcode = OP_NULL;
     ks->ch = ch;
     array_init(&ks->nexts, sizeof(struct rcg_state *));

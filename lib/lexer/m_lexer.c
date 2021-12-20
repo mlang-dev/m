@@ -79,7 +79,7 @@ void _lexer_init(struct tokenizer *tokenizer)
     //struct rcg_state *next_ks;
     struct token_patterns tps = get_token_patterns();
     for (size_t i = 0; i < tps.pattern_count; ++i) {
-        if (tps.patterns[i].name && tps.patterns[i].token_type > TOKEN_IDENT)
+        if (tps.patterns[i].name && (tps.patterns[i].token_type != TOKEN_IDENT && tps.patterns[i].token_type >= TOKEN_CHAR))
             rcg_add_exact_match(&tokenizer->rcg_states, tps.patterns[i].name, tps.patterns[i].token_type, tps.patterns[i].opcode);
     }
 
