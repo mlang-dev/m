@@ -107,7 +107,7 @@ void _mark_token(struct lexer *lexer, enum token_type token_type, enum op_code o
     lexer->tok.opcode = opcode;
 }
 
-void _handle_default_tok(struct lexer *lexer)
+void _mark_regex_tok(struct lexer *lexer)
 {
     struct token *tok = &lexer->tok;
     char ch = lexer->text[lexer->pos];
@@ -152,7 +152,7 @@ struct token *get_tok(struct lexer *lexer)
     switch (ch)
     {
     default:
-        _handle_default_tok(lexer);        
+        _mark_regex_tok(lexer);        
         break;
     case '\0':
         _mark_token(lexer, TOKEN_EOF, OP_NULL);

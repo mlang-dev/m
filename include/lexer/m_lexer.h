@@ -31,7 +31,6 @@ struct tokenizer {
     string str_val;
     char peek;
     struct rcg_states rcg_states;
-    struct hashtable keyword_2_tokens;
 };
 
 struct tokenizer *create_tokenizer(FILE *file, const char *filename);

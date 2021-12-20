@@ -50,7 +50,6 @@ struct _block_node {
 struct module {
     symbol name;
     struct ast_node *block;
-    struct tokenizer *tokenizer;
 };
 
 struct ast {

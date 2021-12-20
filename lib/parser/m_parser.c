@@ -126,7 +126,6 @@ struct m_parser *m_parser_new(bool is_repl)
 
 void module_free(struct module *module)
 {
-    destroy_tokenizer(module->tokenizer);
     node_free(module->block);
     FREE(module);
 }
@@ -151,7 +150,7 @@ void parse_next_token(struct m_parser *parser)
         // cleanup queued tokens, to redo parsing
         parser->curr_token = *(struct token *)queue_pop(&parser->queued_tokens);
     } else
-        parser->curr_token = *get_token(parser->current_module->tokenizer);
+        parser->curr_token = *get_token(parser->tokenizer);
 }
 
 int _get_op_precedence(struct m_parser *parser)
@@ -864,6 +863,7 @@ struct ast_node *parse_file(struct m_parser *parser, const char *file_name)
     }
     const char *mod_name = file_name;
     parser->current_module = module_new(mod_name, file);
+    parser->tokenizer = create_tokenizer(file, mod_name);
     array_push(&parser->ast->modules, &parser->current_module);
     return parse_block(parser, 0, 0, 0);
 }
@@ -871,6 +871,7 @@ struct ast_node *parse_file(struct m_parser *parser, const char *file_name)
 struct ast_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file)
 {
     parser->current_module = module_new(mod_name, file);
+    parser->tokenizer = create_tokenizer(file, mod_name);
     array_push(&parser->ast->modules, &parser->current_module);
     return parse_block(parser, 0, 0, 0);
 }
@@ -880,7 +881,7 @@ struct ast_node *parse_string(struct m_parser *parser, const char *mod_name, con
     FILE *file = fmemopen((void *)code, strlen(code), "r");
     struct ast_node *node = parse_file_object(parser, mod_name, file);
     fclose(file);
-    parser->current_module->tokenizer->file = 0;
+    parser->tokenizer->file = 0;
     return node;
 }
 
@@ -888,6 +889,7 @@ struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct 
 {
     const char *mod_name = "intepreter_main";
     parser->current_module = module_new(mod_name, stdin);
+    parser->tokenizer = create_tokenizer(stdin, mod_name);
     array_push(&parser->ast->modules, &parser->current_module);
     return parse_block(parser, 0, fun, jit);
 }

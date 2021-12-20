@@ -68,11 +68,6 @@ char peek_char(struct tokenizer *tokenizer)
 
 void _lexer_init(struct tokenizer *tokenizer)
 {
-    hashtable_init_with_value_size(&tokenizer->keyword_2_tokens, sizeof(enum token_type), 0);
-    // for (size_t i = 0; i < ARRAY_SIZE(keyword_symbols); ++i) {
-    //     symbol keyword = to_symbol(keyword_symbols[i].keyword);
-    //     hashtable_set_p(&keyword_2_tokens, keyword, &keyword_symbols[i].token);
-    // }
     rcg_init(&tokenizer->rcg_states);
     //char ch;
     //struct rcg_state *ks;
@@ -105,7 +100,6 @@ void _lexer_init(struct tokenizer *tokenizer)
 
 void _lexer_deinit(struct tokenizer *tokenizer)
 {
-    hashtable_deinit(&tokenizer->keyword_2_tokens);
     rcg_deinit(&tokenizer->rcg_states);
     token_deinit();
 }
