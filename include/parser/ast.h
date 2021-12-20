@@ -12,8 +12,8 @@
 
 #include "clib/symbol.h"
 #include "clib/util.h"
-#include "lexer/m_lexer.h"
 #include "sema/type.h"
+#include "lexer/source_location.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -20,7 +20,7 @@ extern "C" {
 
 struct parser {
     struct grammar *grammar;
-    struct lexer lexer;
+    struct lexer *lexer;
 };
 
 struct expr_parse{

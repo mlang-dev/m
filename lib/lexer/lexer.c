@@ -9,13 +9,18 @@
 #include <assert.h>
 #include "lexer/token.h"
 #include "clib/regex.h"
+#include "clib/win/libfmemopen.h"
 
-void lexer_init(struct lexer *lexer, const char *text)
+struct lexer *lexer_new(FILE *file, const char *filename, const char *text)
 {
-    lexer->text = text;
+    struct lexer *lexer;
+    MALLOC(lexer, sizeof(*lexer));
     lexer->pos = 0;
     lexer->line = 1;
     lexer->col = 1;
+    lexer->file = file;
+    lexer->filename = filename;
+    lexer->text = text;
     token_init();
     //register pattern matcher for each character
     char test[2]; test[1] = 0;
@@ -36,11 +41,19 @@ void lexer_init(struct lexer *lexer, const char *text)
             }
         }
     }
+    return lexer;
 }
 
-void lexer_deinit()
+struct lexer *lexer_new_for_string(const char *text)
+{
+    FILE *file = fmemopen((void *)text, strlen(text), "r");
+    return lexer_new(file, "", text);
+}
+
+void lexer_free(struct lexer *lexer)
 {
     token_deinit();
+    FREE(lexer);
 }
 
 void _move_ahead(struct lexer *lexer)

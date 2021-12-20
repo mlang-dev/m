@@ -95,23 +95,22 @@ struct grammar *grammar_parse(const char *grammar_text)
 {
     struct grammar *g = grammar_new();
     struct token tok, next_tok;
-    struct lexer lexer;
-    lexer_init(&lexer, grammar_text);
-    tok = *get_tok(&lexer);
+    struct lexer *lexer= lexer_new_for_string(grammar_text);
+    tok = *get_tok(lexer);
     int rule_no = 0;
     struct rule *rule = 0;
     struct expr *expr = 0;
     symbol s = 0;
     string group;
     while (tok.token_type) {
-        next_tok = *get_tok(&lexer);
+        next_tok = *get_tok(lexer);
         if(tok.token_type == TOKEN_IDENT){
             s = tok.symbol_val;
             if(next_tok.token_type == TOKEN_ASSIGN){
                 //nonterm
                 rule = grammar_add_rule(g, s, rule_no++);
                 expr = rule_add_expr(rule);
-                next_tok = *get_tok(&lexer); //skip the '='
+                next_tok = *get_tok(lexer); //skip the '='
             }else if(expr){
                 expr_add_symbol(expr, s, is_upper((string*)s) ? EI_TOKEN_MATCH : EI_NONTERM);
             }
@@ -133,10 +132,10 @@ struct grammar *grammar_parse(const char *grammar_text)
                     hashset_set2(&g->keywords, p + i, 1);
                 }
                 string_add_chars2(&group, p, next_tok.loc.end - next_tok.loc.start);
-                next_tok = *get_tok(&lexer);
+                next_tok = *get_tok(lexer);
             }
             expr_add_symbol(expr, string_2_symbol(&group), EI_IN_MATCH);
-            next_tok = *get_tok(&lexer); // skip ']'
+            next_tok = *get_tok(lexer); // skip ']'
         }else if (tok.token_type == TOKEN_LCBRACKET){
             while(next_tok.token_type != TOKEN_RCBRACKET){
                 //next tok is action
@@ -149,9 +148,9 @@ struct grammar *grammar_parse(const char *grammar_text)
                 }
                 else    
                     assert(false);
-            next_tok = *get_tok(&lexer); // skip ']'
+            next_tok = *get_tok(lexer); // skip ']'
             }
-            next_tok = *get_tok(&lexer); // skip ']'
+            next_tok = *get_tok(lexer); // skip ']'
         }
         tok = next_tok;
         next_tok.token_type = TOKEN_EOF;
@@ -159,7 +158,7 @@ struct grammar *grammar_parse(const char *grammar_text)
     if (array_size(&g->rules)) {
         g->start_symbol = (*(struct rule **)array_front(&g->rules))->nonterm;
     }
-    lexer_deinit();
+    lexer_free(lexer);
     return g;
 }
 

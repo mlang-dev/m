@@ -376,7 +376,7 @@ struct ast_node *_build_ast(struct parser *parser, struct parse_states *states, 
 
 struct ast_node *parse(struct parser *parser, const char *text)
 {
-    lexer_init(&parser->lexer, text);
+    parser->lexer = lexer_new_for_string(text);
     struct parse_states states;
     parse_states_init(&states);
     struct parse_state *state = 0;
@@ -384,7 +384,7 @@ struct ast_node *parse(struct parser *parser, const char *text)
     struct grammar *g = parser->grammar;
     //0. get the first token and jumpstart parsing process by initiating the start rule
     state = parse_states_add_state(&states);
-    state->tok = *get_tok(&parser->lexer);
+    state->tok = *get_tok(parser->lexer);
     struct rule *rule = hashtable_get_p(&parser->grammar->rule_map, parser->grammar->start_symbol);
     parse_state_init_rule(state, rule);
     while(state)
@@ -416,16 +416,18 @@ struct ast_node *parse(struct parser *parser, const char *text)
         }
         state = next_state;
         if (state){
-            state->tok = *get_tok(&parser->lexer);
+            state->tok = *get_tok(parser->lexer);
         }
         next_state = 0;
     }
+    struct ast_node *ast = 0;
     size_t to = array_size(&states.states);
-    if(!to) return 0;
-    struct parse_state *start_state = (struct parse_state *)array_get(&states.states, 0);
-    struct complete_parse *cp = parse_state_find_completed_expr_parse(start_state, g->start_symbol, to-1);
-    struct ast_node *ast = cp ? _build_ast(parser, &states, 0, cp) : 0;
+    if(to) {
+        struct parse_state *start_state = (struct parse_state *)array_get(&states.states, 0);
+        struct complete_parse *cp = parse_state_find_completed_expr_parse(start_state, g->start_symbol, to-1);
+        ast = cp ? _build_ast(parser, &states, 0, cp) : 0;
+    }
     parse_states_deinit(&states);
-    lexer_deinit();
+    lexer_free(parser->lexer);
     return ast;
 }

@@ -26,6 +26,8 @@ struct pattern_matches {
 };
 
 struct lexer {
+    FILE *file;
+    const char *filename;
     const char *text;
     struct token tok;
     int pos;  //current text position
@@ -34,8 +36,12 @@ struct lexer {
     struct pattern_matches char_matches[128];
 };
 
-void lexer_init(struct lexer *lexer, const char *text);
-void lexer_deinit();
+struct lexer *lexer_new(FILE *file, const char *filename, const char *text);
+
+struct lexer *lexer_new_for_string(const char *text);
+
+void lexer_free(struct lexer *lexer);
+
 struct token *get_tok(struct lexer *lexer);
 
 #ifdef __cplusplus
