@@ -82,13 +82,6 @@ bool _scan_until_no_digit(struct lexer *lexer)
 
 void _scan_until_no_space(struct lexer *lexer)
 {
-    do {
-        _move_ahead(lexer);
-    } while (isspace(lexer->text[lexer->pos]) && lexer->text[lexer->pos] != '\n');
-}
-
-void _scan_until_no_space2(struct lexer *lexer)
-{
     while (isspace(lexer->text[lexer->pos]) && lexer->text[lexer->pos] != '\n') {
         _move_ahead(lexer);
     }
@@ -153,7 +146,7 @@ void _handle_default_tok(struct lexer *lexer)
 struct token *get_tok(struct lexer *lexer)
 {
     struct token *tok = &lexer->tok;
-    _scan_until_no_space2(lexer);
+    _scan_until_no_space(lexer);
     char ch = lexer->text[lexer->pos];
     tok->token_type = TOKEN_EOF;
     switch (ch)
