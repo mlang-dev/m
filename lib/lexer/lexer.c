@@ -23,7 +23,7 @@ void lexer_init(struct lexer *lexer, const char *text)
     for(int i=0; i < 128; i++){
         test[0] = (char)i;
         lexer->char_matches[i].pattern_match_count = 0;
-        for(int j = 0; j < tps.pattern_count; j++){
+        for(size_t j = 0; j < tps.pattern_count; j++){
             size_t matched_len;
             if(tps.patterns[j].re){
                 regex_match(tps.patterns[j].re, test, &matched_len);
@@ -87,6 +87,13 @@ void _scan_until_no_space(struct lexer *lexer)
     } while (isspace(lexer->text[lexer->pos]) && lexer->text[lexer->pos] != '\n');
 }
 
+void _scan_until_no_space2(struct lexer *lexer)
+{
+    while (isspace(lexer->text[lexer->pos]) && lexer->text[lexer->pos] != '\n') {
+        _move_ahead(lexer);
+    }
+}
+
 void _scan_until_no_id(struct lexer *lexer)
 {
     char ch;
@@ -111,44 +118,35 @@ void _handle_default_tok(struct lexer *lexer)
 {
     struct token *tok = &lexer->tok;
     char ch = lexer->text[lexer->pos];
-    if(isspace(ch)){
-        _scan_until_no_space(lexer);
-        get_tok(lexer);
+    struct pattern_matches *pm = &lexer->char_matches[(int)ch];
+    if(!pm->pattern_match_count){
+        printf("invalid char : %c\n", ch);
+        exit(-1);
     }
-    else{
-        if(ch >= 128 || ch < 0 || !lexer->char_matches[ch].pattern_match_count){
-            printf("invalid char : %c\n", ch);
-            exit(-1);
+    int max_matched = 0;
+    struct token_pattern *used_tp = 0;
+    for(int i = 0; i < pm->pattern_match_count; i++){
+        int matched = 0;
+        struct token_pattern *tp = 0;
+        tp = pm->patterns[i];
+        matched = regex_match(tp->re, &lexer->text[lexer->pos], 0);
+        if(matched > max_matched){
+            max_matched = matched;
+            used_tp = tp;
         }
-        int max_matched = 0;
-        struct token_pattern *used_tp = 0;
-        for(int i = 0; i < lexer->char_matches[ch].pattern_match_count; i++){
-            int matched = 0;
-            struct token_pattern *tp = 0;
-            tp = lexer->char_matches[ch].patterns[i];
-            matched = regex_match(tp->re, &lexer->text[lexer->pos], 0);
-            if(matched > max_matched){
-                max_matched = matched;
-                used_tp = tp;
-            }
-        }
-        if(max_matched){
-            _mark_token(lexer, used_tp->token_type, used_tp->opcode);
-            _move_ahead_n(lexer, max_matched);
-            if(used_tp->token_type == TOKEN_IDENT)
-                tok->symbol_val = to_symbol2(&lexer->text[tok->loc.start], max_matched);
-            else if(used_tp->token_type == TOKEN_INT)
-                tok->int_val = (int)strtol(&lexer->text[lexer->tok.loc.start], 0, 10);
-            else if(used_tp->token_type == TOKEN_FLOAT)
-                tok->double_val = strtod(&lexer->text[lexer->tok.loc.start], 0);
-        }else{
-            printf("no valid token found for %c\n", ch);
-            exit(-1);
-        }
-        // symbol symbol = to_symbol2(&ch, 1);
-        // struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
-        // _mark_token(lexer, tp->token_type, tp->opcode);
-        // _move_ahead(lexer);
+    }
+    if(max_matched){
+        _mark_token(lexer, used_tp->token_type, used_tp->opcode);
+        _move_ahead_n(lexer, max_matched);
+        if(used_tp->token_type == TOKEN_IDENT)
+            tok->symbol_val = to_symbol2(&lexer->text[tok->loc.start], max_matched);
+        else if(used_tp->token_type == TOKEN_INT)
+            tok->int_val = (int)strtol(&lexer->text[lexer->tok.loc.start], 0, 10);
+        else if(used_tp->token_type == TOKEN_FLOAT)
+            tok->double_val = strtod(&lexer->text[lexer->tok.loc.start], 0);
+    }else{
+        printf("no valid token found for %c\n", ch);
+        exit(-1);
     }
 }
 
@@ -157,6 +155,7 @@ struct token *get_tok(struct lexer *lexer)
     struct token *tok = &lexer->tok;
     char ch = lexer->text[lexer->pos];
     tok->token_type = TOKEN_EOF;
+    _scan_until_no_space2(lexer);
     switch (ch)
     {
     default:

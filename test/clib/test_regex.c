@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
@@ -48,6 +49,13 @@ TEST(test_regex, exact_match)
     ASSERT_EQ(0, matched);
     ASSERT_EQ(0, regex_match(re, "i", &matched));
     ASSERT_EQ(1, matched);
+    regex_free(re);
+}
+
+TEST(test_regex, exact_match_symbol)
+{
+    void *re = regex_new("!");
+    ASSERT_EQ(1, regex_match(re, "! ", 0));
     regex_free(re);
 }
 
@@ -104,6 +112,7 @@ int test_regex()
     RUN_TEST(test_regex_to_postfix);
     RUN_TEST(test_regex_to_postfix_charset);
     RUN_TEST(test_regex_exact_match);
+    RUN_TEST(test_regex_exact_match_symbol);
     RUN_TEST(test_regex_exact_match_escape);
     RUN_TEST(test_regex_ident_match);
     RUN_TEST(test_regex_ident_match_space);

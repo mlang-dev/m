@@ -28,8 +28,6 @@ TEST(test_lexer, skip_comment)
 "\n"
 "#123\n"
 "\n";
-
-    struct token *tok;
     struct lexer lexer;
     lexer_init(&lexer, test_code);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(&lexer)->token_type);

@@ -113,6 +113,7 @@ const char* to_postfix(const char *re)
                 *dst++ = *re;
                 break;
             }
+            __attribute__ ((fallthrough));
 		default:
             if(ncharset > 0){
                 if(ncharset > 1) return 0;
