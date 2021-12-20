@@ -113,7 +113,9 @@ const char* to_postfix(const char *re)
                 *dst++ = *re;
                 break;
             }
+        #ifndef _WIN32    
             __attribute__ ((fallthrough));
+        #endif
 		default:
             if(ncharset > 0){
                 if(ncharset > 1) return 0;

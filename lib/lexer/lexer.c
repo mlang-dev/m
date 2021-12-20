@@ -153,9 +153,9 @@ void _handle_default_tok(struct lexer *lexer)
 struct token *get_tok(struct lexer *lexer)
 {
     struct token *tok = &lexer->tok;
+    _scan_until_no_space2(lexer);
     char ch = lexer->text[lexer->pos];
     tok->token_type = TOKEN_EOF;
-    _scan_until_no_space2(lexer);
     switch (ch)
     {
     default:
