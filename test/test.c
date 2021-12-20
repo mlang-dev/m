@@ -22,6 +22,7 @@ int test_regex();
 
 int test_token();
 int test_lexer();
+int test_m_lexer();
 int test_g_parser();
 int test_grammar();
 int test_wat_codegen();
@@ -49,6 +50,7 @@ EXPORT int ENTRY()
 
   failures += test_token();
   failures += test_lexer();
+  failures += test_m_lexer();
   failures += test_g_parser();
   failures += test_grammar();
   failures += test_wat_codegen();
