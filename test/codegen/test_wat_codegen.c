@@ -24,12 +24,12 @@ TEST(test_wat_codegen, func)
 "(export \"run\" (func $run))\n";
     symbols_init();
     wat_codegen_init();
-    struct parser *parser = parser_new(get_m_grammar());
+    struct earley_parser *parser = earley_parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
     string code = wat_generate(ast, test_code);
     ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
-    parser_free(parser);
+    earley_parser_free(parser);
     symbols_deinit();
 }
 

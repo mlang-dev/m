@@ -15,7 +15,7 @@ const char *parse_exp_as_module(const char *expr)
     string m_code;
     string_init_chars2(&m_code, fun_def, strlen(fun_def));
     string_add_chars2(&m_code, expr, strlen(expr));
-    struct parser *parser = parser_new(get_m_grammar());
+    struct earley_parser *parser = earley_parser_new(get_m_grammar());
     const char *m_text = string_get(&m_code);
     struct ast_node *ast = parse(parser, m_text);
     struct amodule mod;

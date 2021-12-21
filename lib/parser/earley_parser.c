@@ -1,10 +1,10 @@
 /*
- * parser.c
+ * earley_parser.c
  *
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * This is to implement a generic parser, taking a EBNF grammar text and parse text 
- * into ast according to the grammar
+ * This is to implement an earley parser, taking a EBNF grammar text and parse text 
+ * into ast for the grammar
  */
 #include "parser/earley_parser.h"
 #include "clib/array.h"
@@ -17,10 +17,10 @@ symbol BINOP = 0;
 symbol UNOP = 0;
 symbol FUNC = 0;
 
-struct parser *parser_new(const char *grammar_text)
+struct earley_parser *earley_parser_new(const char *grammar_text)
 {
     struct grammar *grammar = grammar_parse(grammar_text);
-    struct parser *parser;
+    struct earley_parser *parser;
     MALLOC(parser, sizeof(*parser));
     parser->grammar = grammar;
 
@@ -30,7 +30,7 @@ struct parser *parser_new(const char *grammar_text)
     return parser;
 }
 
-void parser_free(struct parser *parser)
+void earley_parser_free(struct earley_parser *parser)
 {
     grammar_free(parser->grammar);
     FREE(parser);
@@ -235,7 +235,7 @@ enum node_type _to_node_type(enum token_type token_type, enum op_code opcode)
     return UNK_NODE;
 }
 
-struct ast_node *_build_ast(struct parser *parser, struct parse_states *states, size_t from, struct complete_parse *cp)
+struct ast_node *_build_ast(struct earley_parser *parser, struct parse_states *states, size_t from, struct complete_parse *cp)
 {
     struct parse_state *state = array_get(&states->states, from);
     assert(state->state_index == from);   
@@ -373,7 +373,7 @@ struct ast_node *_build_ast(struct parser *parser, struct parse_states *states, 
     return node;
 }
 
-struct ast_node *parse(struct parser *parser, const char *text)
+struct ast_node *parse(struct earley_parser *parser, const char *text)
 {
     parser->lexer = lexer_new_for_string(text);
     struct parse_states states;
