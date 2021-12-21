@@ -118,6 +118,8 @@ struct m_parser *m_parser_new(bool is_repl)
     parser->id_is_var_decl = false;
     parser->is_repl = is_repl;
     parser->current_module = 0;
+    //parser->tokenizer = 0;
+    parser->lexer = 0;
     _token_init(&parser->curr_token);
     g_parser = parser;
 
@@ -149,8 +151,9 @@ void parse_next_token(struct m_parser *parser)
     if (queue_size(&parser->queued_tokens) > 0) {
         // cleanup queued tokens, to redo parsing
         parser->curr_token = *(struct token *)queue_pop(&parser->queued_tokens);
-    } else
-        parser->curr_token = *get_token(parser->tokenizer);
+    } else{
+        parser->curr_token = *get_tok(parser->lexer);
+    }
 }
 
 int _get_op_precedence(struct m_parser *parser)
@@ -391,6 +394,19 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
         struct op_type optype = _parse_op_type(parser, current_loc);
         if (!optype.success)
             return 0;
+        if (parser->curr_token.token_type == TOKEN_DOT){
+            //collect more id: so far only two dots supported
+            string ids;
+            string_init_chars(&ids, string_get(id_symbol));
+            string_add_chars(&ids, ".");
+            parse_next_token(parser);
+            assert(parser->curr_token.token_type == TOKEN_IDENT);
+            string_add(&ids, parser->curr_token.symbol_val);
+            id_symbol = string_2_symbol(&ids);
+            parser->curr_token.symbol_val = id_symbol;
+            string_deinit(&ids);
+            parse_next_token(parser);
+        }
         if (parser->id_is_var_decl) {
             /*id is var decl*/
             node = var_node_new(id_symbol, optype.type, optype.type_symbol, 0, !parent, current_loc);
@@ -524,7 +540,7 @@ struct ast_node *_parse_node(struct m_parser *parser, struct ast_node *parent)
 struct ast_node *_parse_binary(struct m_parser *parser, struct ast_node *parent, int exp_prec, struct ast_node *lhs)
 {
     while (true) {
-        if (parser->curr_token.token_type == TOKEN_NEWLINE)
+        if (parser->curr_token.token_type == TOKEN_NEWLINE || parser->curr_token.token_type == TOKEN_EOF)
             return lhs;
         int tok_prec = _get_op_precedence(parser);
         if (tok_prec < exp_prec)
@@ -863,17 +879,25 @@ struct ast_node *parse_file(struct m_parser *parser, const char *file_name)
     }
     const char *mod_name = file_name;
     parser->current_module = module_new(mod_name, file);
-    parser->tokenizer = create_tokenizer(file, mod_name);
+//    parser->tokenizer = create_tokenizer(file, mod_name);
+    parser->lexer = lexer_new(file, mod_name);
     array_push(&parser->ast->modules, &parser->current_module);
-    return parse_block(parser, 0, 0, 0);
+    struct ast_node * ast = parse_block(parser, 0, 0, 0);
+    lexer_free(parser->lexer);
+    parser->lexer = 0;
+    return ast;
 }
 
 struct ast_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file)
 {
     parser->current_module = module_new(mod_name, file);
-    parser->tokenizer = create_tokenizer(file, mod_name);
+    //parser->tokenizer = create_tokenizer(file, mod_name);
+    parser->lexer = lexer_new(file, mod_name);
     array_push(&parser->ast->modules, &parser->current_module);
-    return parse_block(parser, 0, 0, 0);
+    struct ast_node *ast = parse_block(parser, 0, 0, 0);
+    lexer_free(parser->lexer);
+    parser->lexer = 0;
+    return ast;
 }
 
 struct ast_node *parse_string(struct m_parser *parser, const char *mod_name, const char *code)
@@ -881,7 +905,6 @@ struct ast_node *parse_string(struct m_parser *parser, const char *mod_name, con
     FILE *file = fmemopen((void *)code, strlen(code), "r");
     struct ast_node *node = parse_file_object(parser, mod_name, file);
     fclose(file);
-    parser->tokenizer->file = 0;
     return node;
 }
 
@@ -889,7 +912,8 @@ struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct 
 {
     const char *mod_name = "intepreter_main";
     parser->current_module = module_new(mod_name, stdin);
-    parser->tokenizer = create_tokenizer(stdin, mod_name);
+    //parser->tokenizer = create_tokenizer(stdin, mod_name);
+    parser->lexer = lexer_new(stdin, mod_name);
     array_push(&parser->ast->modules, &parser->current_module);
     return parse_block(parser, 0, fun, jit);
 }

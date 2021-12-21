@@ -39,7 +39,7 @@ struct lexer {
     struct pattern_matches char_matches[128];
 };
 
-struct lexer *lexer_new(FILE *file, const char *filename, const char *text);
+struct lexer *lexer_new(FILE *file, const char *filename);
 
 struct lexer *lexer_new_for_string(const char *text);
 

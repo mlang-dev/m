@@ -12,7 +12,7 @@
 #include "clib/win/libfmemopen.h"
 
 
-struct lexer *lexer_new(FILE *file, const char *filename, const char *text)
+struct lexer *lexer_new(FILE *file, const char *filename)
 {
     struct lexer *lexer;
     MALLOC(lexer, sizeof(*lexer));
@@ -24,7 +24,6 @@ struct lexer *lexer_new(FILE *file, const char *filename, const char *text)
     lexer->filename = filename;
     lexer->buff[0] = '\0';
     fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file);
-    //strcpy((char *)lexer->text, text);
     token_init();
     //register pattern matcher for each character
     char test[2]; test[1] = 0;
