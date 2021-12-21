@@ -1,5 +1,5 @@
 /*
- * parser.h
+ * ast_wasm.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *

@@ -1,12 +1,12 @@
 /*
- * parser.h
+ * earley_parser.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for a generic parser
+ * header file for an earley parser
  */
-#ifndef __MLANG_PARSER_H__
-#define __MLANG_PARSER_H__
+#ifndef __MLANG_EARLEY_PARSER_H__
+#define __MLANG_EARLEY_PARSER_H__
 
 #include "parser/grammar.h"
 #include "lexer/lexer.h"
@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 
-struct parser {
+struct earley_parser {
     struct grammar *grammar;
     struct lexer *lexer;
 };
@@ -48,9 +48,9 @@ struct parse_states {
     struct array states; // number of parse state for current position of tokens
 };
 
-struct parser *parser_new(const char *grammar);
-void parser_free(struct parser *parser);
-struct ast_node *parse(struct parser *parser, const char *text);
+struct earley_parser *earley_parser_new(const char *grammar);
+void earley_parser_free(struct earley_parser *parser);
+struct ast_node *parse(struct earley_parser *parser, const char *text);
 
 #ifdef __cplusplus
 }
