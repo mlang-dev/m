@@ -28,6 +28,7 @@ if (EMSCRIPTEN OR WASM)
     lexer/lexer.c
     parser/ast.c
     parser/earley_parser.c
+    parser/lalr_parser.c
     parser/grammar.c
     parser/m_grammar.c
     sema/type.c
@@ -75,6 +76,7 @@ else()
     parser/astdump.c
     parser/grammar.c
     parser/m_parser.c
+    parser/lalr_parser.c
     parser/m_grammar.c
     sema/type.c
     sema/analyzer.c
