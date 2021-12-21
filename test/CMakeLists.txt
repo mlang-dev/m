@@ -58,6 +58,7 @@ elseif (WASM)
     clib/test_regex.c
 
     lexer/test_lexer.c
+    lexer/test_m_lexer.c
     lexer/test_token.c
     parser/test_g_parser.c
     parser/test_grammar.c
@@ -106,7 +107,6 @@ else()
   add_executable(mtest
     tutil.cc
 
-    lexer/test_m_lexer.cc
     parser/test_parser.cc
     parser/test_parser_logical.cc
     parser/test_parser_relational.cc
@@ -179,6 +179,7 @@ else()
   clib/test_util.c
   clib/test_regex.c
   lexer/test_lexer.c
+  lexer/test_m_lexer.c
   parser/test_g_parser.c
   parser/test_grammar.c
   lexer/test_token.c

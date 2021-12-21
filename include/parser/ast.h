@@ -12,8 +12,9 @@
 
 #include "clib/symbol.h"
 #include "clib/util.h"
-#include "lexer/m_lexer.h"
 #include "sema/type.h"
+#include "lexer/source_location.h"
+#include "lexer/token.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,7 +51,6 @@ struct _block_node {
 struct module {
     symbol name;
     struct ast_node *block;
-    struct tokenizer *tokenizer;
 };
 
 struct ast {

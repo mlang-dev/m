@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test/mctest",
+            "program": "${workspaceFolder}/build/test/mtest",
             "args": [
                 "${workspaceFolder}/test/test.m"
             ],
@@ -23,7 +23,7 @@
             "name": "VC Launch",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test/Debug/mctest",
+            "program": "${workspaceFolder}/build/test/Debug/mtest",
             "args": [
                // "--gtest_filter=testLexer.testRangeOnly"
             ],
