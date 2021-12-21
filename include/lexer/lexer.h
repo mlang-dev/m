@@ -12,7 +12,6 @@
 #include "clib/symbol.h"
 #include "clib/util.h"
 #include "lexer/token.h"
-#include "lexer/recognizer.h"
 #include "lexer/source_location.h"
 #include <stdio.h>
 

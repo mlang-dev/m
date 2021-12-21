@@ -69,9 +69,7 @@ else()
     clib/getpath.c
     tool/cmodule.c
     lexer/token.c
-    lexer/m_lexer.c
     lexer/lexer.c
-    lexer/recognizer.c
     parser/ast.c
     parser/earley_parser.c
     parser/astdump.c

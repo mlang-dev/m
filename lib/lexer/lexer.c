@@ -50,7 +50,7 @@ struct lexer *lexer_new(FILE *file, const char *filename)
 struct lexer *lexer_new_for_string(const char *text)
 {
     FILE *file = fmemopen((void *)text, strlen(text), "r");
-    return lexer_new(file, "", text);
+    return lexer_new(file, "");
 }
 
 void lexer_free(struct lexer *lexer)

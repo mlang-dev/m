@@ -107,7 +107,6 @@ else()
   add_executable(mtest
     tutil.cc
 
-    lexer/test_m_lexer1.cc
     parser/test_parser.cc
     parser/test_parser_logical.cc
     parser/test_parser_relational.cc
