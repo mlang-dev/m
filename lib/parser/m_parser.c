@@ -118,7 +118,6 @@ struct m_parser *m_parser_new(bool is_repl)
     parser->id_is_var_decl = false;
     parser->is_repl = is_repl;
     parser->current_module = 0;
-    //parser->tokenizer = 0;
     parser->lexer = 0;
     _token_init(&parser->curr_token);
     g_parser = parser;
@@ -879,7 +878,6 @@ struct ast_node *parse_file(struct m_parser *parser, const char *file_name)
     }
     const char *mod_name = file_name;
     parser->current_module = module_new(mod_name, file);
-//    parser->tokenizer = create_tokenizer(file, mod_name);
     parser->lexer = lexer_new(file, mod_name);
     array_push(&parser->ast->modules, &parser->current_module);
     struct ast_node * ast = parse_block(parser, 0, 0, 0);
@@ -891,7 +889,6 @@ struct ast_node *parse_file(struct m_parser *parser, const char *file_name)
 struct ast_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file)
 {
     parser->current_module = module_new(mod_name, file);
-    //parser->tokenizer = create_tokenizer(file, mod_name);
     parser->lexer = lexer_new(file, mod_name);
     array_push(&parser->ast->modules, &parser->current_module);
     struct ast_node *ast = parse_block(parser, 0, 0, 0);
@@ -912,7 +909,6 @@ struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct 
 {
     const char *mod_name = "intepreter_main";
     parser->current_module = module_new(mod_name, stdin);
-    //parser->tokenizer = create_tokenizer(stdin, mod_name);
     parser->lexer = lexer_new(stdin, mod_name);
     array_push(&parser->ast->modules, &parser->current_module);
     return parse_block(parser, 0, fun, jit);

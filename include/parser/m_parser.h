@@ -33,7 +33,6 @@ struct m_parser {
     bool id_is_var_decl;
     bool is_repl;
     struct module *current_module;
-//    struct tokenizer *tokenizer;
     struct lexer *lexer;
     struct queue queued_tokens; //queue of token
 };
