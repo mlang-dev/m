@@ -69,7 +69,7 @@ extern "C" {
     }
 
 #define link_list_remove_data_fn(ll_struct_name, entry_struct_name, data_type)\
-    struct nstate *ll_struct_name##_remove_data_from_head(struct ll_struct_name *ll)\
+    data_type ll_struct_name##_remove_data_from_head(struct ll_struct_name *ll)\
     {\
         data_type data = 0;\
         if (!ll) {\

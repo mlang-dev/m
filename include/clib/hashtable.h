@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 /*defined two data structure hash_head, and hash entry to contain existing struct hashbox data*/
-link_list(hash_head, hash_entry, struct hashbox);
+link_list(hash_head, hash_entry, struct hashbox)
 
 struct hashtable {
     struct hash_head *heads;

@@ -53,8 +53,10 @@ struct parse_item {
     u8 dot;  //dot position
 };
 
+link_list(parse_item_list, parse_item_list_entry, struct parse_item)
+
 struct parse_state{
-    struct parse_item items[];
+    struct parse_item_list items;
 };
 
 struct lalr_parser{
