@@ -223,7 +223,8 @@ struct nstate *nstate_new(struct re *re, int op, struct nstate *out1, struct nst
     s->out1 = out1;
     s->out2 = out2;
     s->last_listid = 0;
-    _ll_add_to_head(&re->states, s);
+    //_ll_add_to_head(&re->states, s);
+    link_list_add_data(&re->states, s);
     re->nstate_count++;
     return s;
 }

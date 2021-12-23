@@ -58,6 +58,15 @@ extern "C" {
 
 #define link_list_insert_head(head, element) list_insert_head(head, element, list)
 
+#define link_list_add_data(ll, element_data) \
+    {\
+        struct nstate_link_entry *entry;\
+        MALLOC(entry, sizeof(*entry));\
+        entry->data = element_data;\
+        entry->list.next = 0;\
+        link_list_insert_head(ll, entry);\
+    }
+
 #ifdef __cplusplus
 }
 #endif
