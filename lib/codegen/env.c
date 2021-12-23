@@ -6,13 +6,14 @@
 #include "codegen/wat_codegen.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
+#include "lexer/init.h"
 #include <assert.h>
 
 struct env *g_env = 0;
 
 struct env *env_new(bool is_repl)
 {
-    symbols_init();
+    frontend_init();
     struct env *env;
     MALLOC(env, sizeof(struct env));
     env->parser = m_parser_new(is_repl);
@@ -29,7 +30,7 @@ void env_free(struct env *env)
     cg_free(env->cg);
     FREE(env);
     g_env = 0;
-    symbols_deinit();
+    frontend_deinit();
 }
 
 struct env *get_env()

@@ -10,7 +10,7 @@ const char * fun_def = "run()=";
 
 const char *parse_exp_as_module(const char *expr)
 {
-    symbols_init();
+    frontend_init();
     wat_codegen_init();
     string m_code;
     string_init_chars2(&m_code, fun_def, strlen(fun_def));
@@ -25,6 +25,6 @@ const char *parse_exp_as_module(const char *expr)
     const char *data = string_cstr(&wat_mod_code);
     string_deinit(&wat_mod_code);
     string_deinit(&m_code);
-    symbols_deinit();
+    frontend_deinit();
     return data;
 }

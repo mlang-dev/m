@@ -11,41 +11,41 @@
 
 TEST(test_m_lexer, underscore)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "__name";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_IDENT, token->token_type);
     ASSERT_STREQ("__name", string_get(token->symbol_val));
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, extern_token)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "extern";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_EXTERN, token->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, type_token)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "type";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_TYPE, token->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, ident_token)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "x.y";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
@@ -56,83 +56,83 @@ TEST(test_m_lexer, ident_token)
     ASSERT_EQ(TOKEN_IDENT, token->token_type);
     ASSERT_STREQ("y", string_get(token->symbol_val));
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, op_eq)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "==";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
     ASSERT_EQ(OP_EQ, token->opcode);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, op_le)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "<=";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
     ASSERT_EQ(OP_LE, token->opcode);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, op_ge)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = ">=";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
     ASSERT_EQ(OP_GE, token->opcode);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, op_ne)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "!=";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_OP, token->token_type);
     ASSERT_EQ(OP_NE, token->opcode);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, int_literal)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "30";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_INT, token->token_type);
     ASSERT_EQ(30, token->int_val);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, range_only)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "..";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_RANGE, token->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, range)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "2..10";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
@@ -144,106 +144,106 @@ TEST(test_m_lexer, range)
     ASSERT_EQ(TOKEN_INT, token->token_type);
     ASSERT_EQ(10, token->int_val);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, true_literal)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "true";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_TRUE, token->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, false_literal)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "false";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_FALSE, token->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, double_literal)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "30.0";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_FLOAT, token->token_type);
     ASSERT_EQ(30.0, token->double_val);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, double_end_with_dot)
 {
-//     symbols_init();
+//     frontend_init();
 //     char test_code[] = "30.";
 //     struct lexer *lexer = lexer_new_for_string(test_code);;
 //     struct token *token = get_tok(lexer);
 //     ASSERT_EQ(TOKEN_FLOAT, token->token_type);
 //     ASSERT_EQ(30.0, token->double_val);
 //     lexer_free(lexer);
-//     symbols_deinit();
+//     frontend_deinit();
 // 
 }
 
 TEST(test_m_lexer, double_start_with_dot)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = ".5";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_FLOAT, token->token_type);
     ASSERT_EQ(0.5, token->double_val);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, double_more)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "30.12";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_FLOAT, token->token_type);
     ASSERT_EQ(30.12, token->double_val);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, variadic)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "...";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_VARIADIC, token->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, char_literal)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "'c'";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_CHAR, token->token_type);
     ASSERT_EQ('c', token->char_val);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, char_multi_literal)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "'c' 'd'";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
@@ -253,12 +253,12 @@ TEST(test_m_lexer, char_multi_literal)
     ASSERT_EQ(TOKEN_CHAR, token->token_type);
     ASSERT_EQ('d', token->char_val);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, char_invalid_number)
 {
-    // symbols_init();
+    // frontend_init();
     // char test_code[] = "'cd'";
     // struct lexer *lexer = lexer_new_for_string(test_code);;
     // struct token *token = get_tok(lexer);
@@ -266,12 +266,12 @@ TEST(test_m_lexer, char_invalid_number)
     // //auto error = testing::internal::GetCapturedStderr();
     // //ASSERT_STREQ("error: :1:1: only one char allowed in character literal\n", error.c_str());
     // lexer_free(lexer);
-    // symbols_deinit();
+    // frontend_deinit();
 }
 
 TEST(test_m_lexer, char_invalid_char)
 {
-    // symbols_init();
+    // frontend_init();
     // //testing::internal::CaptureStderr();
     // char test_code[] = "''";
     // struct lexer *lexer = lexer_new_for_string(test_code);;
@@ -280,24 +280,24 @@ TEST(test_m_lexer, char_invalid_char)
     // //auto error = testing::internal::GetCapturedStderr();
     // //ASSERT_STREQ("error: :1:1: empty char is not allowed in character literal\n", error.c_str());
     // lexer_free(lexer);
-    // symbols_deinit();
+    // frontend_deinit();
 }
 
 TEST(test_m_lexer, string_literal)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "\"hello world!\"";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_STRING, token->token_type);
     ASSERT_STREQ("hello world!", string_get(token->str_val));
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, string_literal_with_newline)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "\"hello\\n\"";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
@@ -305,12 +305,12 @@ TEST(test_m_lexer, string_literal_with_newline)
     ASSERT_STREQ("hello\\n", string_get(token->str_val));
     ASSERT_EQ(7, strlen(string_get(token->str_val)));
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, string_multi)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "\"hello\" \"world\"";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
@@ -320,12 +320,12 @@ TEST(test_m_lexer, string_multi)
     ASSERT_EQ(TOKEN_STRING, token->token_type);
     ASSERT_STREQ("world", string_get(token->str_val));
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_m_lexer, string_with_id)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "printf \"%s\" \"hello\"";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
@@ -338,7 +338,7 @@ TEST(test_m_lexer, string_with_id)
     ASSERT_EQ(TOKEN_STRING, token->token_type);
     ASSERT_STREQ("hello", string_get(token->str_val));
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 int test_m_lexer()

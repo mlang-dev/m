@@ -18,6 +18,9 @@
 extern "C" {
 #endif
 
+typedef uint16_t u16;
+typedef uint8_t u8;
+
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
     ENUM_ITEM(TOKEN_EOF)             \
     ENUM_ITEM(TOKEN_INDENT)          \
@@ -50,8 +53,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_ASSIGN)          \
     ENUM_ITEM(TOKEN_ISTYPEOF)        \
-    ENUM_ITEM(TOKEN_OP)              \
-    ENUM_ITEM(TOKEN_TOTAL)
+    ENUM_ITEM(TOKEN_OP)              
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 
@@ -81,15 +83,17 @@ enum op_code{
     OP_TOTAL //mark end of all tokens
 };
 
-#define PATTERN_COUNT ((int)TOKEN_OP + (int)OP_TOTAL)
+#define PATTERN_COUNT TOKEN_OP + OP_TOTAL
+#define MAX_NONTERMS 64
+#define MAX_GRAMMAR_SYMBOLS  PATTERN_COUNT + MAX_NONTERMS
 
 extern const char *token_type_strings[];
 
 struct token_pattern{
-    const char *name;
-    symbol symbol_name;
-    const char *pattern;
-    struct re *re;
+    const char *name;       //c string name
+    symbol symbol_name;     //symbol name
+    const char *pattern;    //pattern
+    struct re *re;          //regex for the pattern
     enum token_type token_type;
     enum op_code opcode; 
 };
@@ -128,6 +132,12 @@ struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode);
 struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type);
 
 struct token_pattern *get_token_pattern_by_symbol(symbol symbol);
+
+/*get symbol index, token or nonterm*/
+u8 get_symbol_index(symbol symbol);
+
+/*add nonterm symbol for grammar*/
+u8 add_grammar_nonterm(symbol symbol);
 
 #ifdef __cplusplus
 }

@@ -21,7 +21,8 @@ IF (EMSCRIPTEN)
     clib/test_hashtable.cc
     clib/test_hashset.cc
     clib/test_util.cc
-    parser/test_g_parser.cc
+    parser/test_earley_parser.cc
+    parser/test_lalr_parser.cc
     parser/test_grammar.cc
     codegen/test_wat_codegen.cc
     app/test_mwat.cc
@@ -60,7 +61,8 @@ elseif (WASM)
     lexer/test_lexer.c
     lexer/test_m_lexer.c
     lexer/test_token.c
-    parser/test_g_parser.c
+    parser/test_earley_parser.c
+    parser/test_lalr_parser.c
     parser/test_grammar.c
     codegen/test_wat_codegen.c
     app/test_mwat.c
@@ -180,7 +182,8 @@ else()
   clib/test_regex.c
   lexer/test_lexer.c
   lexer/test_m_lexer.c
-  parser/test_g_parser.c
+  parser/test_earley_parser.c
+  parser/test_lalr_parser.c
   parser/test_grammar.c
   lexer/test_token.c
   codegen/test_wat_codegen.c

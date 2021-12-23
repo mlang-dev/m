@@ -26,6 +26,7 @@ if (EMSCRIPTEN OR WASM)
  #   clib/getpath.c
     lexer/token.c
     lexer/lexer.c
+    lexer/init.c
     parser/ast.c
     parser/earley_parser.c
     parser/lalr_parser.c
@@ -71,6 +72,7 @@ else()
     tool/cmodule.c
     lexer/token.c
     lexer/lexer.c
+    lexer/init.c
     parser/ast.c
     parser/earley_parser.c
     parser/astdump.c

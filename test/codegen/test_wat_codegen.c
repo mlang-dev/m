@@ -22,7 +22,7 @@ TEST(test_wat_codegen, func)
 ")\n"
 ")\n"
 "(export \"run\" (func $run))\n";
-    symbols_init();
+    frontend_init();
     wat_codegen_init();
     struct earley_parser *parser = earley_parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
@@ -30,7 +30,7 @@ TEST(test_wat_codegen, func)
     ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     earley_parser_free(parser);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 int test_wat_codegen()

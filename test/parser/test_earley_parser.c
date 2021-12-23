@@ -19,7 +19,7 @@ TEST(test_g_parser, arithmetic_exp)
 "(i32.const 1)\n"
 "(i32.const 2)\n"
 ")\n";
-    symbols_init();
+    frontend_init();
     wat_codegen_init();
     struct earley_parser *parser = earley_parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
@@ -27,7 +27,7 @@ TEST(test_g_parser, arithmetic_exp)
     ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     earley_parser_free(parser);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 
@@ -41,7 +41,7 @@ TEST(test_g_parser, arithmetic_exp1)
 "(i32.const 2)\n"
 ")\n";
 
-    symbols_init();
+    frontend_init();
     wat_codegen_init();
     struct earley_parser *parser = earley_parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
@@ -49,7 +49,7 @@ TEST(test_g_parser, arithmetic_exp1)
     ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     earley_parser_free(parser);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_g_parser, arithmetic_exp2)
@@ -64,7 +64,7 @@ TEST(test_g_parser, arithmetic_exp2)
 "(i32.const 4)\n"
 ")\n"
 ")\n";
-    symbols_init();
+    frontend_init();
     wat_codegen_init();
     struct earley_parser *parser = earley_parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
@@ -72,7 +72,7 @@ TEST(test_g_parser, arithmetic_exp2)
     ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     earley_parser_free(parser);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 
@@ -88,7 +88,7 @@ TEST(test_g_parser, arithmetic_exp3)
 ")\n"
 "(i32.const 3)\n"
 ")\n";
-    symbols_init();
+    frontend_init();
     wat_codegen_init();
     struct earley_parser *parser = earley_parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
@@ -96,7 +96,7 @@ TEST(test_g_parser, arithmetic_exp3)
     ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
     earley_parser_free(parser);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_g_parser, arithmetic_exp4)
@@ -112,7 +112,7 @@ TEST(test_g_parser, arithmetic_exp4)
 "(i32.const 3)\n"
 ")\n";
 
-    symbols_init();
+    frontend_init();
     wat_codegen_init();
     struct earley_parser *parser = earley_parser_new(get_m_grammar());
     struct ast_node *ast = parse(parser, test_code);
@@ -121,7 +121,7 @@ TEST(test_g_parser, arithmetic_exp4)
     string_deinit(&code);
     ast_node_free(ast);
     earley_parser_free(parser);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 int test_g_parser()

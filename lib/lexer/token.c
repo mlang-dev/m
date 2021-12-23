@@ -69,6 +69,9 @@ struct token_pattern token_patterns[PATTERN_COUNT] = {
     KEYWORD_PATTERN("!=", OP, NE),
 };
 
+struct token_pattern g_nonterms[MAX_NONTERMS];
+u8 g_nonterm_count;
+
 struct hashtable token_patterns_by_symbol;
 
 const char *token_type_strings[] = {
@@ -87,6 +90,7 @@ void token_init()
             hashtable_set_p(&token_patterns_by_symbol, tp->symbol_name, tp);
         }
     }
+    g_nonterm_count = 0;
 }
 
 void token_deinit()
@@ -138,4 +142,32 @@ struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type
 struct token_pattern *get_token_pattern_by_symbol(symbol symbol)
 {
     return (struct token_pattern *)hashtable_get_p(&token_patterns_by_symbol, symbol);
+}
+
+u8 get_symbol_index(symbol symbol)
+{
+    struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
+    assert(tp);
+    if(tp->token_type == TOKEN_OP)
+        return (u8)TOKEN_OP + (u8)tp->opcode;
+    return (u8)tp->token_type;
+}
+
+u8 add_grammar_nonterm(symbol symbol)
+{
+    struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
+    assert(!tp);
+    //add nonterm grammar symbol
+    struct token_pattern tpn;
+    u8 nonterm = (u8)g_nonterm_count + (u8)PATTERN_COUNT;
+    tpn.token_type = nonterm;
+    tpn.symbol_name = symbol;
+    tpn.name = string_get(tpn.symbol_name);
+    tpn.opcode = 0;
+    tpn.pattern = 0;
+    tpn.re = 0; 
+    g_nonterms[g_nonterm_count] = tpn;
+    hashtable_set_p(&token_patterns_by_symbol, tpn.symbol_name, &g_nonterms[g_nonterm_count]);
+    g_nonterm_count++;  
+    return nonterm;
 }
