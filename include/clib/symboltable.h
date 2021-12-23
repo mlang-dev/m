@@ -21,12 +21,7 @@
 extern "C" {
 #endif
 
-struct link_list_entry {
-    list_entry(link_list_entry) list;
-    void *data;
-};
-
-list_head(link_list, link_list_entry);
+link_list(symbol_list, symbol_list_entry, void*)
 
 typedef struct symboltable {
     struct hashtable ht;
@@ -34,7 +29,7 @@ typedef struct symboltable {
      * TODO: symbols are a stack data structure, we might need a version with array implementation 
      * for performance improvement with more effective memory cache
      */
-    struct link_list symbols;
+    struct symbol_list symbols;
 } symboltable;
 
 void symboltable_init(symboltable *st);

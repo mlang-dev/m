@@ -40,15 +40,26 @@ struct parser_action{
 #define MAX_STATES 512
 #define MAX_RULES 128
 #define MAX_SYMBOLS_RULE 7
+#define MAX_
 
-struct grammar_rule{
+struct grule{
     u8 lhs;   //non terminal symbol index
     u8 rhs[MAX_SYMBOLS_RULE]; //right hand side of production rule
     u8 symbol_count;
 };
 
-struct lalr_parser{
+struct parse_item {
+    u8 rule; //rule index
+    u8 dot;  //dot position
+};
 
+link_list(parse_item_list, parse_item_list_entry, struct parse_item)
+
+struct parse_state{
+    struct parse_item_list items;
+};
+
+struct lalr_parser{
     //state stack
     u16 stack[MAX_STATES];
     u16 stack_top;
@@ -57,7 +68,7 @@ struct lalr_parser{
     struct parser_action parsing_table[MAX_STATES][128];
 
     //grammar rules
-    struct grammar_rule rules[MAX_RULES];
+    struct grule rules[MAX_RULES];
     u16 rule_count;
     struct grammar *g;
 };

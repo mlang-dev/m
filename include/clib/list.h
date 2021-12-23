@@ -48,6 +48,42 @@ extern "C" {
          (var) != list_end(head);      \
          (var) = list_next(var, field))
 
+/*link list interfaces*/
+#define link_list(list_struct_name, entry_struct_name, data_type) \
+    struct entry_struct_name {\
+        list_entry(entry_struct_name) list;\
+        data_type data;\
+    };\
+    list_head(list_struct_name, entry_struct_name);
+
+#define link_list_insert_head(head, element) list_insert_head(head, element, list)
+
+#define link_list_add_data_fn(ll_struct_name, entry_struct_name) \
+    void ll_struct_name##_add_data_to_head(struct ll_struct_name *ll, void *data)\
+    {\
+        struct entry_struct_name *entry;\
+        MALLOC(entry, sizeof(*entry));\
+        entry->data = data;\
+        entry->list.next = 0;\
+        link_list_insert_head(ll, entry);\
+    }
+
+#define link_list_remove_data_fn(ll_struct_name, entry_struct_name, data_type)\
+    data_type ll_struct_name##_remove_data_from_head(struct ll_struct_name *ll)\
+    {\
+        data_type data = 0;\
+        if (!ll) {\
+            return 0;\
+        }\
+        if (ll->first) {\
+            struct entry_struct_name *first = ll->first;\
+            data = first->data;\
+            list_remove_head(ll, list);\
+            FREE(first);\
+        }\
+        return data;\
+    }
+
 #ifdef __cplusplus
 }
 #endif

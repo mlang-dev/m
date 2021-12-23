@@ -73,7 +73,7 @@ void _hashtable_grow(struct hashtable *ht)
                 size_t key_size = ht->key_is_c_str ? entry->data.key_store_size - 1 : entry->data.key_store_size;
                 index = _get_index(ht, (unsigned char *)entry->data.key_value_pair, key_size);
                 new_head = &ht->heads[index];
-                list_insert_head(new_head, entry, list);
+                link_list_insert_head(new_head, entry);
                 entry = next;
             }
         }
@@ -246,7 +246,7 @@ void hashtable_set_g(struct hashtable *ht, void *key, size_t key_size, void *val
             entry = _hash_entry_new(key_size, value_size);
             memcpy(entry->data.key_value_pair, key, key_size);
         }
-        list_insert_head(head, entry, list);
+        link_list_insert_head(head, entry);
         ht->size++;
         box = &entry->data;
     }
