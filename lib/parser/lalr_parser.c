@@ -13,7 +13,7 @@
 #include <assert.h>
 
 /*expand bracket in grammar*/
-void _expr_2_gr(struct expr *expr, struct grammar_rule *gr)
+void _expr_2_gr(struct expr *expr, struct grule *gr)
 {
     struct expr_item *ei;
     gr->symbol_count = 0;
@@ -89,7 +89,7 @@ struct lalr_parser *lalr_parser_new(const char *grammar_text)
     }
 
     //3. convert grammar symbol to use index
-    struct grammar_rule *gr;
+    struct grule *gr;
     struct expr *rule_expr, *expr;
     parser->rule_count = 0;
     for(i = 0; i < (u16)array_size(&g->rules); i++){
@@ -109,6 +109,11 @@ struct lalr_parser *lalr_parser_new(const char *grammar_text)
             array_deinit(&exprs);
         }
     }
+
+    //4. build states
+
+    //5. construct parsing table
+
     parser->g = g;
     return parser;
 }
@@ -121,6 +126,6 @@ void lalr_parser_free(struct lalr_parser *parser)
 
 struct ast_node *parse_text(struct lalr_parser *parser, const char *text)
 {
-
+    //driver 
     return 0;
 }

@@ -48,6 +48,16 @@ extern "C" {
          (var) != list_end(head);      \
          (var) = list_next(var, field))
 
+/*link list interfaces*/
+#define link_list(list_struct_name, entry_struct_name, data_type) \
+    struct entry_struct_name {\
+        list_entry(entry_struct_name) list;\
+        data_type data;\
+    };\
+    list_head(list_struct_name, entry_struct_name);
+
+#define link_list_insert_head(head, element) list_insert_head(head, element, list)
+
 #ifdef __cplusplus
 }
 #endif

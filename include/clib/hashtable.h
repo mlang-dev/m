@@ -17,13 +17,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-struct hash_entry {
-    list_entry(hash_entry) list;
-    struct hashbox data;
-};
-
-list_head(hash_head, hash_entry);
+/*defined two data structure hash_head, and hash entry to contain existing struct hashbox data*/
+link_list(hash_head, hash_entry, struct hashbox);
 
 struct hashtable {
     struct hash_head *heads;
