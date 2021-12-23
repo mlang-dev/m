@@ -5,6 +5,7 @@
 #include "parser/m_grammar.h"
 #include "parser/earley_parser.h"
 #include "parser/amodule.h"
+#include "lexer/init.h"
 
 const char * fun_def = "run()=";
 

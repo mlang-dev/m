@@ -7,6 +7,7 @@
 #include "parser/earley_parser.h"
 #include "parser/m_grammar.h"
 #include "codegen/wat_codegen.h"
+#include "lexer/init.h"
 #include "test.h"
 #include <stdio.h>
 

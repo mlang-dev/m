@@ -8,6 +8,7 @@
 #include "test.h"
 #include <stdio.h>
 #include "clib/hashtable.h"
+#include "lexer/init.h"
 
 TEST(test_grammar, num_token)
 {

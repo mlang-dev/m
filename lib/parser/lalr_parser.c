@@ -98,7 +98,7 @@ struct lalr_parser *lalr_parser_new(const char *grammar_text)
         for(j = 0; j < array_size(&rule->exprs); j++){
             rule_expr = (struct expr *)array_get(&rule->exprs, j);
             struct array exprs;
-            array_init_free(&exprs, sizeof(struct expr), expr_deinit);
+            array_init_free(&exprs, sizeof(struct expr), (free_fun)expr_deinit);
             _expand_expr(rule_expr, &exprs);
             for(k = 0; k < array_size(&exprs); k++){
                 expr = array_get(&exprs, k);
