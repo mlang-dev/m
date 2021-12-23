@@ -58,13 +58,30 @@ extern "C" {
 
 #define link_list_insert_head(head, element) list_insert_head(head, element, list)
 
-#define link_list_add_data(ll, element_data) \
+#define link_list_add_data_fn(ll_struct_name, entry_struct_name) \
+    void ll_struct_name##_add_data_to_head(struct ll_struct_name *ll, void *data)\
     {\
-        struct nstate_link_entry *entry;\
+        struct entry_struct_name *entry;\
         MALLOC(entry, sizeof(*entry));\
-        entry->data = element_data;\
+        entry->data = data;\
         entry->list.next = 0;\
         link_list_insert_head(ll, entry);\
+    }
+
+#define link_list_remove_data_fn(ll_struct_name, entry_struct_name, data_type)\
+    struct nstate *ll_struct_name##_remove_data_from_head(struct ll_struct_name *ll)\
+    {\
+        data_type data = 0;\
+        if (!ll) {\
+            return 0;\
+        }\
+        if (ll->first) {\
+            struct entry_struct_name *first = ll->first;\
+            data = first->data;\
+            list_remove_head(ll, list);\
+            FREE(first);\
+        }\
+        return data;\
     }
 
 #ifdef __cplusplus

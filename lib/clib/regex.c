@@ -181,6 +181,8 @@ struct nstate_list{
 };
 
 link_list(nstate_link_list, nstate_link_entry, struct nstate *)
+link_list_add_data_fn(nstate_link_list, nstate_link_entry)
+link_list_remove_data_fn(nstate_link_list, nstate_link_entry, struct nstate *)
 
 struct re{
     struct nstate_link_list states;
@@ -191,29 +193,6 @@ struct re{
     struct nstate accepted_state;
 };
 
-void _ll_add_to_head(struct nstate_link_list *ll, struct nstate *state)
-{
-    struct nstate_link_entry *entry;
-    MALLOC(entry, sizeof(*entry));
-    entry->data = state;
-    entry->list.next = 0;
-    link_list_insert_head(ll, entry);
-}
-
-struct nstate *_ll_remove_from_head(struct nstate_link_list *ll)
-{
-    struct nstate *state = 0;
-    if (!ll) {
-        return 0;
-    }
-    if (ll->first) {
-        struct nstate_link_entry *first = ll->first;
-        state = first->data;
-        list_remove_head(ll, list);
-        FREE(first);
-    }
-    return state;
-}
 
 struct nstate *nstate_new(struct re *re, int op, struct nstate *out1, struct nstate *out2)
 {
@@ -223,8 +202,7 @@ struct nstate *nstate_new(struct re *re, int op, struct nstate *out1, struct nst
     s->out1 = out1;
     s->out2 = out2;
     s->last_listid = 0;
-    //_ll_add_to_head(&re->states, s);
-    link_list_add_data(&re->states, s);
+    nstate_link_list_add_data_to_head(&re->states, s);
     re->nstate_count++;
     return s;
 }
@@ -411,7 +389,7 @@ void regex_free(void *regex)
     FREE(re->l1.states);
     FREE(re->l2.states);
     struct nstate *s;
-    while((s = _ll_remove_from_head(&re->states))){
+    while((s = nstate_link_list_remove_data_from_head(&re->states))){
         FREE(s);
     }
     FREE(re);
