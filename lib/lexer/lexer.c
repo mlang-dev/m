@@ -24,7 +24,6 @@ struct lexer *lexer_new(FILE *file, const char *filename)
     lexer->filename = filename;
     lexer->buff[0] = '\0';
     fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file);
-    token_init();
     //register pattern matcher for each character
     char test[2]; test[1] = 0;
     struct token_patterns tps = get_token_patterns();
@@ -55,7 +54,6 @@ struct lexer *lexer_new_for_string(const char *text)
 
 void lexer_free(struct lexer *lexer)
 {
-    token_deinit();
     FREE(lexer);
 }
 

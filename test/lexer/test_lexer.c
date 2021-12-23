@@ -5,25 +5,26 @@
  */
 #include "parser/grammar.h"
 #include "lexer/lexer.h"
+#include "lexer/init.h"
 #include "test.h"
 #include <stdio.h>
 
 
 TEST(test_lexer, empty_string)
 {
-    symbols_init();
+    frontend_init();
     struct token *tok;
     struct lexer *lexer;
     lexer = lexer_new_for_string("");
     tok = get_tok(lexer);
     ASSERT_EQ(TOKEN_EOF, tok->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_lexer, skip_comment)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = 
 "\n"
 "#123\n"
@@ -35,12 +36,12 @@ TEST(test_lexer, skip_comment)
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
  }
 
 TEST(test_lexer, token_char)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = 
 "'4'\n";
 
@@ -56,12 +57,12 @@ TEST(test_lexer, token_char)
     ASSERT_EQ(3, tok->loc.end);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_lexer, token_string)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = 
 "\"234\"\n"
 "\n";
@@ -78,12 +79,12 @@ TEST(test_lexer, token_string)
     ASSERT_EQ(5, tok->loc.end);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
  }
 
 TEST(test_lexer, token_num_int)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = 
 "\n"
 "234\n"
@@ -101,12 +102,12 @@ TEST(test_lexer, token_num_int)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(4, tok->loc.end);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
  }
 
 TEST(test_lexer, token_num_float)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "\n23.1";
 
     struct token *tok;
@@ -121,12 +122,12 @@ TEST(test_lexer, token_num_float)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(5, tok->loc.end);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_lexer, token_num_float2)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "\n2.3";
 
     struct token *tok;
@@ -141,12 +142,12 @@ TEST(test_lexer, token_num_float2)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(4, tok->loc.end);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
  }
 
 TEST(test_lexer, token_num_float3)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "\n.23";
 
     struct token *tok;
@@ -161,12 +162,12 @@ TEST(test_lexer, token_num_float3)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(4, tok->loc.end);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
  }
 
 TEST(test_lexer, token_id)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "\n_abc123";
     struct token *tok;
     struct lexer *lexer;
@@ -180,12 +181,12 @@ TEST(test_lexer, token_id)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(8, tok->loc.end);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
  }
 
 TEST(test_lexer, token_num_id)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "\n123 abc";
 
     struct token *tok;
@@ -209,12 +210,12 @@ TEST(test_lexer, token_num_id)
     ASSERT_EQ(5, tok->loc.start);
     ASSERT_EQ(8, tok->loc.end);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_lexer, expr)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "10+20.0";
 
     struct token *tok;
@@ -230,12 +231,12 @@ TEST(test_lexer, expr)
     ASSERT_EQ(TOKEN_FLOAT, tok->token_type);
 
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 TEST(test_lexer, other_symbols)
 {
-    symbols_init();
+    frontend_init();
     char test_code[] = "()[]{}. .. ... < <= == != >= > || && ! |&+-*/^";
 
     struct lexer *lexer;
@@ -269,7 +270,7 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(OP_DIVISION, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_EXPO, get_tok(lexer)->opcode);
     lexer_free(lexer);
-    symbols_deinit();
+    frontend_deinit();
 }
 
 int test_lexer()

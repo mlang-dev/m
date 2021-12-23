@@ -40,6 +40,8 @@ struct expr {
     struct semantic_action action;   //semantic actions
 };
 
+void expr_deinit(struct expr *expr);
+
 int expr_item_2_ast_node_index(struct expr *expr, int expr_item_index);
 
 struct rule {
