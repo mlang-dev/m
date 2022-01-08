@@ -171,3 +171,8 @@ u8 add_grammar_nonterm(symbol symbol)
     g_nonterm_count++;  
     return nonterm;
 }
+
+u8 get_symbol_count()
+{
+    return g_nonterm_count + (u8)PATTERN_COUNT;
+}

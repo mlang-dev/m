@@ -181,7 +181,7 @@ struct nstate_list{
 };
 
 link_list(nstate_link_list, nstate_link_entry, struct nstate *)
-link_list_add_data_fn(nstate_link_list, nstate_link_entry)
+link_list_add_data_fn(nstate_link_list, nstate_link_entry, void *)
 link_list_remove_data_fn(nstate_link_list, nstate_link_entry, struct nstate *)
 
 struct re{

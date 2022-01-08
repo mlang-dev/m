@@ -40,7 +40,6 @@ struct parser_action{
 #define MAX_STATES 512
 #define MAX_RULES 128
 #define MAX_SYMBOLS_RULE 7
-#define MAX_
 
 struct grule{
     u8 lhs;   //non terminal symbol index
@@ -59,6 +58,14 @@ struct parse_state{
     struct parse_item_list items;
 };
 
+link_list(g_symbol_list, g_symbol_list_entry, u8)
+
+struct rule_symbol_data{
+    bool is_nullable;
+    struct g_symbol_list first_list;//first set
+    struct g_symbol_list follow_list;//follow set
+};
+
 struct lalr_parser{
     //state stack
     u16 stack[MAX_STATES];
@@ -66,6 +73,11 @@ struct lalr_parser{
 
     //action table for terminal symbols, tokens
     struct parser_action parsing_table[MAX_STATES][128];
+    struct parse_state parse_state[MAX_STATES];
+    u16 parse_state_count;
+
+    //grammar rule symbol data: store isnullable, first set and follow set
+    struct rule_symbol_data symbol_data[MAX_GRAMMAR_SYMBOLS];
 
     //grammar rules
     struct grule rules[MAX_RULES];
