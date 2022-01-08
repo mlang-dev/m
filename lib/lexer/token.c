@@ -176,3 +176,8 @@ u8 get_symbol_count()
 {
     return g_nonterm_count + (u8)PATTERN_COUNT;
 }
+
+bool is_terminal(u8 symbol_index)
+{
+    return symbol_index < PATTERN_COUNT;
+}

@@ -4,25 +4,25 @@
  * Unit tests for parser
  */
 #include "parser/m_grammar.h"
-#include "parser/lalr_parser.h"
+#include "parser/lr_parser.h"
 #include "parser/ast.h"
 #include "tutil.h"
 #include "test.h"
 #include "lexer/init.h"
 #include <stdio.h>
 
-TEST(test_lalr_parser, var_decl)
+TEST(test_lr_parser, var_decl)
 {
     //char test_code[] = "x:int";
     frontend_init();
-    struct lalr_parser *parser = lalr_parser_new(get_m_grammar());
+    struct lr_parser *parser = lr_parser_new(get_m_grammar());
     // struct ast_node *block = parse_text(parser, test_code);
     // struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     // ASSERT_EQ(1, array_size(&block->block->nodes));
     // ASSERT_STREQ("x", string_get(node->var->var_name));
     // ASSERT_EQ(VAR_NODE, node->node_type);
     // ASSERT_EQ(0, node->var->init_value);
-    lalr_parser_free(parser);
+    lr_parser_free(parser);
     frontend_deinit();
 }
 /*
@@ -317,7 +317,7 @@ type Point2D =
     env_free(env);
 }
 
-TEST(test_lalr_parser, struct_type)
+TEST(test_lr_parser, struct_type)
 {
     char test_code[] = R"(
 type Point2D = x:double y:double
@@ -469,9 +469,9 @@ xy.x
 }
 */
 
-int test_lalr_parser()
+int test_lr_parser()
 {
     UNITY_BEGIN();
-    RUN_TEST(test_lalr_parser_var_decl);
+    RUN_TEST(test_lr_parser_var_decl);
     return UNITY_END();
 }

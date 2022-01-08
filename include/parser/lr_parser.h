@@ -1,9 +1,9 @@
 /*
- * lalr_parser.h
+ * lr_parser.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for an LALR parser
+ * header file for an LR parser
  */
 #ifndef __MLANG_LALR_PARSER_H__
 #define __MLANG_LALR_PARSER_H__
@@ -47,9 +47,12 @@ struct grule{
     u8 symbol_count;
 };
 
+link_list(index_list, index_list_entry, u8)
+
 struct parse_item {
     u8 rule; //rule index
     u8 dot;  //dot position
+    u8 lookahead;//
 };
 
 link_list(parse_item_list, parse_item_list_entry, struct parse_item)
@@ -58,22 +61,23 @@ struct parse_state{
     struct parse_item_list items;
 };
 
-link_list(g_symbol_list, g_symbol_list_entry, u8)
-
 struct rule_symbol_data{
     bool is_nullable;
-    struct g_symbol_list first_list;//first set
-    struct g_symbol_list follow_list;//follow set
+    struct index_list first_list;//first set
+    struct index_list follow_list;//follow set
+
+    struct index_list rule_list; //rule indexs
 };
 
-struct lalr_parser{
+struct lr_parser{
     //state stack
     u16 stack[MAX_STATES];
     u16 stack_top;
 
     //action table for terminal symbols, tokens
     struct parser_action parsing_table[MAX_STATES][128];
-    struct parse_state parse_state[MAX_STATES];
+
+    struct parse_state parse_states[MAX_STATES];
     u16 parse_state_count;
 
     //grammar rule symbol data: store isnullable, first set and follow set
@@ -85,9 +89,9 @@ struct lalr_parser{
     struct grammar *g;
 };
 
-struct lalr_parser *lalr_parser_new(const char *grammar);
-void lalr_parser_free(struct lalr_parser *parser);
-struct ast_node *parse_text(struct lalr_parser *parser, const char *text);
+struct lr_parser *lr_parser_new(const char *grammar);
+void lr_parser_free(struct lr_parser *parser);
+struct ast_node *parse_text(struct lr_parser *parser, const char *text);
 
 #ifdef __cplusplus
 }

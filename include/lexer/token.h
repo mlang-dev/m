@@ -141,6 +141,7 @@ u8 get_symbol_count();
 /*add nonterm symbol for grammar*/
 u8 add_grammar_nonterm(symbol symbol);
 
+bool is_terminal(u8 symbol_index);
 
 #ifdef __cplusplus
 }
