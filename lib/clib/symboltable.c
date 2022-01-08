@@ -21,7 +21,7 @@ void symboltable_deinit(symboltable *st)
     hashtable_deinit(&st->ht);
 }
 
-link_list_add_data_fn(symbol_list, symbol_list_entry)
+link_list_add_data_fn(symbol_list, symbol_list_entry, void *)
 
 link_list_remove_data_fn(symbol_list, symbol_list_entry, void*)
 

@@ -135,9 +135,12 @@ struct token_pattern *get_token_pattern_by_symbol(symbol symbol);
 
 /*get symbol index, token or nonterm*/
 u8 get_symbol_index(symbol symbol);
+/*get total symbol count including terminal tokens and nonterm symbols*/
+u8 get_symbol_count();
 
 /*add nonterm symbol for grammar*/
 u8 add_grammar_nonterm(symbol symbol);
+
 
 #ifdef __cplusplus
 }

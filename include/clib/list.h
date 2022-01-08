@@ -58,8 +58,8 @@ extern "C" {
 
 #define link_list_insert_head(head, element) list_insert_head(head, element, list)
 
-#define link_list_add_data_fn(ll_struct_name, entry_struct_name) \
-    void ll_struct_name##_add_data_to_head(struct ll_struct_name *ll, void *data)\
+#define link_list_add_data_fn(ll_struct_name, entry_struct_name, data_type) \
+    void ll_struct_name##_add_data_to_head(struct ll_struct_name *ll, data_type data)\
     {\
         struct entry_struct_name *entry;\
         MALLOC(entry, sizeof(*entry));\
