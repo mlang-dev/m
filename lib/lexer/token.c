@@ -155,6 +155,12 @@ u8 get_symbol_index(symbol symbol)
     return (u8)tp->token_type;
 }
 
+u8 get_token_index(enum token_type token_type, enum op_code opcode)
+{
+    symbol symbol = get_symbol_by_token_opcode(token_type, opcode);
+    return get_symbol_index(symbol);
+}
+
 u8 add_grammar_nonterm(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);

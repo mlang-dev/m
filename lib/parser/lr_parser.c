@@ -409,8 +409,53 @@ void lr_parser_free(struct lr_parser *parser)
     FREE(parser);
 }
 
+void _push_state(struct lr_parser *parser, u16 state)
+{
+    parser->stack[parser->stack_top++] = state;
+}
+
+u16 _pop_state(struct lr_parser *parser)
+{
+    return parser->stack[--parser->stack_top];
+}
+
+u16 _get_top_state(struct lr_parser *parser)
+{
+    return parser->stack[parser->stack_top-1];
+}
+
 struct ast_node *parse_text(struct lr_parser *parser, const char *text)
 {
+    _push_state(parser, 0);
+    struct lexer *lexer = lexer_new_for_string(text);
+    struct token *tok = get_tok(lexer);
+    u8 a = get_token_index(tok->token_type, tok->opcode);
+    u16 s, t;
+    struct grule *rule;
     //driver 
+    while(1){
+        s = _get_top_state(parser);
+        if(parser->parsing_table[s][a].code == ACTION_SHIFT){
+            _push_state(parser, parser->parsing_table[s][a].state_index);
+            tok = get_tok(lexer);
+            a = get_token_index(tok->token_type, tok->opcode);
+        }else if(parser->parsing_table[s][a].code == ACTION_REDUCE){
+            //do action
+            rule = &parser->rules[parser->parsing_table[s][a].rule_index];
+            for(u8 i=0; i<rule->symbol_count; i++){
+                _pop_state(parser);
+            }
+            t = _get_top_state(parser);
+            assert(parser->parsing_table[t][rule->lhs].code == ACTION_GOTO);
+            _push_state(parser, parser->parsing_table[t][rule->lhs].state_index);
+            //
+        }else if(parser->parsing_table[s][a].code == ACTION_ACCEPT){
+            break;
+        }
+        else{
+            //error recovery
+        }
+    }
+    lexer_free(lexer);
     return 0;
 }
