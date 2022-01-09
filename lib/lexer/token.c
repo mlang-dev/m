@@ -86,6 +86,8 @@ void token_init()
         if(tp->name&&tp->pattern&&!tp->re){
             tp->re = regex_new(tp->pattern);
             assert(tp->re);
+        }
+        if(tp->name){
             tp->symbol_name = to_symbol(tp->name);
             hashtable_set_p(&token_patterns_by_symbol, tp->symbol_name, tp);
         }

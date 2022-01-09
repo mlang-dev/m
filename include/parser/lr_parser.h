@@ -28,7 +28,6 @@ enum action_code{
     ACTION_GOTO, //goto for state i, and X nonterm
 };
 
-
 struct parser_action{
     enum action_code code;
     union {
@@ -59,6 +58,7 @@ link_list(parse_item_list, parse_item_list_entry, struct parse_item)
 
 struct parse_state{
     struct parse_item_list items;
+    u16 item_count;
 };
 
 struct rule_symbol_data{
