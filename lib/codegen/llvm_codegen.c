@@ -665,6 +665,7 @@ LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node)
 {
     LLVMValueRef value = 0;
     switch(node->node_type){
+        case TOTAL_NODE:
         case UNK_NODE:
             value = _emit_unk_node(cg, node);
             break;

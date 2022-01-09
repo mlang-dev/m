@@ -366,6 +366,7 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
 {
     struct type_exp *type = 0;
     switch(node->node_type){
+        case TOTAL_NODE:
         case UNK_NODE:
             type = _analyze_unk(context, node);
             break;
