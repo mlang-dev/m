@@ -269,7 +269,7 @@ bool _exists_state(struct parse_state *states, u16 state_count, struct parse_sta
     return false;
 }
 
-u16 _build_states(struct rule_symbol_data *symbol_data, struct grule *rules, u16 rule_count, struct parse_state *states)
+u16 _build_states(struct rule_symbol_data *symbol_data, struct grule *rules, u16 rule_count, struct parse_state *states, struct parser_action parsing_table[][MAX_GRAMMAR_SYMBOLS])
 {
     u16 i, state_count = 0;
     struct parse_item item;
@@ -288,14 +288,62 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct grule *rules, u16
         list_foreach(entry, &state->items, list){
             rule = &rules[entry->data.rule];
             for(u8 j = 0; j < rule->symbol_count; j++){
-                struct parse_state next_state = _goto(symbol_data, rules, *state, rule->rhs[j]);
+                u8 x = rule->rhs[j];
+                struct parse_state next_state = _goto(symbol_data, rules, *state, x);
                 //if not in the states, then add it to states
-                if(!_exists_state(states, state_count, &next_state))
-                    states[state_count++] = next_state;
+                if(!_exists_state(states, state_count, &next_state)){
+                    struct parser_action pa;
+                    pa.code = ACTION_GOTO;
+                    pa.state_index = state_count;
+                    parsing_table[i][x] = pa;
+                    states[state_count] = next_state;
+                    state_count++;
+                }
             }
         }
     }
     return state_count;
+}
+
+void _build_parsing_table(struct parser_action parsing_table[][MAX_GRAMMAR_SYMBOLS], u16 state_count, struct parse_state *states, struct grule *rules)
+{
+    struct parse_state *ps;
+    struct parser_action *pa;
+    struct parse_item_list_entry *entry;
+    struct parse_item *item;
+    struct grule *rule;
+    u8 a;
+    for(u16 i=0; i < state_count; i++){
+        ps = &states[i];
+        list_foreach(entry, &ps->items,list){
+            item = &entry->data;
+            rule = &rules[item->rule];
+            if(item->dot < rule->symbol_count){
+                a = rule->rhs[item->dot];
+                if(is_terminal(a)){
+                    //
+                    pa = &parsing_table[i][a];
+                    if(pa->code == ACTION_GOTO){
+                        pa->code = ACTION_SHIFT;
+                    }
+                }
+            }
+            else if(item->dot == rule->symbol_count && item->rule){/*except the augumented one*/
+                pa = &parsing_table[i][a];
+                a = item->lookahead;
+                pa = &parsing_table[i][a];
+                pa->code = ACTION_REDUCE;
+                pa->rule_index = item->rule;
+            }
+            else if(item->dot == rule->symbol_count && !item->rule){/*the augumented one*/
+                pa = &parsing_table[i][TOKEN_EOF];
+                pa->code = ACTION_ACCEPT;                
+            }
+            else{
+                assert(false);
+            }
+        }
+    }
 }
 
 struct lr_parser *lr_parser_new(const char *grammar_text)
@@ -347,11 +395,10 @@ struct lr_parser *lr_parser_new(const char *grammar_text)
     }
     _fill_symbol_data(parser->rules, parser->rule_count, parser->symbol_data);
     //4. build states
-    parser->parse_state_count = _build_states(parser->symbol_data, parser->rules, parser->rule_count, parser->parse_states);
+    parser->parse_state_count = _build_states(parser->symbol_data, parser->rules, parser->rule_count, parser->parse_states, parser->parsing_table);
     //5. construct parsing table
     //action: state, terminal and goto: state, nonterm
-
-
+    _build_parsing_table(parser->parsing_table, parser->parse_state_count, parser->parse_states, parser->rules);
     parser->g = g;
     return parser;
 }

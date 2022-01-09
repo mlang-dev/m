@@ -75,7 +75,7 @@ struct lr_parser{
     u16 stack_top;
 
     //action table for terminal symbols, tokens
-    struct parser_action parsing_table[MAX_STATES][128];
+    struct parser_action parsing_table[MAX_STATES][MAX_GRAMMAR_SYMBOLS];
 
     struct parse_state parse_states[MAX_STATES];
     u16 parse_state_count;
