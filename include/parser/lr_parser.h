@@ -44,6 +44,7 @@ struct grule{
     u8 lhs;   //non terminal symbol index
     u8 rhs[MAX_SYMBOLS_RULE]; //right hand side of production rule
     u8 symbol_count;
+    struct semantic_action action;
 };
 
 link_list(index_list, index_list_entry, u8)
@@ -69,10 +70,15 @@ struct rule_symbol_data{
     struct index_list rule_list; //rule indexs
 };
 
+struct stack_item{
+    u16 state_index;
+    struct ast_node *ast;
+};
+
 struct lr_parser{
     //state stack
-    u16 stack[MAX_STATES];
-    u16 stack_top;
+    struct stack_item stack[MAX_STATES];
+    u32 stack_top;
 
     //action table for terminal symbols, tokens
     struct parser_action parsing_table[MAX_STATES][MAX_GRAMMAR_SYMBOLS];

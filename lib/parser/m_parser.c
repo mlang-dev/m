@@ -49,7 +49,7 @@ const char *get_ctt(struct m_parser *parser)
 
 bool _is_exp(struct ast_node *node)
 {
-    return node->node_type != VAR_NODE && node->node_type != FUNCTION_NODE && node->node_type != FUNC_TYPE_NODE;
+    return node->node_type != VAR_NODE && node->node_type != FUNC_NODE && node->node_type != FUNC_TYPE_NODE;
 }
 
 void _log_error(struct m_parser *parser, struct source_location loc, const char *msg)

@@ -13,13 +13,60 @@
 
 struct source_location default_loc = {0, 0, 0, 0};
 
+#define NODE_TYPE_NAME(node_name, node_type) {#node_name, 0, node_type##_NODE}
+
+struct node_type_name node_type_names[PATTERN_COUNT] = {
+    NODE_TYPE_NAME(unk, UNK),
+    NODE_TYPE_NAME(literal, LITERAL),
+    NODE_TYPE_NAME(ident, IDENT),
+    NODE_TYPE_NAME(var, VAR),
+    NODE_TYPE_NAME(type, TYPE),
+    NODE_TYPE_NAME(type_value, TYPE_VALUE),
+    NODE_TYPE_NAME(unop, UNARY),
+    NODE_TYPE_NAME(binop, BINARY),
+    NODE_TYPE_NAME(if, IF),
+    NODE_TYPE_NAME(for, FOR),
+    NODE_TYPE_NAME(call, CALL),
+    NODE_TYPE_NAME(func_type, FUNC_TYPE),
+    NODE_TYPE_NAME(func, FUNC),
+    NODE_TYPE_NAME(block, BLOCK),
+    NODE_TYPE_NAME(total, TOTAL)
+};
+
+struct hashtable node_type_names_by_symbol;
+
+struct node_type_name *get_node_type_names()
+{
+    return node_type_names;
+}
+
+void ast_init()
+{
+    hashtable_init(&node_type_names_by_symbol);
+    for(int i = 0; i < TOTAL_NODE; i++){
+        struct node_type_name *ntn = &node_type_names[i];
+        ntn->symbol_name = to_symbol(ntn->name);
+        hashtable_set_p(&node_type_names_by_symbol, ntn->symbol_name, ntn);
+    }
+}
+
+void ast_deinit()
+{
+    hashtable_deinit(&node_type_names_by_symbol);
+}
+
+struct node_type_name *get_node_type_name_by_symbol(symbol symbol)
+{
+    return (struct node_type_name *)hashtable_get_p(&node_type_names_by_symbol, symbol);
+}
+
+
 //forward decl
 void nodes_free(struct array *nodes);
 
 const char *node_type_strings[] = {
     FOREACH_NODETYPE(GENERATE_ENUM_STRING)
 };
-
 
 struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type_enum, struct source_location loc)
 {
@@ -338,7 +385,7 @@ void _free_func_type_node(struct ast_node *node)
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(FUNCTION_NODE, 0, loc);
+    struct ast_node *node = ast_node_new(FUNC_NODE, 0, loc);
     MALLOC(node->func, sizeof(*node->func));
     node->func->func_type = func_type;
     node->func->body = body;
@@ -355,7 +402,7 @@ struct ast_node *_copy_function_node(struct ast_node *orig_node)
 
 struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name)
 {
-    assert(generic_fun->node_type == FUNCTION_NODE);
+    assert(generic_fun->node_type == FUNC_NODE);
     struct ast_node *sp_fun = 0;
     for(size_t i = 0; i < array_size(&generic_fun->func->sp_funs); i++){
         struct ast_node *fun = *(struct ast_node **)array_get(&generic_fun->func->sp_funs, i);
@@ -379,7 +426,7 @@ void _free_function_node(struct ast_node *node)
 struct ast_node *if_node_new(
     struct ast_node *if_node, struct ast_node *then_node, struct ast_node *else_node, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(CONDITION_NODE, 0, loc);
+    struct ast_node *node = ast_node_new(IF_NODE, 0, loc);
     MALLOC(node->cond, sizeof(*node->cond));
     node->cond->if_node = if_node;
     node->cond->then_node = then_node;
@@ -500,7 +547,7 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_block_node(node);
     case FUNC_TYPE_NODE:
         return _copy_func_type_node(node);
-    case FUNCTION_NODE:
+    case FUNC_NODE:
         return _copy_function_node(node);
     case VAR_NODE:
         return _copy_var_node(node);
@@ -514,7 +561,7 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_literal_node(node);
     case CALL_NODE:
         return _copy_call_node(node);
-    case CONDITION_NODE:
+    case IF_NODE:
         return _copy_if_node(node);
     case FOR_NODE:
         return _copy_for_node(node);
@@ -540,7 +587,7 @@ void node_free(struct ast_node *node)
     case FUNC_TYPE_NODE:
         _free_func_type_node(node);
         break;
-    case FUNCTION_NODE:
+    case FUNC_NODE:
         _free_function_node(node);
         break;
     case VAR_NODE:
@@ -561,7 +608,7 @@ void node_free(struct ast_node *node)
     case CALL_NODE:
         _free_call_node(node);
         break;
-    case CONDITION_NODE:
+    case IF_NODE:
         _free_if_node(node);
         break;
     case FOR_NODE:
@@ -610,4 +657,28 @@ int find_member_index(struct ast_node *type_node, symbol member)
         }
     }
     return -1;
+}
+
+enum node_type token_to_node_type(enum token_type token_type, enum op_code opcode)
+{
+    if(token_type == TOKEN_IDENT){
+        return IDENT_NODE;
+    }else if(token_type == TOKEN_INT){
+        return LITERAL_NODE;
+    }else if(token_type == TOKEN_FLOAT){
+        return LITERAL_NODE;
+    }else if(token_type == TOKEN_OP){
+        //*hacky way to transfer opcode
+        return (token_type << 16) | opcode;
+    }
+    return UNK_NODE;
+}
+
+enum node_type symbol_to_node_type(symbol node_type_name)
+{
+    struct node_type_name *ntn = get_node_type_name_by_symbol(node_type_name);
+    if(ntn){
+        return ntn->node_type;
+    }
+    return UNK_NODE;
 }

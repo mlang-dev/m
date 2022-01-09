@@ -50,6 +50,7 @@ void _expr_2_gr(struct expr *expr, struct grule *gr)
         ei = (struct expr_item *)array_get(&expr->items, i);
         gr->rhs[gr->symbol_count++] = get_symbol_index(ei->sym);
     }
+    gr->action = expr->action;
 }
 
 void _expand_expr(struct expr *rule_expr, struct array *a)
@@ -393,6 +394,7 @@ struct lr_parser *lr_parser_new(const char *grammar_text)
             array_deinit(&exprs);
         }
     }
+
     _fill_symbol_data(parser->rules, parser->rule_count, parser->symbol_data);
     //4. build states
     parser->parse_state_count = _build_states(parser->symbol_data, parser->rules, parser->rule_count, parser->parse_states, parser->parsing_table);
@@ -409,53 +411,121 @@ void lr_parser_free(struct lr_parser *parser)
     FREE(parser);
 }
 
-void _push_state(struct lr_parser *parser, u16 state)
+void _push_state(struct lr_parser *parser, u16 state, struct ast_node *ast)
 {
-    parser->stack[parser->stack_top++] = state;
+    struct stack_item *si = &parser->stack[parser->stack_top++];
+    si->state_index = state;
+    si->ast = ast;
 }
 
-u16 _pop_state(struct lr_parser *parser)
+struct stack_item *_pop_state(struct lr_parser *parser)
 {
-    return parser->stack[--parser->stack_top];
+    return &parser->stack[--parser->stack_top];
 }
 
-u16 _get_top_state(struct lr_parser *parser)
+struct stack_item *_get_top_state(struct lr_parser *parser)
 {
-    return parser->stack[parser->stack_top-1];
+    return &parser->stack[parser->stack_top-1];
+}
+
+struct stack_item *_get_start_item(struct lr_parser *parser, u8 symbol_count)
+{
+    return &parser->stack[parser->stack_top-symbol_count];
+}
+
+void _pop_states(struct lr_parser *parser, u8 symbol_count)
+{
+    assert(parser->stack_top >= symbol_count);
+    parser->stack_top -= symbol_count;
+}
+
+struct ast_node *_build_terminal_ast(struct token *tok)
+{
+    enum node_type node_type = token_to_node_type(tok->token_type, tok->opcode);
+    struct ast_node *ast = 0;
+    switch(node_type){
+        default:
+            ast = ast_node_new(node_type, 0, tok->loc);
+            break;
+        case IDENT_NODE:
+            ast = ident_node_new(tok->symbol_val, tok->loc);
+            break;
+    }
+    return ast;
+}
+
+struct ast_node *_build_nonterm_ast(struct grule *rule, struct stack_item *items)
+{
+    enum op_code opcode;
+    struct ast_node *ast = 0;
+    struct ast_node *node = 0;
+    struct ast_node *rhs = 0;
+    enum node_type node_type = symbol_to_node_type(rule->action.action);
+    switch(node_type){
+        default:
+            assert(false);
+            break;
+        case UNARY_NODE:
+            node = items[0].ast;
+            opcode = node->node_type & 0xFFFF;
+            node = items[1].ast;
+            ast = unary_node_new(opcode, node, node->loc);
+            break;
+        case BINARY_NODE:
+            node = items[1].ast;
+            opcode = node->node_type & 0xFFFF;
+            node = items[0].ast;
+            rhs = items[2].ast;
+            ast = binary_node_new(opcode, node, rhs, node->loc);
+            break;
+        case FUNC_NODE:
+            node = items[0].ast;
+            assert(node->node_type == IDENT_NODE);
+            ARRAY_FUN_PARAM(fun_params);
+            struct ast_node *ft = func_type_node_default_new(node->ident->name, &fun_params, 0, false, false, node->loc);
+            node = items[1].ast;
+            ast = function_node_new(ft, node, node->loc);
+            break;
+    }    
+    return ast;
 }
 
 struct ast_node *parse_text(struct lr_parser *parser, const char *text)
 {
-    _push_state(parser, 0);
+    struct ast_node *ast = 0;
+    _push_state(parser, 0, 0); 
     struct lexer *lexer = lexer_new_for_string(text);
     struct token *tok = get_tok(lexer);
     u8 a = get_token_index(tok->token_type, tok->opcode);
     u16 s, t;
     struct grule *rule;
+    struct stack_item *si;
     //driver 
     while(1){
-        s = _get_top_state(parser);
+        s = _get_top_state(parser)->state_index;
         if(parser->parsing_table[s][a].code == ACTION_SHIFT){
-            _push_state(parser, parser->parsing_table[s][a].state_index);
+            ast = _build_terminal_ast(tok);
+            _push_state(parser, parser->parsing_table[s][a].state_index, ast);
             tok = get_tok(lexer);
             a = get_token_index(tok->token_type, tok->opcode);
         }else if(parser->parsing_table[s][a].code == ACTION_REDUCE){
-            //do action
+            //do reduce action and build ast node
             rule = &parser->rules[parser->parsing_table[s][a].rule_index];
-            for(u8 i=0; i<rule->symbol_count; i++){
-                _pop_state(parser);
-            }
-            t = _get_top_state(parser);
+            si = _get_start_item(parser, rule->symbol_count);
+            ast = _build_nonterm_ast(rule, si);
+            _pop_states(parser, rule->symbol_count);
+            t = _get_top_state(parser)->state_index;
             assert(parser->parsing_table[t][rule->lhs].code == ACTION_GOTO);
-            _push_state(parser, parser->parsing_table[t][rule->lhs].state_index);
+            _push_state(parser, parser->parsing_table[t][rule->lhs].state_index, ast);
             //
         }else if(parser->parsing_table[s][a].code == ACTION_ACCEPT){
+            si = _pop_state(parser);
+            ast = si->ast;
             break;
-        }
-        else{
+        }else{
             //error recovery
         }
     }
     lexer_free(lexer);
-    return 0;
+    return ast;
 }

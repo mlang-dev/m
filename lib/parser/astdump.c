@@ -166,7 +166,7 @@ string _dump_number(struct ast_node *node)
 
 string dump(struct ast_node *node)
 {
-    if (node->node_type == FUNCTION_NODE)
+    if (node->node_type == FUNC_NODE)
         return _dump_function(node);
     else if (node->node_type == FUNC_TYPE_NODE)
         return _dump_func_type(node);
@@ -176,7 +176,7 @@ string dump(struct ast_node *node)
         return _dump_unary(node);
     else if (node->node_type == BINARY_NODE)
         return _dump_binary(node);
-    else if (node->node_type == CONDITION_NODE)
+    else if (node->node_type == IF_NODE)
         return _dump_if(node);
     else if (node->node_type == CALL_NODE)
         return _dump_call(node);

@@ -390,7 +390,7 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
         case BINARY_NODE:
             type = _analyze_binary(context, node);
             break;
-        case CONDITION_NODE:
+        case IF_NODE:
             type = _analyze_if(context, node);
             break;
         case FOR_NODE:
@@ -402,7 +402,7 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
         case FUNC_TYPE_NODE:
             type = _analyze_func_type(context, node);
             break;
-        case FUNCTION_NODE:
+        case FUNC_NODE:
             type = _analyze_func(context, node);
             break;
         case BLOCK_NODE:

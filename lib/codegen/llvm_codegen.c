@@ -689,7 +689,7 @@ LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node)
         case BINARY_NODE:
             value = _emit_binary_node(cg, node);
             break;
-        case CONDITION_NODE:
+        case IF_NODE:
             value = _emit_condition_node(cg, node);
             break;
         case FOR_NODE:
@@ -701,7 +701,7 @@ LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node)
         case FUNC_TYPE_NODE:
             value = emit_func_type_node(cg, node);
             break;
-        case FUNCTION_NODE:
+        case FUNC_NODE:
             value = emit_function_node(cg, node);
             break;
         case BLOCK_NODE:
