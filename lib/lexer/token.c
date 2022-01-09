@@ -86,6 +86,8 @@ void token_init()
         if(tp->name&&tp->pattern&&!tp->re){
             tp->re = regex_new(tp->pattern);
             assert(tp->re);
+        }
+        if(tp->name){
             tp->symbol_name = to_symbol(tp->name);
             hashtable_set_p(&token_patterns_by_symbol, tp->symbol_name, tp);
         }
@@ -153,6 +155,12 @@ u8 get_symbol_index(symbol symbol)
     return (u8)tp->token_type;
 }
 
+u8 get_token_index(enum token_type token_type, enum op_code opcode)
+{
+    symbol symbol = get_symbol_by_token_opcode(token_type, opcode);
+    return get_symbol_index(symbol);
+}
+
 u8 add_grammar_nonterm(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
@@ -175,4 +183,9 @@ u8 add_grammar_nonterm(symbol symbol)
 u8 get_symbol_count()
 {
     return g_nonterm_count + (u8)PATTERN_COUNT;
+}
+
+bool is_terminal(u8 symbol_index)
+{
+    return symbol_index < PATTERN_COUNT;
 }

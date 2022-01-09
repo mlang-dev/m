@@ -15,6 +15,7 @@ extern "C" {
 #endif
 
 const char * get_m_grammar();
+const char * get_m_augmented_grammar();
 
 #ifdef __cplusplus
 }
