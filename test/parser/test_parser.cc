@@ -190,7 +190,7 @@ TEST_F(testParser, testFacIfCondition)
     auto body_node = *(ast_node **)array_front(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(CONDITION_NODE, body_node->node_type);
+    ASSERT_EQ(IF_NODE, body_node->node_type);
     env_free(env);
 }
 
@@ -288,7 +288,7 @@ TEST_F(testParser, testVariadicFunction)
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
-    ASSERT_STREQ("FUNCTION_NODE", node_type_strings[node->node_type]);
+    ASSERT_STREQ("FUNC_NODE", node_type_strings[node->node_type]);
     ast_node *func = (ast_node *)node;
     ASSERT_EQ(true, func->func->func_type->ft->is_variadic);
     env_free(env);
@@ -316,7 +316,7 @@ to_string () =
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     ast_node *fun = (ast_node *)node;
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("to_string", string_get(fun->func->func_type->ft->name));
@@ -464,7 +464,7 @@ get_point() = Point2D 10.0 20.0
 
     //2. second line is to define a one line function
     auto fun_node = *(struct ast_node **)array_back(&block->block->nodes);
-    ASSERT_EQ(FUNCTION_NODE, fun_node->node_type);
+    ASSERT_EQ(FUNC_NODE, fun_node->node_type);
     ASSERT_EQ(1, array_size(&fun_node->func->body->block->nodes));
     auto tv_node = *(struct ast_node **)array_back(&fun_node->func->body->block->nodes);
     ASSERT_EQ(TYPE_VALUE_NODE, tv_node->node_type);

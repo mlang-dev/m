@@ -11,11 +11,8 @@
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
+#include "parser/ast.h"
 #include <assert.h>
-
-symbol BINOP = 0;
-symbol UNOP = 0;
-symbol FUNC = 0;
 
 struct earley_parser *earley_parser_new(const char *grammar_text)
 {
@@ -23,10 +20,6 @@ struct earley_parser *earley_parser_new(const char *grammar_text)
     struct earley_parser *parser;
     MALLOC(parser, sizeof(*parser));
     parser->grammar = grammar;
-
-    BINOP = to_symbol("binop");
-    UNOP = to_symbol("unop");
-    FUNC = to_symbol("func");
     return parser;
 }
 
@@ -208,33 +201,6 @@ struct _child_parse{
     struct complete_parse *child_cp;
 };
 
-enum node_type _to_node_type_enum(symbol node_type_name)
-{
-    if (node_type_name == BINOP){
-        return BINARY_NODE;
-    }else if(node_type_name == UNOP){
-        return UNARY_NODE;
-    }else if(node_type_name == FUNC){
-        return FUNCTION_NODE;
-    }
-    return UNK_NODE;
-}
-
-enum node_type _to_node_type(enum token_type token_type, enum op_code opcode)
-{
-    if(token_type == TOKEN_IDENT){
-        return IDENT_NODE;
-    }else if(token_type == TOKEN_INT){
-        return LITERAL_NODE;
-    }else if(token_type == TOKEN_FLOAT){
-        return LITERAL_NODE;
-    }else if(token_type == TOKEN_OP){
-        //*hacky way to transfer opcode
-        return (token_type << 16) | opcode;
-    }
-    return UNK_NODE;
-}
-
 struct ast_node *_build_ast(struct earley_parser *parser, struct parse_states *states, size_t from, struct complete_parse *cp)
 {
     struct parse_state *state = array_get(&states->states, from);
@@ -312,7 +278,7 @@ struct ast_node *_build_ast(struct earley_parser *parser, struct parse_states *s
         }
         if(c_p->ei_type){ //terminal
             //terminal symbol could be IDENT, literal
-            node_type = _to_node_type(c_p->state->tok.token_type, c_p->state->tok.opcode);
+            node_type = token_to_node_type(c_p->state->tok.token_type, c_p->state->tok.opcode);
             switch(node_type){
                 default:
                     child = ast_node_new(node_type, 0, c_p->state->tok.loc);
@@ -334,7 +300,7 @@ struct ast_node *_build_ast(struct earley_parser *parser, struct parse_states *s
     }
     if(parent_child_tree){
         enum op_code opcode;
-        node_type = _to_node_type_enum(cp->ep->expr->action.action);
+        node_type = symbol_to_node_type(cp->ep->expr->action.action);
 
         switch(node_type){
             default:
@@ -356,7 +322,7 @@ struct ast_node *_build_ast(struct earley_parser *parser, struct parse_states *s
                 struct ast_node *rhs = *(struct ast_node **)array_get(&child_nodes, 2);
                 node = binary_node_new(opcode, child, rhs, loc);
                 break;
-            case FUNCTION_NODE:
+            case FUNC_NODE:
                 child = *(struct ast_node **)array_get(&child_nodes, 0);
                 assert(child->node_type == IDENT_NODE);
                 ARRAY_FUN_PARAM(fun_params);

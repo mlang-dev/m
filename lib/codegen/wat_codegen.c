@@ -27,7 +27,7 @@ string _wat_generate(struct ast_node *ast, const char *text)
     if(!ast){
         return s;
     }
-    if(ast->node_type == FUNCTION_NODE){
+    if(ast->node_type == FUNC_NODE){
         string_append(&s, "(func $");
         string_add(&s, ast->func->func_type->ft->name);
         string_append(&s, " (result i32)\n");

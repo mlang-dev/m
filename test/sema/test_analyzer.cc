@@ -153,7 +153,7 @@ TEST(testAnalyzer, testIdentityFunc)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("id", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -172,7 +172,7 @@ TEST(testAnalyzer, testIntIntFunc)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -191,7 +191,7 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -210,7 +210,7 @@ TEST(testAnalyzer, testBoolFunc)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -229,7 +229,7 @@ TEST(testAnalyzer, testMultiParamFunc)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("avg", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(3, array_size(&var->args));
@@ -252,7 +252,7 @@ factorial n =
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("factorial", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -276,7 +276,7 @@ loopprint n =
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -307,7 +307,7 @@ distance x1 y1 x2 y2 =
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("distance", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(5, array_size(&var->args));
@@ -331,7 +331,7 @@ to_string () =
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("to_string", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(1, array_size(&var->args));
@@ -353,7 +353,7 @@ var_func ... = 0
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("var_func", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(true, node->func->func_type->ft->is_variadic);
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -409,7 +409,7 @@ TEST(testAnalyzer, testFunctionTypeAnnotation)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("print", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -430,7 +430,7 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithParentheses)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("prt", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -451,7 +451,7 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("prt", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     auto var = (type_oper *)node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->base.type);
     ASSERT_EQ(2, array_size(&var->args));
@@ -728,7 +728,7 @@ z() = get_point()
 
     //3. function definition again
     node = *(ast_node **)array_get(&block->block->nodes, 2);
-    ASSERT_EQ(FUNCTION_NODE, node->node_type);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> Point2D", string_get(&type_str));
     env_free(env);

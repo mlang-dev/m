@@ -33,14 +33,21 @@ extern "C" {
     ENUM_ITEM(TYPE_VALUE_NODE)      \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \
-    ENUM_ITEM(CONDITION_NODE)       \
+    ENUM_ITEM(IF_NODE)              \
     ENUM_ITEM(FOR_NODE)             \
     ENUM_ITEM(CALL_NODE)            \
     ENUM_ITEM(FUNC_TYPE_NODE)       \
-    ENUM_ITEM(FUNCTION_NODE)        \
-    ENUM_ITEM(BLOCK_NODE)
+    ENUM_ITEM(FUNC_NODE)        \
+    ENUM_ITEM(BLOCK_NODE)           \
+    ENUM_ITEM(TOTAL_NODE)
 
 enum node_type { FOREACH_NODETYPE(GENERATE_ENUM) };
+
+struct node_type_name{
+    const char *name;       //c string name
+    symbol symbol_name;     //symbol name
+    enum node_type node_type; //node type enum
+};
 
 extern const char *node_type_strings[];
 
@@ -171,6 +178,9 @@ struct ast_node {
     };
 };
 
+void ast_init();
+void ast_deinit();  
+struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
 /*
  * if node type order is changed here, the corresponding order of function pointer
  * in codegen.c & analyzer.c shall be changed accordingly.
@@ -226,6 +236,11 @@ symbol get_callee(struct ast_node *call);
 int find_member_index(struct ast_node *type_node, symbol member);
 
 struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name);
+
+enum node_type token_to_node_type(enum token_type token_type, enum op_code opcode);
+enum node_type symbol_to_node_type(symbol node_type_name);
+
+struct node_type_name *get_node_type_names();
 
 #ifdef __cplusplus
 }
