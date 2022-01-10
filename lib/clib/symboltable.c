@@ -74,7 +74,7 @@ bool has_symbol(symboltable *st, symbol s)
 bool has_symbol_in_scope(symboltable *st, symbol s, symbol end_s)
 {
     struct symbol_list_entry *entry;
-    list_foreach(entry, &st->symbols, list)
+    list_foreach(entry, &st->symbols)
     {
         if (entry->data == end_s)
             break;

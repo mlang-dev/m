@@ -12,13 +12,13 @@
 #include "parser/grammar.h"
 #include <assert.h>
 
-link_list_add_data_fn(index_list, index_list_entry, u8)
-link_list_add_data_fn(parse_item_list, parse_item_list_entry, struct parse_item)
+link_list_append_data_fn(index_list, index_list_entry, u8)
+link_list_append_data_fn(parse_item_list, parse_item_list_entry, struct parse_item)
 
 bool _exists(struct index_list *dst, u8 data)
 {
     struct index_list_entry *entry;
-    list_foreach(entry, dst, list)
+    list_foreach(entry, dst)
     {
         if(entry->data == data)
             return true;
@@ -30,10 +30,10 @@ int _append_list(struct index_list *dst, struct index_list *src)
 {
     struct index_list_entry *entry;
     int n = 0;
-    list_foreach(entry, src, list)
+    list_foreach(entry, src)
     {
         if(!_exists(dst, entry->data)){
-            index_list_add_data_to_head(dst, entry->data);
+            index_list_append_data(dst, entry->data);
             n++;
         }
     }
@@ -92,19 +92,33 @@ void _expand_expr(struct expr *rule_expr, struct array *a)
     array_deinit(&symbols);
 }
 
+void _init_index_list(struct index_list *list)
+{
+    list->first = 0;
+    list->len = 0;
+    list->tail = 0;
+}
+
+void _init_parse_item_list(struct parse_item_list *list)
+{
+    list->first = 0;
+    list->len = 0;
+    list->tail = 0;
+}
+
 void _fill_symbol_data(struct grule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
 {
     u8 i, j;
     u16 r;
     for(i = 0; i < get_symbol_count(); i++){
-        symbol_data[i].first_list.first = 0;
-        symbol_data[i].follow_list.first = 0;
-        symbol_data[i].rule_list.first = 0;
+        _init_index_list(&symbol_data[i].first_list);
+        _init_index_list(&symbol_data[i].follow_list);
+        _init_index_list(&symbol_data[i].rule_list);
         symbol_data[i].is_nullable = false;
     }
     for(i = 0; i < PATTERN_COUNT; i++){
         //terminal token
-        index_list_add_data_to_head(&symbol_data[i].first_list, i);
+        index_list_append_data(&symbol_data[i].first_list, i);
     }
     int symbol_changes;
     struct grule *rule;
@@ -158,7 +172,7 @@ void _fill_symbol_data(struct grule *rules, u16 rule_count, struct rule_symbol_d
     for(r = 0; r < rule_count; r++){
         rule = &rules[r];
         il = &symbol_data[rule->lhs].rule_list;
-        index_list_add_data_to_head(il, r);
+        index_list_append_data(il, r);
     }
 }
 
@@ -170,7 +184,7 @@ u8 _eq_parse_item(struct parse_item *item1, struct parse_item *item2)
 bool _exists_parse_item(struct parse_item_list *items, struct parse_item *item)
 {
     struct parse_item_list_entry *entry;
-    list_foreach(entry, items, list){
+    list_foreach(entry, items){
         if(_eq_parse_item(&entry->data, item))
             return true;
     }
@@ -181,7 +195,7 @@ u8 _add_parse_item(struct parse_item_list *items, struct parse_item item)
 {
     if(_exists_parse_item(items, &item))
         return 0;
-    parse_item_list_add_data_to_head(items, item);
+    parse_item_list_append_data(items, item);
     return 1;
 }
 
@@ -190,38 +204,34 @@ struct parse_state _closure(struct rule_symbol_data *symbol_data, struct grule *
     struct parse_item item;
     struct index_list_entry *rule_entry;
     struct index_list_entry *symbol_entry;
-    while(true){
-        int items_added = 0;
-        struct parse_item_list_entry *entry;
-        struct parse_item_list *items = &state.items;
-        list_foreach(entry, items, list)
-        {
-            struct grule *rule = &rules[entry->data.rule];
-            if(entry->data.dot < rule->symbol_count){
-                u8 symbol_index = rule->rhs[entry->data.dot];
-                if(!is_terminal(symbol_index)){//non terminal
-                    u8 next_symbol = entry->data.dot < rule->symbol_count - 1 ? rule->rhs[entry->data.dot + 1] : 0xff;
-                    struct index_list *nt_rules = &symbol_data[symbol_index].rule_list;
-                    list_foreach(rule_entry, nt_rules, list){
-                        item.rule = rule_entry->data; //ile->data stores the index of the rule
-                        item.dot = 0;
-                        if(next_symbol != 0xff){
-                            list_foreach(symbol_entry, &symbol_data[next_symbol].first_list, list){
-                                item.lookahead = symbol_entry->data;
-                                items_added += _add_parse_item(items, item);
-                            }
+    int items_added = 0;
+    struct parse_item_list_entry *entry;
+    struct parse_item_list *items = &state.items;
+    list_foreach(entry, items)
+    {
+        struct grule *rule = &rules[entry->data.rule];
+        if(entry->data.dot < rule->symbol_count){
+            u8 symbol_index = rule->rhs[entry->data.dot];
+            if(!is_terminal(symbol_index)){//non terminal
+                u8 next_symbol = entry->data.dot < rule->symbol_count - 1 ? rule->rhs[entry->data.dot + 1] : 0xff;
+                struct index_list *nt_rules = &symbol_data[symbol_index].rule_list;
+                list_foreach(rule_entry, nt_rules){
+                    item.rule = rule_entry->data; //ile->data stores the index of the rule
+                    item.dot = 0;
+                    if(next_symbol != 0xff){
+                        list_foreach(symbol_entry, &symbol_data[next_symbol].first_list){
+                            item.lookahead = symbol_entry->data;
+                            items_added += _add_parse_item(items, item);
                         }
-                        
-                        if(next_symbol == 0xff || symbol_data[next_symbol].is_nullable){
-                            item.lookahead = entry->data.lookahead; //copy current lookahead
-                        }
-                        items_added += _add_parse_item(items, item);
                     }
+                    
+                    if(next_symbol == 0xff || symbol_data[next_symbol].is_nullable){
+                        item.lookahead = entry->data.lookahead; //copy current lookahead
+                    }
+                    items_added += _add_parse_item(items, item);
                 }
             }
         }
-        if(!items_added) break;
-        state.item_count += items_added;
     }
     return state;
 }
@@ -229,20 +239,20 @@ struct parse_state _closure(struct rule_symbol_data *symbol_data, struct grule *
 struct parse_state _goto(struct rule_symbol_data *symbol_data, struct grule *rules, struct parse_state state, u8 rule_symbol)
 {
     struct parse_state next_state;
-    next_state.items.first = 0;
-    next_state.item_count = 0;
+    _init_parse_item_list(&next_state.items);
     struct parse_item_list *next_items = &next_state.items;
 
     struct parse_item_list_entry *entry;
     struct parse_item_list *items = &state.items;
     struct parse_item item;
-    list_foreach(entry, items, list)
+    struct grule *rule;
+    list_foreach(entry, items)
     {
-        if(entry->data.dot < rules[entry->data.rule].symbol_count){
+        rule = &rules[entry->data.rule];
+        if(entry->data.dot < rule->symbol_count && rule_symbol == rule->rhs[entry->data.dot]){
             item = entry->data;
             item.dot++;
-            parse_item_list_add_data_to_head(next_items, item);
-            next_state.item_count++;
+            parse_item_list_append_data(next_items, item);
         }
     }
     return _closure(symbol_data, rules, next_state);
@@ -250,10 +260,10 @@ struct parse_state _goto(struct rule_symbol_data *symbol_data, struct grule *rul
 
 bool _eq_state(struct parse_state *state1, struct parse_state *state2)
 {
-    if(state1->item_count != state2->item_count)
+    if(state1->items.len != state2->items.len)
         return false;
     struct parse_item_list_entry *entry;
-    list_foreach(entry, &state1->items, list){
+    list_foreach(entry, &state1->items){
         if(!entry->data.dot) continue; //only compare kernel
         if(_exists_parse_item(&state2->items, &entry->data))
             return true;
@@ -275,18 +285,18 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct grule *rules, u16
     u16 i, state_count = 0;
     struct parse_item item;
     struct parse_state *state;
-    states[state_count].items.first = 0;
+    _init_parse_item_list(&states[state_count].items);
     item.dot = 0;
     item.lookahead = TOKEN_EOF;
     item.rule = 0;
-    parse_item_list_add_data_to_head(&states[state_count].items, item);
-    _closure(symbol_data, rules, states[state_count]);
+    parse_item_list_append_data(&states[state_count].items, item);
+    states[state_count] = _closure(symbol_data, rules, states[state_count]);
     state_count++;
     struct parse_item_list_entry *entry;
     struct grule *rule;
     for(i = 0; i < state_count; i++){
         state = &states[i];
-        list_foreach(entry, &state->items, list){
+        list_foreach(entry, &state->items){
             rule = &rules[entry->data.rule];
             for(u8 j = 0; j < rule->symbol_count; j++){
                 u8 x = rule->rhs[j];
@@ -316,7 +326,7 @@ void _build_parsing_table(struct parser_action parsing_table[][MAX_GRAMMAR_SYMBO
     u8 a;
     for(u16 i=0; i < state_count; i++){
         ps = &states[i];
-        list_foreach(entry, &ps->items,list){
+        list_foreach(entry, &ps->items){
             item = &entry->data;
             rule = &rules[item->rule];
             if(item->dot < rule->symbol_count){
@@ -500,17 +510,19 @@ struct ast_node *parse_text(struct lr_parser *parser, const char *text)
     u16 s, t;
     struct grule *rule;
     struct stack_item *si;
+    struct parser_action *pa;
     //driver 
     while(1){
         s = _get_top_state(parser)->state_index;
-        if(parser->parsing_table[s][a].code == ACTION_SHIFT){
+        pa = &parser->parsing_table[s][a];
+        if(pa->code == ACTION_SHIFT){
             ast = _build_terminal_ast(tok);
-            _push_state(parser, parser->parsing_table[s][a].state_index, ast);
+            _push_state(parser, pa->state_index, ast);
             tok = get_tok(lexer);
             a = get_token_index(tok->token_type, tok->opcode);
-        }else if(parser->parsing_table[s][a].code == ACTION_REDUCE){
+        }else if(pa->code == ACTION_REDUCE){
             //do reduce action and build ast node
-            rule = &parser->rules[parser->parsing_table[s][a].rule_index];
+            rule = &parser->rules[pa->rule_index];
             si = _get_start_item(parser, rule->symbol_count);
             ast = _build_nonterm_ast(rule, si);
             _pop_states(parser, rule->symbol_count);
@@ -518,12 +530,13 @@ struct ast_node *parse_text(struct lr_parser *parser, const char *text)
             assert(parser->parsing_table[t][rule->lhs].code == ACTION_GOTO);
             _push_state(parser, parser->parsing_table[t][rule->lhs].state_index, ast);
             //
-        }else if(parser->parsing_table[s][a].code == ACTION_ACCEPT){
+        }else if(pa->code == ACTION_ACCEPT){
             si = _pop_state(parser);
             ast = si->ast;
             break;
         }else{
             //error recovery
+            break;
         }
     }
     lexer_free(lexer);

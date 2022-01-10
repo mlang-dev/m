@@ -73,7 +73,7 @@ void _hashtable_grow(struct hashtable *ht)
                 size_t key_size = ht->key_is_c_str ? entry->data.key_store_size - 1 : entry->data.key_store_size;
                 index = _get_index(ht, (unsigned char *)entry->data.key_value_pair, key_size);
                 new_head = &ht->heads[index];
-                link_list_insert_head(new_head, entry);
+                list_insert_head(new_head, entry);
                 entry = next;
             }
         }
@@ -84,7 +84,7 @@ void _hashtable_grow(struct hashtable *ht)
 struct hashbox *_get_hashbox(struct hash_head *head, const char *key, size_t key_size)
 {
     struct hash_entry *entry;
-    list_foreach(entry, head, list)
+    list_foreach(entry, head)
     {
         if (match_entry(entry, key, key_size)) {
             return &entry->data;
@@ -154,7 +154,7 @@ void hashtable_remove(struct hashtable *ht, const char *key)
     struct hash_entry *prev = 0;
     size_t key_size = strlen(key);
     head = &ht->heads[_get_index(ht, (unsigned char *)key, key_size)];
-    list_foreach(entry, head, list)
+    list_foreach(entry, head)
     {
         if (match_entry(entry, key, key_size)) {
             break;
@@ -163,9 +163,9 @@ void hashtable_remove(struct hashtable *ht, const char *key)
     }
     if (entry) {
         if (prev)
-            list_remove_next(prev, list);
+            list_remove_next(prev);
         else
-            list_remove_head(head, list);
+            list_remove_head(head);
         _hash_entry_free(ht, entry);
         ht->size--;
     }
@@ -177,7 +177,7 @@ void hashtable_remove_g(struct hashtable *ht, void *key, size_t key_size)
     struct hash_entry *entry;
     struct hash_entry *prev = 0;
     head = &ht->heads[_get_index(ht, (unsigned char *)key, key_size)];
-    list_foreach(entry, head, list)
+    list_foreach(entry, head)
     {
         if (match_entry(entry, key, key_size)) {
             break;
@@ -186,9 +186,9 @@ void hashtable_remove_g(struct hashtable *ht, void *key, size_t key_size)
     }
     if (entry) {
         if (prev)
-            list_remove_next(prev, list);
+            list_remove_next(prev);
         else
-            list_remove_head(head, list);
+            list_remove_head(head);
         _hash_entry_free(ht, entry);
         ht->size--;
     }
@@ -246,7 +246,7 @@ void hashtable_set_g(struct hashtable *ht, void *key, size_t key_size, void *val
             entry = _hash_entry_new(key_size, value_size);
             memcpy(entry->data.key_value_pair, key, key_size);
         }
-        link_list_insert_head(head, entry);
+        list_insert_head(head, entry);
         ht->size++;
         box = &entry->data;
     }

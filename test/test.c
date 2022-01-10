@@ -25,6 +25,7 @@ int test_lexer();
 int test_m_lexer();
 int test_ast();
 int test_g_parser();
+int test_lr_parser_expr();
 int test_lr_parser();
 int test_grammar();
 int test_wat_codegen();
@@ -54,6 +55,7 @@ EXPORT int ENTRY()
   failures += test_lexer();
   failures += test_m_lexer();
   failures += test_ast();
+  failures += test_lr_parser_expr();
   failures += test_lr_parser();
   failures += test_g_parser();
   failures += test_grammar();
