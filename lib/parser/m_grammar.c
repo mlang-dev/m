@@ -32,7 +32,7 @@ const char *get_m_grammar()
 const char *get_m_augmented_grammar()
 {
     const char *m_grammar = 
-        "start      = program EOF       { 0 }"
+        "start      = program           { 0 }"
         "program    = program stmt      { prog 0 1 }"
         "           | stmt              { prog 0 }"
         "stmt       = IDENT '(' ')' '=' expr  { func 0 4 }"

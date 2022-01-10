@@ -47,7 +47,7 @@ struct grule{
     struct semantic_action action;
 };
 
-link_list(index_list, index_list_entry, u8)
+link_list2(index_list, index_list_entry, u8)
 
 struct parse_item {
     u8 rule; //rule index
@@ -55,11 +55,10 @@ struct parse_item {
     u8 lookahead;//
 };
 
-link_list(parse_item_list, parse_item_list_entry, struct parse_item)
+link_list2(parse_item_list, parse_item_list_entry, struct parse_item)
 
 struct parse_state{
     struct parse_item_list items;
-    u16 item_count;
 };
 
 struct rule_symbol_data{
