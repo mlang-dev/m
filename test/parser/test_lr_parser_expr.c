@@ -20,12 +20,12 @@ TEST(test_lr_parser_expr, arithmetic_exp)
         "       | '-'    { 0 }";
 
     const char test_code[] = "1+2";
-    const char expected[] = 
-"\n"
-"(i32.add\n"
-"(i32.const 1)\n"
-"(i32.const 2)\n"
-")\n";
+//     const char expected[] = 
+// "\n"
+// "(i32.add\n"
+// "(i32.const 1)\n"
+// "(i32.const 2)\n"
+// ")\n";
     frontend_init();
     wat_codegen_init();
     struct lr_parser *parser = lr_parser_new(m_grammar);
