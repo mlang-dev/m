@@ -22,6 +22,7 @@ jobs:
       run: |
         sudo apt remove llvm-10
         sudo apt remove llvm-11
+        sudo apt remove llvm-12
         sudo apt autoclean && sudo apt autoremove
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
