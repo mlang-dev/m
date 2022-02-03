@@ -15,7 +15,7 @@ TEST(test_lr_parser, var_decl)
 {
     //char test_code[] = "x:int";
     frontend_init();
-    //struct lr_parser *parser = lr_parser_new(get_m_augmented_grammar());
+    //struct lr_parser *parser = lr_parser_new(get_m_grammar());
     // struct ast_node *block = parse_text(parser, test_code);
     // struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     // ASSERT_EQ(1, array_size(&block->block->nodes));
