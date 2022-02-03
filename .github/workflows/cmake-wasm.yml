@@ -18,12 +18,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install LLVM & LLD
-      run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main"
-        sudo apt-get install llvm lld
-
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
       with:
