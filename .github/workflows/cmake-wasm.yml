@@ -20,10 +20,22 @@ jobs:
     steps:
     - name: Install LLVM & LLD
       run: |
+        sudo apt remove llvm-10
+        sudo apt remove llvm-11
+        sudo apt remove llvm-12
+        sudo apt remove clang-11
+        sudo apt autoclean && sudo apt autoremove
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main"
-        sudo apt-get install llvm lld
-
+        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
+        sudo apt-get install llvm-13 lld-13 clang-13
+        sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
+        sudo ln /usr/bin/llvm-ar-13 /usr/bin/llvm-ar
+        sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
+        sudo ln /usr/bin/llvm-ranlib-13 /usr/bin/llvm-ranlib
+        sudo ln -f /usr/bin/clang-13 /usr/bin/clang
+        sudo ln -f /usr/bin/clang++-13 /usr/bin/clang++
+        sudo ln -f /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
+        
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
       with:
@@ -31,7 +43,12 @@ jobs:
 
     - name: Build wasi-libc
       run: (cd ${{github.workspace}}/extern/wasi-libc && make)
-
+    - name: download libclang_rt.builtins-wasm32-wasi
+      run: | 
+        wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-14/libclang_rt.builtins-wasm32-wasi-14.0.tar.gz
+        sudo tar xzvf libclang_rt.builtins-wasm32-wasi-14.0.tar.gz
+        rm -r -f libclang_rt.builtins-wasm32-wasi-14.0.tar.gz
+        
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type

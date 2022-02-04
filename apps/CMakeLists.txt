@@ -25,10 +25,12 @@ elseif(WASM)
                                       SUFFIX ".wasm")
   target_link_libraries(wm PRIVATE mlr
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
+    ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
     --target=wasm32
     -nostdlib
     -g
     -Wl,--no-entry,--export-dynamic
+    -v
   )
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/wm.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/term.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

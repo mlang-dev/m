@@ -24,8 +24,9 @@ FILE *open_file_from_string(const char *code)
     return fmemopen(file_content, strlen(file_content), "r");
 }
 
-void make_module_ir(LLVMModuleRef module, const char *module_name, const char *ir_string, char *module_ir)
+void make_module_ir(void* mod, const char *module_name, const char *ir_string, char *module_ir)
 {
+    LLVMModuleRef module = (LLVMModuleRef)mod;
     sprintf(module_ir, R"(; ModuleID = '%s'
 source_filename = "%s"
 target datalayout = "%s"
