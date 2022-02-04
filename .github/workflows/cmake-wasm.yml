@@ -31,8 +31,8 @@ jobs:
         sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
         sudo ln /usr/bin/llvm-ar-13 /usr/bin/llvm-ar
         sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
-        sudo ln /usr/bin/clang-13 /usr/bin/clang
-        sudo ln /usr/bin/clang++-13 /usr/bin/clang++
+        sudo ln -f /usr/bin/clang-13 /usr/bin/clang
+        sudo ln -f /usr/bin/clang++-13 /usr/bin/clang++
         
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
