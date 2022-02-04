@@ -33,6 +33,7 @@ jobs:
         sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
         sudo ln -f /usr/bin/clang-13 /usr/bin/clang
         sudo ln -f /usr/bin/clang++-13 /usr/bin/clang++
+        sudo ln -f /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
         
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
