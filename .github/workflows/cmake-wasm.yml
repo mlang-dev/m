@@ -23,11 +23,16 @@ jobs:
         sudo apt remove llvm-10
         sudo apt remove llvm-11
         sudo apt remove llvm-12
+        sudo apt remove clang-11
         sudo apt autoclean && sudo apt autoremove
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
-        sudo apt-get install llvm-13 lld-13
+        sudo apt-get install llvm-13 lld-13 clang-13
         sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
+        sudo ln /usr/bin/llvm-ar-13 /usr/bin/llvm-ar
+        sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
+        sudo ln /usr/bin/clang-13 /usr/bin/clang
+        sudo ln /usr/bin/clang++-13 /usr/bin/clang++
         
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
