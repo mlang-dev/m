@@ -29,6 +29,7 @@ elseif(WASM)
     -nostdlib
     -g
     -Wl,--no-entry,--export-dynamic
+    -lclang_rt.builtins-wasm32
   )
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/wm.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/term.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
