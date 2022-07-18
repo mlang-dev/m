@@ -68,7 +68,7 @@ void rule_deinit(struct rule *rule)
     array_deinit(&rule->exprs);
 }
 
-struct grammar *grammar_new()
+struct grammar *_grammar_new()
 {
     struct grammar *grammar = 0;
     MALLOC(grammar, sizeof(*grammar));
@@ -93,7 +93,7 @@ struct rule *grammar_add_rule(struct grammar *g, symbol nonterm, int rule_no)
 
 struct grammar *grammar_parse(const char *grammar_text)
 {
-    struct grammar *g = grammar_new();
+    struct grammar *g = _grammar_new();
     struct token tok, next_tok;
     struct lexer *lexer= lexer_new_for_string(grammar_text);
     tok = *get_tok(lexer);

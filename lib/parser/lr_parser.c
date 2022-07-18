@@ -106,7 +106,7 @@ void _init_parse_item_list(struct parse_item_list *list)
     list->tail = 0;
 }
 
-void _fill_symbol_data(struct grule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
+void _fill_rule_symbol_data(struct grule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
 {
     u8 i, j;
     u16 r;
@@ -365,6 +365,7 @@ struct lr_parser *lr_parser_new(const char *grammar_text)
     MALLOC(parser, sizeof(*parser));
     parser->stack_top = 0;
     //1. initialize parsing table
+    //row: state index, col: symbol index
     for(i=0; i < MAX_STATES; i++){
         for(j=0; j < MAX_GRAMMAR_SYMBOLS; j++){
             parser->parsing_table[i][j].code = ACTION_ERROR;
@@ -406,7 +407,7 @@ struct lr_parser *lr_parser_new(const char *grammar_text)
         }
     }
 
-    _fill_symbol_data(parser->rules, parser->rule_count, parser->symbol_data);
+    _fill_rule_symbol_data(parser->rules, parser->rule_count, parser->symbol_data);
     //4. build states
     parser->parse_state_count = _build_states(parser->symbol_data, parser->rules, parser->rule_count, parser->parse_states, parser->parsing_table);
     //5. construct parsing table
@@ -471,33 +472,37 @@ struct ast_node *_build_nonterm_ast(struct grule *rule, struct stack_item *items
     struct ast_node *ast = 0;
     struct ast_node *node = 0;
     struct ast_node *rhs = 0;
+    if (!rule->action.action){
+        printf("warning: no semantic action specified\n");
+        return ast;
+    }
     enum node_type node_type = symbol_to_node_type(rule->action.action);
-    switch(node_type){
-        default:
-            assert(false);
-            break;
-        case UNARY_NODE:
-            node = items[0].ast;
-            opcode = node->node_type & 0xFFFF;
-            node = items[1].ast;
-            ast = unary_node_new(opcode, node, node->loc);
-            break;
-        case BINARY_NODE:
-            node = items[1].ast;
-            opcode = node->node_type & 0xFFFF;
-            node = items[0].ast;
-            rhs = items[2].ast;
-            ast = binary_node_new(opcode, node, rhs, node->loc);
-            break;
-        case FUNC_NODE:
-            node = items[0].ast;
-            assert(node->node_type == IDENT_NODE);
-            ARRAY_FUN_PARAM(fun_params);
-            struct ast_node *ft = func_type_node_default_new(node->ident->name, &fun_params, 0, false, false, node->loc);
-            node = items[1].ast;
-            ast = function_node_new(ft, node, node->loc);
-            break;
-    }    
+    switch (node_type) {
+    default:
+        assert(false);
+        break;
+    case UNARY_NODE:
+        node = items[0].ast;
+        opcode = node->node_type & 0xFFFF;
+        node = items[1].ast;
+        ast = unary_node_new(opcode, node, node->loc);
+        break;
+    case BINARY_NODE:
+        node = items[1].ast;
+        opcode = node->node_type & 0xFFFF;
+        node = items[0].ast;
+        rhs = items[2].ast;
+        ast = binary_node_new(opcode, node, rhs, node->loc);
+        break;
+    case FUNC_NODE:
+        node = items[0].ast;
+        assert(node->node_type == IDENT_NODE);
+        ARRAY_FUN_PARAM(fun_params);
+        struct ast_node *ft = func_type_node_default_new(node->ident->name, &fun_params, 0, false, false, node->loc);
+        node = items[1].ast;
+        ast = function_node_new(ft, node, node->loc);
+        break;
+    }
     return ast;
 }
 

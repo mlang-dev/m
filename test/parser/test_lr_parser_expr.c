@@ -6,6 +6,7 @@
 #include "parser/grammar.h"
 #include "parser/lr_parser.h"
 #include "parser/m_grammar.h"
+#include "parser/astdump.h"
 #include "codegen/wat_codegen.h"
 #include "lexer/init.h"
 #include "test.h"
@@ -14,24 +15,20 @@
 TEST(test_lr_parser_expr, arithmetic_exp)
 {
     const char *m_grammar = 
-        "start  = s      { 0 }"
-        "s      = c c    { 0 }"
-        "c      = '+' c  { 0 }"
-        "       | '-'    { 0 }";
+        "s  = e             {}\n"
+        "e  = t             {}\n"
+        "   | e '+' t       {}\n"
+        "t  = INT {0}       {}\n"
+        "   | '(' e ')'     {}\n";
 
     const char test_code[] = "1+2";
-//     const char expected[] = 
-// "\n"
-// "(i32.add\n"
-// "(i32.const 1)\n"
-// "(i32.const 2)\n"
-// ")\n";
     frontend_init();
     wat_codegen_init();
     struct lr_parser *parser = lr_parser_new(m_grammar);
     struct ast_node *ast = parse_text(parser, test_code);
-    // string code = wat_generate(ast, test_code);
-    // ASSERT_STREQ(expected, string_get(&code));
+ //   string dump_str = dump(ast);
+ //   ASSERT_STREQ(test_code, string_get(&dump_str));
+
     ast_node_free(ast);
     lr_parser_free(parser);
     frontend_deinit();
