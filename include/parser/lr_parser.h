@@ -3,7 +3,7 @@
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for an LR parser
+ * header file for an LALR parser
  */
 #ifndef __MLANG_LALR_PARSER_H__
 #define __MLANG_LALR_PARSER_H__
@@ -31,7 +31,7 @@ enum action_code{
 struct parser_action{
     enum action_code code;
     union {
-        u16 state_index; //if action is shift
+        u16 state_index; //next state index if action is shift
         u16 rule_index;  //index of production rule if action is reduce
     };
 };
@@ -43,7 +43,7 @@ struct parser_action{
 struct grule{
     u8 lhs;   //non terminal symbol index
     u8 rhs[MAX_SYMBOLS_RULE]; //right hand side of production rule
-    u8 symbol_count;
+    u8 symbol_count; //right side of 
     struct semantic_action action;
 };
 
@@ -62,11 +62,10 @@ struct parse_state{
 };
 
 struct rule_symbol_data{
-    bool is_nullable;
+    bool is_nullable; //whether the nonterm symbol is nullable
     struct index_list first_list;//first set
     struct index_list follow_list;//follow set
-
-    struct index_list rule_list; //rule indexs
+    struct index_list rule_list; //rule indexs by symbol
 };
 
 struct stack_item{
@@ -85,7 +84,7 @@ struct lr_parser{
     struct parse_state parse_states[MAX_STATES];
     u16 parse_state_count;
 
-    //grammar rule symbol data: store isnullable, first set and follow set
+    //grammar rule symbol data: store isnullable, first set and follow set per symbol
     struct rule_symbol_data symbol_data[MAX_GRAMMAR_SYMBOLS];
 
     //grammar rules

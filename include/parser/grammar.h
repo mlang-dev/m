@@ -44,6 +44,21 @@ void expr_deinit(struct expr *expr);
 
 int expr_item_2_ast_node_index(struct expr *expr, int expr_item_index);
 
+// e.g. rule: E -> T | E + T
+// nonterm: is E
+// array:
+//      0: expr:
+//          items:
+//              0: item: T
+//          semantic_action:
+//              action symbol
+//              values corresponding to T in expr
+//      1: expr:
+//          items:
+//              E '+' T
+//          semantic_action:
+//              action symbol
+//              values corresponding to T in expr
 struct rule {
     int rule_no;
     symbol nonterm;     // nonterminal symbol
@@ -60,7 +75,6 @@ struct grammar {
     struct array rules;        /* array of rule pointer */
 };
 
-struct grammar *grammar_new();
 struct grammar *grammar_parse(const char *grammar_text);
 void grammar_free(struct grammar *grammar);
 

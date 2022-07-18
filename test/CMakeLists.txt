@@ -78,6 +78,7 @@ elseif (WASM)
     ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
     --target=wasm32
     -nostdlib
+    -g
     -v
     -Wl,--no-entry,--strip-all,--export-dynamic
   )
@@ -112,6 +113,7 @@ else()
 
   add_executable(mtest
     tutil.cc
+
 
     parser/test_parser.cc
     parser/test_parser_logical.cc

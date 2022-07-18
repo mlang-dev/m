@@ -8,9 +8,26 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test/mtest",
+            "program": "${workspaceFolder}/build/test/mctest",
             "args": [
                 "${workspaceFolder}/test/test.m"
+            ],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "miDebuggerPath": "/usr/bin/gdb",
+            "MIMode": "gdb"
+        },
+        {
+            "name": "(gdb) debug mtest.wasm",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/ligan/.wasmtime/bin/wasmtime",
+            "args": [
+                "run",
+                "-g",
+                "${workspaceFolder}/build/test/mtest.wasm"
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
