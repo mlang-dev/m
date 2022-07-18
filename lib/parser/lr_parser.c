@@ -233,6 +233,7 @@ struct parse_state _closure(struct rule_symbol_data *symbol_data, struct grule *
             }
         }
     }
+    printf("items added: %d\n", items_added);
     return state;
 }
 
