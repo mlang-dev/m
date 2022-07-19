@@ -40,7 +40,8 @@ struct parser_action{
 #define MAX_RULES 128
 #define MAX_SYMBOLS_RULE 7
 
-struct grule{
+//converted grammer rule with integer
+struct parse_rule{
     u8 lhs;   //non terminal symbol index
     u8 rhs[MAX_SYMBOLS_RULE]; //right hand side of production rule
     u8 symbol_count; //right side of 
@@ -50,22 +51,22 @@ struct grule{
 link_list2(index_list, index_list_entry, u8)
 
 struct parse_item {
-    u8 rule; //rule index
-    u8 dot;  //dot position
-    u8 lookahead;//
+    u8 rule;    //rule index
+    u8 dot;         //dot position
+    u8 is_kernel;   //0: is not kernel item, brought in by closure function
 };
 
 link_list2(parse_item_list, parse_item_list_entry, struct parse_item)
 
 struct parse_state{
-    struct parse_item_list items;
+    struct parse_item_list items;  //list of parse_items
 };
 
 struct rule_symbol_data{
     bool is_nullable; //whether the nonterm symbol is nullable
     struct index_list first_list;//first set
     struct index_list follow_list;//follow set
-    struct index_list rule_list; //rule indexs by symbol
+    struct index_list rule_list; //rules indexed by symbol
 };
 
 struct stack_item{
@@ -88,7 +89,7 @@ struct lr_parser{
     struct rule_symbol_data symbol_data[MAX_GRAMMAR_SYMBOLS];
 
     //grammar rules
-    struct grule rules[MAX_RULES];
+    struct parse_rule rules[MAX_RULES];
     u16 rule_count;
     struct grammar *g;
 };

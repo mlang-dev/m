@@ -84,9 +84,9 @@ enum op_code{
     OP_TOTAL //mark end of all tokens
 };
 
-#define PATTERN_COUNT TOKEN_OP + OP_TOTAL
+#define TERMINAL_COUNT TOKEN_OP + OP_TOTAL
 #define MAX_NONTERMS 64
-#define MAX_GRAMMAR_SYMBOLS  PATTERN_COUNT + MAX_NONTERMS
+#define MAX_GRAMMAR_SYMBOLS TERMINAL_COUNT + MAX_NONTERMS
 
 extern const char *token_type_strings[];
 
@@ -143,8 +143,8 @@ u8 get_token_index(enum token_type token_type, enum op_code opcode);
 /*get total symbol count including terminal tokens and nonterm symbols*/
 u8 get_symbol_count();
 
-/*add nonterm symbol for grammar*/
-u8 add_grammar_nonterm(symbol symbol);
+/*register nonterm symbol for grammar*/
+u8 register_grammar_nonterm(symbol symbol);
 
 bool is_terminal(u8 symbol_index);
 
