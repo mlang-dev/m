@@ -7,7 +7,7 @@
 #define KEYWORD_PATTERN(keyword, tok_name, op_name) {keyword, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
 #define NAME_KEYWORD_PATTERN(name, keyword, tok_name, op_name) {name, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
 
-struct token_pattern token_patterns[PATTERN_COUNT] = {
+struct token_pattern token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, EOF, NULL),
     TOKEN_PATTERN(0, INDENT, NULL),
     TOKEN_PATTERN(0, DEDENT, NULL),
@@ -15,7 +15,7 @@ struct token_pattern token_patterns[PATTERN_COUNT] = {
     TOKEN_PATTERN("[0-9]+", INT, NULL),
     TOKEN_PATTERN("([0-9]*.)?[0-9]+", FLOAT, NULL),
 
-    TOKEN_PATTERN(0, CHAR, NULL), 
+    TOKEN_PATTERN(0, CHAR, NULL),
     TOKEN_PATTERN(0, STRING, NULL),
 
     KEYWORD_PATTERN("import", IMPORT, NULL),
@@ -40,9 +40,9 @@ struct token_pattern token_patterns[PATTERN_COUNT] = {
 
     KEYWORD_PATTERN(",", COMMA, NULL),
 
-    NAME_KEYWORD_PATTERN(".", "\\.", DOT, NULL),      //literal dot
+    NAME_KEYWORD_PATTERN(".", "\\.", DOT, NULL), // literal dot
     NAME_KEYWORD_PATTERN("..", "\\.\\.", RANGE, NULL),
-    NAME_KEYWORD_PATTERN("...", "\\.\\.\\.", VARIADIC, NULL), 
+    NAME_KEYWORD_PATTERN("...", "\\.\\.\\.", VARIADIC, NULL),
     KEYWORD_PATTERN("=", ASSIGN, NULL),
     KEYWORD_PATTERN(":", ISTYPEOF, NULL),
 
@@ -51,9 +51,9 @@ struct token_pattern token_patterns[PATTERN_COUNT] = {
     KEYWORD_PATTERN("&&", OP, AND),
     KEYWORD_PATTERN("!", OP, NOT),
 
-    NAME_KEYWORD_PATTERN("|", "\\|", OP, BOR), 
+    NAME_KEYWORD_PATTERN("|", "\\|", OP, BOR),
     KEYWORD_PATTERN("&", OP, BAND),
-   
+
     KEYWORD_PATTERN("^", OP, EXPO),
     NAME_KEYWORD_PATTERN("*", "\\*", OP, TIMES),
     KEYWORD_PATTERN("/", OP, DIVISION),
@@ -81,7 +81,7 @@ const char *token_type_strings[] = {
 void token_init()
 {
     hashtable_init(&token_patterns_by_symbol);
-    for(int i = 0; i < PATTERN_COUNT; i++){
+    for (int i = 0; i < TERMINAL_COUNT; i++) {
         struct token_pattern *tp = &token_patterns[i];
         if(tp->name&&tp->pattern&&!tp->re){
             tp->re = regex_new(tp->pattern);
@@ -97,7 +97,7 @@ void token_init()
 
 void token_deinit()
 {
-    for(int i = 0; i < PATTERN_COUNT; i++){
+    for (int i = 0; i < TERMINAL_COUNT; i++) {
         struct token_pattern *tp = &token_patterns[i];
         if(tp->re){
             regex_free(tp->re);
@@ -109,7 +109,7 @@ void token_deinit()
 
 struct token_patterns get_token_patterns()
 {
-    struct token_patterns tps = {token_patterns, PATTERN_COUNT};
+    struct token_patterns tps = { token_patterns, TERMINAL_COUNT };
     return tps;
 }
 
@@ -131,7 +131,7 @@ symbol get_symbol_by_token_opcode(enum token_type token_type, enum op_code opcod
 
 struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode)
 {
-    assert(opcode > 0 && opcode < PATTERN_COUNT);
+    assert(opcode > 0 && opcode < TERMINAL_COUNT);
     return &token_patterns[(int)TOKEN_OP + (int)opcode];
 }
 
@@ -161,13 +161,13 @@ u8 get_token_index(enum token_type token_type, enum op_code opcode)
     return get_symbol_index(symbol);
 }
 
-u8 add_grammar_nonterm(symbol symbol)
+u8 register_grammar_nonterm(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
     assert(!tp);
     //add nonterm grammar symbol
     struct token_pattern tpn;
-    u8 nonterm = (u8)g_nonterm_count + (u8)PATTERN_COUNT;
+    u8 nonterm = (u8)g_nonterm_count + (u8)TERMINAL_COUNT;
     tpn.token_type = nonterm;
     tpn.symbol_name = symbol;
     tpn.name = string_get(tpn.symbol_name);
@@ -182,10 +182,10 @@ u8 add_grammar_nonterm(symbol symbol)
 
 u8 get_symbol_count()
 {
-    return g_nonterm_count + (u8)PATTERN_COUNT;
+    return g_nonterm_count + (u8)TERMINAL_COUNT;
 }
 
 bool is_terminal(u8 symbol_index)
 {
-    return symbol_index < PATTERN_COUNT;
+    return symbol_index < TERMINAL_COUNT;
 }

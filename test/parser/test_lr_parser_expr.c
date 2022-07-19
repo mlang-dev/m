@@ -16,14 +16,15 @@ TEST(test_lr_parser_expr, arithmetic_exp)
 {
     const char *m_grammar = 
         "s  = e             {}\n"
-        "e  = t             {}\n"
-        "   | e '+' t       {}\n"
-        "t  = INT {0}       {}\n"
-        "   | '(' e ')'     {}\n";
+        "e  = e '+' t       {}\n"
+        "   | t             {}\n"
+        "t  = t '*' f       {}\n"
+        "   | f             {}\n"
+        "f  = '(' e ')'     {}\n"
+        "   | IDENT         {}\n";
 
     const char test_code[] = "1+2";
     frontend_init();
-    wat_codegen_init();
     struct lr_parser *parser = lr_parser_new(m_grammar);
     struct ast_node *ast = parse_text(parser, test_code);
  //   string dump_str = dump(ast);

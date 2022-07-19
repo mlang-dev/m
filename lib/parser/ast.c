@@ -15,7 +15,7 @@ struct source_location default_loc = {0, 0, 0, 0};
 
 #define NODE_TYPE_NAME(node_name, node_type) {#node_name, 0, node_type##_NODE}
 
-struct node_type_name node_type_names[PATTERN_COUNT] = {
+struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(unk, UNK),
     NODE_TYPE_NAME(literal, LITERAL),
     NODE_TYPE_NAME(ident, IDENT),
