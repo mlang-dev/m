@@ -205,7 +205,6 @@ struct parse_state _closure(struct rule_symbol_data *symbol_data, struct parse_r
 {
     struct parse_item item;
     struct index_list_entry *rule_entry;
-    struct index_list_entry *symbol_entry;
     int items_added = 0;
     struct parse_item_list_entry *entry;
     struct parse_item_list *items = &state.items;
@@ -215,21 +214,11 @@ struct parse_state _closure(struct rule_symbol_data *symbol_data, struct parse_r
         if(entry->data.dot < rule->symbol_count){
             u8 symbol_index = rule->rhs[entry->data.dot];
             if(!is_terminal(symbol_index)){//non terminal
-                u8 next_symbol = entry->data.dot < rule->symbol_count - 1 ? rule->rhs[entry->data.dot + 1] : END_OF_RULE;
                 struct index_list *nt_rules = &symbol_data[symbol_index].rule_list;
                 list_foreach(rule_entry, nt_rules){
                     item.rule = rule_entry->data; //ile->data stores the index of the rule
                     item.dot = 0;
-                    if (next_symbol != END_OF_RULE) {
-                        list_foreach(symbol_entry, &symbol_data[next_symbol].first_list){
-                            //item.lookahead = symbol_entry->data;
-                            items_added += _add_parse_item(items, item);
-                        }
-                    }
-
-                    // if (next_symbol == END_OF_RULE || symbol_data[next_symbol].is_nullable) {
-                    //     item.lookahead = entry->data.lookahead; //copy current lookahead
-                    // }
+                    item.is_kernel = false;
                     items_added += _add_parse_item(items, item);
                 }
             }
@@ -265,14 +254,20 @@ bool _eq_state(struct parse_state *state1, struct parse_state *state2)
 {
     if(state1->items.len != state2->items.len)
         return false;
-    struct parse_item_list_entry *entry;
-    list_foreach(entry, &state1->items){
-        if(!entry->data.dot) continue; //only compare kernel
-        if(_exists_parse_item(&state2->items, &entry->data))
-            return true;
+    struct parse_item_list_entry *entry1;
+    struct parse_item_list_entry *entry2 = list_first(&state2->items);
+    list_foreach(entry1, &state1->items){
+        // only compare kernel
+        if(entry1->data.is_kernel && entry2->data.is_kernel && _eq_parse_item(&entry1->data, &entry2->data)){
+            entry2 = list_next(entry2);
+            continue;
+        }else if (!entry1->data.is_kernel && !entry2->data.is_kernel){
+            break;
+        }else{
+            return false;
+        }
     }
-
-    return false;
+    return true;
 }
 
 bool _exists_state(struct parse_state *states, u16 state_count, struct parse_state *state)
@@ -292,6 +287,7 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
     item.dot = 0;
     //item.lookahead = TOKEN_EOF;
     item.rule = 0;
+    item.is_kernel = true;
     parse_item_list_append_data(&states[state_count].items, item);
     states[state_count] = _closure(symbol_data, rules, states[state_count]);
     state_count++;
