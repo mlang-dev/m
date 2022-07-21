@@ -244,6 +244,7 @@ struct parse_state _goto(struct rule_symbol_data *symbol_data, struct parse_rule
         if(entry->data.dot < rule->symbol_count && rule_symbol == rule->rhs[entry->data.dot]){
             item = entry->data;
             item.dot++;
+            item.is_kernel = true;
             parse_item_list_append_data(next_items, item);
         }
     }
@@ -270,10 +271,20 @@ bool _eq_state(struct parse_state *state1, struct parse_state *state2)
     return true;
 }
 
-bool _exists_state(struct parse_state *states, u16 state_count, struct parse_state *state)
+int _find_state(struct parse_state *states, u16 state_count, struct parse_state *state)
 {
     for(u16 i = 0; i < state_count; i++){
-        if(_eq_state(&states[i], state)) return true;
+        if(_eq_state(&states[i], state)) 
+            return i;
+    }
+    return -1;
+}
+
+bool _exists_in_array(u8 *array, u8 size, u8 match)
+{
+    for (u8 i = 0; i < size; i++){
+        if (array[i] == match)
+            return true;
     }
     return false;
 }
@@ -295,20 +306,28 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
     struct parse_rule *rule;
     for(i = 0; i < state_count; i++){
         state = &states[i];
+
+        //iterate each rule to get unique symbol to create new state 
+        u8 visited_symbols[16];
+        u8 visited_count = 0;
         list_foreach(entry, &state->items){
             rule = &rules[entry->data.rule];
-            for(u8 j = 0; j < rule->symbol_count; j++){
-                u8 x = rule->rhs[j];
-                struct parse_state next_state = _goto(symbol_data, rules, *state, x);
-                //if not in the states, then add it to states
-                if(!_exists_state(states, state_count, &next_state)){
-                    struct parser_action pa;
-                    pa.code = ACTION_GOTO;
-                    pa.state_index = state_count;
-                    parsing_table[i][x] = pa;
-                    states[state_count] = next_state;
-                    state_count++;
-                }
+            if(entry->data.dot >= rule->symbol_count) {
+                continue;
+            }
+            u8 x = rule->rhs[entry->data.dot]; 
+            if(_exists_in_array(visited_symbols, visited_count, x)){
+                continue;
+            }
+            visited_symbols[visited_count ++] = x;
+            struct parse_state next_state = _goto(symbol_data, rules, *state, x);
+            //if not in the states, then add it to states
+            if(_find_state(states, state_count, &next_state) < 0){
+                struct parser_action pa;
+                pa.code = ACTION_GOTO;
+                pa.state_index = state_count;
+                parsing_table[i][x] = pa;
+                states[state_count++] = next_state;
             }
         }
     }
