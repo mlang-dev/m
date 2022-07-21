@@ -53,12 +53,12 @@ link_list2(index_list, index_list_entry, u8)
 struct parse_item {
     u8 rule;    //rule index
     u8 dot;         //dot position
-    u8 is_kernel;   //0: is not kernel item, brought in by closure function
 };
 
 link_list2(parse_item_list, parse_item_list_entry, struct parse_item)
 
 struct parse_state{
+    u8 kernel_item_count;
     struct parse_item_list items;  //list of parse_items
 };
 
