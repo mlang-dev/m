@@ -90,13 +90,12 @@ string _dump_binary(struct ast_node *binary)
     string lhs_str = dump(binary->binop->lhs);
     string rhs_str = dump(binary->binop->rhs);
     string bin;
-    string_init_chars(&bin, "bin:");
-    string_add_chars(&bin, get_opcode(binary->binop->opcode));
-    string_add_chars(&bin, "[");
+    string_init_chars(&bin, "");
+    string_add_chars(&bin, "(");
     string_add(&bin, &lhs_str);
-    string_add_chars(&bin, ",");
+    string_add_chars(&bin, get_opcode(binary->binop->opcode));
     string_add(&bin, &rhs_str);
-    string_add_chars(&bin, "]");
+    string_add_chars(&bin, ")");
     return bin;
 }
 
@@ -157,9 +156,9 @@ string _dump_id(struct ast_node *idnode)
 string _dump_number(struct ast_node *node)
 {
     string str_num;
-    string_init_chars(&str_num, "num: ");
+    string_init_chars(&str_num, "");
     char double_str[64];
-    snprintf(double_str, sizeof(double_str), "%.2f", node->liter->double_val);
+    snprintf(double_str, sizeof(double_str), "%d", node->liter->int_val);
     string_add_chars(&str_num, double_str);
     return str_num;
 }

@@ -27,8 +27,8 @@ TEST(test_lr_parser_expr, arithmetic_exp)
     frontend_init();
     struct lr_parser *parser = lr_parser_new(m_grammar);
     struct ast_node *ast = parse_text(parser, test_code);
- //   string dump_str = dump(ast);
- //   ASSERT_STREQ(test_code, string_get(&dump_str));
+    string dump_str = dump(ast);
+    ASSERT_STREQ("(1+2)", string_get(&dump_str));
 
     ast_node_free(ast);
     lr_parser_free(parser);
