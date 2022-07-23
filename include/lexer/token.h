@@ -24,6 +24,7 @@ typedef uint8_t u8;
 
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
     ENUM_ITEM(TOKEN_EOF)             \
+    ENUM_ITEM(TOKEN_EPSILON)         \
     ENUM_ITEM(TOKEN_INDENT)          \
     ENUM_ITEM(TOKEN_DEDENT)          \
     ENUM_ITEM(TOKEN_NEWLINE)         \

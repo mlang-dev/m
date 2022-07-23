@@ -34,10 +34,20 @@ int _append_list(struct index_list *dst, struct index_list *src)
     int n = 0;
     list_foreach(entry, src)
     {
-        if(!_exists(dst, entry->data)){
+        if (entry->data != TOKEN_EPSILON && !_exists(dst, entry->data)) {
             index_list_append_data(dst, entry->data);
             n++;
         }
+    }
+    return n;
+}
+
+int _append_data(struct index_list *dst, u8 data)
+{
+    int n = 0;
+    if (!_exists(dst, data)) {
+        index_list_append_data(dst, data);
+        n++;
     }
     return n;
 }
@@ -108,73 +118,101 @@ void _init_parse_item_list(struct parse_item_list *list)
     list->tail = 0;
 }
 
-void _fill_rule_symbol_data(struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
+bool _is_nullable(u8 *symbols, u8 symbol_count, struct rule_symbol_data *symbol_data)
 {
-    u8 i, j;
-    u16 r;
-    for(i = 0; i < get_symbol_count(); i++){
-        _init_index_list(&symbol_data[i].first_list);
-        _init_index_list(&symbol_data[i].follow_list);
-        _init_index_list(&symbol_data[i].rule_list);
-        symbol_data[i].is_nullable = false;
+    for(u8 i = 0; i < symbol_count; i ++){
+        if(!symbol_data[symbols[i]].is_nullable) return false;
     }
+    return true;
+}
+
+void _compute_is_nullable(struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
+{
+    struct parse_rule *rule;
+    int change_count = 0;
+    do {
+        change_count = 0;
+        for (u16 i = 0; i < rule_count; i++) {
+            rule = &rules[i];
+            if ((rule->symbol_count == 1 && rule->rhs[0] == TOKEN_EPSILON) || _is_nullable(rule->rhs, rule->symbol_count, symbol_data)) {
+                symbol_data[rule->lhs].is_nullable = true;
+                change_count ++;
+            } 
+        }
+    } while (change_count > 0);
+}
+
+int _append_first_set_to(struct index_list *dst, struct parse_rule *rule, u8 rhs_start_pos, struct rule_symbol_data *symbol_data)
+{
+    bool is_previous_symbol_nullable = true;
+    int change_count = 0;
+    for (int j = rhs_start_pos; j < rule->symbol_count; j++) {
+        if (is_previous_symbol_nullable) {
+            change_count += _append_list(dst, &symbol_data[rule->rhs[j]].first_list);
+        }
+        is_previous_symbol_nullable = symbol_data[rule->rhs[j]].is_nullable;
+    }
+    return change_count;
+}
+
+void _compute_first_set(struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
+{
+    struct parse_rule *rule;
+    int change_count = 0;
+    u16 i;
     for (i = 0; i < TERMINAL_COUNT; i++) {
-        //terminal token
+        // terminal symbol's first set is itself
         index_list_append_data(&symbol_data[i].first_list, i);
     }
-    int symbol_changes;
-    struct parse_rule *rule;
-    u8 first_nullable_to;
-    u8 follow_nullable_to;
-    bool is_i_nullable, is_j_nullable;
-    /*fill nullable, first set and follow set for each grammar symbol*/
-    while(true){
-        symbol_changes = 0;
-        for(r = 0; r < rule_count; r++){
-            first_nullable_to = 0xff;
-            rule = &rules[r];
-            is_i_nullable = true;
-            for(i = 0; i < rule->symbol_count; i++){
-                follow_nullable_to = 0xff;
-                is_j_nullable = true;
-                if(is_i_nullable){
-                    //copy rhs[i] first list to lhs first list
-                    symbol_changes += _append_list(&symbol_data[rule->lhs].first_list, &symbol_data[rule->rhs[i]].first_list);
-                }
-                if(symbol_data[rule->rhs[i]].is_nullable && is_i_nullable){
-                    first_nullable_to = i;
-                }else{
-                    is_i_nullable = false;
-                }
-                for(j = i + 1; j < rule->symbol_count; j++){
-                    if(is_j_nullable){
-                        //all i+1 to j-1 nullable
-                        symbol_changes += _append_list(&symbol_data[rule->rhs[i]].follow_list, &symbol_data[rule->rhs[j]].follow_list);
-                    }
-                    if(symbol_data[rule->rhs[j]].is_nullable && is_j_nullable){
-                        follow_nullable_to = j;
-                    }else{
-                        is_j_nullable = false;
-                    }
-                }
-                if(follow_nullable_to == rule->symbol_count - 1){//all i+1 to symbol_count - 1 is nullable
-                    symbol_changes += _append_list(&symbol_data[rule->rhs[i]].follow_list, &symbol_data[rule->lhs].follow_list);
-                }
-            }
-            //if rhs is nullable, then lhs nonterm symbol nullable
-            if (first_nullable_to == rule->symbol_count - 1 && !symbol_data[rule->lhs].is_nullable){
-                symbol_data[rule->lhs].is_nullable = true;
-                symbol_changes ++;
+    do {
+        change_count = 0;
+        for (i = 0; i < rule_count; i++)
+        {
+            rule = &rules[i];
+            change_count += _append_first_set_to(&symbol_data[rule->lhs].first_list, rule, 0, symbol_data);
+            //adding epsilon separately
+            if (symbol_data[rule->lhs].is_nullable) {
+                change_count += _append_data(&symbol_data[rule->lhs].first_list, TOKEN_EPSILON);
             }
         }
-        if(!symbol_changes) break;
-    }
+    } while (change_count > 0);
+}
+
+void _compute_follow_set(struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
+{
+    struct parse_rule *rule;
+    int change_count = 0;
+    u16 i, j;
+    //put $ EOF into the start symbol's follow set
+    index_list_append_data(&symbol_data[rules[0].lhs].follow_list, TOKEN_EOF);
+    do {
+        change_count = 0;
+        for (i = 0; i < rule_count; i++) {
+            rule = &rules[i];
+            for (j = 0; j < rule->symbol_count; j++) {
+                if(is_terminal(rule->rhs[j])) continue;
+                change_count += _append_first_set_to(&symbol_data[rule->rhs[j]].follow_list, rule, j, symbol_data);
+                //
+                if(j == rule->symbol_count - 1 || _is_nullable(&rule->rhs[j+1], rule->symbol_count -1 - j, symbol_data)){
+                    change_count += _append_list(&symbol_data[rule->rhs[j]].follow_list, &symbol_data[rule->lhs].follow_list);
+                }
+            }
+        }
+    } while (change_count > 0);
+}
+
+void _fill_rule_symbol_data(struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
+{
+    _compute_is_nullable(rules, rule_count, symbol_data);
+    _compute_first_set(rules, rule_count, symbol_data);
+    _compute_follow_set(rules, rule_count, symbol_data);
     /*add rule index to each grammar symbol*/
     struct index_list *il;
-    for(r = 0; r < rule_count; r++){
-        rule = &rules[r];
+    struct parse_rule *rule;
+    for (u16 i = 0; i < rule_count; i++) {
+        rule = &rules[i];
         il = &symbol_data[rule->lhs].rule_list;
-        index_list_append_data(il, r);
+        index_list_append_data(il, i);
     }
 }
 
@@ -401,13 +439,19 @@ struct lr_parser *lr_parser_new(const char *grammar_text)
     struct lr_parser *parser;
     MALLOC(parser, sizeof(*parser));
     parser->stack_top = 0;
-    //1. initialize parsing table
+    //1. initialize parsing table and symbol data
     //row: state index, col: symbol index
     for(i=0; i < MAX_STATES; i++){
         for(j=0; j < MAX_GRAMMAR_SYMBOLS; j++){
             parser->parsing_table[i][j].code = ACTION_ERROR;
             parser->parsing_table[i][j].state_index = 0;
         }
+    }
+    for (i = 0; i < get_symbol_count(); i++) {
+        _init_index_list(&parser->symbol_data[i].first_list);
+        _init_index_list(&parser->symbol_data[i].follow_list);
+        _init_index_list(&parser->symbol_data[i].rule_list);
+        parser->symbol_data[i].is_nullable = false;
     }
 
     //2. registering non-term symbols with integer
