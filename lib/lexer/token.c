@@ -138,7 +138,7 @@ struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode)
 
 struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type)
 {
-    assert(token_type > 0 && token_type <= TOKEN_OP);
+    assert(token_type >= 0 && token_type <= TOKEN_OP);
     return &token_patterns[(int)token_type];
 }
 
