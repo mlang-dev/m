@@ -16,12 +16,12 @@ TEST(test_lr_parser_expr, arithmetic_exp)
 {
     const char *m_grammar = 
         "s  = e             {}\n"
-        "e  = e '+' t       {}\n"
+        "e  = e '+' t       {binop 0 1 2}\n"
         "   | t             {}\n"
-        "t  = t '*' f       {}\n"
+        "t  = t '*' f       {binop 0 1 2}\n"
         "   | f             {}\n"
-        "f  = '(' e ')'     {}\n"
-        "   | IDENT         {}\n";
+        "f  = '(' e ')'     {1}\n"
+        "   | INT           {}\n";
 
     const char test_code[] = "1+2";
     frontend_init();

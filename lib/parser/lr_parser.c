@@ -191,7 +191,7 @@ void _compute_follow_set(struct parse_rule *rules, u16 rule_count, struct rule_s
             rule = &rules[i];
             for (j = 0; j < rule->symbol_count; j++) {
                 if(is_terminal(rule->rhs[j])) continue;
-                change_count += _append_first_set_to(&symbol_data[rule->rhs[j]].follow_list, rule, j, symbol_data);
+                change_count += _append_first_set_to(&symbol_data[rule->rhs[j]].follow_list, rule, j + 1, symbol_data);
                 //
                 if(j == rule->symbol_count - 1 || _is_nullable(&rule->rhs[j+1], rule->symbol_count -1 - j, symbol_data)){
                     change_count += _append_list(&symbol_data[rule->rhs[j]].follow_list, &symbol_data[rule->lhs].follow_list);
@@ -360,15 +360,17 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
             }
             visited_symbols[visited_count ++] = x;
             struct parse_state next_state = _goto(symbol_data, rules, *state, x);
-            //if not in the states, then closure the state and add it to states
-            if(_find_state(states, state_count, &next_state) < 0){
-                next_state = _closure(symbol_data, rules, next_state);
-                struct parser_action pa;
-                pa.code = is_terminal(x) ? ACTION_SHIFT : ACTION_GOTO;
+            int existing_state_index = _find_state(states, state_count, &next_state);
+                // if not in the states, then closure the state and add it to states
+            struct parser_action pa;
+            pa.code = is_terminal(x) ? ACTION_SHIFT : ACTION_GOTO;
+            if (existing_state_index < 0) {
                 pa.state_index = state_count;
-                parsing_table[i][x] = pa;
-                states[state_count++] = next_state;
+                states[state_count++] = _closure(symbol_data, rules, next_state);
+            } else {
+                pa.state_index = existing_state_index;
             }
+            parsing_table[i][x] = pa;
         }
     }
     return state_count;
@@ -537,8 +539,7 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     struct ast_node *node = 0;
     struct ast_node *rhs = 0;
     if (!rule->action.action){
-        printf("warning: no semantic action specified\n");
-        return ast;
+        return items[0].ast;
     }
     enum node_type node_type = symbol_to_node_type(rule->action.action);
     switch (node_type) {
@@ -594,7 +595,7 @@ struct ast_node *parse_text(struct lr_parser *parser, const char *text)
             //do reduce action and build ast node
             rule = &parser->rules[pa->rule_index];
             si = _get_start_item(parser, rule->symbol_count);
-            ast = _build_nonterm_ast(rule, si);
+            ast = _build_nonterm_ast(rule, si); //build ast according to the rule 
             _pop_states(parser, rule->symbol_count);
             t = _get_top_state(parser)->state_index;
             assert(parser->parsing_table[t][rule->lhs].code == ACTION_GOTO);
