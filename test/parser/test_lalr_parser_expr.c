@@ -14,7 +14,7 @@
 
 TEST(test_lr_parser_expr, arithmetic_exp)
 {
-    const char *m_grammar = 
+    const char *grammar = 
         "s  = e             {}\n"
         "e  = e '+' t       {binop 0 1 2}\n"
         "   | t             {}\n"
@@ -25,7 +25,8 @@ TEST(test_lr_parser_expr, arithmetic_exp)
 
     const char test_code[] = "1+2*3";
     frontend_init();
-    struct lalr_parser *parser = lalr_parser_new(m_grammar);
+    struct lalr_parser_generator* pg = lalr_parser_generator_new(grammar);
+    struct lalr_parser *parser = lalr_parser_new(&pg->parsing_table, &pg->parsing_rules);
     struct ast_node *ast = parse_text(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(1+(2*3))", string_get(&dump_str));
@@ -37,7 +38,7 @@ TEST(test_lr_parser_expr, arithmetic_exp)
 
 TEST(test_lr_parser_expr, arithmetic_exp_parentheses)
 {
-    const char *m_grammar = "s  = e             {}\n"
+    const char *grammar = "s  = e             {}\n"
                             "e  = e '+' t       {binop 0 1 2}\n"
                             "   | t             {}\n"
                             "t  = t '*' f       {binop 0 1 2}\n"
@@ -47,7 +48,8 @@ TEST(test_lr_parser_expr, arithmetic_exp_parentheses)
 
     const char test_code[] = "(1+2)*3";
     frontend_init();
-    struct lalr_parser *parser = lalr_parser_new(m_grammar);
+    struct lalr_parser_generator *pg = lalr_parser_generator_new(grammar);
+    struct lalr_parser *parser = lalr_parser_new(&pg->parsing_table, &pg->parsing_rules);
     struct ast_node *ast = parse_text(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("((1+2)*3)", string_get(&dump_str));
