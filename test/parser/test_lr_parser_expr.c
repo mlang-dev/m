@@ -23,22 +23,43 @@ TEST(test_lr_parser_expr, arithmetic_exp)
         "f  = '(' e ')'     {1}\n"
         "   | INT           {}\n";
 
-    const char test_code[] = "1+2";
+    const char test_code[] = "1+2*3";
     frontend_init();
     struct lr_parser *parser = lr_parser_new(m_grammar);
     struct ast_node *ast = parse_text(parser, test_code);
- //   string dump_str = dump(ast);
- //   ASSERT_STREQ(test_code, string_get(&dump_str));
+    string dump_str = dump(ast);
+    ASSERT_STREQ("(1+(2*3))", string_get(&dump_str));
 
     ast_node_free(ast);
     lr_parser_free(parser);
     frontend_deinit();
 }
 
+TEST(test_lr_parser_expr, arithmetic_exp_parentheses)
+{
+    const char *m_grammar = "s  = e             {}\n"
+                            "e  = e '+' t       {binop 0 1 2}\n"
+                            "   | t             {}\n"
+                            "t  = t '*' f       {binop 0 1 2}\n"
+                            "   | f             {}\n"
+                            "f  = '(' e ')'     {1}\n"
+                            "   | INT           {}\n";
+
+    const char test_code[] = "(1+2)*3";
+    frontend_init();
+    struct lr_parser *parser = lr_parser_new(m_grammar);
+    struct ast_node *ast = parse_text(parser, test_code);
+    string dump_str = dump(ast);
+    ASSERT_STREQ("((1+2)*3)", string_get(&dump_str));
+
+    ast_node_free(ast);
+    lr_parser_free(parser);
+    frontend_deinit();
+}
 /*
 TEST(test_lr_parser_expr, arithmetic_exp)
 {
-    const char *m_grammar = 
+    const char *m_grammar =
         "start  = e          { 0 }"
         "e      = e '+' t    { binop 0 1 2 }"
         "       | t              { 0 }"
@@ -48,7 +69,7 @@ TEST(test_lr_parser_expr, arithmetic_exp)
         "       | INT       { 0 }";
 
     const char test_code[] = "1+2";
-    const char expected[] = 
+    const char expected[] =
 "\n"
 "(i32.add\n"
 "(i32.const 1)\n"
@@ -68,7 +89,7 @@ TEST(test_lr_parser_expr, arithmetic_exp)
 TEST(test_g_parser, arithmetic_exp1)
 {
     const char test_code[] = "(1+2)";
-    const char expected[] = 
+    const char expected[] =
 "\n"
 "(i32.add\n"
 "(i32.const 1)\n"
@@ -89,7 +110,7 @@ TEST(test_g_parser, arithmetic_exp1)
 TEST(test_g_parser, arithmetic_exp2)
 {
     const char test_code[] = "1 + 2 * 4";
-    const char expected[] = 
+    const char expected[] =
 "\n"
 "(i32.add\n"
 "(i32.const 1)\n"
@@ -113,7 +134,7 @@ TEST(test_g_parser, arithmetic_exp2)
 TEST(test_g_parser, arithmetic_exp3)
 {
     const char test_code[] = "1 * 2 + 3";
-    const char expected[] = 
+    const char expected[] =
 "\n"
 "(i32.add\n"
 "(i32.mul\n"
@@ -136,7 +157,7 @@ TEST(test_g_parser, arithmetic_exp3)
 TEST(test_g_parser, arithmetic_exp4)
 {
     const char test_code[] = "(1 + 2) * 3";
-    const char expected[] = 
+    const char expected[] =
 "\n"
 "(i32.mul\n"
 "(i32.add\n"
@@ -163,6 +184,7 @@ int test_lr_parser_expr()
 {
     UNITY_BEGIN();
     RUN_TEST(test_lr_parser_expr_arithmetic_exp);
+    RUN_TEST(test_lr_parser_expr_arithmetic_exp_parentheses);
     //RUN_TEST(test_lr_parser_expr_arithmetic_exp1);
     //RUN_TEST(test_lr_parser_expr_arithmetic_exp2);
     //RUN_TEST(test_lr_parser_expr_arithmetic_exp3);

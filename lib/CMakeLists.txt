@@ -28,6 +28,7 @@ if (EMSCRIPTEN OR WASM)
     lexer/lexer.c
     lexer/init.c
     parser/ast.c
+    parser/astdump.c
     parser/earley_parser.c
     parser/lr_parser.c
     parser/grammar.c

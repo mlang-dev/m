@@ -519,16 +519,23 @@ void _pop_states(struct lr_parser *parser, u8 symbol_count)
 
 struct ast_node *_build_terminal_ast(struct token *tok)
 {
-    enum node_type node_type = token_to_node_type(tok->token_type, tok->opcode);
+    enum node_type node_type;
     struct ast_node *ast = 0;
-    switch(node_type){
+    switch(tok->token_type){
         default:
+            node_type = token_to_node_type(tok->token_type, tok->opcode);
             ast = ast_node_new(node_type, 0, tok->loc);
             break;
-        case IDENT_NODE:
+        case TOKEN_IDENT:
             ast = ident_node_new(tok->symbol_val, tok->loc);
             break;
-    }
+        case TOKEN_INT:
+            ast = int_node_new(tok->int_val, tok->loc);
+            break;
+        case TOKEN_FLOAT:
+            ast = double_node_new(tok->double_val,tok->loc);
+            break;
+        }
     return ast;
 }
 
@@ -539,7 +546,11 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     struct ast_node *node = 0;
     struct ast_node *rhs = 0;
     if (!rule->action.action){
-        return items[0].ast;
+        if (rule->action.exp_item_index_count == 0)
+            return items[0].ast;
+        else{
+            return items[rule->action.exp_item_index[0]].ast;
+        }
     }
     enum node_type node_type = symbol_to_node_type(rule->action.action);
     switch (node_type) {
