@@ -12,19 +12,18 @@
 #include "parser/grammar.h"
 #include <assert.h>
 
-
-struct lalr_parser *lalr_parser_new(const char *grammar_text)
+struct lalr_parser *lalr_parser_new(parse_table *parsing_table, parse_rules *parsing_rules)
 {
     struct lalr_parser *parser;
     MALLOC(parser, sizeof(*parser));
     parser->stack_top = 0;
-    parser->pg = lalr_parser_generator_new(grammar_text);
+    parser->parsing_table = parsing_table;
+    parser->parsing_rules = parsing_rules;
     return parser;
 }
 
 void lalr_parser_free(struct lalr_parser *parser)
 {
-    lalr_parser_generator_free(parser->pg);
     FREE(parser);
 }
 
@@ -135,7 +134,7 @@ struct ast_node *parse_text(struct lalr_parser *parser, const char *text)
     //driver 
     while(1){
         s = _get_top_state(parser)->state_index;
-        pa = &parser->pg->parsing_table[s][a];
+        pa = &(*parser->parsing_table)[s][a];
         if(pa->code == ACTION_SHIFT){
             ast = _build_terminal_ast(tok);
             _push_state(parser, pa->state_index, ast);
@@ -143,13 +142,13 @@ struct ast_node *parse_text(struct lalr_parser *parser, const char *text)
             a = get_token_index(tok->token_type, tok->opcode);
         }else if(pa->code == ACTION_REDUCE){
             //do reduce action and build ast node
-            rule = &parser->pg->rules[pa->rule_index];
+            rule = &(*parser->parsing_rules)[pa->rule_index];
             si = _get_start_item(parser, rule->symbol_count);
             ast = _build_nonterm_ast(rule, si); //build ast according to the rule 
             _pop_states(parser, rule->symbol_count);
             t = _get_top_state(parser)->state_index;
-            assert(parser->pg->parsing_table[t][rule->lhs].code == ACTION_GOTO);
-            _push_state(parser, parser->pg->parsing_table[t][rule->lhs].state_index, ast);
+            assert((*parser->parsing_table)[t][rule->lhs].code == ACTION_GOTO);
+            _push_state(parser, (*parser->parsing_table)[t][rule->lhs].state_index, ast);
             //
         }else if(pa->code == ACTION_ACCEPT){
             si = _pop_state(parser);

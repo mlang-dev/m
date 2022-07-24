@@ -20,16 +20,21 @@ struct stack_item{
     struct ast_node *ast;
 };
 
+typedef struct parser_action parse_table[MAX_STATES][MAX_GRAMMAR_SYMBOLS];
+typedef struct parse_rule parse_rules[MAX_RULES];
+
 struct lalr_parser{
     //parser implementation
     // state stack
     struct stack_item stack[MAX_STATES];
     u32 stack_top;
 
-    struct lalr_parser_generator *pg;
+    parse_table *parsing_table;
+    // grammar rules converted to int index
+    parse_rules *parsing_rules;
 };
 
-struct lalr_parser *lalr_parser_new(const char *grammar);
+struct lalr_parser *lalr_parser_new(parse_table *parsing_table, parse_rules *parsing_rules);
 void lalr_parser_free(struct lalr_parser *parser);
 struct ast_node *parse_text(struct lalr_parser *parser, const char *text);
 

@@ -426,7 +426,7 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser
             _expand_expr(rule_expr, &exprs);
             for (k = 0; k < array_size(&exprs); k++) {
                 expr = array_get(&exprs, k);
-                gr = &pg->rules[pg->rule_count++];
+                gr = &pg->parsing_rules[pg->rule_count++];
                 gr->lhs = nonterm;
                 _expr_2_gr(expr, gr);
             }
@@ -470,14 +470,14 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     _convert_grammar_rules_to_parse_rules(g, pg);
 
     //4. calculate production rule's nonterm's first set, follow set
-    _fill_rule_symbol_data(pg->rules, pg->rule_count, pg->symbol_data);
+    _fill_rule_symbol_data(pg->parsing_rules, pg->rule_count, pg->symbol_data);
 
     //5. build states
-    pg->parse_state_count = _build_states(pg->symbol_data, pg->rules, pg->rule_count, pg->parse_states, pg->parsing_table);
+    pg->parse_state_count = _build_states(pg->symbol_data, pg->parsing_rules, pg->rule_count, pg->parse_states, pg->parsing_table);
 
     //6. construct parsing table
     //action: state, terminal and goto: state, nonterm
-    _build_parsing_table(pg->symbol_data, pg->parsing_table, pg->parse_state_count, pg->parse_states, pg->rules);
+    _build_parsing_table(pg->symbol_data, pg->parsing_table, pg->parse_state_count, pg->parse_states, pg->parsing_rules);
     pg->g = g;
     return pg;
 }

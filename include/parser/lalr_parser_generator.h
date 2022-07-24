@@ -55,6 +55,7 @@ link_list2(index_list, index_list_entry, u8)
 struct parse_item {
     u8 rule;    //rule index
     u8 dot;     //dot position
+    struct index_list lookaheads; /*look ahead list for reduction*/
 };
 
 link_list2(parse_item_list, parse_item_list_entry, struct parse_item)
@@ -70,7 +71,7 @@ struct rule_symbol_data{
     struct index_list follow_list;//follow set
     struct index_list rule_list; //rules indexed by symbol
 
-    /*argumented SLR garmmar rule with nonterminal symbol with subscript of from state and to state
+    /*argumented LALR garmmar rule with nonterminal symbol with subscript of from state and to state
     (ref: Bermudez and Logothetis Theorem)
     states_follows: is the hashtable data structure
         the key is u32 int: upper u16 is from_state, lower u16 is to_state
@@ -93,7 +94,7 @@ struct lalr_parser_generator{
     // action table for terminal symbols, tokens
     struct parser_action parsing_table[MAX_STATES][MAX_GRAMMAR_SYMBOLS];
     // grammar rules converted to int index
-    struct parse_rule rules[MAX_RULES];
+    struct parse_rule parsing_rules[MAX_RULES];
     u16 rule_count;
 };
 
