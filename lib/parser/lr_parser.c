@@ -546,7 +546,11 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     struct ast_node *node = 0;
     struct ast_node *rhs = 0;
     if (!rule->action.action){
-        return items[0].ast;
+        if (rule->action.exp_item_index_count == 0)
+            return items[0].ast;
+        else{
+            return items[rule->action.exp_item_index[0]].ast;
+        }
     }
     enum node_type node_type = symbol_to_node_type(rule->action.action);
     switch (node_type) {
