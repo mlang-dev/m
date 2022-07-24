@@ -1,12 +1,12 @@
 /*
- * lr_parser.c
+ * lalr_parser_generator.c
  *
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * This is to implement an LR parser, taking a EBNF grammar text and parse text 
- * into ast for the grammar
+ * This is to implement an LALR parser generator, taking a EBNF grammar text and generate a parsing table
+ * for parser to consume
  */
-#include "parser/lr_parser.h"
+#include "parser/lalr_parser_generator.h"
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
@@ -408,14 +408,14 @@ void _build_parsing_table(struct rule_symbol_data *symbol_data, struct parser_ac
     }
 }
 
-void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lr_parser *parser)
+void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser_generator *pg)
 {
     struct parse_rule *gr;
     struct expr *rule_expr, *expr;
     struct rule *rule;
     u8 nonterm;
     size_t i, j, k;
-    parser->rule_count = 0;
+    pg->rule_count = 0;
     for (i = 0; i < (u16)array_size(&g->rules); i++) {
         rule = *(struct rule **)array_get(&g->rules, i);
         nonterm = get_symbol_index(rule->nonterm);
@@ -426,7 +426,7 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lr_parser *
             _expand_expr(rule_expr, &exprs);
             for (k = 0; k < array_size(&exprs); k++) {
                 expr = array_get(&exprs, k);
-                gr = &parser->rules[parser->rule_count++];
+                gr = &pg->rules[pg->rule_count++];
                 gr->lhs = nonterm;
                 _expr_2_gr(expr, gr);
             }
@@ -435,25 +435,24 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lr_parser *
     }
 }
 
-struct lr_parser *lr_parser_new(const char *grammar_text)
+struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text)
 {
     size_t i,j;
-    struct lr_parser *parser;
-    MALLOC(parser, sizeof(*parser));
-    parser->stack_top = 0;
+    struct lalr_parser_generator *pg;
+    MALLOC(pg, sizeof(*pg));
     //1. initialize parsing table and symbol data
     //row: state index, col: symbol index
     for(i=0; i < MAX_STATES; i++){
         for(j=0; j < MAX_GRAMMAR_SYMBOLS; j++){
-            parser->parsing_table[i][j].code = ACTION_ERROR;
-            parser->parsing_table[i][j].state_index = 0;
+            pg->parsing_table[i][j].code = ACTION_ERROR;
+            pg->parsing_table[i][j].state_index = 0;
         }
     }
     for (i = 0; i < get_symbol_count(); i++) {
-        _init_index_list(&parser->symbol_data[i].first_list);
-        _init_index_list(&parser->symbol_data[i].follow_list);
-        _init_index_list(&parser->symbol_data[i].rule_list);
-        parser->symbol_data[i].is_nullable = false;
+        _init_index_list(&pg->symbol_data[i].first_list);
+        _init_index_list(&pg->symbol_data[i].follow_list);
+        _init_index_list(&pg->symbol_data[i].rule_list);
+        pg->symbol_data[i].is_nullable = false;
     }
 
     //2. registering non-term symbols with integer
@@ -468,159 +467,23 @@ struct lr_parser *lr_parser_new(const char *grammar_text)
     //3. convert grammar to replace symbol with index:
     //all grammar symbol: non-terminal or terminal (token) 
     //has an integer of index representing itself
-    _convert_grammar_rules_to_parse_rules(g, parser);
+    _convert_grammar_rules_to_parse_rules(g, pg);
 
     //4. calculate production rule's nonterm's first set, follow set
-    _fill_rule_symbol_data(parser->rules, parser->rule_count, parser->symbol_data);
-    
+    _fill_rule_symbol_data(pg->rules, pg->rule_count, pg->symbol_data);
+
     //5. build states
-    parser->parse_state_count = _build_states(parser->symbol_data, parser->rules, parser->rule_count, parser->parse_states, parser->parsing_table);
+    pg->parse_state_count = _build_states(pg->symbol_data, pg->rules, pg->rule_count, pg->parse_states, pg->parsing_table);
 
     //6. construct parsing table
     //action: state, terminal and goto: state, nonterm
-    _build_parsing_table(parser->symbol_data, parser->parsing_table, parser->parse_state_count, parser->parse_states, parser->rules);
-    parser->g = g;
-    return parser;
+    _build_parsing_table(pg->symbol_data, pg->parsing_table, pg->parse_state_count, pg->parse_states, pg->rules);
+    pg->g = g;
+    return pg;
 }
 
-void lr_parser_free(struct lr_parser *parser)
+void lalr_parser_generator_free(struct lalr_parser_generator *pg)
 {
-    grammar_free(parser->g);
-    FREE(parser);
-}
-
-void _push_state(struct lr_parser *parser, u16 state, struct ast_node *ast)
-{
-    struct stack_item *si = &parser->stack[parser->stack_top++];
-    si->state_index = state;
-    si->ast = ast;
-}
-
-struct stack_item *_pop_state(struct lr_parser *parser)
-{
-    return &parser->stack[--parser->stack_top];
-}
-
-struct stack_item *_get_top_state(struct lr_parser *parser)
-{
-    return &parser->stack[parser->stack_top-1];
-}
-
-struct stack_item *_get_start_item(struct lr_parser *parser, u8 symbol_count)
-{
-    return &parser->stack[parser->stack_top-symbol_count];
-}
-
-void _pop_states(struct lr_parser *parser, u8 symbol_count)
-{
-    assert(parser->stack_top >= symbol_count);
-    parser->stack_top -= symbol_count;
-}
-
-struct ast_node *_build_terminal_ast(struct token *tok)
-{
-    enum node_type node_type;
-    struct ast_node *ast = 0;
-    switch(tok->token_type){
-        default:
-            node_type = token_to_node_type(tok->token_type, tok->opcode);
-            ast = ast_node_new(node_type, 0, tok->loc);
-            break;
-        case TOKEN_IDENT:
-            ast = ident_node_new(tok->symbol_val, tok->loc);
-            break;
-        case TOKEN_INT:
-            ast = int_node_new(tok->int_val, tok->loc);
-            break;
-        case TOKEN_FLOAT:
-            ast = double_node_new(tok->double_val,tok->loc);
-            break;
-        }
-    return ast;
-}
-
-struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *items)
-{
-    enum op_code opcode;
-    struct ast_node *ast = 0;
-    struct ast_node *node = 0;
-    struct ast_node *rhs = 0;
-    if (!rule->action.action){
-        if (rule->action.exp_item_index_count == 0)
-            return items[0].ast;
-        else{
-            return items[rule->action.exp_item_index[0]].ast;
-        }
-    }
-    enum node_type node_type = symbol_to_node_type(rule->action.action);
-    switch (node_type) {
-    default:
-        assert(false);
-        break;
-    case UNARY_NODE:
-        node = items[0].ast;
-        opcode = node->node_type & 0xFFFF;
-        node = items[1].ast;
-        ast = unary_node_new(opcode, node, node->loc);
-        break;
-    case BINARY_NODE:
-        node = items[1].ast;
-        opcode = node->node_type & 0xFFFF;
-        node = items[0].ast;
-        rhs = items[2].ast;
-        ast = binary_node_new(opcode, node, rhs, node->loc);
-        break;
-    case FUNC_NODE:
-        node = items[0].ast;
-        assert(node->node_type == IDENT_NODE);
-        ARRAY_FUN_PARAM(fun_params);
-        struct ast_node *ft = func_type_node_default_new(node->ident->name, &fun_params, 0, false, false, node->loc);
-        node = items[1].ast;
-        ast = function_node_new(ft, node, node->loc);
-        break;
-    }
-    return ast;
-}
-
-struct ast_node *parse_text(struct lr_parser *parser, const char *text)
-{
-    struct ast_node *ast = 0;
-    _push_state(parser, 0, 0); 
-    struct lexer *lexer = lexer_new_for_string(text);
-    struct token *tok = get_tok(lexer);
-    u8 a = get_token_index(tok->token_type, tok->opcode);
-    u16 s, t;
-    struct parse_rule *rule;
-    struct stack_item *si;
-    struct parser_action *pa;
-    //driver 
-    while(1){
-        s = _get_top_state(parser)->state_index;
-        pa = &parser->parsing_table[s][a];
-        if(pa->code == ACTION_SHIFT){
-            ast = _build_terminal_ast(tok);
-            _push_state(parser, pa->state_index, ast);
-            tok = get_tok(lexer);
-            a = get_token_index(tok->token_type, tok->opcode);
-        }else if(pa->code == ACTION_REDUCE){
-            //do reduce action and build ast node
-            rule = &parser->rules[pa->rule_index];
-            si = _get_start_item(parser, rule->symbol_count);
-            ast = _build_nonterm_ast(rule, si); //build ast according to the rule 
-            _pop_states(parser, rule->symbol_count);
-            t = _get_top_state(parser)->state_index;
-            assert(parser->parsing_table[t][rule->lhs].code == ACTION_GOTO);
-            _push_state(parser, parser->parsing_table[t][rule->lhs].state_index, ast);
-            //
-        }else if(pa->code == ACTION_ACCEPT){
-            si = _pop_state(parser);
-            ast = si->ast;
-            break;
-        }else{
-            //error recovery
-            break;
-        }
-    }
-    lexer_free(lexer);
-    return ast;
+    grammar_free(pg->g);
+    FREE(pg);
 }

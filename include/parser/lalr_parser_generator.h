@@ -1,16 +1,18 @@
 /*
- * lr_parser.h
+ * lalr_parser_generator.h
  * 
- * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
+ * Copyright (C) 2022 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for an LALR parser
+ * header file for an LALR parser generator:
+ *      LALR parser generator convert grammar into parsing table for the LALR parser to consume.
  */
-#ifndef __MLANG_LALR_PARSER_H__
-#define __MLANG_LALR_PARSER_H__
+#ifndef __MLANG_LALR_PARSER_GENERATOR_H__
+#define __MLANG_LALR_PARSER_GENERATOR_H__
 
 #include "parser/grammar.h"
 #include "lexer/lexer.h"
 #include "clib/symbol.h"
+#include "clib/hashtable.h"
 #include "parser/ast.h"
 #include "clib/stack.h"
 #include "lexer/token.h"
@@ -52,7 +54,7 @@ link_list2(index_list, index_list_entry, u8)
 
 struct parse_item {
     u8 rule;    //rule index
-    u8 dot;         //dot position
+    u8 dot;     //dot position
 };
 
 link_list2(parse_item_list, parse_item_list_entry, struct parse_item)
@@ -67,36 +69,36 @@ struct rule_symbol_data{
     struct index_list first_list;//first set
     struct index_list follow_list;//follow set
     struct index_list rule_list; //rules indexed by symbol
+
+    /*argumented SLR garmmar rule with nonterminal symbol with subscript of from state and to state
+    (ref: Bermudez and Logothetis Theorem)
+    states_follows: is the hashtable data structure
+        the key is u32 int: upper u16 is from_state, lower u16 is to_state
+        the data is index_list, the follow set of the argumented symbol
+    */
+    struct hashtable states_follows; 
 };
 
-struct stack_item{
-    u16 state_index;
-    struct ast_node *ast;
-};
-
-struct lr_parser{
-    //state stack
-    struct stack_item stack[MAX_STATES];
-    u32 stack_top;
-
-    //action table for terminal symbols, tokens
-    struct parser_action parsing_table[MAX_STATES][MAX_GRAMMAR_SYMBOLS];
-
+struct lalr_parser_generator{
+    /*input for generator*/
+    //parser generator states
+    struct grammar *g;
     struct parse_state parse_states[MAX_STATES];
     u16 parse_state_count;
 
     //grammar rule symbol data: store isnullable, first set and follow set per symbol
     struct rule_symbol_data symbol_data[MAX_GRAMMAR_SYMBOLS];
 
-    //grammar rules
+    /*generator output*/
+    // action table for terminal symbols, tokens
+    struct parser_action parsing_table[MAX_STATES][MAX_GRAMMAR_SYMBOLS];
+    // grammar rules converted to int index
     struct parse_rule rules[MAX_RULES];
     u16 rule_count;
-    struct grammar *g;
 };
 
-struct lr_parser *lr_parser_new(const char *grammar);
-void lr_parser_free(struct lr_parser *parser);
-struct ast_node *parse_text(struct lr_parser *parser, const char *text);
+struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar);
+void lalr_parser_generator_free(struct lalr_parser_generator *parser);
 
 #ifdef __cplusplus
 }
