@@ -92,6 +92,9 @@ struct lalr_parser_generator{
 
     // grammar augmented rules
     struct parse_rule augmented_rules[MAX_AUGMENTED_RULES];
+    u16 augmented_rule_count;
+
+    u16 total_symbol_count; /*total symbol including terminal and nonterm*/
     /*argumented LALR garmmar rule with nonterminal symbol with subscript of from state and to state
     (ref: Bermudez and Logothetis Theorem)
     augmented_symbol_map: is the hashtable data structure
@@ -99,7 +102,6 @@ struct lalr_parser_generator{
         the data is u16 symbol index
     */
     struct hashtable augmented_symbol_map;
-    u16 augmented_rule_count;
 };
 
 struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar);

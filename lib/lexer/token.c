@@ -167,7 +167,7 @@ u16 register_grammar_nonterm(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
     assert(!tp);
-    //add nonterm grammar symbol
+    //add nonterm grammar symbol, TODO: need to check existence of symbol, don't add if already existed
     struct token_pattern tpn;
     u16 nonterm = (u16)g_nonterm_count + (u16)TERMINAL_COUNT;
     tpn.token_type = nonterm;
