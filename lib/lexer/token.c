@@ -71,7 +71,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
 };
 
 struct token_pattern g_nonterms[MAX_NONTERMS];
-u8 g_nonterm_count;
+u16 g_nonterm_count;
 
 struct hashtable token_patterns_by_symbol;
 
@@ -148,28 +148,28 @@ struct token_pattern *get_token_pattern_by_symbol(symbol symbol)
 }
 
 //the symbol could be terminal or non-terminal symbol in grammar
-u8 get_symbol_index(symbol symbol)
+u16 get_symbol_index(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
     assert(tp);
     if(tp->token_type == TOKEN_OP)
-        return (u8)TOKEN_OP + (u8)tp->opcode;
-    return (u8)tp->token_type;
+        return (u16)TOKEN_OP + (u16)tp->opcode;
+    return (u16)tp->token_type;
 }
 
-u8 get_token_index(enum token_type token_type, enum op_code opcode)
+u16 get_token_index(enum token_type token_type, enum op_code opcode)
 {
     symbol symbol = get_symbol_by_token_opcode(token_type, opcode);
     return get_symbol_index(symbol);
 }
 
-u8 register_grammar_nonterm(symbol symbol)
+u16 register_grammar_nonterm(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
     assert(!tp);
-    //add nonterm grammar symbol
+    //add nonterm grammar symbol, TODO: need to check existence of symbol, don't add if already existed
     struct token_pattern tpn;
-    u8 nonterm = (u8)g_nonterm_count + (u8)TERMINAL_COUNT;
+    u16 nonterm = (u16)g_nonterm_count + (u16)TERMINAL_COUNT;
     tpn.token_type = nonterm;
     tpn.symbol_name = symbol;
     tpn.name = string_get(tpn.symbol_name);
@@ -182,12 +182,12 @@ u8 register_grammar_nonterm(symbol symbol)
     return nonterm;
 }
 
-u8 get_symbol_count()
+u16 get_symbol_count()
 {
-    return g_nonterm_count + (u8)TERMINAL_COUNT;
+    return g_nonterm_count + (u16)TERMINAL_COUNT;
 }
 
-bool is_terminal(u8 symbol_index)
+bool is_terminal(u16 symbol_index)
 {
     return symbol_index < TERMINAL_COUNT;
 }

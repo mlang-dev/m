@@ -40,17 +40,18 @@ struct parser_action{
 
 #define MAX_STATES 512
 #define MAX_RULES 128
+#define MAX_AUGMENTED_RULES 1024
 #define MAX_SYMBOLS_RULE 7
 
 //converted grammer rule with integer
 struct parse_rule{
-    u8 lhs;   //non terminal symbol index
-    u8 rhs[MAX_SYMBOLS_RULE]; //right hand side of production rule
+    u16 lhs;   //non terminal symbol index
+    u16 rhs[MAX_SYMBOLS_RULE]; //right hand side of production rule
     u8 symbol_count; //right side of 
     struct semantic_action action;
 };
 
-link_list2(index_list, index_list_entry, u8)
+link_list2(index_list, index_list_entry, u16)
 
 struct parse_item {
     u8 rule;    //rule index
@@ -70,14 +71,6 @@ struct rule_symbol_data{
     struct index_list first_list;//first set
     struct index_list follow_list;//follow set
     struct index_list rule_list; //rules indexed by symbol
-
-    /*argumented LALR garmmar rule with nonterminal symbol with subscript of from state and to state
-    (ref: Bermudez and Logothetis Theorem)
-    states_follows: is the hashtable data structure
-        the key is u32 int: upper u16 is from_state, lower u16 is to_state
-        the data is index_list, the follow set of the argumented symbol
-    */
-    struct hashtable states_follows; 
 };
 
 struct lalr_parser_generator{
@@ -96,6 +89,19 @@ struct lalr_parser_generator{
     // grammar rules converted to int index
     struct parse_rule parsing_rules[MAX_RULES];
     u16 rule_count;
+
+    // grammar augmented rules
+    struct parse_rule augmented_rules[MAX_AUGMENTED_RULES];
+    u16 augmented_rule_count;
+
+    u16 total_symbol_count; /*total symbol including terminal and nonterm*/
+    /*argumented LALR garmmar rule with nonterminal symbol with subscript of from state and to state
+    (ref: Bermudez and Logothetis Theorem)
+    augmented_symbol_map: is the hashtable data structure
+        the key is u64 int: high u32 is symbol index, in low 32bits high u16 is from_state, low u16 is to_state
+        the data is u16 symbol index
+    */
+    struct hashtable augmented_symbol_map;
 };
 
 struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar);

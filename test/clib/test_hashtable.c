@@ -34,7 +34,7 @@
 //     hashtable_deinit(&ht);
 // }
 
-TEST(test_hashtable, str_generic)
+TEST(test_hashtable, str_int)
 {
     struct hashtable ht;
     hashtable_init(&ht);
@@ -71,6 +71,26 @@ TEST(test_hashtable, symbol_int)
     ASSERT_EQ(200, hashtable_get_int(&ht, str2));
     ASSERT_FALSE(hashtable_in_p(&ht, str3));
     ASSERT_EQ(0, hashtable_get_int(&ht, str3));
+    hashtable_deinit(&ht);
+    symbols_deinit();
+}
+
+TEST(test_hashtable, int_int)
+{
+    struct hashtable ht;
+    symbols_init();
+    hashtable_init_with_size(&ht, sizeof(int), sizeof(int));
+    int key1 = 1000;
+    int data1 = 100;
+    int key2 = 2000;
+    int data2 = 200;
+    hashtable_set_v(&ht, &key1, &data1);
+    hashtable_set_v(&ht, &key2, &data2);
+    ASSERT_EQ(2, hashtable_size(&ht));
+    ASSERT_TRUE(hashtable_in_v(&ht, &key1));
+    ASSERT_TRUE(hashtable_in_v(&ht, &key2));
+    ASSERT_EQ(100, *(int*)hashtable_get_v(&ht, &key1));
+    ASSERT_EQ(200, *(int*)hashtable_get_v(&ht, &key2));
     hashtable_deinit(&ht);
     symbols_deinit();
 }
@@ -195,8 +215,9 @@ TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
 int test_hashtable()
 {
     UNITY_BEGIN();
-    RUN_TEST(test_hashtable_str_generic);
+    RUN_TEST(test_hashtable_str_int);
     RUN_TEST(test_hashtable_symbol_int);
+    RUN_TEST(test_hashtable_int_int);
     RUN_TEST(test_hashtable_remove);
     RUN_TEST(test_hashtable_clear);
     RUN_TEST(test_hashtable_collision);
