@@ -136,18 +136,18 @@ struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type
 struct token_pattern *get_token_pattern_by_symbol(symbol symbol);
 
 /*get symbol index, token or nonterm*/
-u8 get_symbol_index(symbol symbol);
+u16 get_symbol_index(symbol symbol);
 
 /*get index by token*/
-u8 get_token_index(enum token_type token_type, enum op_code opcode);
+u16 get_token_index(enum token_type token_type, enum op_code opcode);
 
 /*get total symbol count including terminal tokens and nonterm symbols*/
-u8 get_symbol_count();
+u16 get_symbol_count();
 
 /*register nonterm symbol for grammar*/
-u8 register_grammar_nonterm(symbol symbol);
+u16 register_grammar_nonterm(symbol symbol);
 
-bool is_terminal(u8 symbol_index);
+bool is_terminal(u16 symbol_index);
 
 #ifdef __cplusplus
 }

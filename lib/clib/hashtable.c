@@ -49,6 +49,12 @@ void hashtable_init_with_value_size(struct hashtable *ht, size_t value_size, fre
     ht->free_element = free_element;
 }
 
+void hashtable_init_with_size(struct hashtable *ht, size_t key_size, size_t value_size) 
+{
+    hashtable_init_with_value_size(ht, value_size, 0);
+    ht->key_size = key_size;
+}
+
 size_t _get_index(struct hashtable *ht, unsigned char *key, size_t key_size)
 {
     return hash(key, key_size) % ht->cap;
@@ -267,6 +273,16 @@ void *hashtable_get_p(struct hashtable *ht, void *key)
     return hashtable_get_g(ht, (void *)&key, sizeof(void *));
 }
 
+void hashtable_set_v(struct hashtable *ht, void *key, void *value)
+{
+    hashtable_set_g(ht, key, ht->key_size, value, ht->value_size);
+}
+
+void *hashtable_get_v(struct hashtable *ht, void *key)
+{
+    return hashtable_get_g(ht, (void *)key, ht->key_size);
+}
+
 void *hashtable_get(struct hashtable *ht, const char *key)
 {
     return hashtable_get_g(ht, (void *)key, strlen(key));
@@ -295,6 +311,11 @@ bool hashtable_in_g(struct hashtable *ht, void *key, size_t key_size)
 bool hashtable_in_p(struct hashtable *ht, void *key)
 {
     return hashtable_in_g(ht, (void *)&key, sizeof(void *));
+}
+
+bool hashtable_in_v(struct hashtable *ht, void *key)
+{
+    return hashtable_in_g(ht, (void *)key, ht->key_size);
 }
 
 bool hashtable_in(struct hashtable *ht, const char *key)

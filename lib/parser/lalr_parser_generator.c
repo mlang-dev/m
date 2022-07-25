@@ -14,10 +14,10 @@
 
 #define END_OF_RULE 0xff
 
-link_list_append_data_fn(index_list, index_list_entry, u8)
+link_list_append_data_fn(index_list, index_list_entry, u16)
 link_list_append_data_fn(parse_item_list, parse_item_list_entry, struct parse_item)
 
-bool _exists(struct index_list *dst, u8 data)
+bool _exists(struct index_list *dst, u16 data)
 {
     struct index_list_entry *entry;
     list_foreach(entry, dst)
@@ -42,7 +42,7 @@ int _append_list(struct index_list *dst, struct index_list *src)
     return n;
 }
 
-int _append_data(struct index_list *dst, u8 data)
+int _append_data(struct index_list *dst, u16 data)
 {
     int n = 0;
     if (!_exists(dst, data)) {
@@ -118,7 +118,7 @@ void _init_parse_item_list(struct parse_item_list *list)
     list->tail = 0;
 }
 
-bool _is_nullable(u8 *symbols, u8 symbol_count, struct rule_symbol_data *symbol_data)
+bool _is_nullable(u16 *symbols, u8 symbol_count, struct rule_symbol_data *symbol_data)
 {
     for(u8 i = 0; i < symbol_count; i ++){
         if(!symbol_data[symbols[i]].is_nullable) return false;
@@ -216,7 +216,7 @@ void _fill_rule_symbol_data(struct parse_rule *rules, u16 rule_count, struct rul
     }
 }
 
-u8 _eq_parse_item(struct parse_item *item1, struct parse_item *item2)
+bool _eq_parse_item(struct parse_item *item1, struct parse_item *item2)
 {
     return item1->rule == item2->rule && item1->dot == item2->dot;
 }
@@ -250,7 +250,7 @@ struct parse_state _closure(struct rule_symbol_data *symbol_data, struct parse_r
     {
         struct parse_rule *rule = &rules[entry->data.rule];
         if(entry->data.dot < rule->symbol_count){
-            u8 symbol_index = rule->rhs[entry->data.dot];
+            u16 symbol_index = rule->rhs[entry->data.dot];
             if(!is_terminal(symbol_index)){//non terminal
                 struct index_list *nt_rules = &symbol_data[symbol_index].rule_list;
                 list_foreach(rule_entry, nt_rules){
@@ -265,7 +265,7 @@ struct parse_state _closure(struct rule_symbol_data *symbol_data, struct parse_r
     return state;
 }
 
-struct parse_state _goto(struct rule_symbol_data *symbol_data, struct parse_rule *rules, struct parse_state state, u8 rule_symbol)
+struct parse_state _goto(struct rule_symbol_data *symbol_data, struct parse_rule *rules, struct parse_state state, u16 rule_symbol)
 {
     struct parse_state next_state;
     _init_parse_item_list(&next_state.items);
@@ -319,7 +319,7 @@ int _find_state(struct parse_state *states, u16 state_count, struct parse_state 
     return -1;
 }
 
-bool _exists_in_array(u8 *array, u8 size, u8 match)
+bool _exists_in_array(u16 *array, u8 size, u16 match)
 {
     for (u8 i = 0; i < size; i++){
         if (array[i] == match)
@@ -347,14 +347,14 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
         state = &states[i];
 
         //iterate each rule to get unique symbol to create new state 
-        u8 visited_symbols[16];
+        u16 visited_symbols[16];
         u8 visited_count = 0;
         list_foreach(entry, &state->items){
             rule = &rules[entry->data.rule];
             if(entry->data.dot >= rule->symbol_count) {
                 continue;
             }
-            u8 x = rule->rhs[entry->data.dot]; 
+            u16 x = rule->rhs[entry->data.dot]; 
             if(_exists_in_array(visited_symbols, visited_count, x)){
                 continue;
             }
@@ -376,7 +376,34 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
     return state_count;
 }
 
-void _build_parsing_table(struct rule_symbol_data *symbol_data, struct parser_action parsing_table[][MAX_GRAMMAR_SYMBOLS], u16 state_count, struct parse_state *states, struct parse_rule *rules)
+void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser_generator *pg)
+{
+    struct parse_rule *gr;
+    struct expr *rule_expr, *expr;
+    struct rule *rule;
+    u16 nonterm;
+    size_t i, j, k;
+    pg->rule_count = 0;
+    for (i = 0; i < (u16)array_size(&g->rules); i++) {
+        rule = *(struct rule **)array_get(&g->rules, i);
+        nonterm = get_symbol_index(rule->nonterm);
+        for (j = 0; j < array_size(&rule->exprs); j++) {
+            rule_expr = (struct expr *)array_get(&rule->exprs, j);
+            struct array exprs;
+            array_init_free(&exprs, sizeof(struct expr), (free_fun)expr_deinit);
+            _expand_expr(rule_expr, &exprs);
+            for (k = 0; k < array_size(&exprs); k++) {
+                expr = array_get(&exprs, k);
+                gr = &pg->parsing_rules[pg->rule_count++];
+                gr->lhs = nonterm;
+                _expr_2_gr(expr, gr);
+            }
+            array_deinit(&exprs);
+        }
+    }
+}
+
+void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser_action parsing_table[][MAX_GRAMMAR_SYMBOLS], u16 state_count, struct parse_state *states, struct parse_rule *rules)
 {
     struct parse_state *state;
     struct parser_action *action;
@@ -408,29 +435,42 @@ void _build_parsing_table(struct rule_symbol_data *symbol_data, struct parser_ac
     }
 }
 
-void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser_generator *pg)
+void _compute_augmented_rule(struct lalr_parser_generator *pg)
 {
-    struct parse_rule *gr;
-    struct expr *rule_expr, *expr;
-    struct rule *rule;
-    u8 nonterm;
-    size_t i, j, k;
-    pg->rule_count = 0;
-    for (i = 0; i < (u16)array_size(&g->rules); i++) {
-        rule = *(struct rule **)array_get(&g->rules, i);
-        nonterm = get_symbol_index(rule->nonterm);
-        for (j = 0; j < array_size(&rule->exprs); j++) {
-            rule_expr = (struct expr *)array_get(&rule->exprs, j);
-            struct array exprs;
-            array_init_free(&exprs, sizeof(struct expr), (free_fun)expr_deinit);
-            _expand_expr(rule_expr, &exprs);
-            for (k = 0; k < array_size(&exprs); k++) {
-                expr = array_get(&exprs, k);
-                gr = &pg->parsing_rules[pg->rule_count++];
-                gr->lhs = nonterm;
-                _expr_2_gr(expr, gr);
+    //go through all SLR states
+    struct parse_state *state;
+    struct parse_item_list_entry *entry;
+    struct parse_item *item;
+    struct parse_rule *rules = pg->parsing_rules;
+    struct parse_rule *rule;
+    struct parser_action *pa;
+    u16 state_index;
+    for (u16 i = 0; i < pg->parse_state_count; i++) {
+        state = &pg->parse_states[i];
+        //for each parse item
+        list_foreach(entry, &state->items){
+            state_index = i;
+            item = &entry->data;
+            if (item->dot > 0)
+                continue;
+            rule = &rules[item->rule];
+            // for any item with A->.w
+            for(u8 j=0; j<rule->symbol_count; j++){
+                u16 symbol = rule->rhs[j];
+                pa = &pg->parsing_table[state_index][symbol];
+                if (is_terminal(symbol)) {
+                    assert(pa->code == ACTION_SHIFT);
+                } else {
+                    assert(pa->code == ACTION_GOTO);
+                    //TO DO annotate new nonterminal symbol: (symbol, state_index, pa->state_index)
+                }
+                state_index = pa->state_index;
             }
-            array_deinit(&exprs);
+            if(item->rule > 0){
+                pa = &pg->parsing_table[i][rule->lhs];
+                assert(pa->code == ACTION_GOTO);
+                //annotate new left hand's nonterminal: (rule->lhs, i, pa->state_index)
+            }
         }
     }
 }
@@ -457,10 +497,11 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
 
     //2. registering non-term symbols with integer
     struct grammar *g = grammar_parse(grammar_text);
+    pg->g = g;
     struct rule *rule;
     for(i = 0; i < array_size(&g->rules); i++){
         rule = *(struct rule **)array_get(&g->rules, i);
-        u8 index = register_grammar_nonterm(rule->nonterm); //register new non-term symbol
+        u16 index = register_grammar_nonterm(rule->nonterm); //register new non-term symbol
         assert((u8)i + TERMINAL_COUNT == index);
     }
 
@@ -475,10 +516,13 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     //5. build states
     pg->parse_state_count = _build_states(pg->symbol_data, pg->parsing_rules, pg->rule_count, pg->parse_states, pg->parsing_table);
 
-    //6. construct parsing table
-    //action: state, terminal and goto: state, nonterm
-    _build_parsing_table(pg->symbol_data, pg->parsing_table, pg->parse_state_count, pg->parse_states, pg->parsing_rules);
-    pg->g = g;
+    // 6. compute augmented grammar rules
+    _compute_augmented_rule(pg);
+
+    // 7. construct parsing table
+    //  action: state, terminal and goto: state, nonterm
+    _complete_parsing_table(pg->symbol_data, pg->parsing_table, pg->parse_state_count, pg->parse_states, pg->parsing_rules);
+
     return pg;
 }
 
