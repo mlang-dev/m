@@ -116,6 +116,19 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         node = items[1].ast;
         ast = function_node_new(ft, node, node->loc);
         break;
+    case BLOCK_NODE:
+        if (rule->action.exp_item_index_count == 1){
+            struct array nodes;
+            array_init(&nodes, sizeof(struct ast_node *));
+            array_push(&nodes, &items[0].ast);
+            ast = block_node_new(&nodes);
+        }
+        else if(rule->action.exp_item_index_count == 2){
+            ast = items[0].ast;
+            assert(ast->node_type == BLOCK_NODE);
+            block_node_add(ast, items[1].ast);
+        }
+        break;
     }
     return ast;
 }
@@ -156,6 +169,7 @@ struct ast_node *parse_text(struct lalr_parser *parser, const char *text)
             break;
         }else{
             //error recovery
+            ast = 0;
             break;
         }
     }

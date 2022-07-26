@@ -225,6 +225,7 @@ struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, stru
 struct ast_node *for_node_new(symbol var_name, struct ast_node *start,
     struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc);
 struct ast_node *block_node_new(struct array *nodes);
+struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node);
 struct ast_node *node_copy(struct ast_node *node);
 struct module *module_new(const char *mod_name, FILE *file);
 void node_free(struct ast_node *node);

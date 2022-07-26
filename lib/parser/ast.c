@@ -45,7 +45,7 @@ void ast_init()
     hashtable_init(&node_type_names_by_symbol);
     for(int i = 0; i < TOTAL_NODE; i++){
         struct node_type_name *ntn = &node_type_names[i];
-        ntn->symbol_name = to_symbol(ntn->name);
+        ntn->symbol_name = to_symbol2(ntn->name, strlen(ntn->name));
         hashtable_set_p(&node_type_names_by_symbol, ntn->symbol_name, ntn);
     }
 }
@@ -540,6 +540,13 @@ struct ast_node *block_node_new(struct array *nodes)
     return node;
 }
 
+struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node)
+{
+    assert(block && block->node_type == BLOCK_NODE);
+    array_push(&node->block->nodes, &node);
+    return block;
+}
+
 struct ast_node *node_copy(struct ast_node *node)
 {
     switch (node->node_type) {
@@ -677,8 +684,6 @@ enum node_type token_to_node_type(enum token_type token_type, enum op_code opcod
 enum node_type symbol_to_node_type(symbol node_type_name)
 {
     struct node_type_name *ntn = get_node_type_name_by_symbol(node_type_name);
-    if(ntn){
-        return ntn->node_type;
-    }
-    return UNK_NODE;
+    assert(ntn);
+    return ntn->node_type;
 }

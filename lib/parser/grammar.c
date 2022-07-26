@@ -141,7 +141,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                 //next tok is action
                 if(next_tok.token_type == TOKEN_IDENT){
                     assert(expr->action.action == 0);
-                    expr->action.action  = next_tok.symbol_val;
+                    expr->action.action = next_tok.symbol_val;
                 }
                 else if(next_tok.token_type == TOKEN_INT){
                     expr->action.exp_item_index[expr->action.exp_item_index_count++] = next_tok.int_val;
