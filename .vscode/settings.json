@@ -143,7 +143,10 @@
         "test.h": "c",
         "tok.h": "c",
         "lexer.h": "c",
-        "lalr_parser_generator.h": "c"
+        "lalr_parser_generator.h": "c",
+        "m_parsing_table.h": "c",
+        "parsing_table.h": "c",
+        "m_parsing_table_def.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
