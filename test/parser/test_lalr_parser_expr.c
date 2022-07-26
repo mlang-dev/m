@@ -14,15 +14,7 @@
 
 TEST(test_lr_parser_expr, arithmetic_exp)
 {
-    const char *grammar = 
-        "s  = e             {}\n"
-        "e  = e '+' t       {binop 0 1 2}\n"
-        "   | t             {}\n"
-        "t  = t '*' f       {binop 0 1 2}\n"
-        "   | f             {}\n"
-        "f  = '(' e ')'     {1}\n"
-        "   | INT           {}\n";
-
+    const char *grammar = get_m_grammar();
     const char test_code[] = "1+2*3";
     frontend_init();
     struct lalr_parser_generator* pg = lalr_parser_generator_new(grammar);
@@ -33,19 +25,13 @@ TEST(test_lr_parser_expr, arithmetic_exp)
 
     ast_node_free(ast);
     lalr_parser_free(parser);
+    lalr_parser_generator_free(pg);
     frontend_deinit();
 }
 
 TEST(test_lr_parser_expr, arithmetic_exp_parentheses)
 {
-    const char *grammar = "s  = e             {}\n"
-                            "e  = e '+' t       {binop 0 1 2}\n"
-                            "   | t             {}\n"
-                            "t  = t '*' f       {binop 0 1 2}\n"
-                            "   | f             {}\n"
-                            "f  = '(' e ')'     {1}\n"
-                            "   | INT           {}\n";
-
+    const char *grammar = get_m_grammar();
     const char test_code[] = "(1+2)*3";
     frontend_init();
     struct lalr_parser_generator *pg = lalr_parser_generator_new(grammar);
@@ -56,6 +42,7 @@ TEST(test_lr_parser_expr, arithmetic_exp_parentheses)
 
     ast_node_free(ast);
     lalr_parser_free(parser);
+    lalr_parser_generator_free(pg);
     frontend_deinit();
 }
 /*

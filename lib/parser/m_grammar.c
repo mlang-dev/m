@@ -12,20 +12,41 @@
 
 const char *get_m_grammar()
 {
-    const char *m_grammar = 
-        "start      = program           { 0 }"
-        "program    = program stmt      { prog 0 1 }"
-        "           | stmt              { prog 0 }"
-        "stmt       = IDENT '(' ')' '=' expr  { func 0 4 }"
-        "           | expr              { 0 }"
-        "expr       = expr [+-] term    { binop 0 1 2 }"
-        "           | term              { 0 }"
-        "term       = term [*/%] factor { binop 0 1 2 }"
-        "           | factor            { 0 }"
-        "factor     = '(' expr ')'      { 1 }"
-        "           | [+-] factor       { unop 0 1 }"
-        "           | power             { 0 }"
-        "power      = INT '^' factor    { binop 0 1 2 }"
-        "           | INT               { 0 }";
+    const char *m_grammar = "start      = block             { 0 }\n"
+                            "block      = block stmt        { block 0 1 }\n"
+                            "           | stmt              { block 0 }\n"
+                            "stmt       = IDENT '(' ')' '=' expr  { func 0 4 }\n"
+                            "           | expr              { 0 }\n"
+                            "expr       = expr [+-] term    { binop 0 1 2 }\n"
+                            "           | term              { 0 }\n"
+                            "term       = term [*/%] factor { binop 0 1 2 }\n"
+                            "           | factor            { 0 }\n"
+                            "factor     = '(' expr ')'      { 1 }\n"
+                            "           | power             { 0 }\n"
+                            "power      = INT '^' factor    { binop 0 1 2 }\n"
+                            "           | INT               { 0 }";
     return m_grammar;
 }
+
+// const char *m_grammar = "start      = block             { 0 }\n"
+//                         "block      = block stmt        { block 0 1 }\n"
+//                         "           | stmt              { block 0 }\n"
+//                         "stmt       = IDENT '(' ')' '=' expr  { func 0 4 }\n"
+//                         "           | expr              { 0 }\n"
+//                         "expr       = expr [+-] term    { binop 0 1 2 }\n"
+//                         "           | term              { 0 }\n"
+//                         "term       = term [*/%] factor { binop 0 1 2 }\n"
+//                         "           | factor            { 0 }\n"
+//                         "factor     = '(' expr ')'      { 1 }\n"
+//                         "           | [+-] factor       { unop 0 1 }\n"
+//                         "           | power             { 0 }\n"
+//                         "power      = INT '^' factor    { binop 0 1 2 }\n"
+//                         "           | INT               { 0 }";
+
+// const char *grammar = "s  = e             {}\n"
+//                         "e  = e '+' t       {binop 0 1 2}\n"
+//                         "   | t             {}\n"
+//                         "t  = t '*' f       {binop 0 1 2}\n"
+//                         "   | f             {}\n"
+//                         "f  = '(' e ')'     {1}\n"
+//                         "   | INT           {}\n";

@@ -11,13 +11,11 @@
 string _dump_block(struct ast_node *node)
 {
     string block;
-    string_init_chars(&block, "blk: \n");
+    string_init_chars(&block, "");
     for (size_t i = 0; i < array_size(&node->block->nodes); i++) {
         struct ast_node *stmt = *(struct ast_node **)array_get(&node->block->nodes, i);
         string str_stmt = dump(stmt);
-        string_add_chars(&block, "  ");
         string_add(&block, &str_stmt);
-        string_add_chars(&block, "\n");
     }
     return block;
 }
