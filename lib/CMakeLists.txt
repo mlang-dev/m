@@ -4,8 +4,7 @@ if (EMSCRIPTEN OR WASM)
   include_directories(
     ${CMAKE_SOURCE_DIR}/include
   )
-
-  add_library(mlr 
+  add_library(clib 
     clib/math.c
     clib/object.c
     clib/array.c
@@ -24,12 +23,16 @@ if (EMSCRIPTEN OR WASM)
  #   clib/win/getopt.c
  #   clib/win/libfmemopen.c
  #   clib/getpath.c
+  )
+
+  add_library(mlr 
     lexer/token.c
     lexer/lexer.c
     lexer/init.c
     parser/ast.c
     parser/astdump.c
     parser/earley_parser.c
+    parser/m_parsing_table.c
     parser/lalr_parser_generator.c
     parser/lalr_parser.c
     parser/grammar.c
@@ -51,8 +54,7 @@ else()
     ${LLVM_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/include
   )
-
-  add_library(mlr 
+  add_library(clib 
     clib/math.c
     clib/object.c
     clib/array.c
@@ -71,6 +73,9 @@ else()
     clib/win/libfmemopen.c
     clib/regex.c
     clib/getpath.c
+  )
+
+  add_library(mlr 
     tool/cmodule.c
     lexer/token.c
     lexer/lexer.c
@@ -80,6 +85,7 @@ else()
     parser/astdump.c
     parser/grammar.c
     parser/m_parser.c
+    parser/m_parsing_table.c
     parser/lalr_parser_generator.c
     parser/lalr_parser.c
     parser/m_grammar.c

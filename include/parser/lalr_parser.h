@@ -9,6 +9,7 @@
 #define __MLANG_LALR_PARSER_H__
 
 #include "parser/lalr_parser_generator.h"
+#include "parser/m_parsing_table.h"
 #include <stdint.h>
 
 #ifdef __cplusplus

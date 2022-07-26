@@ -10,6 +10,7 @@
 #define __MLANG_LALR_PARSER_GENERATOR_H__
 
 #include "parser/grammar.h"
+#include "parser/m_parsing_table.h"
 #include "lexer/lexer.h"
 #include "clib/symbol.h"
 #include "clib/hashtable.h"
@@ -22,34 +23,11 @@
 extern "C" {
 #endif
 
-enum action_code{
-    ACTION_ERROR, //indicator to do error recoverage 
-    ACTION_SHIFT, //shift the state
-    ACTION_REDUCE, //reduce with production rule
-    ACTION_ACCEPT, //complete the parsing successfully
-    ACTION_GOTO, //goto for state i, and X nonterm
-};
-
-struct parser_action{
-    enum action_code code;
-    union {
-        u16 state_index; //next state index if action is shift
-        u16 rule_index;  //index of production rule if action is reduce
-    };
-};
 
 #define MAX_STATES 512
 #define MAX_RULES 128
 #define MAX_AUGMENTED_RULES 1024
-#define MAX_SYMBOLS_RULE 7
 
-//converted grammer rule with integer
-struct parse_rule{
-    u16 lhs;   //non terminal symbol index
-    u16 rhs[MAX_SYMBOLS_RULE]; //right hand side of production rule
-    u8 symbol_count; //right side of 
-    struct semantic_action action;
-};
 
 link_list2(index_list, index_list_entry, u16)
 

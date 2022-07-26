@@ -29,7 +29,7 @@ IF (EMSCRIPTEN)
     app/test_mwat.cc
   )
 
-  TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
+  TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr clib
   )
 
 
@@ -73,7 +73,7 @@ elseif (WASM)
 
   set_target_properties(mtest PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
-  target_link_libraries(mtest PRIVATE mlr unity
+  target_link_libraries(mtest PRIVATE mlr clib unity
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
     --target=wasm32
@@ -140,7 +140,7 @@ else()
       set_property(TARGET mtest APPEND PROPERTY LINK_FLAGS /DEBUG)
   endif()
 
-  TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr
+  TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr clib
     ${llvm_libraries}
     ${sys_libraries}
     ${clang_lib}
@@ -198,7 +198,7 @@ else()
   app/test_mwat.c
   )
 
-  TARGET_LINK_LIBRARIES(mctest mlr unity
+  TARGET_LINK_LIBRARIES(mctest mlr clib unity
   )
 
  add_custom_command(
