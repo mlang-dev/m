@@ -14,35 +14,29 @@
 
 TEST(test_lr_parser_expr, arithmetic_exp)
 {
-    const char *grammar = get_m_grammar();
     const char test_code[] = "1+2*3";
     frontend_init();
-    struct lalr_parser_generator* pg = lalr_parser_generator_new(grammar);
-    struct lalr_parser *parser = lalr_parser_new(&pg->parsing_table, &pg->parsing_rules);
+    struct lalr_parser *parser = parser_new();
     struct ast_node *ast = parse_text(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(1+(2*3))", string_get(&dump_str));
 
     ast_node_free(ast);
     lalr_parser_free(parser);
-    lalr_parser_generator_free(pg);
     frontend_deinit();
 }
 
 TEST(test_lr_parser_expr, arithmetic_exp_parentheses)
 {
-    const char *grammar = get_m_grammar();
     const char test_code[] = "(1+2)*3";
     frontend_init();
-    struct lalr_parser_generator *pg = lalr_parser_generator_new(grammar);
-    struct lalr_parser *parser = lalr_parser_new(&pg->parsing_table, &pg->parsing_rules);
+    struct lalr_parser *parser = parser_new();
     struct ast_node *ast = parse_text(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("((1+2)*3)", string_get(&dump_str));
 
     ast_node_free(ast);
     lalr_parser_free(parser);
-    lalr_parser_generator_free(pg);
     frontend_deinit();
 }
 /*

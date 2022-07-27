@@ -1,0 +1,14 @@
+# grammar for mlang
+start      = block                      { 0 }
+block      = block stmt                 { block 0 1 }
+           | stmt                       { block 0 }
+stmt       = IDENT '(' ')' '=' expr     { func 0 4 }
+           | expr                       { 0 }
+expr       = expr [+-] term             { binop 0 1 2 }
+           | term                       { 0 }
+term       = term [*/%] factor          { binop 0 1 2 }
+           | factor                     { 0 }
+factor     = '(' expr ')'               { 1 }
+           | power                      { 0 }
+power      = INT '^' factor             { binop 0 1 2 }
+           | INT                        { 0 }

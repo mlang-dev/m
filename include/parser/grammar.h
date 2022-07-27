@@ -12,6 +12,7 @@
 #include "clib/symboltable.h"
 #include "clib/array.h"
 #include "clib/hashset.h"
+#include "clib/typedef.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,8 +32,8 @@ struct expr_item {
 
 struct semantic_action{
     symbol action;
-    int exp_item_index[5]; //0: is the first exp item value parsed at right side of grammar rule
-    int exp_item_index_count;
+    u8 exp_item_index[5]; //0: is the first exp item value parsed at right side of grammar rule
+    u8 exp_item_index_count;
 };
 
 struct expr {

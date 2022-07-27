@@ -7,12 +7,18 @@
  * into ast according to the parsing table and rule set
  */
 #include "parser/lalr_parser.h"
+#include "parser/m_parsing_table.h"
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
 #include <assert.h>
 
-struct lalr_parser *lalr_parser_new(parse_table *parsing_table, parse_rules *parsing_rules)
+struct lalr_parser *parser_new()
+{
+    return lalr_parser_new(&m_parsing_table, &m_parsing_rules);
+}
+
+struct lalr_parser *lalr_parser_new(parsing_table *parsing_table, parsing_rules *parsing_rules)
 {
     struct lalr_parser *parser;
     MALLOC(parser, sizeof(*parser));
@@ -83,15 +89,14 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     struct ast_node *ast = 0;
     struct ast_node *node = 0;
     struct ast_node *rhs = 0;
-    if (!rule->action.action){
-        if (rule->action.exp_item_index_count == 0)
+    if (!rule->action.node_type){
+        if (rule->action.item_index_count == 0)
             return items[0].ast;
         else{
-            return items[rule->action.exp_item_index[0]].ast;
+            return items[rule->action.item_index[0]].ast;
         }
     }
-    enum node_type node_type = symbol_to_node_type(rule->action.action);
-    switch (node_type) {
+    switch (rule->action.node_type) {
     default:
         assert(false);
         break;
@@ -117,13 +122,13 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         ast = function_node_new(ft, node, node->loc);
         break;
     case BLOCK_NODE:
-        if (rule->action.exp_item_index_count == 1){
+        if (rule->action.item_index_count == 1){
             struct array nodes;
             array_init(&nodes, sizeof(struct ast_node *));
             array_push(&nodes, &items[0].ast);
             ast = block_node_new(&nodes);
         }
-        else if(rule->action.exp_item_index_count == 2){
+        else if(rule->action.item_index_count == 2){
             ast = items[0].ast;
             assert(ast->node_type == BLOCK_NODE);
             block_node_add(ast, items[1].ast);
@@ -148,22 +153,22 @@ struct ast_node *parse_text(struct lalr_parser *parser, const char *text)
     while(1){
         s = _get_top_state(parser)->state_index;
         pa = &(*parser->parsing_table)[s][a];
-        if(pa->code == ACTION_SHIFT){
+        if(pa->code == S){
             ast = _build_terminal_ast(tok);
             _push_state(parser, pa->state_index, ast);
             tok = get_tok(lexer);
             a = get_token_index(tok->token_type, tok->opcode);
-        }else if(pa->code == ACTION_REDUCE){
+        }else if(pa->code == R){
             //do reduce action and build ast node
             rule = &(*parser->parsing_rules)[pa->rule_index];
             si = _get_start_item(parser, rule->symbol_count);
             ast = _build_nonterm_ast(rule, si); //build ast according to the rule 
             _pop_states(parser, rule->symbol_count);
             t = _get_top_state(parser)->state_index;
-            assert((*parser->parsing_table)[t][rule->lhs].code == ACTION_GOTO);
+            assert((*parser->parsing_table)[t][rule->lhs].code == G);
             _push_state(parser, (*parser->parsing_table)[t][rule->lhs].state_index, ast);
             //
-        }else if(pa->code == ACTION_ACCEPT){
+        }else if(pa->code == A){
             si = _pop_state(parser);
             ast = si->ast;
             break;

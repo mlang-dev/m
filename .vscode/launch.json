@@ -8,8 +8,10 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test/mctest",
+            "program": "${workspaceFolder}/build/lib/pgen",//;"${workspaceFolder}/build/test/mctest",
             "args": [
+                "${workspaceFolder}/lib/parser/m_grammar.txt",
+                "${workspaceFolder}/lib/parser/m_grammar.txt",
                 "${workspaceFolder}/test/test.m"
             ],
             "stopAtEntry": true,
