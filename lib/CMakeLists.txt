@@ -25,11 +25,6 @@ if (EMSCRIPTEN OR WASM)
  #   clib/getpath.c
   )
 
-  add_executable(pgen
-    parser/lalr_parser_generator.c
-    pgen/pgen.c
-  )
-
   add_library(mlr 
     lexer/token.c
     lexer/lexer.c
