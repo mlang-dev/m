@@ -52,6 +52,15 @@ int _append_data(struct index_list *dst, u16 data)
     return n;
 }
 
+void _semantic_action_2_rule_action(struct semantic_action *sa, struct rule_action *ra)
+{
+    ra->node_type = symbol_to_node_type(sa->action);
+    for(u8 i = 0; i < sa->exp_item_index_count; i++){
+        ra->item_index[i] = sa->exp_item_index[i];
+    }
+    ra->item_index_count = sa->exp_item_index_count;
+}
+
 /*expand bracket in grammar*/
 void _expr_2_gr(struct expr *expr, struct parse_rule *gr)
 {
@@ -62,7 +71,7 @@ void _expr_2_gr(struct expr *expr, struct parse_rule *gr)
         ei = (struct expr_item *)array_get(&expr->items, i);
         gr->rhs[gr->symbol_count++] = get_symbol_index(ei->sym);
     }
-    gr->action = expr->action;
+    _semantic_action_2_rule_action(&expr->action, &gr->action);
 }
 
 void _expand_expr(struct expr *rule_expr, struct array *a)
@@ -368,7 +377,7 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
             int existing_state_index = _find_state(states, state_count, &next_state);
                 // if not in the states, then closure the state and add it to states
             struct parser_action pa;
-            pa.code = is_terminal(x) ? ACTION_SHIFT : ACTION_GOTO;
+            pa.code = is_terminal(x) ? S : G;
             if (existing_state_index < 0) {
                 pa.state_index = state_count;
                 states[state_count++] = _closure(symbol_data, rules, next_state);
@@ -433,13 +442,13 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                 list_foreach(la_entry, lookahead_list)
                 {
                     action = &parsing_table[i][la_entry->data];
-                    action->code = ACTION_REDUCE;
+                    action->code = R;
                     action->rule_index = item->rule;
                 }
             }
             else if(item->dot == rule->symbol_count && item->rule == 0){/*the augumented one*/
                 action = &parsing_table[i][TOKEN_EOF];
-                action->code = ACTION_ACCEPT;                
+                action->code = A;                
             }
         }
     }
@@ -486,9 +495,9 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
                 u16 symbol = rule->rhs[j];
                 pa = &pg->parsing_table[state_index][symbol];
                 if (is_terminal(symbol)) {
-                    assert(pa->code == ACTION_SHIFT);
+                    assert(pa->code == S);
                 } else {
-                    assert(pa->code == ACTION_GOTO);
+                    assert(pa->code == G);
                     //annotate new nonterminal symbol: (symbol, state_index, pa->state_index)
                     new_rule->rhs[j] = _get_augmented_symbol_index(pg, symbol, state_index, pa->state_index);
                 }
@@ -496,7 +505,7 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
             }
             if(item->rule > 0){
                 pa = &pg->parsing_table[i][rule->lhs];
-                assert(pa->code == ACTION_GOTO);
+                assert(pa->code == G);
                 //annotate new left hand's nonterminal: (rule->lhs, i, pa->state_index)
                 new_rule->lhs = _get_augmented_symbol_index(pg, rule->lhs, i, pa->state_index);
             }
@@ -537,7 +546,7 @@ void _propagate_lookahead(struct lalr_parser_generator *pg)
             }
             if(item->rule > 0){
                 pa = &pg->parsing_table[i][rule->lhs];
-                assert(pa->code == ACTION_GOTO);
+                assert(pa->code == G);
                 lhs_nonterm = _get_augmented_symbol_index(pg, rule->lhs, i, pa->state_index);
             }else{
                 lhs_nonterm = rule->lhs;
@@ -558,7 +567,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     //row: state index, col: symbol index
     for(i=0; i < MAX_STATES; i++){
         for(j=0; j < MAX_GRAMMAR_SYMBOLS; j++){
-            pg->parsing_table[i][j].code = ACTION_ERROR;
+            pg->parsing_table[i][j].code = E;
             pg->parsing_table[i][j].state_index = 0;
         }
     }

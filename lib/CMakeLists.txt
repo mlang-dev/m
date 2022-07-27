@@ -25,6 +25,11 @@ if (EMSCRIPTEN OR WASM)
  #   clib/getpath.c
   )
 
+  add_executable(pgen
+    parser/lalr_parser_generator.c
+    pgen/pgen.c
+  )
+
   add_library(mlr 
     lexer/token.c
     lexer/lexer.c
@@ -33,7 +38,6 @@ if (EMSCRIPTEN OR WASM)
     parser/astdump.c
     parser/earley_parser.c
     parser/m_parsing_table.c
-    parser/lalr_parser_generator.c
     parser/lalr_parser.c
     parser/grammar.c
     parser/m_grammar.c
@@ -75,7 +79,30 @@ else()
     clib/getpath.c
   )
 
-  add_library(mlr 
+  add_executable(pgen
+    lexer/token.c
+    lexer/lexer.c
+    lexer/init.c
+    sema/type.c
+    parser/ast.c
+    parser/grammar.c
+    parser/lalr_parser_generator.c
+    pgen/pgen.c
+  )
+
+  target_link_libraries(pgen PRIVATE 
+    clib
+  )
+
+  if(REGEN_PARSER)
+    add_custom_command(
+      TARGET pgen
+      POST_BUILD
+      COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/m_grammar.txt ${CMAKE_SOURCE_DIR}/include/parser/m_parsing_table_def.h ${CMAKE_SOURCE_DIR}/lib/parser/m_parsing_table.c
+    )
+  endif()
+
+  add_library(mlr
     tool/cmodule.c
     lexer/token.c
     lexer/lexer.c
@@ -86,7 +113,6 @@ else()
     parser/grammar.c
     parser/m_parser.c
     parser/m_parsing_table.c
-    parser/lalr_parser_generator.c
     parser/lalr_parser.c
     parser/m_grammar.c
     sema/type.c

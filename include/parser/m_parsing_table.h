@@ -1,7 +1,6 @@
 /*
  * parsing table definitions for parser
  * 
- * 
  * Copyright (C) 2022 Ligang Wang <ligangwangs@gmail.com>
  *
  */
@@ -10,6 +9,7 @@
 
 #include "clib/typedef.h"
 #include "parser/grammar.h"
+#include "parser/ast.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,12 +17,20 @@ extern "C" {
 
 #include "parser/m_parsing_table_def.h"
 
+#define MAX_SYMBOLS_RULE 7
+
+struct rule_action {
+    enum node_type node_type;
+    u8 item_index[MAX_SYMBOLS_RULE]; // 0: is the first exp item value parsed at right side of grammar rule
+    u8 item_index_count;
+};
+
 enum action_code {
-    ACTION_ERROR, // indicator to do error recoverage
-    ACTION_SHIFT, // shift the state
-    ACTION_REDUCE, // reduce with production rule
-    ACTION_ACCEPT, // complete the parsing successfully
-    ACTION_GOTO, // goto for state i, and X nonterm
+    E, // indicator to do error recoverage
+    S, // shift the state
+    R, // reduce with production rule
+    A, // complete the parsing successfully
+    G, // goto for state i, and X nonterm
 };
 
 struct parser_action {
@@ -33,14 +41,13 @@ struct parser_action {
     };
 };
 
-#define MAX_SYMBOLS_RULE 7
 
 // converted grammer rule with integer
 struct parse_rule {
     u16 lhs; // non terminal symbol index
     u16 rhs[MAX_SYMBOLS_RULE]; // right hand side of production rule
     u8 symbol_count; // right side of
-    struct semantic_action action;
+    struct rule_action action;
 };
 
 

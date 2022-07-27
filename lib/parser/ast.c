@@ -683,6 +683,8 @@ enum node_type token_to_node_type(enum token_type token_type, enum op_code opcod
 
 enum node_type symbol_to_node_type(symbol node_type_name)
 {
+    if(!node_type_name)
+        return UNK_NODE;
     struct node_type_name *ntn = get_node_type_name_by_symbol(node_type_name);
     assert(ntn);
     return ntn->node_type;
