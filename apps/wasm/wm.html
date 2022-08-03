@@ -23,7 +23,8 @@
 					fd_close : arg=>console.log("fd close: %s", arg),
 					fd_seek : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4),
 					fd_write : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4),
-					proc_exit : arg=>console.log("proc_exit: %s", arg)
+					proc_exit : arg=>console.log("proc_exit: %s", arg),
+					fd_fdstat_get: (arg0, arg1) => console.log("fd_fdstat_get: %s, %s", arg0, arg1)
 				}
 			}
 			WebAssembly.instantiateStreaming(fetch('wm.wasm'), importObject)

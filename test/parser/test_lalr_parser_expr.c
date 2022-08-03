@@ -26,6 +26,20 @@ TEST(test_lr_parser_expr, arithmetic_exp)
     frontend_deinit();
 }
 
+TEST(test_lr_parser_expr, arithmetic_exp2)
+{
+    const char test_code[] = "1+2*3^4";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *ast = parse_text(parser, test_code);
+    string dump_str = dump(ast);
+    ASSERT_STREQ("(1+(2*(3^4)))", string_get(&dump_str));
+
+    ast_node_free(ast);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
 TEST(test_lr_parser_expr, arithmetic_exp_parentheses)
 {
     const char test_code[] = "(1+2)*3";
@@ -167,6 +181,7 @@ int test_lr_parser_expr()
 {
     UNITY_BEGIN();
     RUN_TEST(test_lr_parser_expr_arithmetic_exp);
+    RUN_TEST(test_lr_parser_expr_arithmetic_exp2);
     RUN_TEST(test_lr_parser_expr_arithmetic_exp_parentheses);
     //RUN_TEST(test_lr_parser_expr_arithmetic_exp1);
     //RUN_TEST(test_lr_parser_expr_arithmetic_exp2);
