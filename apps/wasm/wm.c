@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "wasm/wasm.h"
-#include "wasm/mwat.h"
 #include <string.h>
-
+#include "clib/typedef.h"
 
 EXPORT void* alloc_mem(size_t bytes)
 {
@@ -27,9 +26,16 @@ EXPORT const char *version()
     return p;
 }
 
-EXPORT const char *parse_code(const char *text)
+struct byte_array ba;
+
+EXPORT u8 *parse_code(const char *text)
 {
-    const char *wat = parse_exp_as_module(text);
+    ba = parse_exp_as_module(text);
     free_mem((void*)text);
-    return wat;
+    return ba.data;
+}
+
+EXPORT u32 get_code_size()
+{
+    return ba.size;
 }

@@ -13,17 +13,18 @@ extern "C" {
 #endif
 
 #include <stddef.h>
+#include "clib/typedef.h"
 
 struct byte_array {
-    size_t cap;
-    size_t size; //size of the array used
-    unsigned char *data;
+    u32 cap;
+    u32 size; //size of the array used
+    u8 *data;
 };
 
-void ba_init(struct byte_array *ba, size_t init_size);
+void ba_init(struct byte_array *ba, u32 init_size);
 void ba_deinit(struct byte_array *ba);
-void ba_add(struct byte_array *ba, unsigned char byte);
-void ba_set(struct byte_array *ba, size_t index, unsigned char byte);
+void ba_add(struct byte_array *ba, u8 byte);
+void ba_set(struct byte_array *ba, u32 index, u8 byte);
 
 
 #ifdef __cplusplus

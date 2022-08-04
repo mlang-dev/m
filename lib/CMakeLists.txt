@@ -41,7 +41,6 @@ if (EMSCRIPTEN OR WASM)
     sema/analyzer.c
     codegen/wat_codegen.c
     codegen/wasm_codegen.c
-    wasm/mwat.c
     wasm/sys.c
     wasm/wasm.c
   )
@@ -131,6 +130,6 @@ else()
     compiler/repl.c
     compiler/jit.c
     compiler/compiler.c
-    wasm/mwat.c
+    wasm/wasm.c
   )
 endif()

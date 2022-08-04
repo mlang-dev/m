@@ -10,6 +10,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "clib/array.h"
+#include "clib/typedef.h"
+#include "clib/byte_array.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -292,6 +294,28 @@ typedef int32_t i32;
                               // 7 i64.trunc_sat_f64_u
 
 //vector instructions
+enum Section {
+    CUSTOM_SECTION = 0,
+    TYPE_SECTION,
+    IMPORT_SECTION,
+    FUNCTION_SECTION,
+    TABLE_SECTION,
+    MEMORY_SECTION,
+    GLOBAL_SECTION,
+    EXPORT_SECTION,
+    START_SECTION,
+    ELEMENT_SECTION,
+    CODE_SECTION,
+    DATA_SECTION,
+    DATA_COUNT_SECTION
+};
+
+enum ExportType {
+    EXPORT_FUNC = 0,
+    EXPORT_TABLE,
+    EXPORT_MEMORY,
+    EXPORT_GLOBAL
+};
 
 struct wasm_module{
     struct array types;   //1: type section
@@ -300,8 +324,7 @@ struct wasm_module{
     struct array codes;   //10: code section
 };
 
-struct wasm_module *wasm_module_new();
-void wasm_module_free(struct wasm_module *wm);
+struct byte_array parse_exp_as_module(const char *expr);
 
 #ifdef __cplusplus
 }
