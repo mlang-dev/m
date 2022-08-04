@@ -14,9 +14,10 @@ function str_to_ab(instance, str, c_str)
 	dst[ta.length] = 0;
 }
 
-function run_wasm_code(wasm)
+function run_wasm_code(instance, wasm, wasm_size)
 {
-	var compiled = new WebAssembly.Module(wasm);
+	let ta = new Uint8Array(instance.exports.memory.buffer, wasm, wasm_size);
+	var compiled = new WebAssembly.Module(ta);
 	var instance = new WebAssembly.Instance(compiled, {});
 	return instance.exports.run();
 }

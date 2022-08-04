@@ -12,7 +12,7 @@
 #include "clib/byte_array.h"
 #include "clib/util.h"
 
-void ba_init(struct byte_array *ba, size_t init_size)
+void ba_init(struct byte_array *ba, u32 init_size)
 {
     ba->cap = init_size;
     ba->size = 0;
@@ -27,7 +27,7 @@ void _ba_grow(struct byte_array *ba)
     ba->data = data;
 }
 
-void ba_add(struct byte_array *ba, unsigned char byte)
+void ba_add(struct byte_array *ba, u8 byte)
 {
     if (ba->size == ba->cap) {
         _ba_grow(ba);
@@ -36,7 +36,7 @@ void ba_add(struct byte_array *ba, unsigned char byte)
 }
 
 
-void ba_set(struct byte_array *ba, size_t index, unsigned char byte)
+void ba_set(struct byte_array *ba, u32 index, u8 byte)
 {
     if (index > ba->size - 1)
         return;
