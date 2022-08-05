@@ -40,7 +40,10 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
-
+    - name: Get wasmtime
+      run: |
+        curl https://wasmtime.dev/install.sh -sSf | bash
+      
     - name: Build wasi-libc
       run: (cd ${{github.workspace}}/extern/wasi-libc && make)
     - name: download libclang_rt.builtins-wasm32-wasi

@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch",
+            "name": "(gdb) Launch pgen",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/lib/pgen",//;"${workspaceFolder}/build/test/mctest",
@@ -13,6 +13,20 @@
                 "${workspaceFolder}/lib/parser/m_grammar.txt",
                 "${workspaceFolder}/lib/parser/m_grammar.txt",
                 "${workspaceFolder}/test/test.m"
+            ],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "miDebuggerPath": "/usr/bin/gdb",
+            "MIMode": "gdb"
+        },
+        {
+            "name": "(gdb) Launch mctest",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/mctest", //;"${workspaceFolder}/build/test/mctest",
+            "args": [
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",

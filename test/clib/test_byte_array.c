@@ -9,7 +9,7 @@
 TEST(test_byte_array, init)
 {
     struct byte_array ba;
-    ba_init(&ba, 1);
+    ba_init(&ba, 2);
     ba_add(&ba, 100);
     ba_add(&ba, 200);
     ASSERT_EQ(2, ba.size);
