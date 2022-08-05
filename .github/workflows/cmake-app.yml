@@ -38,7 +38,7 @@ jobs:
       run: |
         curl https://wasmtime.dev/install.sh -sSf | bash
         wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
-        sudo tar xf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
+        sudo tar xf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz -C extern
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
