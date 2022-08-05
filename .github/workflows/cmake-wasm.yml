@@ -43,7 +43,9 @@ jobs:
     - name: Get wasmtime
       run: |
         curl https://wasmtime.dev/install.sh -sSf | bash
-      
+        echo "~/.wasmtime/bin" >> $GITHUB_PATH
+        wasmtime -V
+
     - name: Build wasi-libc
       run: (cd ${{github.workspace}}/extern/wasi-libc && make)
     - name: download libclang_rt.builtins-wasm32-wasi
