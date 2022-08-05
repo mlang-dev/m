@@ -46,7 +46,7 @@ jobs:
 
     - name: Add wasmtime path
       run: |
-        echo "${HOME}/.wasmtime/bin" >> $GITHUB_PATH
+        echo "~/.wasmtime/bin" >> $GITHUB_PATH
         ~/.wasmtime/bin/wasmtime -V
         wasmtime -V
 
