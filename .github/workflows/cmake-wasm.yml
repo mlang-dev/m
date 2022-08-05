@@ -45,6 +45,7 @@ jobs:
         curl https://wasmtime.dev/install.sh -sSf | bash
 
     - name: Add wasmtime path
+      run: |
         echo "${HOME}/.wasmtime/bin" >> $GITHUB_PATH
         wasmtime -V
 
