@@ -42,7 +42,8 @@ jobs:
         submodules: recursive
     - name: Get wasmtime
       run: |
-        curl https://wasmtime.dev/install.sh -sSf | bash | source ~/.bashrc
+        curl https://wasmtime.dev/install.sh -sSf
+        source ~/.bashrc
       
     - name: Build wasi-libc
       run: (cd ${{github.workspace}}/extern/wasi-libc && make)
