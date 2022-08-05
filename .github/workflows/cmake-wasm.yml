@@ -45,9 +45,8 @@ jobs:
         curl https://wasmtime.dev/install.sh -sSf | bash
         echo "${HOME}/.wasmtime/bin" >> $GITHUB_PATH
 
-    - name: Add wasmtime path
+    - name: Test wasmtime path
       run: |
-        ~/.wasmtime/bin/wasmtime -V
         wasmtime -V
 
     - name: Build wasi-libc
