@@ -21,7 +21,7 @@ void ba_init(struct byte_array *ba, u32 init_size)
 
 void _ba_grow(struct byte_array *ba)
 {
-    ba->cap *= 2;
+    ba->cap *= 1.5;
     void* data;
     REALLOC(data, ba->data, ba->cap);
     ba->data = data;

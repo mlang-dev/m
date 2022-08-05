@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "wasm/wasm.h"
+#include "codegen/wasm_codegen.h"
 #include <string.h>
 #include "clib/typedef.h"
 
@@ -30,7 +30,7 @@ struct byte_array ba;
 
 EXPORT u8 *parse_code(const char *text)
 {
-    ba = parse_exp_as_module(text);
+    ba = parse_as_module(text);
     free_mem((void*)text);
     return ba.data;
 }

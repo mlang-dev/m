@@ -42,7 +42,6 @@ if (EMSCRIPTEN OR WASM)
     codegen/wat_codegen.c
     codegen/wasm_codegen.c
     wasm/sys.c
-    wasm/wasm.c
   )
 else()
   find_package(LLVM REQUIRED CONFIG)
@@ -120,6 +119,7 @@ else()
     codegen/winx86_64_abi.c
     codegen/llvm_codegen.c
     codegen/wat_codegen.c
+    codegen/wasm_codegen.c
     codegen/cg_fun.c
     codegen/cg_var.c
     codegen/cg_call.c
@@ -130,6 +130,5 @@ else()
     compiler/repl.c
     compiler/jit.c
     compiler/compiler.c
-    wasm/wasm.c
   )
 endif()

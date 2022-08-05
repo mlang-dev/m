@@ -26,6 +26,7 @@ IF (EMSCRIPTEN)
     parser/test_lalr_parser.c
     parser/test_grammar.cc
     codegen/test_wat_codegen.cc
+    codegen/test_wasm_codegen.c
     app/test_mwat.cc
   )
 
@@ -42,6 +43,7 @@ elseif (WASM)
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/unity
     ${CMAKE_SOURCE_DIR}/test
+#    ~/.wasmer/include
   )
 
   add_executable(mtest
@@ -105,16 +107,16 @@ else()
     ${LLVM_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/test
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-linux-c-api/include
   )
 
   link_directories(
     ${LLVM_INCLUDE_DIRS}/../lib
+    ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-linux-c-api/lib
   )
 
   add_executable(mtest
     tutil.cc
-
-
     parser/test_parser.cc
     parser/test_parser_logical.cc
     parser/test_parser_relational.cc
@@ -161,13 +163,11 @@ else()
 endif()
 
 if(WASM)
-  if(WASMTEST)
-    add_custom_command(
-      TARGET mtest
-      POST_BUILD
-      COMMAND wasmtime mtest.wasm
-    )
-  endif()
+  add_custom_command(
+    TARGET mtest
+    POST_BUILD
+    COMMAND wasmtime mtest.wasm
+  )
 else()
   include_directories(
     ${CMAKE_SOURCE_DIR}/unity
@@ -195,10 +195,11 @@ else()
   parser/test_lalr_parser.c
   parser/test_grammar.c
   codegen/test_wat_codegen.c
+  codegen/test_wasm_codegen.c
   app/test_mwat.c
   )
 
-  TARGET_LINK_LIBRARIES(mctest mlr clib unity
+  TARGET_LINK_LIBRARIES(mctest mlr clib unity wasmtime
   )
 
  add_custom_command(

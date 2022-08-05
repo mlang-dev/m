@@ -34,7 +34,6 @@ TEST(test_lr_parser_expr, arithmetic_exp2)
     struct ast_node *ast = parse_text(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(1+(2*(3^4)))", string_get(&dump_str));
-
     ast_node_free(ast);
     lalr_parser_free(parser);
     frontend_deinit();

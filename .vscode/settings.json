@@ -148,7 +148,8 @@
         "parsing_table.h": "c",
         "m_parsing_table_def.h": "c",
         "wasm_codegen.h": "c",
-        "wasm.h": "c"
+        "wasm.h": "c",
+        "byte_array.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
