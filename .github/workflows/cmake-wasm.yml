@@ -44,6 +44,7 @@ jobs:
       run: |
         curl https://wasmtime.dev/install.sh -sSf
         source ~/.bashrc
+        wasmtime --version
       
     - name: Build wasi-libc
       run: (cd ${{github.workspace}}/extern/wasi-libc && make)
