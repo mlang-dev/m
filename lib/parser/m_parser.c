@@ -914,12 +914,6 @@ struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct 
     return parse_block(parser, 0, fun, jit);
 }
 
-enum type get_type_enum(symbol type_symbol)
-{
-    assert(g_parser);
-    return hashtable_get_int(&g_parser->symbol_2_int_types, type_symbol);
-}
-
 symbol get_type_symbol(enum type type_enum)
 {
     //assert(g_parser);

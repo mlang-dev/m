@@ -17,7 +17,14 @@ struct env *env_new(bool is_repl)
     struct env *env;
     MALLOC(env, sizeof(struct env));
     env->parser = m_parser_new(is_repl);
-    env->cg = cg_new(sema_context_new(env->parser));
+
+    char libpath[4096];
+    char *mpath = get_exec_path();
+    join_path(libpath, sizeof(libpath), mpath, "mlib/stdio.m");
+    struct ast_node *stdio = parse_file(env->parser, libpath);
+    join_path(libpath, sizeof(libpath), mpath, "mlib/math.m");
+    struct ast_node *math = parse_file(env->parser, libpath);
+    env->cg = cg_new(sema_context_new(stdio, math, is_repl));
     wat_codegen_init();
     g_env = env;
     return env;

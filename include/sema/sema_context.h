@@ -19,6 +19,9 @@ extern "C" {
 #endif
 
 struct sema_context {
+    /* mapping type string into type enum: hashtable of (symbol, int) */
+    struct hashtable *symbol_2_int_types;
+
     /* 
      *  value type env: symboltable of <symbol, struct type_exp>*>
      *  binding variable name to type expression
@@ -89,11 +92,11 @@ struct sema_context {
     struct array used_builtin_names;
 
     symbol scope_marker;
-    //reference the parser
-    struct m_parser *parser;
+
+    bool is_repl;
 };
 
-struct sema_context *sema_context_new(struct m_parser *parser);
+struct sema_context *sema_context_new(struct ast_node *stdio, struct ast_node *math, bool is_repl);
 void sema_context_free(struct sema_context *env);
 void enter_scope(struct sema_context *env);
 void leave_scope(struct sema_context *env);

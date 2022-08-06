@@ -36,6 +36,7 @@ if (EMSCRIPTEN OR WASM)
     parser/lalr_parser.c
     parser/grammar.c
     parser/m_grammar.c
+    parser/m_parser.c
     sema/type.c
     sema/sema_context.c
     sema/analyzer.c

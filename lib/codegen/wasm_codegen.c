@@ -14,6 +14,7 @@
 #include "parser/amodule.h"
 #include "parser/lalr_parser.h"
 #include "parser/m_grammar.h"
+#include "sema/analyzer.h"
 #include <assert.h>
 #include <stdint.h>
 
@@ -42,7 +43,7 @@ struct context{
 };
 
 //LEB128 encoding
-u8 encode_u32(u32 value, u8 *data)
+u8 _emit_u32(struct byte_array *ba, u32 value)
 {
     u8 byte;
     u8 index = 0;
@@ -52,7 +53,8 @@ u8 encode_u32(u32 value, u8 *data)
         if(value != 0){
             byte |= 0x80;    //set bit 7 as 1, more bytes to come
         }
-        data[index++] = byte;
+        ba_add(ba, byte);
+        index++;
     }while(value!=0);
     return index;
 }
@@ -76,8 +78,8 @@ void _wasm_emit(struct byte_array *ba, struct ast_node *ast)
 
 struct byte_array wasm_emit(struct ast_node *node)
 {   
-    struct byte_array ba;
-    ba_init(&ba, 2);
+    struct byte_array ba, section;
+    ba_init(&ba, 2); ba_init(&section, 17);
     for(size_t i = 0; i < ARRAY_SIZE(wasm_magic_number); i++){
         ba_add(&ba, wasm_magic_number[i]);
     }
@@ -98,16 +100,26 @@ struct byte_array wasm_emit(struct ast_node *node)
     // 11.   data section
     // 12.   data count section
     // type section
+    assert(node->node_type == BLOCK_NODE);
+    u32 num_func;
+    num_func = array_size(&node->block->nodes);
     ba_add(&ba, TYPE_SECTION);
     // section size
-    ba_add(&ba, 0x05);
     // how many function types
-    ba_add(&ba, 0x01);
-    ba_add(&ba, TYPE_FUNC);
-    ba_add(&ba, 0x00); // num params
-    ba_add(&ba, 0x01); // num result
-    ba_add(&ba, TYPE_I32); // i32 output
+    _emit_u32(&section, num_func);
+    struct ast_node *func;
+    for(u32 i = 0; i < num_func; i++){
+        func = *(struct ast_node **)array_get(&node->block->nodes, i);
+        assert(func->node_type == FUNC_NODE);
+        ba_add(&section, TYPE_FUNC);
+        ba_add(&section, 0x00); // num params
+        ba_add(&section, 0x01); // num result
+        ba_add(&section, TYPE_I32); // i32 output
+    }
+    _emit_u32(&ba, section.size); // set section size
+    ba_add2(&ba, &section);       // copy section data
 
+    ba_reset(&section);
     // function section
     ba_add(&ba, FUNCTION_SECTION);
     ba_add(&ba, 0x02); // section size
@@ -130,15 +142,16 @@ struct byte_array wasm_emit(struct ast_node *node)
     return ba;
 }
 
-const char *fun_def = "run()=";
-
 struct byte_array parse_as_module(const char *expr)
 {
     frontend_init();
     wasm_codegen_init();
+    struct sema_context *c = sema_context_new(0, 0, 0);
     struct lalr_parser *parser = parser_new();
     struct ast_node *ast = parse_text(parser, expr);
+    analyze(c, ast);
     struct byte_array ba = wasm_emit(ast);
+    sema_context_free(c);
     lalr_parser_free(parser);
     frontend_deinit();
     return ba;

@@ -52,7 +52,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
         emit_code(jit->env, node);
     struct type_exp *type = node->type;
     struct eval_result result = { 0 };
-    node = parse_exp_to_function(jit->env->cg->sema_context->parser, node, fn_symbol);
+    node = parse_exp_to_function(jit->env->parser, node, fn_symbol);
     emit_code(jit->env, node);
     if (node) {
         void *p_fun = emit_ir_code(jit->env->cg, node);
@@ -128,7 +128,7 @@ int run_repl()
     struct env *env = env_new(true);
     struct JIT *jit = build_jit(env);
     printf("m> ");
-    parse_repl(env->cg->sema_context->parser, &eval_statement, jit);
+    parse_repl(env->parser, &eval_statement, jit);
     printf("bye !\n");
     jit_free(jit);
     env_free(env);

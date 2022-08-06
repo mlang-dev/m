@@ -145,7 +145,7 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct ast_no
         }
     }
     hashtable_set_p(&cg->varname_2_typename, node->var->var_name, node->type->name);
-    if (!cg->sema_context->parser->is_repl)
+    if (!cg->sema_context->is_repl)
         return 0;
     //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
     struct ast_node *values = node->var->init_value;
@@ -181,7 +181,7 @@ LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct ast_node *n
             hashtable_set_p(&cg->gvs, node->var->var_name, node);
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->type), var_name);
             LLVMSetExternallyInitialized(gVar, false);
-            if (cg->sema_context->parser->is_repl)
+            if (cg->sema_context->is_repl)
                 // REPL treated as the global variable initialized as zero and
                 // then updated with any expression
                 LLVMSetInitializer(gVar, cg->ops[type].get_zero(cg->context, cg->builder));
@@ -191,7 +191,7 @@ LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct ast_node *n
             }
         }
     }
-    if (cg->sema_context->parser->is_repl)
+    if (cg->sema_context->is_repl)
         LLVMBuildStore(cg->builder, exp, gVar);
     return 0;
 }

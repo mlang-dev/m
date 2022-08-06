@@ -89,7 +89,10 @@ struct type_exp *_analyze_var(struct sema_context *context, struct ast_node *nod
 {
     struct type_exp *type;
     assert(node->annotated_type_name || node->var->init_value);
-    if (node->annotated_type_name && hashtable_get_int(&context->parser->symbol_2_int_types, node->annotated_type_name) == TYPE_EXT) {
+    if (node->annotated_type_name && 
+        hashtable_in_p(&context->ext_typename_2_asts, node->annotated_type_name)
+        /* hashtable_get_int(&context->parser->symbol_2_int_types, node->annotated_type_name) == TYPE_EXT*/
+        ) {
         assert(node->annotated_type_name);
         type = retrieve_type_with_type_name(context, node->annotated_type_name);
         push_symbol_type(&context->decl_2_typexps, node->var->var_name, type);
@@ -161,7 +164,7 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct ast_nod
     for (size_t i = 0; i < array_size(&node->ft->fun_params); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->fun_params, i);
         assert(param->annotated_type_name);
-        assert(param->annotated_type_enum == get_type_enum(param->annotated_type_name));
+        //assert(param->annotated_type_enum == get_type_enum(param->annotated_type_name));
         struct type_oper* to = create_nullary_type(param->annotated_type_enum, param->annotated_type_name);
         param->type = &to->base;
         array_push(&fun_sig, &param->type);
