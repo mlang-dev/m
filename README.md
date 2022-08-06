@@ -130,4 +130,10 @@ sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
 sudo ln /usr/bin/llvm-ranlib-13 /usr/bin/llvm-ranlib
 sudo ln /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
 sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
+
+get wasmtime for wasm test
+wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
+
+tar xf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz -C extern
+rm -rf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
 ```
