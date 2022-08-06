@@ -67,7 +67,7 @@ int compile(const char *source_file, enum object_file_type file_type)
     string_substr(&filename, '.');
     struct env *env = env_new(false);
     create_ir_module(env->cg, string_get(&filename));
-    struct ast_node *block = parse_file(env->cg->sema_context->parser, source_file);
+    struct ast_node *block = parse_file(env->parser, source_file);
     emit_code(env, block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->block->nodes); i++) {

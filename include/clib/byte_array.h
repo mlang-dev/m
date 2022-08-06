@@ -23,9 +23,10 @@ struct byte_array {
 
 void ba_init(struct byte_array *ba, u32 init_size);
 void ba_deinit(struct byte_array *ba);
+void ba_reset(struct byte_array *ba);
 void ba_add(struct byte_array *ba, u8 byte);
 void ba_set(struct byte_array *ba, u32 index, u8 byte);
-
+void ba_add2(struct byte_array *dst, struct byte_array *src);
 
 #ifdef __cplusplus
 }

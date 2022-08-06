@@ -19,12 +19,17 @@ void ba_init(struct byte_array *ba, u32 init_size)
     MALLOC(ba->data, init_size);
 }
 
-void _ba_grow(struct byte_array *ba)
+void _ba_grow_to(struct byte_array *ba, u32 new_cap)
 {
-    ba->cap *= 1.5;
-    void* data;
+    ba->cap = new_cap;
+    void *data;
     REALLOC(data, ba->data, ba->cap);
     ba->data = data;
+}
+
+void _ba_grow(struct byte_array *ba)
+{
+    _ba_grow_to(ba, ba->cap * 1.5);
 }
 
 void ba_add(struct byte_array *ba, u8 byte)
@@ -35,6 +40,14 @@ void ba_add(struct byte_array *ba, u8 byte)
     ba->data[ba->size++] = byte;
 }
 
+void ba_add2(struct byte_array *dst, struct byte_array *src)
+{
+    if (dst->cap < dst->size + src->size) {
+        _ba_grow_to(dst, dst->size + src->size);
+    }
+    memcpy(&dst->data[dst->size], src->data, src->size);
+    dst->size += src->size;
+}
 
 void ba_set(struct byte_array *ba, u32 index, u8 byte)
 {
@@ -43,6 +56,10 @@ void ba_set(struct byte_array *ba, u32 index, u8 byte)
     ba->data[index] = byte;
 }
 
+void ba_reset(struct byte_array *ba)
+{
+    ba->size = 0;
+}
 
 void ba_deinit(struct byte_array *ba)
 {

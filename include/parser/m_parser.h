@@ -55,7 +55,6 @@ struct ast_node *parse_file(struct m_parser *parser, const char *file_name);
 struct ast_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file);
 struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct ast_node *), void *jit);
 struct ast_node *parse_string(struct m_parser *parser, const char *mod_name, const char *code);
-enum type get_type_enum(symbol type_symbol);
 symbol get_type_symbol(enum type type_enum);
 
 #ifdef __cplusplus

@@ -27,13 +27,13 @@ void leave_scope(struct sema_context *context)
     } while (s != context->scope_marker);
 }
 
-struct sema_context *sema_context_new(struct m_parser *parser)
+struct sema_context *sema_context_new(struct ast_node *stdio, struct ast_node *math, bool is_repl)
 {
     struct sema_context *context;
     CALLOC(context, 1, sizeof(*context));
+    context->is_repl = is_repl;
     array_init(&context->nongens, sizeof(struct type_exp *));
     array_init(&context->used_builtin_names, sizeof(symbol));
-    context->parser = parser;
     symboltable_init(&context->typename_2_typexps);
     symboltable_init(&context->decl_2_typexps);
     symboltable_init(&context->varname_2_asts);
@@ -55,19 +55,18 @@ struct sema_context *sema_context_new(struct m_parser *parser)
         struct type_exp *exp = (struct type_exp *)create_type_oper(type_name, i, &args);
         push_symbol_type(&context->typename_2_typexps, type_name, exp);
     }
-    char libpath[PATH_MAX];
-    char *mpath = get_exec_path();
-    join_path(libpath, sizeof(libpath), mpath, "mlib/stdio.m");
-    struct ast_node *block = parse_file(context->parser, libpath);
+
     struct array builtins;
     array_init(&builtins, sizeof(struct ast_node *));
-    for (size_t i = 0; i < array_size(&block->block->nodes); i++) {
-        struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
-        array_push(&builtins, &node);
+    if (stdio){
+        for (size_t i = 0; i < array_size(&stdio->block->nodes); i++) {
+            struct ast_node *node = *(struct ast_node **)array_get(&stdio->block->nodes, i);
+            array_push(&builtins, &node);
+        }
     }
-    join_path(libpath, sizeof(libpath), mpath, "mlib/math.m");
-    block = parse_file(context->parser, libpath);
-    array_add(&builtins, &block->block->nodes);
+    if (math){
+        array_add(&builtins, &math->block->nodes);
+    }
     for (size_t i = 0; i < array_size(&builtins); i++) {
         struct ast_node *node = *(struct ast_node **)array_get(&builtins, i);
         assert(node->node_type == FUNC_TYPE_NODE);

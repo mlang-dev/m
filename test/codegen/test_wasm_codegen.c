@@ -13,7 +13,7 @@
 #include "wasm.h"
 
 
-i32 execute(struct byte_array *ba)
+i32 _run(struct byte_array *ba)
 {
     //wasm bytes initialization
     wasm_byte_vec_t wasm;
@@ -57,13 +57,10 @@ i32 execute(struct byte_array *ba)
 
 TEST(test_wasm_codegen, func)
 {
-    const char test_code[] = "1+2";
-    frontend_init();
-    wasm_codegen_init();
+    const char test_code[] = "run() = 10+20";
     struct byte_array wasm = parse_as_module(test_code);
-    ASSERT_EQ(3, execute(&wasm));
+    ASSERT_EQ(30, _run(&wasm));
     ba_deinit(&wasm);
-    frontend_deinit();
 }
 
 int test_wasm_codegen()
