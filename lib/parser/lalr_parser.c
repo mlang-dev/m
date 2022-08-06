@@ -114,11 +114,12 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         ast = binary_node_new(opcode, node, rhs, node->loc);
         break;
     case FUNC_NODE:
-        node = items[0].ast;
+        assert(rule->action.item_index_count == 2);
+        node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == IDENT_NODE);
         ARRAY_FUN_PARAM(fun_params);
         struct ast_node *ft = func_type_node_default_new(node->ident->name, &fun_params, 0, false, false, node->loc);
-        node = items[1].ast;
+        node = items[rule->action.item_index[1]].ast;
         ast = function_node_new(ft, node, node->loc);
         break;
     case BLOCK_NODE:
