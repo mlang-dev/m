@@ -26,16 +26,26 @@ struct pattern_matches {
 
 #define CODE_BUFF_SIZE 4096
 
+#define MAX_INDENTS     254
+#define INVALID_INDENTS 255
+
+struct indent_level_stack{
+    u32 leading_spaces[MAX_INDENTS];
+    u8 stack_top;
+};
+
 struct lexer {
     FILE *file;
     const char *filename;
     char buff[CODE_BUFF_SIZE + 1];
+    struct indent_level_stack indent_stack;
     struct token tok;
     int pos;  //current text position in the buffer
     int buff_base;
     int line;
     int col;
     struct pattern_matches char_matches[128];
+    int pending_dedents;
 };
 
 struct lexer *lexer_new(FILE *file, const char *filename);
