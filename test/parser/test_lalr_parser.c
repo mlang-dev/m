@@ -3,7 +3,6 @@
  *
  * Unit tests for parser
  */
-#include "parser/m_grammar.h"
 #include "parser/lalr_parser.h"
 #include "parser/ast.h"
 #include "tutil.h"
@@ -16,7 +15,7 @@ TEST(test_lr_parser, var_decl)
     //char test_code[] = "x:int";
     frontend_init();
     //struct lalr_parser *parser = lr_parser_new(get_m_grammar());
-    // struct ast_node *block = parse_text(parser, test_code);
+    // struct ast_node *block = parse_code(parser, test_code);
     // struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     // ASSERT_EQ(1, array_size(&block->block->nodes));
     // ASSERT_STREQ("x", string_get(node->var->var_name));

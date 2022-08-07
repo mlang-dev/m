@@ -125,6 +125,12 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         node = items[rule->action.item_index[2]].ast;
         ast = function_node_new(ft, node, node->loc);
         break;
+    case TYPE_NODE: //new type definition, like struct in C
+        assert(rule->action.item_index_count == 2);
+        node = items[rule->action.item_index[0]].ast;
+        assert(node->node_type == IDENT_NODE);
+        ast = type_node_new(node->ident->name, items[rule->action.item_index[1]].ast, node->loc);
+        break;
     case BLOCK_NODE:
         if (rule->action.item_index_count == 0){
             struct array nodes;
@@ -147,11 +153,11 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     return ast;
 }
 
-struct ast_node *parse_text(struct lalr_parser *parser, const char *text)
+struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
 {
     struct ast_node *ast = 0;
     _push_state(parser, 0, 0); 
-    struct lexer *lexer = lexer_new_for_string(text);
+    struct lexer *lexer = lexer_new_for_string(code);
     struct token *tok = get_tok(lexer);
     u8 a = get_token_index(tok->token_type, tok->opcode);
     u16 s, t;

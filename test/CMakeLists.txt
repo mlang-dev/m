@@ -65,7 +65,6 @@ elseif (WASM)
     lexer/test_m_lexer.c
     lexer/test_token.c
     parser/test_ast.c
-    parser/test_earley_parser.c
     parser/test_lalr_parser_expr.c
     parser/test_lalr_parser.c
     parser/test_grammar.c
@@ -190,7 +189,6 @@ else()
   lexer/test_m_lexer.c
   lexer/test_token.c
   parser/test_ast.c
-  parser/test_earley_parser.c
   parser/test_lalr_parser_expr.c
   parser/test_lalr_parser.c
   parser/test_grammar.c

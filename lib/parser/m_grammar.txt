@@ -8,8 +8,10 @@ block       = NEWLINE INDENT stmts DEDENT       { 2 }
 stmts       = stmts stmt                        { block 0 1 }
             | stmt                              { block 0 }
 stmt        = func                              { 0 }
+            | type_ext                          { 0 }
             | expr                              { 0 }
 func        = IDENT params '=' block            { func 0 1 3 }
+type_ext    = "type" IDENT '=' block            { type_ext 1 3 }
 params      = params param                      { block 0 1 }
             | param                             { block 0 }
             | '(' ')'                           { block }  # empty block

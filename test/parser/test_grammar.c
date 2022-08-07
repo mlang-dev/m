@@ -4,7 +4,6 @@
  * Unit tests for grammar parser
  */
 #include "parser/grammar.h"
-#include "parser/m_grammar.h"
 #include "test.h"
 #include <stdio.h>
 #include "clib/hashtable.h"

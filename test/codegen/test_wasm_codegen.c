@@ -5,7 +5,6 @@
  */
 #include "parser/grammar.h"
 #include "parser/lalr_parser.h"
-#include "parser/m_grammar.h"
 #include "codegen/wasm_codegen.h"
 #include "lexer/init.h"
 #include "test.h"

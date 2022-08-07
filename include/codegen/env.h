@@ -14,6 +14,7 @@
 #include "clib/symboltable.h"
 #include "codegen/codegen.h"
 #include "parser/m_parser.h"
+#include "parser/lalr_parser.h"
 #include "sema/type.h"
 
 #ifdef __cplusplus
@@ -22,6 +23,7 @@ extern "C" {
 
 struct env {
     struct m_parser *parser;
+    struct lalr_parser *new_parser;
     struct code_generator *cg;
 };
 

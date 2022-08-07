@@ -10,7 +10,6 @@
 #include "clib/symboltable.h"
 #include "clib/util.h"
 #include "tool/cmodule.h"
-#include "parser/m_grammar.h"
 #include <assert.h>
 #include <limits.h>
 

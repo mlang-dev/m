@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "parser/lalr_parser_generator.h"
-#include "parser/m_grammar.h"
 #include "lexer/init.h"
 
 #define header_comment_template  "/*\n"\
