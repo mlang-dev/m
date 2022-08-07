@@ -13,7 +13,6 @@
 #include "lexer/lexer.h"
 #include "parser/amodule.h"
 #include "parser/lalr_parser.h"
-#include "parser/m_grammar.h"
 #include "sema/analyzer.h"
 #include <assert.h>
 #include <stdint.h>
@@ -238,7 +237,7 @@ struct byte_array parse_as_module(const char *expr)
     wasm_codegen_init();
     struct sema_context *c = sema_context_new(0, 0, 0);
     struct lalr_parser *parser = parser_new();
-    struct ast_node *ast = parse_text(parser, expr);
+    struct ast_node *ast = parse_code(parser, expr);
     analyze(c, ast);
     struct byte_array ba = emit_wasm(ast);
     sema_context_free(c);

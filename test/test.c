@@ -24,7 +24,6 @@ int test_token();
 int test_lexer();
 int test_m_lexer();
 int test_ast();
-int test_g_parser();
 int test_lr_parser_expr();
 int test_lr_parser();
 int test_grammar();
@@ -58,7 +57,6 @@ EXPORT int ENTRY()
   failures += test_ast();
   failures += test_lr_parser_expr();
   failures += test_lr_parser();
-  failures += test_g_parser();
   failures += test_grammar();
   failures += test_wat_codegen();
   #ifndef WASM

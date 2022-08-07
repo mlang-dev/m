@@ -16,7 +16,6 @@
 #include "codegen/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
-#include "parser/m_grammar.h"
 #include <llvm-c/Support.h>
 
 struct code_generator *g_cg = 0;

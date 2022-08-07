@@ -7,7 +7,6 @@
 #include "parser/ast.h"
 #include "clib/array.h"
 #include "parser/grammar.h"
-#include "parser/m_grammar.h"
 #include "clib/string.h"
 #include <assert.h>
 
@@ -20,7 +19,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(literal, LITERAL),
     NODE_TYPE_NAME(ident, IDENT),
     NODE_TYPE_NAME(var, VAR),
-    NODE_TYPE_NAME(type, TYPE),
+    NODE_TYPE_NAME(type_ext, TYPE),
     NODE_TYPE_NAME(type_value, TYPE_VALUE),
     NODE_TYPE_NAME(unop, UNARY),
     NODE_TYPE_NAME(binop, BINARY),

@@ -9,7 +9,6 @@
 #include "codegen/env.h"
 #include "compiler/compiler.h"
 #include "parser/grammar.h"
-#include "parser/m_grammar.h"
 #include "sema/sema_context.h"
 #include "gtest/gtest.h"
 #include <llvm-c/Core.h>

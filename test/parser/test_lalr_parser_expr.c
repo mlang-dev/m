@@ -5,7 +5,6 @@
  */
 #include "parser/grammar.h"
 #include "parser/lalr_parser.h"
-#include "parser/m_grammar.h"
 #include "parser/astdump.h"
 #include "codegen/wat_codegen.h"
 #include "lexer/init.h"
@@ -17,7 +16,7 @@ TEST(test_lr_parser_expr, arithmetic_exp)
     const char test_code[] = "1+2*3";
     frontend_init();
     struct lalr_parser *parser = parser_new();
-    struct ast_node *ast = parse_text(parser, test_code);
+    struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(1+(2*3))", string_get(&dump_str));
 
@@ -31,7 +30,7 @@ TEST(test_lr_parser_expr, arithmetic_exp2)
     const char test_code[] = "1+2*3^4";
     frontend_init();
     struct lalr_parser *parser = parser_new();
-    struct ast_node *ast = parse_text(parser, test_code);
+    struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(1+(2*(3^4)))", string_get(&dump_str));
     ast_node_free(ast);
@@ -44,7 +43,7 @@ TEST(test_lr_parser_expr, arithmetic_exp_parentheses)
     const char test_code[] = "(1+2)*3";
     frontend_init();
     struct lalr_parser *parser = parser_new();
-    struct ast_node *ast = parse_text(parser, test_code);
+    struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("((1+2)*3)", string_get(&dump_str));
 
@@ -74,7 +73,7 @@ TEST(test_lr_parser_expr, arithmetic_exp)
     frontend_init();
     wat_codegen_init();
     struct lalr_parser *parser = lr_parser_new(m_grammar);
-    struct ast_node *ast = parse_text(parser, test_code);
+    struct ast_node *ast = parse_code(parser, test_code);
     string code = wat_generate(ast, test_code);
     ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);

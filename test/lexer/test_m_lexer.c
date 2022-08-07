@@ -6,7 +6,6 @@
 #include "lexer/lexer.h"
 #include "lexer/init.h"
 #include "tutil.h"
-#include "parser/m_grammar.h"
 #include "test.h"
 #include <stdio.h>
 

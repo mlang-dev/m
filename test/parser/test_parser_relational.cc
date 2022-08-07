@@ -6,7 +6,6 @@
 #include "codegen/env.h"
 #include "test_base.h"
 #include "tutil.h"
-#include "parser/m_grammar.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 

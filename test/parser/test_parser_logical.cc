@@ -7,7 +7,6 @@
 #include "test_base.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
-#include "parser/m_grammar.h"
 #include <stdio.h>
 
 class testParserLogicalOperator : public TestBase {
