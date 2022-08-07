@@ -18,13 +18,13 @@ struct lalr_parser *parser_new()
     return lalr_parser_new(&m_parsing_table, &m_parsing_rules);
 }
 
-struct lalr_parser *lalr_parser_new(parsing_table *parsing_table, parsing_rules *parsing_rules)
+struct lalr_parser *lalr_parser_new(parsing_table *pt, parsing_rules *pr)
 {
     struct lalr_parser *parser;
     MALLOC(parser, sizeof(*parser));
     parser->stack_top = 0;
-    parser->parsing_table = parsing_table;
-    parser->parsing_rules = parsing_rules;
+    parser->pt= pt;
+    parser->pr = pr;
     return parser;
 }
 
@@ -167,7 +167,7 @@ struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
     //driver 
     while(1){
         s = _get_top_state(parser)->state_index;
-        pa = &(*parser->parsing_table)[s][a];
+        pa = &(*parser->pt)[s][a];
         if(pa->code == S){
             ast = _build_terminal_ast(tok);
             _push_state(parser, pa->state_index, ast);
@@ -175,13 +175,13 @@ struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
             a = get_token_index(tok->token_type, tok->opcode);
         }else if(pa->code == R){
             //do reduce action and build ast node
-            rule = &(*parser->parsing_rules)[pa->rule_index];
+            rule = &(*parser->pr)[pa->rule_index];
             si = _get_start_item(parser, rule->symbol_count);
             ast = _build_nonterm_ast(rule, si); //build ast according to the rule 
             _pop_states(parser, rule->symbol_count);
             t = _get_top_state(parser)->state_index;
-            assert((*parser->parsing_table)[t][rule->lhs].code == G);
-            _push_state(parser, (*parser->parsing_table)[t][rule->lhs].state_index, ast);
+            assert((*parser->pt)[t][rule->lhs].code == G);
+            _push_state(parser, (*parser->pt)[t][rule->lhs].state_index, ast);
             //
         }else if(pa->code == A){
             si = _pop_state(parser);
