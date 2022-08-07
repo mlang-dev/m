@@ -63,9 +63,27 @@ TEST(test_wasm_codegen, func)
     ba_deinit(&wasm);
 }
 
+TEST(test_wasm_codegen, func_exp)
+{
+    const char test_code[] = "run() = (10+20) * 3";
+    struct byte_array wasm = parse_as_module(test_code);
+    ASSERT_EQ(90, _run(&wasm));
+    ba_deinit(&wasm);
+}
+
+TEST(test_wasm_codegen, func_exp2)
+{
+    const char test_code[] = "run() = 10+20 * 3";
+    struct byte_array wasm = parse_as_module(test_code);
+    ASSERT_EQ(70, _run(&wasm));
+    ba_deinit(&wasm);
+}
+
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
     RUN_TEST(test_wasm_codegen_func);
+    RUN_TEST(test_wasm_codegen_func_exp);
+    RUN_TEST(test_wasm_codegen_func_exp2);
     return UNITY_END();
 }

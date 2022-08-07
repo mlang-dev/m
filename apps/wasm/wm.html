@@ -8,7 +8,6 @@
 	</head>
 	<body>
 		<h1>m</h1>
-		<br/>wm
 		<div id='terminal'></div><br/>
 		<br/>
 		<script>
@@ -20,6 +19,7 @@
 			var importObject = {
 				wasi_snapshot_preview1: {
 					fd_close : arg=>console.log("fd close: %s", arg),
+					fd_read : (arg1, arg2, arg3, arg4)=>console.log("fd_read %s, %s, %s, %s", arg1, arg2, arg3, arg4),
 					fd_seek : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4),
 					fd_write : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4),
 					proc_exit : arg=>console.log("proc_exit: %s", arg),
