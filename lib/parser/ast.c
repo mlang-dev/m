@@ -94,12 +94,12 @@ void ast_node_free(struct ast_node *node)
 
 bool is_unary_op(struct ast_node *node)
 {
-    return node->ft->is_operator && array_size(&node->ft->fun_params) == UNARY_PARAM_SIZE;
+    return node->ft->is_operator && array_size(&node->ft->params->block->nodes) == UNARY_PARAM_SIZE;
 }
 
 bool is_binary_op(struct ast_node *node)
 {
-    return node->ft->is_operator && array_size(&node->ft->fun_params) == BINARY_PARAM_SIZE;
+    return node->ft->is_operator && array_size(&node->ft->params->block->nodes) == BINARY_PARAM_SIZE;
 }
 
 char get_op_name(struct ast_node *node)
@@ -324,15 +324,15 @@ symbol get_callee(struct ast_node *call)
     return call->call->specialized_callee ? call->call->specialized_callee : call->call->callee;
 }
 
-struct ast_node *func_type_node_default_new(symbol name, struct array *args,
+struct ast_node *func_type_node_default_new(symbol name, struct ast_node *arg_block,
     struct type_exp *ret_type, bool is_variadic, bool is_external, struct source_location loc)
 {
-    return func_type_node_new(name, args, ret_type, false, 0,
+    return func_type_node_new(name, arg_block, ret_type, false, 0,
         0, is_variadic, is_external, loc);
 }
 
 struct ast_node *func_type_node_new(symbol name,
-    struct array *params,
+    struct ast_node *params, /*params block ast node*/
     struct type_exp *ret_type,
     bool is_operator, unsigned precedence, symbol op,
     bool is_variadic, bool is_external, struct source_location loc)
@@ -341,7 +341,7 @@ struct ast_node *func_type_node_new(symbol name,
     struct ast_node *node = ast_node_new(FUNC_TYPE_NODE, type, loc);
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = name;
-    node->ft->fun_params = *params;
+    node->ft->params = params;
     node->ft->is_operator = is_operator;
     node->ft->precedence = precedence;
     node->ft->is_variadic = is_variadic;
@@ -350,7 +350,7 @@ struct ast_node *func_type_node_new(symbol name,
     if (is_variadic) {
         struct ast_node *fun_param = var_node_new(to_symbol(type_strings[TYPE_GENERIC]), TYPE_GENERIC, 0, 0, false, loc);
         fun_param->type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param->annotated_type_name);
-        array_push(&node->ft->fun_params, &fun_param);
+        array_push(&node->ft->params->block->nodes, &fun_param);
     }
     return node;
 }
@@ -361,7 +361,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
         func_type->annotated_type_enum, func_type->loc);
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = func_type->ft->name;
-    node->ft->fun_params = func_type->ft->fun_params;
+    node->ft->params = _copy_block_node(func_type->ft->params);
     node->ft->is_operator = func_type->ft->is_operator;
     node->ft->precedence = func_type->ft->precedence;
     node->ft->is_variadic = func_type->ft->is_variadic;
@@ -370,15 +370,14 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
     if (func_type->ft->is_variadic) {
         symbol var_name = to_symbol(type_strings[TYPE_GENERIC]);
         struct ast_node *fun_param = var_node_new(var_name, TYPE_GENERIC, 0, 0, false, node->loc);
-        array_push(&node->ft->fun_params, &fun_param);
+        array_push(&node->ft->params->block->nodes, &fun_param);
     }
     return node;
 }
 
 void _free_func_type_node(struct ast_node *node)
 {
-    /*TODO: fun_params will be freed in array_deinit, make sure free function is provided*/
-    array_deinit(&node->ft->fun_params);
+    _free_block_node(node->ft->params);
     ast_node_free(node);
 }
 
@@ -532,7 +531,7 @@ void _free_for_node(struct ast_node *node)
 
 struct ast_node *block_node_new(struct array *nodes)
 {
-    struct source_location loc = nodes ? (*(struct ast_node **)array_front(nodes))->loc : default_loc;
+    struct source_location loc = (nodes && array_size(nodes) > 0) ? (*(struct ast_node **)array_front(nodes))->loc : default_loc;
     struct ast_node *node = ast_node_new(BLOCK_NODE, 0, loc);
     MALLOC(node->block, sizeof(*node->block));
     if(nodes)
@@ -549,6 +548,7 @@ struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node)
 
 struct ast_node *node_copy(struct ast_node *node)
 {
+    if (!node) return node;
     switch (node->node_type) {
     case BLOCK_NODE:
         return _copy_block_node(node);

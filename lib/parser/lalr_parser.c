@@ -89,9 +89,12 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     struct ast_node *ast = 0;
     struct ast_node *node = 0;
     struct ast_node *rhs = 0;
+    struct ast_node *params = 0;
     if (!rule->action.node_type){
-        if (rule->action.item_index_count == 0)
-            return items[0].ast;
+        if (rule->action.item_index_count == 0){
+            assert(false);
+            return 0;
+        }
         else{
             return items[rule->action.item_index[0]].ast;
         }
@@ -101,38 +104,43 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         assert(false);
         break;
     case UNARY_NODE:
-        node = items[0].ast;
+        node = items[rule->action.item_index[0]].ast;
         opcode = node->node_type & 0xFFFF;
-        node = items[1].ast;
+        node = items[rule->action.item_index[1]].ast;
         ast = unary_node_new(opcode, node, node->loc);
         break;
     case BINARY_NODE:
-        node = items[1].ast;
+        node = items[rule->action.item_index[1]].ast;
         opcode = node->node_type & 0xFFFF;
-        node = items[0].ast;
-        rhs = items[2].ast;
+        node = items[rule->action.item_index[0]].ast;
+        rhs = items[rule->action.item_index[2]].ast;
         ast = binary_node_new(opcode, node, rhs, node->loc);
         break;
     case FUNC_NODE:
-        assert(rule->action.item_index_count == 2);
+        assert(rule->action.item_index_count == 3);
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == IDENT_NODE);
-        ARRAY_FUN_PARAM(fun_params);
-        struct ast_node *ft = func_type_node_default_new(node->ident->name, &fun_params, 0, false, false, node->loc);
-        node = items[rule->action.item_index[1]].ast;
+        params = items[rule->action.item_index[1]].ast;
+        struct ast_node *ft = func_type_node_default_new(node->ident->name, params, 0, false, false, node->loc);
+        node = items[rule->action.item_index[2]].ast;
         ast = function_node_new(ft, node, node->loc);
         break;
     case BLOCK_NODE:
-        if (rule->action.item_index_count == 1){
+        if (rule->action.item_index_count == 0){
             struct array nodes;
             array_init(&nodes, sizeof(struct ast_node *));
-            array_push(&nodes, &items[0].ast);
+            ast = block_node_new(&nodes);
+        }
+        else if (rule->action.item_index_count == 1){
+            struct array nodes;
+            array_init(&nodes, sizeof(struct ast_node *));
+            array_push(&nodes, &items[rule->action.item_index[0]].ast);
             ast = block_node_new(&nodes);
         }
         else if(rule->action.item_index_count == 2){
-            ast = items[0].ast;
+            ast = items[rule->action.item_index[0]].ast;
             assert(ast->node_type == BLOCK_NODE);
-            block_node_add(ast, items[1].ast);
+            block_node_add(ast, items[rule->action.item_index[1]].ast);
         }
         break;
     }

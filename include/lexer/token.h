@@ -84,7 +84,7 @@ enum op_code{
 };
 
 #define TERMINAL_COUNT TOKEN_OP + OP_TOTAL
-#define MAX_NONTERMS 64
+#define MAX_NONTERMS 1024
 #define MAX_GRAMMAR_SYMBOLS TERMINAL_COUNT + MAX_NONTERMS
 
 extern const char *token_type_strings[];
