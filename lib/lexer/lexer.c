@@ -11,6 +11,42 @@
 #include "clib/regex.h"
 #include "clib/win/libfmemopen.h"
 
+void indent_level_stack_init(struct indent_level_stack *stack)
+{
+    stack->stack_top = 0;
+    stack->leading_spaces[stack->stack_top++] = 0;
+}
+
+int indent_level_stack_match(struct indent_level_stack *stack, u32 leading_spaces)
+{
+    //return value: 
+    //  0: match the indent level on the top of the stack, no indent level is change
+    //  1: bigger than the top indent level, adding one indent level
+    //  -n: number of INDENT reduced when current leading spaces is lower than the one on the top
+    //      of the stack and previous indent level is matched.
+    //  0xFF: INVALID_INDENTS: lower than indent level on top of the stack, but doesn't match any 
+    //          existing indent level
+    u32 top_spaces = stack->leading_spaces[stack->stack_top - 1];
+    if (leading_spaces == top_spaces){
+        return 0;
+    }else if(leading_spaces > top_spaces){
+        stack->leading_spaces[stack->stack_top++] = leading_spaces;
+        return 1;
+    }else{
+        int i;
+        for(i = stack->stack_top - 2; i >= 0; i--){
+            if(stack->leading_spaces[i] == leading_spaces)
+                break;
+        }
+        if (i < 0){
+            return INVALID_INDENTS;
+        }
+        i -= stack->stack_top - 1; /*pop number of indent levels*/
+        stack->stack_top += i;
+        return i;
+    }
+    return 0;
+}
 
 struct lexer *lexer_new(FILE *file, const char *filename)
 {
@@ -24,6 +60,10 @@ struct lexer *lexer_new(FILE *file, const char *filename)
     lexer->filename = filename;
     lexer->buff[0] = '\0';
     fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file);
+
+    //init indent level stack
+    indent_level_stack_init(&lexer->indent_stack);
+    lexer->pending_dedents = 0;
     //register pattern matcher for each character
     char test[2]; test[1] = 0;
     struct token_patterns tps = get_token_patterns();
@@ -105,11 +145,14 @@ bool _scan_until_no_digit(struct lexer *lexer)
     return has_dot;
 }
 
-void _scan_until_no_space(struct lexer *lexer)
+u32 _scan_until_no_space(struct lexer *lexer)
 {
+    u32 spaces = 0;
     while (isspace(lexer->buff[lexer->pos]) && lexer->buff[lexer->pos] != '\n') {
         _move_ahead(lexer);
+        spaces++;
     }
+    return spaces;
 }
 
 void _scan_until_no_id(struct lexer *lexer)
@@ -171,9 +214,43 @@ void _mark_regex_tok(struct lexer *lexer)
 struct token *get_tok(struct lexer *lexer)
 {
     struct token *tok = &lexer->tok;
-    _scan_until_no_space(lexer);
+    if (lexer->pending_dedents < 0){
+        assert(tok->token_type == TOKEN_DEDENT);
+        lexer->pending_dedents ++;
+        return tok;
+    }
+    u32 spaces = _scan_until_no_space(lexer);
     char ch = lexer->buff[lexer->pos];
-    tok->token_type = TOKEN_EOF;
+    if (ch == '\0'){
+        int match = indent_level_stack_match(&lexer->indent_stack, 0);
+        if(match < 0){
+            //dedent
+            tok->token_type = TOKEN_DEDENT;
+            lexer->pending_dedents = match + 1;
+            return tok;
+        }
+    }
+    else if(tok->token_type == TOKEN_NEWLINE && ch != '\n'){
+        //if last token is new line and this is not an empty line
+        //then we're going to check indent/dedent levels
+        int match = indent_level_stack_match(&lexer->indent_stack, spaces);
+        if(match == 1){
+            tok->token_type = TOKEN_INDENT;
+            return tok;
+        }
+        else if(match == INVALID_INDENTS){
+            printf("inconsistent indent level with num of space: %d is found.\n", spaces);
+            exit(-1);
+        }
+        else if(match < 0){
+            //dedent
+            tok->token_type = TOKEN_DEDENT;
+            lexer->pending_dedents = match + 1;
+            return tok;
+        }
+    }
+
+    tok->token_type = TOKEN_EOF;    
     switch (ch)
     {
     default:
@@ -184,7 +261,7 @@ struct token *get_tok(struct lexer *lexer)
         break;
     case '\n':
         _mark_token(lexer, TOKEN_NEWLINE, OP_NULL);
-        _move_ahead(lexer); // skip the double quote
+        _move_ahead(lexer); // skip the new line
         break;
     case '#': //comments
         _scan_until(lexer, '\n');

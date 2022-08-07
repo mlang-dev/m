@@ -273,6 +273,24 @@ TEST(test_lexer, other_symbols)
     frontend_deinit();
 }
 
+TEST(test_lexer, token_indent_dedent)
+{
+    frontend_init();
+    char test_code[] = "\n  abc";
+
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_INDENT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_IDENT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_DEDENT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_EOF, get_tok(lexer)->token_type);
+
+    lexer_free(lexer);
+    frontend_deinit();
+}
+
 int test_lexer()
 {
     UNITY_BEGIN();
@@ -288,5 +306,6 @@ int test_lexer()
     RUN_TEST(test_lexer_token_num_int);
     RUN_TEST(test_lexer_expr);
     RUN_TEST(test_lexer_other_symbols);
+    RUN_TEST(test_lexer_token_indent_dedent);
     return UNITY_END();
 }
