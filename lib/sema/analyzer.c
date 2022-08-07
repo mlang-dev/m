@@ -161,8 +161,8 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct ast_nod
 {
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&node->ft->fun_params); i++) {
-        struct ast_node *param = *(struct ast_node **)array_get(&node->ft->fun_params, i);
+    for (size_t i = 0; i < array_size(&node->ft->params->block->nodes); i++) {
+        struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
         assert(param->annotated_type_name);
         //assert(param->annotated_type_enum == get_type_enum(param->annotated_type_name));
         struct type_oper* to = create_nullary_type(param->annotated_type_enum, param->annotated_type_name);
@@ -184,8 +184,8 @@ struct type_exp *_analyze_func(struct sema_context *context, struct ast_node *no
     //# create a new non-generic variable for the binder
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&node->func->func_type->ft->fun_params); i++) {
-        struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->fun_params, i);
+    for (size_t i = 0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++) {
+        struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
         struct type_exp *exp;
         if (param->annotated_type_name) {
             if (param->annotated_type_enum == TYPE_EXT)

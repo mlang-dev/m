@@ -267,7 +267,7 @@ struct ast_node *_build_ast(struct earley_parser *parser, struct parse_states *s
     //build ast
     struct source_location loc = {0, 0, 0, 0};
     bool parent_child_tree = cp->ep->expr->action.exp_item_index_count > 1;
-    struct ast_node *node, *child;
+    struct ast_node *node, *child, *params;
     struct array child_nodes;
     array_init(&child_nodes, sizeof(struct ast_node *));
     for(size_t i = 0; i < array_size(&child_parses); i++){
@@ -326,7 +326,8 @@ struct ast_node *_build_ast(struct earley_parser *parser, struct parse_states *s
                 child = *(struct ast_node **)array_get(&child_nodes, 0);
                 assert(child->node_type == IDENT_NODE);
                 ARRAY_FUN_PARAM(fun_params);
-                struct ast_node *ft = func_type_node_default_new(child->ident->name, &fun_params, 0, false, false, loc);
+                params = block_node_new(&fun_params);
+                struct ast_node *ft = func_type_node_default_new(child->ident->name, params, 0, false, false, loc);
                 child = *(struct ast_node **)array_get(&child_nodes, 1);
                 node = function_node_new(ft, child, loc);
                 break;

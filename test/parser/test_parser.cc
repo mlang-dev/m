@@ -343,7 +343,7 @@ TEST_F(testParser, testPrototypeNodeEmptyArg)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_EQ(0, array_size(&node->ft->fun_params));
+    ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
     ASSERT_STREQ("print", string_get(node->ft->name));
     ASSERT_STREQ("int", string_get(node->annotated_type_name));
     env_free(env);

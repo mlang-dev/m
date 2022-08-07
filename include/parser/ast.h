@@ -119,7 +119,7 @@ struct _type_value_node {
 struct _func_type_node {
     symbol name;
     symbol op;
-    struct array fun_params; /*struct array of var ast_node*/
+    struct ast_node *params; /*block ast_node for params*/
     char is_operator;
     int precedence;
     bool is_variadic;
@@ -206,7 +206,7 @@ struct ast_node *call_node_new(symbol callee,
     struct array *args, struct source_location loc);
 struct ast_node *func_type_node_new(
     symbol name,
-    struct array *params,
+    struct ast_node *params, 
     struct type_exp *ret_type,
     bool is_operator,
     unsigned precedence,
@@ -216,7 +216,7 @@ struct ast_node *type_node_new(symbol name, struct ast_node *body, struct source
 struct ast_node *type_value_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
 struct ast_node *func_type_node_default_new(
     symbol name,
-    struct array *args, struct type_exp *ret_type, bool is_variadic, bool is_external, struct source_location loc);
+    struct ast_node *arg_block, struct type_exp *ret_type, bool is_variadic, bool is_external, struct source_location loc);
 
 struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_node,
     struct ast_node *else_node, struct source_location loc);

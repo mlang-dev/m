@@ -357,7 +357,8 @@ struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_
             }
         }
         symbol id_symbol = string_2_symbol(&id_name);
-        struct ast_node *func_type = func_type_node_new(id_symbol, &fun_params, ret_type,
+        struct ast_node *params = block_node_new(&fun_params);
+        struct ast_node *func_type = func_type_node_new(id_symbol, params, ret_type,
             is_operator, precedence, is_operator ? id_symbol : EmptySymbol, is_variadic, false, loc);
         return _parse_function_with_func_type(parser, func_type);
     }
@@ -647,7 +648,8 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
     if (proto_type && array_size(&fun_params) != proto_type)
         return log_info(ERROR, "Invalid number of operands for operator");
     symbol fun_name_symbol = string_2_symbol(&fun_name);
-    struct ast_node *ret = func_type_node_new(fun_name_symbol, &fun_params,
+    struct ast_node *params = block_node_new(&fun_params);
+    struct ast_node *ret = func_type_node_new(fun_name_symbol, params,
         ret_type, proto_type != 0, bin_prec, EmptySymbol, is_variadic, is_external, loc);
     return ret;
 }
@@ -698,7 +700,8 @@ struct ast_node *parse_exp_to_function(struct m_parser *parser, struct ast_node 
         exp = parse_exp(parser, 0, 0);
     if (exp) {
         ARRAY_FUN_PARAM(fun_params);
-        struct ast_node *func_type = func_type_node_default_new(fn, &fun_params, 0, false, false, exp->loc);
+        struct ast_node *params = block_node_new(&fun_params);
+        struct ast_node *func_type = func_type_node_default_new(fn, params, 0, false, false, exp->loc);
         struct array nodes;
         array_init(&nodes, sizeof(struct ast_node *));
         array_push(&nodes, &exp);

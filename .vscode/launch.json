@@ -11,8 +11,8 @@
             "program": "${workspaceFolder}/build/lib/pgen",//;"${workspaceFolder}/build/test/mctest",
             "args": [
                 "${workspaceFolder}/lib/parser/m_grammar.txt",
-                "${workspaceFolder}/lib/parser/m_grammar.txt",
-                "${workspaceFolder}/test/test.m"
+                "${workspaceFolder}/include/parser/m_parsing_table_def.h",
+                "${workspaceFolder}/lib/parser/m_parsing_table.c"      
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
@@ -26,6 +26,20 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/test/mctest", //;"${workspaceFolder}/build/test/mctest",
+            "args": [
+            ],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "miDebuggerPath": "/usr/bin/gdb",
+            "MIMode": "gdb"
+        },
+        {
+            "name": "(gdb) Launch mtest",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/mtest", 
             "args": [
             ],
             "stopAtEntry": true,

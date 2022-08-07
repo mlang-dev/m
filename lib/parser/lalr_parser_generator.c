@@ -198,7 +198,8 @@ void _compute_follow_set(struct parse_rule *rules, u16 rule_count, struct rule_s
 {
     struct parse_rule *rule;
     int change_count = 0;
-    u16 i, j;
+    u16 i, j, symbol_index;
+    struct rule_symbol_data *sd;
     //put $ EOF into the start symbol's follow set
     index_list_append_data(&symbol_data[rules[0].lhs].follow_list, TOKEN_EOF);
     do {
@@ -206,11 +207,13 @@ void _compute_follow_set(struct parse_rule *rules, u16 rule_count, struct rule_s
         for (i = 0; i < rule_count; i++) {
             rule = &rules[i];
             for (j = 0; j < rule->symbol_count; j++) {
-                if(is_terminal(rule->rhs[j])) continue;
-                change_count += _append_first_set_to(&symbol_data[rule->rhs[j]].follow_list, rule, j + 1, symbol_data);
+                symbol_index = rule->rhs[j];
+                if(is_terminal(symbol_index)) continue;
+                sd = &symbol_data[symbol_index];
+                change_count += _append_first_set_to(&sd->follow_list, rule, j + 1, symbol_data);
                 //
                 if(j == rule->symbol_count - 1 || _is_nullable(&rule->rhs[j+1], rule->symbol_count -1 - j, symbol_data)){
-                    change_count += _append_list(&symbol_data[rule->rhs[j]].follow_list, &symbol_data[rule->lhs].follow_list);
+                    change_count += _append_list(&sd->follow_list, &symbol_data[rule->lhs].follow_list);
                 }
             }
         }
@@ -462,6 +465,7 @@ u16 _get_augmented_symbol_index(struct lalr_parser_generator *pg, u16 symbol_ind
         return *old_index;
     }
     u16 index = pg->total_symbol_count ++;
+    assert(pg->total_symbol_count <= MAX_GRAMMAR_SYMBOLS);
     hashtable_set_v(&pg->augmented_symbol_map, &key, &index);
     return index;
 }
@@ -490,6 +494,7 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
             rule = &rules[item->rule];
             // for any item with A->.w
             pg->augmented_rules[pg->augmented_rule_count++] = *rule;
+            assert(pg->augmented_rule_count <= MAX_AUGMENTED_RULES);
             new_rule = &pg->augmented_rules[pg->augmented_rule_count-1];
             for (u8 j = 0; j < rule->symbol_count; j++){
                 u16 symbol = rule->rhs[j];

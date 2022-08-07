@@ -30,8 +30,8 @@ string _dump_func_type(struct ast_node *func_type)
     ARRAY_STRING(args);
     string var_str;
     string_init(&var_str);
-    for (size_t i = 0; i < array_size(&func_type->ft->fun_params); i++) {
-        struct ast_node *var = *(struct ast_node **)array_get(&func_type->ft->fun_params, i);
+    for (size_t i = 0; i < array_size(&func_type->ft->params->block->nodes); i++) {
+        struct ast_node *var = *(struct ast_node **)array_get(&func_type->ft->params->block->nodes, i);
         string_copy(&var_str, var->var->var_name);
         if (var->annotated_type_enum && var->annotated_type_enum != TYPE_GENERIC) {
             string var_type;
