@@ -91,6 +91,27 @@ void print_rule(FILE *f, struct parse_rule *rule)
     fprintf(f, "},"); //end of rule   
 }
 
+void print_parse_state(FILE *f, struct parse_state *state)
+{
+    struct parse_item_list_entry *entry;
+    struct parse_item *item;
+    struct index_list_entry *la_entry;
+    u8 i = 0;
+    list_foreach(entry, &state->items){
+        if(i>=state->kernel_item_count) break;
+        item = &entry->data;
+        fprintf(f, "{");
+        fprintf(f, "%d,%d,", item->rule, item->dot);
+        fprintf(f, "{");
+        list_foreach(la_entry, &item->lookaheads){
+            fprintf(f, "%d,", la_entry->data);
+        }
+        fprintf(f, "}");
+        fprintf(f, "},");
+        i++;
+    }
+    fprintf(f, "\n");
+}
 
 void print_parsing_table_row(FILE *f, struct parser_action *actions, u16 action_count)
 {
@@ -114,9 +135,16 @@ int write_to_source_file(struct lalr_parser_generator *pg, const char *source_pa
     fprintf(f, source_header_template);
     fprintf(f, source_parsing_rules_initializer);
     //print all rule data
+    fprintf(f, "/*\n");
+    symbol sym;
+    for(i = 0; i < get_symbol_count(); i++){
+        sym = get_symbol_by_index(i);
+        fprintf(f, " %2d - %s\n", i, string_cstr(sym));
+    }
+    fprintf(f, "*/\n");
     for(i = 0; i < pg->rule_count; i++){
         //    /*rule 0*/ { 0, { 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, { 0, 0, 0, 0, 0 }, 0 } }
-        fprintf(f, "  /*rule %d*/ ", i); // comments
+        fprintf(f, "  /*rule %3d*/ ", i); // comments
         rule = &pg->parsing_rules[i];
         print_rule(f, rule);
         fprintf(f, "\n");
@@ -125,9 +153,15 @@ int write_to_source_file(struct lalr_parser_generator *pg, const char *source_pa
     fprintf(f, "\n");
     fprintf(f, source_parsing_table_initializer);
     //print parsing table
+    fprintf(f, "/*\n");
+    for (i = 0; i < pg->parse_state_count; i++) {
+        fprintf(f, "  state %3d ", i);
+        print_parse_state(f, &pg->parse_states[i]);
+    }    
+    fprintf(f, "*/\n");
     for (i = 0; i < pg->parse_state_count; i++) {
         // print one state
-        fprintf(f, "  /*state %d*/ ", i);
+        fprintf(f, "  /*state %3d*/ ", i);
         //print row
         print_parsing_table_row(f, pg->parsing_table[i], get_symbol_count());
         fprintf(f, "\n");
