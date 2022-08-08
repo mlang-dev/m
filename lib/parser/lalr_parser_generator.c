@@ -445,8 +445,14 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                 list_foreach(la_entry, lookahead_list)
                 {
                     action = &parsing_table[i][la_entry->data];
-                    action->code = R;
-                    action->rule_index = item->rule;
+                    /**/
+                    if (action->code != S){
+                        action->code = R;
+                        action->rule_index = item->rule;
+                    }else{
+                        printf("warning: There is shift/reduce conflict in the grammar. ");
+                        printf("state: %d terminal: %d, shift to: %d, overrided reduction rule: %d \n", i, la_entry->data, action->state_index, item->rule);
+                    }
                 }
             }
             else if(item->dot == rule->symbol_count && item->rule == 0){/*the augumented one*/

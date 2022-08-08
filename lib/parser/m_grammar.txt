@@ -24,6 +24,6 @@ term        = term [*/%] factor                 { binop 0 1 2 } # lhs op rhs
             | factor                            { 0 }
 factor      = '(' expr ')'                      { 1 }
             | power                             { 0 }
-#            | [+-] factor                       { unop 0 1 }
+            | [+-] factor                       { unop 0 1 }
 power       = INT '^' factor                    { binop 0 1 2 } # lhs op rhs
             | INT                               { 0 }
