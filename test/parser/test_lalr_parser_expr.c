@@ -67,6 +67,7 @@ TEST(test_lr_parser_expr, arithmetic_exp_parentheses)
 int test_lr_parser_expr()
 {
     UNITY_BEGIN();
+    RUN_TEST(test_lr_parser_expr_arithmetic_exp_neg);
     RUN_TEST(test_lr_parser_expr_arithmetic_exp);
     RUN_TEST(test_lr_parser_expr_arithmetic_exp2);
     RUN_TEST(test_lr_parser_expr_arithmetic_exp_parentheses);
