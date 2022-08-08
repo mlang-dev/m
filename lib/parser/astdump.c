@@ -76,7 +76,7 @@ string _dump_var(struct ast_node *var)
 string _dump_unary(struct ast_node *unary)
 {
     string un;
-    string_init_chars(&un, "un: ");
+    string_init_chars(&un, "");
     string_add_chars(&un, get_opcode(unary->unop->opcode));
     string str_op = dump(unary->unop->operand);
     string_add(&un, &str_op);

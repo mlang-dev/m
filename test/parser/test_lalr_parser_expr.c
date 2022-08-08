@@ -11,6 +11,19 @@
 #include "test.h"
 #include <stdio.h>
 
+TEST(test_lr_parser_expr, arithmetic_exp_neg)
+{
+    const char test_code[] = "-1+2";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *ast = parse_code(parser, test_code);
+    string dump_str = dump(ast);
+    ASSERT_STREQ("(-1+2)", string_get(&dump_str));
+    ast_node_free(ast);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
 TEST(test_lr_parser_expr, arithmetic_exp)
 {
     const char test_code[] = "1+2*3";
