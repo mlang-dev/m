@@ -191,3 +191,16 @@ bool is_terminal(u16 symbol_index)
 {
     return symbol_index < TERMINAL_COUNT;
 }
+
+symbol get_symbol_by_index(u16 symbol_index)
+{
+    struct token_pattern *tp;
+    if (symbol_index < TERMINAL_COUNT){
+        tp = &token_patterns[symbol_index];
+    }else{
+        symbol_index -= TERMINAL_COUNT;
+        assert(symbol_index < g_nonterm_count);
+        tp = &g_nonterms[symbol_index];
+    }
+    return tp->symbol_name;
+}

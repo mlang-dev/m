@@ -135,6 +135,7 @@ struct token_pattern *get_token_pattern_by_symbol(symbol symbol);
 
 /*get symbol index, token or nonterm*/
 u16 get_symbol_index(symbol symbol);
+symbol get_symbol_by_index(u16 symbol_index);
 
 /*get index by token*/
 u16 get_token_index(enum token_type token_type, enum op_code opcode);
