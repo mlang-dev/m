@@ -155,27 +155,6 @@ u32 _scan_until_no_space(struct lexer *lexer)
     return spaces;
 }
 
-/*
-u32 _scan_until_no_space(struct lexer *lexer)
-{
-    u32 spaces = 0;
-    while (isspace(lexer->buff[lexer->pos])) {
-        if (lexer->buff[lexer->pos] == '\n') {
-            if (lexer->tok.token_type == TOKEN_EOF || lexer->tok.token_type == TOKEN_NEWLINE) {
-                spaces = 0; // empty line skipped
-                _move_ahead(lexer);
-            } else {
-                break;
-            }
-        } else {
-            _move_ahead(lexer);
-            spaces++;
-        }
-    }
-    return spaces;
-}
-*/
-
 void _scan_until_no_id(struct lexer *lexer)
 {
     char ch;
@@ -240,8 +219,18 @@ struct token *get_tok(struct lexer *lexer)
         lexer->pending_dedents ++;
         return tok;
     }
-    u32 spaces = _scan_until_no_space(lexer);
-    char ch = lexer->buff[lexer->pos];
+    u32 spaces;
+    char ch;
+    do {
+        spaces = _scan_until_no_space(lexer);
+        ch = lexer->buff[lexer->pos];
+        if (ch=='\n' && (tok->token_type == TOKEN_EOF || tok->token_type == TOKEN_NEWLINE)){
+            //skip the empty line
+            _move_ahead(lexer);
+        }else{
+            break;
+        }
+    } while(true);
     if (ch == '\0'){
         int match = indent_level_stack_match(&lexer->indent_stack, 0);
         if(match < 0){
@@ -250,8 +239,7 @@ struct token *get_tok(struct lexer *lexer)
             lexer->pending_dedents = match + 1;
             return tok;
         }
-    }
-    else if(tok->token_type == TOKEN_NEWLINE && ch != '\n'){
+    } else if ((tok->token_type == TOKEN_EOF || tok->token_type == TOKEN_NEWLINE) && ch != '\n') {
         //if last token is new line and this is not an empty line
         //then we're going to check indent/dedent levels
         int match = indent_level_stack_match(&lexer->indent_stack, spaces);

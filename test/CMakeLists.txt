@@ -206,10 +206,10 @@ else()
     COMMAND mctest
   )
 
- add_custom_command(
-   TARGET mtest
-   POST_BUILD
-   COMMAND mtest
- )
+  add_custom_command(
+    TARGET mtest
+    POST_BUILD
+    COMMAND mtest
+  )
 endif()
 
