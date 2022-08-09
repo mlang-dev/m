@@ -109,6 +109,9 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         node = items[rule->action.item_index[1]].ast;
         ast = unary_node_new(opcode, node, node->loc);
         break;
+    case VAR_NODE:
+        assert(false);
+        break;
     case BINARY_NODE:
         node = items[rule->action.item_index[1]].ast;
         opcode = node->node_type & 0xFFFF;
@@ -189,6 +192,7 @@ struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
             break;
         }else{
             //error recovery
+            assert(false);
             ast = 0;
             break;
         }

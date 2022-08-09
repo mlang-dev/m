@@ -446,12 +446,18 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                 {
                     action = &parsing_table[i][la_entry->data];
                     /**/
-                    if (action->code != S){
+                    if (action->code == S){
+                        printf("warning: There is a shift/reduce conflict in the grammar. ");
+                        printf("state: %d terminal: %d, shift to: %d, overrided reduction rule: %d \n", i, la_entry->data, action->state_index, item->rule);
+                    } else if (action->code == R){
+                        printf("warning: There is a reduce/reduce conflict in the grammar. ");
+                        printf("state: %d terminal: %d, reduction rule: %d, new reduction rule: %d, taken rule: %d \n", i, la_entry->data, action->rule_index, item->rule, action->rule_index < item->rule ? action->rule_index : item->rule);
+                        if(item->rule < action->rule_index){
+                            action->rule_index = item->rule;
+                        }
+                    }else{
                         action->code = R;
                         action->rule_index = item->rule;
-                    }else{
-                        printf("warning: There is shift/reduce conflict in the grammar. ");
-                        printf("state: %d terminal: %d, shift to: %d, overrided reduction rule: %d \n", i, la_entry->data, action->state_index, item->rule);
                     }
                 }
             }

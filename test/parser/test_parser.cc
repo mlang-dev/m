@@ -14,11 +14,9 @@ class testParser : public TestBase {
 
 TEST_F(testParser, testStructVarDecl)
 {
-    char test_code[] = R"(
-type Point2D = x:double y:double
-point:Point2D
-)";
-    ;
+    char test_code[] = "\n\
+type Point2D = x:double y:double\n\
+point:Point2D";
     auto env = env_new(false);
     FILE *file = open_file_from_string(test_code);
     ast_node *block = parse_file_object(env->parser, "test", file);
@@ -139,10 +137,9 @@ TEST_F(testParser, testBlockVariableNameWithUnderlyingLine)
 
 TEST_F(testParser, testBlockIdFunction)
 {
-    char test_code[] = R"(
-f x = x
-f 10
-)";
+    char test_code[] = "\n\
+f x = x \n\
+f 10";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -181,9 +178,10 @@ TEST_F(testParser, testBlockBinaryFunctionName)
 
 TEST_F(testParser, testFacIfCondition)
 {
-    char test_code[] = R"(fac n = 
-    if n< 2 n
-    else n * fac (n-1))";
+    char test_code[] = "\n\
+fac n = \n\
+    if n< 2 n \n\
+    else n * fac (n-1)";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -196,10 +194,10 @@ TEST_F(testParser, testFacIfCondition)
 
 TEST_F(testParser, testForLoop)
 {
-    char test_code[] = R"(loopprint n = 
-  for i in 3..n
-    print i
-  )";
+    char test_code[] = "\n\
+loopprint n = \n\
+  for i in 3..n \n\
+    print i";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -216,11 +214,11 @@ TEST_F(testParser, testForLoop)
 
 TEST_F(testParser, testVariableInFunction)
 {
-    char test_code[] = R"(distance x1 y1 x2 y2 = 
-  xx = (x1-x2) * (x1-x2)
-  yy = (y1-y2) * (y1-y2)
-  sqrt (xx + yy)
-  )";
+    char test_code[] = "\n\
+distance x1 y1 x2 y2 = \n\
+  xx = (x1-x2) * (x1-x2) \n\
+  yy = (y1-y2) * (y1-y2) \n\
+  sqrt (xx + yy)";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -233,9 +231,7 @@ TEST_F(testParser, testVariableInFunction)
 
 TEST_F(testParser, testAvgFunction)
 {
-    char test_code[] = R"(
-avg x y = (x + y) / 2
-    )";
+    char test_code[] = "avg x y = (x + y) / 2";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto func = *(ast_node **)array_front(&block->block->nodes);
@@ -307,12 +303,11 @@ TEST_F(testParser, testVariadicFunctionInvalidPosition)
 
 TEST_F(testParser, testLocalStringFunc)
 {
-    char test_code[] = R"(
-to_string () = 
-  x = "hello"
-  y = x
-  y
-)";
+    char test_code[] = "\n\
+to_string () = \n\
+  x = \"hello\" \n\
+  y = x \n\
+  y";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -351,11 +346,10 @@ TEST_F(testParser, testPrototypeNodeEmptyArg)
 
 TEST_F(testParser, testStructsType)
 {
-    char test_code[] = R"(
-type Point2D = 
-  x:double
-  y:double
-)";
+    char test_code[] = "\n\
+type Point2D = \n\
+  x:double \n\
+  y:double";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -374,10 +368,9 @@ type Point2D =
 
 TEST_F(testParser, testStructsTypeOneLine)
 {
-    char test_code[] = R"(
-type Point2D = x:double y:double
-xy:Point2D = 10.0 20.0
-)";
+    char test_code[] = "\n\
+type Point2D = x:double y:double \n\
+xy:Point2D = 10.0 20.0";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -408,10 +401,9 @@ xy:Point2D = 10.0 20.0
 
 TEST_F(testParser, testStructsTypeOneLineAnotherTypeConstructor)
 {
-    char test_code[] = R"(
-type Point2D = x:double y:double
-xy = Point2D 10.0 20.0
-)";
+    char test_code[] = "\n\
+type Point2D = x:double y:double \n\
+xy = Point2D 10.0 20.0";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -442,10 +434,9 @@ xy = Point2D 10.0 20.0
 
 TEST_F(testParser, testStructsTypeOneLineReturnTypeConstructor)
 {
-    char test_code[] = R"(
-type Point2D = x:double y:double
-get_point() = Point2D 10.0 20.0
-)";
+    char test_code[] = "\n\
+type Point2D = x:double y:double \n\
+get_point() = Point2D 10.0 20.0";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
@@ -519,11 +510,10 @@ get_point() = Point2D 10.0 20.0
 
 TEST_F(testParser, testStructsTypeDefAndDecl)
 {
-    char test_code[] = R"(
-type Point2D = x:double y:double
-xy:Point2D = 0.0 0.0
-xy.x
-)";
+    char test_code[] = "\n\
+type Point2D = x:double y:double \n\
+xy:Point2D = 0.0 0.0 \n\
+xy.x";
     auto env = env_new(false);
     ast_node *block = parse_string(env->parser, "test", test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);

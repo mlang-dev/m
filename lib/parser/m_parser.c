@@ -844,7 +844,7 @@ struct ast_node *_parse_block(struct m_parser *parser, struct ast_node *parent, 
     struct array nodes;
     array_init(&nodes, sizeof(struct ast_node *));
     while (true) {
-        assert(parser->curr_token.token_type && parser->curr_token.token_type <= TOKEN_OP);
+        assert(parser->curr_token.token_type>=0 && parser->curr_token.token_type <= TOKEN_OP);
         if (exit_block(parser, parent, base_col))
             break;
         while (parser->curr_token.token_type == TOKEN_NEWLINE)

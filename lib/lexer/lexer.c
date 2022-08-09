@@ -155,6 +155,27 @@ u32 _scan_until_no_space(struct lexer *lexer)
     return spaces;
 }
 
+/*
+u32 _scan_until_no_space(struct lexer *lexer)
+{
+    u32 spaces = 0;
+    while (isspace(lexer->buff[lexer->pos])) {
+        if (lexer->buff[lexer->pos] == '\n') {
+            if (lexer->tok.token_type == TOKEN_EOF || lexer->tok.token_type == TOKEN_NEWLINE) {
+                spaces = 0; // empty line skipped
+                _move_ahead(lexer);
+            } else {
+                break;
+            }
+        } else {
+            _move_ahead(lexer);
+            spaces++;
+        }
+    }
+    return spaces;
+}
+*/
+
 void _scan_until_no_id(struct lexer *lexer)
 {
     char ch;
