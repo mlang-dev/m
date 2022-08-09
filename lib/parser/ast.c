@@ -19,7 +19,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(literal, LITERAL),
     NODE_TYPE_NAME(ident, IDENT),
     NODE_TYPE_NAME(var, VAR),
-    NODE_TYPE_NAME(type_ext, TYPE),
+    NODE_TYPE_NAME(type_def, TYPE),
     NODE_TYPE_NAME(type_value, TYPE_VALUE),
     NODE_TYPE_NAME(unop, UNARY),
     NODE_TYPE_NAME(binop, BINARY),

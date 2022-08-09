@@ -59,6 +59,7 @@ struct lexer *lexer_new(FILE *file, const char *filename)
     lexer->file = file;
     lexer->filename = filename;
     lexer->buff[0] = '\0';
+    lexer->tok.token_type = TOKEN_EOF;
     fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file);
 
     //init indent level stack
@@ -219,8 +220,18 @@ struct token *get_tok(struct lexer *lexer)
         lexer->pending_dedents ++;
         return tok;
     }
-    u32 spaces = _scan_until_no_space(lexer);
-    char ch = lexer->buff[lexer->pos];
+    u32 spaces;
+    char ch;
+    do {
+        spaces = _scan_until_no_space(lexer);
+        ch = lexer->buff[lexer->pos];
+        if (ch=='\n' && (tok->token_type == TOKEN_EOF || tok->token_type == TOKEN_NEWLINE)){
+            //skip the empty line
+            _move_ahead(lexer);
+        }else{
+            break;
+        }
+    } while(true);
     if (ch == '\0'){
         int match = indent_level_stack_match(&lexer->indent_stack, 0);
         if(match < 0){
@@ -229,8 +240,7 @@ struct token *get_tok(struct lexer *lexer)
             lexer->pending_dedents = match + 1;
             return tok;
         }
-    }
-    else if(tok->token_type == TOKEN_NEWLINE && ch != '\n'){
+    } else if ((tok->token_type == TOKEN_EOF || tok->token_type == TOKEN_NEWLINE) && ch != '\n') {
         //if last token is new line and this is not an empty line
         //then we're going to check indent/dedent levels
         int match = indent_level_stack_match(&lexer->indent_stack, spaces);
