@@ -185,6 +185,7 @@ struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
  * if node type order is changed here, the corresponding order of function pointer
  * in codegen.c & analyzer.c shall be changed accordingly.
  */
+/*construct ast node with type enum directly*/
 struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type_enum, struct source_location loc);
 void ast_node_free(struct ast_node *node);
 

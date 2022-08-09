@@ -110,7 +110,23 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         ast = unary_node_new(opcode, node, node->loc);
         break;
     case VAR_NODE:
-        assert(false);
+        node = items[rule->action.item_index[1]].ast;
+        assert(node->node_type == IDENT_NODE);
+        if (rule->action.item_index[0]) {
+            if(rule->action.item_index_count == 4){
+                //has type and has init value
+
+            }else{ //has no type info, has init value
+
+            }
+        } else if (rule->action.item_index_count > 2) {
+            //just has ID and type
+            //node1 = items[rule->action.item_index[2]].ast;
+            ast = var_node_new(node->ident->name, 0, 0, 0, false, node->loc);
+        } else {
+            //just ID
+            ast = var_node_new(node->ident->name, 0, 0, 0, false, node->loc);
+        }
         break;
     case BINARY_NODE:
         node = items[rule->action.item_index[1]].ast;
