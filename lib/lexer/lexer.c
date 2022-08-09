@@ -59,6 +59,7 @@ struct lexer *lexer_new(FILE *file, const char *filename)
     lexer->file = file;
     lexer->filename = filename;
     lexer->buff[0] = '\0';
+    lexer->tok.token_type = TOKEN_EOF;
     fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file);
 
     //init indent level stack
