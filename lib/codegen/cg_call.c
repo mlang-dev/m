@@ -36,7 +36,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct ast_node *node)
     assert(callee);
     struct fun_info *fi = get_fun_info(node->call->callee_func_type);
     assert(fi);
-    size_t arg_count = array_size(&node->call->args);
+    size_t arg_count = array_size(&node->call->arg_block->block->nodes);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
     size_t ir_arg_count =  has_sret ? arg_count + 1 : arg_count;
     LLVMValueRef *arg_values;
@@ -60,7 +60,7 @@ LLVMValueRef emit_call_node(struct code_generator *cg, struct ast_node *node)
     for (size_t i = 0; i < arg_count; ++i) {
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
         struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
-        struct ast_node *arg = *(struct ast_node **)array_get(&node->call->args, i);
+        struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
         struct type_size_info tsi = get_type_size_info(arg->type);
         LLVMValueRef arg_value = emit_ir_code(cg, arg);
         switch (aaa->info.kind) {

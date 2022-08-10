@@ -364,7 +364,9 @@ struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_
     }
     // function application
     symbol name_symbol = string_2_symbol(&id_name);
-    struct ast_node *call = call_node_new(name_symbol, &args, loc);
+    struct ast_node *arg_block = block_node_new(&args);
+    array_copy(&arg_block->block->nodes, &args); //? we have to copy array
+    struct ast_node *call = call_node_new(name_symbol, arg_block, loc);
     return parse_exp(parser, parent, call);
 }
 
@@ -490,7 +492,9 @@ struct ast_node *_parse_ident(struct m_parser *parser, struct ast_node *parent)
                     break;
             }
             parse_next_token(parser);
-            exp = call_node_new(id_symbol, &args, loc);
+            struct ast_node *arg_block = block_node_new(&args);
+            array_copy(&arg_block->block->nodes, &args); //? we have to copy array
+            exp = call_node_new(id_symbol, arg_block, loc);
             array_deinit(&args);
         }
         return exp;

@@ -307,12 +307,13 @@ void _free_type_value_node(struct ast_node *node)
 }
 
 struct ast_node *call_node_new(symbol callee,
-    struct array *args, struct source_location loc)
+    struct ast_node *arg_block, struct source_location loc)
 {
+    assert(arg_block);
     struct ast_node *node = ast_node_new(CALL_NODE, 0, loc);
     MALLOC(node->call, sizeof(*node->call));
     node->call->callee = callee;
-    array_copy(&node->call->args, args);
+    node->call->arg_block = arg_block;
     node->call->specialized_callee = 0;
     node->call->callee_func_type = 0;
     return node;
@@ -321,12 +322,12 @@ struct ast_node *call_node_new(symbol callee,
 struct ast_node *_copy_call_node(struct ast_node *orig_node)
 {
     return call_node_new(orig_node->call->callee,
-        &orig_node->call->args, orig_node->loc);
+        _copy_block_node(orig_node->call->arg_block), orig_node->loc);
 }
 
 void _free_call_node(struct ast_node *node)
 {
-    nodes_free(&node->call->args);   
+    ast_node_free(node->call->arg_block);
     ast_node_free(node);
 }
 
