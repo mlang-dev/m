@@ -143,7 +143,7 @@ struct _function_node {
 struct _call_node {
     symbol callee;
     symbol specialized_callee;
-    struct array args; // args: struct array of ast_node*
+    struct ast_node *arg_block; // args: block ast node
     struct ast_node *callee_func_type;
 };
 
@@ -205,7 +205,7 @@ struct ast_node *string_node_new(const char *val, struct source_location loc);
 struct ast_node *var_node_new(symbol var_name, enum type type, symbol ext_type, struct ast_node *init_value, bool is_global, struct source_location loc);
 struct ast_node *var_node_new2(symbol var_name, symbol type_name, struct ast_node *init_value, bool is_global, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
-    struct array *args, struct source_location loc);
+    struct ast_node *arg_block, struct source_location loc);
 struct ast_node *func_type_node_new(
     symbol name,
     struct ast_node *params, 

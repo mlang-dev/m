@@ -100,8 +100,8 @@ string _dump_binary(struct ast_node *binary)
 string _dump_call(struct ast_node *call)
 {
     ARRAY_STRING(args);
-    for (size_t i = 0; i < array_size(&call->call->args); i++) {
-        string dp = dump(*(struct ast_node **)array_get(&call->call->args, i));
+    for (size_t i = 0; i < array_size(&call->call->arg_block->block->nodes); i++) {
+        string dp = dump(*(struct ast_node **)array_get(&call->call->arg_block->block->nodes, i));
         array_push(&args, &dp);
     }
     string args_str = string_join(&args, " ");

@@ -232,8 +232,8 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
     }
     struct array args;
     array_init(&args, sizeof(struct type_exp *));
-    for (size_t i = 0; i < array_size(&node->call->args); i++) {
-        struct ast_node *arg = *(struct ast_node **)array_get(&node->call->args, i);
+    for (size_t i = 0; i < array_size(&node->call->arg_block->block->nodes); i++) {
+        struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
         struct type_exp *type = analyze(context, arg);
         assert(type);
         array_push(&args, &type);
