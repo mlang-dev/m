@@ -62,7 +62,24 @@ int write_to_header_file(struct lalr_parser_generator *pg, const char *header_pa
     return 0;
 }
 
-void print_rule(FILE *f, struct parse_rule *rule)
+void print_rule_comment(FILE *f, struct parse_rule *rule, int dot)
+{
+    fprintf(f, "%s = ", string_get(get_symbol_by_index(rule->lhs))); // lhs
+    for (int i = 0; i < rule->symbol_count; i++) { // rhs
+        if (dot == i){
+            fprintf(f, ".");
+        }
+        fprintf(f, "%s", string_get(get_symbol_by_index(rule->rhs[i])));
+        if(i < rule->symbol_count - 1){
+            fprintf(f, " ");
+        }
+    }
+    if(dot == rule->symbol_count){
+        fprintf(f, ".");
+    }
+}
+
+void print_rule(FILE * f, struct parse_rule * rule)
 {
     // struct parse_rule {
     /*
@@ -81,39 +98,40 @@ void print_rule(FILE *f, struct parse_rule *rule)
     fprintf(f, "%d,", rule->symbol_count); // symbol count
     // rule action
     fprintf(f, "{%d,", rule->action.node_type);
-    fprintf(f, "{"); //index array
-    for(i=0; i< MAX_SYMBOLS_RULE; i++){
+    fprintf(f, "{"); // index array
+    for (i = 0; i < MAX_SYMBOLS_RULE; i++) {
         fprintf(f, "%d,", rule->action.item_index[i]);
     }
-    fprintf(f, "},"); //end of index array
-    fprintf(f, "%d", rule->action.item_index_count); //total index
-    fprintf(f, "}"); //end of action
-    fprintf(f, "},"); //end of rule   
+    fprintf(f, "},"); // end of index array
+    fprintf(f, "%d", rule->action.item_index_count); // total index
+    fprintf(f, "}"); // end of action
+    fprintf(f, "},"); // end of rule
 }
 
-void print_parse_state(FILE *f, struct parse_state *state)
+void print_parse_state_comment(FILE *f, struct parse_rule *rules, struct parse_state *state)
 {
     struct parse_item_list_entry *entry;
     struct parse_item *item;
     struct index_list_entry *la_entry;
     u8 i = 0;
-    list_foreach(entry, &state->items){
-        if(i>=state->kernel_item_count) break;
+    list_foreach(entry, &state->items)
+    {
+        if (i >= state->kernel_item_count)
+            break;
         item = &entry->data;
-        fprintf(f, "{");
-        fprintf(f, "%d,%d,", item->rule, item->dot);
-        fprintf(f, "{");
-        list_foreach(la_entry, &item->lookaheads){
-            fprintf(f, "%d,", la_entry->data);
+        print_rule_comment(f, &rules[item->rule], item->dot);
+        fprintf(f, "[");
+        list_foreach(la_entry, &item->lookaheads)
+        {
+            fprintf(f, "%s,", string_get(get_symbol_by_index(la_entry->data)));
         }
-        fprintf(f, "}");
-        fprintf(f, "},");
+        fprintf(f, "]\n            ");
         i++;
     }
     fprintf(f, "\n");
 }
 
-void print_parsing_table_row(FILE *f, struct parser_action *actions, u16 action_count)
+void print_parsing_table_row(FILE * f, struct parser_action * actions, u16 action_count)
 {
     fprintf(f, "{");
     for (u16 i = 0; i < action_count; i++) {
@@ -122,7 +140,7 @@ void print_parsing_table_row(FILE *f, struct parser_action *actions, u16 action_
     fprintf(f, "},");
 }
 
-int write_to_source_file(struct lalr_parser_generator *pg, const char *source_path)
+int write_to_source_file(struct lalr_parser_generator * pg, const char *source_path)
 {
     u16 i;
     struct parse_rule *rule;
@@ -134,15 +152,22 @@ int write_to_source_file(struct lalr_parser_generator *pg, const char *source_pa
     fprintf(f, header_comment_template);
     fprintf(f, source_header_template);
     fprintf(f, source_parsing_rules_initializer);
-    //print all rule data
+    // print all rule data
     fprintf(f, "/*\n");
     symbol sym;
-    for(i = 0; i < get_symbol_count(); i++){
+    for (i = 0; i < get_symbol_count(); i++) {
         sym = get_symbol_by_index(i);
         fprintf(f, " %2d - %s\n", i, string_cstr(sym));
     }
+    for (i = 0; i < pg->rule_count; i++) {
+        //    /*rule 0*/ { 0, { 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, { 0, 0, 0, 0, 0 }, 0 } }
+        fprintf(f, "  rule %3d: ", i); // comments
+        rule = &pg->parsing_rules[i];
+        print_rule_comment(f, rule, -1);
+        fprintf(f, "\n");
+    }
     fprintf(f, "*/\n");
-    for(i = 0; i < pg->rule_count; i++){
+    for (i = 0; i < pg->rule_count; i++) {
         //    /*rule 0*/ { 0, { 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, { 0, 0, 0, 0, 0 }, 0 } }
         fprintf(f, "  /*rule %3d*/ ", i); // comments
         rule = &pg->parsing_rules[i];
@@ -152,17 +177,17 @@ int write_to_source_file(struct lalr_parser_generator *pg, const char *source_pa
     fprintf(f, source_data_initializer_end);
     fprintf(f, "\n");
     fprintf(f, source_parsing_table_initializer);
-    //print parsing table
+    // print parsing table
     fprintf(f, "/*\n");
     for (i = 0; i < pg->parse_state_count; i++) {
         fprintf(f, "  state %3d ", i);
-        print_parse_state(f, &pg->parse_states[i]);
-    }    
+        print_parse_state_comment(f, pg->parsing_rules, &pg->parse_states[i]);
+    }
     fprintf(f, "*/\n");
     for (i = 0; i < pg->parse_state_count; i++) {
         // print one state
         fprintf(f, "  /*state %3d*/ ", i);
-        //print row
+        // print row
         print_parsing_table_row(f, pg->parsing_table[i], get_symbol_count());
         fprintf(f, "\n");
     }
@@ -182,14 +207,14 @@ int generate_files(const char *grammar_path, const char *header_path, const char
     printf("generating %s ...\n", source_path);
     write_to_source_file(pg, source_path);
     lalr_parser_generator_free(pg);
-    free((void*)grammar);
+    free((void *)grammar);
     frontend_deinit();
     return 0;
 }
 
 int main(int argc, char *argv[])
 {
-    if(argc != 4){
+    if (argc != 4) {
         printf("pgen usage is: pgen grammar path path1(.h) path2(.c)\n");
     }
     printf("welcome to pgen!\n");

@@ -360,11 +360,12 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
     state_count++;
     struct parse_item_list_entry *entry;
     struct parse_rule *rule;
-    for(i = 0; i < state_count; i++){
+    // iterate each rule to get unique symbol to create new state
+    #define UNIQUE_SYMBOLS  128
+    u16 visited_symbols[UNIQUE_SYMBOLS];
+    for (i = 0; i < state_count; i++) {
         state = &states[i];
 
-        //iterate each rule to get unique symbol to create new state 
-        u16 visited_symbols[16];
         u8 visited_count = 0;
         list_foreach(entry, &state->items){
             rule = &rules[entry->data.rule];
@@ -376,6 +377,7 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
                 continue;
             }
             visited_symbols[visited_count ++] = x;
+            assert(visited_count <= UNIQUE_SYMBOLS);
             struct parse_state next_state = _goto(symbol_data, rules, *state, x);
             int existing_state_index = _find_state(states, state_count, &next_state);
                 // if not in the states, then closure the state and add it to states
@@ -389,6 +391,7 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
             }
             parsing_table[i][x] = pa;
         }
+        assert(state_count <= MAX_STATES);
     }
     return state_count;
 }
@@ -412,6 +415,7 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser
             for (k = 0; k < array_size(&exprs); k++) {
                 expr = array_get(&exprs, k);
                 gr = &pg->parsing_rules[pg->rule_count++];
+                assert(pg->rule_count <= MAX_RULES);
                 gr->lhs = nonterm;
                 _expr_2_gr(expr, gr);
             }

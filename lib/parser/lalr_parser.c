@@ -162,7 +162,15 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         node = items[rule->action.item_index[2]].ast;
         ast = function_node_new(ft, node, node->loc);
         break;
-    case TYPE_NODE: //new type definition, like struct in C
+    case CALL_NODE:
+        assert(rule->action.item_index_count == 2);
+        node = items[rule->action.item_index[0]].ast;
+        assert(node->node_type == IDENT_NODE);
+        node1 = items[rule->action.item_index[1]].ast;
+        assert(node1->node_type == BLOCK_NODE);
+        ast = call_node_new(node->ident->name, node1, node->loc);
+        break;
+    case TYPE_NODE: // new type definition, like struct in C
         assert(rule->action.item_index_count == 2);
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == IDENT_NODE);
