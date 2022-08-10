@@ -81,6 +81,18 @@ struct ast_node *_build_terminal_ast(struct token *tok)
         case TOKEN_FLOAT:
             ast = double_node_new(tok->double_val,tok->loc);
             break;
+        case TOKEN_TRUE:
+            ast = bool_node_new(true, tok->loc);
+            break;
+        case TOKEN_FALSE:
+            ast = bool_node_new(false, tok->loc);
+            break;
+        case TOKEN_CHAR:
+            ast = char_node_new(tok->char_val, tok->loc);
+            break;
+        case TOKEN_STRING:
+            ast = string_node_new(string_get(tok->str_val), tok->loc);
+            break;
         }
     return ast;
 }
