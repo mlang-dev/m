@@ -27,10 +27,11 @@ void leave_scope(struct sema_context *context)
     } while (s != context->scope_marker);
 }
 
-struct sema_context *sema_context_new(struct ast_node *stdio, struct ast_node *math, bool is_repl)
+struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, struct ast_node *stdio, struct ast_node *math, bool is_repl)
 {
     struct sema_context *context;
     CALLOC(context, 1, sizeof(*context));
+    context->symbol_2_int_types = symbol_2_int_types;
     context->is_repl = is_repl;
     array_init(&context->nongens, sizeof(struct type_exp *));
     array_init(&context->used_builtin_names, sizeof(symbol));

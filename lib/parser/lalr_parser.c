@@ -25,11 +25,13 @@ struct lalr_parser *lalr_parser_new(parsing_table *pt, parsing_rules *pr)
     parser->stack_top = 0;
     parser->pt= pt;
     parser->pr = pr;
+    hashtable_init_with_value_size(&parser->symbol_2_int_types, sizeof(int), 0);
     return parser;
 }
 
 void lalr_parser_free(struct lalr_parser *parser)
 {
+    hashtable_deinit(&parser->symbol_2_int_types);
     FREE(parser);
 }
 
@@ -88,8 +90,8 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     enum op_code opcode;
     struct ast_node *ast = 0;
     struct ast_node *node = 0;
-    struct ast_node *rhs = 0;
-    struct ast_node *params = 0;
+    struct ast_node *node1 = 0;
+    struct ast_node *node2 = 0;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
             assert(false);
@@ -110,21 +112,41 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         ast = unary_node_new(opcode, node, node->loc);
         break;
     case VAR_NODE:
-        assert(false);
+        node = items[rule->action.item_index[1]].ast;
+        assert(node->node_type == IDENT_NODE);
+        if (rule->action.item_index[0]) {
+            node1 = items[rule->action.item_index[2]].ast;
+            if (rule->action.item_index_count == 4) {
+                //has type and has init value
+                assert(node1->node_type == IDENT_NODE);
+                node2 = items[rule->action.item_index[3]].ast;
+                ast = var_node_new2(node->ident->name, node1->ident->name, node2, false, node->loc);
+            } else { // has no type info, has init value
+                ast = var_node_new2(node->ident->name, 0, node1, false, node->loc);
+            }
+        } else if (rule->action.item_index_count > 2) {
+            //just has ID and type
+            node1 = items[rule->action.item_index[2]].ast;
+            assert(node1->node_type == IDENT_NODE);
+            ast = var_node_new2(node->ident->name, node1->ident->name, 0, false, node->loc);
+        } else {
+            //just ID
+            ast = var_node_new2(node->ident->name, 0, 0, false, node->loc);
+        }
         break;
     case BINARY_NODE:
         node = items[rule->action.item_index[1]].ast;
         opcode = node->node_type & 0xFFFF;
         node = items[rule->action.item_index[0]].ast;
-        rhs = items[rule->action.item_index[2]].ast;
-        ast = binary_node_new(opcode, node, rhs, node->loc);
+        node1 = items[rule->action.item_index[2]].ast;
+        ast = binary_node_new(opcode, node, node1, node->loc);
         break;
     case FUNC_NODE:
         assert(rule->action.item_index_count == 3);
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == IDENT_NODE);
-        params = items[rule->action.item_index[1]].ast;
-        struct ast_node *ft = func_type_node_default_new(node->ident->name, params, 0, false, false, node->loc);
+        node1 = items[rule->action.item_index[1]].ast;
+        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, 0, false, false, node->loc);
         node = items[rule->action.item_index[2]].ast;
         ast = function_node_new(ft, node, node->loc);
         break;

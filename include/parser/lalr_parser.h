@@ -8,6 +8,7 @@
 #ifndef __MLANG_LALR_PARSER_H__
 #define __MLANG_LALR_PARSER_H__
 
+#include "clib/hashtable.h"
 #include "parser/lalr_parser_generator.h"
 #include "parser/m_parsing_table.h"
 #include <stdint.h>
@@ -33,6 +34,10 @@ struct lalr_parser{
     parsing_table *pt;
     // symbols of grammar rules are converted to int index as parsing rules
     parsing_rules *pr;
+
+    /*parser states*/
+    /* mapping type string into type enum: hashtable of (symbol, int) */
+    struct hashtable symbol_2_int_types;
 };
 
 struct lalr_parser *lalr_parser_new(parsing_table *pt, parsing_rules *pr);

@@ -96,7 +96,7 @@ struct sema_context {
     bool is_repl;
 };
 
-struct sema_context *sema_context_new(struct ast_node *stdio, struct ast_node *math, bool is_repl);
+struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, struct ast_node *stdio, struct ast_node *math, bool is_repl);
 void sema_context_free(struct sema_context *env);
 void enter_scope(struct sema_context *env);
 void leave_scope(struct sema_context *env);
