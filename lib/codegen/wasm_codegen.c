@@ -235,9 +235,9 @@ struct byte_array parse_as_module(const char *expr)
 {
     frontend_init();
     wasm_codegen_init();
-    struct sema_context *c = sema_context_new(0, 0, 0);
     struct lalr_parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, expr);
+    struct sema_context *c = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
     analyze(c, ast);
     struct byte_array ba = emit_wasm(ast);
     sema_context_free(c);

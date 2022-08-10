@@ -238,6 +238,18 @@ struct ast_node *var_node_new(symbol var_name, enum type annotated_type_enum, sy
     return node;
 }
 
+struct ast_node *var_node_new2(symbol var_name, symbol type_name,
+    struct ast_node *init_value, bool is_global, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(VAR_NODE, 0, loc);
+    MALLOC(node->var, sizeof(*node->var));
+    node->annotated_type_name = type_name;
+    node->var->var_name = var_name;
+    node->var->init_value = init_value;
+    node->var->is_global = is_global;
+    return node;
+}
+
 struct ast_node *_copy_var_node(struct ast_node *orig_node)
 {
     return var_node_new(
@@ -541,7 +553,7 @@ struct ast_node *block_node_new(struct array *nodes)
 struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node)
 {
     assert(block && block->node_type == BLOCK_NODE);
-    array_push(&node->block->nodes, &node);
+    array_push(&block->block->nodes, &node);
     return block;
 }
 

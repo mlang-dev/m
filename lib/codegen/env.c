@@ -24,7 +24,7 @@ struct env *env_new(bool is_repl)
     struct ast_node *stdio = parse_file(env->parser, libpath);
     join_path(libpath, sizeof(libpath), mpath, "mlib/math.m");
     struct ast_node *math = parse_file(env->parser, libpath);
-    env->cg = cg_new(sema_context_new(stdio, math, is_repl));
+    env->cg = cg_new(sema_context_new(&env->parser->symbol_2_int_types, stdio, math, is_repl));
     wat_codegen_init();
     g_env = env;
     return env;
