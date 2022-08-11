@@ -11,19 +11,23 @@ stmt        = func_def                          { 0 }
             | type_def                          { 0 }
             | expr                              { 0 }
             | var_decls                         { 0 }
-func_def    = IDENT var_decls '=' block         { func 0 1 3 }
-func_call   = IDENT arg_exprs                   { call 0 1 }
+            | EOF                               { 0 }
+func_def    = IDENT param_decls '=' block       { func 0 1 3 }
+#func_call   = IDENT arg_exprs                   { call 0 1 }
+#arg_exprs   = arg_exprs expr                    { block 0 1 }
+#            | expr                              { block 0 }
+#            | '(' ')'                           { block }  # empty block
 type_def    = "type" IDENT '=' block            { type_def 1 3 }
+param_decls = param_decls param_decl            { block 0 1 }
+            | param_decl                        { block 0 }
+            | '(' ')'                           { block }  # empty block
 var_decls   = var_decls var_decl                { block 0 1 }
             | var_decl                          { block 0 }
-            | '(' ')'                           { block }  # empty block
-var_decl    = IDENT ':' IDENT                   { var 0 0 2 } # var name:type, no initial value
+param_decl  = IDENT ':' IDENT                   { var 0 0 2 } # var name:type, no initial value
             | IDENT                             { var 0 0 } # value name, no type, no initial value
+var_decl    = IDENT ':' IDENT                   { var 0 0 2 } # var name:type, no initial value
             | IDENT ':' IDENT '=' expr          { var 1 0 2 4 } # var name:type with init value
             | IDENT '=' expr                    { var 1 0 2 }   # var name with initial value
-arg_exprs   = arg_exprs expr                    { block 0 1 }
-            | expr                              { block 0 }
-            | '(' ')'                           { block }  # empty block
 expr        = expr [+-] term                    { binop 0 1 2 } # lhs op rhs
             | term                              { 0 }
             | logic_val                         { 0 }
@@ -33,12 +37,11 @@ term        = term [*/%] factor                 { binop 0 1 2 } # lhs op rhs
 factor      = '(' expr ')'                      { 1 }
             | power                             { 0 }
             | [+-] factor                       { unop 0 1 }
-power       = num '^' factor                    { binop 0 1 2 } # lhs op rhs
-            | num                               { 0 }
-num         = INT                               { 0 }
+power       = primary '^' factor                { binop 0 1 2 } # lhs op rhs
+            | primary                           { 0 }
+primary     = INT                               { 0 }
             | FLOAT                             { 0 }
             | IDENT                             { 0 }
-            | func_call                         { 0 }
 
 logic_val   = "true"                            { 0 }
             | "false"                           { 0 }

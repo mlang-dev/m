@@ -209,6 +209,7 @@ struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
     struct parse_rule *rule;
     struct stack_item *si;
     struct parser_action *pa;
+    u32 i;
     //driver 
     while(1){
         s = _get_top_state(parser)->state_index;
@@ -234,6 +235,12 @@ struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
             break;
         }else{
             //error recovery
+            printf("error found in state: %d on terminal: %s\n", s, string_get(get_symbol_by_index(a)));
+            printf("the parser stack is: \n");
+            for (i = 0; i < parser->stack_top; i++){
+                printf("%d,", parser->stack[i].state_index);
+            }
+            printf("\n");
             assert(false);
             ast = 0;
             break;

@@ -157,18 +157,17 @@ TEST(test_lalr_parser, string_init)
 
 TEST(test_lalr_parser, id_func)
 {
-/*     char test_code[] = "\n\
-f x = x \n\
-f 10";*/
+     char test_code[] = "\n\
+f x = x";
     frontend_init();
-    // struct lalr_parser *parser = parser_new();
-    // struct ast_node *block = parse_code(parser, test_code);
-    // struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    // struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
-    // ASSERT_EQ(2, array_size(&block->block->nodes));
-    // ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
-    // ASSERT_EQ(IDENT_NODE, body_node->node_type);
-    // lalr_parser_free(parser);
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(IDENT_NODE, body_node->node_type);
+    lalr_parser_free(parser);
     frontend_deinit();
 }
 
