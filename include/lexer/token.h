@@ -19,7 +19,6 @@
 extern "C" {
 #endif
 
-
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
     ENUM_ITEM(TOKEN_EOF)             \
     ENUM_ITEM(TOKEN_EPSILON)         \
@@ -33,6 +32,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_IMPORT)          \
     ENUM_ITEM(TOKEN_EXTERN)          \
     ENUM_ITEM(TOKEN_TYPE)            \
+    ENUM_ITEM(TOKEN_LET)             \
     ENUM_ITEM(TOKEN_IF)              \
     ENUM_ITEM(TOKEN_THEN)            \
     ENUM_ITEM(TOKEN_ELSE)            \
@@ -53,7 +53,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_ASSIGN)          \
     ENUM_ITEM(TOKEN_ISTYPEOF)        \
-    ENUM_ITEM(TOKEN_OP)              
+    ENUM_ITEM(TOKEN_OP)
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 
