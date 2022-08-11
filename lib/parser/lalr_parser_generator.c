@@ -452,10 +452,10 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                     /**/
                     if (action->code == S){
                         printf("warning: There is a shift/reduce conflict in the grammar. ");
-                        printf("state: %d terminal: %d, shift to: %d, overrided reduction rule: %d \n", i, string_get(get_symbol_by_index(la_entry->data)), action->state_index, item->rule);
+                        printf("state: %d terminal: %s, shift to: %d, overrided reduction rule: %d(%s) \n", i, string_get(get_symbol_by_index(la_entry->data)), action->state_index, item->rule, string_get(get_symbol_by_index(rules[item->rule].lhs)));
                     } else if (action->code == R){
                         printf("warning: There is a reduce/reduce conflict in the grammar. ");
-                        printf("state: %d terminal: %d, reduction rule: %d, new reduction rule: %d, taken rule: %d \n", i, string_get(get_symbol_by_index(la_entry->data)), action->rule_index, item->rule, action->rule_index < item->rule ? action->rule_index : item->rule);
+                        printf("state: %d terminal: %s, reduction rule: %d(%s), new reduction rule: %d(%s), taken rule: %d \n", i, string_get(get_symbol_by_index(la_entry->data)), action->rule_index, string_get(get_symbol_by_index(rules[action->rule_index].lhs)), item->rule, string_get(get_symbol_by_index(rules[item->rule].lhs)), action->rule_index < item->rule ? action->rule_index : item->rule);
                         if(item->rule < action->rule_index){
                             action->rule_index = item->rule;
                         }
