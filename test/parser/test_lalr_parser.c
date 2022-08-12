@@ -158,7 +158,7 @@ TEST(test_lalr_parser, string_init)
 TEST(test_lalr_parser, id_func)
 {
      char test_code[] = "\n\
-f x = x";
+f x = x\n";
     frontend_init();
     struct lalr_parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);

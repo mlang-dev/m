@@ -25,7 +25,7 @@ extern "C" {
  * in codegen.c & analyzer.c shall be changed accordingly.
  */
 #define FOREACH_NODETYPE(ENUM_ITEM) \
-    ENUM_ITEM(UNK_NODE)             \
+    ENUM_ITEM(NULL_NODE)            \
     ENUM_ITEM(LITERAL_NODE)         \
     ENUM_ITEM(IDENT_NODE)           \
     ENUM_ITEM(VAR_NODE)             \
@@ -37,7 +37,7 @@ extern "C" {
     ENUM_ITEM(FOR_NODE)             \
     ENUM_ITEM(CALL_NODE)            \
     ENUM_ITEM(FUNC_TYPE_NODE)       \
-    ENUM_ITEM(FUNC_NODE)        \
+    ENUM_ITEM(FUNC_NODE)            \
     ENUM_ITEM(BLOCK_NODE)           \
     ENUM_ITEM(TOTAL_NODE)
 

@@ -191,7 +191,10 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         else if(rule->action.item_index_count == 2){
             ast = items[rule->action.item_index[0]].ast;
             assert(ast->node_type == BLOCK_NODE);
-            block_node_add(ast, items[rule->action.item_index[1]].ast);
+            node = items[rule->action.item_index[1]].ast;
+            if(node->node_type){
+                block_node_add(ast, items[rule->action.item_index[1]].ast);
+            }
         }
         break;
     }
