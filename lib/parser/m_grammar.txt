@@ -13,10 +13,10 @@ stmt        = func_def                          { 0 }
             | var_decls                         { 0 }
             | EOF                               { 0 }
 func_def    = IDENT param_decls '=' block       { func 0 1 3 }
-#func_call   = IDENT arg_exprs                   { call 0 1 }
-#arg_exprs   = arg_exprs expr                    { block 0 1 }
-#            | expr                              { block 0 }
-#            | '(' ')'                           { block }  # empty block
+func_call   = IDENT arg_exprs                   { call 0 1 }
+arg_exprs   = arg_exprs expr                    { block 0 1 }
+            | expr                              { block 0 }
+            | '(' ')'                           { block }  # empty block
 type_def    = "type" IDENT '=' block            { type_def 1 3 }
 param_decls = param_decls param_decl            { block 0 1 }
             | param_decl                        { block 0 }

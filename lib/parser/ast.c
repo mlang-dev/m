@@ -15,7 +15,7 @@ struct source_location default_loc = {0, 0, 0, 0};
 #define NODE_TYPE_NAME(node_name, node_type) {#node_name, 0, node_type##_NODE}
 
 struct node_type_name node_type_names[TERMINAL_COUNT] = {
-    NODE_TYPE_NAME(unk, UNK),
+    NODE_TYPE_NAME(null, NULL),
     NODE_TYPE_NAME(literal, LITERAL),
     NODE_TYPE_NAME(ident, IDENT),
     NODE_TYPE_NAME(var, VAR),
@@ -597,7 +597,7 @@ struct ast_node *node_copy(struct ast_node *node)
 void node_free(struct ast_node *node)
 {
     switch (node->node_type) {
-    case UNK_NODE:
+    case NULL_NODE:
         FREE(node);
         break;
     case BLOCK_NODE:
@@ -690,13 +690,13 @@ enum node_type token_to_node_type(enum token_type token_type, enum op_code opcod
         //*hacky way to transfer opcode
         return (token_type << 16) | opcode;
     }
-    return UNK_NODE;
+    return NULL_NODE;
 }
 
 enum node_type symbol_to_node_type(symbol node_type_name)
 {
     if(!node_type_name)
-        return UNK_NODE;
+        return NULL_NODE;
     struct node_type_name *ntn = get_node_type_name_by_symbol(node_type_name);
     assert(ntn);
     return ntn->node_type;
