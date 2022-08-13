@@ -12,16 +12,19 @@ stmt        = func_def                          { 0 }
             | expr                              { 0 }
             | var_decls                         { 0 }
             | EOF                               { 0 }
-func_def    = IDENT param_decls '=' block       { func 0 1 3 }
-func_call   = IDENT arg_exprs                   { call 0 1 }
-arg_exprs   = arg_exprs expr                    { block 0 1 }
-            | expr                              { block 0 }
-            | '(' ')'                           { block }  # empty block
+
 type_def    = "type" IDENT '=' block            { type_def 1 3 }
+func_def    = "let" IDENT param_decls '=' block { func 1 2 4 }
+func_call   = IDENT arg_exprs                   { call 0 1 }
+arg_exprs   = arg_exprs arg_exp                 { block 0 1 }
+            | arg_exp                           { block 0 }
+            | '(' ')'                           { block }  # empty block
+arg_exp     = '(' expr ')'                      { 1 }
+            | primary                           { 0 }
 param_decls = param_decls param_decl            { block 0 1 }
             | param_decl                        { block 0 }
             | '(' ')'                           { block }  # empty block
-var_decls   = var_decls var_decl                { block 0 1 }
+var_decls   = var_decls ',' var_decl            { block 0 1 }
             | var_decl                          { block 0 }
 param_decl  = IDENT ':' IDENT                   { var 0 0 2 } # var name:type, no initial value
             | IDENT                             { var 0 0 } # value name, no type, no initial value
@@ -30,21 +33,19 @@ var_decl    = IDENT ':' IDENT                   { var 0 0 2 } # var name:type, n
             | IDENT '=' expr                    { var 1 0 2 }   # var name with initial value
 expr        = expr [+-] term                    { binop 0 1 2 } # lhs op rhs
             | term                              { 0 }
-            | logic_val                         { 0 }
-            | string_val                        { 0 }
 term        = term [*/%] factor                 { binop 0 1 2 } # lhs op rhs
             | factor                            { 0 }
 factor      = '(' expr ')'                      { 1 }
-            | power                             { 0 }
             | [+-] factor                       { unop 0 1 }
-power       = primary '^' factor                { binop 0 1 2 } # lhs op rhs
-            | primary                           { 0 }
+            | power                             { 0 }
+power       = composite '^' factor              { binop 0 1 2 } # lhs op rhs
+            | composite                         { 0 }
+composite   = primary                           { 0 }  # x.y.z will be the first here as well
+            | func_call                         { 0 }
 primary     = INT                               { 0 }
             | FLOAT                             { 0 }
             | IDENT                             { 0 }
-
-logic_val   = "true"                            { 0 }
+            | "true"                            { 0 }
             | "false"                           { 0 }
-            
-string_val  = CHAR                              { 0 }
+            | CHAR                              { 0 }
             | STRING                            { 0 }

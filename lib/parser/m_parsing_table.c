@@ -65,21 +65,76 @@ const struct parse_rule m_parsing_rules[PARSING_RULE_COUNT] = {
  52 - block
  53 - stmts
  54 - stmt
- 55 - func_def
- 56 - func_call
- 57 - arg_exprs
- 58 - type_def
- 59 - param_decls
- 60 - var_decls
- 61 - param_decl
- 62 - var_decl
- 63 - expr
- 64 - term
- 65 - factor
- 66 - power
- 67 - primary
- 68 - logic_val
- 69 - string_val
+ 55 - type_def
+ 56 - func_def
+ 57 - func_call
+ 58 - arg_exprs
+ 59 - arg_exp
+ 60 - param_decls
+ 61 - var_decls
+ 62 - param_decl
+ 63 - var_decl
+ 64 - expr
+ 65 - term
+ 66 - factor
+ 67 - power
+ 68 - composite
+ 69 - primary
+*/
+  /*rule   0*/ {51,{53,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule   1*/ {52,{4,2,53,3,0,0,0,},4,{0,{2,0,0,0,0,0,0,},1}},
+  /*rule   2*/ {52,{54,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
+  /*rule   3*/ {53,{53,4,54,0,0,0,0,},3,{13,{0,2,0,0,0,0,0,},2}},
+  /*rule   4*/ {53,{54,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
+  /*rule   5*/ {54,{56,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule   6*/ {54,{55,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule   7*/ {54,{64,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule   8*/ {54,{61,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule   9*/ {54,{0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  10*/ {55,{11,20,31,52,0,0,0,},4,{4,{1,3,0,0,0,0,0,},2}},
+  /*rule  11*/ {56,{12,20,60,31,52,0,0,},5,{12,{1,2,4,0,0,0,0,},3}},
+  /*rule  12*/ {57,{20,58,0,0,0,0,0,},2,{10,{0,1,0,0,0,0,0,},2}},
+  /*rule  13*/ {58,{58,59,0,0,0,0,0,},2,{13,{0,1,0,0,0,0,0,},2}},
+  /*rule  14*/ {58,{59,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
+  /*rule  15*/ {58,{21,22,0,0,0,0,0,},2,{13,{0,0,0,0,0,0,0,},0}},
+  /*rule  16*/ {59,{21,64,22,0,0,0,0,},3,{0,{1,0,0,0,0,0,0,},1}},
+  /*rule  17*/ {59,{69,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  18*/ {60,{60,62,0,0,0,0,0,},2,{13,{0,1,0,0,0,0,0,},2}},
+  /*rule  19*/ {60,{62,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
+  /*rule  20*/ {60,{21,22,0,0,0,0,0,},2,{13,{0,0,0,0,0,0,0,},0}},
+  /*rule  21*/ {61,{61,27,63,0,0,0,0,},3,{13,{0,1,0,0,0,0,0,},2}},
+  /*rule  22*/ {61,{63,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
+  /*rule  23*/ {62,{20,32,20,0,0,0,0,},3,{3,{0,0,2,0,0,0,0,},3}},
+  /*rule  24*/ {62,{20,0,0,0,0,0,0,},1,{3,{0,0,0,0,0,0,0,},2}},
+  /*rule  25*/ {63,{20,32,20,0,0,0,0,},3,{3,{0,0,2,0,0,0,0,},3}},
+  /*rule  26*/ {63,{20,32,20,31,64,0,0,},5,{3,{1,0,2,4,0,0,0,},4}},
+  /*rule  27*/ {63,{20,31,64,0,0,0,0,},3,{3,{1,0,2,0,0,0,0,},3}},
+  /*rule  28*/ {64,{64,43,65,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
+  /*rule  29*/ {64,{64,44,65,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
+  /*rule  30*/ {64,{65,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  31*/ {65,{65,40,66,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
+  /*rule  32*/ {65,{65,41,66,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
+  /*rule  33*/ {65,{65,42,66,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
+  /*rule  34*/ {65,{66,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  35*/ {66,{21,64,22,0,0,0,0,},3,{0,{1,0,0,0,0,0,0,},1}},
+  /*rule  36*/ {66,{43,66,0,0,0,0,0,},2,{6,{0,1,0,0,0,0,0,},2}},
+  /*rule  37*/ {66,{44,66,0,0,0,0,0,},2,{6,{0,1,0,0,0,0,0,},2}},
+  /*rule  38*/ {66,{67,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  39*/ {67,{68,39,66,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
+  /*rule  40*/ {67,{68,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  41*/ {68,{69,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  42*/ {68,{57,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  43*/ {69,{5,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  44*/ {69,{6,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  45*/ {69,{20,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  46*/ {69,{16,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  47*/ {69,{17,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  48*/ {69,{7,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+  /*rule  49*/ {69,{8,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
+};
+
+const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT] = {
+/*
   rule   0: start = stmts
   rule   1: block = NEWLINE INDENT stmts DEDENT
   rule   2: block = stmt
@@ -90,97 +145,48 @@ const struct parse_rule m_parsing_rules[PARSING_RULE_COUNT] = {
   rule   7: stmt = expr
   rule   8: stmt = var_decls
   rule   9: stmt = EOF
-  rule  10: func_def = IDENT param_decls = block
-  rule  11: func_call = IDENT arg_exprs
-  rule  12: arg_exprs = arg_exprs expr
-  rule  13: arg_exprs = expr
-  rule  14: arg_exprs = ( )
-  rule  15: type_def = type IDENT = block
-  rule  16: param_decls = param_decls param_decl
-  rule  17: param_decls = param_decl
-  rule  18: param_decls = ( )
-  rule  19: var_decls = var_decls var_decl
-  rule  20: var_decls = var_decl
-  rule  21: param_decl = IDENT : IDENT
-  rule  22: param_decl = IDENT
-  rule  23: var_decl = IDENT : IDENT
-  rule  24: var_decl = IDENT : IDENT = expr
-  rule  25: var_decl = IDENT = expr
-  rule  26: expr = expr + term
-  rule  27: expr = expr - term
-  rule  28: expr = term
-  rule  29: expr = logic_val
-  rule  30: expr = string_val
+  rule  10: type_def = type IDENT = block
+  rule  11: func_def = let IDENT param_decls = block
+  rule  12: func_call = IDENT arg_exprs
+  rule  13: arg_exprs = arg_exprs arg_exp
+  rule  14: arg_exprs = arg_exp
+  rule  15: arg_exprs = ( )
+  rule  16: arg_exp = ( expr )
+  rule  17: arg_exp = primary
+  rule  18: param_decls = param_decls param_decl
+  rule  19: param_decls = param_decl
+  rule  20: param_decls = ( )
+  rule  21: var_decls = var_decls , var_decl
+  rule  22: var_decls = var_decl
+  rule  23: param_decl = IDENT : IDENT
+  rule  24: param_decl = IDENT
+  rule  25: var_decl = IDENT : IDENT
+  rule  26: var_decl = IDENT : IDENT = expr
+  rule  27: var_decl = IDENT = expr
+  rule  28: expr = expr + term
+  rule  29: expr = expr - term
+  rule  30: expr = term
   rule  31: term = term * factor
   rule  32: term = term / factor
   rule  33: term = term % factor
   rule  34: term = factor
   rule  35: factor = ( expr )
-  rule  36: factor = power
-  rule  37: factor = + factor
-  rule  38: factor = - factor
-  rule  39: power = primary ^ factor
-  rule  40: power = primary
-  rule  41: primary = INT
-  rule  42: primary = FLOAT
-  rule  43: primary = IDENT
-  rule  44: logic_val = true
-  rule  45: logic_val = false
-  rule  46: string_val = CHAR
-  rule  47: string_val = STRING
-*/
-  /*rule   0*/ {51,{53,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule   1*/ {52,{4,2,53,3,0,0,0,},4,{0,{2,0,0,0,0,0,0,},1}},
-  /*rule   2*/ {52,{54,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
-  /*rule   3*/ {53,{53,4,54,0,0,0,0,},3,{13,{0,2,0,0,0,0,0,},2}},
-  /*rule   4*/ {53,{54,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
-  /*rule   5*/ {54,{55,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule   6*/ {54,{58,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule   7*/ {54,{63,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule   8*/ {54,{60,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule   9*/ {54,{0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  10*/ {55,{20,59,31,52,0,0,0,},4,{12,{0,1,3,0,0,0,0,},3}},
-  /*rule  11*/ {56,{20,57,0,0,0,0,0,},2,{10,{0,1,0,0,0,0,0,},2}},
-  /*rule  12*/ {57,{57,63,0,0,0,0,0,},2,{13,{0,1,0,0,0,0,0,},2}},
-  /*rule  13*/ {57,{63,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
-  /*rule  14*/ {57,{21,22,0,0,0,0,0,},2,{13,{0,0,0,0,0,0,0,},0}},
-  /*rule  15*/ {58,{11,20,31,52,0,0,0,},4,{4,{1,3,0,0,0,0,0,},2}},
-  /*rule  16*/ {59,{59,61,0,0,0,0,0,},2,{13,{0,1,0,0,0,0,0,},2}},
-  /*rule  17*/ {59,{61,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
-  /*rule  18*/ {59,{21,22,0,0,0,0,0,},2,{13,{0,0,0,0,0,0,0,},0}},
-  /*rule  19*/ {60,{60,62,0,0,0,0,0,},2,{13,{0,1,0,0,0,0,0,},2}},
-  /*rule  20*/ {60,{62,0,0,0,0,0,0,},1,{13,{0,0,0,0,0,0,0,},1}},
-  /*rule  21*/ {61,{20,32,20,0,0,0,0,},3,{3,{0,0,2,0,0,0,0,},3}},
-  /*rule  22*/ {61,{20,0,0,0,0,0,0,},1,{3,{0,0,0,0,0,0,0,},2}},
-  /*rule  23*/ {62,{20,32,20,0,0,0,0,},3,{3,{0,0,2,0,0,0,0,},3}},
-  /*rule  24*/ {62,{20,32,20,31,63,0,0,},5,{3,{1,0,2,4,0,0,0,},4}},
-  /*rule  25*/ {62,{20,31,63,0,0,0,0,},3,{3,{1,0,2,0,0,0,0,},3}},
-  /*rule  26*/ {63,{63,43,64,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
-  /*rule  27*/ {63,{63,44,64,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
-  /*rule  28*/ {63,{64,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  29*/ {63,{68,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  30*/ {63,{69,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  31*/ {64,{64,40,65,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
-  /*rule  32*/ {64,{64,41,65,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
-  /*rule  33*/ {64,{64,42,65,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
-  /*rule  34*/ {64,{65,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  35*/ {65,{21,63,22,0,0,0,0,},3,{0,{1,0,0,0,0,0,0,},1}},
-  /*rule  36*/ {65,{66,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  37*/ {65,{43,65,0,0,0,0,0,},2,{6,{0,1,0,0,0,0,0,},2}},
-  /*rule  38*/ {65,{44,65,0,0,0,0,0,},2,{6,{0,1,0,0,0,0,0,},2}},
-  /*rule  39*/ {66,{67,39,65,0,0,0,0,},3,{7,{0,1,2,0,0,0,0,},3}},
-  /*rule  40*/ {66,{67,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  41*/ {67,{5,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  42*/ {67,{6,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  43*/ {67,{20,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  44*/ {68,{16,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  45*/ {68,{17,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  46*/ {69,{7,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-  /*rule  47*/ {69,{8,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,},1}},
-};
-
-const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT] = {
-/*
+  rule  36: factor = + factor
+  rule  37: factor = - factor
+  rule  38: factor = power
+  rule  39: power = composite ^ factor
+  rule  40: power = composite
+  rule  41: composite = primary
+  rule  42: composite = func_call
+  rule  43: primary = INT
+  rule  44: primary = FLOAT
+  rule  45: primary = IDENT
+  rule  46: primary = true
+  rule  47: primary = false
+  rule  48: primary = CHAR
+  rule  49: primary = STRING
+==========================================================
+==========================================================
   state   0 start = .stmts[]
             
   state   1 start = stmts.[EOF,]
@@ -197,233 +203,277 @@ const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_C
             expr = expr .- term[]
             
   state   6 stmt = var_decls.[EOF,NEWLINE,DEDENT,]
-            var_decls = var_decls .var_decl[]
+            var_decls = var_decls ., var_decl[]
             
   state   7 stmt = EOF.[EOF,NEWLINE,DEDENT,]
             
-  state   8 func_def = IDENT .param_decls = block[]
-            var_decl = IDENT .: IDENT[]
-            var_decl = IDENT .: IDENT = expr[]
-            var_decl = IDENT .= expr[]
-            primary = IDENT.[^,EOF,NEWLINE,+,-,*,/,%,DEDENT,]
+  state   8 func_def = let .IDENT param_decls = block[]
             
   state   9 type_def = type .IDENT = block[]
             
-  state  10 expr = term.[EOF,NEWLINE,+,-,),DEDENT,IDENT,]
+  state  10 expr = term.[EOF,NEWLINE,+,-,),DEDENT,,,]
             term = term .* factor[]
             term = term ./ factor[]
             term = term .% factor[]
             
-  state  11 expr = logic_val.[EOF,NEWLINE,+,-,),DEDENT,IDENT,]
+  state  11 var_decls = var_decl.[EOF,NEWLINE,,,DEDENT,]
             
-  state  12 expr = string_val.[EOF,NEWLINE,+,-,),DEDENT,IDENT,]
+  state  12 term = factor.[EOF,NEWLINE,+,-,*,/,%,),DEDENT,,,]
             
-  state  13 var_decls = var_decl.[EOF,NEWLINE,IDENT,DEDENT,]
+  state  13 var_decl = IDENT .: IDENT[]
+            var_decl = IDENT .: IDENT = expr[]
+            var_decl = IDENT .= expr[]
+            primary = IDENT.[^,EOF,NEWLINE,+,-,*,/,%,DEDENT,]
+            func_call = IDENT .arg_exprs[]
             
-  state  14 term = factor.[EOF,NEWLINE,+,-,*,/,%,),DEDENT,IDENT,]
+  state  14 factor = ( .expr )[]
             
-  state  15 logic_val = true.[EOF,NEWLINE,+,-,),DEDENT,IDENT,]
+  state  15 factor = + .factor[]
             
-  state  16 logic_val = false.[EOF,NEWLINE,+,-,),DEDENT,IDENT,]
+  state  16 factor = - .factor[]
             
-  state  17 string_val = CHAR.[EOF,NEWLINE,+,-,),DEDENT,IDENT,]
+  state  17 factor = power.[EOF,NEWLINE,+,-,*,/,%,),,,DEDENT,]
             
-  state  18 string_val = STRING.[EOF,NEWLINE,+,-,),DEDENT,IDENT,]
+  state  18 power = composite .^ factor[]
+            power = composite.[EOF,NEWLINE,+,-,*,/,%,),,,DEDENT,]
             
-  state  19 factor = ( .expr )[]
+  state  19 composite = primary.[^,EOF,NEWLINE,+,-,*,/,%,),,,DEDENT,]
             
-  state  20 factor = power.[EOF,NEWLINE,+,-,*,/,%,),IDENT,DEDENT,]
+  state  20 composite = func_call.[^,EOF,NEWLINE,+,-,*,/,%,),,,DEDENT,]
             
-  state  21 factor = + .factor[]
+  state  21 primary = INT.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
             
-  state  22 factor = - .factor[]
+  state  22 primary = FLOAT.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
             
-  state  23 power = primary .^ factor[]
-            power = primary.[EOF,NEWLINE,+,-,*,/,%,),IDENT,DEDENT,]
+  state  23 primary = true.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
             
-  state  24 primary = INT.[^,EOF,NEWLINE,+,-,*,/,%,),IDENT,DEDENT,]
+  state  24 primary = false.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
             
-  state  25 primary = FLOAT.[^,EOF,NEWLINE,+,-,*,/,%,),IDENT,DEDENT,]
+  state  25 primary = CHAR.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
             
-  state  26 stmts = stmts NEWLINE .stmt[]
+  state  26 primary = STRING.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
             
-  state  27 expr = expr + .term[]
+  state  27 stmts = stmts NEWLINE .stmt[]
             
-  state  28 expr = expr - .term[]
+  state  28 expr = expr + .term[]
             
-  state  29 var_decls = var_decls var_decl.[EOF,NEWLINE,IDENT,DEDENT,]
+  state  29 expr = expr - .term[]
             
-  state  30 var_decl = IDENT .: IDENT[]
+  state  30 var_decls = var_decls , .var_decl[]
+            
+  state  31 func_def = let IDENT .param_decls = block[]
+            
+  state  32 type_def = type IDENT .= block[]
+            
+  state  33 term = term * .factor[]
+            
+  state  34 term = term / .factor[]
+            
+  state  35 term = term % .factor[]
+            
+  state  36 var_decl = IDENT : .IDENT[]
+            var_decl = IDENT : .IDENT = expr[]
+            
+  state  37 var_decl = IDENT = .expr[]
+            
+  state  38 func_call = IDENT arg_exprs.[^,EOF,NEWLINE,+,-,*,/,%,),,,DEDENT,]
+            arg_exprs = arg_exprs .arg_exp[]
+            
+  state  39 arg_exprs = arg_exp.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
+            
+  state  40 arg_exprs = ( .)[]
+            arg_exp = ( .expr )[]
+            
+  state  41 arg_exp = primary.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
+            
+  state  42 primary = IDENT.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
+            
+  state  43 factor = ( expr .)[]
+            expr = expr .+ term[]
+            expr = expr .- term[]
+            
+  state  44 primary = IDENT.[^,),+,-,*,/,%,EOF,NEWLINE,,,DEDENT,]
+            func_call = IDENT .arg_exprs[]
+            
+  state  45 factor = + factor.[EOF,NEWLINE,+,-,*,/,%,),,,DEDENT,]
+            
+  state  46 factor = - factor.[EOF,NEWLINE,+,-,*,/,%,),,,DEDENT,]
+            
+  state  47 power = composite ^ .factor[]
+            
+  state  48 stmts = stmts NEWLINE stmt.[EOF,NEWLINE,DEDENT,]
+            
+  state  49 expr = expr + term.[EOF,NEWLINE,+,-,),DEDENT,,,]
+            term = term .* factor[]
+            term = term ./ factor[]
+            term = term .% factor[]
+            
+  state  50 expr = expr - term.[EOF,NEWLINE,+,-,),DEDENT,,,]
+            term = term .* factor[]
+            term = term ./ factor[]
+            term = term .% factor[]
+            
+  state  51 var_decls = var_decls , var_decl.[EOF,NEWLINE,,,DEDENT,]
+            
+  state  52 var_decl = IDENT .: IDENT[]
             var_decl = IDENT .: IDENT = expr[]
             var_decl = IDENT .= expr[]
             
-  state  31 func_def = IDENT param_decls .= block[]
+  state  53 func_def = let IDENT param_decls .= block[]
             param_decls = param_decls .param_decl[]
             
-  state  32 var_decl = IDENT : .IDENT[]
-            var_decl = IDENT : .IDENT = expr[]
+  state  54 param_decls = param_decl.[=,IDENT,]
             
-  state  33 var_decl = IDENT = .expr[]
+  state  55 param_decls = ( .)[]
             
-  state  34 param_decls = param_decl.[=,IDENT,]
-            
-  state  35 param_decls = ( .)[]
-            
-  state  36 param_decl = IDENT .: IDENT[]
+  state  56 param_decl = IDENT .: IDENT[]
             param_decl = IDENT.[=,IDENT,]
             
-  state  37 type_def = type IDENT .= block[]
+  state  57 type_def = type IDENT = .block[]
             
-  state  38 term = term * .factor[]
+  state  58 term = term * factor.[EOF,NEWLINE,+,-,*,/,%,),DEDENT,,,]
             
-  state  39 term = term / .factor[]
+  state  59 term = term / factor.[EOF,NEWLINE,+,-,*,/,%,),DEDENT,,,]
             
-  state  40 term = term % .factor[]
+  state  60 term = term % factor.[EOF,NEWLINE,+,-,*,/,%,),DEDENT,,,]
             
-  state  41 factor = ( expr .)[]
-            expr = expr .+ term[]
-            expr = expr .- term[]
-            
-  state  42 primary = IDENT.[^,),+,-,*,/,%,EOF,NEWLINE,IDENT,DEDENT,]
-            
-  state  43 factor = + factor.[EOF,NEWLINE,+,-,*,/,%,),IDENT,DEDENT,]
-            
-  state  44 factor = - factor.[EOF,NEWLINE,+,-,*,/,%,),IDENT,DEDENT,]
-            
-  state  45 power = primary ^ .factor[]
-            
-  state  46 stmts = stmts NEWLINE stmt.[EOF,NEWLINE,DEDENT,]
-            
-  state  47 expr = expr + term.[EOF,NEWLINE,+,-,),DEDENT,IDENT,]
-            term = term .* factor[]
-            term = term ./ factor[]
-            term = term .% factor[]
-            
-  state  48 expr = expr - term.[EOF,NEWLINE,+,-,),DEDENT,IDENT,]
-            term = term .* factor[]
-            term = term ./ factor[]
-            term = term .% factor[]
-            
-  state  49 func_def = IDENT param_decls = .block[]
-            
-  state  50 param_decls = param_decls param_decl.[=,IDENT,]
-            
-  state  51 var_decl = IDENT : IDENT.[EOF,NEWLINE,IDENT,DEDENT,]
+  state  61 var_decl = IDENT : IDENT.[EOF,NEWLINE,,,DEDENT,]
             var_decl = IDENT : IDENT .= expr[]
             
-  state  52 var_decl = IDENT = expr.[EOF,NEWLINE,IDENT,DEDENT,]
+  state  62 var_decl = IDENT = expr.[EOF,NEWLINE,,,DEDENT,]
             expr = expr .+ term[]
             expr = expr .- term[]
             
-  state  53 param_decls = ( ).[=,IDENT,]
+  state  63 arg_exprs = arg_exprs arg_exp.[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
             
-  state  54 param_decl = IDENT : .IDENT[]
+  state  64 arg_exp = ( .expr )[]
             
-  state  55 type_def = type IDENT = .block[]
+  state  65 arg_exprs = ( ).[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
             
-  state  56 term = term * factor.[EOF,NEWLINE,+,-,*,/,%,),DEDENT,IDENT,]
-            
-  state  57 term = term / factor.[EOF,NEWLINE,+,-,*,/,%,),DEDENT,IDENT,]
-            
-  state  58 term = term % factor.[EOF,NEWLINE,+,-,*,/,%,),DEDENT,IDENT,]
-            
-  state  59 factor = ( expr ).[EOF,NEWLINE,+,-,*,/,%,),IDENT,DEDENT,]
-            
-  state  60 power = primary ^ factor.[EOF,NEWLINE,+,-,*,/,%,),IDENT,DEDENT,]
-            
-  state  61 func_def = IDENT param_decls = block.[EOF,NEWLINE,DEDENT,]
-            
-  state  62 block = NEWLINE .INDENT stmts DEDENT[]
-            
-  state  63 block = stmt.[EOF,NEWLINE,DEDENT,]
-            
-  state  64 var_decl = IDENT : IDENT = .expr[]
-            
-  state  65 param_decl = IDENT : IDENT.[=,IDENT,]
-            
-  state  66 type_def = type IDENT = block.[EOF,NEWLINE,DEDENT,]
-            
-  state  67 block = NEWLINE INDENT .stmts DEDENT[]
-            
-  state  68 var_decl = IDENT : IDENT = expr.[EOF,NEWLINE,IDENT,DEDENT,]
+  state  66 arg_exp = ( expr .)[]
             expr = expr .+ term[]
             expr = expr .- term[]
             
-  state  69 block = NEWLINE INDENT stmts .DEDENT[]
+  state  67 factor = ( expr ).[EOF,NEWLINE,+,-,*,/,%,),,,DEDENT,]
+            
+  state  68 power = composite ^ factor.[EOF,NEWLINE,+,-,*,/,%,),,,DEDENT,]
+            
+  state  69 func_def = let IDENT param_decls = .block[]
+            
+  state  70 param_decls = param_decls param_decl.[=,IDENT,]
+            
+  state  71 param_decls = ( ).[=,IDENT,]
+            
+  state  72 param_decl = IDENT : .IDENT[]
+            
+  state  73 type_def = type IDENT = block.[EOF,NEWLINE,DEDENT,]
+            
+  state  74 block = NEWLINE .INDENT stmts DEDENT[]
+            
+  state  75 block = stmt.[EOF,NEWLINE,DEDENT,]
+            
+  state  76 var_decl = IDENT : IDENT = .expr[]
+            
+  state  77 arg_exp = ( expr ).[^,EOF,NEWLINE,+,-,*,/,%,(,INT,FLOAT,IDENT,true,false,CHAR,STRING,DEDENT,),,,]
+            
+  state  78 func_def = let IDENT param_decls = block.[EOF,NEWLINE,DEDENT,]
+            
+  state  79 param_decl = IDENT : IDENT.[=,IDENT,]
+            
+  state  80 block = NEWLINE INDENT .stmts DEDENT[]
+            
+  state  81 var_decl = IDENT : IDENT = expr.[EOF,NEWLINE,,,DEDENT,]
+            expr = expr .+ term[]
+            expr = expr .- term[]
+            
+  state  82 block = NEWLINE INDENT stmts .DEDENT[]
             stmts = stmts .NEWLINE stmt[]
             
-  state  70 block = NEWLINE INDENT stmts DEDENT.[EOF,NEWLINE,DEDENT,]
+  state  83 block = NEWLINE INDENT stmts DEDENT.[EOF,NEWLINE,DEDENT,]
             
 */
-  /*state   0*/ {{S,7},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{S,17},{S,18},{E,0},{E,0},{S,9},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{S,8},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,1},{G,2},{G,3},{E,0},{E,0},{G,4},{E,0},{G,6},{E,0},{G,13},{G,5},{G,10},{G,14},{G,20},{G,23},{G,11},{G,12},},
-  /*state   1*/ {{A,0},{E,0},{E,0},{E,0},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state   0*/ {{S,7},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{S,9},{S,8},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,13},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,1},{G,2},{G,4},{G,3},{G,20},{E,0},{E,0},{E,0},{G,6},{E,0},{G,11},{G,5},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state   1*/ {{A,0},{E,0},{E,0},{E,0},{S,27},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
   /*state   2*/ {{R,4},{E,0},{E,0},{R,4},{R,4},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
   /*state   3*/ {{R,5},{E,0},{E,0},{R,5},{R,5},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
   /*state   4*/ {{R,6},{E,0},{E,0},{R,6},{R,6},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state   5*/ {{R,7},{E,0},{E,0},{R,7},{R,7},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,27},{S,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state   6*/ {{R,8},{E,0},{E,0},{R,8},{R,8},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,30},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state   5*/ {{R,7},{E,0},{E,0},{R,7},{R,7},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,28},{S,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state   6*/ {{R,8},{E,0},{E,0},{R,8},{R,8},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,30},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
   /*state   7*/ {{R,9},{E,0},{E,0},{R,9},{R,9},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state   8*/ {{R,43},{E,0},{E,0},{R,43},{R,43},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,36},{S,35},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,33},{S,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,43},{R,43},{R,43},{R,43},{R,43},{R,43},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,31},{E,0},{G,34},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state   9*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,37},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  10*/ {{R,28},{E,0},{E,0},{R,28},{R,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,28},{E,0},{R,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,38},{S,39},{S,40},{R,28},{R,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  11*/ {{R,29},{E,0},{E,0},{R,29},{R,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,29},{E,0},{R,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,29},{R,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  12*/ {{R,30},{E,0},{E,0},{R,30},{R,30},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,30},{E,0},{R,30},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,30},{R,30},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  13*/ {{R,20},{E,0},{E,0},{R,20},{R,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  14*/ {{R,34},{E,0},{E,0},{R,34},{R,34},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,34},{E,0},{R,34},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,34},{R,34},{R,34},{R,34},{R,34},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  15*/ {{R,44},{E,0},{E,0},{R,44},{R,44},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,44},{E,0},{R,44},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,44},{R,44},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  16*/ {{R,45},{E,0},{E,0},{R,45},{R,45},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,45},{E,0},{R,45},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,45},{R,45},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  17*/ {{R,46},{E,0},{E,0},{R,46},{R,46},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,46},{E,0},{R,46},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,46},{R,46},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  18*/ {{R,47},{E,0},{E,0},{R,47},{R,47},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,47},{E,0},{R,47},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,47},{R,47},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  19*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{S,17},{S,18},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,41},{G,10},{G,14},{G,20},{G,23},{G,11},{G,12},},
-  /*state  20*/ {{R,36},{E,0},{E,0},{R,36},{R,36},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,36},{E,0},{R,36},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,36},{R,36},{R,36},{R,36},{R,36},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  21*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,43},{G,20},{G,23},{E,0},{E,0},},
-  /*state  22*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,44},{G,20},{G,23},{E,0},{E,0},},
-  /*state  23*/ {{R,40},{E,0},{E,0},{R,40},{R,40},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,40},{E,0},{R,40},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,45},{R,40},{R,40},{R,40},{R,40},{R,40},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  24*/ {{R,41},{E,0},{E,0},{R,41},{R,41},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,41},{E,0},{R,41},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,41},{R,41},{R,41},{R,41},{R,41},{R,41},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  25*/ {{R,42},{E,0},{E,0},{R,42},{R,42},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,42},{E,0},{R,42},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,42},{R,42},{R,42},{R,42},{R,42},{R,42},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  26*/ {{S,7},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{S,17},{S,18},{E,0},{E,0},{S,9},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{S,8},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,46},{G,3},{E,0},{E,0},{G,4},{E,0},{G,6},{E,0},{G,13},{G,5},{G,10},{G,14},{G,20},{G,23},{G,11},{G,12},},
-  /*state  27*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,47},{G,14},{G,20},{G,23},{E,0},{E,0},},
-  /*state  28*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,48},{G,14},{G,20},{G,23},{E,0},{E,0},},
-  /*state  29*/ {{R,19},{E,0},{E,0},{R,19},{R,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  30*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,33},{S,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  31*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,36},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,49},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,50},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  32*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,51},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  33*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{S,17},{S,18},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,52},{G,10},{G,14},{G,20},{G,23},{G,11},{G,12},},
-  /*state  34*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,17},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,17},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  35*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,53},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  36*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,22},{S,54},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  37*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,55},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  38*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,56},{G,20},{G,23},{E,0},{E,0},},
-  /*state  39*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,57},{G,20},{G,23},{E,0},{E,0},},
-  /*state  40*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,58},{G,20},{G,23},{E,0},{E,0},},
-  /*state  41*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,59},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,27},{S,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  42*/ {{R,43},{E,0},{E,0},{R,43},{R,43},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,43},{E,0},{R,43},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,43},{R,43},{R,43},{R,43},{R,43},{R,43},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  43*/ {{R,37},{E,0},{E,0},{R,37},{R,37},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,37},{E,0},{R,37},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,37},{R,37},{R,37},{R,37},{R,37},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  44*/ {{R,38},{E,0},{E,0},{R,38},{R,38},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,38},{E,0},{R,38},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,38},{R,38},{R,38},{R,38},{R,38},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  45*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,60},{G,20},{G,23},{E,0},{E,0},},
-  /*state  46*/ {{R,3},{E,0},{E,0},{R,3},{R,3},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  47*/ {{R,26},{E,0},{E,0},{R,26},{R,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,26},{E,0},{R,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,38},{S,39},{S,40},{R,26},{R,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  48*/ {{R,27},{E,0},{E,0},{R,27},{R,27},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,27},{E,0},{R,27},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,38},{S,39},{S,40},{R,27},{R,27},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  49*/ {{S,7},{E,0},{E,0},{E,0},{S,62},{S,24},{S,25},{S,17},{S,18},{E,0},{E,0},{S,9},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{S,8},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,61},{E,0},{G,63},{G,3},{E,0},{E,0},{G,4},{E,0},{G,6},{E,0},{G,13},{G,5},{G,10},{G,14},{G,20},{G,23},{G,11},{G,12},},
-  /*state  50*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  51*/ {{R,23},{E,0},{E,0},{R,23},{R,23},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,23},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,64},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  52*/ {{R,25},{E,0},{E,0},{R,25},{R,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,27},{S,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  53*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,18},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,18},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  54*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,65},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  55*/ {{S,7},{E,0},{E,0},{E,0},{S,62},{S,24},{S,25},{S,17},{S,18},{E,0},{E,0},{S,9},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{S,8},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,66},{E,0},{G,63},{G,3},{E,0},{E,0},{G,4},{E,0},{G,6},{E,0},{G,13},{G,5},{G,10},{G,14},{G,20},{G,23},{G,11},{G,12},},
-  /*state  56*/ {{R,31},{E,0},{E,0},{R,31},{R,31},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,31},{E,0},{R,31},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,31},{R,31},{R,31},{R,31},{R,31},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  57*/ {{R,32},{E,0},{E,0},{R,32},{R,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,32},{E,0},{R,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,32},{R,32},{R,32},{R,32},{R,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  58*/ {{R,33},{E,0},{E,0},{R,33},{R,33},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,33},{E,0},{R,33},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,33},{R,33},{R,33},{R,33},{R,33},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  59*/ {{R,35},{E,0},{E,0},{R,35},{R,35},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,35},{E,0},{R,35},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,35},{R,35},{R,35},{R,35},{R,35},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  60*/ {{R,39},{E,0},{E,0},{R,39},{R,39},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,39},{E,0},{R,39},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,39},{R,39},{R,39},{R,39},{R,39},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  61*/ {{R,10},{E,0},{E,0},{R,10},{R,10},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  62*/ {{E,0},{E,0},{S,67},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  63*/ {{R,2},{E,0},{E,0},{R,2},{R,2},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  64*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{S,17},{S,18},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{S,42},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,68},{G,10},{G,14},{G,20},{G,23},{G,11},{G,12},},
-  /*state  65*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,21},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,21},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  66*/ {{R,15},{E,0},{E,0},{R,15},{R,15},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  67*/ {{S,7},{E,0},{E,0},{E,0},{E,0},{S,24},{S,25},{S,17},{S,18},{E,0},{E,0},{S,9},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{S,8},{S,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,69},{G,2},{G,3},{E,0},{E,0},{G,4},{E,0},{G,6},{E,0},{G,13},{G,5},{G,10},{G,14},{G,20},{G,23},{G,11},{G,12},},
-  /*state  68*/ {{R,24},{E,0},{E,0},{R,24},{R,24},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,24},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,27},{S,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  69*/ {{E,0},{E,0},{E,0},{S,70},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
-  /*state  70*/ {{R,1},{E,0},{E,0},{R,1},{R,1},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state   8*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,31},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state   9*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  10*/ {{R,30},{E,0},{E,0},{R,30},{R,30},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,30},{E,0},{E,0},{E,0},{E,0},{R,30},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,33},{S,34},{S,35},{R,30},{R,30},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  11*/ {{R,22},{E,0},{E,0},{R,22},{R,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,22},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  12*/ {{R,34},{E,0},{E,0},{R,34},{R,34},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,34},{E,0},{E,0},{E,0},{E,0},{R,34},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,34},{R,34},{R,34},{R,34},{R,34},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  13*/ {{R,45},{E,0},{E,0},{R,45},{R,45},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,42},{S,40},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,37},{S,36},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,45},{R,45},{R,45},{R,45},{R,45},{R,45},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,38},{G,39},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,41},},
+  /*state  14*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,43},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state  15*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,45},{G,17},{G,18},{G,19},},
+  /*state  16*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,46},{G,17},{G,18},{G,19},},
+  /*state  17*/ {{R,38},{E,0},{E,0},{R,38},{R,38},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,38},{E,0},{E,0},{E,0},{E,0},{R,38},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,38},{R,38},{R,38},{R,38},{R,38},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  18*/ {{R,40},{E,0},{E,0},{R,40},{R,40},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,40},{E,0},{E,0},{E,0},{E,0},{R,40},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,47},{R,40},{R,40},{R,40},{R,40},{R,40},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  19*/ {{R,41},{E,0},{E,0},{R,41},{R,41},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,41},{E,0},{E,0},{E,0},{E,0},{R,41},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,41},{R,41},{R,41},{R,41},{R,41},{R,41},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  20*/ {{R,42},{E,0},{E,0},{R,42},{R,42},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,42},{E,0},{E,0},{E,0},{E,0},{R,42},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,42},{R,42},{R,42},{R,42},{R,42},{R,42},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  21*/ {{R,43},{E,0},{E,0},{R,43},{R,43},{R,43},{R,43},{R,43},{R,43},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,43},{R,43},{E,0},{E,0},{R,43},{R,43},{R,43},{E,0},{E,0},{E,0},{E,0},{R,43},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,43},{R,43},{R,43},{R,43},{R,43},{R,43},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  22*/ {{R,44},{E,0},{E,0},{R,44},{R,44},{R,44},{R,44},{R,44},{R,44},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,44},{R,44},{E,0},{E,0},{R,44},{R,44},{R,44},{E,0},{E,0},{E,0},{E,0},{R,44},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,44},{R,44},{R,44},{R,44},{R,44},{R,44},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  23*/ {{R,46},{E,0},{E,0},{R,46},{R,46},{R,46},{R,46},{R,46},{R,46},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,46},{R,46},{E,0},{E,0},{R,46},{R,46},{R,46},{E,0},{E,0},{E,0},{E,0},{R,46},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,46},{R,46},{R,46},{R,46},{R,46},{R,46},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  24*/ {{R,47},{E,0},{E,0},{R,47},{R,47},{R,47},{R,47},{R,47},{R,47},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,47},{R,47},{E,0},{E,0},{R,47},{R,47},{R,47},{E,0},{E,0},{E,0},{E,0},{R,47},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,47},{R,47},{R,47},{R,47},{R,47},{R,47},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  25*/ {{R,48},{E,0},{E,0},{R,48},{R,48},{R,48},{R,48},{R,48},{R,48},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,48},{R,48},{E,0},{E,0},{R,48},{R,48},{R,48},{E,0},{E,0},{E,0},{E,0},{R,48},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,48},{R,48},{R,48},{R,48},{R,48},{R,48},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  26*/ {{R,49},{E,0},{E,0},{R,49},{R,49},{R,49},{R,49},{R,49},{R,49},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,49},{R,49},{E,0},{E,0},{R,49},{R,49},{R,49},{E,0},{E,0},{E,0},{E,0},{R,49},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,49},{R,49},{R,49},{R,49},{R,49},{R,49},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  27*/ {{S,7},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{S,9},{S,8},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,13},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,48},{G,4},{G,3},{G,20},{E,0},{E,0},{E,0},{G,6},{E,0},{G,11},{G,5},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state  28*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,49},{G,12},{G,17},{G,18},{G,19},},
+  /*state  29*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,50},{G,12},{G,17},{G,18},{G,19},},
+  /*state  30*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,52},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,51},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  31*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,56},{S,55},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,53},{E,0},{G,54},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  32*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,57},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  33*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,58},{G,17},{G,18},{G,19},},
+  /*state  34*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,59},{G,17},{G,18},{G,19},},
+  /*state  35*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,60},{G,17},{G,18},{G,19},},
+  /*state  36*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,61},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  37*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,62},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state  38*/ {{R,12},{E,0},{E,0},{R,12},{R,12},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,42},{S,64},{R,12},{E,0},{E,0},{E,0},{E,0},{R,12},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,12},{R,12},{R,12},{R,12},{R,12},{R,12},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,63},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,41},},
+  /*state  39*/ {{R,14},{E,0},{E,0},{R,14},{R,14},{R,14},{R,14},{R,14},{R,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,14},{R,14},{E,0},{E,0},{R,14},{R,14},{R,14},{E,0},{E,0},{E,0},{E,0},{R,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,14},{R,14},{R,14},{R,14},{R,14},{R,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  40*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{S,65},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,66},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state  41*/ {{R,17},{E,0},{E,0},{R,17},{R,17},{R,17},{R,17},{R,17},{R,17},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,17},{R,17},{E,0},{E,0},{R,17},{R,17},{R,17},{E,0},{E,0},{E,0},{E,0},{R,17},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,17},{R,17},{R,17},{R,17},{R,17},{R,17},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  42*/ {{R,45},{E,0},{E,0},{R,45},{R,45},{R,45},{R,45},{R,45},{R,45},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,45},{R,45},{E,0},{E,0},{R,45},{R,45},{R,45},{E,0},{E,0},{E,0},{E,0},{R,45},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,45},{R,45},{R,45},{R,45},{R,45},{R,45},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  43*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,67},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,28},{S,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  44*/ {{R,45},{E,0},{E,0},{R,45},{R,45},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,42},{S,40},{R,45},{E,0},{E,0},{E,0},{E,0},{R,45},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,45},{R,45},{R,45},{R,45},{R,45},{R,45},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,38},{G,39},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,41},},
+  /*state  45*/ {{R,36},{E,0},{E,0},{R,36},{R,36},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,36},{E,0},{E,0},{E,0},{E,0},{R,36},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,36},{R,36},{R,36},{R,36},{R,36},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  46*/ {{R,37},{E,0},{E,0},{R,37},{R,37},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,37},{E,0},{E,0},{E,0},{E,0},{R,37},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,37},{R,37},{R,37},{R,37},{R,37},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  47*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,68},{G,17},{G,18},{G,19},},
+  /*state  48*/ {{R,3},{E,0},{E,0},{R,3},{R,3},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  49*/ {{R,28},{E,0},{E,0},{R,28},{R,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,28},{E,0},{E,0},{E,0},{E,0},{R,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,33},{S,34},{S,35},{R,28},{R,28},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  50*/ {{R,29},{E,0},{E,0},{R,29},{R,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,29},{E,0},{E,0},{E,0},{E,0},{R,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,33},{S,34},{S,35},{R,29},{R,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  51*/ {{R,21},{E,0},{E,0},{R,21},{R,21},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,21},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  52*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,37},{S,36},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  53*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,56},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,69},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,70},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  54*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,19},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  55*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,71},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  56*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,24},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,24},{S,72},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  57*/ {{S,7},{E,0},{E,0},{E,0},{S,74},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{S,9},{S,8},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,13},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,73},{E,0},{G,75},{G,4},{G,3},{G,20},{E,0},{E,0},{E,0},{G,6},{E,0},{G,11},{G,5},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state  58*/ {{R,31},{E,0},{E,0},{R,31},{R,31},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,31},{E,0},{E,0},{E,0},{E,0},{R,31},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,31},{R,31},{R,31},{R,31},{R,31},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  59*/ {{R,32},{E,0},{E,0},{R,32},{R,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,32},{E,0},{E,0},{E,0},{E,0},{R,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,32},{R,32},{R,32},{R,32},{R,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  60*/ {{R,33},{E,0},{E,0},{R,33},{R,33},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,33},{E,0},{E,0},{E,0},{E,0},{R,33},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,33},{R,33},{R,33},{R,33},{R,33},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  61*/ {{R,25},{E,0},{E,0},{R,25},{R,25},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,25},{E,0},{E,0},{E,0},{S,76},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  62*/ {{R,27},{E,0},{E,0},{R,27},{R,27},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,27},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,28},{S,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  63*/ {{R,13},{E,0},{E,0},{R,13},{R,13},{R,13},{R,13},{R,13},{R,13},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,13},{R,13},{E,0},{E,0},{R,13},{R,13},{R,13},{E,0},{E,0},{E,0},{E,0},{R,13},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,13},{R,13},{R,13},{R,13},{R,13},{R,13},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  64*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,66},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state  65*/ {{R,15},{E,0},{E,0},{R,15},{R,15},{R,15},{R,15},{R,15},{R,15},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,15},{R,15},{E,0},{E,0},{R,15},{R,15},{R,15},{E,0},{E,0},{E,0},{E,0},{R,15},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,15},{R,15},{R,15},{R,15},{R,15},{R,15},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  66*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,77},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,28},{S,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  67*/ {{R,35},{E,0},{E,0},{R,35},{R,35},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,35},{E,0},{E,0},{E,0},{E,0},{R,35},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,35},{R,35},{R,35},{R,35},{R,35},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  68*/ {{R,39},{E,0},{E,0},{R,39},{R,39},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,39},{E,0},{E,0},{E,0},{E,0},{R,39},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,39},{R,39},{R,39},{R,39},{R,39},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  69*/ {{S,7},{E,0},{E,0},{E,0},{S,74},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{S,9},{S,8},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,13},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,78},{E,0},{G,75},{G,4},{G,3},{G,20},{E,0},{E,0},{E,0},{G,6},{E,0},{G,11},{G,5},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state  70*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,18},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,18},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  71*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  72*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,79},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  73*/ {{R,10},{E,0},{E,0},{R,10},{R,10},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  74*/ {{E,0},{E,0},{S,80},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  75*/ {{R,2},{E,0},{E,0},{R,2},{R,2},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  76*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,44},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,20},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,81},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state  77*/ {{R,16},{E,0},{E,0},{R,16},{R,16},{R,16},{R,16},{R,16},{R,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,16},{R,16},{E,0},{E,0},{R,16},{R,16},{R,16},{E,0},{E,0},{E,0},{E,0},{R,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,16},{R,16},{R,16},{R,16},{R,16},{R,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  78*/ {{R,11},{E,0},{E,0},{R,11},{R,11},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  79*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,23},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,23},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  80*/ {{S,7},{E,0},{E,0},{E,0},{E,0},{S,21},{S,22},{S,25},{S,26},{E,0},{E,0},{S,9},{S,8},{E,0},{E,0},{E,0},{S,23},{S,24},{E,0},{E,0},{S,13},{S,14},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,15},{S,16},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{G,82},{G,2},{G,4},{G,3},{G,20},{E,0},{E,0},{E,0},{G,6},{E,0},{G,11},{G,5},{G,10},{G,12},{G,17},{G,18},{G,19},},
+  /*state  81*/ {{R,26},{E,0},{E,0},{R,26},{R,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,26},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,28},{S,29},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  82*/ {{E,0},{E,0},{E,0},{S,83},{S,27},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
+  /*state  83*/ {{R,1},{E,0},{E,0},{R,1},{R,1},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
 };

@@ -159,13 +159,6 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
         sym = get_symbol_by_index(i);
         fprintf(f, " %2d - %s\n", i, string_cstr(sym));
     }
-    for (i = 0; i < pg->rule_count; i++) {
-        //    /*rule 0*/ { 0, { 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, { 0, 0, 0, 0, 0 }, 0 } }
-        fprintf(f, "  rule %3d: ", i); // comments
-        rule = &pg->parsing_rules[i];
-        print_rule_comment(f, rule, -1);
-        fprintf(f, "\n");
-    }
     fprintf(f, "*/\n");
     for (i = 0; i < pg->rule_count; i++) {
         //    /*rule 0*/ { 0, { 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, { 0, 0, 0, 0, 0 }, 0 } }
@@ -179,6 +172,15 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
     fprintf(f, source_parsing_table_initializer);
     // print parsing table
     fprintf(f, "/*\n");
+    for (i = 0; i < pg->rule_count; i++) {
+        //    /*rule 0*/ { 0, { 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, { 0, 0, 0, 0, 0 }, 0 } }
+        fprintf(f, "  rule %3d: ", i); // comments
+        rule = &pg->parsing_rules[i];
+        print_rule_comment(f, rule, -1);
+        fprintf(f, "\n");
+    }
+    fprintf(f, "==========================================================\n");
+    fprintf(f, "==========================================================\n");
     for (i = 0; i < pg->parse_state_count; i++) {
         fprintf(f, "  state %3d ", i);
         print_parse_state_comment(f, pg->parsing_rules, &pg->parse_states[i]);
