@@ -176,6 +176,23 @@ TEST_F(testParser, testBlockBinaryFunctionName)
     env_free(env);
 }
 
+TEST_F(testParser, testVariableInFunction)
+{
+    char test_code[] = "\n\
+distance x1 y1 x2 y2 = \n\
+  xx = (x1-x2) * (x1-x2) \n\
+  yy = (y1-y2) * (y1-y2) \n\
+  sqrt (xx + yy)";
+    auto env = env_new(false);
+    ast_node *block = parse_string(env->parser, "test", test_code);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto body = *(ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("distance", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(VAR_NODE, body->node_type);
+    env_free(env);
+}
+
 TEST_F(testParser, testFacIfCondition)
 {
     char test_code[] = "\n\
@@ -209,23 +226,6 @@ loopprint n = \n\
     ASSERT_EQ(TYPE_INT, body_node->forloop->step->annotated_type_enum);
     ASSERT_EQ(BINARY_NODE, body_node->forloop->end->node_type);
     ASSERT_EQ(3, ((ast_node *)body_node->forloop->start)->liter->int_val);
-    env_free(env);
-}
-
-TEST_F(testParser, testVariableInFunction)
-{
-    char test_code[] = "\n\
-distance x1 y1 x2 y2 = \n\
-  xx = (x1-x2) * (x1-x2) \n\
-  yy = (y1-y2) * (y1-y2) \n\
-  sqrt (xx + yy)";
-    auto env = env_new(false);
-    ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
-    auto body = *(ast_node **)array_front(&node->func->body->block->nodes);
-    ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("distance", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(VAR_NODE, body->node_type);
     env_free(env);
 }
 

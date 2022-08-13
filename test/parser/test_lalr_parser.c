@@ -157,8 +157,26 @@ TEST(test_lalr_parser, string_init)
 
 TEST(test_lalr_parser, id_func)
 {
-     char test_code[] = "\n\
-let f x = x\n";
+    char test_code[] = "\n\
+let f x = x\n\
+f 10 ";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *func = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *call = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *body_node = *(struct ast_node **)array_front(&func->func->body->block->nodes);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    ASSERT_STREQ("f", string_get(func->func->func_type->ft->name));
+    ASSERT_EQ(IDENT_NODE, body_node->node_type);
+    ASSERT_EQ(CALL_NODE, call->node_type);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_lalr_parser, binary_exp_func)
+{
+    char test_code[] = "let f x = x * x";
     frontend_init();
     struct lalr_parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
@@ -166,7 +184,46 @@ let f x = x\n";
     struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(IDENT_NODE, body_node->node_type);
+    ASSERT_EQ(BINARY_NODE, body_node->node_type);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_lalr_parser, func_with_new_line)
+{
+    char test_code[] = "\n\
+let f x = \n\
+    x * x";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(BINARY_NODE, body_node->node_type);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_lalr_parser, distance_function)
+{
+    char test_code[] = "\n\
+let distance x1 y1 x2 y2 = \n\
+  xx = (x1-x2) * (x1-x2) \n\
+  yy = (y1-y2) * (y1-y2) \n\
+  sqrt (xx + yy)";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *body = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(FUNC_NODE, node->node_type);
+    ASSERT_STREQ("distance", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(BLOCK_NODE, body->node_type);
+    node = *(struct ast_node **)array_front(&body->block->nodes);
+    ASSERT_EQ(VAR_NODE, node->node_type);
     lalr_parser_free(parser);
     frontend_deinit();
 }
@@ -183,5 +240,8 @@ int test_lr_parser()
     RUN_TEST(test_lalr_parser_char_init);
     RUN_TEST(test_lalr_parser_string_init);
     RUN_TEST(test_lalr_parser_id_func);
+    RUN_TEST(test_lalr_parser_binary_exp_func);
+    RUN_TEST(test_lalr_parser_func_with_new_line);
+    RUN_TEST(test_lalr_parser_distance_function);
     return UNITY_END();
 }
