@@ -56,7 +56,7 @@ i32 _run(struct byte_array *ba)
 
 TEST(test_wasm_codegen, func)
 {
-    const char test_code[] = "run() = 10+20";
+    const char test_code[] = "let run() = 10+20";
     struct byte_array wasm = parse_as_module(test_code);
     ASSERT_EQ(30, _run(&wasm));
     ba_deinit(&wasm);
@@ -64,7 +64,7 @@ TEST(test_wasm_codegen, func)
 
 TEST(test_wasm_codegen, func_exp)
 {
-    const char test_code[] = "run() = (10+20) * 3";
+    const char test_code[] = "let run() = (10+20) * 3";
     struct byte_array wasm = parse_as_module(test_code);
     ASSERT_EQ(90, _run(&wasm));
     ba_deinit(&wasm);
@@ -72,7 +72,7 @@ TEST(test_wasm_codegen, func_exp)
 
 TEST(test_wasm_codegen, func_exp2)
 {
-    const char test_code[] = "run() = 10+20 * 3";
+    const char test_code[] = "let run() = 10+20 * 3";
     struct byte_array wasm = parse_as_module(test_code);
     ASSERT_EQ(70, _run(&wasm));
     ba_deinit(&wasm);

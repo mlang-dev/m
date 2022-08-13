@@ -14,7 +14,7 @@ TEST(test_lalr_parser, var_decl)
 {
     frontend_init();
     char test_code[] = "\n\
-type Point2D = x:double y:double\n\
+type Point2D = x:double, y:double\n\
 point:Point2D";
     struct lalr_parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
@@ -158,7 +158,7 @@ TEST(test_lalr_parser, string_init)
 TEST(test_lalr_parser, id_func)
 {
      char test_code[] = "\n\
-f x = x\n";
+let f x = x\n";
     frontend_init();
     struct lalr_parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
