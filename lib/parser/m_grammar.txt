@@ -48,9 +48,9 @@ term            = term [*/%] factor                 { binop 0 1 2 } # lhs op rhs
 factor          = '(' expr ')'                      { 1 }
                 | [+-] factor                       { unop 0 1 }
                 | power_expr                        { 0 }
-power_expr      = composite '^' factor              { binop 0 1 2 } # lhs op rhs
-                | composite                         { 0 }
-composite       = primary_expr                      { 0 }  # x.y.z will be the first here as well
+power_expr      = postfix_expr '^' factor              { binop 0 1 2 } # lhs op rhs
+                | postfix_expr                         { 0 }
+postfix_expr    = primary_expr                      { 0 }  # x.y.z will be the first here as well
                 | func_call                         { 0 }
 primary_expr    = INT                               { 0 }
                 | FLOAT                             { 0 }
