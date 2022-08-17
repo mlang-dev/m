@@ -17,7 +17,7 @@ extern "C" {
 
 #include "parser/m_parsing_table_def.h"
 
-#define MAX_SYMBOLS_RULE 7
+#define MAX_SYMBOLS_RULE 11
 
 struct rule_action {
     enum node_type node_type;

@@ -2,50 +2,78 @@
 # The right side of each production rule enclosed by curly parentheses is semantic action in 
 # generating AST tree when the rule is applied to reduce to left symbol of the grammar rule.
 
-start       = stmts                             { 0 }
-block       = NEWLINE INDENT stmts DEDENT       { 2 }
-            | stmt                              { block 0 }
-stmts       = stmts NEWLINE stmt                { block 0 2 }
-            | stmt                              { block 0 }
-stmt        = func_def                          { 0 }
-            | type_def                          { 0 }
-            | expr                              { 0 }
-            | var_decls                         { 0 }
-            | EOF                               { 0 }
+start           = stmts                                                                     { 0 }
+block           = NEWLINE INDENT stmts DEDENT                                               { 2 }
+block_or_stmt   = block                                                                     { 0 }
+                | stmt                                                                      { block 0 }
+stmts           = stmts NEWLINE stmt                                                        { block 0 2 }
+                | stmt                                                                      { block 0 }
+stmt            = open_stmt                                                                 { 0 } #if without else matched
+                | matched_stmt                                                              { 0 } #if with else matched
+open_stmt       = "if" logic_expr "then" block                                              { if_cond 1 2 }
+                | "if" logic_expr "then" matched_stmt "else" open_stmt                      { if_cond 1 2 3 }
 
-type_def    = "type" IDENT '=' block            { type_def 1 3 }
-func_def    = "let" IDENT param_decls '=' block { func 1 2 4 }
-func_call   = IDENT arg_exprs                   { call 0 1 }
-arg_exprs   = arg_exprs arg_exp                 { block 0 1 }
-            | arg_exp                           { block 0 }
-            | '(' ')'                           { block }  # empty block
-arg_exp     = '(' expr ')'                      { 1 }
-            | primary                           { 0 }
-param_decls = param_decls param_decl            { block 0 1 }
-            | param_decl                        { block 0 }
-            | '(' ')'                           { block }  # empty block
-var_decls   = var_decls ',' var_decl            { block 0 1 }
-            | var_decl                          { block 0 }
-param_decl  = IDENT ':' IDENT                   { var 0 0 2 } # var name:type, no initial value
-            | IDENT                             { var 0 0 } # value name, no type, no initial value
-var_decl    = IDENT ':' IDENT                   { var 0 0 2 } # var name:type, no initial value
-            | IDENT ':' IDENT '=' expr          { var 1 0 2 4 } # var name:type with init value
-            | IDENT '=' expr                    { var 1 0 2 }   # var name with initial value
-expr        = expr [+-] term                    { binop 0 1 2 } # lhs op rhs
-            | term                              { 0 }
-term        = term [*/%] factor                 { binop 0 1 2 } # lhs op rhs
-            | factor                            { 0 }
-factor      = '(' expr ')'                      { 1 }
-            | [+-] factor                       { unop 0 1 }
-            | power                             { 0 }
-power       = composite '^' factor              { binop 0 1 2 } # lhs op rhs
-            | composite                         { 0 }
-composite   = primary                           { 0 }  # x.y.z will be the first here as well
-            | func_call                         { 0 }
-primary     = INT                               { 0 }
-            | FLOAT                             { 0 }
-            | IDENT                             { 0 }
-            | "true"                            { 0 }
-            | "false"                           { 0 }
-            | CHAR                              { 0 }
-            | STRING                            { 0 }
+matched_stmt    = func_def                                                                  { 0 }
+                | type_def                                                                  { 0 }
+                | expr                                                                      { 0 }
+                | var_decls                                                                 { 0 }
+                | EOF                                                                       { 0 }
+                | for_stmt                                                                  { 0 }
+                | "if" logic_expr "then" matched_stmt "else" matched_stmt                                { 0 }
+
+type_def        = "type" IDENT '=' block_or_stmt                                            { type_def 1 3 }
+func_def        = "let" IDENT param_decls '=' block_or_stmt                                 { func 1 2 4 }
+func_call       = IDENT arg_exprs                                                           { call 0 1 }
+arg_exprs       = arg_exprs simple_expr                                                     { block 0 1 }
+                | simple_expr                                                               { block 0 }
+                | '(' ')'                                                                   { block }  # empty block
+for_stmt        = "for" param_decl "in" simple_expr ".." simple_expr ".." simple_expr block { for_loop 1 3 5 7 8 }
+                | "for" param_decl "in" simple_expr ".." simple_expr block                  { for_loop 1 3 5 6 }
+simple_expr     = '(' expr ')'                                                              { 1 }
+                | primary_expr                                                                   { 0 }
+param_decls     = param_decls param_decl                                                    { block 0 1 }
+                | param_decl                                                                { block 0 }
+                | '(' ')'                                                                   { block }  # empty block
+var_decls       = var_decls ',' var_decl                                                    { block 0 1 }
+                | var_decl                                                                  { block 0 }
+param_decl      = IDENT ':' IDENT                                                           { var 0 0 2 } # var name:type, no initial value
+                | IDENT                                                                     { var 0 0 } # value name, no type, no initial value
+var_decl        = IDENT ':' IDENT                   { var 0 0 2 } # var name:type, no initial value
+                | IDENT ':' IDENT '=' expr          { var 1 0 2 4 } # var name:type with init value
+                | IDENT '=' expr                    { var 1 0 2 }   # var name with initial value
+expr            = expr [+-] term                    { binop 0 1 2 } # lhs op rhs
+                | term                              { 0 }
+term            = term [*/%] factor                 { binop 0 1 2 } # lhs op rhs
+                | factor                            { 0 }
+factor          = '(' expr ')'                      { 1 }
+                | [+-] factor                       { unop 0 1 }
+                | power_expr                        { 0 }
+power_expr      = composite '^' factor              { binop 0 1 2 } # lhs op rhs
+                | composite                         { 0 }
+composite       = primary_expr                      { 0 }  # x.y.z will be the first here as well
+                | func_call                         { 0 }
+primary_expr    = INT                               { 0 }
+                | FLOAT                             { 0 }
+                | IDENT                             { 0 }
+                | CHAR                              { 0 }
+                | STRING                            { 0 }
+                | "true"                            { 0 }
+                | "false"                           { 0 }
+logic_expr      = logic_expr "||" logic_term        { binop 0 1 2 }
+                | logic_term                        { 0 }
+logic_term      = logic_term "&&" logic_factor      { binop 0 1 2 }
+                | logic_factor                      { 0 }
+logic_factor    = '!' logic_primary                 { unop 0 1 }
+                | logic_primary                     { 0 }
+              
+logic_primary   = IDENT                             { 0 }
+                | relation_expr                     { 0 }
+                #| '(' logic_expr ')'                { 1 }
+
+relation_expr   =  expr "==" expr                  { binop 0 1 2 }
+                |  expr '<' expr                   { binop 0 1 2 }
+                |  expr "<=" expr                  { binop 0 1 2 }
+                |  expr '>' expr                   { binop 0 1 2 }                
+                |  expr ">=" expr                  { binop 0 1 2 }                                
+                |  expr "!=" expr                  { binop 0 1 2 }                                                
+            

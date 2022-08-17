@@ -60,7 +60,7 @@ enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 enum op_code{
     OP_NULL,
     OP_OR,//'||'
-    OP_AND,
+    OP_AND,//'&&'
     OP_NOT,
 
     OP_BOR, //'|'

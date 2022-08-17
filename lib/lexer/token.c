@@ -152,7 +152,11 @@ struct token_pattern *get_token_pattern_by_symbol(symbol symbol)
 u16 get_symbol_index(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
-    assert(tp);
+    if(tp == 0){
+        printf("unkown symbol: %s\n", string_get(symbol));
+        assert(false);
+    }
+    
     if(tp->token_type == TOKEN_OP)
         return (u16)TOKEN_OP + (u16)tp->opcode;
     return (u16)tp->token_type;

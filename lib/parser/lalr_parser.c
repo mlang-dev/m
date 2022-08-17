@@ -104,6 +104,8 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     struct ast_node *node = 0;
     struct ast_node *node1 = 0;
     struct ast_node *node2 = 0;
+    struct ast_node *node3 = 0;
+    struct ast_node *node4 = 0;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
             assert(false);
@@ -145,6 +147,26 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
             //just ID
             ast = var_node_new2(node->ident->name, 0, 0, false, node->loc);
         }
+        break;
+    case FOR_NODE:
+        node = items[rule->action.item_index[0]].ast;
+        assert(node->node_type == VAR_NODE);
+        node1 = items[rule->action.item_index[1]].ast; //start
+        if(rule->action.item_index_count == 5){ //var, start, step, end, block
+            node2 = items[rule->action.item_index[2]].ast; //step
+            node3 = items[rule->action.item_index[3]].ast; //end
+            node4 = items[rule->action.item_index[4]].ast; // body
+        } else if (rule->action.item_index_count == 4){
+            node2 = int_node_new(1, node->loc);
+            node3 = items[rule->action.item_index[2]].ast; // end
+            node4 = items[rule->action.item_index[3]].ast; // body
+        }else{
+            assert(false);
+        }
+        ast = for_node_new(node->var->var_name, node1, node3, node2, node4, node->loc);
+        break;
+    case IF_NODE:
+        assert(false);
         break;
     case BINARY_NODE:
         node = items[rule->action.item_index[1]].ast;
@@ -252,3 +274,4 @@ struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
     lexer_free(lexer);
     return ast;
 }
+

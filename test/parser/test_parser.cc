@@ -193,22 +193,6 @@ distance x1 y1 x2 y2 = \n\
     env_free(env);
 }
 
-TEST_F(testParser, testFacIfCondition)
-{
-    char test_code[] = "\n\
-fac n = \n\
-    if n< 2 n \n\
-    else n * fac (n-1)";
-    auto env = env_new(false);
-    ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
-    auto body_node = *(ast_node **)array_front(&node->func->body->block->nodes);
-    ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
-    ASSERT_EQ(IF_NODE, body_node->node_type);
-    env_free(env);
-}
-
 TEST_F(testParser, testForLoop)
 {
     char test_code[] = "\n\
@@ -226,6 +210,22 @@ loopprint n = \n\
     ASSERT_EQ(TYPE_INT, body_node->forloop->step->annotated_type_enum);
     ASSERT_EQ(BINARY_NODE, body_node->forloop->end->node_type);
     ASSERT_EQ(3, ((ast_node *)body_node->forloop->start)->liter->int_val);
+    env_free(env);
+}
+
+TEST_F(testParser, testFacIfCondition)
+{
+    char test_code[] = "\n\
+fac n = \n\
+    if n< 2 n \n\
+    else n * fac (n-1)";
+    auto env = env_new(false);
+    ast_node *block = parse_string(env->parser, "test", test_code);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto body_node = *(ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(IF_NODE, body_node->node_type);
     env_free(env);
 }
 

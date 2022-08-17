@@ -228,6 +228,83 @@ let distance x1 y1 x2 y2 = \n\
     frontend_deinit();
 }
 
+TEST(test_lalr_parser, for_loop)
+{
+    char test_code[] = "\n\
+let loopprint n = \n\
+  for i in 3..n \n\
+    print i";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FOR_NODE, body_node->node_type);
+    ASSERT_EQ(TYPE_INT, body_node->forloop->start->annotated_type_enum);
+    ASSERT_EQ(TYPE_INT, body_node->forloop->step->annotated_type_enum);
+    ASSERT_EQ(IDENT_NODE, body_node->forloop->end->node_type);
+    ASSERT_EQ(3, ((struct ast_node *)body_node->forloop->start)->liter->int_val);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_lalr_parser, for_loop_with_step)
+{
+    char test_code[] = "\n\
+let loopprint n = \n\
+  for i in 3..2..n \n\
+    print i";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FOR_NODE, body_node->node_type);
+    ASSERT_EQ(TYPE_INT, body_node->forloop->start->annotated_type_enum);
+    ASSERT_EQ(TYPE_INT, body_node->forloop->step->annotated_type_enum);
+    ASSERT_EQ(2, body_node->forloop->step->liter->int_val);
+    ASSERT_EQ(IDENT_NODE, body_node->forloop->end->node_type);
+    ASSERT_EQ(3, ((struct ast_node *)body_node->forloop->start)->liter->int_val);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_lalr_parser, avg_function)
+{
+    char test_code[] = "let avg x y = (x + y) / 2";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *func = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *body_node = *(struct ast_node **)array_front(&func->func->body->block->nodes);
+    ASSERT_STREQ("avg", string_get(func->func->func_type->ft->name));
+    ASSERT_STREQ("BINARY_NODE", node_type_strings[body_node->node_type]);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_lalr_parser, if_condition)
+{
+//     char test_code[] = "\n\
+// let fac n = \n\
+//     if n< 2 then n \n\
+//     else n * fac (n-1)";
+//     frontend_init();
+//     struct lalr_parser *parser = parser_new();
+//     struct ast_node *block = parse_code(parser, test_code);
+//     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+//     struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+//     ASSERT_EQ(1, array_size(&block->block->nodes));
+//     ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
+//     ASSERT_EQ(IF_NODE, body_node->node_type);
+//     lalr_parser_free(parser);
+//     frontend_deinit();
+}
+
 int test_lr_parser()
 {
     UNITY_BEGIN();
@@ -243,5 +320,9 @@ int test_lr_parser()
     RUN_TEST(test_lalr_parser_binary_exp_func);
     RUN_TEST(test_lalr_parser_func_with_new_line);
     RUN_TEST(test_lalr_parser_distance_function);
+    RUN_TEST(test_lalr_parser_for_loop);
+    RUN_TEST(test_lalr_parser_for_loop_with_step);
+    RUN_TEST(test_lalr_parser_avg_function);
+    RUN_TEST(test_lalr_parser_if_condition);
     return UNITY_END();
 }
