@@ -17,11 +17,6 @@
 #include <assert.h>
 #include <stdint.h>
 
-symbol BINOP = 0;
-symbol UNOP = 0;
-symbol FUNC = 0;
-
-//u8 ops[256];
 const char wasm_magic_number[] = {0, 'a', 's', 'm'};
 u8 wasm_version[] = {0x01, 0, 0, 0};
 u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
@@ -33,9 +28,12 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_AND    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_NOT    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
 
+    /*OP_BNOT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_BOR    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BEOR    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_BEOR   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_BAND   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_BSL    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_BSR    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
 
     /*OP_EXPO   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_TIMES  */{0, 0, 0, 0, 0, OPCODE_I32MUL, 0, 0, 0, 0,},
@@ -50,17 +48,27 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_GT    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_GE   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_NE  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+
+    /*OP_COND  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+
+    
+    /*OP_MUL_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_DIV_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_MOD_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_ADD_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_SUB_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_LEFT_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_RIGHT_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_AND_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_XOR_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_OR_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+
+    /*OP_INC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_DEC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
 } ;
 
 void wasm_codegen_init()
 {
-    BINOP = to_symbol("binop");
-    UNOP = to_symbol("unop");
-    FUNC = to_symbol("func");
-    // ops['+'] = OPCODE_I32ADD;
-    // ops['-'] = OPCODE_I32SUB;
-    // ops['*'] = OPCODE_I32MUL;
-    // ops['/'] = OPCODE_I32DIV_S;
 }
 
 void _emit_code(struct byte_array *ba, struct ast_node *node);

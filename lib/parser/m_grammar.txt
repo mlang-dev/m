@@ -13,14 +13,21 @@ primary_expr    = INT
                 | "false"                                                             
                 | '(' expr ')'                                                              { 1 }
 
-postfix_expr    = primary_expr                                                        
+postfix_expr    = primary_expr 
+                | postfix_expr "++"
+                | postfix_expr "--"                                                       
                 | func_call                                                           
 
 power_expr      = postfix_expr "**" unary_expr                                              { binop 0 1 2 } # lhs op rhs
                 | postfix_expr                                                        
 
 unary_expr      = power_expr                                                          
-                | [+-] unary_expr                                                           { unop 0 1 }
+                | "++" unary_expr
+                | "--" unary_expr
+                | [+-~] unary_expr                                                           { unop 0 1 }
+
+#next should be cast_expr 
+
 
 multi_expr      = unary_expr
                 | multi_expr [*/%] unary_expr                                               { binop 0 1 2 } # lhs op rhs
@@ -28,16 +35,22 @@ multi_expr      = unary_expr
 add_expr        = add_expr [+-] multi_expr                                                  { binop 0 1 2 } # lhs op rhs
                 | multi_expr
 
-relation_expr   = add_expr                                                            
-                | relation_expr '<' add_expr                                                { binop 0 1 2 }
-                | relation_expr '>' add_expr                                                { binop 0 1 2 }
-                | relation_expr "<=" add_expr                                               { binop 0 1 2 }
-                | relation_expr ">=" add_expr                                               { binop 0 1 2 }
-                | relation_expr "==" add_expr                                               { binop 0 1 2 }
-                | relation_expr "!=" add_expr                                               { binop 0 1 2 }
+shift_expr      = add_expr
+                | shift_expr "<<"  add_expr                                                 { binop 0 1 2 }
+                | shift_expr ">>"  add_expr                                                 { binop 0 1 2 }
 
-bit_and_expr    = relation_expr                                                       
-                | bit_and_expr '&' relation_expr                                            { binop 0 1 2 }
+relation_expr   = shift_expr                                                            
+                | relation_expr '<' shift_expr                                              { binop 0 1 2 }
+                | relation_expr '>' shift_expr                                              { binop 0 1 2 }
+                | relation_expr "<=" shift_expr                                             { binop 0 1 2 }
+                | relation_expr ">=" shift_expr                                             { binop 0 1 2 }
+
+eq_expr         = relation_expr
+                | eq_expr "==" relation_expr                                                { binop 0 1 2 }
+                | eq_expr "!=" relation_expr                                                { binop 0 1 2 }
+
+bit_and_expr    = eq_expr                                                       
+                | bit_and_expr '&' eq_expr                                                  { binop 0 1 2 }
 
 bit_xor_expr    = bit_and_expr                                                        
                 | bit_xor_expr '^' bit_and_expr                                             { binop 0 1 2 }
@@ -51,7 +64,25 @@ logic_and_expr  = bit_or_expr
 logic_or_expr   = logic_and_expr
                 | logic_or_expr "||" logic_and_expr                                         { binop 0 1 2 }
 
-expr            = logic_or_expr
+cond_expr       = logic_or_expr
+                | logic_or_expr '?' expr ':' cond_expr
+
+assign_expr     = cond_expr
+                | unary_expr assign_op  assign_expr
+
+assign_op       = '='
+                | "*="
+                | "/="
+                | "%="
+                | "+="
+                | "-="
+                | "<<="
+                | ">>="
+                | "&="
+                | "^="
+                | "|="
+
+expr            = assign_expr
 
 stmt            = func_def                                                            
                 | type_def                                                            

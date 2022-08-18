@@ -53,9 +53,12 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("&&", OP, AND), // 35
     KEYWORD_PATTERN("!", OP, NOT),
 
+    KEYWORD_PATTERN("~", OP, BNOT),
     NAME_KEYWORD_PATTERN("|", "\\|", OP, BOR),
     KEYWORD_PATTERN("^", OP, BEOR),
     KEYWORD_PATTERN("&", OP, BAND),
+    KEYWORD_PATTERN("<<", OP, BSL),
+    KEYWORD_PATTERN(">>", OP, BSR),
 
     // KEYWORD_PATTERN("^", OP, EXPO),
     NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, EXPO), // 40
@@ -71,6 +74,21 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN(">", OP, GT),
     KEYWORD_PATTERN(">=", OP, GE),
     KEYWORD_PATTERN("!=", OP, NE),
+    NAME_KEYWORD_PATTERN("?", "\\?", OP, COND), // 40
+
+    NAME_KEYWORD_PATTERN("*=", "\\*=", OP, MUL_ASSN),
+    KEYWORD_PATTERN("/=", OP, DIV_ASSN),
+    KEYWORD_PATTERN("%=", OP, MOD_ASSN),
+    NAME_KEYWORD_PATTERN("+=", "\\+=", OP, ADD_ASSN),
+    KEYWORD_PATTERN("-=", OP, SUB_ASSN),
+    KEYWORD_PATTERN("<<=", OP, LEFT_ASSN),
+    KEYWORD_PATTERN(">>=", OP, RIGHT_ASSN),
+    KEYWORD_PATTERN("&=", OP, AND_ASSN),
+    KEYWORD_PATTERN("^=", OP, XOR_ASSN),
+    NAME_KEYWORD_PATTERN("|=", "\\|=", OP, OR_ASSN),
+
+    NAME_KEYWORD_PATTERN("++", "\\+\\+", OP, INC),
+    KEYWORD_PATTERN("--", OP, DEC),
 };
 
 struct token_pattern g_nonterms[MAX_NONTERMS];
