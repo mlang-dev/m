@@ -96,6 +96,13 @@ struct ast_node *_build_terminal_ast(struct token *tok)
         }
     return ast;
 }
+struct ast_node *_wrap_as_block_node(struct ast_node *node)
+{
+    struct array nodes;
+    array_init(&nodes, sizeof(struct ast_node *));
+    array_push(&nodes, &node);
+    return block_node_new(&nodes);
+}
 
 struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *items)
 {
@@ -185,6 +192,10 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         node1 = items[rule->action.item_index[1]].ast;
         struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, 0, false, false, node->loc);
         node = items[rule->action.item_index[2]].ast;
+        if(node->node_type != BLOCK_NODE){
+            //convert to block node even it's a one line statement
+            node = _wrap_as_block_node(node);
+        }
         ast = function_node_new(ft, node, node->loc);
         break;
     case CALL_NODE:
@@ -199,7 +210,9 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         assert(rule->action.item_index_count == 2);
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == IDENT_NODE);
-        ast = type_node_new(node->ident->name, items[rule->action.item_index[1]].ast, node->loc);
+        node1 = items[rule->action.item_index[1]].ast;
+        assert(node1->node_type == BLOCK_NODE);
+        ast = type_node_new(node->ident->name, node1, node->loc);
         break;
     case BLOCK_NODE:
         if (rule->action.item_index_count == 0){
@@ -208,10 +221,7 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
             ast = block_node_new(&nodes);
         }
         else if (rule->action.item_index_count == 1){
-            struct array nodes;
-            array_init(&nodes, sizeof(struct ast_node *));
-            array_push(&nodes, &items[rule->action.item_index[0]].ast);
-            ast = block_node_new(&nodes);
+            ast = _wrap_as_block_node(items[rule->action.item_index[0]].ast);
         }
         else if(rule->action.item_index_count == 2){
             ast = items[rule->action.item_index[0]].ast;
