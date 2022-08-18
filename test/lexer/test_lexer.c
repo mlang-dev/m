@@ -229,7 +229,7 @@ TEST(test_lexer, expr)
 TEST(test_lexer, other_symbols)
 {
     frontend_init();
-    char test_code[] = "()[]{}. .. ... < <= == != >= > || && ! |&+-*/^**";
+    char test_code[] = "()[]{}. .. ... < <= == != >= > || && ! |&+-*/^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ?";
 
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
@@ -262,6 +262,20 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(OP_DIVISION, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_BEOR, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_EXPO, get_tok(lexer)->opcode);
+
+    ASSERT_EQ(OP_MUL_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_DIV_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_MOD_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_ADD_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_SUB_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_LEFT_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_RIGHT_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_AND_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_XOR_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_OR_ASSN, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_INC, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_DEC, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_COND, get_tok(lexer)->opcode);
     lexer_free(lexer);
     frontend_deinit();
 }

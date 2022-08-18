@@ -63,9 +63,12 @@ enum op_code{
     OP_AND,//'&&'
     OP_NOT,
 
+    OP_BNOT,// '~'
     OP_BOR, //'|'
     OP_BEOR, //'^' exclusive or
     OP_BAND, //'&'
+    OP_BSL, //<< shift left
+    OP_BSR, //>> shift right
 
     OP_EXPO,
     OP_TIMES,
@@ -81,6 +84,21 @@ enum op_code{
     OP_GE,
     OP_NE,
 
+    OP_COND, //? conditional check
+
+    OP_MUL_ASSN,    //  *=
+    OP_DIV_ASSN,    //  /=
+    OP_MOD_ASSN,    //  %=
+    OP_ADD_ASSN,    //  += 
+    OP_SUB_ASSN,    //  -=
+    OP_LEFT_ASSN,   //  <<=
+    OP_RIGHT_ASSN,  //  >>=
+    OP_AND_ASSN,    //  &=
+    OP_XOR_ASSN,    //  ^=
+    OP_OR_ASSN,     //  |=
+
+    OP_INC,         // ++
+    OP_DEC,         // --
     OP_TOTAL //mark end of all tokens
 };
 
