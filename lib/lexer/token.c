@@ -54,9 +54,11 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("!", OP, NOT),
 
     NAME_KEYWORD_PATTERN("|", "\\|", OP, BOR),
+    KEYWORD_PATTERN("^", OP, BEOR),
     KEYWORD_PATTERN("&", OP, BAND),
 
-    KEYWORD_PATTERN("^", OP, EXPO),
+    // KEYWORD_PATTERN("^", OP, EXPO),
+    NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, EXPO), // 40
     NAME_KEYWORD_PATTERN("*", "\\*", OP, TIMES), // 40
     KEYWORD_PATTERN("/", OP, DIVISION),
     KEYWORD_PATTERN("%", OP, MODULUS),
@@ -171,7 +173,10 @@ u16 get_token_index(enum token_type token_type, enum op_code opcode)
 u16 register_grammar_nonterm(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
-    assert(!tp);
+    if(tp){
+        printf("already found the grammar nonterm symbol: %s\n", string_get(symbol));
+        assert(false);
+    }
     //add nonterm grammar symbol, TODO: need to check existence of symbol, don't add if already existed
     struct token_pattern tpn;
     u16 nonterm = (u16)g_nonterm_count + (u16)TERMINAL_COUNT;

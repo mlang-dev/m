@@ -434,6 +434,8 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
     struct parse_rule *rule;
     struct index_list *lookahead_list;
     struct index_list_entry *la_entry;
+    int shift_reduce_conflicts = 0;
+    int reduce_reduce_conflicts = 0;
     for(u16 i=0; i < state_count; i++){
         state = &states[i];
         list_foreach(entry, &state->items){
@@ -454,12 +456,14 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                     if (action->code == S){
                         printf("warning: There is a shift/reduce conflict in the grammar. ");
                         printf("state: %d terminal: %s, shift to: %d, overrided reduction rule: %d(%s) \n", i, string_get(get_symbol_by_index(la_entry->data)), action->state_index, item->rule, string_get(get_symbol_by_index(rules[item->rule].lhs)));
+                        shift_reduce_conflicts++;
                     } else if (action->code == R){
                         printf("warning: There is a reduce/reduce conflict in the grammar. ");
                         printf("state: %d terminal: %s, reduction rule: %d(%s), new reduction rule: %d(%s), taken rule: %d \n", i, string_get(get_symbol_by_index(la_entry->data)), action->rule_index, string_get(get_symbol_by_index(rules[action->rule_index].lhs)), item->rule, string_get(get_symbol_by_index(rules[item->rule].lhs)), action->rule_index < item->rule ? action->rule_index : item->rule);
                         if(item->rule < action->rule_index){
                             action->rule_index = item->rule;
                         }
+                        reduce_reduce_conflicts ++;
                     }else{
                         action->code = R;
                         action->rule_index = item->rule;
@@ -471,6 +475,12 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                 action->code = A;                
             }
         }
+    }
+    if (shift_reduce_conflicts) {
+        printf("warning: total shift/reduce conflicts: %d\n", shift_reduce_conflicts);
+    }
+    if (reduce_reduce_conflicts) {
+        printf("warning: total reduce/reduce conflicts: %d\n", reduce_reduce_conflicts);
     }
 }
 

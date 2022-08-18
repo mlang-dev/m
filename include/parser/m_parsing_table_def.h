@@ -5,6 +5,6 @@
  * Copyright (C) 2022 Ligang Wang <ligangwangs@gmail.com>
  *     
  */    
-#define PARSING_RULE_COUNT 73
-#define PARSING_STATE_COUNT 135
-#define PARSING_SYMBOL_COUNT 79
+#define PARSING_RULE_COUNT 74
+#define PARSING_STATE_COUNT 128
+#define PARSING_SYMBOL_COUNT 80

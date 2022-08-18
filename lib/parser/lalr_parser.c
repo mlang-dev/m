@@ -108,10 +108,8 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     struct ast_node *node4 = 0;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
-            assert(false);
-            return 0;
-        }
-        else{
+            return items[0].ast;
+        }else{
             return items[rule->action.item_index[0]].ast;
         }
     }
@@ -166,7 +164,12 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         ast = for_node_new(node->var->var_name, node1, node3, node2, node4, node->loc);
         break;
     case IF_NODE:
-        assert(false);
+        node = items[rule->action.item_index[0]].ast;
+        node1 = items[rule->action.item_index[1]].ast;
+        if (rule->action.item_index_count == 3){
+            node2 = items[rule->action.item_index[2]].ast;
+        }
+        ast = if_node_new(node, node1, node2, node->loc);
         break;
     case BINARY_NODE:
         node = items[rule->action.item_index[1]].ast;

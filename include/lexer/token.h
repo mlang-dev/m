@@ -64,6 +64,7 @@ enum op_code{
     OP_NOT,
 
     OP_BOR, //'|'
+    OP_BEOR, //'^' exclusive or
     OP_BAND, //'&'
 
     OP_EXPO,
