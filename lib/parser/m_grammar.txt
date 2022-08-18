@@ -2,7 +2,7 @@
 # The right side of each production rule enclosed by curly parentheses is semantic action in 
 # generating AST tree when the rule is applied to reduce to left symbol of the grammar rule.
 
-start           = stmts                                                               
+start           = statements                                                               
 
 primary_expr    = INT                                                                 
                 | FLOAT                                                               
@@ -53,13 +53,6 @@ logic_or_expr   = logic_and_expr
 
 expr            = logic_or_expr
 
-block           = NEWLINE INDENT stmts DEDENT                                               { 2 }
-block_or_stmt   = block                                                               
-                | stmt                                                                      { block 0 }
-stmts           = stmts NEWLINE stmt                                                        { block 0 2 }
-                | stmts NEWLINE                                                             
-                | stmt                                                                      { block 0 }
-
 stmt            = func_def                                                            
                 | type_def                                                            
                 | expr                                                                
@@ -70,6 +63,16 @@ stmt            = func_def
 cond_stmt       = "if" expr "then" block_or_stmt                                            { if_cond 1 3 }              
                 | "if" expr "then" block_or_stmt "else" block_or_stmt                       { if_cond 1 3 5 }
                 | "if" expr "then" block_or_stmt NEWLINE "else" block_or_stmt               { if_cond 1 3 6 }
+
+# stmt and newline if it exists
+statement       = stmt
+                | stmt NEWLINE
+
+block           = NEWLINE INDENT statements DEDENT                                          { 2 }
+block_or_stmt   = block                                                               
+                | statement                                                                 { block 0 }
+statements      = statements statement                                                      { block 0 1 }
+                | statement                                                                 { block 0 }                                                     
 
 type_def        = "type" IDENT '=' block_or_stmt                                            { type_def 1 3 }
 func_def        = "let" IDENT param_decls '=' block_or_stmt                                 { func 1 2 4 }

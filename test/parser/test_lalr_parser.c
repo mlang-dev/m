@@ -363,20 +363,20 @@ let fac n = \n\
 
 TEST(test_lalr_parser, if_condition_no_else)
 {
-//     char test_code[] = "\n\
-// let fac n = \n\
-//     if n< 2 then n \n\
-//     n * fac (n-1)";
-//     frontend_init();
-//     struct lalr_parser *parser = parser_new();
-//     struct ast_node *block = parse_code(parser, test_code);
-//     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-//     struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
-//     ASSERT_EQ(1, array_size(&block->block->nodes));
-//     ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
-//     ASSERT_EQ(IF_NODE, body_node->node_type);
-//     lalr_parser_free(parser);
-//     frontend_deinit();
+    char test_code[] = "\n\
+let fac n = \n\
+    if n< 2 then n \n\
+    n * fac (n-1)";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(IF_NODE, body_node->node_type);
+    lalr_parser_free(parser);
+    frontend_deinit();
 }
 
 int test_lr_parser()
