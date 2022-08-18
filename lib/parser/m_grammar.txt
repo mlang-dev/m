@@ -69,6 +69,7 @@ stmt            = func_def
 
 cond_stmt       = "if" expr "then" block_or_stmt                                            { if_cond 1 3 }              
                 | "if" expr "then" block_or_stmt "else" block_or_stmt                       { if_cond 1 3 5 }
+                | "if" expr "then" block_or_stmt NEWLINE "else" block_or_stmt               { if_cond 1 3 6 }
 
 type_def        = "type" IDENT '=' block_or_stmt                                            { type_def 1 3 }
 func_def        = "let" IDENT param_decls '=' block_or_stmt                                 { func 1 2 4 }
