@@ -376,8 +376,8 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
             if(_exists_in_array(visited_symbols, visited_count, x)){
                 continue;
             }
-            visited_symbols[visited_count ++] = x;
-            assert(visited_count <= UNIQUE_SYMBOLS);
+            assert(visited_count < UNIQUE_SYMBOLS);
+            visited_symbols[visited_count++] = x;
             struct parse_state next_state = _goto(symbol_data, rules, *state, x);
             int existing_state_index = _find_state(states, state_count, &next_state);
                 // if not in the states, then closure the state and add it to states
@@ -385,13 +385,13 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
             pa.code = is_terminal(x) ? S : G;
             if (existing_state_index < 0) {
                 pa.state_index = state_count;
+                assert(state_count < MAX_STATES);
                 states[state_count++] = _closure(symbol_data, rules, next_state);
             } else {
                 pa.state_index = existing_state_index;
             }
             parsing_table[i][x] = pa;
         }
-        assert(state_count <= MAX_STATES);
     }
     return state_count;
 }
@@ -414,14 +414,15 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser
             _expand_expr(rule_expr, &exprs);
             for (k = 0; k < array_size(&exprs); k++) {
                 expr = array_get(&exprs, k);
+                assert(pg->rule_count < MAX_RULES);
                 gr = &pg->parsing_rules[pg->rule_count++];
-                assert(pg->rule_count <= MAX_RULES);
                 gr->lhs = nonterm;
                 _expr_2_gr(expr, gr);
             }
             array_deinit(&exprs);
         }
     }
+    printf("rules count: %d\n", pg->rule_count);
 }
 
 void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser_action parsing_table[][MAX_GRAMMAR_SYMBOLS], u16 state_count, struct parse_state *states, struct parse_rule *rules)
@@ -433,6 +434,8 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
     struct parse_rule *rule;
     struct index_list *lookahead_list;
     struct index_list_entry *la_entry;
+    int shift_reduce_conflicts = 0;
+    int reduce_reduce_conflicts = 0;
     for(u16 i=0; i < state_count; i++){
         state = &states[i];
         list_foreach(entry, &state->items){
@@ -453,12 +456,14 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                     if (action->code == S){
                         printf("warning: There is a shift/reduce conflict in the grammar. ");
                         printf("state: %d terminal: %s, shift to: %d, overrided reduction rule: %d(%s) \n", i, string_get(get_symbol_by_index(la_entry->data)), action->state_index, item->rule, string_get(get_symbol_by_index(rules[item->rule].lhs)));
+                        shift_reduce_conflicts++;
                     } else if (action->code == R){
                         printf("warning: There is a reduce/reduce conflict in the grammar. ");
                         printf("state: %d terminal: %s, reduction rule: %d(%s), new reduction rule: %d(%s), taken rule: %d \n", i, string_get(get_symbol_by_index(la_entry->data)), action->rule_index, string_get(get_symbol_by_index(rules[action->rule_index].lhs)), item->rule, string_get(get_symbol_by_index(rules[item->rule].lhs)), action->rule_index < item->rule ? action->rule_index : item->rule);
                         if(item->rule < action->rule_index){
                             action->rule_index = item->rule;
                         }
+                        reduce_reduce_conflicts ++;
                     }else{
                         action->code = R;
                         action->rule_index = item->rule;
@@ -470,6 +475,12 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                 action->code = A;                
             }
         }
+    }
+    if (shift_reduce_conflicts) {
+        printf("warning: total shift/reduce conflicts: %d\n", shift_reduce_conflicts);
+    }
+    if (reduce_reduce_conflicts) {
+        printf("warning: total reduce/reduce conflicts: %d\n", reduce_reduce_conflicts);
     }
 }
 
@@ -498,19 +509,22 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
     struct parse_rule *new_rule;
     u16 state_index;
     pg->augmented_rule_count = 0;
+    int x = 0;
     for (u16 i = 0; i < pg->parse_state_count; i++)
     {
         state = &pg->parse_states[i];
         //for each parse item
+        x = -1;
         list_foreach(entry, &state->items){
+            x++;
             state_index = i;
             item = &entry->data;
             if (item->dot > 0)
                 continue;
             rule = &rules[item->rule];
             // for any item with A->.w
+            assert(pg->augmented_rule_count < MAX_AUGMENTED_RULES);
             pg->augmented_rules[pg->augmented_rule_count++] = *rule;
-            assert(pg->augmented_rule_count <= MAX_AUGMENTED_RULES);
             new_rule = &pg->augmented_rules[pg->augmented_rule_count-1];
             for (u8 j = 0; j < rule->symbol_count; j++){
                 u16 symbol = rule->rhs[j];
@@ -529,9 +543,23 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
                 assert(pa->code == G);
                 //annotate new left hand's nonterminal: (rule->lhs, i, pa->state_index)
                 new_rule->lhs = _get_augmented_symbol_index(pg, rule->lhs, i, pa->state_index);
+            }else{
+                printf("skipped augmenting the first rule.\n");
             }
         }
     }
+    printf("augmented rules count: %d\n", pg->augmented_rule_count);
+}
+
+void print_followlist(u16 symbol_index, u16 from_state, u16 to_state, struct index_list *src)
+{
+    printf("symbol: %d, from state: %d, to_state: %d: ", symbol_index, from_state, to_state);
+    struct index_list_entry *entry;
+    list_foreach(entry, src)
+    {
+        printf("%s,", string_get(get_symbol_by_index(entry->data)));
+    }
+    printf("\n");
 }
 
 void _propagate_lookahead(struct lalr_parser_generator *pg)
@@ -548,36 +576,46 @@ void _propagate_lookahead(struct lalr_parser_generator *pg)
     u16 state_index;
     for (u16 i = 0; i < pg->parse_state_count; i++) {
         state = &pg->parse_states[i];
-        // for each parse item
+        // for each parse item, lhs->x.yz
         list_foreach(entry, &state->items)
         {
             state_index = i;
             item = &entry->data;
             if (item->dot > 0)
                 continue;
+            //here only handles the closured (non-kernel item): lhs -> .xyz
             rule = &rules[item->rule];
             complete_item = *item;
             complete_item.dot = rule->symbol_count;
-                // for any item with A->.w
-            for (u8 j = 0; j < rule->symbol_count; j++)
-            {
-                u16 symbol = rule->rhs[j];
-                pa = &pg->parsing_table[state_index][symbol];
+            // for any item with A->.w
+            // get the final state for this parsing item
+            for (u8 j = 0; j < rule->symbol_count; j++){
+                pa = &pg->parsing_table[state_index][rule->rhs[j]];
+                assert(pa->code == S || pa->code == G);
                 state_index = pa->state_index;
             }
             if(item->rule > 0){
                 pa = &pg->parsing_table[i][rule->lhs];
                 assert(pa->code == G);
+                //augmenting current nonterm @ left as current state and next state on the nonterm
                 lhs_nonterm = _get_augmented_symbol_index(pg, rule->lhs, i, pa->state_index);
             }else{
                 lhs_nonterm = rule->lhs;
             }
+            //state_index is the final state of the parsing rule
             item = _find_parse_item(&pg->parse_states[state_index].items, &complete_item);
             assert(item);
             _append_list(&item->lookaheads, &pg->symbol_data[lhs_nonterm].follow_list);
+            /*debug*/
+            // if(state_index == 34 && rule->lhs == 73 && item->rule == 54){
+            //     //final states
+            //     print_followlist(rule->lhs, i, pa->state_index, &pg->symbol_data[lhs_nonterm].follow_list);
+            // }
         }
     }
 }
+
+
 
 struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text)
 {

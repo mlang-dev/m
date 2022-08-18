@@ -65,12 +65,12 @@ TEST(test_lr_parser_expr, arithmetic_exp)
 
 TEST(test_lr_parser_expr, arithmetic_exp2)
 {
-    const char test_code[] = "1+2*3^4";
+    const char test_code[] = "1+2*3**4";
     frontend_init();
     struct lalr_parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
-    ASSERT_STREQ("(1+(2*(3^4)))", string_get(&dump_str));
+    ASSERT_STREQ("(1+(2*(3**4)))", string_get(&dump_str));
     ast_node_free(ast);
     lalr_parser_free(parser);
     frontend_deinit();
