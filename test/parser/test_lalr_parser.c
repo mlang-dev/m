@@ -379,6 +379,37 @@ let fac n = \n\
     frontend_deinit();
 }
 
+TEST(test_lalr_parser, local_string_function)
+{
+    char test_code[] = "\n\
+let to_string () = \n\
+  x = \"hello\" \n\
+  y = x \n\
+  y";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("to_string", string_get(node->func->func_type->ft->name));
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_lalr_parser, variadic_function)
+{
+    char test_code[] = "let f x ... = 10";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(FUNC_NODE, node->node_type);
+    ASSERT_EQ(true, node->func->func_type->ft->is_variadic);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
 int test_lr_parser()
 {
     UNITY_BEGIN();
@@ -402,5 +433,7 @@ int test_lr_parser()
     RUN_TEST(test_lalr_parser_if_condition_one_block);
     RUN_TEST(test_lalr_parser_if_condition_two_blocks);
     RUN_TEST(test_lalr_parser_if_condition_no_else);
+    RUN_TEST(test_lalr_parser_local_string_function);
+    RUN_TEST(test_lalr_parser_variadic_function);
     return UNITY_END();
 }

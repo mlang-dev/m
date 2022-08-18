@@ -69,7 +69,15 @@ struct ast_node *_build_terminal_ast(struct token *tok)
     struct ast_node *ast = 0;
     switch(tok->token_type){
         default:
-            node_type = token_to_node_type(tok->token_type, tok->opcode);
+            node_type = tok->token_type << 16;
+            ast = ast_node_new(node_type, 0, tok->loc);
+            break;
+        case TOKEN_EOF:
+            ast = ast_node_new(NULL_NODE, 0, tok->loc);
+            break;
+        case TOKEN_OP:
+            //*hacky way to transfer opcode
+            node_type = (tok->token_type << 16) | tok->opcode;
             ast = ast_node_new(node_type, 0, tok->loc);
             break;
         case TOKEN_IDENT:
@@ -113,6 +121,7 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     struct ast_node *node2 = 0;
     struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
+    bool is_variadic = false;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
             return items[0].ast;
@@ -189,8 +198,15 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         assert(rule->action.item_index_count == 3);
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == IDENT_NODE);
-        node1 = items[rule->action.item_index[1]].ast;
-        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, 0, false, false, node->loc);
+        node1 = items[rule->action.item_index[1]].ast; //parameters
+        assert(node1->node_type == BLOCK_NODE);
+        if(array_size(&node1->block->nodes)){
+            node2 = *(struct ast_node **)array_back(&node1->block->nodes);
+            if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)){
+                is_variadic = true;
+            }
+        }
+        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, 0, is_variadic, false, node->loc);
         node = items[rule->action.item_index[2]].ast;
         if(node->node_type != BLOCK_NODE){
             //convert to block node even it's a one line statement

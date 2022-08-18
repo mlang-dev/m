@@ -123,7 +123,7 @@ void print_parse_state_comment(FILE *f, struct parse_rule *rules, struct parse_s
         fprintf(f, "[");
         list_foreach(la_entry, &item->lookaheads)
         {
-            fprintf(f, "%s,", string_get(get_symbol_by_index(la_entry->data)));
+            fprintf(f, "%s ", string_get(get_symbol_by_index(la_entry->data)));
         }
         fprintf(f, "]\n            ");
         i++;

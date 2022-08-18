@@ -295,6 +295,18 @@ to_string () = \n\
     env_free(env);
 }
 
+TEST_F(testParser, testVariadicFunction)
+{
+    char test_code[] = "f x ... = 10";
+    auto env = env_new(false);
+    ast_node *block = parse_string(env->parser, "test", test_code);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    ASSERT_STREQ("FUNC_NODE", node_type_strings[node->node_type]);
+    ast_node *func = (ast_node *)node;
+    ASSERT_EQ(true, func->func->func_type->ft->is_variadic);
+    env_free(env);
+}
+
 TEST_F(testParser, testPrototypeNode)
 {
     char test_code[] = "extern printf(format:string ...):int";
@@ -509,18 +521,6 @@ xy.x";
     ASSERT_EQ(2, array_size(&id_node->ident->member_accessors));
     ASSERT_STREQ("xy", string_get(*(symbol *)array_front(&id_node->ident->member_accessors)));
     ASSERT_STREQ("x", string_get(*(symbol *)array_back(&id_node->ident->member_accessors)));
-    env_free(env);
-}
-
-TEST_F(testParser, testVariadicFunction)
-{
-    char test_code[] = "f x ... = 10";
-    auto env = env_new(false);
-    ast_node *block = parse_string(env->parser, "test", test_code);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
-    ASSERT_STREQ("FUNC_NODE", node_type_strings[node->node_type]);
-    ast_node *func = (ast_node *)node;
-    ASSERT_EQ(true, func->func->func_type->ft->is_variadic);
     env_free(env);
 }
 
