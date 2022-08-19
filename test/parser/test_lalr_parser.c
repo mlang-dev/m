@@ -453,14 +453,13 @@ type Point2D = \n\
 
 TEST(test_lalr_parser, type_var_init)
 {
-    /*
     char test_code[] = "\n\
-type Point2D = x:double y:double \n\
-xy:Point2D = 10.0 20.0";
+type Point2D = x:double, y:double \n\
+xy = Point2D(10.0, 20.0)";
     frontend_init();
     struct lalr_parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_EQ(TYPE_NODE, node->node_type);
     ASSERT_STREQ("Point2D", string_get(node->type_def->name));
@@ -485,7 +484,72 @@ xy:Point2D = 10.0 20.0";
     ASSERT_EQ(20.0, value2->liter->double_val);
     lalr_parser_free(parser);
     frontend_deinit();
-    */
+}
+
+TEST(test_lalr_parser, func_returns_type_init)
+{
+    char test_code[] = "\n\
+type Point2D = x:double, y:double \n\
+let get_point() = Point2D(10.0, 20.0)";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+
+    // 1. first line is to define type
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(TYPE_NODE, node->node_type);
+    ASSERT_STREQ("Point2D", string_get(node->type_def->name));
+    ASSERT_EQ(2, array_size(&node->type_def->body->block->nodes));
+    struct ast_node *var1 = *(struct ast_node **)array_front(&node->type_def->body->block->nodes);
+    struct ast_node *var2 = *(struct ast_node **)array_back(&node->type_def->body->block->nodes);
+    ASSERT_EQ(VAR_NODE, var1->node_type);
+    ASSERT_EQ(VAR_NODE, var2->node_type);
+    ASSERT_STREQ("x", string_get(var1->var->var_name));
+    ASSERT_STREQ("y", string_get(var2->var->var_name));
+
+    // 2. second line is to define a one line function
+    struct ast_node *fun_node = *(struct ast_node **)array_back(&block->block->nodes);
+    ASSERT_EQ(FUNC_NODE, fun_node->node_type);
+    ASSERT_EQ(1, array_size(&fun_node->func->body->block->nodes));
+    struct ast_node *tv_node = *(struct ast_node **)array_back(&fun_node->func->body->block->nodes);
+    ASSERT_EQ(TYPE_VALUE_NODE, tv_node->node_type);
+    struct ast_node *value1 = *(struct ast_node **)array_front(&tv_node->type_value->body->block->nodes);
+    struct ast_node *value2 = *(struct ast_node **)array_back(&tv_node->type_value->body->block->nodes);
+    ASSERT_EQ(LITERAL_NODE, value1->node_type);
+    ASSERT_EQ(LITERAL_NODE, value2->node_type);
+    ASSERT_EQ(10.0, value1->liter->double_val);
+    ASSERT_EQ(20.0, value2->liter->double_val);
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_lalr_parser, use_type_field)
+{
+    char test_code[] = "\n\
+type Point2D = x:double, y:double \n\
+xy:Point2D = Point2D(0.0, 0.0) \n\
+xy.x";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(3, array_size(&block->block->nodes));
+    ASSERT_EQ(TYPE_NODE, node->node_type);
+    node = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    struct ast_node *var = node;
+    ASSERT_STREQ("xy", string_get(var->var->var_name));
+    ASSERT_STREQ("Point2D", string_get(var->annotated_type_name));
+    //ASSERT_EQ(TYPE_EXT, var->annotated_type_enum);
+    node = *(struct ast_node **)array_get(&block->block->nodes, 2);
+    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_EQ(IDENT_NODE, node->binop->lhs->node_type);
+    ASSERT_EQ(IDENT_NODE, node->binop->rhs->node_type);
+    ASSERT_STREQ("xy", string_get(node->binop->lhs->ident->name));
+    ASSERT_STREQ("x", string_get(node->binop->rhs->ident->name));
+    lalr_parser_free(parser);
+    frontend_deinit();
 }
 
 int test_lr_parser()
@@ -517,5 +581,7 @@ int test_lr_parser()
     RUN_TEST(test_lalr_parser_type_decl);
     RUN_TEST(test_lalr_parser_type_decl2);
     RUN_TEST(test_lalr_parser_type_var_init);
+    RUN_TEST(test_lalr_parser_func_returns_type_init);
+    RUN_TEST(test_lalr_parser_use_type_field);
     return UNITY_END();
 }

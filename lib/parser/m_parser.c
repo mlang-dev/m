@@ -396,7 +396,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
         struct op_type optype = _parse_op_type(parser, current_loc);
         if (!optype.success)
             return 0;
-        if (parser->curr_token.token_type == TOKEN_DOT){
+        if (parser->curr_token.token_type == TOKEN_OP && parser->curr_token.opcode == OP_DOT){
             //collect more id: so far only two dots supported
             string ids;
             string_init_chars(&ids, string_get(id_symbol));
@@ -756,7 +756,7 @@ struct ast_node *_parse_unary(struct m_parser *parser, struct ast_node *parent)
     parse_next_token(parser);
     struct ast_node *operand = _parse_unary(parser, parent);
     if (operand) {
-        return unary_node_new(opcode, operand, loc);
+        return unary_node_new(opcode, operand, false, loc);
     }
     return 0;
 }

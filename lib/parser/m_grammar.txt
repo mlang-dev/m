@@ -13,26 +13,29 @@ primary_expr    = INT
                 | "false"                                                             
                 | '(' expr ')'                                                              { 1 }
 
-postfix_expr    = primary_expr 
-                | postfix_expr "++"
-                | postfix_expr "--"                                                       
-                | func_call                                                           
+postfix_expr    = primary_expr
+                | postfix_expr '[' expr ']'                                                 { binop 0 1 2 } # lhs op rhs
+                | type_init                                                           
+                | func_call
+                | postfix_expr '.' IDENT                                                    { binop 0 1 2 } 
+                | postfix_expr "++"                                                         { unop 1 0 } # the disorder of operator and operand indicates a postfix op
+                | postfix_expr "--"                                                         { unop 1 0 }
 
-power_expr      = postfix_expr "**" unary_expr                                              { binop 0 1 2 } # lhs op rhs
+power_expr      = postfix_expr "**" unary_expr                                              { binop 0 1 2 } 
                 | postfix_expr                                                        
 
 unary_expr      = power_expr                                                          
-                | "++" unary_expr
-                | "--" unary_expr
-                | [+-~] unary_expr                                                           { unop 0 1 }
+                | "++" unary_expr                                                           { unop 0 1 }
+                | "--" unary_expr                                                           { unop 0 1 }
+                | [+-~] unary_expr                                                          { unop 0 1 }
 
 #next should be cast_expr 
 
 
 multi_expr      = unary_expr
-                | multi_expr [*/%] unary_expr                                               { binop 0 1 2 } # lhs op rhs
+                | multi_expr [*/%] unary_expr                                               { binop 0 1 2 } 
 
-add_expr        = add_expr [+-] multi_expr                                                  { binop 0 1 2 } # lhs op rhs
+add_expr        = add_expr [+-] multi_expr                                                  { binop 0 1 2 } 
                 | multi_expr
 
 shift_expr      = add_expr
@@ -106,7 +109,7 @@ statements      = statements statement                                          
 
 type_def        = "type" IDENT '=' statement                                                { type_def 1 3 }
 
-type_value      = IDENT statement                                                           { type_value 1 3 }
+type_init       = IDENT '(' exprs ')'                                                       { type_value 0 2 }
 
 func_decl       = "extern" IDENT ':' IDENT param_decls                                      { func_type 1 3 4 }
 
@@ -118,7 +121,10 @@ func_call       = IDENT arg_exprs                                               
 arg_exprs       = arg_exprs primary_expr                                                    { block 0 1 }
                 | primary_expr                                                              { block 0 }
                 | '(' ')'                                                                   { block }  # empty block
-    
+
+exprs           = exprs ',' expr                                                            { block 0 2 }
+                | expr                                                                      { block 0 }
+
 iterate_stmt    = "for" param_decl "in" expr ".." expr ".." expr block                      { for_loop 1 3 5 7 8 }
                 | "for" param_decl "in" expr ".." expr block                                { for_loop 1 3 5 6 }
 
@@ -126,7 +132,7 @@ param_decls     = param_decls param_decl                                        
                 | param_decl                                                                { block 0 }
                 | '(' ')'                                                                   { block }  # empty block
 
-var_decls       = var_decls ',' var_decl                                                    { block 0 1 }
+var_decls       = var_decls ',' var_decl                                                    { block 0 2 }
                 | var_decl
 
 param_decl      = IDENT ':' IDENT                                                           { var 0 0 2 } # var name:type, no initial value

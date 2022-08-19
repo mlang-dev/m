@@ -229,7 +229,7 @@ TEST(test_lexer, expr)
 TEST(test_lexer, other_symbols)
 {
     frontend_init();
-    char test_code[] = "()[]{}. .. ... < <= == != >= > || && ! |&+-*/^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ?";
+    char test_code[] = "()[]{} .. ... .< <= == != >= > || && ! |&+-*/^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ?";
 
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
@@ -241,9 +241,9 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(TOKEN_RBRACKET, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_LCBRACKET, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_RCBRACKET, get_tok(lexer)->token_type);
-    ASSERT_EQ(TOKEN_DOT, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_RANGE, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_VARIADIC, get_tok(lexer)->token_type);
+    ASSERT_EQ(OP_DOT, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_LT, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_LE, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_EQ, get_tok(lexer)->opcode);

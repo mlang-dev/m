@@ -88,6 +88,7 @@ struct _var_node {
 
 struct _unary_node {
     enum op_code opcode;
+    bool is_postfix;
     struct ast_node *operand;
 };
 
@@ -221,7 +222,7 @@ struct ast_node *func_type_node_default_new(
 
 struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_node,
     struct ast_node *else_node, struct source_location loc);
-struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, struct source_location loc);
+struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *for_node_new(symbol var_name, struct ast_node *start,
     struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc);

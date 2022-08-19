@@ -24,6 +24,7 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     UNK, GENERIC, UNIT, BOOL, CHAR, INT, DOUBLE, STRING, FUNCTION, EXT     
     */
     /*OP_NULL   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_DOT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_OR     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_AND    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_NOT    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
