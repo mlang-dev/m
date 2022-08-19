@@ -257,6 +257,15 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(node1->node_type == BLOCK_NODE);
         ast = type_node_new(node->ident->name, node1, node->loc);
         break;
+    case TYPE_VALUE_NODE: 
+        assert(false);
+        // assert(rule->action.item_index_count == 2);
+        // node = items[rule->action.item_index[0]].ast;
+        // assert(node->node_type == IDENT_NODE);
+        // node1 = items[rule->action.item_index[1]].ast;
+        // assert(node1->node_type == BLOCK_NODE);
+        // ast = type_value_node_new(node->ident->name, node1, node->loc);
+        break;
     case BLOCK_NODE:
         if (rule->action.item_index_count == 0){
             struct array nodes;
@@ -268,7 +277,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }
         else if(rule->action.item_index_count == 2){
             ast = items[rule->action.item_index[0]].ast;
-            assert(ast->node_type == BLOCK_NODE);
+            if(ast->node_type != BLOCK_NODE){
+                ast = _wrap_as_block_node(ast);
+            }
             node = items[rule->action.item_index[1]].ast;
             if(node->node_type){
                 block_node_add(ast, items[rule->action.item_index[1]].ast);
