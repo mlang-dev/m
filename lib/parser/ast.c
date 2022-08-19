@@ -337,7 +337,7 @@ symbol get_callee(struct ast_node *call)
 }
 
 struct ast_node *func_type_node_default_new(symbol name, struct ast_node *arg_block,
-    struct type_exp *ret_type, bool is_variadic, bool is_external, struct source_location loc)
+    symbol ret_type, bool is_variadic, bool is_external, struct source_location loc)
 {
     return func_type_node_new(name, arg_block, ret_type, false, 0,
         0, is_variadic, is_external, loc);
@@ -345,13 +345,13 @@ struct ast_node *func_type_node_default_new(symbol name, struct ast_node *arg_bl
 
 struct ast_node *func_type_node_new(symbol name,
     struct ast_node *params, /*params block ast node*/
-    struct type_exp *ret_type,
+    symbol ret_type,
     bool is_operator, unsigned precedence, symbol op,
     bool is_variadic, bool is_external, struct source_location loc)
 {
-    enum type type = ret_type ? ret_type->type : TYPE_UNK;
-    symbol type_name = type? to_symbol(type_strings[type]) : 0;
-    struct ast_node *node = ast_node_new(FUNC_TYPE_NODE, type, type_name, loc);
+//    enum type type = ret_type ? ret_type->type : TYPE_UNK;
+//    symbol type_name = type? to_symbol(type_strings[type]) : 0;
+    struct ast_node *node = ast_node_new(FUNC_TYPE_NODE, 0, ret_type, loc);
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = name;
     node->ft->params = params;

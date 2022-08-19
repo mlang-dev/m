@@ -209,7 +209,7 @@ struct ast_node *call_node_new(symbol callee,
 struct ast_node *func_type_node_new(
     symbol name,
     struct ast_node *params, 
-    struct type_exp *ret_type,
+    symbol ret_type,
     bool is_operator,
     unsigned precedence,
     symbol op,
@@ -218,7 +218,7 @@ struct ast_node *type_node_new(symbol name, struct ast_node *body, struct source
 struct ast_node *type_value_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
 struct ast_node *func_type_node_default_new(
     symbol name,
-    struct ast_node *arg_block, struct type_exp *ret_type, bool is_variadic, bool is_external, struct source_location loc);
+    struct ast_node *arg_block, symbol ret_type, bool is_variadic, bool is_external, struct source_location loc);
 
 struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_node,
     struct ast_node *else_node, struct source_location loc);

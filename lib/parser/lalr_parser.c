@@ -125,8 +125,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
     bool is_variadic = false;
-    struct type_exp *ret_type = 0;
-    enum type type;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
             return items[0].ast;
@@ -213,9 +211,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             }
         }
         node3 = items[rule->action.item_index[1]].ast;
-        type = hashtable_get_int(symbol_2_int_types, node3->ident->name);
-        ret_type = (struct type_exp *)create_nullary_type(type, node3->ident->name);
-        ast = func_type_node_default_new(node->ident->name, node1, ret_type, is_variadic, false, node->loc);
+        ast = func_type_node_default_new(node->ident->name, node1, node3->ident->name, is_variadic, false, node->loc);
         break;
     case FUNC_NODE:
         node = items[rule->action.item_index[0]].ast;
@@ -236,10 +232,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         if (rule->action.item_index_count == 4){
             //has return type
             node4 = items[rule->action.item_index[3]].ast;
-            type = hashtable_get_int(symbol_2_int_types, node4->ident->name);
-            ret_type = (struct type_exp *)create_nullary_type(type, node4->ident->name);
         }
-        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, ret_type, is_variadic, false, node->loc);
+        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, node4?node4->ident->name:0, is_variadic, false, node->loc);
         ast = function_node_new(ft, node3, node->loc);
         break;
     case CALL_NODE:

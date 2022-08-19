@@ -17,7 +17,7 @@ const char *kind_strings[] = {
 };
 
 const char *const type_strings[] = {
-    "<unkown>",
+    "",
     "...",
     "()",
     "bool",
