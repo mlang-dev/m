@@ -63,7 +63,7 @@ struct ast_node *create_function_func_type(CXCursor cursor)
         }
         symbol annotated_type_name = get_type_symbol(arg_type);
         struct source_location param_loc = {0, 0, 0, 0};
-        struct ast_node *fun_param = var_node_new(var_name, 0, annotated_type_name, 0, true, param_loc);
+        struct ast_node *fun_param = var_node_new2(var_name, annotated_type_name, 0, true, param_loc);
         fun_param->type = (struct type_exp *)create_nullary_type(arg_type, annotated_type_name);
         array_push(&fun_params, &fun_param);
     }

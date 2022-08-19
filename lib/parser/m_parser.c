@@ -412,7 +412,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
         }
         if (parser->id_is_var_decl) {
             /*id is var decl*/
-            node = var_node_new(id_symbol, optype.type, optype.type_symbol, 0, !parent, current_loc);
+            node = var_node_new2(id_symbol, optype.type_symbol, 0, !parent, current_loc);
         } else if (parser->curr_token.token_type == TOKEN_ASSIGN || optype.type) { //|| !has_symbol(&parser->vars, id_symbol)
             // variable definition
             node = _parse_var(parser, parent, id_symbol, optype.type, optype.type_symbol);
@@ -628,7 +628,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
         symbol var_name = parser->curr_token.symbol_val;
         parse_next_token(parser);
         optype = _parse_op_type(parser, parser->curr_token.loc);
-        struct ast_node *fun_param = var_node_new(var_name, 0, 0, 0, true, parser->curr_token.loc);
+        struct ast_node *fun_param = var_node_new2(var_name, 0, 0, true, parser->curr_token.loc);
         if (optype.success && optype.type) {
             fun_param->annotated_type_name = optype.type_symbol;
             fun_param->annotated_type_enum = optype.type;
