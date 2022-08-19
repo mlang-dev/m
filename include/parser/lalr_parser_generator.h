@@ -26,7 +26,7 @@ extern "C" {
 
 #define MAX_STATES 512
 #define MAX_RULES 128
-#define MAX_AUGMENTED_RULES 2048
+#define MAX_AUGMENTED_RULES 8192
 
 
 link_list2(index_list, index_list_entry, u16)

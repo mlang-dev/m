@@ -26,6 +26,9 @@ struct lalr_parser *lalr_parser_new(parsing_table *pt, parsing_rules *pr)
     parser->pt= pt;
     parser->pr = pr;
     hashtable_init_with_value_size(&parser->symbol_2_int_types, sizeof(int), 0);
+    for (int i = 0; i < TYPE_TYPES; i++) {
+        hashtable_set_int(&parser->symbol_2_int_types, to_symbol(type_strings[i]), i);
+    }
     return parser;
 }
 
@@ -112,7 +115,7 @@ struct ast_node *_wrap_as_block_node(struct ast_node *node)
     return block_node_new(&nodes);
 }
 
-struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *items)
+struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct parse_rule *rule, struct stack_item *items)
 {
     enum op_code opcode;
     struct ast_node *ast = 0;
@@ -122,6 +125,8 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
     struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
     bool is_variadic = false;
+    struct type_exp *ret_type = 0;
+    enum type type;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
             return items[0].ast;
@@ -194,25 +199,47 @@ struct ast_node *_build_nonterm_ast(struct parse_rule *rule, struct stack_item *
         node1 = items[rule->action.item_index[2]].ast;
         ast = binary_node_new(opcode, node, node1, node->loc);
         break;
-    case FUNC_NODE:
+    case FUNC_TYPE_NODE:
         assert(rule->action.item_index_count == 3);
+        node = items[rule->action.item_index[0]].ast;
+        assert(node->node_type == IDENT_NODE);
+        node1 = items[rule->action.item_index[2]].ast; // parameters
+        assert(node1->node_type == BLOCK_NODE);
+        if (array_size(&node1->block->nodes)) {
+            node2 = *(struct ast_node **)array_back(&node1->block->nodes);
+            if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)) {
+                is_variadic = true;
+            }
+        }
+        node3 = items[rule->action.item_index[1]].ast;
+        type = hashtable_get_int(symbol_2_int_types, node3->ident->name);
+        ret_type = (struct type_exp *)create_nullary_type(type, node3->ident->name);
+        ast = func_type_node_default_new(node->ident->name, node1, ret_type, is_variadic, false, node->loc);
+        break;
+    case FUNC_NODE:
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == IDENT_NODE);
         node1 = items[rule->action.item_index[1]].ast; //parameters
         assert(node1->node_type == BLOCK_NODE);
-        if(array_size(&node1->block->nodes)){
+        if (array_size(&node1->block->nodes)) {
             node2 = *(struct ast_node **)array_back(&node1->block->nodes);
-            if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)){
+            if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)) {
                 is_variadic = true;
             }
         }
-        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, 0, is_variadic, false, node->loc);
-        node = items[rule->action.item_index[2]].ast;
-        if(node->node_type != BLOCK_NODE){
-            //convert to block node even it's a one line statement
-            node = _wrap_as_block_node(node);
+        node3 = items[rule->action.item_index[2]].ast;
+        if (node3->node_type != BLOCK_NODE) {
+            // convert to block node even it's a one line statement
+            node3 = _wrap_as_block_node(node3);
         }
-        ast = function_node_new(ft, node, node->loc);
+        if (rule->action.item_index_count == 4){
+            //has return type
+            node4 = items[rule->action.item_index[3]].ast;
+            type = hashtable_get_int(symbol_2_int_types, node4->ident->name);
+            ret_type = (struct type_exp *)create_nullary_type(type, node4->ident->name);
+        }
+        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, ret_type, is_variadic, false, node->loc);
+        ast = function_node_new(ft, node3, node->loc);
         break;
     case CALL_NODE:
         assert(rule->action.item_index_count == 2);
@@ -277,7 +304,7 @@ struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
             //do reduce action and build ast node
             rule = &(*parser->pr)[pa->rule_index];
             si = _get_start_item(parser, rule->symbol_count);
-            ast = _build_nonterm_ast(rule, si); //build ast according to the rule 
+            ast = _build_nonterm_ast(&parser->symbol_2_int_types, rule, si); //build ast according to the rule 
             _pop_states(parser, rule->symbol_count);
             t = _get_top_state(parser)->state_index;
             assert((*parser->pt)[t][rule->lhs].code == G);
