@@ -678,21 +678,6 @@ int find_member_index(struct ast_node *type_node, symbol member)
     return -1;
 }
 
-enum node_type token_to_node_type(enum token_type token_type, enum op_code opcode)
-{
-    if(token_type == TOKEN_IDENT){
-        return IDENT_NODE;
-    }else if(token_type == TOKEN_INT){
-        return LITERAL_NODE;
-    }else if(token_type == TOKEN_FLOAT){
-        return LITERAL_NODE;
-    }else if(token_type == TOKEN_OP){
-        //*hacky way to transfer opcode
-        return (token_type << 16) | opcode;
-    }
-    return NULL_NODE;
-}
-
 enum node_type symbol_to_node_type(symbol node_type_name)
 {
     if(!node_type_name)

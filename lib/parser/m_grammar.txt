@@ -104,21 +104,29 @@ statements      = statements statement                                          
                 | statement                                                                 { block 0 }                                                     
 
 type_def        = "type" IDENT '=' statement                                                { type_def 1 3 }
+
 func_def        = "let" IDENT param_decls '=' statement                                     { func 1 2 4 }
+
 func_call       = IDENT arg_exprs                                                           { call 0 1 }
+
 arg_exprs       = arg_exprs primary_expr                                                    { block 0 1 }
                 | primary_expr                                                              { block 0 }
                 | '(' ')'                                                                   { block }  # empty block
     
 iterate_stmt    = "for" param_decl "in" expr ".." expr ".." expr block                      { for_loop 1 3 5 7 8 }
                 | "for" param_decl "in" expr ".." expr block                                { for_loop 1 3 5 6 }
+
 param_decls     = param_decls param_decl                                                    { block 0 1 }
                 | param_decl                                                                { block 0 }
                 | '(' ')'                                                                   { block }  # empty block
+
 var_decls       = var_decls ',' var_decl                                                    { block 0 1 }
                 | var_decl                                                                  { block 0 }
+
 param_decl      = IDENT ':' IDENT                                                           { var 0 0 2 } # var name:type, no initial value
                 | IDENT                                                                     { var 0 0 } # value name, no type, no initial value
+                | "..."
+
 var_decl        = IDENT ':' IDENT                   { var 0 0 2 } # var name:type, no initial value
                 | IDENT ':' IDENT '=' expr          { var 1 0 2 4 } # var name:type with init value
                 | IDENT '=' expr                    { var 1 0 2 }   # var name with initial value

@@ -188,7 +188,6 @@ struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
 /*construct ast node with type enum directly*/
 struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type_enum, struct source_location loc);
 void ast_node_free(struct ast_node *node);
-
 struct type_exp *get_ret_type(struct ast_node *fun_node);
 
 struct ast_node *function_node_new(struct ast_node *func_type,
@@ -240,7 +239,6 @@ int find_member_index(struct ast_node *type_node, symbol member);
 
 struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name);
 
-enum node_type token_to_node_type(enum token_type token_type, enum op_code opcode);
 enum node_type symbol_to_node_type(symbol node_type_name);
 
 struct node_type_name *get_node_type_names();
