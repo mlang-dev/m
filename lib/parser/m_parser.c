@@ -265,7 +265,6 @@ struct ast_node *_parse_type_value_node(struct m_parser *parser, struct ast_node
     assert(type);
     struct ast_node *block = _parse_block(parser, parent, 0, 0);
     if (block) {
-        assert(array_size(&type->type_def->body->block->nodes) == array_size(&block->block->nodes));
         return type_value_node_new(block, ext_type_symbol, parser->curr_token.loc);
     }
     return 0;
@@ -374,6 +373,8 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
 {
     struct ast_node *node = 0;
     struct source_location loc = parser->curr_token.loc;
+    if (parser->curr_token.token_type == TOKEN_LET)
+        parse_next_token(parser);
     if (parser->curr_token.token_type == TOKEN_EOF)
         return 0;
     else if (parser->curr_token.token_type == TOKEN_IMPORT)

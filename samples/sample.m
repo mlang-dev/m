@@ -4,7 +4,7 @@ loopprint n =
     printf "%d\n" i
 
 # executable entry function
-main () = 
-    loopprint 10
-    0
+main() = 
+  loopprint 10
+  0
 

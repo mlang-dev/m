@@ -50,6 +50,21 @@
             "MIMode": "gdb"
         },
         {
+            "name": "(gdb) Launch m",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/apps/m",
+            "args": [
+                "${workspaceFolder}/test/test.m",
+            ],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "miDebuggerPath": "/usr/bin/gdb",
+            "MIMode": "gdb"
+        },
+        {
             "name": "(gdb) debug mtest.wasm",
             "type": "cppdbg",
             "request": "launch",
