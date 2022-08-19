@@ -265,7 +265,6 @@ struct ast_node *_parse_type_value_node(struct m_parser *parser, struct ast_node
     assert(type);
     struct ast_node *block = _parse_block(parser, parent, 0, 0);
     if (block) {
-        assert(array_size(&type->type_def->body->block->nodes) == array_size(&block->block->nodes));
         return type_value_node_new(block, ext_type_symbol, parser->curr_token.loc);
     }
     return 0;
@@ -358,7 +357,7 @@ struct ast_node *_parse_function_app_or_def(struct m_parser *parser, struct ast_
         }
         symbol id_symbol = string_2_symbol(&id_name);
         struct ast_node *params = block_node_new(&fun_params);
-        struct ast_node *func_type = func_type_node_new(id_symbol, params, ret_type,
+        struct ast_node *func_type = func_type_node_new(id_symbol, params, ret_type && ret_type->type ? to_symbol(type_strings[ret_type->type]) : 0,
             is_operator, precedence, is_operator ? id_symbol : EmptySymbol, is_variadic, false, loc);
         return _parse_function_with_func_type(parser, func_type);
     }
@@ -374,6 +373,8 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
 {
     struct ast_node *node = 0;
     struct source_location loc = parser->curr_token.loc;
+    if (parser->curr_token.token_type == TOKEN_LET)
+        parse_next_token(parser);
     if (parser->curr_token.token_type == TOKEN_EOF)
         return 0;
     else if (parser->curr_token.token_type == TOKEN_IMPORT)
@@ -396,7 +397,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
         struct op_type optype = _parse_op_type(parser, current_loc);
         if (!optype.success)
             return 0;
-        if (parser->curr_token.token_type == TOKEN_DOT){
+        if (parser->curr_token.token_type == TOKEN_OP && parser->curr_token.opcode == OP_DOT){
             //collect more id: so far only two dots supported
             string ids;
             string_init_chars(&ids, string_get(id_symbol));
@@ -411,7 +412,7 @@ struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *paren
         }
         if (parser->id_is_var_decl) {
             /*id is var decl*/
-            node = var_node_new(id_symbol, optype.type, optype.type_symbol, 0, !parent, current_loc);
+            node = var_node_new2(id_symbol, optype.type_symbol, 0, !parent, current_loc);
         } else if (parser->curr_token.token_type == TOKEN_ASSIGN || optype.type) { //|| !has_symbol(&parser->vars, id_symbol)
             // variable definition
             node = _parse_var(parser, parent, id_symbol, optype.type, optype.type_symbol);
@@ -627,7 +628,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
         symbol var_name = parser->curr_token.symbol_val;
         parse_next_token(parser);
         optype = _parse_op_type(parser, parser->curr_token.loc);
-        struct ast_node *fun_param = var_node_new(var_name, 0, 0, 0, true, parser->curr_token.loc);
+        struct ast_node *fun_param = var_node_new2(var_name, 0, 0, true, parser->curr_token.loc);
         if (optype.success && optype.type) {
             fun_param->annotated_type_name = optype.type_symbol;
             fun_param->annotated_type_enum = optype.type;
@@ -654,7 +655,7 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
     symbol fun_name_symbol = string_2_symbol(&fun_name);
     struct ast_node *params = block_node_new(&fun_params);
     struct ast_node *ret = func_type_node_new(fun_name_symbol, params,
-        ret_type, proto_type != 0, bin_prec, EmptySymbol, is_variadic, is_external, loc);
+        ret_type && ret_type->type ? to_symbol(type_strings[ret_type->type]) : 0, proto_type != 0, bin_prec, EmptySymbol, is_variadic, is_external, loc);
     return ret;
 }
 
@@ -756,7 +757,7 @@ struct ast_node *_parse_unary(struct m_parser *parser, struct ast_node *parent)
     parse_next_token(parser);
     struct ast_node *operand = _parse_unary(parser, parent);
     if (operand) {
-        return unary_node_new(opcode, operand, loc);
+        return unary_node_new(opcode, operand, false, loc);
     }
     return 0;
 }

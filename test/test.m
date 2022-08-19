@@ -1,3 +1,8 @@
-type Point2D = x:int y:int
-point:Point2D = 10 20
+# using for loop
+let loopprint n = n
+
+# executable entry function
+let main() = 
+  loopprint 10
+  0
 

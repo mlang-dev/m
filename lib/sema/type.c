@@ -17,7 +17,7 @@ const char *kind_strings[] = {
 };
 
 const char *const type_strings[] = {
-    "<unkown>",
+    "",
     "...",
     "()",
     "bool",
@@ -155,6 +155,7 @@ bool unify(struct type_exp *type1, struct type_exp *type2, struct array *nongens
 {
     type1 = prune(type1);
     type2 = prune(type2);
+    assert(type1 && type2);
     if (type1 == type2)
         return true;
     if (type1->kind == KIND_VAR && type2->kind == KIND_VAR) {

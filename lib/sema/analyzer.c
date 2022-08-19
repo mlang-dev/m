@@ -367,6 +367,9 @@ struct type_exp *_analyze_block(struct sema_context *context, struct ast_node *n
 struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
 {
     struct type_exp *type = 0;
+    if (!node->annotated_type_enum && node->annotated_type_name) {
+        node->annotated_type_enum = hashtable_get_int(context->symbol_2_int_types, node->annotated_type_name);
+    }
     switch(node->node_type){
         case TOTAL_NODE:
         case NULL_NODE:

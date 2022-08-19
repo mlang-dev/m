@@ -48,7 +48,6 @@ extern "C" {
     ENUM_ITEM(TOKEN_LCBRACKET)       \
     ENUM_ITEM(TOKEN_RCBRACKET)       \
     ENUM_ITEM(TOKEN_COMMA)           \
-    ENUM_ITEM(TOKEN_DOT)             \
     ENUM_ITEM(TOKEN_RANGE)           \
     ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_ASSIGN)          \
@@ -57,13 +56,14 @@ extern "C" {
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
 
-enum op_code{
+enum op_code {
     OP_NULL,
-    OP_OR,//'||'
-    OP_AND,//'&&'
+    OP_DOT, 
+    OP_OR, //'||'
+    OP_AND, //'&&'
     OP_NOT,
 
-    OP_BNOT,// '~'
+    OP_BNOT, // '~'
     OP_BOR, //'|'
     OP_BEOR, //'^' exclusive or
     OP_BAND, //'&'
@@ -86,20 +86,20 @@ enum op_code{
 
     OP_COND, //? conditional check
 
-    OP_MUL_ASSN,    //  *=
-    OP_DIV_ASSN,    //  /=
-    OP_MOD_ASSN,    //  %=
-    OP_ADD_ASSN,    //  += 
-    OP_SUB_ASSN,    //  -=
-    OP_LEFT_ASSN,   //  <<=
-    OP_RIGHT_ASSN,  //  >>=
-    OP_AND_ASSN,    //  &=
-    OP_XOR_ASSN,    //  ^=
-    OP_OR_ASSN,     //  |=
+    OP_MUL_ASSN, //  *=
+    OP_DIV_ASSN, //  /=
+    OP_MOD_ASSN, //  %=
+    OP_ADD_ASSN, //  +=
+    OP_SUB_ASSN, //  -=
+    OP_LEFT_ASSN, //  <<=
+    OP_RIGHT_ASSN, //  >>=
+    OP_AND_ASSN, //  &=
+    OP_XOR_ASSN, //  ^=
+    OP_OR_ASSN, //  |=
 
-    OP_INC,         // ++
-    OP_DEC,         // --
-    OP_TOTAL //mark end of all tokens
+    OP_INC, // ++
+    OP_DEC, // --
+    OP_TOTAL // mark end of all tokens
 };
 
 #define TERMINAL_COUNT TOKEN_OP + OP_TOTAL

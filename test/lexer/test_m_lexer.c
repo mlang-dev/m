@@ -51,7 +51,7 @@ TEST(test_m_lexer, ident_token)
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_IDENT, token->token_type);
     ASSERT_STREQ("x", string_get(token->symbol_val));
-    ASSERT_EQ(TOKEN_DOT, get_tok(lexer)->token_type);
+    ASSERT_EQ(OP_DOT, get_tok(lexer)->opcode);
     token = get_tok(lexer);
     ASSERT_EQ(TOKEN_IDENT, token->token_type);
     ASSERT_STREQ("y", string_get(token->symbol_val));

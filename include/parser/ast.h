@@ -88,6 +88,7 @@ struct _var_node {
 
 struct _unary_node {
     enum op_code opcode;
+    bool is_postfix;
     struct ast_node *operand;
 };
 
@@ -186,7 +187,7 @@ struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
  * in codegen.c & analyzer.c shall be changed accordingly.
  */
 /*construct ast node with type enum directly*/
-struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type_enum, struct source_location loc);
+struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type_enum, symbol type_name, struct source_location loc);
 void ast_node_free(struct ast_node *node);
 struct type_exp *get_ret_type(struct ast_node *fun_node);
 
@@ -208,7 +209,7 @@ struct ast_node *call_node_new(symbol callee,
 struct ast_node *func_type_node_new(
     symbol name,
     struct ast_node *params, 
-    struct type_exp *ret_type,
+    symbol ret_type,
     bool is_operator,
     unsigned precedence,
     symbol op,
@@ -217,11 +218,11 @@ struct ast_node *type_node_new(symbol name, struct ast_node *body, struct source
 struct ast_node *type_value_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
 struct ast_node *func_type_node_default_new(
     symbol name,
-    struct ast_node *arg_block, struct type_exp *ret_type, bool is_variadic, bool is_external, struct source_location loc);
+    struct ast_node *arg_block, symbol ret_type, bool is_variadic, bool is_external, struct source_location loc);
 
 struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_node,
     struct ast_node *else_node, struct source_location loc);
-struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, struct source_location loc);
+struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *for_node_new(symbol var_name, struct ast_node *start,
     struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc);

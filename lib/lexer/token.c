@@ -42,13 +42,13 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
 
     KEYWORD_PATTERN(",", COMMA, NULL),
 
-    NAME_KEYWORD_PATTERN(".", "\\.", DOT, NULL), // literal dot
     NAME_KEYWORD_PATTERN("..", "\\.\\.", RANGE, NULL),
     NAME_KEYWORD_PATTERN("...", "\\.\\.\\.", VARIADIC, NULL), // 30
     KEYWORD_PATTERN("=", ASSIGN, NULL),
     KEYWORD_PATTERN(":", ISTYPEOF, NULL),
 
     TOKEN_PATTERN(0, OP, NULL),
+    NAME_KEYWORD_PATTERN(".", "\\.", OP, DOT), // literal dot
     NAME_KEYWORD_PATTERN("||", "\\|\\|", OP, OR),
     KEYWORD_PATTERN("&&", OP, AND), // 35
     KEYWORD_PATTERN("!", OP, NOT),

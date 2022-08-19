@@ -73,15 +73,15 @@ struct ast_node *_build_terminal_ast(struct token *tok)
     switch(tok->token_type){
         default:
             node_type = tok->token_type << 16;
-            ast = ast_node_new(node_type, 0, tok->loc);
+            ast = ast_node_new(node_type, 0, 0, tok->loc);
             break;
         case TOKEN_EOF:
-            ast = ast_node_new(NULL_NODE, 0, tok->loc);
+            ast = ast_node_new(NULL_NODE, 0, 0, tok->loc);
             break;
         case TOKEN_OP:
             //*hacky way to transfer opcode
             node_type = (tok->token_type << 16) | tok->opcode;
-            ast = ast_node_new(node_type, 0, tok->loc);
+            ast = ast_node_new(node_type, 0, 0, tok->loc);
             break;
         case TOKEN_IDENT:
             ast = ident_node_new(tok->symbol_val, tok->loc);
@@ -125,8 +125,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
     bool is_variadic = false;
-    struct type_exp *ret_type = 0;
-    enum type type;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
             return items[0].ast;
@@ -139,10 +137,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(false);
         break;
     case UNARY_NODE:
+        assert(rule->action.item_index_count==2);
         node = items[rule->action.item_index[0]].ast;
         opcode = node->node_type & 0xFFFF;
         node = items[rule->action.item_index[1]].ast;
-        ast = unary_node_new(opcode, node, node->loc);
+        ast = unary_node_new(opcode, node, rule->action.item_index[0] > rule->action.item_index[1], node->loc);
         break;
     case VAR_NODE:
         node = items[rule->action.item_index[1]].ast;
@@ -212,9 +211,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             }
         }
         node3 = items[rule->action.item_index[1]].ast;
-        type = hashtable_get_int(symbol_2_int_types, node3->ident->name);
-        ret_type = (struct type_exp *)create_nullary_type(type, node3->ident->name);
-        ast = func_type_node_default_new(node->ident->name, node1, ret_type, is_variadic, false, node->loc);
+        ast = func_type_node_default_new(node->ident->name, node1, node3->ident->name, is_variadic, false, node->loc);
         break;
     case FUNC_NODE:
         node = items[rule->action.item_index[0]].ast;
@@ -235,10 +232,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         if (rule->action.item_index_count == 4){
             //has return type
             node4 = items[rule->action.item_index[3]].ast;
-            type = hashtable_get_int(symbol_2_int_types, node4->ident->name);
-            ret_type = (struct type_exp *)create_nullary_type(type, node4->ident->name);
         }
-        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, ret_type, is_variadic, false, node->loc);
+        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, node4?node4->ident->name:0, is_variadic, false, node->loc);
         ast = function_node_new(ft, node3, node->loc);
         break;
     case CALL_NODE:
@@ -258,13 +253,12 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         ast = type_node_new(node->ident->name, node1, node->loc);
         break;
     case TYPE_VALUE_NODE: 
-        assert(false);
-        // assert(rule->action.item_index_count == 2);
-        // node = items[rule->action.item_index[0]].ast;
-        // assert(node->node_type == IDENT_NODE);
-        // node1 = items[rule->action.item_index[1]].ast;
-        // assert(node1->node_type == BLOCK_NODE);
-        // ast = type_value_node_new(node->ident->name, node1, node->loc);
+        assert(rule->action.item_index_count == 2);
+        node = items[rule->action.item_index[0]].ast;
+        assert(node->node_type == IDENT_NODE);
+        node1 = items[rule->action.item_index[1]].ast;
+        assert(node1->node_type == BLOCK_NODE);
+        ast = type_value_node_new(node1, node->ident->name, node->loc);
         break;
     case BLOCK_NODE:
         if (rule->action.item_index_count == 0){

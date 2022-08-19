@@ -1,6 +1,6 @@
 # This is comment line
 # Defines an average function
-avg x y = (x + y) / 2.0
+let avg x y = (x + y) / 2.0
 
 # This is a distance function
 distance x1 y1 x2 y2 = 
