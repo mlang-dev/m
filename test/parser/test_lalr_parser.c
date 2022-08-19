@@ -410,6 +410,36 @@ TEST(test_lalr_parser, variadic_function)
     frontend_deinit();
 }
 
+TEST(test_lalr_parser, func_type)
+{
+    char test_code[] = "extern printf:int format:string ...";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("printf", string_get(node->ft->name));
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_lalr_parser, func_type_no_param)
+{
+    char test_code[] = "extern print:int ()";
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
+    ASSERT_STREQ("print", string_get(node->ft->name));
+    ASSERT_STREQ("int", string_get(node->annotated_type_name));
+    lalr_parser_free(parser);
+    frontend_deinit();
+}
+
 int test_lr_parser()
 {
     UNITY_BEGIN();
@@ -435,5 +465,7 @@ int test_lr_parser()
     RUN_TEST(test_lalr_parser_if_condition_no_else);
     RUN_TEST(test_lalr_parser_local_string_function);
     RUN_TEST(test_lalr_parser_variadic_function);
+    RUN_TEST(test_lalr_parser_func_type);
+    RUN_TEST(test_lalr_parser_func_type_no_param);
     return UNITY_END();
 }
