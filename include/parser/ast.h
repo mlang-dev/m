@@ -76,8 +76,6 @@ struct _literal_node {
 
 struct _ident_node {
     symbol name;
-    /*if id is x.y, x is variable of object, y is member of the object*/
-    struct array member_accessors;
 };
 
 struct _var_node {

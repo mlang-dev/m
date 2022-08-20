@@ -59,24 +59,7 @@ struct type_exp *retrieve_type_for_var_name(struct sema_context *context, symbol
 
 struct type_exp *_analyze_ident(struct sema_context *context, struct ast_node *node)
 {
-    struct type_exp *type = 0;
-    for (size_t i = 0; i < array_size(&node->ident->member_accessors); i++) {
-        symbol id = *((symbol *)array_get(&node->ident->member_accessors, i));
-        if (i == 0) {
-            type = retrieve_type_for_var_name(context, id);
-        } else {
-            assert(type);
-            struct type_oper *oper = (struct type_oper *)type;
-            struct ast_node *type_node = hashtable_get_p(&context->ext_typename_2_asts, oper->base.name);
-            int index = find_member_index(type_node, id);
-            if (index < 0) {
-                _log_err(context, node->loc, "%s member not matched.");
-                return 0;
-            }
-            type = *(struct type_exp **)array_get(&oper->args, index);
-        }
-    }
-    return type;
+    return retrieve_type_for_var_name(context, node->ident->name);
 }
 
 struct type_exp *_analyze_liter(struct sema_context *context, struct ast_node *node)
@@ -290,8 +273,24 @@ struct type_exp *_analyze_unary(struct sema_context *context, struct ast_node *n
     return op_type;
 }
 
+struct type_exp *_analyze_field_accessor(struct sema_context *context, struct ast_node *node)
+{
+    struct type_exp *type = retrieve_type_for_var_name(context, node->binop->lhs->ident->name);
+    struct type_oper *oper = (struct type_oper *)type;
+    struct ast_node *type_node = hashtable_get_p(&context->ext_typename_2_asts, oper->base.name);
+    int index = find_member_index(type_node, node->binop->rhs->ident->name);
+    if (index < 0) {
+        _log_err(context, node->loc, "%s member not matched.");
+        return 0;
+    }
+    return *(struct type_exp **)array_get(&oper->args, index);
+}
+
 struct type_exp *_analyze_binary(struct sema_context *context, struct ast_node *node)
 {
+    if (node->binop->opcode == OP_DOT){
+        return _analyze_field_accessor(context, node);
+    }
     struct type_exp *lhs_type = analyze(context, node->binop->lhs);
     struct type_exp *rhs_type = analyze(context, node->binop->rhs);
     struct type_exp *result = 0;
