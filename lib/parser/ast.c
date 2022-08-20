@@ -404,7 +404,7 @@ void _free_func_type_node(struct ast_node *node)
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(FUNC_NODE, 0, 0, loc);
+    struct ast_node *node = ast_node_new(FUNC_NODE, func_type->annotated_type_enum, func_type->annotated_type_name, loc);
     MALLOC(node->func, sizeof(*node->func));
     node->func->func_type = func_type;
     node->func->body = body;
@@ -650,7 +650,6 @@ void node_free(struct ast_node *node)
         break;
     default:
         printf("not supported node type: %d\n", node->node_type);
-        assert(false);
     }
 }
 

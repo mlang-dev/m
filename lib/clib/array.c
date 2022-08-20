@@ -68,6 +68,13 @@ void array_push(struct array *arr, void *element)
     arr->base.size++;
 }
 
+void *array_pop(struct array *arr)
+{
+    void *data = array_get(arr, arr->base.size - 1);
+    arr->base.size--;
+    return data;
+}
+
 void array_grow(struct array *arr)
 {
     arr->cap *= 2;

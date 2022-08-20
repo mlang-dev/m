@@ -23,6 +23,10 @@ struct stack_item{
 };
 
 struct lalr_parser{
+    /*parser states*/
+    /* mapping type string into type enum: hashtable of (symbol, int) */
+    struct hashtable symbol_2_int_types;
+
     //  parser implementation
     //  state stack
     struct stack_item stack[MAX_STATES];
@@ -34,10 +38,6 @@ struct lalr_parser{
     parsing_table *pt;
     // symbols of grammar rules are converted to int index as parsing rules
     parsing_rules *pr;
-
-    /*parser states*/
-    /* mapping type string into type enum: hashtable of (symbol, int) */
-    struct hashtable symbol_2_int_types;
 };
 
 struct lalr_parser *lalr_parser_new(parsing_table *pt, parsing_rules *pr);
