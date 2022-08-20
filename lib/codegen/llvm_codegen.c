@@ -446,10 +446,13 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct ast_node *node)
         int index = find_member_index(type_node, attr);
         v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
     }
-    if (node->type->type < TYPE_EXT)
+    if (node->type->type < TYPE_EXT){
+        //assert(array_size(&node->ident->member_accessors) == 1);
         return LLVMBuildLoad(cg->builder, v, string_get(node->ident->name));
-    else
+    }
+    else{
         return v;
+    }
 }
 
 LLVMValueRef _emit_unary_node(struct code_generator *cg, struct ast_node *node)
@@ -476,8 +479,40 @@ LLVMValueRef _emit_unary_node(struct code_generator *cg, struct ast_node *node)
     return LLVMBuildCall(cg->builder, fun, &operand_v, 1, "unop");
 }
 
+LLVMValueRef _emit_accessor_node(struct code_generator *cg, struct ast_node *node)
+{
+    assert(node->node_type == BINARY_NODE);
+    assert(node->binop->lhs->node_type == IDENT_NODE);
+    assert(node->binop->rhs->node_type == IDENT_NODE);
+    symbol id = node->binop->lhs->ident->name;
+    LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, id);
+    if (!v) {
+        v = get_global_variable(cg, id);
+        assert(v);
+    }
+    string *type_name = hashtable_get_p(&cg->varname_2_typename, id);
+    struct ast_node *type_node = hashtable_get_p(&cg->typename_2_ast, type_name);
+    symbol attr = node->binop->rhs->ident->name;
+    int index = find_member_index(type_node, attr);
+    v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
+    if (node->type->type < TYPE_EXT){
+        string dot_id ;
+        string_init(&dot_id);
+        string_add(&dot_id, id);
+        string_add_chars(&dot_id, ".");
+        string_add(&dot_id, attr);
+        return LLVMBuildLoad(cg->builder, v, string_get(&dot_id));
+    }
+    else{
+        return v;
+    }
+}
+
 LLVMValueRef _emit_binary_node(struct code_generator *cg, struct ast_node *node)
 {
+    if (node->binop->opcode == OP_DOT)
+        return _emit_accessor_node(cg, node);
+
     LLVMValueRef lv = emit_ir_code(cg, node->binop->lhs);
     LLVMValueRef rv = emit_ir_code(cg, node->binop->rhs);
     // assert(LLVMGetValueKind(lv) == LLVMGetValueKind(rv));

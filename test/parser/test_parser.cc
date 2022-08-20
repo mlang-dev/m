@@ -515,12 +515,9 @@ xy.x";
     ASSERT_STREQ("Point2D", string_get(var->annotated_type_name));
     ASSERT_EQ(TYPE_EXT, var->annotated_type_enum);
     node = *(ast_node **)array_get(&block->block->nodes, 2);
-    ASSERT_EQ(IDENT_NODE, node->node_type);
-    struct ast_node *id_node = node;
-    ASSERT_STREQ("xy.x", string_get(id_node->ident->name));
-    ASSERT_EQ(2, array_size(&id_node->ident->member_accessors));
-    ASSERT_STREQ("xy", string_get(*(symbol *)array_front(&id_node->ident->member_accessors)));
-    ASSERT_STREQ("x", string_get(*(symbol *)array_back(&id_node->ident->member_accessors)));
+    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_STREQ("xy", string_get(node->binop->lhs->ident->name));
+    ASSERT_STREQ("x", string_get(node->binop->rhs->ident->name));
     env_free(env);
 }
 

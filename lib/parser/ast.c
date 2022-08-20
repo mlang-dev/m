@@ -144,10 +144,19 @@ struct array to_symbol_array(struct array arr)
 
 struct ast_node *ident_node_new(symbol name, struct source_location loc)
 {
+    struct array names = to_symbol_array(string_split(name, '.'));
+
+    if(array_size(&names) == 2){
+        symbol lhs_name = *((symbol *)array_get(&names, 0));
+        struct ast_node *lhs = ident_node_new(lhs_name, loc);
+        symbol rhs_name = *((symbol *)array_get(&names, 1));
+        struct ast_node *rhs = ident_node_new(rhs_name, loc);
+        return binary_node_new(OP_DOT, lhs, rhs, loc);
+    }
     struct ast_node *node = ast_node_new(IDENT_NODE, 0, 0, loc);
     MALLOC(node->ident, sizeof(*node->ident));
     node->ident->name = name;
-    node->ident->member_accessors = to_symbol_array(string_split(node->ident->name, '.'));
+    node->ident->member_accessors = names;
     return node;
 }
 
