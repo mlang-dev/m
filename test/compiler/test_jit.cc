@@ -21,18 +21,19 @@ TEST(testJIT, testBuildJit)
 TEST(testJIT, testNumber)
 {
     char test_code[] = R"(
-  10
-  10
+10
+10
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     auto node2 = *(ast_node **)array_back(&block->block->nodes);
     result = eval_exp(jit, node2);
     ASSERT_EQ(TYPE_INT, result.type);
     ASSERT_EQ(10, result.i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -40,15 +41,16 @@ TEST(testJIT, testNumber)
 TEST(testJIT, testNegNumber)
 {
     char test_code[] = R"(
-  -10
+-10
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
     ASSERT_EQ(-10, result.i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -56,15 +58,16 @@ TEST(testJIT, testNegNumber)
 TEST(testJIT, testRemainderOp)
 {
     char test_code[] = R"(
-  10%3
+10%3
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
     ASSERT_EQ(1, result.i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -72,15 +75,16 @@ TEST(testJIT, testRemainderOp)
 TEST(testJIT, testPositiveNumber)
 {
     char test_code[] = R"(
-  +10
++10
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
     ASSERT_EQ(10, result.i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -88,15 +92,16 @@ TEST(testJIT, testPositiveNumber)
 TEST(testJIT, testChar)
 {
     char test_code[] = R"(
-  'c'
+'c'
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_CHAR, result.type);
     ASSERT_EQ('c', result.c_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -104,15 +109,16 @@ TEST(testJIT, testChar)
 TEST(testJIT, testString)
 {
     char test_code[] = R"(
-  "hello"
+"hello"
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_STRING, result.type);
     ASSERT_STREQ("hello", result.s_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -120,14 +126,15 @@ TEST(testJIT, testString)
 TEST(testJIT, testTypeError)
 {
     char test_code[] = R"(
-  10 + 10.0
+10 + 10.0
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     eval_statement(jit, node);
     ASSERT_EQ(0, node->type);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -145,6 +152,7 @@ y
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
     ASSERT_EQ(100, eval_exp(jit, node1).i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -162,6 +170,7 @@ y
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
     ASSERT_STREQ("hello", eval_exp(jit, node1).s_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -182,6 +191,7 @@ y
     eval_statement(jit, node1);
     eval_statement(jit, node2);
     ASSERT_EQ(200, eval_exp(jit, node3).i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -189,17 +199,18 @@ y
 TEST(testJIT, testIdFunc)
 {
     char test_code[] = R"(
-  id x = x
-  id 10.0
-  )";
+let id x = x
+id 10.0
+)";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto node2 = *(ast_node **)array_back(&block->block->nodes);
     eval_statement(jit, node1);
     auto result = eval_exp(jit, node2);
     ASSERT_EQ(10.0, result.d_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -207,13 +218,13 @@ TEST(testJIT, testIdFunc)
 TEST(testJIT, testIdGenericFunc)
 {
     char test_code[] = R"(
-  id_g x = x
-  id_g 10.0
-  id_g 20
-  )";
+let id_g x = x
+id_g 10.0
+id_g 20
+)";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node2 = *(ast_node **)array_back(&block->block->nodes);
@@ -222,6 +233,7 @@ TEST(testJIT, testIdGenericFunc)
     ASSERT_EQ(10.0, result.d_value);
     result = eval_exp(jit, node2);
     ASSERT_EQ(20, result.i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -229,17 +241,18 @@ TEST(testJIT, testIdGenericFunc)
 TEST(testJIT, testSquareFunc)
 {
     char test_code[] = R"(
-  sq x = x * x
-  sq 10.0
+let sq x = x * x
+sq 10.0
   )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(100.0, result.d_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -247,15 +260,15 @@ TEST(testJIT, testSquareFunc)
 TEST(testJIT, testIfFunc)
 {
     char test_code[] = R"(
-  if_f x = 
+let if_f x = 
     if x < 10 then x
     else 0
-  if_f 5
-  if_f 10
-  )";
+if_f 5
+if_f 10
+)";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node2 = *(ast_node **)array_get(&block->block->nodes, 2);
@@ -264,6 +277,7 @@ TEST(testJIT, testIfFunc)
     eval_result result2 = eval_exp(jit, node2);
     ASSERT_EQ(5, result1.i_value);
     ASSERT_EQ(0, result2.i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -271,19 +285,20 @@ TEST(testJIT, testIfFunc)
 TEST(testJIT, testForLoopFunc)
 {
     char test_code[] = R"(
-    forloop n = 
-        for i in 1..n
-            i
-    forloop 4
+let forloop n = 
+    for i in 1..n
+        i
+forloop 4
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_back(&block->block->nodes);
     eval_statement(jit, node);
     eval_result result1 = eval_exp(jit, node1);
     ASSERT_EQ(0, result1.i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -354,7 +369,7 @@ if z>99 then -z else z
 TEST(testJIT, testLocalStringFunc)
 {
     char test_code[] = R"(
-to_string () = 
+let to_string () = 
   x = "hello"
   y = x
   y
@@ -362,7 +377,7 @@ to_string()
 )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto end = 1;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -370,6 +385,7 @@ to_string()
     }
     auto node1 = *(ast_node **)array_get(&block->block->nodes, end);
     ASSERT_STREQ("hello", eval_exp(jit, node1).s_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -392,6 +408,7 @@ printf "hello\n"
     }
     auto msg = testing::internal::GetCapturedStdout();
     ASSERT_STREQ("hello\\n7:int\n", msg.c_str()); //TODO: fix me later
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -412,6 +429,7 @@ printf "hello:%d" 1
     }
     auto msg = testing::internal::GetCapturedStdout();
     ASSERT_STREQ("hello:17:int\n", msg.c_str());
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -437,6 +455,7 @@ xy.y
     ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
     auto node4 = *(ast_node **)array_get(&block->block->nodes, 3);
     ASSERT_EQ(20.0, eval_exp(jit, node4).d_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -445,7 +464,7 @@ TEST(testJIT, testProductTypeIntType)
 {
     char test_code[] = R"(
 type Point2D = x:int y:int
-xy:Point2D = 10 20
+xy:Point2D = 10, 20
 xy.x
 xy.y
 )";
@@ -461,6 +480,7 @@ xy.y
     ASSERT_EQ(10, eval_exp(jit, node3).i_value);
     auto node4 = *(ast_node **)array_get(&block->block->nodes, 3);
     ASSERT_EQ(20, eval_exp(jit, node4).i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -485,6 +505,7 @@ xy.y
     ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
     auto node4 = *(ast_node **)array_get(&block->block->nodes, 3);
     ASSERT_EQ(20, eval_exp(jit, node4).i_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
@@ -508,6 +529,7 @@ getx()
     }
     auto node3 = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
+    ast_node_free(block);
     jit_free(jit);
     env_free(env);
 }
