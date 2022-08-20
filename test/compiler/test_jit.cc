@@ -147,7 +147,7 @@ y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
@@ -165,7 +165,7 @@ y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
@@ -184,7 +184,7 @@ y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto node2 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node3 = *(ast_node **)array_get(&block->block->nodes, 2);
@@ -399,7 +399,7 @@ printf "hello\n"
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto end = 1;
     testing::internal::CaptureStdout();
     for (int i = 0; i < end; i++) {
@@ -420,7 +420,7 @@ printf "hello:%d" 1
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     testing::internal::CaptureStdout();
     auto end = 1;
     for (int i = 0; i < end; i++) {
@@ -438,14 +438,14 @@ printf "hello:%d" 1
 TEST(testJIT, testProductType)
 {
     char test_code[] = R"(
-type Point2D = x:double y:double
-xy:Point2D = 10.0 20.0
+type Point2D = x:double, y:double
+xy:Point2D = Point2D(10.0, 20.0)
 xy.x
 xy.y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -463,14 +463,14 @@ xy.y
 TEST(testJIT, testProductTypeIntType)
 {
     char test_code[] = R"(
-type Point2D = x:int y:int
-xy:Point2D = 10, 20
+type Point2D = x:int, y:int
+xy:Point2D = Point2D(10, 20)
 xy.x
 xy.y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -488,14 +488,14 @@ xy.y
 TEST(testJIT, testProductTypeMixedType)
 {
     char test_code[] = R"(
-type Point2D = x:double y:int
-xy:Point2D = 10.0 20
+type Point2D = x:double, y:int
+xy:Point2D = Point2D(10.0, 20)
 xy.x
 xy.y
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -513,15 +513,15 @@ xy.y
 TEST(testJIT, testProductTypeMixedTypeLocalVariable)
 {
     char test_code[] = R"(
-type Point2D = x:double y:int
-getx()=
-    xy:Point2D = 10.0 20
+type Point2D = x:double, y:int
+let getx()=
+    xy:Point2D = Point2D(10.0, 20)
     xy.x
 getx()
 )";
     env *env = env_new(true);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
