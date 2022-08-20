@@ -156,7 +156,6 @@ struct ast_node *ident_node_new(symbol name, struct source_location loc)
     struct ast_node *node = ast_node_new(IDENT_NODE, 0, 0, loc);
     MALLOC(node->ident, sizeof(*node->ident));
     node->ident->name = name;
-    node->ident->member_accessors = names;
     return node;
 }
 
@@ -168,7 +167,6 @@ struct ast_node *_copy_ident_node(struct ast_node *orig_node)
 
 void _free_ident_node(struct ast_node *node)
 {
-    array_deinit(&node->ident->member_accessors);
     ast_node_free(node);
 }
 

@@ -432,22 +432,13 @@ LLVMValueRef _emit_literal_node(struct code_generator *cg, struct ast_node *node
 /*xy->TypeNode*/
 LLVMValueRef _emit_ident_node(struct code_generator *cg, struct ast_node *node)
 {
-    symbol id = *((symbol *)array_get(&node->ident->member_accessors, 0));
     // const char *idname = string_get(id);
-    LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, id);
+    LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, node->ident->name);
     if (!v) {
-        v = get_global_variable(cg, id);
+        v = get_global_variable(cg, node->ident->name);
         assert(v);
     }
-    if (array_size(&node->ident->member_accessors) > 1) {
-        string *type_name = hashtable_get_p(&cg->varname_2_typename, id);
-        struct ast_node *type_node = hashtable_get_p(&cg->typename_2_ast, type_name);
-        symbol attr = *((symbol *)array_get(&node->ident->member_accessors, 1));
-        int index = find_member_index(type_node, attr);
-        v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
-    }
     if (node->type->type < TYPE_EXT){
-        //assert(array_size(&node->ident->member_accessors) == 1);
         return LLVMBuildLoad(cg->builder, v, string_get(node->ident->name));
     }
     else{
