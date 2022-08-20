@@ -77,6 +77,10 @@ struct type_exp *_analyze_liter(struct sema_context *context, struct ast_node *n
 struct type_exp *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
     struct type_exp *type;
+    if(context->scope_level<1){
+        //global variable
+        node->var->is_global = true;
+    }
     assert(node->annotated_type_name || node->var->init_value);
     if (node->annotated_type_name && 
         hashtable_in_p(&context->ext_typename_2_asts, node->annotated_type_name)

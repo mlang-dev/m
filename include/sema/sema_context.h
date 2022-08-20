@@ -93,13 +93,19 @@ struct sema_context {
 
     symbol scope_marker;
 
+    /*
+     * indicates block levels
+     */
+    size_t scope_level;
+
+
     bool is_repl;
 };
 
 struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, struct ast_node *stdio, struct ast_node *math, bool is_repl);
 void sema_context_free(struct sema_context *env);
-void enter_scope(struct sema_context *env);
-void leave_scope(struct sema_context *env);
+size_t enter_scope(struct sema_context *env);
+size_t leave_scope(struct sema_context *env);
 struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name);
 
 #ifdef __cplusplus
