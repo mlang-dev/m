@@ -12,111 +12,119 @@
 TEST(testJITLogical, testOrTrueTrue)
 {
     const char test_code[] = R"(
-  true || true
+true || true
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
+    ast_node_free(block);
     env_free(env);
 }
 
 TEST(testJITLogical, testOrTrueFalse)
 {
     const char test_code[] = R"(
-  true || false
+true || false
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
+    ast_node_free(block);
     env_free(env);
 }
 
 TEST(testJITLogical, testOrFalseFalse)
 {
     const char test_code[] = R"(
-  false || false
+false || false
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
+    ast_node_free(block);
     env_free(env);
 }
 
 TEST(testJITLogical, testAndTrueTrue)
 {
     const char test_code[] = R"(
-  true && true
+true && true
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
+    ast_node_free(block);
     env_free(env);
 }
 
 TEST(testJITLogical, testAndTrueFalse)
 {
     const char test_code[] = R"(
-  true && false
+true && false
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
+    ast_node_free(block);
     env_free(env);
 }
 
 TEST(testJITLogical, testAndFalseFalse)
 {
     const char test_code[] = R"(
-  false && false
+false && false
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
+    ast_node_free(block);
     env_free(env);
 }
 
 TEST(testJITLogical, testNotFalse)
 {
     const char test_code[] = R"(
-  ! false
+! false
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
+    ast_node_free(block);
     env_free(env);
 }
 
 TEST(testJITLogical, testNotTrue)
 {
     const char test_code[] = R"(
-  ! true
+! true
   )";
     env *env = env_new(false);
     JIT *jit = build_jit(env);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
+    ast_node_free(block);
     env_free(env);
 }

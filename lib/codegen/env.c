@@ -17,7 +17,7 @@ struct env *env_new(bool is_repl)
     struct env *env;
     MALLOC(env, sizeof(struct env));
     env->parser = m_parser_new(is_repl);
-
+    env->new_parser = parser_new();
     char libpath[4096];
     char *mpath = get_exec_path();
     join_path(libpath, sizeof(libpath), mpath, "mlib/stdio.m");
@@ -33,6 +33,7 @@ struct env *env_new(bool is_repl)
 void env_free(struct env *env)
 {
     m_parser_free(env->parser);
+    lalr_parser_free(env->new_parser);
     sema_context_free(env->cg->sema_context);
     cg_free(env->cg);
     FREE(env);

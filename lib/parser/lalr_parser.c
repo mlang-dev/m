@@ -181,6 +181,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }else{
             assert(false);
         }
+        node3 = binary_node_new(OP_LT, ident_node_new(node->var->var_name, node->loc), node3, node->loc);
         ast = for_node_new(node->var->var_name, node1, node3, node2, node4, node->loc);
         break;
     case IF_NODE:
@@ -208,6 +209,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node2 = *(struct ast_node **)array_back(&node1->block->nodes);
             if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)) {
                 is_variadic = true;
+                array_pop(&node1->block->nodes);
             }
         }
         node3 = items[rule->action.item_index[1]].ast;
@@ -222,6 +224,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node2 = *(struct ast_node **)array_back(&node1->block->nodes);
             if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)) {
                 is_variadic = true;
+                array_pop(&node1->block->nodes);
             }
         }
         node3 = items[rule->action.item_index[2]].ast;

@@ -39,6 +39,13 @@ void _log_err(struct sema_context *context, struct source_location loc, const ch
     log_info(ERROR, full_msg);
 }
 
+void _fill_type_enum(struct sema_context *context, struct ast_node *node)
+{
+    if (!node->annotated_type_enum && node->annotated_type_name) {
+        node->annotated_type_enum = hashtable_get_int(context->symbol_2_int_types, node->annotated_type_name);
+    }
+}
+
 struct type_exp *_analyze_unk(struct sema_context *context, struct ast_node *node)
 {
     printf("analyzing unk: %s\n", node_type_strings[node->node_type]);
@@ -168,6 +175,7 @@ struct type_exp *_analyze_func(struct sema_context *context, struct ast_node *no
     array_init(&fun_sig, sizeof(struct type_exp *));
     for (size_t i = 0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
+        _fill_type_enum(context, param);
         struct type_exp *exp;
         if (param->annotated_type_name) {
             if (param->annotated_type_enum == TYPE_EXT)
@@ -366,9 +374,7 @@ struct type_exp *_analyze_block(struct sema_context *context, struct ast_node *n
 struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
 {
     struct type_exp *type = 0;
-    if (!node->annotated_type_enum && node->annotated_type_name) {
-        node->annotated_type_enum = hashtable_get_int(context->symbol_2_int_types, node->annotated_type_name);
-    }
+    _fill_type_enum(context, node);
     switch(node->node_type){
         case TOTAL_NODE:
         case NULL_NODE:

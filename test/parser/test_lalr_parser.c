@@ -225,7 +225,7 @@ let loopprint n = \n\
     ASSERT_EQ(FOR_NODE, body_node->node_type);
     ASSERT_EQ(TYPE_INT, body_node->forloop->start->annotated_type_enum);
     ASSERT_EQ(TYPE_INT, body_node->forloop->step->annotated_type_enum);
-    ASSERT_EQ(IDENT_NODE, body_node->forloop->end->node_type);
+    ASSERT_EQ(BINARY_NODE, body_node->forloop->end->node_type);
     ASSERT_EQ(3, ((struct ast_node *)body_node->forloop->start)->liter->int_val);
     ast_node_free(block);
     lalr_parser_free(parser);
@@ -249,7 +249,7 @@ let loopprint n = \n\
     ASSERT_EQ(TYPE_INT, body_node->forloop->start->annotated_type_enum);
     ASSERT_EQ(TYPE_INT, body_node->forloop->step->annotated_type_enum);
     ASSERT_EQ(2, body_node->forloop->step->liter->int_val);
-    ASSERT_EQ(IDENT_NODE, body_node->forloop->end->node_type);
+    ASSERT_EQ(BINARY_NODE, body_node->forloop->end->node_type);
     ASSERT_EQ(3, ((struct ast_node *)body_node->forloop->start)->liter->int_val);
     ast_node_free(block);
     lalr_parser_free(parser);
