@@ -1,20 +1,20 @@
 _fltused:int = 0
-type Point2DD = x:double y:double
-type Point2DI = x:int y:int
+type Point2DD = x:double, y:double
+type Point2DI = x:int, y:int
 
 let passByRef xy:Point2DD = xy.y
 let passByI64 xy:Point2DI = xy.y
 let returnSmallStruct() = 
-  xy:Point2DI = 20 30
+  xy:Point2DI = Point2DI(20, 30)
   xy
 let returnLargeStruct() = 
-  xy:Point2DD = 200.0 300.0
+  xy:Point2DD = Point2DD(200.0, 300.0)
   xy
 
 let main() = 
   printf "hello world !\n"
-  xy_d:Point2DD = 10.0 40.0
-  xy_i:Point2DI = 20 80
+  xy_d:Point2DD = Point2D(10.0, 40.0)
+  xy_i:Point2DI = Point2D(20, 80)
   #result1 = passByRef xy_d
   #result2 = passByI64 xy_i
   #result3 = returnSmallStruct()

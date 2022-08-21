@@ -55,7 +55,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/apps/m",
             "args": [
-                "${workspaceFolder}/test/test.m",
+                "${workspaceFolder}/samples/helloworld.m",
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
