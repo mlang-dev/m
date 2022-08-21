@@ -60,10 +60,6 @@ struct module {
     struct ast_node *block;
 };
 
-struct ast {
-    struct array modules; // struct array of module*
-};
-
 struct _literal_node {
     union {
         double double_val;

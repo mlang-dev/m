@@ -2,16 +2,16 @@ _fltused:int = 0
 type Point2DD = x:double y:double
 type Point2DI = x:int y:int
 
-passByRef xy:Point2DD = xy.y
-passByI64 xy:Point2DI = xy.y
-returnSmallStruct() = 
+let passByRef xy:Point2DD = xy.y
+let passByI64 xy:Point2DI = xy.y
+let returnSmallStruct() = 
   xy:Point2DI = 20 30
   xy
-returnLargeStruct() = 
+let returnLargeStruct() = 
   xy:Point2DD = 200.0 300.0
   xy
 
-main() = 
+let main() = 
   printf "hello world !\n"
   xy_d:Point2DD = 10.0 40.0
   xy_i:Point2DI = 20 80

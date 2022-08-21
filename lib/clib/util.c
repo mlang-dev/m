@@ -194,3 +194,23 @@ bool is_power_of2_64(uint64_t value)
 {
     return value && !(value & (value - 1));
 }
+
+const char *read_text_file(const char *file_path)
+{
+    char *buffer = 0;
+    long length;
+    FILE *f = fopen(file_path, "rb");
+
+    if (f) {
+        fseek(f, 0, SEEK_END);
+        length = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        buffer = malloc(length + 1);
+        if (buffer) {
+            fread(buffer, 1, length, f);
+        }
+        buffer[length] = '\0';
+        fclose(f);
+    }
+    return buffer;
+}

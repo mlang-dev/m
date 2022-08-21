@@ -29,26 +29,6 @@ const char *parsing_actions[] = {
     "G"
 };
 
-const char *read_grammar(const char *grammar_path)
-{
-    char *buffer = 0;
-    long length;
-    FILE *f = fopen(grammar_path, "rb");
-
-    if (f) {
-        fseek(f, 0, SEEK_END);
-        length = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        buffer = malloc(length+1);
-        if (buffer) {
-            fread(buffer, 1, length, f);
-        }
-        buffer[length] = '\0';
-        fclose(f);
-    }
-    return buffer;
-}
-
 int write_to_header_file(struct lalr_parser_generator *pg, const char *header_path)
 {
     FILE *f = fopen(header_path, "w");
@@ -202,7 +182,7 @@ int generate_files(const char *grammar_path, const char *header_path, const char
 {
     frontend_init();
     printf("parsing grammar file %s ...\n", grammar_path);
-    const char *grammar = read_grammar(grammar_path);
+    const char *grammar = read_text_file(grammar_path);
     struct lalr_parser_generator *pg = lalr_parser_generator_new(grammar);
     printf("generating %s ...\n", header_path);
     write_to_header_file(pg, header_path);
