@@ -10,6 +10,7 @@
 #include "codegen/env.h"
 #include "parser/ast.h"
 #include "parser/astdump.h"
+#include "sema/analyzer.h"
 #include "test_base.h"
 #include "tutil.h"
 
@@ -18,9 +19,10 @@ class testAstDump : public TestBase {
 
 TEST_F(testAstDump, testPrototypeNodeDump)
 {
-    char test_code[] = "extern printf(format:string ...):int";
+    char test_code[] = "extern printf:int format:string ...";
     auto env = env_new(false);
-    ast_node *block = parse_string(env->parser, "test", test_code);
+    ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     auto func_type = (ast_node *)node;

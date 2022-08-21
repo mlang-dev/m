@@ -42,7 +42,6 @@ typedef void (*exp_executor)(void *, struct ast_node *);
 struct m_parser *m_parser_new(bool is_repl);
 void m_parser_free(struct m_parser *parser);
 void parse_next_token(struct m_parser *parser);
-struct ast_node *parse_exp_to_function(struct m_parser *parser, struct ast_node *exp, symbol fn);
 struct ast_node *parse_import(struct m_parser *parser, struct ast_node *parent);
 struct ast_node *parse_statement(struct m_parser *parser, struct ast_node *parent);
 struct ast_node *parse_exp(struct m_parser *parser, struct ast_node *parent, struct ast_node *lhs);

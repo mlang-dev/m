@@ -213,7 +213,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             }
         }
         node3 = items[rule->action.item_index[1]].ast;
-        ast = func_type_node_default_new(node->ident->name, node1, node3->ident->name, is_variadic, false, node->loc);
+        ast = func_type_node_default_new(node->ident->name, node1, node3->ident->name, is_variadic, true, node->loc);
         break;
     case FUNC_NODE:
         node = items[rule->action.item_index[0]].ast;
