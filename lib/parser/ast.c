@@ -694,3 +694,16 @@ enum node_type symbol_to_node_type(symbol node_type_name)
     assert(ntn);
     return ntn->node_type;
 }
+
+struct ast_node *wrap_expr_as_function(struct hashtable *symbol_2_int_types, struct ast_node *exp, symbol fn)
+{
+    ARRAY_FUN_PARAM(fun_params);
+    struct ast_node *params = block_node_new(&fun_params);
+    struct ast_node *func_type = func_type_node_default_new(fn, params, 0, false, false, exp->loc);
+    struct array nodes;
+    array_init(&nodes, sizeof(struct ast_node *));
+    array_push(&nodes, &exp);
+    struct ast_node *block = block_node_new(&nodes);
+    hashtable_set_int(symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
+    return function_node_new(func_type, block, block->loc);
+}

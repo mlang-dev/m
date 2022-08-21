@@ -661,10 +661,6 @@ struct ast_node *_parse_func_type(struct m_parser *parser, struct ast_node *pare
 
 struct ast_node *_create_fun_node(struct m_parser *parser, struct ast_node *func_type, struct ast_node *block)
 {
-    if (is_binary_op(func_type)) {
-        //TODO: this is broken now
-        //_set_op_prec(&parser->op_precs, func_type->ft->op, func_type->ft->precedence);
-    }
     hashtable_set_int(&parser->symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
     return function_node_new(func_type, block, block->loc);
 }
@@ -697,23 +693,6 @@ struct ast_node *_parse_var(struct m_parser *parser, struct ast_node *parent, sy
     var->var->init_value = exp;
     symboltable_push(&parser->vars, var->var->var_name, var);
     return var;
-}
-
-struct ast_node *parse_exp_to_function(struct m_parser *parser, struct ast_node *exp, symbol fn)
-{
-    if (!exp)
-        exp = parse_exp(parser, 0, 0);
-    if (exp) {
-        ARRAY_FUN_PARAM(fun_params);
-        struct ast_node *params = block_node_new(&fun_params);
-        struct ast_node *func_type = func_type_node_default_new(fn, params, 0, false, false, exp->loc);
-        struct array nodes;
-        array_init(&nodes, sizeof(struct ast_node *));
-        array_push(&nodes, &exp);
-        struct ast_node *block = block_node_new(&nodes);
-        return _create_fun_node(parser, func_type, block);
-    }
-    return 0;
 }
 
 struct ast_node *parse_import(struct m_parser *parser, struct ast_node *parent)

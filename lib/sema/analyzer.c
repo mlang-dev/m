@@ -156,6 +156,7 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct ast_nod
     array_init(&fun_sig, sizeof(struct type_exp *));
     for (size_t i = 0; i < array_size(&node->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
+        _fill_type_enum(context, param);
         assert(param->annotated_type_name);
         //assert(param->annotated_type_enum == get_type_enum(param->annotated_type_name));
         struct type_oper* to = create_nullary_type(param->annotated_type_enum, param->annotated_type_name);

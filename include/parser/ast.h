@@ -242,6 +242,8 @@ enum node_type symbol_to_node_type(symbol node_type_name);
 
 struct node_type_name *get_node_type_names();
 
+struct ast_node *wrap_expr_as_function(struct hashtable *symbol_2_int_types, struct ast_node *exp, symbol fn);
+
 #ifdef __cplusplus
 }
 #endif

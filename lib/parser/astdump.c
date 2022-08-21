@@ -24,12 +24,18 @@ string _dump_func_type(struct ast_node *func_type)
 {
     string result;
     string_init(&result);
+    string var_str;
+    string_init(&var_str);
     if (func_type->ft->is_extern)
         string_add_chars(&result, "extern ");
     string_add_chars(&result, string_get(func_type->ft->name));
+    // function type
+    if (func_type->annotated_type_name) {
+        string_copy_chars(&var_str, string_get(func_type->annotated_type_name));
+        string_add_chars(&result, ":");
+        string_add(&result, &var_str);
+    }
     ARRAY_STRING(args);
-    string var_str;
-    string_init(&var_str);
     for (size_t i = 0; i < array_size(&func_type->ft->params->block->nodes); i++) {
         struct ast_node *var = *(struct ast_node **)array_get(&func_type->ft->params->block->nodes, i);
         string_copy(&var_str, var->var->var_name);
@@ -42,14 +48,9 @@ string _dump_func_type(struct ast_node *func_type)
         array_push(&args, &var_str);
     }
     string joined = string_join(&args, " ");
-    string_add_chars(&result, "(");
+    string_add_chars(&result, " ");
     string_add(&result, &joined);
-    string_add_chars(&result, ")");
-    if (func_type->annotated_type_name) {
-        string_copy_chars(&var_str, string_get(func_type->annotated_type_name));
-        string_add_chars(&result, ":");
-        string_add(&result, &var_str);
-    }
+    //string_add_chars(&result, "");
     return result;
 }
 
