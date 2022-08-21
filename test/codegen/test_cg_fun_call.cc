@@ -32,7 +32,7 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 
@@ -62,7 +62,7 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 TEST(testCGFunCall, testReturnStructDirect)
@@ -102,7 +102,7 @@ entry:
   ret i32 %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 TEST(testCGFunCall, testReturnStructDirectWithoutName)
@@ -141,7 +141,7 @@ entry:
   ret i32 %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 #ifdef _WIN32
@@ -167,7 +167,7 @@ entry:
   ret i8 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 TEST(testCGFunCall, testPassStructIndirect)
@@ -200,7 +200,7 @@ entry:
   ret double %2
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 TEST(testCGFunCall, testPassStructDirect)
@@ -238,7 +238,7 @@ entry:
   ret i32 %4
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 TEST(testCGFunCall, testReturnStructInDirect)
@@ -273,7 +273,7 @@ entry:
   ret double %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 TEST(testCGFunCall, testReturnStructInDirectWithoutName)
@@ -306,7 +306,7 @@ entry:
   ret double %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 TEST(testCGFunCall, testReturnStructInDirectWithoutNameCalling)
@@ -334,7 +334,7 @@ entry:
   ret void
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
 // TEST(testCGFunCall, testReturnStructInDirectWithoutNameElementAccess)
@@ -365,7 +365,7 @@ entry:
 //   ret double %xy.x
 // }
 // )";
-//     validate_m_code_with_ir_code(test_code, expected_ir);
+//     validate_m_code_with_ir_code(test_code, expected_ir, false);
 // }
 #endif
 
@@ -393,5 +393,5 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(test_code, expected_ir, false);
 }

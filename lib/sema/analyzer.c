@@ -77,8 +77,8 @@ struct type_exp *_analyze_liter(struct sema_context *context, struct ast_node *n
 struct type_exp *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
     struct type_exp *type;
-    if(context->scope_level<1){
-        //global variable
+    if(context->scope_level == 1){
+        //global variable, test JIT directly evaluates global variable
         node->var->is_global = true;
     }
     assert(node->annotated_type_name || node->var->init_value);
@@ -378,6 +378,8 @@ struct type_exp *_analyze_block(struct sema_context *context, struct ast_node *n
 struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
 {
     struct type_exp *type = 0;
+    if (node->type && node->type->kind == KIND_OPER)
+        return node->type;
     _fill_type_enum(context, node);
     switch(node->node_type){
         case TOTAL_NODE:
