@@ -14,8 +14,8 @@
 TEST(testCGFunCall, testIntIdFunc)
 {
     const char test_code[] = R"(
-f x:int = x
-main() = f 10
+let f x:int = x
+let main() = f 10
 )";
     const char *expected_ir = R"(
 define i32 @f(i32 %x) {
@@ -32,15 +32,15 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
 
 
 TEST(testCGFunCall, testTwoParamsFunc)
 {
     const char test_code[] = R"(
-f x y = (x + y) / 2
-main () = f 10 20
+let f x y = (x + y) / 2
+let main () = f 10 20
 )";
     const char *expected_ir = R"(
 define i32 @f(i32 %x, i32 %y) {
@@ -62,7 +62,7 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
 
 TEST(testCGFunCall, testReturnStructDirect)
@@ -144,7 +144,7 @@ entry:
     validate_m_code_with_ir_code(test_code, expected_ir, false);
 }
 
-#ifdef _WIN32
+#ifdef WIN32_CC  //win32 calling convention
 
 TEST(testCGFunCall, testGenericIdFunc)
 {
@@ -372,10 +372,10 @@ entry:
 TEST(testCGFunCall, testReturnExpressionScalar)
 {
     char test_code[] = R"(
-getx()=
+let getx()=
     x = 10
     x + 1
-main() = getx()
+let main() = getx()
 )";
     const char *expected_ir = R"(
 define i32 @getx() {
@@ -393,5 +393,5 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
