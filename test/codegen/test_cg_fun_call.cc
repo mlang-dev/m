@@ -68,11 +68,11 @@ entry:
 TEST(testCGFunCall, testReturnStructDirect)
 {
     const char test_code[] = R"(
- type Point2D = x:int y:int
- f () = 
-   xy:Point2D = 10 20
+type Point2D = x:int, y:int
+let f () = 
+   xy:Point2D = Point2D(10, 20)
    xy
- main() = 
+let main() = 
    xy = f()
    xy.x
  )";
@@ -102,16 +102,16 @@ entry:
   ret i32 %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
 
 TEST(testCGFunCall, testReturnStructDirectWithoutName)
 {
     const char test_code[] = R"(
- type Point2D = x:int y:int
- f () = Point2D 10 20
+type Point2D = x:int, y:int
+let f() = Point2D(10, 20)
    
- main() = 
+let main() = 
    xy = f()
    xy.x
  )";
@@ -141,7 +141,7 @@ entry:
   ret i32 %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
 
 #ifdef WIN32_CC  //win32 calling convention
@@ -149,8 +149,8 @@ entry:
 TEST(testCGFunCall, testGenericIdFunc)
 {
     const char test_code[] = R"(
-f x = x
-main () = f 'c'
+let f x = x
+let main () = f 'c'
 )";
     const char *expected_ir = R"(
 define i8 @__f_char(i8 %x) {
@@ -167,16 +167,16 @@ entry:
   ret i8 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
 
 TEST(testCGFunCall, testPassStructIndirect)
 {
     const char test_code[] = R"(
-type Point2D = x:double y:double
-f xy:Point2D = xy.y
-main() = 
-  xy:Point2D = 10.0 20.0
+type Point2D = x:double, y:double
+let f xy:Point2D = xy.y
+let main() = 
+  xy:Point2D = Point2D(10.0, 20.0)
   f xy
 )";
     const char *expected_ir = R"(
@@ -200,16 +200,16 @@ entry:
   ret double %2
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
 
 TEST(testCGFunCall, testPassStructDirect)
 {
     const char test_code[] = R"(
- type Point2D = x:int y:int
- f xy:Point2D = xy.x
- main() = 
-  xy:Point2D = 10 20
+type Point2D = x:int, y:int
+let f xy:Point2D = xy.x
+let main() = 
+  xy:Point2D = Point2D(10, 20)
   f xy
 )";
     const char *expected_ir = R"(
@@ -238,17 +238,17 @@ entry:
   ret i32 %4
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
 
 TEST(testCGFunCall, testReturnStructInDirect)
 { 
     const char test_code[] = R"(
- type Point2D = x:double y:double
- f () = 
-   xy:Point2D = 10.0 20.0
+type Point2D = x:double, y:double
+let f () = 
+   xy:Point2D = Point2D(10.0, 20.0)
    xy
- main() = 
+let main() = 
    xy = f()
    xy.x
 )";
@@ -273,7 +273,7 @@ entry:
   ret double %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
 
 TEST(testCGFunCall, testReturnStructInDirectWithoutName)
@@ -312,9 +312,9 @@ entry:
 TEST(testCGFunCall, testReturnStructInDirectWithoutNameCalling)
 {
     const char test_code[] = R"(
- type Point2D = x:double y:double
- f () = Point2D 10.0 20.0
- main() = f()
+type Point2D = x:double, y:double
+let f() = Point2D(10.0, 20.0)
+let main() = f()
 )";
     const char *expected_ir = R"(
 %Point2D = type { double, double }
@@ -334,7 +334,7 @@ entry:
   ret void
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(test_code, expected_ir, true);
 }
 
 // TEST(testCGFunCall, testReturnStructInDirectWithoutNameElementAccess)
