@@ -132,6 +132,8 @@ sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
 
 get wasmtime for wasm test
 wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
+or for MacOS
+wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-macos-c-api.tar.xz
 
 tar xf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz -C extern
 rm -rf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
