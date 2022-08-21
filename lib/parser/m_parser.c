@@ -110,10 +110,6 @@ struct m_parser *m_parser_new(bool is_repl)
     _op_preces[OP_MODULUS] = 400;
     _op_preces[OP_EXPO] = 500;
 
-    struct ast *ast;
-    MALLOC(ast, sizeof(*ast));
-    parser->ast = ast;
-    array_init(&parser->ast->modules, sizeof(struct module *));
     parser->allow_id_as_a_func = true;
     parser->id_is_var_decl = false;
     parser->is_repl = is_repl;
@@ -135,11 +131,6 @@ void m_parser_free(struct m_parser *parser)
 {
     hashtable_deinit(&parser->symbol_2_int_types);
     hashtable_deinit(&parser->ext_types);
-    for (size_t i = 0; i < array_size(&parser->ast->modules); i++) {
-        struct module *it = *(struct module **)array_get(&parser->ast->modules, i);
-        module_free(it);
-    }
-    FREE(parser->ast);
     symboltable_deinit(&parser->vars);
     FREE(parser);
     g_parser = 0;
@@ -866,18 +857,17 @@ struct ast_node *parse_file(struct m_parser *parser, const char *file_name)
     const char *mod_name = file_name;
     parser->current_module = module_new(mod_name, file);
     parser->lexer = lexer_new(file, mod_name);
-    array_push(&parser->ast->modules, &parser->current_module);
     struct ast_node * ast = parse_block(parser, 0, 0, 0);
     lexer_free(parser->lexer);
     parser->lexer = 0;
     return ast;
 }
 
+
 struct ast_node *parse_file_object(struct m_parser *parser, const char *mod_name, FILE *file)
 {
     parser->current_module = module_new(mod_name, file);
     parser->lexer = lexer_new(file, mod_name);
-    array_push(&parser->ast->modules, &parser->current_module);
     struct ast_node *ast = parse_block(parser, 0, 0, 0);
     lexer_free(parser->lexer);
     parser->lexer = 0;
@@ -897,7 +887,6 @@ struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct 
     const char *mod_name = "intepreter_main";
     parser->current_module = module_new(mod_name, stdin);
     parser->lexer = lexer_new(stdin, mod_name);
-    array_push(&parser->ast->modules, &parser->current_module);
     return parse_block(parser, 0, fun, jit);
 }
 

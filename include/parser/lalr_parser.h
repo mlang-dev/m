@@ -43,6 +43,7 @@ struct lalr_parser{
 struct lalr_parser *lalr_parser_new(parsing_table *pt, parsing_rules *pr);
 void lalr_parser_free(struct lalr_parser *parser);
 struct ast_node *parse_code(struct lalr_parser *parser, const char *text);
+struct ast_node *parse_new_file(struct lalr_parser *parser, const char *file_name);
 struct lalr_parser *parser_new();
 
 #ifdef __cplusplus

@@ -341,3 +341,10 @@ struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
     return ast;
 }
 
+struct ast_node *parse_new_file(struct lalr_parser *parser, const char *file_name)
+{
+    const char *code = read_text_file(file_name);
+    struct ast_node * block = parse_code(parser, code);
+    free((void*)code);
+    return block;
+}

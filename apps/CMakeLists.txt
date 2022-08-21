@@ -125,7 +125,7 @@ else()
     POST_BUILD
     COMMAND m ${CMAKE_SOURCE_DIR}/samples/sample_lib.m
     COMMAND m ${CMAKE_SOURCE_DIR}/samples/sample.m
-    COMMAND m ${CMAKE_SOURCE_DIR}/samples/helloworld.m
+    # COMMAND m ${CMAKE_SOURCE_DIR}/samples/helloworld.m
     # MacOS COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/libc.dylib -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
     # COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/x86_64-linux-gnu/libc.so -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
   )

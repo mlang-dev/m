@@ -50,7 +50,10 @@ string _dump_func_type(struct ast_node *func_type)
     string joined = string_join(&args, " ");
     string_add_chars(&result, " ");
     string_add(&result, &joined);
-    //string_add_chars(&result, "");
+    if (array_size(&func_type->ft->params->block->nodes) == 0){
+        string_add_chars(&result, "()");
+    }
+        // string_add_chars(&result, "");
     return result;
 }
 

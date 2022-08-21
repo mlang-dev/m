@@ -85,6 +85,8 @@ char *get_exec_path();
 
 bool is_power_of2_64(uint64_t Value);
 
+const char *read_text_file(const char *file_path);
+
 #ifdef __cplusplus
 }
 #endif

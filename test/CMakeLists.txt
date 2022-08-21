@@ -118,9 +118,6 @@ else()
 
   add_executable(mtest
     tutil.cc
-    parser/test_parser.cc
-    parser/test_parser_logical.cc
-    parser/test_parser_relational.cc
     parser/test_astdump.cc
     sema/test_analyzer.cc
     sema/test_analyzer_errors.cc

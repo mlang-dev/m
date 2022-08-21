@@ -8,7 +8,9 @@
 #include "clib/string.h"
 #include "parser/ast.h"
 #include "parser/astdump.h"
-#include "parser/m_parser.h"
+#include "parser/lalr_parser.h"
+#include "sema/analyzer.h"
+#include "lexer/init.h"
 #include <clang-c/Index.h>
 #include <stdio.h>
 
@@ -125,13 +127,20 @@ void _write_to_file(struct array *codes, const char *mfile)
 
 bool transpile_2_m(const char *head, const char *mfile)
 {
+    frontend_init();
+    struct lalr_parser *parser = parser_new();
+    struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, false);
     struct array protos = parse_c_file(head);
     ARRAY_STRING(codes);
     for (size_t i = 0; i < array_size(&protos); i++) {
         struct ast_node *node = *(struct ast_node **)array_get(&protos, i);
+        analyze(context, node);
         string code = dump(node);
         array_push(&codes, &code);
     }
     _write_to_file(&codes, mfile);
+    sema_context_free(context);
+    lalr_parser_free(parser);
+    frontend_deinit();
     return true;
 }

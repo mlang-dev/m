@@ -13,6 +13,8 @@ struct env *g_env = 0;
 
 struct env *env_new(bool is_repl)
 {
+    struct ast_node *stdio = 0;
+    struct ast_node *math = 0;
     frontend_init();
     struct env *env;
     MALLOC(env, sizeof(struct env));
@@ -21,10 +23,10 @@ struct env *env_new(bool is_repl)
     char libpath[4096];
     char *mpath = get_exec_path();
     join_path(libpath, sizeof(libpath), mpath, "mlib/stdio.m");
-    struct ast_node *stdio = parse_file(env->parser, libpath);
+    stdio = parse_new_file(env->new_parser, libpath);
     join_path(libpath, sizeof(libpath), mpath, "mlib/math.m");
-    struct ast_node *math = parse_file(env->parser, libpath);
-    env->cg = cg_new(sema_context_new(&env->parser->symbol_2_int_types, stdio, math, is_repl));
+    math = parse_new_file(env->new_parser, libpath);
+    env->cg = cg_new(sema_context_new(&env->new_parser->symbol_2_int_types, stdio, math, is_repl));
     wat_codegen_init();
     g_env = env;
     return env;
