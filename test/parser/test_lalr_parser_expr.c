@@ -4,7 +4,7 @@
  * Unit tests for lr parser for alexpression
  */
 #include "parser/grammar.h"
-#include "parser/lalr_parser.h"
+#include "parser/parser.h"
 #include "parser/astdump.h"
 #include "codegen/wat_codegen.h"
 #include "lexer/init.h"
@@ -15,12 +15,12 @@ TEST(test_lalr_parser_expr, arithmetic_simple_add)
 {
     const char test_code[] = "1+2";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(1+2)", string_get(&dump_str));
     ast_node_free(ast);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -28,12 +28,12 @@ TEST(test_lalr_parser_expr, arithmetic_simple_mult)
 {
     const char test_code[] = "1*2";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(1*2)", string_get(&dump_str));
     ast_node_free(ast);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -41,12 +41,12 @@ TEST(test_lalr_parser_expr, arithmetic_exp_neg)
 {
     const char test_code[] = "-1+2";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(-1+2)", string_get(&dump_str));
     ast_node_free(ast);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -54,12 +54,12 @@ TEST(test_lalr_parser_expr, arithmetic_exp)
 {
     const char test_code[] = "1+2*3";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(1+(2*3))", string_get(&dump_str));
     ast_node_free(ast);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -67,12 +67,12 @@ TEST(test_lalr_parser_expr, arithmetic_exp2)
 {
     const char test_code[] = "1+2*3**4";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("(1+(2*(3**4)))", string_get(&dump_str));
     ast_node_free(ast);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -80,13 +80,13 @@ TEST(test_lalr_parser_expr, arithmetic_exp_parentheses)
 {
     const char test_code[] = "(1+2)*3";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
     string dump_str = dump(ast);
     ASSERT_STREQ("((1+2)*3)", string_get(&dump_str));
 
     ast_node_free(ast);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -94,13 +94,13 @@ TEST(test_lalr_parser_expr, logical_or)
 {
     char test_code[] = "true || false";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("||", get_opcode(node->binop->opcode));
     ast_node_free(block);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -108,13 +108,13 @@ TEST(test_lalr_parser_expr, logical_and)
 {
     char test_code[] = "true && false";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("&&", get_opcode(node->binop->opcode));
     ast_node_free(block);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -122,13 +122,13 @@ TEST(test_lalr_parser_expr, logical_not)
 {
     char test_code[] = "! true";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(UNARY_NODE, node->node_type);
     ASSERT_STREQ("!", get_opcode(node->unop->opcode));
     ast_node_free(block);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -136,13 +136,13 @@ TEST(test_lalr_parser_expr, lt)
 {
     char test_code[] = "10 < 11";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("<", get_opcode(node->binop->opcode));
     ast_node_free(block);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -150,14 +150,14 @@ TEST(test_lalr_parser_expr, gt)
 {
     char test_code[] = "11 > 10";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_EQ(OP_GT, node->binop->opcode);
     ASSERT_STREQ(">", get_opcode(node->binop->opcode));
     ast_node_free(block);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -165,13 +165,13 @@ TEST(test_lalr_parser_expr, eq)
 {
     char test_code[] = "11==10";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("==", get_opcode(node->binop->opcode));
     ast_node_free(block);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -179,13 +179,13 @@ TEST(test_lalr_parser_expr, neq)
 {
     char test_code[] = "11!=10";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("!=", get_opcode(node->binop->opcode));
     ast_node_free(block);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -193,13 +193,13 @@ TEST(test_lalr_parser_expr, ge)
 {
     char test_code[] = "11>=10";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ(">=", get_opcode(node->binop->opcode));
     ast_node_free(block);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
@@ -207,13 +207,13 @@ TEST(test_lalr_parser_expr, le)
 {
     char test_code[] = "11<=10";
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("<=", get_opcode(node->binop->opcode));
     ast_node_free(block);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 

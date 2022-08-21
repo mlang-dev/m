@@ -8,6 +8,8 @@
 #ifndef __MLANG_CMODULE_H__
 #define __MLANG_CMODULE_H__
 
+#include "clib/array.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

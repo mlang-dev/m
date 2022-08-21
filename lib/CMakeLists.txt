@@ -32,9 +32,8 @@ if (EMSCRIPTEN OR WASM)
     parser/ast.c
     parser/astdump.c
     parser/m_parsing_table.c
-    parser/lalr_parser.c
+    parser/parser.c
     parser/grammar.c
-    parser/m_parser.c
     sema/type.c
     sema/sema_context.c
     sema/analyzer.c
@@ -102,9 +101,8 @@ else()
     parser/ast.c
     parser/astdump.c
     parser/grammar.c
-    parser/m_parser.c
     parser/m_parsing_table.c
-    parser/lalr_parser.c
+    parser/parser.c
     sema/type.c
     sema/analyzer.c
     sema/sema_context.c

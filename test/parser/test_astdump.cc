@@ -9,7 +9,7 @@
 #include "clib/string.h"
 #include "parser/ast.h"
 #include "parser/astdump.h"
-#include "parser/lalr_parser.h"
+#include "parser/parser.h"
 #include "sema/analyzer.h"
 #include "lexer/init.h"
 #include "test_base.h"
@@ -21,7 +21,7 @@ class testAstDump : public TestBase {
 TEST_F(testAstDump, testPrototypeNodeDump)
 {
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, false);
     char test_code[] = "extern printf:int format:string ...";
     ast_node *block = parse_code(parser, test_code);
@@ -33,14 +33,14 @@ TEST_F(testAstDump, testPrototypeNodeDump)
     string dump_str = dump(node);
     ASSERT_STREQ(test_code, string_get(&dump_str));
     sema_context_free(context);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 
 TEST_F(testAstDump, testFuncTypeWithNoParam)
 {
     frontend_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, false);
     char test_code[] = "extern printf:int ()";
     ast_node *block = parse_code(parser, test_code);
@@ -52,6 +52,6 @@ TEST_F(testAstDump, testFuncTypeWithNoParam)
     string dump_str = dump(node);
     ASSERT_STREQ(test_code, string_get(&dump_str));
     sema_context_free(context);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }

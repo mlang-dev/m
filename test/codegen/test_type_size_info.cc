@@ -6,7 +6,6 @@
 #include "codegen/codegen.h"
 #include "codegen/env.h"
 #include "codegen/type_size_info.h"
-#include "parser/m_parser.h"
 #include "sema/analyzer.h"
 #include "test_base.h"
 #include "tutil.h"

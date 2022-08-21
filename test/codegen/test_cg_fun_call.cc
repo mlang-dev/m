@@ -32,7 +32,7 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
 
@@ -62,7 +62,7 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
 TEST(testCGFunCall, testReturnStructDirect)
@@ -102,7 +102,7 @@ entry:
   ret i32 %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
 TEST(testCGFunCall, testReturnStructDirectWithoutName)
@@ -141,7 +141,7 @@ entry:
   ret i32 %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
 #ifdef WIN32_CC  //win32 calling convention
@@ -167,7 +167,7 @@ entry:
   ret i8 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
 TEST(testCGFunCall, testPassStructIndirect)
@@ -200,7 +200,7 @@ entry:
   ret double %2
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
 TEST(testCGFunCall, testPassStructDirect)
@@ -238,7 +238,7 @@ entry:
   ret i32 %4
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
 TEST(testCGFunCall, testReturnStructInDirect)
@@ -273,7 +273,7 @@ entry:
   ret double %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
 TEST(testCGFunCall, testReturnStructInDirectWithoutName)
@@ -334,7 +334,7 @@ entry:
   ret void
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
 // TEST(testCGFunCall, testReturnStructInDirectWithoutNameElementAccess)
@@ -393,5 +393,5 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, true);
+    validate_m_code_with_ir_code(test_code, expected_ir);
 }

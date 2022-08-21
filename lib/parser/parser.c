@@ -1,29 +1,24 @@
 /*
- * lalr_parser.c
+ * parser.c
  *
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
  * This is to implement an LALR parser main driver, taking a parsing table & rule and parse text 
  * into ast according to the parsing table and rule set
  */
-#include "parser/lalr_parser.h"
+#include "parser/parser.h"
 #include "parser/m_parsing_table.h"
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
 #include <assert.h>
 
-struct lalr_parser *parser_new()
+struct parser *_parser_new(parsing_table *pt, parsing_rules *pr)
 {
-    return lalr_parser_new(&m_parsing_table, &m_parsing_rules);
-}
-
-struct lalr_parser *lalr_parser_new(parsing_table *pt, parsing_rules *pr)
-{
-    struct lalr_parser *parser;
+    struct parser *parser;
     MALLOC(parser, sizeof(*parser));
     parser->stack_top = 0;
-    parser->pt= pt;
+    parser->pt = pt;
     parser->pr = pr;
     hashtable_init_with_value_size(&parser->symbol_2_int_types, sizeof(int), 0);
     for (int i = 0; i < TYPE_TYPES; i++) {
@@ -32,35 +27,40 @@ struct lalr_parser *lalr_parser_new(parsing_table *pt, parsing_rules *pr)
     return parser;
 }
 
-void lalr_parser_free(struct lalr_parser *parser)
+struct parser *parser_new()
+{
+    return _parser_new(&m_parsing_table, &m_parsing_rules);
+}
+
+void parser_free(struct parser *parser)
 {
     hashtable_deinit(&parser->symbol_2_int_types);
     FREE(parser);
 }
 
-void _push_state(struct lalr_parser *parser, u16 state, struct ast_node *ast)
+void _push_state(struct parser *parser, u16 state, struct ast_node *ast)
 {
     struct stack_item *si = &parser->stack[parser->stack_top++];
     si->state_index = state;
     si->ast = ast;
 }
 
-struct stack_item *_pop_state(struct lalr_parser *parser)
+struct stack_item *_pop_state(struct parser *parser)
 {
     return &parser->stack[--parser->stack_top];
 }
 
-struct stack_item *_get_top_state(struct lalr_parser *parser)
+struct stack_item *_get_top_state(struct parser *parser)
 {
     return &parser->stack[parser->stack_top-1];
 }
 
-struct stack_item *_get_start_item(struct lalr_parser *parser, u8 symbol_count)
+struct stack_item *_get_start_item(struct parser *parser, u8 symbol_count)
 {
     return &parser->stack[parser->stack_top-symbol_count];
 }
 
-void _pop_states(struct lalr_parser *parser, u8 symbol_count)
+void _pop_states(struct parser *parser, u8 symbol_count)
 {
     assert(parser->stack_top >= symbol_count);
     parser->stack_top -= symbol_count;
@@ -289,7 +289,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     return ast;
 }
 
-struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
+struct ast_node *parse_code(struct parser *parser, const char *code)
 {
     struct ast_node *ast = 0;
     _push_state(parser, 0, 0); 
@@ -341,7 +341,12 @@ struct ast_node *parse_code(struct lalr_parser *parser, const char *code)
     return ast;
 }
 
-struct ast_node *parse_new_file(struct lalr_parser *parser, const char *file_name)
+struct ast_node *parse_repl_code(struct parser *parser, void (*fun)(void *, struct ast_node *), void *jit)
+{
+    return parse_file(parser, 0);
+}
+
+struct ast_node *parse_file(struct parser *parser, const char *file_name)
 {
     const char *code = read_text_file(file_name);
     struct ast_node * block = parse_code(parser, code);

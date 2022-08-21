@@ -12,7 +12,7 @@
 #include "lexer/init.h"
 #include "lexer/lexer.h"
 #include "parser/amodule.h"
-#include "parser/lalr_parser.h"
+#include "parser/parser.h"
 #include "sema/analyzer.h"
 #include <assert.h>
 #include <stdint.h>
@@ -245,14 +245,14 @@ struct byte_array parse_as_module(const char *expr)
 {
     frontend_init();
     wasm_codegen_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, expr);
     struct sema_context *c = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
     analyze(c, ast);
     struct byte_array ba = emit_wasm(ast);
     ast_node_free(ast);
     sema_context_free(c);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
     return ba;
 }

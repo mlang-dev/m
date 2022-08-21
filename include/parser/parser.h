@@ -1,5 +1,5 @@
 /*
- * lalr_parser.h
+ * parser.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
@@ -22,7 +22,7 @@ struct stack_item{
     struct ast_node *ast;
 };
 
-struct lalr_parser{
+struct parser{
     /*parser states*/
     /* mapping type string into type enum: hashtable of (symbol, int) */
     struct hashtable symbol_2_int_types;
@@ -40,11 +40,11 @@ struct lalr_parser{
     parsing_rules *pr;
 };
 
-struct lalr_parser *lalr_parser_new(parsing_table *pt, parsing_rules *pr);
-void lalr_parser_free(struct lalr_parser *parser);
-struct ast_node *parse_code(struct lalr_parser *parser, const char *text);
-struct ast_node *parse_new_file(struct lalr_parser *parser, const char *file_name);
-struct lalr_parser *parser_new();
+void parser_free(struct parser *parser);
+struct ast_node *parse_code(struct parser *parser, const char *text);
+struct ast_node *parse_file(struct parser *parser, const char *file_name);
+struct ast_node *parse_repl_code(struct parser *parser, void (*fun)(void *, struct ast_node *), void *jit);
+struct parser *parser_new();
 
 #ifdef __cplusplus
 }

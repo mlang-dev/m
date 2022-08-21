@@ -889,9 +889,3 @@ struct ast_node *parse_repl(struct m_parser *parser, void (*fun)(void *, struct 
     parser->lexer = lexer_new(stdin, mod_name);
     return parse_block(parser, 0, fun, jit);
 }
-
-symbol get_type_symbol(enum type type_enum)
-{
-    //assert(g_parser);
-    return to_symbol(type_strings[type_enum]);
-}
