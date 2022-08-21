@@ -48,11 +48,14 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
     string fn = make_unique_name("main-fn");
     symbol fn_symbol = string_2_symbol(&fn);
     enum node_type node_type = node->node_type;
-    if (!node->type)
+    if (!node->type){
+        //analyze(jit->env->cg->sema_context, node);
         emit_code(jit->env, node);
+    }
     struct type_exp *type = node->type;
     struct eval_result result = { 0 };
     node = parse_exp_to_function(jit->env->parser, node, fn_symbol);
+    analyze(jit->env->cg->sema_context, node);
     emit_code(jit->env, node);
     if (node) {
         void *p_fun = emit_ir_code(jit->env->cg, node);
@@ -82,34 +85,42 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
     return result;
 }
 
+void eval(void *p_jit, struct ast_node *node)
+{
+    if(!node) return;
+    struct JIT *jit = (struct JIT *)p_jit;
+    analyze(jit->env->cg->sema_context, node);
+    eval_statement(p_jit, node);
+}
+
 void eval_statement(void *p_jit, struct ast_node *node)
 {
-    if (node) {
-        //printf("node->type: %s\n", node_type_strings[node->node_type]);
-        struct JIT *jit = (struct JIT *)p_jit;
-        emit_code(jit->env, node);
-        string type_node_str = to_string(node->type);
-        if (!node->type)
-            goto exit;
-        if (node->node_type == FUNC_TYPE_NODE) {
-            emit_ir_code(jit->env->cg, node);
-        } else if (node->node_type == FUNC_NODE || node->node_type == TYPE_NODE) {
-            // function definition
-            emit_ir_code(jit->env->cg, node);
-            //LLVMDumpModule(jit->env->module);
-            _add_current_module_to_jit(jit);
-            _create_jit_module(jit->env);
-        } else {
-            /*
-             * evaluate an expression
-             */
-            struct eval_result result = eval_exp(jit, node);
-            if (node->node_type != VAR_NODE)
-                _print(result);
-        }
-        printf(":%s\n", string_get(&type_node_str));
-        string_deinit(&type_node_str);
+    if (!node)
+        return;
+    //printf("node->type: %s\n", node_type_strings[node->node_type]);
+    struct JIT *jit = (struct JIT *)p_jit;
+    emit_code(jit->env, node);
+    string type_node_str = to_string(node->type);
+    if (!node->type)
+        goto exit;
+    if (node->node_type == FUNC_TYPE_NODE) {
+        emit_ir_code(jit->env->cg, node);
+    } else if (node->node_type == FUNC_NODE || node->node_type == TYPE_NODE) {
+        // function definition
+        emit_ir_code(jit->env->cg, node);
+        //LLVMDumpModule(jit->env->module);
+        _add_current_module_to_jit(jit);
+        _create_jit_module(jit->env);
+    } else {
+        /*
+            * evaluate an expression
+            */
+        struct eval_result result = eval_exp(jit, node);
+        if (node->node_type != VAR_NODE)
+            _print(result);
     }
+    printf(":%s\n", string_get(&type_node_str));
+    string_deinit(&type_node_str);
 exit:
     fprintf(stderr, "m> ");
 }
@@ -128,7 +139,7 @@ int run_repl()
     struct env *env = env_new(true);
     struct JIT *jit = build_jit(env);
     printf("m> ");
-    parse_repl(env->parser, &eval_statement, jit);
+    parse_repl(env->parser, &eval, jit);
     printf("bye !\n");
     jit_free(jit);
     env_free(env);

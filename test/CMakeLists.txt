@@ -107,11 +107,13 @@ else()
     ${CMAKE_SOURCE_DIR}/test
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-linux-c-api/include
+    ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-macos-c-api/include
   )
 
   link_directories(
     ${LLVM_INCLUDE_DIRS}/../lib
     ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-linux-c-api/lib
+    ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-macos-c-api/lib
   )
 
   add_executable(mtest

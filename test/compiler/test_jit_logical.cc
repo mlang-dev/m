@@ -5,6 +5,7 @@
  */
 #include "compiler/repl.h"
 #include "parser/m_parser.h"
+#include "sema/analyzer.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
@@ -17,6 +18,7 @@ true || true
     env *env = env_new(false);
     JIT *jit = build_jit(env);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
@@ -32,6 +34,7 @@ true || false
     env *env = env_new(false);
     JIT *jit = build_jit(env);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
@@ -47,6 +50,7 @@ false || false
     env *env = env_new(false);
     JIT *jit = build_jit(env);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
@@ -62,6 +66,7 @@ true && true
     env *env = env_new(false);
     JIT *jit = build_jit(env);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
@@ -77,6 +82,7 @@ true && false
     env *env = env_new(false);
     JIT *jit = build_jit(env);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
@@ -92,6 +98,7 @@ false && false
     env *env = env_new(false);
     JIT *jit = build_jit(env);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
@@ -107,6 +114,7 @@ TEST(testJITLogical, testNotFalse)
     env *env = env_new(false);
     JIT *jit = build_jit(env);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
@@ -122,6 +130,7 @@ TEST(testJITLogical, testNotTrue)
     env *env = env_new(false);
     JIT *jit = build_jit(env);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);

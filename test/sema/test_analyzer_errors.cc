@@ -20,9 +20,11 @@ no_exist_function_call ()
     testing::internal::CaptureStderr();
     env *env = env_new(false);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
+
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
-    emit_code(env, (ast_node *)block);
+    emit_code(env, block);
     auto error = testing::internal::GetCapturedStderr();
     ASSERT_STREQ("error: :1:1: no_exist_function_call not defined\n", error.c_str());
     ast_node_free(block);
@@ -37,6 +39,7 @@ TEST(testAnalyzerError, testRemError)
     testing::internal::CaptureStderr();
     env *env = env_new(false);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     emit_code(env, (ast_node *)block);
@@ -54,6 +57,7 @@ x:int = true
     testing::internal::CaptureStderr();
     env *env = env_new(false);
     struct ast_node *block = parse_code(env->new_parser, test_code);
+    analyze(env->cg->sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
     emit_code(env, (ast_node *)block);

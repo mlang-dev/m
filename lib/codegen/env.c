@@ -56,9 +56,8 @@ void emit_sp_code(struct code_generator *cg)
     array_reset(&cg->sema_context->new_specialized_asts);
 }
 
-struct type_exp *emit_code(struct env *env, struct ast_node *node)
+void emit_code(struct env *env, struct ast_node *node)
 {
-    struct type_exp *type = analyze(env->cg->sema_context, node);
     emit_sp_code(env->cg);
     if (array_size(&env->cg->sema_context->used_builtin_names)) {
         for (size_t i = 0; i < array_size(&env->cg->sema_context->used_builtin_names); i++) {
@@ -71,5 +70,4 @@ struct type_exp *emit_code(struct env *env, struct ast_node *node)
         }
         array_clear(&env->cg->sema_context->used_builtin_names);
     }
-    return type;
 }
