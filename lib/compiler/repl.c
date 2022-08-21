@@ -54,7 +54,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
     }
     struct type_exp *type = node->type;
     struct eval_result result = { 0 };
-    node = wrap_expr_as_function(&jit->env->parser->symbol_2_int_types, node, fn_symbol);
+    node = wrap_expr_as_function(&jit->env->new_parser->symbol_2_int_types, node, fn_symbol);
     analyze(jit->env->cg->sema_context, node);
     emit_code(jit->env, node);
     if (node) {
@@ -139,7 +139,7 @@ int run_repl()
     struct env *env = env_new(true);
     struct JIT *jit = build_jit(env);
     printf("m> ");
-    parse_repl(env->parser, &eval, jit);
+    parse_repl_code(env->new_parser, &eval, jit);
     printf("bye !\n");
     jit_free(jit);
     env_free(env);

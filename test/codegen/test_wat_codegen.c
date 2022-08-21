@@ -4,7 +4,7 @@
  * Unit tests for grammar parser
  */
 #include "parser/grammar.h"
-#include "parser/lalr_parser.h"
+#include "parser/parser.h"
 #include "codegen/wat_codegen.h"
 #include "lexer/init.h"
 #include "test.h"
@@ -24,12 +24,12 @@ TEST(test_wat_codegen, func)
 "(export \"run\" (func $run))\n";
     frontend_init();
     wat_codegen_init();
-    struct lalr_parser *parser = parser_new();
+    struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
     string code = wat_generate(ast, test_code);
     ASSERT_STREQ(expected, string_get(&code));
     ast_node_free(ast);
-    lalr_parser_free(parser);
+    parser_free(parser);
     frontend_deinit();
 }
 

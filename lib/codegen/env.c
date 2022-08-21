@@ -18,14 +18,13 @@ struct env *env_new(bool is_repl)
     frontend_init();
     struct env *env;
     MALLOC(env, sizeof(struct env));
-    env->parser = m_parser_new(is_repl);
     env->new_parser = parser_new();
     char libpath[4096];
     char *mpath = get_exec_path();
     join_path(libpath, sizeof(libpath), mpath, "mlib/stdio.m");
-    stdio = parse_new_file(env->new_parser, libpath);
+    stdio = parse_file(env->new_parser, libpath);
     join_path(libpath, sizeof(libpath), mpath, "mlib/math.m");
-    math = parse_new_file(env->new_parser, libpath);
+    math = parse_file(env->new_parser, libpath);
     env->cg = cg_new(sema_context_new(&env->new_parser->symbol_2_int_types, stdio, math, is_repl));
     wat_codegen_init();
     g_env = env;
@@ -34,8 +33,7 @@ struct env *env_new(bool is_repl)
 
 void env_free(struct env *env)
 {
-    m_parser_free(env->parser);
-    lalr_parser_free(env->new_parser);
+    parser_free(env->new_parser);
     sema_context_free(env->cg->sema_context);
     cg_free(env->cg);
     FREE(env);

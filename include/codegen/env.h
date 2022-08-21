@@ -13,8 +13,7 @@
 #include "clib/hashset.h"
 #include "clib/symboltable.h"
 #include "codegen/codegen.h"
-#include "parser/m_parser.h"
-#include "parser/lalr_parser.h"
+#include "parser/parser.h"
 #include "sema/type.h"
 
 #ifdef __cplusplus
@@ -22,8 +21,7 @@ extern "C" {
 #endif
 
 struct env {
-    struct m_parser *parser;
-    struct lalr_parser *new_parser;
+    struct parser *new_parser;
     struct code_generator *cg;
 };
 

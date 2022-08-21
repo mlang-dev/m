@@ -34,18 +34,14 @@ target triple = "%s"
         module_name, module_name, LLVMGetDataLayoutStr(module), LLVMGetDefaultTargetTriple(), ir_string);
 }
 
-void validate_m_code_with_ir_code(const char *m_code, const char *ir_code, bool use_new_parser)
+void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)
 {
     char module_ir[1024 * 4];
     env *env = env_new(false);
     create_ir_module(env->cg, module_name);
     make_module_ir(env->cg->module, module_name, ir_code, module_ir);
     struct ast_node *block;
-    if(use_new_parser)
-        block = parse_code(env->new_parser, m_code);
-    else
-        block = parse_string(env->parser, "test", m_code);
-
+    block = parse_code(env->new_parser, m_code);
     char *ir_string = emit_ir_string(env->cg, block);
     ASSERT_STREQ(module_ir, ir_string);
     //ast_node_free(block);

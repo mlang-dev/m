@@ -12,7 +12,7 @@
 #include "clib/array.h"
 #include "clib/stack.h"
 #include "clib/symboltable.h"
-#include "parser/m_parser.h"
+#include "parser/ast.h"
 
 #ifdef __cplusplus
 extern "C" {

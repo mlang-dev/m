@@ -22,6 +22,12 @@ const char *relational_ops[] = {
     ">="
 };
 
+symbol get_type_symbol(enum type type_enum)
+{
+    // assert(g_parser);
+    return to_symbol(type_strings[type_enum]);
+}
+
 bool _is_predicate_op(const char *op)
 {
     for (size_t i = 0; i < ARRAY_SIZE(relational_ops); i++) {
