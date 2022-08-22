@@ -18,9 +18,7 @@ The mlang is written in C but requires C++ linker to build due to llvm being imp
 
 The code is still under developement but is able to be compiled on Windows/macOS/Linux, which has been tested on following platforms:
 * macOS 10.15.7
-* Ubuntu 20.04
-* Windows 10
-
+* Ubuntu 20.04 (or Windows Subsystem for Linux: WSL)
 
 ## dependencies
 
