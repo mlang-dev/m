@@ -34,7 +34,12 @@ elseif(WASM)
   )
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/wm.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
   file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/term.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-  file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/wm.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/index.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+  file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/wm.js DESTINATION ${CMAKE_SOURCE_DIR}/docs)
+  file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/term.js DESTINATION ${CMAKE_SOURCE_DIR}/docs)
+  file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/index.html DESTINATION ${CMAKE_SOURCE_DIR}/docs)
+
 
 else()
   find_package(LLVM REQUIRED CONFIG)

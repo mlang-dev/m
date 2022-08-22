@@ -3,8 +3,10 @@
 
 #ifdef WASM
 #define ENTRY _start
+#define EXPORT __attribute__((visibility("default")))
 #else
 #define ENTRY main
+#define EXPORT
 #endif
 
 int test_array();
