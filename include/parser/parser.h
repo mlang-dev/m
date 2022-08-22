@@ -3,10 +3,10 @@
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for an LALR parser
+ * header file for the mlang parser
  */
-#ifndef __MLANG_LALR_PARSER_H__
-#define __MLANG_LALR_PARSER_H__
+#ifndef __MLANG_PARSER_H__
+#define __MLANG_PARSER_H__
 
 #include "clib/hashtable.h"
 #include "parser/lalr_parser_generator.h"

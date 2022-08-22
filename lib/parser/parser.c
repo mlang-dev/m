@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * This is to implement an LALR parser main driver, taking a parsing table & rule and parse text 
+ * This is to implement a parser's main driver, taking a parsing table & rule and parse text 
  * into ast according to the parsing table and rule set
  */
 #include "parser/parser.h"

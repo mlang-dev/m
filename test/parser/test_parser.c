@@ -10,7 +10,7 @@
 #include "lexer/init.h"
 #include <stdio.h>
 
-TEST(test_lalr_parser, int_type)
+TEST(test_parser, int_type)
 {
     frontend_init();
     char test_code[] = "x:int";
@@ -27,7 +27,7 @@ TEST(test_lalr_parser, int_type)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, var_init)
+TEST(test_parser, var_init)
 {
     frontend_init();
     char test_code[] = "x = 11";
@@ -45,7 +45,7 @@ TEST(test_lalr_parser, var_init)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, var_init_name_with_underlying)
+TEST(test_parser, var_init_name_with_underlying)
 {
     char test_code[] = "m_x = 11";
     frontend_init();
@@ -61,7 +61,7 @@ TEST(test_lalr_parser, var_init_name_with_underlying)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, var_type_init)
+TEST(test_parser, var_type_init)
 {
     frontend_init();
     char test_code[] = "x:int = 11";
@@ -80,7 +80,7 @@ TEST(test_lalr_parser, var_type_init)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, bool_init)
+TEST(test_parser, bool_init)
 {
     frontend_init();
     char test_code[] = "x = true";
@@ -98,7 +98,7 @@ TEST(test_lalr_parser, bool_init)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, char_init)
+TEST(test_parser, char_init)
 {
     char test_code[] = "x = 'c'";
     frontend_init();
@@ -116,7 +116,7 @@ TEST(test_lalr_parser, char_init)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, string_init)
+TEST(test_parser, string_init)
 {
     char test_code[] = "x = \"hello world!\"";
     frontend_init();
@@ -134,7 +134,7 @@ TEST(test_lalr_parser, string_init)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, id_func)
+TEST(test_parser, id_func)
 {
     char test_code[] = "\n\
 let f x = x\n\
@@ -154,7 +154,7 @@ f 10 ";
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, binary_exp_func)
+TEST(test_parser, binary_exp_func)
 {
     char test_code[] = "let f x = x * x";
     frontend_init();
@@ -170,7 +170,7 @@ TEST(test_lalr_parser, binary_exp_func)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, func_with_new_line)
+TEST(test_parser, func_with_new_line)
 {
     char test_code[] = "\n\
 let f x = \n\
@@ -188,7 +188,7 @@ let f x = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, distance_function)
+TEST(test_parser, distance_function)
 {
     char test_code[] = "\n\
 let distance x1 y1 x2 y2 = \n\
@@ -209,7 +209,7 @@ let distance x1 y1 x2 y2 = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, for_loop)
+TEST(test_parser, for_loop)
 {
     char test_code[] = "\n\
 let loopprint n = \n\
@@ -232,7 +232,7 @@ let loopprint n = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, for_loop_with_step)
+TEST(test_parser, for_loop_with_step)
 {
     char test_code[] = "\n\
 let loopprint n = \n\
@@ -256,7 +256,7 @@ let loopprint n = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, avg_function)
+TEST(test_parser, avg_function)
 {
     char test_code[] = "let avg x y = (x + y) / 2";
     frontend_init();
@@ -271,7 +271,7 @@ TEST(test_lalr_parser, avg_function)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, if_condition)
+TEST(test_parser, if_condition)
 {
     char test_code[] = "\n\
 let fac n = \n\
@@ -290,7 +290,7 @@ let fac n = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, if_condition_one_line)
+TEST(test_parser, if_condition_one_line)
 {
     char test_code[] = "\n\
 let fac n = \n\
@@ -308,7 +308,7 @@ let fac n = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, if_condition_one_block)
+TEST(test_parser, if_condition_one_block)
 {
     char test_code[] = "\n\
 let fac n = \n\
@@ -328,7 +328,7 @@ let fac n = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, if_condition_two_blocks)
+TEST(test_parser, if_condition_two_blocks)
 {
     char test_code[] = "\n\
 let fac n = \n\
@@ -349,7 +349,7 @@ let fac n = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, if_condition_no_else)
+TEST(test_parser, if_condition_no_else)
 {
     char test_code[] = "\n\
 let fac n = \n\
@@ -368,7 +368,7 @@ let fac n = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, local_string_function)
+TEST(test_parser, local_string_function)
 {
     char test_code[] = "\n\
 let to_string () = \n\
@@ -387,7 +387,7 @@ let to_string () = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, variadic_function)
+TEST(test_parser, variadic_function)
 {
     char test_code[] = "let f x ... = 10";
     frontend_init();
@@ -401,7 +401,7 @@ TEST(test_lalr_parser, variadic_function)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, func_type)
+TEST(test_parser, func_type)
 {
     char test_code[] = "extern printf:int format:string ...";
     frontend_init();
@@ -416,7 +416,7 @@ TEST(test_lalr_parser, func_type)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, func_type_no_param)
+TEST(test_parser, func_type_no_param)
 {
     char test_code[] = "extern print:int ()";
     frontend_init();
@@ -433,7 +433,7 @@ TEST(test_lalr_parser, func_type_no_param)
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, type_decl)
+TEST(test_parser, type_decl)
 {
     char test_code[] = "\n\
 type Point2D = x:double, y:double\n\
@@ -451,7 +451,7 @@ point:Point2D";
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, type_decl2)
+TEST(test_parser, type_decl2)
 {
     char test_code[] = "\n\
 type Point2D = \n\
@@ -476,7 +476,7 @@ type Point2D = \n\
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, type_var_init)
+TEST(test_parser, type_var_init)
 {
     char test_code[] = "\n\
 type Point2D = x:double, y:double \n\
@@ -512,7 +512,7 @@ xy = Point2D(10.0, 20.0)";
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, func_returns_type_init)
+TEST(test_parser, func_returns_type_init)
 {
     char test_code[] = "\n\
 type Point2D = x:double, y:double \n\
@@ -551,7 +551,7 @@ let get_point() = Point2D(10.0, 20.0)";
     frontend_deinit();
 }
 
-TEST(test_lalr_parser, use_type_field)
+TEST(test_parser, use_type_field)
 {
     char test_code[] = "\n\
 type Point2D = x:double, y:double \n\
@@ -583,33 +583,33 @@ xy.x";
 int test_lr_parser()
 {
     UNITY_BEGIN();
-    RUN_TEST(test_lalr_parser_int_type);
-    RUN_TEST(test_lalr_parser_var_init);
-    RUN_TEST(test_lalr_parser_var_init_name_with_underlying);
-    RUN_TEST(test_lalr_parser_var_type_init);
-    RUN_TEST(test_lalr_parser_bool_init);
-    RUN_TEST(test_lalr_parser_char_init);
-    RUN_TEST(test_lalr_parser_string_init);
-    RUN_TEST(test_lalr_parser_id_func);
-    RUN_TEST(test_lalr_parser_binary_exp_func);
-    RUN_TEST(test_lalr_parser_func_with_new_line);
-    RUN_TEST(test_lalr_parser_distance_function);
-    RUN_TEST(test_lalr_parser_for_loop);
-    RUN_TEST(test_lalr_parser_for_loop_with_step);
-    RUN_TEST(test_lalr_parser_avg_function);
-    RUN_TEST(test_lalr_parser_if_condition);
-    RUN_TEST(test_lalr_parser_if_condition_one_line);
-    RUN_TEST(test_lalr_parser_if_condition_one_block);
-    RUN_TEST(test_lalr_parser_if_condition_two_blocks);
-    RUN_TEST(test_lalr_parser_if_condition_no_else);
-    RUN_TEST(test_lalr_parser_local_string_function);
-    RUN_TEST(test_lalr_parser_variadic_function);
-    RUN_TEST(test_lalr_parser_func_type);
-    RUN_TEST(test_lalr_parser_func_type_no_param);
-    RUN_TEST(test_lalr_parser_type_decl);
-    RUN_TEST(test_lalr_parser_type_decl2);
-    RUN_TEST(test_lalr_parser_type_var_init);
-    RUN_TEST(test_lalr_parser_func_returns_type_init);
-    RUN_TEST(test_lalr_parser_use_type_field);
+    RUN_TEST(test_parser_int_type);
+    RUN_TEST(test_parser_var_init);
+    RUN_TEST(test_parser_var_init_name_with_underlying);
+    RUN_TEST(test_parser_var_type_init);
+    RUN_TEST(test_parser_bool_init);
+    RUN_TEST(test_parser_char_init);
+    RUN_TEST(test_parser_string_init);
+    RUN_TEST(test_parser_id_func);
+    RUN_TEST(test_parser_binary_exp_func);
+    RUN_TEST(test_parser_func_with_new_line);
+    RUN_TEST(test_parser_distance_function);
+    RUN_TEST(test_parser_for_loop);
+    RUN_TEST(test_parser_for_loop_with_step);
+    RUN_TEST(test_parser_avg_function);
+    RUN_TEST(test_parser_if_condition);
+    RUN_TEST(test_parser_if_condition_one_line);
+    RUN_TEST(test_parser_if_condition_one_block);
+    RUN_TEST(test_parser_if_condition_two_blocks);
+    RUN_TEST(test_parser_if_condition_no_else);
+    RUN_TEST(test_parser_local_string_function);
+    RUN_TEST(test_parser_variadic_function);
+    RUN_TEST(test_parser_func_type);
+    RUN_TEST(test_parser_func_type_no_param);
+    RUN_TEST(test_parser_type_decl);
+    RUN_TEST(test_parser_type_decl2);
+    RUN_TEST(test_parser_type_var_init);
+    RUN_TEST(test_parser_func_returns_type_init);
+    RUN_TEST(test_parser_use_type_field);
     return UNITY_END();
 }
