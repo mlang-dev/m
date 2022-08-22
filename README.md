@@ -90,6 +90,21 @@ cd ./extern/wasi-libc
 make (required: clang, llvm-ar, llvm-nm)
 ```
 
+## get wasmtime for wasm codegen test
+## linux:
+```
+wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
+tar xf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz -C extern
+rm -rf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
+```
+
+## MacOS
+```
+wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-macos-c-api.tar.xz
+tar xf wasmtime-v0.39.1-x86_64-macos-c-api.tar.xz -C extern
+rm -rf wasmtime-v0.39.1-x86_64-macos-c-api.tar.xz
+
+```
 ## build mlang
 ```
 mkdir build
@@ -99,11 +114,6 @@ cmake --build .
 ```
 The build system will build m executable under ./tools on macOS/Linux, or .\tools\Debug on Windows
 Note: To use clang on windows, use command: cmake -G"Visual Studio 16 2019" -T ClangCL ..
-
-## using m REPL
-```
-./tools/m
-```
 
 ## using m compiler
 ```
@@ -129,12 +139,4 @@ sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
 sudo ln /usr/bin/llvm-ranlib-13 /usr/bin/llvm-ranlib
 sudo ln /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
 sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
-
-get wasmtime for wasm test
-wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
-or for MacOS
-wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-macos-c-api.tar.xz
-
-tar xf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz -C extern
-rm -rf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
 ```
