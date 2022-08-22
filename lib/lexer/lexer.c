@@ -60,7 +60,10 @@ struct lexer *lexer_new(FILE *file, const char *filename)
     lexer->filename = filename;
     lexer->buff[0] = '\0';
     lexer->tok.token_type = TOKEN_EOF;
-    fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file);
+    if(lexer->file){
+        //fmemopen in MacOs will open empty string as null file handle
+        fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file);
+    }
 
     //init indent level stack
     indent_level_stack_init(&lexer->indent_stack);
