@@ -34,3 +34,8 @@ ld -o helloworld -dynamic-linker /lib64/ld-linux-x86-64.so.2 /usr/lib/x86_64-lin
 ```
 link /ENTRY:main  legacy_stdio_definitions.lib ucrt.lib helloworld.o 
 ```
+
+* history
+May 31, 2020	m 0.0.16 - support generic/type inference/stack-based types. :smile:
+Feb 29, 2020	mlang.dev site online & m 0.0.9 with if and for control support. :sparkles:
+Feb 1, 2020	about m(mlang)
