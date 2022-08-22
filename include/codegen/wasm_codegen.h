@@ -15,11 +15,6 @@
 extern "C" {
 #endif
 
-#if WASM
-#define EXPORT __attribute__((visibility("default")))
-#else
-#define EXPORT
-#endif
 
 // valtype
 // number type numtype

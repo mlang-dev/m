@@ -4,6 +4,8 @@
 #include <string.h>
 #include "clib/typedef.h"
 
+#define EXPORT __attribute__((visibility("default")))
+
 EXPORT void* alloc_mem(size_t bytes)
 {
     return malloc(bytes);
@@ -28,10 +30,14 @@ EXPORT const char *version()
 
 struct byte_array ba;
 
-EXPORT u8 *parse_code(const char *text)
+EXPORT u8 *parse_expression(const char *text)
 {
-    ba = parse_as_module(text);
+    string func;
+    string_init_chars(&func, "let run() = ");
+    string_add_chars(&func, text);
+    ba = parse_as_module(string_get(&func));
     free_mem((void*)text);
+    string_deinit(&func);
     return ba.data;
 }
 
