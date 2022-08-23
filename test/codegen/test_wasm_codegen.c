@@ -78,11 +78,20 @@ TEST(test_wasm_codegen, func_exp2)
     ba_deinit(&wasm);
 }
 
+TEST(test_wasm_codegen, func_negative_num)
+{
+    const char test_code[] = "let run() = -10+20";
+    struct byte_array wasm = parse_as_module(test_code);
+    ASSERT_EQ(10, _run(&wasm));
+    ba_deinit(&wasm);
+}
+
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
     RUN_TEST(test_wasm_codegen_func);
     RUN_TEST(test_wasm_codegen_func_exp);
     RUN_TEST(test_wasm_codegen_func_exp2);
+    RUN_TEST(test_wasm_codegen_func_negative_num);
     return UNITY_END();
 }

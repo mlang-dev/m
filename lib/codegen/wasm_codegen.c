@@ -75,7 +75,7 @@ void wasm_codegen_init()
 void _emit_code(struct byte_array *ba, struct ast_node *node);
 
 //LEB128 encoding
-u8 _emit_u32(struct byte_array *ba, u32 value)
+u8 _emit_uint(struct byte_array *ba, u64 value)
 {
     u8 byte;
     u8 index = 0;
@@ -91,10 +91,49 @@ u8 _emit_u32(struct byte_array *ba, u32 value)
     return index;
 }
 
+u8 _emit_int(struct byte_array *ba, i64 value, int bitwidth)
+{
+    int more = 1;
+    u8 byte;
+    u8 sign_bit;
+    u8 index = 0;
+    while(more) {
+        byte = 0x7F & value; // low 7 bits of value
+        sign_bit = byte & 0x40;
+        value >>= 7; // this is arithmetic shift
+        if ((value == 0 && !sign_bit) || (value == -1 && sign_bit)) {
+            more = 0;
+        }else{
+            byte |= 0x40;
+        }
+        ba_add(ba, byte);
+        index++;
+    };
+    return index;
+}
+
 void _emit_literal(struct byte_array *ba, struct ast_node *node)
 {
     ba_add(ba, OPCODE_I32CONST);
-    _emit_u32(ba, node->liter->int_val);
+    _emit_int(ba, node->liter->int_val, 32);
+}
+
+void _emit_unary(struct byte_array *ba, struct ast_node *node)
+{
+    struct ast_node *zero = 0;
+    if (node->unop->opcode == OP_MINUS){
+        zero = int_node_new(0, node->loc);
+        _emit_code(ba, zero);
+    }
+    _emit_code(ba, node->unop->operand);
+    enum type type_index = prune(node->unop->operand->type)->type;
+    assert(type_index >= 0 && type_index < TYPE_TYPES);
+    assert(node->unop->opcode >= 0 && node->unop->opcode < OP_TOTAL);
+    if(zero){
+        u8 opcode = op_maps[node->unop->opcode][type_index];
+        ba_add(ba, opcode);
+        ast_node_free(zero);
+    }
 }
 
 void _emit_binary(struct byte_array *ba, struct ast_node *node)
@@ -117,7 +156,7 @@ void _emit_func(struct byte_array *ba, struct ast_node *node)
     _emit_code(&func, node->func->body);
     ba_add(&func, OPCODE_END);
     //function body
-    _emit_u32(ba, func.size); //function body size
+    _emit_uint(ba, func.size); //function body size
     ba_add2(ba, &func);
     ba_deinit(&func);
 }
@@ -142,6 +181,9 @@ void _emit_code(struct byte_array *ba, struct ast_node *node)
             break;
         case BINARY_NODE:
             _emit_binary(ba, node);
+            break;
+        case UNARY_NODE:
+            _emit_unary(ba, node);
             break;
         case LITERAL_NODE:
             _emit_literal(ba, node);
@@ -181,7 +223,7 @@ struct byte_array emit_wasm(struct ast_node *node)
     ba_add(&ba, TYPE_SECTION);
     // section size
     // how many function types
-    _emit_u32(&section, num_func);
+    _emit_uint(&section, num_func);
     struct ast_node *func;
     u32 i, size, j;
     for(i = 0; i < num_func; i++){
@@ -198,7 +240,7 @@ struct byte_array emit_wasm(struct ast_node *node)
         ba_add(&section, 0x01); // num result
         ba_add(&section, TYPE_I32); // i32 output
     }
-    _emit_u32(&ba, section.size); // set section size
+    _emit_uint(&ba, section.size); // set section size
     ba_add2(&ba, &section);       // copy section data
 
     ba_reset(&section);
@@ -207,34 +249,34 @@ struct byte_array emit_wasm(struct ast_node *node)
     ba_add(&section, num_func); // one func types
     for(i = 0; i < num_func; i++)
         ba_add(&section, i); // index 0 of type sections
-    _emit_u32(&ba, section.size); // section size
+    _emit_uint(&ba, section.size); // section size
     ba_add2(&ba, &section);
     ba_reset(&section);
 
     // export section
     ba_add(&ba, EXPORT_SECTION);
-    _emit_u32(&section, num_func); //num of exports
+    _emit_uint(&section, num_func); //num of exports
     u8 *str;
     for(i=0; i<num_func; i++){
         func = *(struct ast_node **)array_get(&node->block->nodes, i);
         size = string_size(func->func->func_type->ft->name);
         str = (u8*)string_get(func->func->func_type->ft->name);
-        _emit_u32(&section, size);
+        _emit_uint(&section, size);
         for(j = 0; j < size; j++){
             ba_add(&section, str[j]);
         }
         ba_add(&section, EXPORT_FUNC);
-        _emit_u32(&section, i); //func index
+        _emit_uint(&section, i); //func index
     }
-    _emit_u32(&ba, section.size); // section size
+    _emit_uint(&ba, section.size); // section size
     ba_add2(&ba, &section);
     ba_reset(&section);
 
     //code section
     ba_add(&ba, CODE_SECTION);
-    _emit_u32(&section, num_func); //num functions
+    _emit_uint(&section, num_func); //num functions
     _emit_code(&section, node);
-    _emit_u32(&ba, section.size); // section size
+    _emit_uint(&ba, section.size); // section size
     ba_add2(&ba, &section);
     ba_reset(&section);
     ba_deinit(&section);
