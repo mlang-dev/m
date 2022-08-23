@@ -19,7 +19,6 @@
 extern "C" {
 #endif
 
-
 #define FOREACH_TYPE(ENUM_ITEM) \
     ENUM_ITEM(TYPE_UNK)         \
     ENUM_ITEM(TYPE_GENERIC)     \
@@ -27,6 +26,7 @@ extern "C" {
     ENUM_ITEM(TYPE_BOOL)        \
     ENUM_ITEM(TYPE_CHAR)        \
     ENUM_ITEM(TYPE_INT)         \
+    ENUM_ITEM(TYPE_FLOAT)       \
     ENUM_ITEM(TYPE_DOUBLE)      \
     ENUM_ITEM(TYPE_STRING)      \
     ENUM_ITEM(TYPE_FUNCTION)    \

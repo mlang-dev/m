@@ -23,6 +23,7 @@ const char *const type_strings[] = {
     "bool",
     "char",
     "int",
+    "float",
     "double",
     "string",
     "->",

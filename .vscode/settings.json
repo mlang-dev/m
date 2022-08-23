@@ -150,7 +150,7 @@
         "wasm_codegen.h": "c",
         "wasm.h": "c",
         "byte_array.h": "c",
-        "parser.h": "c"
+        "float.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

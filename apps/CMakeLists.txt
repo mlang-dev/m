@@ -1,18 +1,6 @@
  cmake_minimum_required(VERSION 3.16)
 
-if(EMSCRIPTEN)
-  include_directories(
-    ${CMAKE_SOURCE_DIR}/include
-  )
-
-  add_executable(wm
-    wasm/wm.c
-  )
-
-  set_target_properties(wm PROPERTIES LINKER_LANGUAGE C)
-
-  target_link_libraries(wm PRIVATE mlr clib)
-elseif(WASM)
+if(WASM)
   include_directories(
     ${CMAKE_SOURCE_DIR}/include
   )
@@ -39,6 +27,7 @@ elseif(WASM)
   file(COPY ${CMAKE_CURRENT_BINARY_DIR}/wm.js DESTINATION ${CMAKE_SOURCE_DIR}/docs)
   file(COPY ${CMAKE_CURRENT_BINARY_DIR}/term.js DESTINATION ${CMAKE_SOURCE_DIR}/docs)
   file(COPY ${CMAKE_CURRENT_BINARY_DIR}/index.html DESTINATION ${CMAKE_SOURCE_DIR}/docs)
+  message(STATUS "copy ${CMAKE_CURRENT_BINARY_DIR}/wm.wasm ${CMAKE_SOURCE_DIR}/docs")
   add_custom_command(TARGET wm POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/wm.wasm ${CMAKE_SOURCE_DIR}/docs
   )
@@ -145,4 +134,5 @@ else()
     ${clang_lib}
     ${sys_libraries}
   )
+    
 endif()

@@ -105,6 +105,10 @@ struct type_size_info _create_builtin_type_size_info(struct type_exp *type)
         ti.width_bits = 32;
         ti.align_bits = 32;
         break;
+    case TYPE_FLOAT:
+        ti.width_bits = 32;
+        ti.align_bits = 32;
+        break;
     case TYPE_DOUBLE:
         ti.width_bits = 64;
         ti.align_bits = 64;

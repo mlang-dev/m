@@ -16,56 +16,85 @@
 #include "sema/analyzer.h"
 #include <assert.h>
 #include <stdint.h>
+#include <float.h>
 
 const char wasm_magic_number[] = {0, 'a', 's', 'm'};
 u8 wasm_version[] = {0x01, 0, 0, 0};
+u8 type_2_const[TYPE_TYPES] = {
+    /*UNK*/ 0,
+    /*GENERIC*/0,
+    /*UNIT*/0,
+    /*BOOL*/OPCODE_I32CONST,
+    /*CHAR*/OPCODE_I32CONST,
+    /*INT*/ OPCODE_I32CONST,
+    /*FLOAT*/OPCODE_F32CONST,
+    /*DOUBLE*/OPCODE_F64CONST,
+    /*STRING*/0,
+    /*FUNCTION*/0,
+    /*EXT*/0,
+};
+
+u8 type_2_wtype[TYPE_TYPES] = {
+    /*UNK*/ 0,
+    /*GENERIC*/ 0,
+    /*UNIT*/ 0,
+    /*BOOL*/ TYPE_I32,
+    /*CHAR*/ TYPE_I32,
+    /*INT*/ TYPE_I32,
+    /*FLOAT*/ TYPE_F32,
+    /*DOUBLE*/ TYPE_F64,
+    /*STRING*/ 0,
+    /*FUNCTION*/ 0,
+    /*EXT*/ 0,
+};
+
 u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*
-    UNK, GENERIC, UNIT, BOOL, CHAR, INT, DOUBLE, STRING, FUNCTION, EXT     
+    UNK, GENERIC, UNIT, BOOL, CHAR, INT, FLOAT, DOUBLE, STRING, FUNCTION, EXT     
     */
-    /*OP_NULL   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_DOT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_OR     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_AND    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_NOT    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_NULL   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_DOT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, },
+    /*OP_OR     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, },
+    /*OP_AND    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_NOT    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 
-    /*OP_BNOT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BOR    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BEOR   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BAND   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BSL    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BSR    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_BNOT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_BOR    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_BEOR   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_BAND   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_BSL    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_BSR    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 
-    /*OP_EXPO   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_TIMES  */{0, 0, 0, 0, 0, OPCODE_I32MUL, 0, 0, 0, 0,},
-    /*OP_DIV    */{0, 0, 0, 0, 0, OPCODE_I32DIV_S, 0, 0, 0, 0,},
-    /*OP_MOD    */{0, 0, 0, 0, 0, OPCODE_I32REM_S, 0, 0, 0, 0,},
-    /*OP_PLUS   */{0, 0, 0, 0, 0, OPCODE_I32ADD, 0, 0, 0, 0,},
-    /*OP_MINUS  */{0, 0, 0, 0, 0, OPCODE_I32SUB, 0, 0, 0, 0,},
+    /*OP_EXPO   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_TIMES  */{0, 0, 0, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_F32MUL, OPCODE_F64MUL, 0, 0, 0, },
+    /*OP_DIV    */{0, 0, 0, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_F32DIV, OPCODE_F64DIV, 0, 0, 0, },
+    /*OP_MOD    */{0, 0, 0, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, 0, 0, 0, 0, 0, },
+    /*OP_PLUS   */{0, 0, 0, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_F32ADD, OPCODE_F64ADD, 0, 0, 0, },
+    /*OP_MINUS  */{0, 0, 0, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_F32SUB, OPCODE_F64SUB, 0, 0, 0, },
 
-    /*OP_LT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_LE  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_EQ    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_GT    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_GE   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_NE  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_LT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_LE  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_EQ    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_GT    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_GE   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_NE  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 
-    /*OP_COND  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_COND  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 
     
-    /*OP_MUL_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_DIV_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_MOD_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_ADD_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_SUB_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_LEFT_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_RIGHT_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_AND_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_XOR_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_OR_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_MUL_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_DIV_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_MOD_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_ADD_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_SUB_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_LEFT_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_RIGHT_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_AND_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_XOR_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_OR_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 
-    /*OP_INC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_DEC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_INC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_DEC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 } ;
 
 void wasm_codegen_init()
@@ -91,7 +120,7 @@ u8 _emit_uint(struct byte_array *ba, u64 value)
     return index;
 }
 
-u8 _emit_int(struct byte_array *ba, i64 value, int bitwidth)
+u8 _emit_int(struct byte_array *ba, i64 value)
 {
     int more = 1;
     u8 byte;
@@ -112,10 +141,53 @@ u8 _emit_int(struct byte_array *ba, i64 value, int bitwidth)
     return index;
 }
 
+/*IEEE 754 2019 little endian in bytes*/
+u8 _emit_f32(struct byte_array *ba, f32 value)
+{
+    u8 size = sizeof(value);
+    u8 byte;
+    u32 bits;
+    memcpy(&bits, &value, size);
+    for(u8 i = 0; i < size; i++) {
+        byte = 0xFF & bits; // low 7 bits of value
+        bits >>= 8;
+        ba_add(ba, byte);
+    } 
+    return size;//return 
+}
+
+u8 _emit_f64(struct byte_array *ba, f64 value)
+{
+    u8 size = sizeof(value);
+    u8 byte;
+    u64 bits;
+    memcpy(&bits, &value, size);
+    for (u8 i = 0; i < size; i++) {
+        byte = 0xFF & bits; // low 7 bits of value
+        bits >>= 8;
+        ba_add(ba, byte);
+    }
+    return size; // return
+}
+
 void _emit_literal(struct byte_array *ba, struct ast_node *node)
 {
-    ba_add(ba, OPCODE_I32CONST);
-    _emit_int(ba, node->liter->int_val, 32);
+    assert(node->type && node->type->type < TYPE_TYPES && node->type->type >= 0);
+    ba_add(ba, type_2_const[node->type->type]);
+    switch(node->type->type){
+        default:
+            assert(false);
+        case TYPE_INT:
+            _emit_int(ba, node->liter->int_val);
+            break;
+        case TYPE_FLOAT:
+            _emit_f32(ba, node->liter->double_val);
+            break;
+        case TYPE_DOUBLE:
+            _emit_f64(ba, node->liter->double_val);
+            break;
+    }
+    
 }
 
 void _emit_unary(struct byte_array *ba, struct ast_node *node)
@@ -123,6 +195,7 @@ void _emit_unary(struct byte_array *ba, struct ast_node *node)
     struct ast_node *zero = 0;
     if (node->unop->opcode == OP_MINUS){
         zero = int_node_new(0, node->loc);
+        zero->type = node->type;
         _emit_code(ba, zero);
     }
     _emit_code(ba, node->unop->operand);
@@ -226,7 +299,8 @@ struct byte_array emit_wasm(struct ast_node *node)
     _emit_uint(&section, num_func);
     struct ast_node *func;
     u32 i, size, j;
-    for(i = 0; i < num_func; i++){
+    struct type_oper *to;
+    for (i = 0; i < num_func; i++) {
         func = *(struct ast_node **)array_get(&node->block->nodes, i);
         assert(func->node_type == FUNC_NODE);
         assert(func->type->kind == KIND_OPER);
@@ -235,10 +309,14 @@ struct byte_array emit_wasm(struct ast_node *node)
         ba_add(&section, TYPE_FUNC);
         ba_add(&section, num_params); // num params
         for(j = 0; j < num_params; j++){
-            ba_add(&section, TYPE_I32);
+            to = *(struct type_oper **)array_get(&func_type->args, j);
+            assert(to->base.type > 0 && to->base.type < TYPE_TYPES);
+            ba_add(&section, type_2_wtype[to->base.type]);
         }
+        to = *(struct type_oper **)array_back(&func_type->args);
+        assert(to->base.type > 0 && to->base.type < TYPE_TYPES);
         ba_add(&section, 0x01); // num result
-        ba_add(&section, TYPE_I32); // i32 output
+        ba_add(&section, type_2_wtype[to->base.type]); // i32 output
     }
     _emit_uint(&ba, section.size); // set section size
     ba_add2(&ba, &section);       // copy section data
