@@ -2,16 +2,20 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
 		<link rel="stylesheet" href="simple.css">
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
+		<header>
 		<nav>
 			<a href="/">Home</a>
 			<a href="/grammar.html" class="current">Grammar</a>
 		</nav>
 		<h3>m grammar</h3>
+		</header>
 <pre>
 # grammar for mlang
 # The right side of each production rule enclosed by curly parentheses is semantic action in 
@@ -158,6 +162,8 @@ var_decl        = IDENT ':' IDENT                                               
                 | IDENT ':' IDENT '=' expr                                                  { var 1 0 2 4 } # var name:type with init value
                 | IDENT '=' expr                                                            { var 1 0 2 }   # var name with initial value
 </pre>
-
+<footer>
+	<p>m was created by <a href="https://wangs.dev">Ligang Wang</a> and is licensed under the MIT license.</p>
+</footer>
 	</body>
 </html>
