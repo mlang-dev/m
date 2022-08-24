@@ -41,6 +41,13 @@ EXPORT u8 *parse_expression(const char *text)
     return ba.data;
 }
 
+EXPORT u8 *parse_mcode(const char *text)
+{
+    ba = parse_as_module(text);
+    free_mem((void *)text);
+    return ba.data;
+}
+
 EXPORT u32 get_code_size()
 {
     return ba.size;
