@@ -20,13 +20,7 @@ if(WASM)
     -Wl,--no-entry,--export-dynamic
     -v
   )
-  file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/wm.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-  file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/term.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-  file(COPY ${CMAKE_SOURCE_DIR}/apps/wasm/index.html DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-  file(COPY ${CMAKE_CURRENT_BINARY_DIR}/wm.js DESTINATION ${CMAKE_SOURCE_DIR}/docs)
-  file(COPY ${CMAKE_CURRENT_BINARY_DIR}/term.js DESTINATION ${CMAKE_SOURCE_DIR}/docs)
-  file(COPY ${CMAKE_CURRENT_BINARY_DIR}/index.html DESTINATION ${CMAKE_SOURCE_DIR}/docs)
   message(STATUS "copy ${CMAKE_CURRENT_BINARY_DIR}/wm.wasm ${CMAKE_SOURCE_DIR}/docs")
   add_custom_command(TARGET wm POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/wm.wasm ${CMAKE_SOURCE_DIR}/docs
