@@ -119,7 +119,7 @@ void _move_ahead(struct lexer *lexer)
             lexer->buff_base += lexer->pos;
             lexer->pos = 0;
         }else{
-            
+            //end of file, we've done
         }
     }
 }
