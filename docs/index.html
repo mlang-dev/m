@@ -5,9 +5,14 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
+		<script src="wasi.js"></script>
 		<script src="wm.js"></script>
 		<link rel="stylesheet" href="simple.css">
 		<link rel="stylesheet" href="style.css">
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
 	</head>
 	<body>
 		<header>
@@ -22,45 +27,34 @@
 		</nav>
 		</header>
 		<p/>
+		<strong>
+		<label id="version"></label>
+		</strong>
 		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false">let run() = 10 + 20 * 3</textarea>
-		<button type="button" onclick="run()">run</button>
-		<textarea id='console' cols="80" readonly></textarea><br/>
+		<button type="button" id="run">run</button>
+		<textarea id='console' rows="5" cols="80" readonly></textarea><br/>
 		<script>
-			var wm_instance = null;
-			function run() {
-				if(wm_instance == null){
-					print("wm.wasm is not available !");
-					return;
+			var instance = null;
+			wm(new wasi(), 'wm.wasm', print, true).then(
+				result=>{
+					instance = result;
 				}
+			);
+			document.getElementById("run").addEventListener("click", run);
+			function run(event) {
 				let code = document.getElementById("code").value;
-				let new_ptr = wm_instance.exports.alloc_mem(1024);
-				str_to_ab(wm_instance, code, new_ptr);
-				let wasm = wm_instance.exports.parse_mcode(new_ptr);
-				let wasm_size = wm_instance.exports.get_code_size();
-				print(run_wasm_code(wm_instance, wasm, wasm_size));
-				wm_instance.exports.free_mem(wasm);
+				instance.run_mcode(code);
 			}
-			var importObject = {
-				wasi_snapshot_preview1: {
-					fd_close : arg=>console.log("fd_close: %s", arg),
-					fd_read : (arg1, arg2, arg3, arg4)=>console.log("fd_read %s, %s, %s, %s", arg1, arg2, arg3, arg4),
-					fd_seek : (arg1, arg2, arg3, arg4) => console.log("fd_seek: %s, %s, %s, %s", arg1, arg2, arg3, arg4),
-					fd_write : (arg1, arg2, arg3, arg4) => console.log("fd_write: %s, %s, %s, %s", arg1, arg2, arg3, arg4),
-					proc_exit : arg=>console.log("proc_exit: %s", arg),
-					fd_fdstat_get: (arg0, arg1) => console.log("fd_fdstat_get: %s, %s", arg0, arg1)
-				}
-			}
-			WebAssembly.instantiateStreaming(fetch('wm.wasm'), importObject)
-			.then(obj => {
-				wm_instance = obj.instance;
-				c_str = wm_instance.exports.version()
-				print(to_js_str(wm_instance, c_str));
-				wm_instance.exports.free_mem(c_str);
-				console.log("wm.wasm loaded !");
-			});
 			
 			function print(text){
-				document.getElementById("console").innerHTML = text;
+				let new_text = document.getElementById("console").textContent;
+				if (new_text == ''){
+					new_text = text;
+				}
+				else{
+					new_text += '\n' + text;
+				}
+				document.getElementById("console").textContent = new_text;
 			}
 		</script>
 <footer>
