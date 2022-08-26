@@ -1,4 +1,4 @@
-[![CMake m](https://github.com/ligangwang/m/actions/workflows/cmake-app.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-app.yml) [![CMake m WASM](https://github.com/ligangwang/m/actions/workflows/cmake-wasm.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-wasm.yml) [![Jekyll Pages](https://github.com/ligangwang/m/actions/workflows/github-pages.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/github-pages.yml)
+[![CMake m](https://github.com/ligangwang/m/actions/workflows/cmake-app.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-app.yml) [![CMake m WASM](https://github.com/ligangwang/m/actions/workflows/cmake-wasm.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-wasm.yml)
 
 # m (mlang)
 m is a succinct & expressive general purpose programming language for WebAssembly. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction to its maximum. It's a static-typed language with type inference, which means most of time types of variables are not required to be annotated. Similar to C, m supports memory allocations on stack and heap, the stack memory is automatically released when it is out of scope. Unlike C the heap memory release instruction is automatically inserted where its owner on the stack is out of scope statically at compile time by m, and m programmer does not need to explicitly release heap memory. This design avoids the non-deterministic garbage collections and is tailored for real-time system programming.
@@ -88,21 +88,6 @@ cd ./extern/wasi-libc
 make (required: clang, llvm-ar, llvm-nm)
 ```
 
-## get wasmtime for wasm codegen test
-## linux:
-```
-wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
-tar xf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz -C extern
-rm -rf wasmtime-v0.39.1-x86_64-linux-c-api.tar.xz
-```
-
-## MacOS
-```
-wget https://github.com/bytecodealliance/wasmtime/releases/download/v0.39.1/wasmtime-v0.39.1-x86_64-macos-c-api.tar.xz
-tar xf wasmtime-v0.39.1-x86_64-macos-c-api.tar.xz -C extern
-rm -rf wasmtime-v0.39.1-x86_64-macos-c-api.tar.xz
-
-```
 ## build mlang
 ```
 mkdir build

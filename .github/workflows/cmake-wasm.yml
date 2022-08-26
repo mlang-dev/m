@@ -44,14 +44,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
-    - name: Get wasmtime
-      run: |
-        curl https://wasmtime.dev/install.sh -sSf | bash
-        echo "${HOME}/.wasmtime/bin" >> $GITHUB_PATH
-
-    - name: Test wasmtime path
-      run: |
-        wasmtime -V
 
     - name: Build wasi-libc
       run: (cd ${{github.workspace}}/extern/wasi-libc && make)
