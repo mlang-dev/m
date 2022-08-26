@@ -13,3 +13,4 @@ extern/
 *.bc
 *.ir
 *.lock
+node_modules/
