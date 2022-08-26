@@ -30,9 +30,9 @@
 		<strong>
 		<label id="version"></label>
 		</strong>
-		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false">let run() = 10 + 20 * 3</textarea>
+		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false">10 + 20 * 3</textarea>
 		<button type="button" id="run">run</button>
-		<textarea id='console' rows="5" cols="80" readonly></textarea><br/>
+		<textarea id='console' rows="5" cols="80" readonly style="color:grey"></textarea><br/>
 		<script>
 			var instance = null;
 			mw(new wasi(), 'mw.wasm', print, true).then(
@@ -43,7 +43,7 @@
 			document.getElementById("run").addEventListener("click", run);
 			function run(event) {
 				let code = document.getElementById("code").value;
-				instance.run_mcode(code);
+				print(instance.run_mcode(code));
 			}
 			
 			function print(text){

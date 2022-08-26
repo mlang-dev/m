@@ -25,7 +25,7 @@ EXPORT i32 str_len(const char *chars)
 EXPORT const char *version()
 {
     void * p = alloc_mem(32);
-    strcpy(p, "m 0.0.18");
+    strcpy(p, "m 0.0.19");
     return p;
 }
 

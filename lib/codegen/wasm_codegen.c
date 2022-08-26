@@ -361,12 +361,45 @@ struct byte_array emit_wasm(struct ast_node *node)
     return ba;
 }
 
+struct ast_node *_create_block_node()
+{
+    struct array children;
+    array_init(&children, sizeof(struct ast_node *));
+    return block_node_new(&children);
+}
+
+
+/*
+ * collect global statements into _start function
+ */
+struct ast_node *_decorate_as_module(struct hashtable *symbol_2_int_types, struct ast_node *block)
+{
+    assert(block->node_type == BLOCK_NODE);
+    struct array _start_nodes;
+    array_init(&_start_nodes, sizeof(struct ast_node *));
+    u32 nodes = array_size(&block->block->nodes);
+    struct ast_node *module = _create_block_node();
+    struct ast_node *node;
+    for (u32 i = 0; i < nodes; i++) {
+        node = *(struct ast_node **)array_get(&block->block->nodes, i);
+        if (node->node_type == FUNC_NODE){
+            block_node_add(module, node);
+        }else{
+            array_push(&_start_nodes, &node);
+        }
+    }
+    struct ast_node *_start_func = wrap_nodes_as_function(symbol_2_int_types, to_symbol("_start"), &_start_nodes);
+    block_node_add(module, _start_func);
+    free_block_node(block, false);
+    return module;
+}
+
 struct byte_array parse_as_module(const char *expr)
 {
     frontend_init();
     wasm_codegen_init();
     struct parser *parser = parser_new();
-    struct ast_node *ast = parse_code(parser, expr);
+    struct ast_node *ast = _decorate_as_module(&parser->symbol_2_int_types, parse_code(parser, expr));
     struct sema_context *c = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
     analyze(c, ast);
     struct byte_array ba = emit_wasm(ast);

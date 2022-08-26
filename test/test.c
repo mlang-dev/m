@@ -30,7 +30,7 @@ int test_lr_parser_expr();
 int test_lr_parser();
 int test_grammar();
 int test_wat_codegen();
-int test_mwat();
+int test_wasm_codegen();
 
 void setUp(){}
 void tearDown(){}
@@ -60,8 +60,8 @@ EXPORT int ENTRY()
   failures += test_lr_parser();
   failures += test_grammar();
   failures += test_wat_codegen();
-  failures += test_mwat();
-  
+  failures += test_wasm_codegen();
+
   if (!failures)
     printf("Unit tests passed !\n");
   else
