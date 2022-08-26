@@ -1,4 +1,4 @@
-function wm(wasi_env, module_name, print_func, remote_file) {
+function mw(wasi_env, module_name, print_func, remote_file) {
 	var wm_instance = null;
 	var print_func = print_func;
 
@@ -16,7 +16,10 @@ function wm(wasi_env, module_name, print_func, remote_file) {
 		// "Producing Code" (May take some time)
 		module.then(function (obj) {
 			init_module(obj);
-			resolve({run_mcode: run_mcode}); //when success
+			resolve({
+				run_mcode: run_mcode, 
+				module: obj
+			}); //when success
 		}).catch(function (reason) {
 			reject(reason); //when failure
 		});
@@ -28,9 +31,11 @@ function wm(wasi_env, module_name, print_func, remote_file) {
 	{
 		wm_instance = module.instance;
 		wasi_env.setEnv(wm_instance, print_func);
-		let c_str = wm_instance.exports.version();
-		print_func(to_js_str(wm_instance, c_str));
-		wm_instance.exports.free_mem(c_str);
+		if(wm_instance.exports.version != null){
+			let c_str = wm_instance.exports.version();
+			print_func(to_js_str(wm_instance, c_str));
+			wm_instance.exports.free_mem(c_str);
+		}
 	}
 
 	function to_js_str(instance, c_str)
@@ -74,5 +79,5 @@ function wm(wasi_env, module_name, print_func, remote_file) {
 }
 
 if (typeof module === 'object') {
-	module.exports = wm;
+	module.exports = mw;
 }

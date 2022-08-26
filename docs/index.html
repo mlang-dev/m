@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
 		<script src="wasi.js"></script>
-		<script src="wm.js"></script>
+		<script src="mw.js"></script>
 		<link rel="stylesheet" href="simple.css">
 		<link rel="stylesheet" href="style.css">
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -35,7 +35,7 @@
 		<textarea id='console' rows="5" cols="80" readonly></textarea><br/>
 		<script>
 			var instance = null;
-			wm(new wasi(), 'wm.wasm', print, true).then(
+			mw(new wasi(), 'mw.wasm', print, true).then(
 				result=>{
 					instance = result;
 				}
