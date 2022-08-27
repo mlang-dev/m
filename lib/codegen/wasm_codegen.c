@@ -97,10 +97,103 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_DEC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 } ;
 
+union data_type_conv{
+    void *p_data;
+    u32 i_data;
+};
+
+u32 _p_2_u32(void *p)
+{
+    union data_type_conv dtc;
+    dtc.p_data = p;
+    return dtc.i_data;
+}
+
+void *_u32_2_p(u32 i)
+{
+    union data_type_conv dtc;
+    dtc.i_data = i;
+    return dtc.p_data;
+}
+
+void _fun_context_init(struct fun_context *fc)
+{
+    fc->fun_name = 0;
+    fc->local_vars = 0;
+    symboltable_init(&fc->varname_2_index);
+}
+
+void _fun_context_deinit(struct fun_context *fc)
+{
+    symboltable_deinit(&fc->varname_2_index);
+}
+
+void _func_enter(struct wasm_module *module, symbol fun_name)
+{
+    struct fun_context *fc = &module->fun_contexts[module->fun_levels];
+    _fun_context_deinit(fc);
+    _fun_context_init(fc);
+    fc->fun_name = fun_name;
+    module->fun_levels ++;
+}
+
+void _func_leave(struct wasm_module *module, symbol fun_name)
+{
+    module->fun_levels --;
+    assert(module->fun_contexts[module->fun_levels].fun_name == fun_name);
+}
+
+struct fun_context *_fun_context_top(struct wasm_module *module)
+{
+    return module->fun_levels >= 1 ? &module->fun_contexts[module->fun_levels - 1] : 0;
+}
+
+u32 _func_get_var_nums(struct wasm_module *module)
+{
+    struct fun_context *fc = _fun_context_top(module);
+    return hashtable_size(&fc->varname_2_index.ht);
+}
+
+u32 _func_get_local_var_nums(struct wasm_module *module)
+{
+    struct fun_context *fc = _fun_context_top(module);
+    return fc->local_vars;
+}
+
+void _func_add_variable(struct wasm_module *module, symbol var_name, bool is_local_var)
+{
+    u32 index = _func_get_var_nums(module);
+    struct fun_context *fc = _fun_context_top(module);
+    if(is_local_var){
+        fc->local_vars++;
+    }
+    symboltable_push(&fc->varname_2_index, var_name, _u32_2_p(index));
+}
+
+u32 _func_context_get_index(struct wasm_module *module, symbol var_name)
+{
+    struct fun_context *fc = _fun_context_top(module);
+    return _p_2_u32(symboltable_get(&fc->varname_2_index, var_name));
+}
+
 void _wasm_module_init(struct wasm_module *module)
 {
     ba_init(&module->ba, 17);
     hashtable_init_with_value_size(&module->func_name_2_idx, sizeof(u8), 0);
+    for(u32 i = 0; i < FUN_NESTED_LEVELS; i++){
+        _fun_context_init(&module->fun_contexts[i]);
+    }
+    module->fun_levels = 0;
+}
+
+void _wasm_module_deinit(struct wasm_module *module)
+{
+    for (u32 i = 0; i < FUN_NESTED_LEVELS; i++) {
+        _fun_context_deinit(&module->fun_contexts[i]);
+    }
+    module->fun_levels = 0;
+    hashtable_deinit(&module->func_name_2_idx);
+    ba_deinit(&module->ba);
 }
 
 void wasm_codegen_init(struct wasm_module *module)
@@ -111,8 +204,7 @@ void wasm_codegen_init(struct wasm_module *module)
 
 void wasm_codegen_deinit(struct wasm_module *module)
 {
-    hashtable_deinit(&module->func_name_2_idx);
-    ba_deinit(&module->ba);
+    _wasm_module_deinit(module);
     frontend_deinit();
 }
 
@@ -238,23 +330,41 @@ void _emit_binary(struct wasm_module *module, struct byte_array *ba, struct ast_
 void _emit_func(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == FUNC_NODE);
+    _func_enter(module, node->func->func_type->ft->name);
+    for(u32 i=0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++){
+        struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
+        _func_add_variable(module, param->var->var_name, false);
+    }
     struct byte_array func;
     ba_init(&func, 17);
-    ba_add(&func, 0x00); //num local variables
+    _emit_uint(&func, _func_get_local_var_nums(module)); // num local variables
     _emit_code(module, &func, node->func->body);
     ba_add(&func, OPCODE_END);
     //function body
     _emit_uint(ba, func.size); //function body size
     ba_add2(ba, &func);
     ba_deinit(&func);
+    _func_leave(module, node->func->func_type->ft->name);
 }
 
 void _emit_call(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == CALL_NODE);
     u32 func_indx = hashtable_get_int(&module->func_name_2_idx, node->call->callee);
+    for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
+        _emit_code(module, ba, *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i));
+    }
     ba_add(ba, OPCODE_CALL); // num local variables
     _emit_uint(ba, func_indx);
+}
+
+void _emit_ident(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
+{
+    assert(node->node_type == IDENT_NODE);
+    u32 var_index = _func_context_get_index(module, node->ident->name);
+    //TODO: var_index zero better is not matched
+    ba_add(ba, OPCODE_LOCALGET); // num local variables
+    _emit_uint(ba, var_index);
 }
 
 void _emit_block(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
@@ -286,6 +396,9 @@ void _emit_code(struct wasm_module *module, struct byte_array *ba, struct ast_no
             break;
         case CALL_NODE:
             _emit_call(module, ba, node);
+            break;
+        case IDENT_NODE:
+            _emit_ident(module, ba, node);
             break;
         default:
             assert(false);
@@ -353,7 +466,7 @@ void emit_wasm(struct wasm_module *module, struct ast_node *node)
     ba_add(ba, FUNCTION_SECTION);
     ba_add(&section, num_func); // one func types
     for(i = 0; i < num_func; i++){
-        _emit_uint(&section, i); // index 0 of type sections
+        _emit_uint(&section, i); // index 0 of type sections, function type signature
     }
     _emit_uint(ba, section.size); // section size
     ba_add2(ba, &section);
@@ -406,13 +519,21 @@ struct ast_node *_decorate_as_module(struct wasm_module *module, struct hashtabl
     array_init(&_start_nodes, sizeof(struct ast_node *));
     u32 nodes = array_size(&block->block->nodes);
     struct ast_node *wmodule = _create_block_node();
-    struct ast_node *node;
+    struct ast_node *node, *sp_func;
     int func_idx = 0;
     for (u32 i = 0; i < nodes; i++) {
         node = *(struct ast_node **)array_get(&block->block->nodes, i);
         if (node->node_type == FUNC_NODE){
-            block_node_add(wmodule, node);
-            hashtable_set_int(&module->func_name_2_idx, node->func->func_type->ft->name, func_idx++);
+            if (is_generic(node->type)){
+                for(u32 j = 0; j < array_size(&node->func->sp_funs); j++){
+                    sp_func = *(struct ast_node **)array_get(&node->func->sp_funs, j);
+                    block_node_add(wmodule, sp_func);
+                    hashtable_set_int(&module->func_name_2_idx, sp_func->func->func_type->ft->name, func_idx++);
+                }
+            }else{
+                block_node_add(wmodule, node);
+                hashtable_set_int(&module->func_name_2_idx, node->func->func_type->ft->name, func_idx++);
+            }
         }else{
             array_push(&_start_nodes, &node);
         }
@@ -426,8 +547,10 @@ struct ast_node *_decorate_as_module(struct wasm_module *module, struct hashtabl
 void parse_as_module(struct wasm_module *module, const char *expr)
 {
     struct parser *parser = parser_new();
-    struct ast_node *ast = _decorate_as_module(module, &parser->symbol_2_int_types, parse_code(parser, expr));
+    struct ast_node *ast = parse_code(parser, expr);
     struct sema_context *c = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
+    analyze(c, ast);
+    ast = _decorate_as_module(module, &parser->symbol_2_int_types, ast);
     analyze(c, ast);
     emit_wasm(module, ast);
     ast_node_free(ast);

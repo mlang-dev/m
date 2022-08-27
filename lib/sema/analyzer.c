@@ -240,7 +240,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
         assert(type);
         array_push(&args, &type);
     }
-
+    struct ast_node *sp_fun = 0;
     /* monomorphization of generic */
     if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args))) {
         struct ast_node *parent_func = stack_size(&context->func_stack) ? *(struct ast_node**)stack_top(&context->func_stack) : 0;
@@ -254,7 +254,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
             }
             /* specialized callee */
             struct ast_node *generic_fun = hashtable_get(&context->generic_ast, string_get(node->call->callee));
-            struct ast_node *sp_fun = node_copy(generic_fun);
+            sp_fun = node_copy(generic_fun);
             array_push(&generic_fun->func->sp_funs, &sp_fun);
 
             sp_fun->func->func_type->ft->name = node->call->specialized_callee;
@@ -271,6 +271,11 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
     array_push(&args, &result_type);
     struct type_exp *call_fun = (struct type_exp *)create_type_fun(&args);
     unify(call_fun, fun_type, &context->nongens);
+    if(sp_fun){
+        fun_type = prune(fun_type);
+        sp_fun->type = fun_type;
+        sp_fun->func->func_type->type = fun_type;
+    }
     if (hashtable_in_p(&context->builtin_ast, node->call->callee)) {
         array_push(&context->used_builtin_names, &node->call->callee);
     }

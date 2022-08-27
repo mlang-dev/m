@@ -58,3 +58,37 @@ run()
         expect(m.run_mcode(code)).toEqual(30);
     });
 });
+
+test('call func with params', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let id x = x
+id 10
+        `;
+        //m.compile(code, "call_fun.wasm");
+        expect(m.run_mcode(code)).toEqual(10);
+    });
+});
+
+test('call func sub', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let sub x y = x - y
+sub 10 30
+        `;
+        expect(m.run_mcode(code)).toEqual(-20);
+    });
+});
+
+// test('global var', () => {
+//     var result = get_mw();
+//     return result.then((m) => {
+//         let code = `
+// x = 10
+// x
+//         `;
+//         expect(m.run_mcode(code)).toEqual(-20);
+//     });
+// });

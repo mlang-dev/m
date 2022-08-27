@@ -308,9 +308,33 @@ enum ExportType {
     EXPORT_GLOBAL
 };
 
+struct fun_context {
+    symbol fun_name;
+    /*
+     *  symboltable of <symbol, u32>
+     *  binding variable name to index of variable in the function
+     *  used in function codegen
+     */
+    struct symboltable varname_2_index;
+
+    /*
+     *  number of local variables
+     */
+    u32 local_vars; 
+};
+
+#define FUN_NESTED_LEVELS 512
+
 struct wasm_module {
     struct byte_array ba;
     struct hashtable func_name_2_idx;
+    /*
+     *  symboltable of <symbol, struct fun_context>
+     *  binding variable name to index of variable in the function
+     *  used in function codegen
+     */
+    struct fun_context fun_contexts[FUN_NESTED_LEVELS];
+    u32 fun_levels;
 };
 
 void wasm_codegen_init(struct wasm_module *module);

@@ -18,6 +18,7 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 			init_module(obj);
 			resolve({
 				run_mcode: run_mcode, 
+				compile: compile,
 				module: obj
 			}); //when success
 		}).catch(function (reason) {
@@ -75,6 +76,18 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		let result = run_wasm_code(wm_instance, wasm, wasm_size);
 		wm_instance.exports.free_mem(wasm);
 		return result;
+	}
+
+	function compile(code, file_path)
+	{
+		let new_ptr = wm_instance.exports.alloc_mem(1024);
+		str_to_ab(wm_instance, code, new_ptr);
+		let wasm = wm_instance.exports.compile_code(new_ptr);
+		let wasm_size = wm_instance.exports.get_code_size();
+		let ta = new Uint8Array(wm_instance.exports.memory.buffer, wasm, wasm_size);
+		const fs = require('fs');
+		fs.writeFileSync(file_path, ta, 'binary');
+		wm_instance.exports.free_mem(wasm);
 	}
 }
 
