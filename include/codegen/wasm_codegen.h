@@ -10,6 +10,7 @@
 
 #include "parser/amodule.h"
 #include "clib/byte_array.h"
+#include "clib/hashtable.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -307,8 +308,14 @@ enum ExportType {
     EXPORT_GLOBAL
 };
 
-void wasm_codegen_init();
-struct byte_array parse_as_module(const char *expr);
+struct wasm_module {
+    struct byte_array ba;
+    struct hashtable func_name_2_idx;
+};
+
+void wasm_codegen_init(struct wasm_module *module);
+void wasm_codegen_deinit(struct wasm_module *module);
+void parse_as_module(struct wasm_module *module, const char *expr);
 
 #ifdef __cplusplus
 }

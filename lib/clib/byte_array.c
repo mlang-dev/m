@@ -63,7 +63,9 @@ void ba_reset(struct byte_array *ba)
 
 void ba_deinit(struct byte_array *ba)
 {
-    FREE(ba->data);
+    if(ba->data){
+        FREE(ba->data);
+        ba->data = 0;
+    }
     ba->size = ba->cap = 0;
-    ba->data = 0;
 }

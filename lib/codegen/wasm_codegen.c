@@ -97,11 +97,26 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_DEC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 } ;
 
-void wasm_codegen_init()
+void _wasm_module_init(struct wasm_module *module)
 {
+    ba_init(&module->ba, 17);
+    hashtable_init_with_value_size(&module->func_name_2_idx, sizeof(u8), 0);
 }
 
-void _emit_code(struct byte_array *ba, struct ast_node *node);
+void wasm_codegen_init(struct wasm_module *module)
+{
+    frontend_init();
+    _wasm_module_init(module);
+}
+
+void wasm_codegen_deinit(struct wasm_module *module)
+{
+    hashtable_deinit(&module->func_name_2_idx);
+    ba_deinit(&module->ba);
+    frontend_deinit();
+}
+
+void _emit_code(struct wasm_module *module, struct byte_array *ba, struct ast_node *node);
 
 //LEB128 encoding
 u8 _emit_uint(struct byte_array *ba, u64 value)
@@ -170,7 +185,7 @@ u8 _emit_f64(struct byte_array *ba, f64 value)
     return size; // return
 }
 
-void _emit_literal(struct byte_array *ba, struct ast_node *node)
+void _emit_literal(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->type && node->type->type < TYPE_TYPES && node->type->type >= 0);
     ba_add(ba, type_2_const[node->type->type]);
@@ -190,15 +205,15 @@ void _emit_literal(struct byte_array *ba, struct ast_node *node)
     
 }
 
-void _emit_unary(struct byte_array *ba, struct ast_node *node)
+void _emit_unary(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     struct ast_node *zero = 0;
     if (node->unop->opcode == OP_MINUS){
         zero = int_node_new(0, node->loc);
         zero->type = node->type;
-        _emit_code(ba, zero);
+        _emit_code(module, ba, zero);
     }
-    _emit_code(ba, node->unop->operand);
+    _emit_code(module, ba, node->unop->operand);
     enum type type_index = prune(node->unop->operand->type)->type;
     assert(type_index >= 0 && type_index < TYPE_TYPES);
     assert(node->unop->opcode >= 0 && node->unop->opcode < OP_TOTAL);
@@ -209,10 +224,10 @@ void _emit_unary(struct byte_array *ba, struct ast_node *node)
     }
 }
 
-void _emit_binary(struct byte_array *ba, struct ast_node *node)
+void _emit_binary(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
-    _emit_code(ba, node->binop->lhs);
-    _emit_code(ba, node->binop->rhs);
+    _emit_code(module, ba, node->binop->lhs);
+    _emit_code(module, ba, node->binop->rhs);
     enum type type_index = prune(node->binop->lhs->type)->type;
     assert(type_index >= 0 && type_index < TYPE_TYPES);
     assert(node->binop->opcode >= 0 && node->binop->opcode < OP_TOTAL);
@@ -220,13 +235,13 @@ void _emit_binary(struct byte_array *ba, struct ast_node *node)
     ba_add(ba, opcode);
 }
 
-void _emit_func(struct byte_array *ba, struct ast_node *node)
+void _emit_func(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == FUNC_NODE);
     struct byte_array func;
     ba_init(&func, 17);
     ba_add(&func, 0x00); //num local variables
-    _emit_code(&func, node->func->body);
+    _emit_code(module, &func, node->func->body);
     ba_add(&func, OPCODE_END);
     //function body
     _emit_uint(ba, func.size); //function body size
@@ -234,47 +249,59 @@ void _emit_func(struct byte_array *ba, struct ast_node *node)
     ba_deinit(&func);
 }
 
-void _emit_block(struct byte_array *ba, struct ast_node *node)
+void _emit_call(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
+{
+    assert(node->node_type == CALL_NODE);
+    u32 func_indx = hashtable_get_int(&module->func_name_2_idx, node->call->callee);
+    ba_add(ba, OPCODE_CALL); // num local variables
+    _emit_uint(ba, func_indx);
+}
+
+void _emit_block(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {   
     u32 block_size = array_size(&node->block->nodes);
     for(u32 i = 0; i < block_size; i++){
         struct ast_node *child = *(struct ast_node **)array_get(&node->block->nodes, i);
-        _emit_code(ba, child);
+        _emit_code(module, ba, child);
     }
 }
 
-void _emit_code(struct byte_array *ba, struct ast_node *node)
+void _emit_code(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     switch(node->node_type){
         case FUNC_NODE:
-            _emit_func(ba, node);
+            _emit_func(module, ba, node);
             break;
         case BLOCK_NODE:
-            _emit_block(ba, node);
+            _emit_block(module, ba, node);
             break;
         case BINARY_NODE:
-            _emit_binary(ba, node);
+            _emit_binary(module, ba, node);
             break;
         case UNARY_NODE:
-            _emit_unary(ba, node);
+            _emit_unary(module, ba, node);
             break;
         case LITERAL_NODE:
-            _emit_literal(ba, node);
+            _emit_literal(module, ba, node);
+            break;
+        case CALL_NODE:
+            _emit_call(module, ba, node);
             break;
         default:
             assert(false);
     }
 }
 
-struct byte_array emit_wasm(struct ast_node *node)
+void emit_wasm(struct wasm_module *module, struct ast_node *node)
 {   
-    struct byte_array ba, section;
-    ba_init(&ba, 17); ba_init(&section, 17);
+    struct byte_array section;
+    struct byte_array *ba = &module->ba;    
+    ba_init(&section, 17);
     for(size_t i = 0; i < ARRAY_SIZE(wasm_magic_number); i++){
-        ba_add(&ba, wasm_magic_number[i]);
+        ba_add(ba, wasm_magic_number[i]);
     }
     for(size_t i = 0; i < ARRAY_SIZE(wasm_version); i++){
-        ba_add(&ba, wasm_version[i]);
+        ba_add(ba, wasm_version[i]);
     }
     // 0.    custom section
     // 1.    type section       : type signature of the function
@@ -293,7 +320,7 @@ struct byte_array emit_wasm(struct ast_node *node)
     assert(node->node_type == BLOCK_NODE);
     u32 num_func;
     num_func = array_size(&node->block->nodes);
-    ba_add(&ba, TYPE_SECTION);
+    ba_add(ba, TYPE_SECTION);
     // section size
     // how many function types
     _emit_uint(&section, num_func);
@@ -318,21 +345,22 @@ struct byte_array emit_wasm(struct ast_node *node)
         ba_add(&section, 0x01); // num result
         ba_add(&section, type_2_wtype[to->base.type]); // i32 output
     }
-    _emit_uint(&ba, section.size); // set section size
-    ba_add2(&ba, &section);       // copy section data
+    _emit_uint(ba, section.size); // set section size
+    ba_add2(ba, &section);       // copy section data
 
     ba_reset(&section);
     // function section
-    ba_add(&ba, FUNCTION_SECTION);
+    ba_add(ba, FUNCTION_SECTION);
     ba_add(&section, num_func); // one func types
-    for(i = 0; i < num_func; i++)
-        ba_add(&section, i); // index 0 of type sections
-    _emit_uint(&ba, section.size); // section size
-    ba_add2(&ba, &section);
+    for(i = 0; i < num_func; i++){
+        _emit_uint(&section, i); // index 0 of type sections
+    }
+    _emit_uint(ba, section.size); // section size
+    ba_add2(ba, &section);
     ba_reset(&section);
 
     // export section
-    ba_add(&ba, EXPORT_SECTION);
+    ba_add(ba, EXPORT_SECTION);
     _emit_uint(&section, num_func); //num of exports
     u8 *str;
     for(i=0; i<num_func; i++){
@@ -346,33 +374,63 @@ struct byte_array emit_wasm(struct ast_node *node)
         ba_add(&section, EXPORT_FUNC);
         _emit_uint(&section, i); //func index
     }
-    _emit_uint(&ba, section.size); // section size
-    ba_add2(&ba, &section);
+    _emit_uint(ba, section.size); // section size
+    ba_add2(ba, &section);
     ba_reset(&section);
 
     //code section
-    ba_add(&ba, CODE_SECTION);
+    ba_add(ba, CODE_SECTION);
     _emit_uint(&section, num_func); //num functions
-    _emit_code(&section, node);
-    _emit_uint(&ba, section.size); // section size
-    ba_add2(&ba, &section);
+    _emit_code(module, &section, node);
+    _emit_uint(ba, section.size); // section size
+    ba_add2(ba, &section);
     ba_reset(&section);
     ba_deinit(&section);
-    return ba;
 }
 
-struct byte_array parse_as_module(const char *expr)
+struct ast_node *_create_block_node()
 {
-    frontend_init();
-    wasm_codegen_init();
+    struct array children;
+    array_init(&children, sizeof(struct ast_node *));
+    return block_node_new(&children);
+}
+
+
+/*
+ * collect global statements into _start function
+ */
+struct ast_node *_decorate_as_module(struct wasm_module *module, struct hashtable *symbol_2_int_types, struct ast_node *block)
+{
+    assert(block->node_type == BLOCK_NODE);
+    struct array _start_nodes;
+    array_init(&_start_nodes, sizeof(struct ast_node *));
+    u32 nodes = array_size(&block->block->nodes);
+    struct ast_node *wmodule = _create_block_node();
+    struct ast_node *node;
+    int func_idx = 0;
+    for (u32 i = 0; i < nodes; i++) {
+        node = *(struct ast_node **)array_get(&block->block->nodes, i);
+        if (node->node_type == FUNC_NODE){
+            block_node_add(wmodule, node);
+            hashtable_set_int(&module->func_name_2_idx, node->func->func_type->ft->name, func_idx++);
+        }else{
+            array_push(&_start_nodes, &node);
+        }
+    }
+    struct ast_node *_start_func = wrap_nodes_as_function(symbol_2_int_types, to_symbol("_start"), &_start_nodes);
+    block_node_add(wmodule, _start_func);
+    free_block_node(block, false);
+    return wmodule;
+}
+
+void parse_as_module(struct wasm_module *module, const char *expr)
+{
     struct parser *parser = parser_new();
-    struct ast_node *ast = parse_code(parser, expr);
+    struct ast_node *ast = _decorate_as_module(module, &parser->symbol_2_int_types, parse_code(parser, expr));
     struct sema_context *c = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
     analyze(c, ast);
-    struct byte_array ba = emit_wasm(ast);
+    emit_wasm(module, ast);
     ast_node_free(ast);
     sema_context_free(c);
     parser_free(parser);
-    frontend_deinit();
-    return ba;
 }

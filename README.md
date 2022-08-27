@@ -123,3 +123,8 @@ sudo ln /usr/bin/llvm-ranlib-13 /usr/bin/llvm-ranlib
 sudo ln /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
 sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
 ```
+
+## compile c into wasm
+```
+clang --target=wasm32 --no-standard-libraries test.c -o test.wasm
+```

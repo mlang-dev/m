@@ -1,17 +1,13 @@
-struct Point2D {
-    double x;
-    double y;
-};
+#define EXPORT __attribute__((visibility("default")))
 
-struct Point2D f()
+EXPORT int run()
 {
-    struct Point2D xy = { 10.0, 20.0 };
-    return xy;
+    return 10 + 20;
 }
 
-double maind()
+EXPORT int _start()
 {
-    return f().x;
+    return run();
 }
 // struct Point2D {
 //     double x;

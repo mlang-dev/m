@@ -20,32 +20,41 @@ test('test mtest', () => {
     });
 });
 
-
 test('expr 10 + 20', ()=>{
     var result = get_mw();
     return result.then((m)=>{
-        expect(m.run_mcode("let run()=10 + 20")).toEqual(30);
+        expect(m.run_mcode("10 + 20")).toEqual(30);
     });
 });
 
 test('expr 10 + 20 * 3', () => {
     var result = get_mw();
     return result.then((m) => {
-        expect(m.run_mcode("let run()=10 + 20 * 3")).toEqual(70);
+        expect(m.run_mcode("10 + 20 * 3")).toEqual(70);
     });
 });
 
 test('expr -10 + 20 * 3', () => {
     var result = get_mw();
     return result.then((m) => {
-        expect(m.run_mcode("let run()=-10 + 20 * 3")).toEqual(50);
+        expect(m.run_mcode("-10 + 20 * 3")).toEqual(50);
     });
 });
-
 
 test('expr -10.0 + 20.0 * 3.0', () => {
     var result = get_mw();
     return result.then((m) => {
-        expect(m.run_mcode("let run()=-10.0 + 20.0 * 3.0")).toEqual(50.0);
+        expect(m.run_mcode("-10.0 + 20.0 * 3.0")).toEqual(50.0);
+    });
+});
+
+test('call func', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let run() = 10 + 20
+run()
+        `;
+        expect(m.run_mcode(code)).toEqual(30);
     });
 });

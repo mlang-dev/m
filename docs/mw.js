@@ -59,7 +59,7 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		let ta = new Uint8Array(instance.exports.memory.buffer, wasm, wasm_size);
 		var compiled = new WebAssembly.Module(ta);
 		var instance = new WebAssembly.Instance(compiled, {});
-		return instance.exports.run();
+		return instance.exports._start();
 	}
 
 	function run_mcode(code) 

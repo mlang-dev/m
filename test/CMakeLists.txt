@@ -32,7 +32,7 @@ if (WASM)
     parser/test_parser.c
     parser/test_grammar.c
     codegen/test_wat_codegen.c
-    app/test_mwat.c
+    codegen/test_wasm_codegen.c
   )
 
   set_target_properties(mtest PROPERTIES LINKER_LANGUAGE C
@@ -150,17 +150,17 @@ else()
   parser/test_parser.c
   parser/test_grammar.c
   codegen/test_wat_codegen.c
-  app/test_mwat.c
+  codegen/test_wasm_codegen.c
   )
 
   TARGET_LINK_LIBRARIES(mctest mlr clib unity
   )
 
-  add_custom_command(
-    TARGET mctest
-    POST_BUILD
-    COMMAND mctest
-  )
+  # add_custom_command(
+  #   TARGET mctest
+  #   POST_BUILD
+  #   COMMAND mctest
+  # )
 
   add_custom_command(
     TARGET mtest
