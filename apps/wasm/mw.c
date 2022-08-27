@@ -29,18 +29,24 @@ EXPORT const char *version()
     return p;
 }
 
-struct byte_array ba;
+u32 code_size = 0;
 
 EXPORT u8 *compile_code(const char *text)
 {
-    ba = parse_as_module(text);
+    struct wasm_module module;
+    wasm_codegen_init(&module);
+    parse_as_module(&module, text);
+    u8 *data = module.ba.data;
+    code_size = module.ba.size;
+    module.ba.data = 0;
     free_mem((void *)text);
-    return ba.data;
+    wasm_codegen_deinit(&module);
+    return data;
 }
 
 EXPORT u32 get_code_size()
 {
-    return ba.size;
+    return code_size;
 }
 
 EXPORT i32 print(const char *restrict fmt, ...)

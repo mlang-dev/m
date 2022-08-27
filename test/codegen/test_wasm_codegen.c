@@ -13,9 +13,14 @@
 
 TEST(test_wasm_codegen, parse_as_module)
 {
-    struct byte_array ba = parse_as_module("10+20");
-    ASSERT_TRUE(ba.size!=0);
-    ba_deinit(&ba);
+    struct wasm_module module;
+    wasm_codegen_init(&module);
+    char test_code[] = "\n\
+let f() = 10+20\n\
+f()";
+    parse_as_module(&module, test_code);
+    ASSERT_TRUE(module.ba.size!=0);
+    wasm_codegen_deinit(&module);
 }
 
 int test_wasm_codegen()

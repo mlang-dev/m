@@ -20,7 +20,6 @@ test('test mtest', () => {
     });
 });
 
-
 test('expr 10 + 20', ()=>{
     var result = get_mw();
     return result.then((m)=>{
@@ -42,10 +41,20 @@ test('expr -10 + 20 * 3', () => {
     });
 });
 
-
 test('expr -10.0 + 20.0 * 3.0', () => {
     var result = get_mw();
     return result.then((m) => {
         expect(m.run_mcode("-10.0 + 20.0 * 3.0")).toEqual(50.0);
+    });
+});
+
+test('call func', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let run() = 10 + 20
+run()
+        `;
+        expect(m.run_mcode(code)).toEqual(30);
     });
 });

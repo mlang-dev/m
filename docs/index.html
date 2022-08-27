@@ -31,7 +31,10 @@
 		<label id="version"></label>
 		</strong>
 		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false">10 + 20 * 3</textarea>
-		<button type="button" id="run">run</button>
+		<div style="width: 100%;">
+			<button type="button" id="run" style="min-width: 70px;">run</button>
+			<button type="button" id="clear" style="min-width: 70px;">clear</button>
+		</div>
 		<textarea id='console' rows="5" cols="80" readonly style="color:grey"></textarea><br/>
 		<script>
 			var instance = null;
@@ -41,6 +44,7 @@
 				}
 			);
 			document.getElementById("run").addEventListener("click", run);
+			document.getElementById("clear").addEventListener("click", clear);
 			function run(event) {
 				let code = document.getElementById("code").value;
 				print(instance.run_mcode(code));
@@ -55,6 +59,10 @@
 					new_text += '\n' + text;
 				}
 				document.getElementById("console").textContent = new_text;
+			}
+
+			function clear(){
+				document.getElementById("console").textContent = '';
 			}
 		</script>
 <footer>
