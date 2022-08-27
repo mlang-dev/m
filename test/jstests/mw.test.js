@@ -66,7 +66,6 @@ test('call func with params', () => {
 let id x = x
 id 10
         `;
-        //m.compile(code, "call_fun.wasm");
         expect(m.run_mcode(code)).toEqual(10);
     });
 });
@@ -83,14 +82,13 @@ sub 10 30
     });
 });
 
-test('global var', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = `
-x = 10
-x
-        `;
-        //m.compile(code, "call_fun.wasm");
-        expect(m.run_mcode(code)).toEqual(-20);
-    });
-});
+// test('global var', () => {
+//     var result = get_mw();
+//     return result.then((m) => {
+//         let code = `
+// x = 10
+// x
+//         `;
+//         expect(m.run_mcode(code)).toEqual(-20);
+//     });
+// });
