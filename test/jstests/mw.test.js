@@ -78,19 +78,17 @@ test('call func sub', () => {
 let sub x y = x - y
 sub 10 30
         `;
-        //m.compile(code, "call_fun.wasm");
         expect(m.run_mcode(code)).toEqual(-20);
     });
 });
 
-test('global var', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = `
-x = 10
-x
-        `;
-        //m.compile(code, "call_fun.wasm");
-        expect(m.run_mcode(code)).toEqual(-20);
-    });
-});
+// test('global var', () => {
+//     var result = get_mw();
+//     return result.then((m) => {
+//         let code = `
+// x = 10
+// x
+//         `;
+//         expect(m.run_mcode(code)).toEqual(-20);
+//     });
+// });
