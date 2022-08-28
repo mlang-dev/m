@@ -308,6 +308,13 @@ enum ExportType {
     EXPORT_GLOBAL
 };
 
+enum ImportType {
+    IMPORT_FUNC = 0,
+    IMPORT_TABLE,
+    IMPORT_MEMORY,
+    IMPORT_GLOBAL
+};
+
 struct var_info{
     u32 index; //
     u8 type;  //wasm type
@@ -344,6 +351,9 @@ struct wasm_module {
 
     u32 fun_top;
     u32 var_top;
+    u32 func_idx;
+
+    struct ast_node *import_block;
 };
 
 void wasm_codegen_init(struct wasm_module *module);

@@ -36,14 +36,14 @@ u8 type_2_const[TYPE_TYPES] = {
 
 u8 type_2_wtype[TYPE_TYPES] = {
     /*UNK*/ 0,
-    /*GENERIC*/ 0,
+    /*GENERIC*/ TYPE_I32,
     /*UNIT*/ 0,
     /*BOOL*/ TYPE_I32,
     /*CHAR*/ TYPE_I32,
     /*INT*/ TYPE_I32,
     /*FLOAT*/ TYPE_F32,
     /*DOUBLE*/ TYPE_F64,
-    /*STRING*/ 0,
+    /*STRING*/ TYPE_I32,
     /*FUNCTION*/ 0,
     /*EXT*/ 0,
 };
@@ -96,6 +96,12 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_INC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
     /*OP_DEC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 } ;
+
+const char *imports = "\n\
+extern print:int fmt:string ...\n\
+";
+
+symbol IMPORTS_MODULE = 0;
 
 void _fun_context_init(struct fun_context *fc)
 {
@@ -175,10 +181,13 @@ void _wasm_module_init(struct wasm_module *module)
     }
     module->fun_top = 0;
     module->var_top = 0;
+    module->func_idx = 0;
+    module->import_block = 0;
 }
 
 void _wasm_module_deinit(struct wasm_module *module)
 {
+    ast_node_free(module->import_block);
     for (u32 i = 0; i < FUN_LEVELS; i++) {
         _fun_context_deinit(&module->fun_contexts[i]);
     }
@@ -191,6 +200,7 @@ void wasm_codegen_init(struct wasm_module *module)
 {
     frontend_init();
     _wasm_module_init(module);
+    IMPORTS_MODULE = to_symbol("imports");
 }
 
 void wasm_codegen_deinit(struct wasm_module *module)
@@ -268,6 +278,19 @@ u8 _emit_f64(struct byte_array *ba, f64 value)
     return size; // return
 }
 
+void _emit_chars(struct byte_array *ba, const char *str, u32 len)
+{
+    _emit_uint(ba, len);
+    for (u32 j = 0; j < len; j++) {
+        ba_add(ba, str[j]);
+    }
+}
+
+void _emit_string(struct byte_array *ba, string *str)
+{
+    _emit_chars(ba, string_get(str), string_size(str));
+}
+
 void _emit_literal(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->type && node->type->type < TYPE_TYPES && node->type->type >= 0);
@@ -283,6 +306,9 @@ void _emit_literal(struct wasm_module *module, struct byte_array *ba, struct ast
             break;
         case TYPE_DOUBLE:
             _emit_f64(ba, node->liter->double_val);
+            break;
+        case TYPE_STRING:
+            _emit_chars(ba, node->liter->str_val, strlen(node->liter->str_val));
             break;
     }
     
@@ -369,7 +395,7 @@ void _emit_func(struct wasm_module *module, struct byte_array *ba, struct ast_no
 void _emit_call(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == CALL_NODE);
-    u32 func_indx = hashtable_get_int(&module->func_name_2_idx, node->call->callee);
+    u32 func_indx = hashtable_get_int(&module->func_name_2_idx, node->call->specialized_callee? node->call->specialized_callee : node->call->callee);
     for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
         _emit_code(module, ba, *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i));
     }
@@ -439,8 +465,107 @@ void _emit_code(struct wasm_module *module, struct byte_array *ba, struct ast_no
     }
 }
 
+void _collect_func_types(struct wasm_module *module, struct ast_node *ft, struct ast_node *fun, struct ast_node *src)
+{
+    for(u32 i=0; i<array_size(&src->block->nodes); i++){
+        struct ast_node *node = *(struct ast_node **)array_get(&src->block->nodes, i);
+        if (node->node_type == FUNC_NODE){
+            block_node_add(ft, node->func->func_type);
+            block_node_add(fun, node);
+            if (is_generic(node->type)){
+                for (u32 j = 0; j < array_size(&node->func->sp_funs); j++) {
+                    struct ast_node *sp_func = *(struct ast_node **)array_get(&node->func->sp_funs, j);
+                    hashtable_set_int(&module->func_name_2_idx, sp_func->func->func_type->ft->name, module->func_idx++);
+                }
+            }else{
+                hashtable_set_int(&module->func_name_2_idx, node->func->func_type->ft->name, module->func_idx++);
+            }
+        } else if(node->node_type == FUNC_TYPE_NODE){
+            block_node_add(ft, node);
+            hashtable_set_int(&module->func_name_2_idx, node->ft->name, module->func_idx++);
+        }
+    }
+}
+
+void _append_section(struct byte_array *ba, struct byte_array *section)
+{
+    _emit_uint(ba, section->size); // set size
+    ba_add2(ba, section); // copy data
+    ba_reset(section);
+}
+
+void _emit_type_section(struct wasm_module *module, struct byte_array *ba, struct ast_node *block)
+{
+    u32 func_types = array_size(&block->block->nodes);
+    _emit_uint(ba, func_types);
+    struct ast_node *func;
+    u32 i, j;
+    struct type_oper *to;
+    for (i = 0; i < func_types; i++) {
+        func = *(struct ast_node **)array_get(&block->block->nodes, i);
+        struct type_oper *func_type = (struct type_oper *)func->type;
+        u32 num_params = array_size(&func_type->args) - 1;
+        ba_add(ba, TYPE_FUNC);
+        _emit_uint(ba, num_params); // num params
+        for (j = 0; j < num_params; j++) {
+            to = *(struct type_oper **)array_get(&func_type->args, j);
+            assert(to->base.type > 0 && to->base.type < TYPE_TYPES);
+            ba_add(ba, type_2_wtype[to->base.type]);
+        }
+        to = *(struct type_oper **)array_back(&func_type->args);
+        assert(to->base.type > 0 && to->base.type < TYPE_TYPES);
+        ba_add(ba, 0x01); // num result
+        ba_add(ba, type_2_wtype[to->base.type]); // i32 output
+    }
+}
+
+void _emit_import_section(struct wasm_module *module, struct byte_array *ba, struct ast_node *block) 
+{
+    u32 num_imports = array_size(&module->import_block->block->nodes);
+    _emit_uint(ba, num_imports); // number of imports
+    for(u32 i = 0; i < array_size(&block->block->nodes); i++){
+        struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
+        _emit_string(ba, IMPORTS_MODULE);
+        _emit_string(ba, node->ft->name);
+        ba_add(ba, IMPORT_FUNC);
+        _emit_uint(ba, i); //type index
+    }
+}
+
+void _emit_function_section(struct wasm_module *module, struct byte_array *ba, struct ast_node *block)
+{
+    u32 num_func = array_size(&block->block->nodes);
+    u32 num_imports = array_size(&module->import_block->block->nodes);
+    ba_add(ba, num_func); // num functions
+    for (u32 i = 0; i < num_func; i++) {
+        _emit_uint(ba, i + num_imports); // function index
+    }
+}
+
+void _emit_export_section(struct wasm_module *module, struct byte_array *ba, struct ast_node *block)
+{
+    u32 num_func = array_size(&block->block->nodes);
+    u32 num_imports = array_size(&module->import_block->block->nodes);
+    _emit_uint(ba, num_func); // num of function exports
+    struct ast_node *func;
+    for (u32 i = 0; i < num_func; i++) {
+        func = *(struct ast_node **)array_get(&block->block->nodes, i);
+        _emit_string(ba, func->func->func_type->ft->name);
+        ba_add(ba, EXPORT_FUNC);
+        _emit_uint(ba, i + num_imports); // func index
+    }
+}
+
+void _emit_code_section(struct wasm_module *module, struct byte_array *ba, struct ast_node *block)
+{
+    u32 num_func = array_size(&block->block->nodes);
+    _emit_uint(ba, num_func); // num functions
+    _emit_code(module, ba, block);
+}
+
 void emit_wasm(struct wasm_module *module, struct ast_node *node)
-{   
+{
+    assert(node->node_type == BLOCK_NODE);
     struct byte_array section;
     struct byte_array *ba = &module->ba;    
     ba_init(&section, 17);
@@ -464,86 +589,37 @@ void emit_wasm(struct wasm_module *module, struct ast_node *node)
     // 11.   data section
     // 12.   data count section
     // type section
-    assert(node->node_type == BLOCK_NODE);
-    u32 num_func;
-    num_func = array_size(&node->block->nodes);
+    struct ast_node *func_types = block_node_new_empty();
+    struct ast_node *funcs = block_node_new_empty();
+    _collect_func_types(module, func_types, funcs, module->import_block);
+    _collect_func_types(module, func_types, funcs, node);
     ba_add(ba, TYPE_SECTION);
-    // section size
-    // how many function types
-    _emit_uint(&section, num_func);
-    struct ast_node *func;
-    u32 i, size, j;
-    struct type_oper *to;
-    for (i = 0; i < num_func; i++) {
-        func = *(struct ast_node **)array_get(&node->block->nodes, i);
-        assert(func->node_type == FUNC_NODE);
-        assert(func->type->kind == KIND_OPER);
-        struct type_oper *func_type = (struct type_oper *)func->type;
-        u8 num_params = array_size(&func_type->args) - 1;
-        ba_add(&section, TYPE_FUNC);
-        ba_add(&section, num_params); // num params
-        for(j = 0; j < num_params; j++){
-            to = *(struct type_oper **)array_get(&func_type->args, j);
-            assert(to->base.type > 0 && to->base.type < TYPE_TYPES);
-            ba_add(&section, type_2_wtype[to->base.type]);
-        }
-        to = *(struct type_oper **)array_back(&func_type->args);
-        assert(to->base.type > 0 && to->base.type < TYPE_TYPES);
-        ba_add(&section, 0x01); // num result
-        ba_add(&section, type_2_wtype[to->base.type]); // i32 output
-    }
-    _emit_uint(ba, section.size); // set section size
-    ba_add2(ba, &section);       // copy section data
-
-    ba_reset(&section);
-    // import section
+    _emit_type_section(module, &section, func_types);
+    _append_section(ba, &section);
+    //  import section
+    ba_add(ba, IMPORT_SECTION);
+    _emit_import_section(module, &section, module->import_block);
+    _append_section(ba, &section);
 
     // function section
     ba_add(ba, FUNCTION_SECTION);
-    ba_add(&section, num_func); // one func types
-    for(i = 0; i < num_func; i++){
-        _emit_uint(&section, i); // index 0 of type sections, function type signature
-    }
-    _emit_uint(ba, section.size); // section size
-    ba_add2(ba, &section);
-    ba_reset(&section);
+    _emit_function_section(module, &section, funcs);
+    _append_section(ba, &section);
 
     // export section
     ba_add(ba, EXPORT_SECTION);
-    _emit_uint(&section, num_func); //num of exports
-    u8 *str;
-    for(i=0; i<num_func; i++){
-        func = *(struct ast_node **)array_get(&node->block->nodes, i);
-        size = string_size(func->func->func_type->ft->name);
-        str = (u8*)string_get(func->func->func_type->ft->name);
-        _emit_uint(&section, size);
-        for(j = 0; j < size; j++){
-            ba_add(&section, str[j]);
-        }
-        ba_add(&section, EXPORT_FUNC);
-        _emit_uint(&section, i); //func index
-    }
-    _emit_uint(ba, section.size); // section size
-    ba_add2(ba, &section);
-    ba_reset(&section);
+    _emit_export_section(module, &section, funcs);
+    _append_section(ba, &section);
 
     //code section
     ba_add(ba, CODE_SECTION);
-    _emit_uint(&section, num_func); //num functions
-    _emit_code(module, &section, node);
-    _emit_uint(ba, section.size); // section size
-    ba_add2(ba, &section);
-    ba_reset(&section);
+    _emit_code_section(module, &section, funcs);
+    _append_section(ba, &section);
+
     ba_deinit(&section);
+    free_block_node(funcs, false);
+    free_block_node(func_types, false);
 }
-
-struct ast_node *_create_block_node()
-{
-    struct array children;
-    array_init(&children, sizeof(struct ast_node *));
-    return block_node_new(&children);
-}
-
 
 /*
  * collect global statements into _start function
@@ -554,9 +630,8 @@ struct ast_node *_decorate_as_module(struct wasm_module *module, struct hashtabl
     struct array _start_nodes;
     array_init(&_start_nodes, sizeof(struct ast_node *));
     u32 nodes = array_size(&block->block->nodes);
-    struct ast_node *wmodule = _create_block_node();
+    struct ast_node *wmodule = block_node_new_empty();
     struct ast_node *node, *sp_func;
-    int func_idx = 0;
     for (u32 i = 0; i < nodes; i++) {
         node = *(struct ast_node **)array_get(&block->block->nodes, i);
         if (node->node_type == FUNC_NODE){
@@ -564,11 +639,9 @@ struct ast_node *_decorate_as_module(struct wasm_module *module, struct hashtabl
                 for(u32 j = 0; j < array_size(&node->func->sp_funs); j++){
                     sp_func = *(struct ast_node **)array_get(&node->func->sp_funs, j);
                     block_node_add(wmodule, sp_func);
-                    hashtable_set_int(&module->func_name_2_idx, sp_func->func->func_type->ft->name, func_idx++);
                 }
             }else{
                 block_node_add(wmodule, node);
-                hashtable_set_int(&module->func_name_2_idx, node->func->func_type->ft->name, func_idx++);
             }
         }else{
             array_push(&_start_nodes, &node);
@@ -584,7 +657,9 @@ void parse_as_module(struct wasm_module *module, const char *expr)
 {
     struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, expr);
+    module->import_block = parse_code(parser, imports);
     struct sema_context *c = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
+    analyze(c, module->import_block);
     analyze(c, ast);
     ast = _decorate_as_module(module, &parser->symbol_2_int_types, ast);
     analyze(c, ast);
