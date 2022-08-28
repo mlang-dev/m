@@ -88,7 +88,6 @@ test('use variable', () => {
         let code = `
 x = 1000
 x * 2`;
-        m.compile(code, "test1.wasm");
         expect(m.run_mcode(code)).toEqual(2000);
     });
 });
