@@ -705,6 +705,13 @@ enum node_type symbol_to_node_type(symbol node_type_name)
     return ntn->node_type;
 }
 
+struct ast_node *block_node_new_empty()
+{
+    struct array nodes;
+    array_init(&nodes, sizeof(struct ast_node *));
+    return block_node_new(&nodes);
+}
+
 struct ast_node *wrap_expr_as_function(struct hashtable *symbol_2_int_types, struct ast_node *exp, symbol fn)
 {
     struct array nodes;

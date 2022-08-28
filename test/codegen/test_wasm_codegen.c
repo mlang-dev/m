@@ -16,8 +16,8 @@ TEST(test_wasm_codegen, parse_as_module)
     struct wasm_module module;
     wasm_codegen_init(&module);
     char test_code[] = "\n\
-x = 64\n\
-x";
+let id x = x\n\
+id 10";
     parse_as_module(&module, test_code);
     ASSERT_TRUE(module.ba.size!=0);
     wasm_codegen_deinit(&module);

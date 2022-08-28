@@ -1,11 +1,10 @@
 #define EXPORT __attribute__((visibility("default")))
-
-
+__attribute__((import_module("imports"), import_name("print"))) int print(const char *fmt, ...);
 
 EXPORT int _start()
 {
     int x = 10;
-    return x;
+    return print("%d", x);
 }
 // struct Point2D {
 //     double x;
