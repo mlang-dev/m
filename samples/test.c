@@ -1,13 +1,11 @@
 #define EXPORT __attribute__((visibility("default")))
 
-EXPORT int id(int x)
-{
-    return x;
-}
+
 
 EXPORT int _start()
 {
-    return id(10);
+    int x = 10;
+    return x;
 }
 // struct Point2D {
 //     double x;
