@@ -308,6 +308,11 @@ enum ExportType {
     EXPORT_GLOBAL
 };
 
+struct var_info{
+    u32 index; //
+    u8 type;  //wasm type
+};
+
 struct fun_context {
     symbol fun_name;
     /*
@@ -317,13 +322,14 @@ struct fun_context {
      */
     struct symboltable varname_2_index;
 
-    /*
-     *  number of local variables
-     */
-    u32 local_vars; 
+        /*
+         *  number of local variables
+         */
+    u32 local_vars;
 };
 
-#define FUN_NESTED_LEVELS 512
+#define FUN_LEVELS 512
+#define LOCAL_VARS 1024 //TODO: need to eliminate this limitation
 
 struct wasm_module {
     struct byte_array ba;
@@ -333,8 +339,11 @@ struct wasm_module {
      *  binding variable name to index of variable in the function
      *  used in function codegen
      */
-    struct fun_context fun_contexts[FUN_NESTED_LEVELS];
-    u32 fun_levels;
+    struct fun_context fun_contexts[FUN_LEVELS];
+    struct var_info local_vars[LOCAL_VARS];
+
+    u32 fun_top;
+    u32 var_top;
 };
 
 void wasm_codegen_init(struct wasm_module *module);

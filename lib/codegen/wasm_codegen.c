@@ -97,25 +97,6 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_DEC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 } ;
 
-union data_type_conv{
-    void *p_data;
-    u32 i_data;
-};
-
-u32 _p_2_u32(void *p)
-{
-    union data_type_conv dtc;
-    dtc.p_data = p;
-    return dtc.i_data;
-}
-
-void *_u32_2_p(u32 i)
-{
-    union data_type_conv dtc;
-    dtc.i_data = i;
-    return dtc.p_data;
-}
-
 void _fun_context_init(struct fun_context *fc)
 {
     fc->fun_name = 0;
@@ -130,22 +111,24 @@ void _fun_context_deinit(struct fun_context *fc)
 
 void _func_enter(struct wasm_module *module, symbol fun_name)
 {
-    struct fun_context *fc = &module->fun_contexts[module->fun_levels];
-    _fun_context_deinit(fc);
+    struct fun_context *fc = &module->fun_contexts[module->fun_top];
     _fun_context_init(fc);
     fc->fun_name = fun_name;
-    module->fun_levels ++;
+    module->fun_top ++;
 }
 
 void _func_leave(struct wasm_module *module, symbol fun_name)
 {
-    module->fun_levels --;
-    assert(module->fun_contexts[module->fun_levels].fun_name == fun_name);
+    module->fun_top--;
+    struct fun_context *fc = &module->fun_contexts[module->fun_top];
+    module->var_top -= fc->local_vars;
+    _fun_context_deinit(fc);
+    assert(module->fun_contexts[module->fun_top].fun_name == fun_name);
 }
 
 struct fun_context *_fun_context_top(struct wasm_module *module)
 {
-    return module->fun_levels >= 1 ? &module->fun_contexts[module->fun_levels - 1] : 0;
+    return module->fun_top >= 1 ? &module->fun_contexts[module->fun_top - 1] : 0;
 }
 
 u32 _func_get_var_nums(struct wasm_module *module)
@@ -160,38 +143,46 @@ u32 _func_get_local_var_nums(struct wasm_module *module)
     return fc->local_vars;
 }
 
-void _func_add_variable(struct wasm_module *module, symbol var_name, bool is_local_var)
+void _func_add_variable(struct wasm_module *module, symbol var_name, struct type_exp *te, bool is_local_var)
 {
     u32 index = _func_get_var_nums(module);
     struct fun_context *fc = _fun_context_top(module);
+    struct var_info *vi = &module->local_vars[module->var_top];
     if(is_local_var){
         fc->local_vars++;
     }
-    symboltable_push(&fc->varname_2_index, var_name, _u32_2_p(index));
+    vi->index = index;
+    assert(te->type > 0 && te->type < TYPE_TYPES);
+    vi->type = type_2_wtype[te->type];
+    symboltable_push(&fc->varname_2_index, var_name, vi);
+    module->var_top++;
 }
 
 u32 _func_context_get_index(struct wasm_module *module, symbol var_name)
 {
     struct fun_context *fc = _fun_context_top(module);
-    return _p_2_u32(symboltable_get(&fc->varname_2_index, var_name));
+    struct var_info *vi = symboltable_get(&fc->varname_2_index, var_name);
+    assert(vi);
+    return vi->index;
 }
 
 void _wasm_module_init(struct wasm_module *module)
 {
     ba_init(&module->ba, 17);
     hashtable_init_with_value_size(&module->func_name_2_idx, sizeof(u8), 0);
-    for(u32 i = 0; i < FUN_NESTED_LEVELS; i++){
+    for(u32 i = 0; i < FUN_LEVELS; i++){
         _fun_context_init(&module->fun_contexts[i]);
     }
-    module->fun_levels = 0;
+    module->fun_top = 0;
+    module->var_top = 0;
 }
 
 void _wasm_module_deinit(struct wasm_module *module)
 {
-    for (u32 i = 0; i < FUN_NESTED_LEVELS; i++) {
+    for (u32 i = 0; i < FUN_LEVELS; i++) {
         _fun_context_deinit(&module->fun_contexts[i]);
     }
-    module->fun_levels = 0;
+    module->fun_top = 0;
     hashtable_deinit(&module->func_name_2_idx);
     ba_deinit(&module->ba);
 }
@@ -327,17 +318,45 @@ void _emit_binary(struct wasm_module *module, struct byte_array *ba, struct ast_
     ba_add(ba, opcode);
 }
 
+void _collect_local_variables(struct wasm_module *module, struct ast_node *node)
+{
+    switch(node->node_type)
+    {
+        default:
+            break;
+        case VAR_NODE:
+            _func_add_variable(module, node->var->var_name, node->type, true);
+            break;
+        case BLOCK_NODE:
+            for(u32 i = 0; i < array_size(&node->block->nodes); i++){
+                _collect_local_variables(module, *(struct ast_node **)array_get(&node->block->nodes, i));
+            }
+            break;
+    }
+}
+
 void _emit_func(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == FUNC_NODE);
     _func_enter(module, node->func->func_type->ft->name);
+    assert(node->type->kind == KIND_OPER);
+    struct type_oper *to = (struct type_oper *)node->type;
     for(u32 i=0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++){
         struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
-        _func_add_variable(module, param->var->var_name, false);
+        _func_add_variable(module, param->var->var_name, *(struct type_exp**)array_get(&to->args,i), false);
     }
+    _collect_local_variables(module, node->func->body);
     struct byte_array func;
     ba_init(&func, 17);
-    _emit_uint(&func, _func_get_local_var_nums(module)); // num local variables
+    u32 local_vars = _func_get_local_var_nums(module);
+    _emit_uint(&func, local_vars); // num local variables
+    if (local_vars){
+        _emit_uint(&func, local_vars); // num local types, same as number of local variables
+    }
+    u32 start_pos = module->var_top - local_vars;
+    for(u32 i = 0; i < local_vars; i++){
+        ba_add(&func, module->local_vars[start_pos+i].type);
+    }
     _emit_code(module, &func, node->func->body);
     ba_add(&func, OPCODE_END);
     //function body
@@ -356,6 +375,18 @@ void _emit_call(struct wasm_module *module, struct byte_array *ba, struct ast_no
     }
     ba_add(ba, OPCODE_CALL); // num local variables
     _emit_uint(ba, func_indx);
+}
+
+void _emit_var(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
+{
+    assert(node->node_type == VAR_NODE);
+    // TODO: var_index zero better is not matched
+    if (node->var->init_value){
+        _emit_code(module, ba, node->var->init_value);
+        ba_add(ba, OPCODE_LOCALSET); // local.set
+        u32 var_index = _func_context_get_index(module, node->var->var_name);
+        _emit_uint(ba, var_index);
+    }
 }
 
 void _emit_ident(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
@@ -399,6 +430,9 @@ void _emit_code(struct wasm_module *module, struct byte_array *ba, struct ast_no
             break;
         case IDENT_NODE:
             _emit_ident(module, ba, node);
+            break;
+        case VAR_NODE:
+            _emit_var(module, ba, node);
             break;
         default:
             assert(false);
