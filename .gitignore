@@ -13,4 +13,5 @@ extern/
 *.bc
 *.ir
 *.lock
+test*.wasm
 node_modules/
