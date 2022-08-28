@@ -66,7 +66,7 @@ test('call func with params', () => {
 let id x = x
 id 10
         `;
-        //m.compile(code, "call_fun.wasm");
+        //m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(10);
     });
 });
@@ -86,9 +86,9 @@ test('use variable', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-x = 10
-x
-        `;
-        expect(m.run_mcode(code)).toEqual(10);
+x = 1000
+x * 2`;
+        m.compile(code, "test1.wasm");
+        expect(m.run_mcode(code)).toEqual(2000);
     });
 });

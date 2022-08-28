@@ -231,7 +231,7 @@ u8 _emit_int(struct byte_array *ba, i64 value)
         if ((value == 0 && !sign_bit) || (value == -1 && sign_bit)) {
             more = 0;
         }else{
-            byte |= 0x40;
+            byte |= 0x80;
         }
         ba_add(ba, byte);
         index++;
@@ -496,6 +496,8 @@ void emit_wasm(struct wasm_module *module, struct ast_node *node)
     ba_add2(ba, &section);       // copy section data
 
     ba_reset(&section);
+    // import section
+
     // function section
     ba_add(ba, FUNCTION_SECTION);
     ba_add(&section, num_func); // one func types
