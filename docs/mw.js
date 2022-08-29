@@ -1,6 +1,7 @@
 function mw(wasi_env, module_name, print_func, remote_file) {
 	var wm_instance = null;
 	var print_func = print_func;
+	var version = null;
 
 	var module;
 	if (remote_file){
@@ -19,7 +20,8 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 			resolve({
 				run_mcode: run_mcode, 
 				compile: compile,
-				module: obj
+				module: obj,
+				version: version
 			}); //when success
 		}).catch(function (reason) {
 			reject(reason); //when failure
@@ -34,7 +36,7 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		wasi_env.setEnv(wm_instance, print_func);
 		if(wm_instance.exports.version != null){
 			let c_str = wm_instance.exports.version();
-			print_func(to_js_str(wm_instance, c_str));
+			version = to_js_str(wm_instance, c_str);
 			wm_instance.exports.free_mem(c_str);
 		}
 	}

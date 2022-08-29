@@ -28,7 +28,6 @@
 		</header>
 		<p/>
 		<strong>
-		<label id="version"></label>
 		</strong>
 		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false">10 + 20 * 3</textarea>
 		<div style="width: 100%;">
@@ -41,6 +40,7 @@
 			mw(new wasi(), 'mw.wasm', print, true).then(
 				result=>{
 					instance = result;
+					print_version(instance.version);
 				}
 			);
 			document.getElementById("run").addEventListener("click", run);
@@ -64,8 +64,12 @@
 			function clear(){
 				document.getElementById("console").textContent = '';
 			}
+			function print_version(version) {
+				document.getElementById("version").textContent = version;
+			}
 		</script>
 <footer>
+	<label id="version"></label>
 	<p>m was created by <a href="https://wangs.dev">Ligang Wang</a> and is licensed under the MIT license.</p>
 </footer>
 	</body>
