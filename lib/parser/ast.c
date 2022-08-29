@@ -717,19 +717,15 @@ struct ast_node *wrap_expr_as_function(struct hashtable *symbol_2_int_types, str
     struct array nodes;
     array_init(&nodes, sizeof(struct ast_node *));
     array_push(&nodes, &exp);
-    return wrap_nodes_as_function(symbol_2_int_types, fn, &nodes);
+    struct ast_node *body_block = block_node_new(&nodes);
+    return wrap_nodes_as_function(symbol_2_int_types, fn, body_block);
 }
 
-struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, symbol func_name, struct array* nodes)
+struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, symbol func_name, struct ast_node *block)
 {
-    struct source_location sloc = { 0, 0, 0, 0 };
-    if (array_size(nodes)){
-        sloc = (*(struct ast_node **)array_front(nodes))->loc;
-    }
     ARRAY_FUN_PARAM(fun_params);
     struct ast_node *params = block_node_new(&fun_params);
-    struct ast_node *func_type = func_type_node_default_new(func_name, params, 0, false, false, sloc);
-    struct ast_node *block = block_node_new(nodes);
+    struct ast_node *func_type = func_type_node_default_new(func_name, params, 0, false, false, block->loc);
     hashtable_set_int(symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
     return function_node_new(func_type, block, block->loc);
 }

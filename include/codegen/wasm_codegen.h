@@ -354,6 +354,16 @@ struct wasm_module {
     u32 func_idx;
 
     struct ast_node *import_block;
+
+    /*
+     * function types including imports function type, and those in fun definitions
+     */
+    struct ast_node *fun_types;
+
+    /*
+     * function definitions
+     */
+    struct ast_node *funs;
 };
 
 void wasm_codegen_init(struct wasm_module *module);

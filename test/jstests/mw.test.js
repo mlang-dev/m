@@ -66,7 +66,7 @@ test('call func with params', () => {
 let id x = x
 id 10
         `;
-        //m.compile(code, "test.wasm");
+        m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(10);
     });
 });
