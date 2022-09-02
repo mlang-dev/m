@@ -577,6 +577,15 @@ struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node)
     return block;
 }
 
+struct ast_node *block_node_add_block(struct ast_node *block, struct ast_node *node)
+{
+    for(u32 i = 0; i < array_size(&node->block->nodes); i++){
+        struct ast_node *elem = *(struct ast_node **)array_get(&node->block->nodes, i);
+        array_push(&block->block->nodes, &elem);
+    }
+    return block;
+}
+
 struct ast_node *node_copy(struct ast_node *node)
 {
     if (!node) return node;

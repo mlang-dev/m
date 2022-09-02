@@ -85,6 +85,14 @@ struct type_oper *create_type_fun(struct array *args)
     return create_type_oper(type_name, TYPE_FUNCTION, args);
 }
 
+struct type_oper *wrap_as_fun_type(struct type_oper *oper)
+{
+    struct array fun_sig;
+    array_init(&fun_sig, sizeof(struct type_exp *));
+    array_push(&fun_sig, &oper);
+    return create_type_fun(&fun_sig);
+}
+
 void type_exp_free(struct type_exp *type)
 {
     FREE(type);
@@ -254,10 +262,13 @@ struct type_exp *fresh(struct type_exp *type, struct array *nongens)
 struct type_exp *get_symbol_type(symboltable *st, struct array *nongens, symbol name)
 {
     struct type_exp *exp = (struct type_exp *)symboltable_get(st, name);
-    if (exp) {
-        return fresh(exp, nongens);
+    if (!exp){
+        printf("No type is found for the symple: %s.\n", string_get(name));
+        return 0;
     }
-    return 0;
+    return fresh(exp, nongens);
+    
+    
 }
 
 void push_symbol_type(symboltable *st, symbol name, void *type)

@@ -174,6 +174,7 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct ast_nod
     array_push(&fun_sig, &to);
     node->type = (struct type_exp *)create_type_fun(&fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
+    push_symbol_type(&context->decl_2_typexps, node->ft->name, node->type);
     return node->type;
 }
 
