@@ -29,7 +29,7 @@
 		<p/>
 		<strong>
 		</strong>
-		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false">10 + 20 * 3</textarea>
+		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false">print "hello world"</textarea>
 		<div style="width: 100%;">
 			<button type="button" id="run" style="min-width: 70px;">run</button>
 			<button type="button" id="clear" style="min-width: 70px;">clear</button>
@@ -51,6 +51,9 @@
 			}
 			
 			function print(text){
+				if(text == null || text == undefined){
+					return;
+				}
 				let new_text = document.getElementById("console").textContent;
 				if (new_text == ''){
 					new_text = text;

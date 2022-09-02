@@ -109,7 +109,6 @@ function wasi()
 
             return buffers;
         }
-
         var buffers = getiovs(iovs, iovsLen);
         function writev(iov) {
 

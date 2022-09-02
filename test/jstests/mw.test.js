@@ -1,11 +1,9 @@
 const wasi = require('../../docs/wasi.js');
 const mw = require('../../docs/mw.js');
 
-function log(text){
-    ;
-}
-
-function get_mw(){
+function get_mw(log=null){
+    if(log==null)
+        log = t => {};
     return mw(wasi(), './mw.wasm', log, false);
 }
 
@@ -89,5 +87,20 @@ test('use variable', () => {
 x = 1000
 x * 2`;
         expect(m.run_mcode(code)).toEqual(2000);
+    });
+});
+
+test('hello world', () => {
+    let output = null;
+    function log_fun (text) {
+        output = text;
+    }
+    var result = get_mw(log_fun);
+    return result.then((m) => {
+        let code = `
+print "hello world"
+`;
+        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(output).toEqual("hello world");
     });
 });

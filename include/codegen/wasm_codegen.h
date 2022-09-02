@@ -37,8 +37,11 @@ extern "C" {
 #define TYPE_FUNC 0x60
 
 // limits
-#define LIMITS_MIN 0x00
-#define LIMITS_MIN_MAX 0x01
+
+enum LimitsType {
+    LIMITS_MIN_ONLY = 0, // 0, min
+    LIMITS_MIN_MAX // 1, min, max
+};
 // limits := 0x00 n:u32
 //          |0x01 n:u32 m: u32
 
@@ -315,6 +318,12 @@ enum ImportType {
     IMPORT_GLOBAL
 };
 
+enum DataSegmentType {
+    DATA_ACTIVE = 0,  //active, {memory 0, offset e}
+    DATA_PASSIVE,     //passive
+    DATA_ACTIVE_M     //active, {memory idx, offset e}
+};
+
 struct var_info{
     u32 index; //
     u8 type;  //wasm type
@@ -341,6 +350,7 @@ struct fun_context {
 struct wasm_module {
     struct byte_array ba;
     struct hashtable func_name_2_idx;
+    struct hashtable func_name_2_ast;
     /*
      *  symboltable of <symbol, struct fun_context>
      *  binding variable name to index of variable in the function
@@ -364,6 +374,11 @@ struct wasm_module {
      * function definitions
      */
     struct ast_node *funs;
+
+    /*
+     * data section, for example: string literal
+     */
+    struct ast_node *data_block;
 };
 
 void wasm_codegen_init(struct wasm_module *module);

@@ -433,6 +433,23 @@ TEST(test_parser, func_type_no_param)
     frontend_deinit();
 }
 
+TEST(test_parser, func_type_no_param_no_return)
+{
+    char test_code[] = "extern print:() ()";
+    frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
+    ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
+    ASSERT_STREQ("print", string_get(node->ft->name));
+    ASSERT_STREQ("()", string_get(node->annotated_type_name));
+    ast_node_free(block);
+    parser_free(parser);
+    frontend_deinit();
+}
+
 TEST(test_parser, type_decl)
 {
     char test_code[] = "\n\
@@ -606,6 +623,7 @@ int test_lr_parser()
     RUN_TEST(test_parser_variadic_function);
     RUN_TEST(test_parser_func_type);
     RUN_TEST(test_parser_func_type_no_param);
+    RUN_TEST(test_parser_func_type_no_param_no_return);
     RUN_TEST(test_parser_type_decl);
     RUN_TEST(test_parser_type_decl2);
     RUN_TEST(test_parser_type_var_init);

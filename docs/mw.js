@@ -1,5 +1,7 @@
 function mw(wasi_env, module_name, print_func, remote_file) {
-	var wm_instance = null;
+	var mw_instance = null;  //m compiler instance
+	var code_instance = null;
+	var code_memory_as_array = null;
 	var print_func = print_func;
 	var version = null;
 
@@ -32,12 +34,12 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 
 	function init_module(module)
 	{
-		wm_instance = module.instance;
-		wasi_env.setEnv(wm_instance, print_func);
-		if(wm_instance.exports.version != null){
-			let c_str = wm_instance.exports.version();
-			version = to_js_str(wm_instance, c_str);
-			wm_instance.exports.free_mem(c_str);
+		mw_instance = module.instance;
+		wasi_env.setEnv(mw_instance, print_func);
+		if(mw_instance.exports.version != null){
+			let c_str = mw_instance.exports.version();
+			version = to_js_str(mw_instance, c_str);
+			mw_instance.exports.free_mem(c_str);
 		}
 	}
 
@@ -57,39 +59,68 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		dst[ta.length] = 0;
 	}
 
+	function _decode_uint(buffer, offset)
+	{
+		result = 0;
+		shift = 0;
+		while(true){
+			byte = buffer[offset++];
+			result |= (byte & 0x7F) << shift;
+			if ((byte & 0x80) == 0){
+				break;
+			}
+			shift += 7;
+		}
+		return [offset, result];
+	}
+
+	function print_log(fmt_offset, ...params)
+	{
+		[fmt_offset, fmt_length] = _decode_uint(code_memory_as_array, fmt_offset);
+		var bytes = new Uint8Array(code_instance.exports.memory.buffer, fmt_offset, fmt_length);
+		var string = new TextDecoder('utf8').decode(bytes);
+		print_func(string);
+	}
+
 	function run_wasm_code(instance, wasm, wasm_size)
 	{
 		let ta = new Uint8Array(instance.exports.memory.buffer, wasm, wasm_size);
 		var compiled = new WebAssembly.Module(ta);
-		var instance = new WebAssembly.Instance(compiled, {imports: { print : instance.exports.print }});
-		return instance.exports._start();
+		code_instance = new WebAssembly.Instance(compiled, 
+			{ imports: 
+				{ 
+					print: print_log,
+				}
+			});
+		code_memory_as_array = new Uint8Array(code_instance.exports.memory.buffer);
+		return code_instance.exports._start();
 	}
 
 	function run_mcode(code) 
 	{
-		if (wm_instance == null) {
+		if (mw_instance == null) {
 			print_func("m loading is failed.");
 			return;
 		}
-		let new_ptr = wm_instance.exports.alloc_mem(1024);
-		str_to_ab(wm_instance, code, new_ptr);
-		let wasm = wm_instance.exports.compile_code(new_ptr);
-		let wasm_size = wm_instance.exports.get_code_size();
-		let result = run_wasm_code(wm_instance, wasm, wasm_size);
-		wm_instance.exports.free_mem(wasm);
+		let new_ptr = mw_instance.exports.alloc_mem(1024);
+		str_to_ab(mw_instance, code, new_ptr);
+		let wasm = mw_instance.exports.compile_code(new_ptr);
+		let wasm_size = mw_instance.exports.get_code_size();
+		let result = run_wasm_code(mw_instance, wasm, wasm_size);
+		mw_instance.exports.free_mem(wasm);
 		return result;
 	}
 
 	function compile(code, file_path)
 	{
-		let new_ptr = wm_instance.exports.alloc_mem(1024);
-		str_to_ab(wm_instance, code, new_ptr);
-		let wasm = wm_instance.exports.compile_code(new_ptr);
-		let wasm_size = wm_instance.exports.get_code_size();
-		let ta = new Uint8Array(wm_instance.exports.memory.buffer, wasm, wasm_size);
+		let new_ptr = mw_instance.exports.alloc_mem(1024);
+		str_to_ab(mw_instance, code, new_ptr);
+		let wasm = mw_instance.exports.compile_code(new_ptr);
+		let wasm_size = mw_instance.exports.get_code_size();
+		let ta = new Uint8Array(mw_instance.exports.memory.buffer, wasm, wasm_size);
 		const fs = require('fs');
 		fs.writeFileSync(file_path, ta, 'binary');
-		wm_instance.exports.free_mem(wasm);
+		mw_instance.exports.free_mem(wasm);
 	}
 }
 

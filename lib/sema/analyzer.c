@@ -25,7 +25,7 @@ const char *relational_ops[] = {
 symbol get_type_symbol(enum type type_enum)
 {
     // assert(g_parser);
-    return to_symbol(type_strings[type_enum]);
+    return type_symbols[type_enum];
 }
 
 bool _is_predicate_op(const char *op)
@@ -174,6 +174,7 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct ast_nod
     array_push(&fun_sig, &to);
     node->type = (struct type_exp *)create_type_fun(&fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
+    push_symbol_type(&context->decl_2_typexps, node->ft->name, node->type);
     return node->type;
 }
 
@@ -398,6 +399,9 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
         case NULL_NODE:
             //type = _analyze_unk(context, node);
             assert(false);
+            break;
+        case UNIT_NODE:
+            type = (struct type_exp *)create_unit_type();
             break;
         case LITERAL_NODE:
             type = _analyze_liter(context, node);

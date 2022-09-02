@@ -16,7 +16,7 @@ const char *kind_strings[] = {
     FOREACH_KIND(GENERATE_ENUM_STRING)
 };
 
-const char *const type_strings[] = {
+const char *const _type_strings[] = {
     "",
     "...",
     "()",
@@ -29,6 +29,31 @@ const char *const type_strings[] = {
     "->",
     "*",
 };
+
+symbol type_symbols[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+
+void types_init()
+{
+    for(int i = 0; i < TYPE_TYPES; i++){
+        type_symbols[i] = to_symbol(_type_strings[i]);
+    }
+}
+
+void types_deinit()
+{
+}
 
 struct type_var *_create_type_var(symbol name)
 {
@@ -67,6 +92,16 @@ struct type_oper *create_type_oper(symbol type_name, enum type type, struct arra
     return oper;
 }
 
+struct type_oper *create_unit_type()
+{
+    struct type_oper *oper;
+    MALLOC(oper, sizeof(*oper));
+    oper->base.kind = KIND_OPER;
+    oper->base.type = TYPE_UNIT;
+    oper->base.name = type_symbols[TYPE_UNIT];
+    return oper;
+}
+
 struct type_oper *create_type_oper_ext(symbol type_name, struct array *args)
 {
     return create_type_oper(type_name, TYPE_EXT, args);
@@ -81,8 +116,16 @@ struct type_oper *create_nullary_type(enum type type, symbol type_symbol)
 
 struct type_oper *create_type_fun(struct array *args)
 {
-    symbol type_name = to_symbol(type_strings[TYPE_FUNCTION]);
+    symbol type_name = type_symbols[TYPE_FUNCTION];
     return create_type_oper(type_name, TYPE_FUNCTION, args);
+}
+
+struct type_oper *wrap_as_fun_type(struct type_oper *oper)
+{
+    struct array fun_sig;
+    array_init(&fun_sig, sizeof(struct type_exp *));
+    array_push(&fun_sig, &oper);
+    return create_type_fun(&fun_sig);
 }
 
 void type_exp_free(struct type_exp *type)
@@ -254,10 +297,13 @@ struct type_exp *fresh(struct type_exp *type, struct array *nongens)
 struct type_exp *get_symbol_type(symboltable *st, struct array *nongens, symbol name)
 {
     struct type_exp *exp = (struct type_exp *)symboltable_get(st, name);
-    if (exp) {
-        return fresh(exp, nongens);
+    if (!exp){
+        printf("No type is found for the symple: %s.\n", string_get(name));
+        return 0;
     }
-    return 0;
+    return fresh(exp, nongens);
+    
+    
 }
 
 void push_symbol_type(symboltable *st, symbol name, void *type)
@@ -292,7 +338,7 @@ string to_string(struct type_exp *type)
     } else if (type->kind == KIND_OPER) {
         struct type_oper *oper = (struct type_oper *)type;
         if (array_size(&oper->args) == 0) { /* nullary operator, e.g. builtin types: int, double*/
-            string_init_chars(&typestr, type_strings[oper->base.type]);
+            string_add(&typestr, type_symbols[oper->base.type]);
             return typestr;
         } else if (oper->base.type == TYPE_EXT) {
             string_copy(&typestr, oper->base.name);
