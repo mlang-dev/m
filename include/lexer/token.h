@@ -43,6 +43,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_LPAREN)          \
     ENUM_ITEM(TOKEN_RPAREN)          \
+    ENUM_ITEM(TOKEN_UNIT)            \
     ENUM_ITEM(TOKEN_LBRACKET)        \
     ENUM_ITEM(TOKEN_RBRACKET)        \
     ENUM_ITEM(TOKEN_LCBRACKET)       \

@@ -1,9 +1,9 @@
 #define EXPORT __attribute__((visibility("default")))
-__attribute__((import_module("imports"), import_name("print"))) int print(const char *fmt, ...);
+__attribute__((import_module("imports"), import_name("print"))) void print(const char *fmt, ...);
 
-EXPORT int _start()
+EXPORT void _start()
 {
-    return print("hello world");
+    print("hello world");
 }
 // struct Point2D {
 //     double x;

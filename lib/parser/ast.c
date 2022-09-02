@@ -16,6 +16,7 @@ struct source_location default_loc = {0, 0, 0, 0};
 
 struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(null, NULL),
+    NODE_TYPE_NAME(unit, UNIT),
     NODE_TYPE_NAME(literal, LITERAL),
     NODE_TYPE_NAME(ident, IDENT),
     NODE_TYPE_NAME(var, VAR),
@@ -182,7 +183,7 @@ void _free_ident_node(struct ast_node *node)
 
 struct ast_node *_create_literal_node(void *val, enum type type, struct source_location loc)
 {
-    symbol type_name = type ? to_symbol(type_strings[type]) : 0;
+    symbol type_name = type ? type_symbols[type] : 0;
     struct ast_node *node = ast_node_new(LITERAL_NODE, type, type_name, loc);
     MALLOC(node->liter, sizeof(*node->liter));
     if (type == TYPE_INT)
@@ -246,7 +247,7 @@ struct ast_node *_copy_literal_node(struct ast_node *orig_node)
 struct ast_node *var_node_new(symbol var_name, enum type annotated_type_enum, symbol ext_type_name,
     struct ast_node *init_value, bool is_global, struct source_location loc)
 {
-    symbol type_name = annotated_type_enum ? to_symbol(type_strings[annotated_type_enum]) : 0;
+    symbol type_name = annotated_type_enum ? type_symbols[annotated_type_enum] : 0;
     struct ast_node *node = ast_node_new(VAR_NODE, annotated_type_enum, type_name, loc);
     MALLOC(node->var, sizeof(*node->var));
     if (ext_type_name)
@@ -378,7 +379,7 @@ struct ast_node *func_type_node_new(symbol name,
     node->ft->is_extern = is_external;
     node->ft->op = op;
     if (is_variadic) {
-        struct ast_node *fun_param = var_node_new(to_symbol(type_strings[TYPE_GENERIC]), TYPE_GENERIC, 0, 0, false, loc);
+        struct ast_node *fun_param = var_node_new(type_symbols[TYPE_GENERIC], TYPE_GENERIC, 0, 0, false, loc);
         fun_param->type = (struct type_exp *)create_nullary_type(TYPE_GENERIC, fun_param->annotated_type_name);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }
@@ -398,7 +399,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
     node->ft->is_extern = func_type->ft->is_extern;
     node->ft->op = func_type->ft->op;
     if (func_type->ft->is_variadic) {
-        symbol var_name = to_symbol(type_strings[TYPE_GENERIC]);
+        symbol var_name = type_symbols[TYPE_GENERIC];
         struct ast_node *fun_param = var_node_new(var_name, TYPE_GENERIC, 0, 0, false, node->loc);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }

@@ -4,6 +4,10 @@
 
 start           = statements                                                               
 
+unit_expr       = "()"
+type_expr       = IDENT
+                | unit_expr
+
 primary_expr    = INT                                                                 
                 | FLOAT                                                               
                 | IDENT                                                               
@@ -111,16 +115,16 @@ type_def        = "type" IDENT '=' statement                                    
 
 type_init       = IDENT '(' exprs ')'                                                       { type_value 0 2 }
 
-func_decl       = "extern" IDENT ':' IDENT param_decls                                      { func_type 1 3 4 }
+func_decl       = "extern" IDENT ':' type_expr param_decls                                  { func_type 1 3 4 }
 
 func_def        = "let" IDENT param_decls '=' statement                                     { func 1 2 4 }
-                | "let" IDENT ':' IDENT param_decls '=' statement                           { func 1 4 6 3 }
+                | "let" IDENT ':' type_expr param_decls '=' statement                           { func 1 4 6 3 }
 
 func_call       = IDENT arg_exprs                                                           { call 0 1 }
 
 arg_exprs       = arg_exprs primary_expr                                                    { block 0 1 }
                 | primary_expr                                                              { block 0 }
-                | '(' ')'                                                                   { block }  # empty block
+                | unit_expr                                                                 { block }  # empty block
 
 exprs           = exprs ',' expr                                                            { block 0 2 }
                 | expr                                                                      { block 0 }
@@ -130,7 +134,7 @@ iterate_stmt    = "for" param_decl "in" expr ".." expr ".." expr block          
 
 param_decls     = param_decls param_decl                                                    { block 0 1 }
                 | param_decl                                                                { block 0 }
-                | '(' ')'                                                                   { block }  # empty block
+                | unit_expr                                                                 { block }  # empty block
 
 var_decls       = var_decls ',' var_decl                                                    { block 0 2 }
                 | var_decl

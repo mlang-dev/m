@@ -98,7 +98,7 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
 } ;
 
 const char *imports = "\n\
-extern print:int fmt:string ...\n\
+extern print:() fmt:string ...\n\
 ";
 #define DATA_SECTION_START_ADDRESS 1024
 
@@ -526,8 +526,12 @@ void _emit_type_section(struct wasm_module *module, struct byte_array *ba, struc
         }
         to = *(struct type_oper **)array_back(&func_type->args);
         assert(to->base.type > 0 && to->base.type < TYPE_TYPES);
-        ba_add(ba, 0x01); // num result
-        ba_add(ba, type_2_wtype[to->base.type]); // i32 output
+        if (to->base.type == TYPE_UNIT){
+            ba_add(ba, 0); // num result
+        }else{
+            ba_add(ba, 1); // num result
+            ba_add(ba, type_2_wtype[to->base.type]); // i32 output
+        }
     }
 }
 

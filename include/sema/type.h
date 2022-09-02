@@ -35,7 +35,7 @@ extern "C" {
 
 enum type { FOREACH_TYPE(GENERATE_ENUM) };
 
-extern const char *const type_strings[TYPE_TYPES];
+extern symbol type_symbols[TYPE_TYPES];
 
 #define FOREACH_KIND(ENUM_ITEM) \
     ENUM_ITEM(KIND_UNK)         \
@@ -62,12 +62,14 @@ struct type_oper {
     struct type_exp base;
     struct array args; //struct array of struct type_exp*
 };
-
+void types_init();
+void types_deinit();
 struct type_var *create_type_var();
 struct type_oper *create_type_oper(symbol type_name, enum type type, struct array *args);
 struct type_oper *create_type_oper_ext(symbol type_name, struct array *args);
 struct type_oper *create_nullary_type(enum type type, symbol type_symbol);
 struct type_oper *create_type_fun(struct array *args);
+struct type_oper *create_unit_type();
 struct type_oper *wrap_as_fun_type(struct type_oper *oper);
 void type_exp_free(struct type_exp *type);
 bool occurs_in_type(struct type_var *var, struct type_exp *type2);

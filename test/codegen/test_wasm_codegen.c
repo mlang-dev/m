@@ -13,8 +13,6 @@
 
 TEST(test_wasm_codegen, parse_as_module)
 {
-    //print \"hello world\"\n\
-    //
     struct wasm_module module;
     wasm_codegen_init(&module);
     char test_code[] = "\n\

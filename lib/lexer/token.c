@@ -35,6 +35,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
 
     NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL),
     NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL),
+    NAME_KEYWORD_PATTERN("()", "\\(\\)", UNIT, NULL),
     NAME_KEYWORD_PATTERN("[", "\\[", LBRACKET, NULL),
     NAME_KEYWORD_PATTERN("]", "\\]", RBRACKET, NULL),
     KEYWORD_PATTERN("{", LCBRACKET, NULL), // 25
@@ -173,7 +174,7 @@ u16 get_symbol_index(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
     if(tp == 0){
-        printf("unkown symbol: %s\n", string_get(symbol));
+        printf("unknown symbol: %s\n", string_get(symbol));
         assert(false);
     }
     

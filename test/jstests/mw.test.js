@@ -100,7 +100,7 @@ test('hello world', () => {
         let code = `
 print "hello world"
 `;
-        expect(m.run_mcode(code)).toEqual(0);
+        expect(m.run_mcode(code)).toEqual(undefined);
         expect(output).toEqual("hello world");
     });
 });
