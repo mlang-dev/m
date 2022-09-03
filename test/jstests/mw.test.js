@@ -104,3 +104,19 @@ print "hello world"
         expect(output).toEqual("hello world");
     });
 });
+
+test('string format', () => {
+    let output = null;
+    function log_fun(text) {
+        output = text;
+    }
+    var result = get_mw(log_fun);
+    return result.then((m) => {
+        let code = `
+print "%s %d" "hello world" 10
+`;      
+        m.compile(code, "test.wasm")
+        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(output).toEqual("hello world 10");
+    });
+});

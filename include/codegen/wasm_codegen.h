@@ -55,6 +55,10 @@ enum LimitsType {
 // globaltype    := t:valuetype  m:mut   => m t
 //   mut         := 0x00     => const
 //               |  0x01     => var
+enum GlobalType{
+    GLOBAL_CONST = 0,
+    GLOBAL_VAR
+};
 
 // control instructions
 // blocktype :=  0x40    =>  epsilon
@@ -96,7 +100,12 @@ enum LimitsType {
                             // 15 table.grow
                             // 16 table.size
                             // 17 table.fill
-
+enum MemAlignType{
+    ALIGN_BYTE = 0,
+    ALIGN_TWO_BYTES,
+    ALIGN_FOUR_BYTES,
+    ALIGN_EIGHT_BYTES
+};
 // memory instructions
 // memarg    :=  a:u32   o:u32   => {align a, offset o}
 #define OPCODE_I32LOAD 0x28
@@ -379,6 +388,8 @@ struct wasm_module {
      * data section, for example: string literal
      */
     struct ast_node *data_block;
+
+    u32 data_offset;
 };
 
 void wasm_codegen_init(struct wasm_module *module);

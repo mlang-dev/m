@@ -3,7 +3,8 @@ __attribute__((import_module("imports"), import_name("print"))) void print(const
 
 EXPORT void _start()
 {
-    print("hello world");
+    double f = 10.0;
+    print("%s %f", "hello world", f);
 }
 // struct Point2D {
 //     double x;

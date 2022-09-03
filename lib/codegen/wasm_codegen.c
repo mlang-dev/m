@@ -48,6 +48,20 @@ u8 type_2_wtype[TYPE_TYPES] = {
     /*EXT*/ 0,
 };
 
+u8 type_2_store_op[TYPE_TYPES] = {
+    /*UNK*/ 0,
+    /*GENERIC*/ TYPE_I32,
+    /*UNIT*/ 0,
+    /*BOOL*/ OPCODE_I32STORE,
+    /*CHAR*/ OPCODE_I32STORE,
+    /*INT*/ OPCODE_I32STORE,
+    /*FLOAT*/ OPCODE_F32STORE,
+    /*DOUBLE*/ OPCODE_F64STORE,
+    /*STRING*/ OPCODE_I32STORE,
+    /*FUNCTION*/ 0,
+    /*EXT*/ 0,
+};
+
 u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*
     UNK, GENERIC, UNIT, BOOL, CHAR, INT, FLOAT, DOUBLE, STRING, FUNCTION, EXT     
@@ -101,6 +115,7 @@ const char *imports = "\n\
 extern print:() fmt:string ...\n\
 ";
 #define DATA_SECTION_START_ADDRESS 1024
+#define STACK_BASE_ADDRESS  66592
 
 symbol IMPORTS_MODULE = 0;
 symbol MEMORY = 0;
@@ -186,6 +201,7 @@ void _wasm_module_init(struct wasm_module *module)
     module->var_top = 0;
     module->func_idx = 0;
     module->import_block = 0;
+    module->data_offset = 0;
     module->fun_types = block_node_new_empty();
     module->funs = block_node_new_empty();
     module->data_block = block_node_new_empty();
@@ -318,6 +334,7 @@ void _emit_literal(struct wasm_module *module, struct byte_array *ba, struct ast
 {
     assert(node->type && node->type->type < TYPE_TYPES && node->type->type >= 0);
     ba_add(ba, type_2_const[node->type->type]);
+    u32 len;
     switch(node->type->type){
         default:
             assert(false);
@@ -331,10 +348,11 @@ void _emit_literal(struct wasm_module *module, struct byte_array *ba, struct ast
             _emit_f64(ba, node->liter->double_val);
             break;
         case TYPE_STRING:
+            len = strlen(node->liter->str_val);
             //_emit_chars(ba, node->liter->str_val, strlen(node->liter->str_val));
-            _emit_uint(ba, DATA_SECTION_START_ADDRESS);
-            //_emit_const_i32(ba, strlen(node->liter->str_val));
+            _emit_uint(ba, DATA_SECTION_START_ADDRESS + module->data_offset);
             block_node_add(module->data_block, node);
+            module->data_offset += _emit_uint(0, len) + len;
             break;
     }
     
@@ -422,16 +440,41 @@ void _emit_call(struct wasm_module *module, struct byte_array *ba, struct ast_no
 {
     assert(node->node_type == CALL_NODE);
     struct ast_node *arg;
-    symbol callee = node->call->specialized_callee? node->call->specialized_callee : node->call->callee;
+    symbol callee = node->call->specialized_callee ? node->call->specialized_callee : node->call->callee;
+    struct ast_node *fun_type = hashtable_get_p(&module->func_name_2_ast, callee);
+    u32 param_num = array_size(&fun_type->ft->params->block->nodes);
     u32 func_index = hashtable_get_int(&module->func_name_2_idx, callee);
+    u32 stack_size = 0;
     for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
         arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
-        _emit_code(module, ba, arg);
+        if (i < param_num - 1) {
+            _emit_code(module, ba, arg);
+        }else{//optional arguments
+            stack_size += 8; //assuming each is 8 bytes
+        }
     }
-    struct ast_node *fun_type = hashtable_get_p(&module->func_name_2_ast, callee);
-    assert(fun_type);
-    if (fun_type->ft->is_variadic && array_size(&node->call->arg_block->block->nodes) < array_size(&fun_type->ft->params->block->nodes)){
-        _emit_const_i32(ba, 0);
+    u32 offset = 0;
+    if (fun_type->ft->is_variadic){ 
+        if (array_size(&node->call->arg_block->block->nodes) < array_size(&fun_type->ft->params->block->nodes)){
+            _emit_const_i32(ba, 0);
+        }else{
+            //global variable 0 as stack pointer
+            //global sp -> stack
+            for (u32 i = array_size(&fun_type->ft->params->block->nodes); i < array_size(&node->call->arg_block->block->nodes); i++){
+                ba_add(ba, OPCODE_GLOBALGET);
+                _emit_uint(ba, 0);
+                _emit_const_i32(ba, stack_size);
+                ba_add(ba, OPCODE_I32SUB); // sp-stack_size address
+
+                arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
+                _emit_code(module, ba, arg);  //content of the arg to stack
+                ba_add(ba, type_2_store_op[arg->type->type]);
+                //align(u32), and offset(u32)
+                _emit_uint(ba, ALIGN_FOUR_BYTES);
+                _emit_uint(ba, offset);
+                offset += type_size(arg->type->type);
+            }                
+        }
     }
     ba_add(ba, OPCODE_CALL); // num local variables
     _emit_uint(ba, func_index);
@@ -572,6 +615,15 @@ void _emit_memory_section(struct wasm_module *module, struct byte_array *ba)
     ba_add(ba, 10);//max 10x64k
 }
 
+void _emit_global_section(struct wasm_module *module, struct byte_array *ba)
+{
+    ba_add(ba, 1);  //num globals
+    ba_add(ba, TYPE_I32);
+    ba_add(ba, GLOBAL_VAR); //mutable
+    _emit_const_i32(ba, STACK_BASE_ADDRESS);
+    ba_add(ba, OPCODE_END);
+}
+
 void _emit_export_section(struct wasm_module *module, struct byte_array *ba, struct ast_node *block)
 {
     u32 num_func = array_size(&block->block->nodes);
@@ -599,19 +651,18 @@ void _emit_code_section(struct wasm_module *module, struct byte_array *ba, struc
 void _emit_data_section(struct wasm_module *module, struct byte_array *ba, struct ast_node *block)
 {
     u32 num_data = array_size(&block->block->nodes);
-    _emit_uint(ba, num_data); //num data segments
+    _emit_uint(ba, 1); //1 data segment
     _emit_uint(ba, DATA_ACTIVE);
     // offset of memory
     ba_add(ba, OPCODE_I32CONST);
     _emit_uint(ba, DATA_SECTION_START_ADDRESS);
     ba_add(ba, OPCODE_END);
+    _emit_uint(ba, module->data_offset);
     for (u32 i = 0; i < num_data; i++) {
         struct ast_node *node = *(struct ast_node**)array_get(&block->block->nodes, i);
         assert(node->node_type == LITERAL_NODE);
         //data array size and content
         u32 str_length = strlen(node->liter->str_val);
-        u8 encode_length = _emit_uint(0, str_length);
-        _emit_uint(ba, str_length + encode_length);
         _emit_chars(ba, node->liter->str_val, str_length);
     }
 }
@@ -642,47 +693,58 @@ void emit_wasm(struct wasm_module *module, struct ast_node *node)
     // 11.   data section
     // 12.   data count section
     // type section
-    ba_add(ba, TYPE_SECTION);       //  code: 1
+    ba_add(ba, TYPE_SECTION);       // code: 1
     _emit_type_section(module, &section, module->fun_types);
     _append_section(ba, &section);
-    //  import section
-    ba_add(ba, IMPORT_SECTION);     //  code: 2
+    // import section
+    ba_add(ba, IMPORT_SECTION);     // code: 2
     _emit_import_section(module, &section, module->import_block);
     _append_section(ba, &section);
 
     // function section
-    ba_add(ba, FUNCTION_SECTION);   //  code: 3
+    ba_add(ba, FUNCTION_SECTION);   // code: 3
     _emit_function_section(module, &section, module->funs);
     _append_section(ba, &section);
 
-    // memory section               //  code: 5
+    // table section                // code: 4
+    // memory section               // code: 5
     ba_add(ba, MEMORY_SECTION);
     _emit_memory_section(module, &section);
     _append_section(ba, &section);
 
-    // export section
-    ba_add(ba, EXPORT_SECTION); //  code: 7
+    // global section               // code: 6
+    ba_add(ba, GLOBAL_SECTION);
+    _emit_global_section(module, &section);
+    _append_section(ba, &section);
+
+    // export section               // code: 7
+    ba_add(ba, EXPORT_SECTION); 
     _emit_export_section(module, &section, module->funs);
     _append_section(ba, &section);
 
-    // data count section
+    // start section                // code: 8
+    // element section              // code: 9
+
+    // data count section           // code: 12, data count must before code section
     if(array_size(&module->data_block->block->nodes)){
-        ba_add(ba, DATA_COUNT_SECTION); //code: 12, data count must before code section
+        ba_add(ba, DATA_COUNT_SECTION); 
         _emit_uint(ba, 1); //   data count size
         _emit_uint(ba, 1); //   data count
     }
 
-    //code section
-    ba_add(ba, CODE_SECTION); //  code: 10
+    // code section                 // code: 10
+    ba_add(ba, CODE_SECTION); 
     _emit_code_section(module, &section, module->funs);
     _append_section(ba, &section);
 
-    //data section           // code: 11
+    // data section                 // code: 11
     if(array_size(&module->data_block->block->nodes)){
         ba_add(ba, DATA_SECTION);
         _emit_data_section(module, &section, module->data_block);
         _append_section(ba, &section);
     }
+
+    // custom secion                // code: 0
     ba_deinit(&section);
 }
 

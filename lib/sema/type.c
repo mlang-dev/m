@@ -432,3 +432,8 @@ bool is_promotable_int(struct type_exp *type)
 {
     return type->type == TYPE_CHAR || type->type == TYPE_CHAR;
 }
+
+u8 type_size(enum type type)
+{
+    return type == TYPE_DOUBLE ? 8 : 4;
+}

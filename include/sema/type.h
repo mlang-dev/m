@@ -13,6 +13,7 @@
 #include "clib/symbol.h"
 #include "clib/symboltable.h"
 #include "clib/util.h"
+#include "clib/typedef.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -84,6 +85,7 @@ bool is_any_generic(struct array *types);
 string monomorphize(const char *fun_name, struct array *types);
 struct type_exp *clone_type(struct type_exp *type);
 bool is_promotable_int(struct type_exp *type);
+u8 type_size(enum type type);
 
 #ifdef __cplusplus
 }
