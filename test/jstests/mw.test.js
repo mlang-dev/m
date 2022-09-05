@@ -114,8 +114,9 @@ test('string format', () => {
     var result = get_mw(log_fun);
     return result.then((m) => {
         let code = `
-print "%s %d" "hello world" 10
+print "hello %d" 10
 `;      
         expect(m.run_mcode(code)).toEqual(undefined);
+        expect(output).toEqual("hello 10");
     });
 });
