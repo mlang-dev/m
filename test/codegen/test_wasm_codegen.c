@@ -18,7 +18,7 @@ TEST(test_wasm_codegen, parse_as_module)
     struct wasm_module module;
     wasm_codegen_init(&module);
     char test_code[] = "\n\
-print \"%s %d\" \"hello world\" 10\n\
+print \"hello %d\" 10\n\
 ";
     parse_as_module(&module, test_code);
     ASSERT_TRUE(module.ba.size!=0);
