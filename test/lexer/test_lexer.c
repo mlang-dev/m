@@ -298,6 +298,21 @@ TEST(test_lexer, token_indent_dedent)
     frontend_deinit();
 }
 
+TEST(test_lexer, token_import_memory)
+{
+    frontend_init();
+    char test_code[] = "import memory";
+
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+
+    ASSERT_EQ(TOKEN_IMPORT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_MEMORY, get_tok(lexer)->token_type);
+
+    lexer_free(lexer);
+    frontend_deinit();
+}
+
 int test_lexer()
 {
     UNITY_BEGIN();
@@ -314,5 +329,6 @@ int test_lexer()
     RUN_TEST(test_lexer_expr);
     RUN_TEST(test_lexer_other_symbols);
     RUN_TEST(test_lexer_token_indent_dedent);
+    RUN_TEST(test_lexer_token_import_memory);
     return UNITY_END();
 }

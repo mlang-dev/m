@@ -27,6 +27,8 @@ extern "C" {
 #define FOREACH_NODETYPE(ENUM_ITEM) \
     ENUM_ITEM(NULL_NODE)            \
     ENUM_ITEM(UNIT_NODE)            \
+    ENUM_ITEM(IMPORT_NODE)          \
+    ENUM_ITEM(MEMORY_NODE)          \
     ENUM_ITEM(LITERAL_NODE)         \
     ENUM_ITEM(IDENT_NODE)           \
     ENUM_ITEM(VAR_NODE)             \
@@ -73,6 +75,11 @@ struct _literal_node {
 
 struct _ident_node {
     symbol name;
+};
+
+struct _memory_node {
+    struct ast_node *initial;
+    struct ast_node *max;
 };
 
 struct _var_node {
@@ -167,10 +174,11 @@ struct ast_node {
         
         struct _type_node *type_def; 
         struct _type_value_node *type_value;
-        
+        struct ast_node *import;
         struct _if_node *cond;
         struct _for_node *forloop;
         struct _block_node *block;
+        struct _memory_node *memory;
     };
 };
 
@@ -201,6 +209,8 @@ struct ast_node *var_node_new(symbol var_name, enum type type, symbol ext_type, 
 struct ast_node *var_node_new2(symbol var_name, symbol type_name, struct ast_node *init_value, bool is_global, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
+struct ast_node *import_node_new(struct ast_node *node, struct source_location loc);
+struct ast_node *memory_node_new(struct ast_node *initial, struct ast_node *max, struct source_location loc);
 struct ast_node *func_type_node_new(
     symbol name,
     struct ast_node *params, 

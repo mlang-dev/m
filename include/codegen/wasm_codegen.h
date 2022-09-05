@@ -55,6 +55,10 @@ enum LimitsType {
 // globaltype    := t:valuetype  m:mut   => m t
 //   mut         := 0x00     => const
 //               |  0x01     => var
+enum GlobalType{
+    GLOBAL_CONST = 0,
+    GLOBAL_VAR
+};
 
 // control instructions
 // blocktype :=  0x40    =>  epsilon
@@ -96,7 +100,12 @@ enum LimitsType {
                             // 15 table.grow
                             // 16 table.size
                             // 17 table.fill
-
+enum MemAlignType{
+    ALIGN_BYTE = 0,
+    ALIGN_TWO_BYTES,
+    ALIGN_FOUR_BYTES,
+    ALIGN_EIGHT_BYTES
+};
 // memory instructions
 // memarg    :=  a:u32   o:u32   => {align a, offset o}
 #define OPCODE_I32LOAD 0x28
@@ -338,14 +347,28 @@ struct fun_context {
      */
     struct symboltable varname_2_index;
 
-        /*
-         *  number of local variables
-         */
+    /*
+     *  hashtable of <struct ast_node *, u32>
+     *  binding ast_node pointer to index of local variable in the function
+     *  used in function codegen
+     */
+    struct hashtable ast_2_index;
+
+    /*
+     *  number of local variables
+     */
     u32 local_vars;
 };
 
 #define FUN_LEVELS 512
 #define LOCAL_VARS 1024 //TODO: need to eliminate this limitation
+
+struct imports{
+    struct ast_node *import_block;
+    u32 num_global;
+    u32 num_fun;
+    u32 num_memory;
+};
 
 struct wasm_module {
     struct byte_array ba;
@@ -363,7 +386,7 @@ struct wasm_module {
     u32 var_top;
     u32 func_idx;
 
-    struct ast_node *import_block;
+    struct imports imports;
 
     /*
      * function types including imports function type, and those in fun definitions
@@ -379,6 +402,8 @@ struct wasm_module {
      * data section, for example: string literal
      */
     struct ast_node *data_block;
+
+    u32 data_offset;
 };
 
 void wasm_codegen_init(struct wasm_module *module);

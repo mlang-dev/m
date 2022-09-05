@@ -49,12 +49,10 @@ EXPORT u32 get_code_size()
     return code_size;
 }
 
-EXPORT i32 print(const char *restrict fmt, ...)
+EXPORT void print(const char *restrict fmt, ...)
 {
-    int ret;
     va_list ap;
     va_start(ap, fmt);
-    ret = vfprintf(stdout, fmt, ap);
+    vfprintf(stdout, fmt, ap);
     va_end(ap);
-    return ret;
 }

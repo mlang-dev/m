@@ -18,6 +18,9 @@ if(WASM)
     -nostdlib
     -g
     -Wl,--no-entry,--export-dynamic
+    -Xlinker --features=mutable-globals
+    -Xlinker --export=__stack_pointer
+    -Xlinker --initial-memory=655360
     -v
   )
 

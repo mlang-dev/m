@@ -1,9 +1,11 @@
 #define EXPORT __attribute__((visibility("default")))
 __attribute__((import_module("imports"), import_name("print"))) void print(const char *fmt, ...);
+extern unsigned int __stack_pointer;
 
 EXPORT void _start()
 {
-    print("hello world");
+    double f = 10.0;
+    print("%s %f", "hello world", f);
 }
 // struct Point2D {
 //     double x;

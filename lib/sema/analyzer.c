@@ -403,6 +403,14 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
         case UNIT_NODE:
             type = (struct type_exp *)create_unit_type();
             break;
+        case IMPORT_NODE:
+            type = analyze(context, node->import);
+            break;
+        case MEMORY_NODE:
+            type = analyze(context, node->memory->initial);
+            if (node->memory->max)
+                type = analyze(context, node->memory->max);
+            break;
         case LITERAL_NODE:
             type = _analyze_liter(context, node);
             break;

@@ -17,6 +17,8 @@ struct source_location default_loc = {0, 0, 0, 0};
 struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(null, NULL),
     NODE_TYPE_NAME(unit, UNIT),
+    NODE_TYPE_NAME(import_decl, IMPORT),
+    NODE_TYPE_NAME(memory_decl, MEMORY),
     NODE_TYPE_NAME(literal, LITERAL),
     NODE_TYPE_NAME(ident, IDENT),
     NODE_TYPE_NAME(var, VAR),
@@ -324,6 +326,51 @@ void _free_type_value_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *import_node_new(struct ast_node *imported, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(IMPORT_NODE, imported->annotated_type_enum, imported->annotated_type_name, loc);
+    node->import = imported;
+    return node;
+}
+
+struct ast_node *_copy_import_node(struct ast_node *orig_node)
+{
+    return import_node_new(
+        node_copy(orig_node->import), orig_node->loc);
+}
+
+void _free_import_node(struct ast_node *node)
+{
+    ast_node_free(node->import);
+    ast_node_free(node);
+}
+
+struct ast_node *memory_node_new(struct ast_node *initial, struct ast_node *max, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(MEMORY_NODE, initial->annotated_type_enum, initial->annotated_type_name, loc);
+    MALLOC(node->memory, sizeof(*node->memory));
+    node->memory->initial = initial;
+    node->memory->max = max;
+    return node;
+}
+
+struct ast_node *_copy_memory_node(struct ast_node *orig_node)
+{
+    return memory_node_new(
+        node_copy(orig_node->memory->initial),
+        orig_node->memory->max? node_copy(orig_node->memory->max) : 0,
+        orig_node->loc);
+}
+
+void _free_memory_node(struct ast_node *node)
+{
+    ast_node_free(node->memory->initial);
+    if(node->memory->max){
+        ast_node_free(node->memory->max);
+    }
+    ast_node_free(node);
+}
+
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc)
 {
@@ -593,6 +640,8 @@ struct ast_node *node_copy(struct ast_node *node)
     switch (node->node_type) {
     case BLOCK_NODE:
         return _copy_block_node(node);
+    case IMPORT_NODE:
+        return _copy_import_node(node);
     case FUNC_TYPE_NODE:
         return _copy_func_type_node(node);
     case FUNC_NODE:
@@ -628,6 +677,9 @@ void node_free(struct ast_node *node)
     switch (node->node_type) {
     case NULL_NODE:
         FREE(node);
+        break;
+    case IMPORT_NODE:
+        _free_import_node(node);
         break;
     case BLOCK_NODE:
         _free_block_node(node);
