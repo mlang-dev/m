@@ -99,6 +99,7 @@ stmt            = func_decl
                 | iterate_stmt                   
                 | cond_stmt    
                 | block
+                | import_decl
 
 cond_stmt       = "if" expr "then" statement                                                { if_cond 1 3 }              
                 | "if" expr "then" statement "else" statement                               { if_cond 1 3 5 }
@@ -115,10 +116,19 @@ type_def        = "type" IDENT '=' statement                                    
 
 type_init       = IDENT '(' exprs ')'                                                       { type_value 0 2 }
 
-func_decl       = "extern" IDENT ':' type_expr param_decls                                  { func_type 1 3 4 }
+func_decl       = "extern" func_type                                                        { 1 }
+
+func_type       = IDENT ':' type_expr param_decls                                           { func_type 0 2 3 }
+
+import_decl     = "import" memory_decl                                                      { import_decl 1 }
+                | "import" "fun" func_type                                                  { import_decl 2 }    
+                | "import" var_decl                                                         { import_decl 1 }
+
+memory_decl     = "memory" INT                                                              { memory_decl 1 }
+                | "memory" INT ',' INT                                                      { memory_decl 1 3 }
 
 func_def        = "let" IDENT param_decls '=' statement                                     { func 1 2 4 }
-                | "let" IDENT ':' type_expr param_decls '=' statement                           { func 1 4 6 3 }
+                | "let" IDENT ':' type_expr param_decls '=' statement                       { func 1 4 6 3 }
 
 func_call       = IDENT arg_exprs                                                           { call 0 1 }
 

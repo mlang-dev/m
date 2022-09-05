@@ -137,9 +137,24 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }
     }
     switch (rule->action.node_type) {
-    default:
-        printf("not type: %d is not supported yet.", rule->action.node_type);
+    case NULL_NODE:
+    case TOTAL_NODE:
+    case UNIT_NODE:
+    case LITERAL_NODE:
+    case IDENT_NODE:
+        printf("type: %d is not supported for nonterm node.", rule->action.node_type);
         exit(-1);
+        break;
+    case IMPORT_NODE:
+        node = items[rule->action.item_index[0]].ast;
+        ast = import_node_new(node, node->loc);
+        break;
+    case MEMORY_NODE:
+        node = items[rule->action.item_index[0]].ast;
+        if (rule->action.item_index_count==2){
+            node1 = items[rule->action.item_index[1]].ast;
+        }
+        ast = memory_node_new(node, node1, node->loc);
         break;
     case UNARY_NODE:
         assert(rule->action.item_index_count==2);

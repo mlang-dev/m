@@ -31,7 +31,8 @@
                 "${workspaceFolder}/extern/googletest/googlemock/include",
                 "/usr/local/include"
             ],
-            "defines": [],
+            "defines": [
+                ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",

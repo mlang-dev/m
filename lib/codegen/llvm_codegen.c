@@ -695,6 +695,8 @@ LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node)
             value = _emit_unk_node(cg, node);
             break;
         case UNIT_NODE:
+        case IMPORT_NODE:
+        case MEMORY_NODE:
             break;
         case LITERAL_NODE:
             value = _emit_literal_node(cg, node);

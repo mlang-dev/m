@@ -79,21 +79,28 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		[fmt_offset, fmt_length] = _decode_uint(code_memory_as_array, fmt_offset);
 		var bytes = new Uint8Array(code_instance.exports.memory.buffer, fmt_offset, fmt_length);
 		var string = new TextDecoder('utf8').decode(bytes);
-		print_func(string);
+		print_func(string, ...params);
 	}
 
 	function run_wasm_code(instance, wasm, wasm_size)
 	{
 		let ta = new Uint8Array(instance.exports.memory.buffer, wasm, wasm_size);
 		var compiled = new WebAssembly.Module(ta);
+		var memory_base = instance.exports.alloc_mem(64 * 1024); //assigned 1 page: 64k
+		const __memory_base = new WebAssembly.Global({value: "i32", mutable: true}, memory_base);
 		code_instance = new WebAssembly.Instance(compiled, 
 			{ imports: 
 				{ 
 					print: print_log,
+					memory: instance.exports.memory,
+					__memory_base: __memory_base,
+					__stack_pointer: instance.exports.__stack_pointer
 				}
 			});
 		code_memory_as_array = new Uint8Array(code_instance.exports.memory.buffer);
-		return code_instance.exports._start();
+		var ret = code_instance.exports._start();
+		instance.exports.free_mem(memory_base);
+		return ret;
 	}
 
 	function run_mcode(code) 

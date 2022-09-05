@@ -347,14 +347,28 @@ struct fun_context {
      */
     struct symboltable varname_2_index;
 
-        /*
-         *  number of local variables
-         */
+    /*
+     *  hashtable of <struct ast_node *, u32>
+     *  binding ast_node pointer to index of local variable in the function
+     *  used in function codegen
+     */
+    struct hashtable ast_2_index;
+
+    /*
+     *  number of local variables
+     */
     u32 local_vars;
 };
 
 #define FUN_LEVELS 512
 #define LOCAL_VARS 1024 //TODO: need to eliminate this limitation
+
+struct imports{
+    struct ast_node *import_block;
+    u32 num_global;
+    u32 num_fun;
+    u32 num_memory;
+};
 
 struct wasm_module {
     struct byte_array ba;
@@ -372,7 +386,7 @@ struct wasm_module {
     u32 var_top;
     u32 func_idx;
 
-    struct ast_node *import_block;
+    struct imports imports;
 
     /*
      * function types including imports function type, and those in fun definitions
