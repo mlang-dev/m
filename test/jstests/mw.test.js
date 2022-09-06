@@ -131,6 +131,7 @@ test('string format with var', () => {
 v = 10
 print "hello %d" v
 `;
+        m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(undefined);
         expect(output).toEqual("hello 10");
     });
@@ -150,5 +151,54 @@ print "hello %d %d" v1 v2
 `;
         expect(m.run_mcode(code)).toEqual(undefined);
         expect(output).toEqual("hello 10 20");
+    });
+});
+
+test('string format with float param', () => {
+    let output = null;
+    function log_fun(text) {
+        output = text;
+    }
+    var result = get_mw(log_fun);
+    return result.then((m) => {
+        let code = `
+v = 10.0
+print "hello %.2f" v
+`;
+        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(output).toEqual("hello 10.00");
+    });
+});
+
+test('string format with string, float, and int param', () => {
+    let output = null;
+    function log_fun(text) {
+        output = text;
+    }
+    var result = get_mw(log_fun);
+    return result.then((m) => {
+        let code = `
+s = "world"
+f = 20.0
+i = 10
+print "hello %s %.2f %d" s f i
+`;
+        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(output).toEqual("hello world 20.00 10");
+    });
+});
+
+test('utc-8 string', () => {
+    let output = null;
+    function log_fun(text) {
+        output = text;
+    }
+    var result = get_mw(log_fun);
+    return result.then((m) => {
+        let code = `
+print "你好"
+`;
+        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(output).toEqual("你好");
     });
 });

@@ -400,8 +400,10 @@ void _emit_literal(struct wasm_module *module, struct byte_array *ba, struct ast
             if(module->imports.num_memory){
                 ba_add(ba, OPCODE_GLOBALGET);
                 _emit_uint(ba, MEMORY_BASE_VAR_INDEX);
-                _emit_const_i32(ba, module->data_offset);
-                ba_add(ba, OPCODE_I32ADD);
+                if(module->data_offset){
+                    _emit_const_i32(ba, module->data_offset);
+                    ba_add(ba, OPCODE_I32ADD);
+                }
                 module->data_offset += len + 1; //null terminated string
             } else {
                 ba_add(ba, type_2_const[node->type->type]);
@@ -516,10 +518,11 @@ void _emit_call(struct wasm_module *module, struct byte_array *ba, struct ast_no
         if (!fun_type->ft->is_variadic||i < param_num - 1) {
             _emit_code(module, ba, arg);
         }else{//optional arguments
-            stack_size += 8; //assuming each is 8 bytes
+            stack_size += 16; 
         }
     }
     u32 local_var_index = 0;
+    u32 arg_type_size = 0;
     if (fun_type->ft->is_variadic){ 
         if (array_size(&node->call->arg_block->block->nodes) < array_size(&fun_type->ft->params->block->nodes)){
             _emit_const_i32(ba, 0);
@@ -551,9 +554,14 @@ void _emit_call(struct wasm_module *module, struct byte_array *ba, struct ast_no
                 _emit_code(module, ba, arg);  
                 ba_add(ba, type_2_store_op[arg->type->type]);
                 //align(u32), and offset(u32)
-                _emit_uint(ba, type_size(arg->type->type) == 8? ALIGN_EIGHT_BYTES : ALIGN_FOUR_BYTES);
+                arg_type_size = type_size(arg->type->type); 
+                _emit_uint(ba, arg_type_size == 8? ALIGN_EIGHT_BYTES : ALIGN_FOUR_BYTES);
+                //we need to adjust offset for better alignment
+                if (offset % arg_type_size != 0){
+                    offset = (offset / arg_type_size + 1) * arg_type_size;
+                }
                 _emit_uint(ba, offset);
-                offset += type_size(arg->type->type);
+                offset += arg_type_size;
             }
             //lastly, sending start address as optional arguments as the rest call parameter
             ba_add(ba, OPCODE_LOCALGET);

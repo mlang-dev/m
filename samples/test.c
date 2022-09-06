@@ -5,7 +5,8 @@ extern unsigned int __stack_pointer;
 EXPORT void _start()
 {
     double v = 10.0;
-    print("hello %.2f", v);
+    int i = 20;
+    print("hello %d %d", i, i);
 }
 // struct Point2D {
 //     double x;

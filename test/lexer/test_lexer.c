@@ -78,7 +78,29 @@ TEST(test_lexer, token_string)
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
     frontend_deinit();
- }
+}
+
+TEST(test_lexer, token_utc_string)
+{
+    frontend_init();
+    char test_code[] = "\"你好\"\n"
+                       "\n";
+
+    struct token *tok;
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+
+    tok = get_tok(lexer);
+    ASSERT_EQ(TOKEN_STRING, tok->token_type);
+    ASSERT_EQ(1, tok->loc.line);
+    ASSERT_EQ(1, tok->loc.col);
+    ASSERT_EQ(0, tok->loc.start);
+    ASSERT_EQ(8, tok->loc.end);
+    ASSERT_STREQ("你好", string_get(tok->str_val));
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
+    lexer_free(lexer);
+    frontend_deinit();
+}
 
 TEST(test_lexer, token_num_int)
 {
@@ -320,6 +342,7 @@ int test_lexer()
     RUN_TEST(test_lexer_skip_comment);
     RUN_TEST(test_lexer_token_char);
     RUN_TEST(test_lexer_token_string);
+    RUN_TEST(test_lexer_token_utc_string);
     RUN_TEST(test_lexer_token_id);
     RUN_TEST(test_lexer_token_num_float);
     RUN_TEST(test_lexer_token_num_float2);
