@@ -488,12 +488,10 @@ void _emit_func(struct wasm_module *module, struct byte_array *ba, struct ast_no
     ba_init(&func, 17);
     u32 local_vars = _func_get_local_var_nums(module);
     _emit_uint(&func, local_vars); // num local variables
-    if (local_vars){
-        _emit_uint(&func, local_vars); // num local types, same as number of local variables
-    }
     u32 start_pos = module->var_top - local_vars;
     for(u32 i = 0; i < local_vars; i++){
-        ba_add(&func, module->local_vars[start_pos+i].type);
+        _emit_uint(&func, 1); // num local following types
+        ba_add(&func, module->local_vars[start_pos + i].type);
     }
     _emit_code(module, &func, node->func->body);
     ba_add(&func, OPCODE_END);
@@ -553,7 +551,7 @@ void _emit_call(struct wasm_module *module, struct byte_array *ba, struct ast_no
                 _emit_code(module, ba, arg);  
                 ba_add(ba, type_2_store_op[arg->type->type]);
                 //align(u32), and offset(u32)
-                _emit_uint(ba, ALIGN_FOUR_BYTES);
+                _emit_uint(ba, type_size(arg->type->type) == 8? ALIGN_EIGHT_BYTES : ALIGN_FOUR_BYTES);
                 _emit_uint(ba, offset);
                 offset += type_size(arg->type->type);
             }
