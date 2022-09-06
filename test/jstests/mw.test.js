@@ -107,9 +107,8 @@ print "hello world"
 
 test('string format', () => {
     let output = null;
-    function log_fun(text, ...rest) {
+    function log_fun(text) {
         output = text;
-        console.log(text, ...rest);
     }
     var result = get_mw(log_fun);
     return result.then((m) => {
@@ -118,5 +117,38 @@ print "hello %d" 10
 `;      
         expect(m.run_mcode(code)).toEqual(undefined);
         expect(output).toEqual("hello 10");
+    });
+});
+
+test('string format with var', () => {
+    let output = null;
+    function log_fun(text) {
+        output = text;
+    }
+    var result = get_mw(log_fun);
+    return result.then((m) => {
+        let code = `
+v = 10
+print "hello %d" v
+`;
+        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(output).toEqual("hello 10");
+    });
+});
+
+test('string format with both int var', () => {
+    let output = null;
+    function log_fun(text) {
+        output = text;
+    }
+    var result = get_mw(log_fun);
+    return result.then((m) => {
+        let code = `
+v1 = 10
+v2 = 20
+print "hello %d %d" v1 v2
+`;
+        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(output).toEqual("hello 10 20");
     });
 });
