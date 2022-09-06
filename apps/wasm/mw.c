@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define EXPORT __attribute__((visibility("default")))
 
@@ -25,7 +26,7 @@ EXPORT i32 str_len(const char *chars)
 EXPORT const char *version()
 {
     void * p = alloc_mem(32);
-    strcpy(p, "m - 0.0.20");
+    strcpy(p, "m - 0.0.21");
     return p;
 }
 
@@ -54,5 +55,5 @@ EXPORT void print(const char *restrict fmt, ...)
     va_list ap;
     va_start(ap, fmt);
     vfprintf(stdout, fmt, ap);
-    va_end(ap);
+    va_end(ap); 
 }
