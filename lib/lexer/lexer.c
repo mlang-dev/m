@@ -144,7 +144,7 @@ bool _scan_until_no_digit(struct lexer *lexer)
     do {
         if(!has_dot && *p == '.') has_dot = true;
         p++;
-        _move_ahead(lexer);
+        _move_ahead(lexer); 
     } while (isdigit(*p) || *p == '.');
     return has_dot;
 }
@@ -205,9 +205,14 @@ void _mark_regex_tok(struct lexer *lexer)
         _move_ahead_n(lexer, max_matched);
         if(used_tp->token_type == TOKEN_IDENT)
             tok->symbol_val = to_symbol2(&lexer->buff[tok->loc.start - lexer->buff_base], max_matched);
-        else if(used_tp->token_type == TOKEN_INT)
-            tok->int_val = (int)strtol(&lexer->buff[tok->loc.start - lexer->buff_base], 0, 10);
-        else if(used_tp->token_type == TOKEN_FLOAT)
+        else if(used_tp->token_type == TOKEN_INT){
+            int base = 10;
+            char hex = lexer->buff[tok->loc.start - lexer->buff_base + 1];
+            if (hex == 'x' || hex == 'X'){
+                base = 16;
+            }
+            tok->int_val = (int)strtol(&lexer->buff[tok->loc.start - lexer->buff_base], 0, base);
+        } else if (used_tp->token_type == TOKEN_FLOAT)
             tok->double_val = strtod(&lexer->buff[tok->loc.start - lexer->buff_base], 0);
     }else{
         printf("no valid token found for %c\n", ch);
