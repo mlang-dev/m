@@ -323,11 +323,13 @@ TEST(test_lexer, token_indent_dedent)
 TEST(test_lexer, token_import_memory)
 {
     frontend_init();
-    char test_code[] = "import memory";
+    char test_code[] = "from sys import memory";
 
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
 
+    ASSERT_EQ(TOKEN_FROM, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_IDENT, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_IMPORT, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_MEMORY, get_tok(lexer)->token_type);
 

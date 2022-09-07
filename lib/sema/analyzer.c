@@ -404,7 +404,7 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
             type = (struct type_exp *)create_unit_type();
             break;
         case IMPORT_NODE:
-            type = analyze(context, node->import);
+            type = analyze(context, node->import->import);
             break;
         case MEMORY_NODE:
             type = analyze(context, node->memory->initial);

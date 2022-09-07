@@ -147,7 +147,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         break;
     case IMPORT_NODE:
         node = items[rule->action.item_index[0]].ast;
-        ast = import_node_new(node, node->loc);
+        node1 = items[rule->action.item_index[1]].ast;
+        ast = import_node_new(node->ident->name, node1, node->loc);
         break;
     case MEMORY_NODE:
         node = items[rule->action.item_index[0]].ast;

@@ -112,11 +112,11 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
 } ;
 
 const char *imports = "\n\
-import fun print:() fmt:string ...\n\
-import memory 10\n\
-import __stack_pointer:int\n\
-import __memory_base:int\n\
-import fun sqrt:double x:double\n\
+from sys import fun print:() fmt:string ...\n\
+from sys import memory 10\n\
+from sys import __stack_pointer:int\n\
+from sys import __memory_base:int\n\
+from math import fun sqrt:double x:double\n\
 ";
 #define DATA_SECTION_START_ADDRESS 1024
 #define STACK_BASE_ADDRESS  66592
@@ -689,7 +689,7 @@ void _emit_import_section(struct wasm_module *module, struct byte_array *ba, str
     for(u32 i = 0; i < array_size(&block->block->nodes); i++){
         struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
         assert(node->node_type == IMPORT_NODE);
-        node = node->import;
+        node = node->import->import;
         _emit_string(ba, IMPORTS_MODULE);
         switch(node->node_type){
         default:
@@ -918,7 +918,7 @@ struct ast_node *_decorate_as_module(struct wasm_module *module, struct hashtabl
                 hashtable_set_p(&module->func_name_2_ast, node->func->func_type->ft->name, node->func->func_type);
             }
         } else if(node->node_type == IMPORT_NODE){
-            node = node->import;
+            node = node->import->import;
             if(node->node_type == FUNC_TYPE_NODE){
                 block_node_add(module->fun_types, node);
                 hashtable_set_int(&module->func_name_2_idx, node->ft->name, module->func_idx++);
@@ -951,7 +951,7 @@ void _parsed_imports(struct imports *imports, struct ast_node *block)
     for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
         struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
         assert(node->node_type == IMPORT_NODE);
-        node = node->import;
+        node = node->import->import;
         if (node->node_type == FUNC_TYPE_NODE) {
             imports->num_fun ++;
         }

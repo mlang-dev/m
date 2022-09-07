@@ -89,7 +89,8 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		var memory_base = instance.exports.malloc(64 * 1024); //assigned 1 page: 64k
 		const __memory_base = new WebAssembly.Global({value: "i32", mutable: false}, memory_base);
 		code_instance = new WebAssembly.Instance(compiled, 
-			{ imports: 
+			{ 
+				imports: 
 				{ 
 					print: instance.exports.print,
 					memory: instance.exports.memory,

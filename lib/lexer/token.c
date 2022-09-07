@@ -19,6 +19,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, CHAR, NULL),
     TOKEN_PATTERN(0, STRING, NULL),
 
+    KEYWORD_PATTERN("from", FROM, NULL),
     KEYWORD_PATTERN("import", IMPORT, NULL),
     KEYWORD_PATTERN("memory", MEMORY, NULL),
     KEYWORD_PATTERN("extern", EXTERN, NULL), // 10

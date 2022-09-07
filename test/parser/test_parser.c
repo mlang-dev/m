@@ -599,14 +599,15 @@ xy.x";
 
 TEST(test_parser, import_fun_type)
 {
-    char test_code[] = "import fun print:() ()";
+    char test_code[] = "from sys import fun print:() ()";
     frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(IMPORT_NODE, node->node_type);
-    node = node->import;
+    ASSERT_STREQ("sys", string_get(node->import->from_module));
+    node = node->import->import;
     ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
     ASSERT_STREQ("print", string_get(node->ft->name));
     ASSERT_STREQ("()", string_get(node->annotated_type_name));
@@ -617,14 +618,14 @@ TEST(test_parser, import_fun_type)
 
 TEST(test_parser, import_memory_init)
 {
-    char test_code[] = "import memory 2";
+    char test_code[] = "from sys import memory 2";
     frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(IMPORT_NODE, node->node_type);
-    node = node->import;
+    node = node->import->import;
     ASSERT_EQ(MEMORY_NODE, node->node_type);
     ASSERT_EQ(2, node->memory->initial->liter->int_val);
     ASSERT_EQ(0, node->memory->max);
@@ -635,14 +636,14 @@ TEST(test_parser, import_memory_init)
 
 TEST(test_parser, import_memory_init_max)
 {
-    char test_code[] = "import memory 2, 10";
+    char test_code[] = "from sys import memory 2, 10";
     frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(IMPORT_NODE, node->node_type);
-    node = node->import;
+    node = node->import->import;
     ASSERT_EQ(MEMORY_NODE, node->node_type);
     ASSERT_EQ(2, node->memory->initial->liter->int_val);
     ASSERT_EQ(10, node->memory->max->liter->int_val);
@@ -653,14 +654,14 @@ TEST(test_parser, import_memory_init_max)
 
 TEST(test_parser, import_global)
 {
-    char test_code[] = "import __stack_pointer:int";
+    char test_code[] = "from sys import __stack_pointer:int";
     frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(IMPORT_NODE, node->node_type);
-    node = node->import;
+    node = node->import->import;
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_STREQ("__stack_pointer", string_get(node->var->var_name));
     ast_node_free(block);
