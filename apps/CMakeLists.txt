@@ -7,6 +7,7 @@ if(WASM)
 
   add_executable(mw
     wasm/mw.c
+    wasm/libc.c
   )
 
   set_target_properties(mw PROPERTIES LINKER_LANGUAGE C
