@@ -111,12 +111,40 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_DEC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 } ;
 
+/**
+wasm_export_name(acos) double _acos(double x);
+wasm_export_name(asin) double _asin(double x);
+wasm_export_name(atan) double _atan(double x);
+wasm_export_name(atan2) double _atan2(double y, double x);
+wasm_export_name(cos) double _cos(double x);
+wasm_export_name(sin) double _sin(double);
+wasm_export_name(sinh) double _sinh(double x);
+wasm_export_name(tanh) double _tanh(double x);
+wasm_export_name(exp) double _exp(double x);
+wasm_export_name(log) double _log(double x);
+wasm_export_name(log10) double _log10(double x);
+wasm_export_name(pow) double _pow(double x, double y);
+wasm_export_name(sqrt) double _sqrt(double x);
+ *
+ */
 const char *imports = "\n\
-import fun print:() fmt:string ...\n\
-import memory 10\n\
-import __stack_pointer:int\n\
-import __memory_base:int\n\
-import fun sqrt:double x:double\n\
+from sys import fun print:() fmt:string ...\n\
+from sys import memory 10\n\
+from sys import __stack_pointer:int\n\
+from sys import __memory_base:int\n\
+from math import fun acos:double x:double\n\
+from math import fun asin:double x:double\n\
+from math import fun atan:double x:double\n\
+from math import fun atan2:double y:double x:double\n\
+from math import fun cos:double x:double\n\
+from math import fun sin:double x:double\n\
+from math import fun sinh:double x:double\n\
+from math import fun tanh:double x:double\n\
+from math import fun exp:double x:double\n\
+from math import fun log:double x:double\n\
+from math import fun log10:double x:double\n\
+from math import fun pow:double x:double y:double\n\
+from math import fun sqrt:double x:double\n\
 ";
 #define DATA_SECTION_START_ADDRESS 1024
 #define STACK_BASE_ADDRESS  66592
@@ -124,8 +152,8 @@ import fun sqrt:double x:double\n\
 #define STACK_POINTER_VAR_INDEX 0
 #define MEMORY_BASE_VAR_INDEX 1
 
-symbol IMPORTS_MODULE = 0;
-symbol MEMORY = 0;
+                                       symbol MEMORY
+                                       = 0;
 symbol __MEMORY_BASE = 0;
 void _fun_context_init(struct fun_context *fc)
 {
@@ -270,7 +298,6 @@ void wasm_codegen_init(struct wasm_module *module)
 {
     frontend_init();
     _wasm_module_init(module);
-    IMPORTS_MODULE = to_symbol("imports");
     MEMORY = to_symbol("memory");
     __MEMORY_BASE = to_symbol("__memory_base");
 }
@@ -689,8 +716,8 @@ void _emit_import_section(struct wasm_module *module, struct byte_array *ba, str
     for(u32 i = 0; i < array_size(&block->block->nodes); i++){
         struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
         assert(node->node_type == IMPORT_NODE);
-        node = node->import;
-        _emit_string(ba, IMPORTS_MODULE);
+        _emit_string(ba, node->import->from_module);
+        node = node->import->import;
         switch(node->node_type){
         default:
             printf("%s node is not allowed in import section", node_type_strings[node->node_type]);
@@ -918,7 +945,7 @@ struct ast_node *_decorate_as_module(struct wasm_module *module, struct hashtabl
                 hashtable_set_p(&module->func_name_2_ast, node->func->func_type->ft->name, node->func->func_type);
             }
         } else if(node->node_type == IMPORT_NODE){
-            node = node->import;
+            node = node->import->import;
             if(node->node_type == FUNC_TYPE_NODE){
                 block_node_add(module->fun_types, node);
                 hashtable_set_int(&module->func_name_2_idx, node->ft->name, module->func_idx++);
@@ -951,7 +978,7 @@ void _parsed_imports(struct imports *imports, struct ast_node *block)
     for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
         struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
         assert(node->node_type == IMPORT_NODE);
-        node = node->import;
+        node = node->import->import;
         if (node->node_type == FUNC_TYPE_NODE) {
             imports->num_fun ++;
         }

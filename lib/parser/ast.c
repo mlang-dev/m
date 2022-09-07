@@ -326,22 +326,24 @@ void _free_type_value_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *import_node_new(struct ast_node *imported, struct source_location loc)
+struct ast_node *import_node_new(symbol from_module, struct ast_node *imported, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(IMPORT_NODE, imported->annotated_type_enum, imported->annotated_type_name, loc);
-    node->import = imported;
+    MALLOC(node->import, sizeof(*node->import));
+    node->import->import = imported;
+    node->import->from_module = from_module;
     return node;
 }
 
 struct ast_node *_copy_import_node(struct ast_node *orig_node)
 {
-    return import_node_new(
-        node_copy(orig_node->import), orig_node->loc);
+    return import_node_new(orig_node->import->from_module,
+        node_copy(orig_node->import->import), orig_node->loc);
 }
 
 void _free_import_node(struct ast_node *node)
 {
-    ast_node_free(node->import);
+    ast_node_free(node->import->import);
     ast_node_free(node);
 }
 

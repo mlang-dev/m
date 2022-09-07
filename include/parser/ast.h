@@ -150,6 +150,11 @@ struct _call_node {
     struct ast_node *callee_func_type;
 };
 
+struct _import_node {
+    symbol from_module;
+    struct ast_node *import;
+};
+
 struct ast_node {
     enum node_type node_type;
     enum type annotated_type_enum;
@@ -174,7 +179,7 @@ struct ast_node {
         
         struct _type_node *type_def; 
         struct _type_value_node *type_value;
-        struct ast_node *import;
+        struct _import_node *import;
         struct _if_node *cond;
         struct _for_node *forloop;
         struct _block_node *block;
@@ -209,7 +214,7 @@ struct ast_node *var_node_new(symbol var_name, enum type type, symbol ext_type, 
 struct ast_node *var_node_new2(symbol var_name, symbol type_name, struct ast_node *init_value, bool is_global, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
-struct ast_node *import_node_new(struct ast_node *node, struct source_location loc);
+struct ast_node *import_node_new(symbol from_module, struct ast_node *node, struct source_location loc);
 struct ast_node *memory_node_new(struct ast_node *initial, struct ast_node *max, struct source_location loc);
 struct ast_node *func_type_node_new(
     symbol name,
