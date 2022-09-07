@@ -39,13 +39,13 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		if(mw_instance.exports.version != null){
 			let c_str = mw_instance.exports.version();
 			version = to_js_str(mw_instance, c_str);
-			mw_instance.exports.free_mem(c_str);
+			mw_instance.exports.free(c_str);
 		}
 	}
 
 	function to_js_str(instance, c_str)
 	{
-		const str_len = instance.exports.str_len(c_str)	
+		const str_len = instance.exports.strlen(c_str)	
 		let ta = new Uint8Array(instance.exports.memory.buffer, c_str, str_len)
 		return (new TextDecoder()).decode(ta)
 	}
@@ -86,7 +86,7 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 	{
 		let ta = new Uint8Array(instance.exports.memory.buffer, wasm, wasm_size);
 		var compiled = new WebAssembly.Module(ta);
-		var memory_base = instance.exports.alloc_mem(64 * 1024); //assigned 1 page: 64k
+		var memory_base = instance.exports.malloc(64 * 1024); //assigned 1 page: 64k
 		const __memory_base = new WebAssembly.Global({value: "i32", mutable: false}, memory_base);
 		code_instance = new WebAssembly.Instance(compiled, 
 			{ imports: 
@@ -94,12 +94,13 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 					print: instance.exports.print,
 					memory: instance.exports.memory,
 					__memory_base: __memory_base,
-					__stack_pointer: instance.exports.__stack_pointer
-				}
+					__stack_pointer: instance.exports.__stack_pointer,
+					sqrt: instance.exports.sqrt
+				},
 			});
 		code_memory_as_array = new Uint8Array(code_instance.exports.memory.buffer);
 		var ret = code_instance.exports._start();
-		instance.exports.free_mem(memory_base);
+		instance.exports.free(memory_base);
 		return ret;
 	}
 
@@ -109,25 +110,25 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 			print_func("m loading is failed.");
 			return;
 		}
-		let new_ptr = mw_instance.exports.alloc_mem(1024);
+		let new_ptr = mw_instance.exports.malloc(1024);
 		str_to_ab(mw_instance, code, new_ptr);
 		let wasm = mw_instance.exports.compile_code(new_ptr);
 		let wasm_size = mw_instance.exports.get_code_size();
 		let result = run_wasm_code(mw_instance, wasm, wasm_size);
-		mw_instance.exports.free_mem(wasm);
+		mw_instance.exports.free(wasm);
 		return result;
 	}
 
 	function compile(code, file_path)
 	{
-		let new_ptr = mw_instance.exports.alloc_mem(1024);
+		let new_ptr = mw_instance.exports.malloc(1024);
 		str_to_ab(mw_instance, code, new_ptr);
 		let wasm = mw_instance.exports.compile_code(new_ptr);
 		let wasm_size = mw_instance.exports.get_code_size();
 		let ta = new Uint8Array(mw_instance.exports.memory.buffer, wasm, wasm_size);
 		const fs = require('fs');
 		fs.writeFileSync(file_path, ta, 'binary');
-		mw_instance.exports.free_mem(wasm);
+		mw_instance.exports.free(wasm);
 	}
 }
 

@@ -116,6 +116,7 @@ import fun print:() fmt:string ...\n\
 import memory 10\n\
 import __stack_pointer:int\n\
 import __memory_base:int\n\
+import fun sqrt:double x:double\n\
 ";
 #define DATA_SECTION_START_ADDRESS 1024
 #define STACK_BASE_ADDRESS  66592

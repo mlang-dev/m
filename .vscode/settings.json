@@ -151,7 +151,9 @@
         "wasm.h": "c",
         "byte_array.h": "c",
         "float.h": "c",
-        "source_location.h": "c"
+        "source_location.h": "c",
+        "math.h": "c",
+        "stdarg.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

@@ -202,3 +202,14 @@ print "你好"
         expect(output).toEqual("你好");
     });
 });
+
+
+test('math.sqrt', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+sqrt 4.0
+`;
+        expect(m.run_mcode(code)).toEqual(2.0);
+    });
+});
