@@ -91,7 +91,6 @@ TEST(test_regex, ident_match_space)
     regex_free(re);
 }
 
-
 TEST(test_regex, float_num)
 {
     void *re = regex_new("[\\+-]?([0-9]*.)?[0-9]+");
@@ -102,6 +101,17 @@ TEST(test_regex, float_num)
     ASSERT_EQ(4, regex_match(re, "-0.3 !", 0));
     ASSERT_EQ(4, regex_match(re, "23.0", 0));
     ASSERT_EQ(4, regex_match(re, "-0.3. !", 0));
+    ASSERT_EQ(7, regex_match(re, "0.12345 !", 0));
+
+    regex_free(re);
+}
+
+TEST(test_regex, int_num)
+{
+    void *re = regex_new("[0-9]+|0x[0-9a-fA-F]+");
+    ASSERT_EQ(1, regex_match(re, "3 !", 0));
+    ASSERT_EQ(4, regex_match(re, "0x3F !", 0));
+    ASSERT_EQ(5, regex_match(re, "12345 !", 0));
 
     regex_free(re);
 }
@@ -117,6 +127,7 @@ int test_regex()
     RUN_TEST(test_regex_ident_match);
     RUN_TEST(test_regex_ident_match_space);
     RUN_TEST(test_regex_to_postfix_escaping_char);
+    RUN_TEST(test_regex_int_num);
     RUN_TEST(test_regex_float_num);
     return UNITY_END();
 }

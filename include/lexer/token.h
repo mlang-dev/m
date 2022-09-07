@@ -74,7 +74,7 @@ enum op_code {
     OP_BSL, //<< shift left
     OP_BSR, //>> shift right
 
-    OP_EXPO,
+    OP_POW,
     OP_TIMES,
     OP_DIVISION,
     OP_MODULUS,

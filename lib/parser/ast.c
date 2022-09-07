@@ -416,8 +416,6 @@ struct ast_node *func_type_node_new(symbol name,
     bool is_operator, unsigned precedence, symbol op,
     bool is_variadic, bool is_external, struct source_location loc)
 {
-//    enum type type = ret_type ? ret_type->type : TYPE_UNK;
-//    symbol type_name = type? to_symbol(type_strings[type]) : 0;
     struct ast_node *node = ast_node_new(FUNC_TYPE_NODE, 0, ret_type, loc);
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = name;

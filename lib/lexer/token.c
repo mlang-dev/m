@@ -13,7 +13,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, INDENT, NULL),
     TOKEN_PATTERN(0, DEDENT, NULL),
     TOKEN_PATTERN("\n", NEWLINE, NULL),
-    TOKEN_PATTERN("[0-9]+", INT, NULL), // 5
+    TOKEN_PATTERN("[0-9]+|0x[0-9a-fA-F]+", INT, NULL), // 5
     TOKEN_PATTERN("([0-9]*.)?[0-9]+", FLOAT, NULL),
 
     TOKEN_PATTERN(0, CHAR, NULL),
@@ -65,7 +65,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN(">>", OP, BSR),
 
     // KEYWORD_PATTERN("^", OP, EXPO),
-    NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, EXPO), // 40
+    NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, POW), // 40
     NAME_KEYWORD_PATTERN("*", "\\*", OP, TIMES), // 40
     KEYWORD_PATTERN("/", OP, DIVISION),
     KEYWORD_PATTERN("%", OP, MODULUS),

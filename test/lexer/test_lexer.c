@@ -124,6 +124,44 @@ TEST(test_lexer, token_num_int)
     frontend_deinit();
  }
 
+ TEST(test_lexer, token_num_int_hex)
+ {
+     frontend_init();
+     char test_code[] = "\n"
+                        "0x2\n"
+                        "\n";
+
+     struct token *tok;
+     struct lexer *lexer;
+     lexer = lexer_new_for_string(test_code);
+     tok = get_tok(lexer);
+     ASSERT_EQ(TOKEN_INT, tok->token_type);
+     ASSERT_EQ(2, tok->int_val);
+     ASSERT_EQ(2, tok->loc.line);
+     ASSERT_EQ(1, tok->loc.col);
+     ASSERT_EQ(1, tok->loc.start);
+     ASSERT_EQ(4, tok->loc.end);
+     lexer_free(lexer);
+     frontend_deinit();
+}
+
+TEST(test_lexer, token_num_int_hex2)
+{
+    frontend_init();
+    char test_code[] = "\n"
+                       "0xffffffff\n"
+                       "\n";
+
+    struct token *tok;
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    tok = get_tok(lexer);
+    ASSERT_EQ(TOKEN_INT, tok->token_type);
+    ASSERT_EQ(-1, tok->int_val);
+    lexer_free(lexer);
+    frontend_deinit();
+}
+
 TEST(test_lexer, token_num_float)
 {
     frontend_init();
@@ -284,7 +322,7 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(OP_TIMES, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_DIVISION, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_BEOR, get_tok(lexer)->opcode);
-    ASSERT_EQ(OP_EXPO, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_POW, get_tok(lexer)->opcode);
 
     ASSERT_EQ(OP_MUL_ASSN, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_DIV_ASSN, get_tok(lexer)->opcode);
@@ -351,6 +389,8 @@ int test_lexer()
     RUN_TEST(test_lexer_token_num_float3);
     RUN_TEST(test_lexer_token_num_id);
     RUN_TEST(test_lexer_token_num_int);
+    RUN_TEST(test_lexer_token_num_int_hex);
+    RUN_TEST(test_lexer_token_num_int_hex2);
     RUN_TEST(test_lexer_expr);
     RUN_TEST(test_lexer_other_symbols);
     RUN_TEST(test_lexer_token_indent_dedent);

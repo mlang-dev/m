@@ -14,6 +14,7 @@
 #include "parser/amodule.h"
 #include "parser/parser.h"
 #include "sema/analyzer.h"
+#include "sema/type.h"
 #include <assert.h>
 #include <stdint.h>
 #include <float.h>
@@ -68,34 +69,33 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     */
     /*OP_NULL   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
     /*OP_DOT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, },
-    /*OP_OR     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, },
-    /*OP_AND    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_NOT    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_OR     */{0, 0, 0, OPCODE_I32OR, 0, 0, 0, 0, 0, 0,  0, },
+    /*OP_AND    */{0, 0, 0, OPCODE_I32AND, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_NOT    */{0, 0, 0, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0, 0, }, //xor 1
 
-    /*OP_BNOT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_BOR    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_BEOR   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_BAND   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_BSL    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_BSR    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_BNOT   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, },             //xor -1
+    /*OP_BOR    */{0, 0, 0, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, 0, 0, 0, 0, 0, },
+    /*OP_BEOR   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, },
+    /*OP_BAND   */{0, 0, 0, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, 0, 0, 0, 0, 0, },
+    /*OP_BSL    */{0, 0, 0, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, 0, 0, 0, 0, 0, },
+    /*OP_BSR    */{0, 0, 0, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, 0, 0, 0, 0, 0, },
 
-    /*OP_EXPO   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_POW    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
     /*OP_TIMES  */{0, 0, 0, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_F32MUL, OPCODE_F64MUL, 0, 0, 0, },
     /*OP_DIV    */{0, 0, 0, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_F32DIV, OPCODE_F64DIV, 0, 0, 0, },
     /*OP_MOD    */{0, 0, 0, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, 0, 0, 0, 0, 0, },
     /*OP_PLUS   */{0, 0, 0, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_F32ADD, OPCODE_F64ADD, 0, 0, 0, },
     /*OP_MINUS  */{0, 0, 0, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_F32SUB, OPCODE_F64SUB, 0, 0, 0, },
 
-    /*OP_LT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_LE  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_EQ    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_GT    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_GE   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
-    /*OP_NE  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+    /*OP_LT   */{0, 0, 0, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_F32LT, OPCODE_F64LT, 0, 0, 0, },
+    /*OP_LE  */{0, 0, 0, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_F32LE, OPCODE_F64LE, 0, 0, 0, },
+    /*OP_EQ    */{0, 0, 0, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_F32EQ, OPCODE_F64EQ, 0, 0, 0, },
+    /*OP_GT    */{0, 0, 0, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_F32GT, OPCODE_F64GT, 0, 0, 0, },
+    /*OP_GE   */{0, 0, 0, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_F32GE, OPCODE_F64GE, 0, 0, 0, },
+    /*OP_NE  */{0, 0, 0, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_F32NE, OPCODE_F64NE, 0, 0, 0, },
 
     /*OP_COND  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 
-    
     /*OP_MUL_ASSN   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
     /*OP_DIV_ASSN  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
     /*OP_MOD_ASSN    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
@@ -111,22 +111,6 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_DEC     */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 } ;
 
-/**
-wasm_export_name(acos) double _acos(double x);
-wasm_export_name(asin) double _asin(double x);
-wasm_export_name(atan) double _atan(double x);
-wasm_export_name(atan2) double _atan2(double y, double x);
-wasm_export_name(cos) double _cos(double x);
-wasm_export_name(sin) double _sin(double);
-wasm_export_name(sinh) double _sinh(double x);
-wasm_export_name(tanh) double _tanh(double x);
-wasm_export_name(exp) double _exp(double x);
-wasm_export_name(log) double _log(double x);
-wasm_export_name(log10) double _log10(double x);
-wasm_export_name(pow) double _pow(double x, double y);
-wasm_export_name(sqrt) double _sqrt(double x);
- *
- */
 const char *imports = "\n\
 from sys import fun print:() fmt:string ...\n\
 from sys import memory 10\n\
@@ -151,10 +135,10 @@ from math import fun sqrt:double x:double\n\
 
 #define STACK_POINTER_VAR_INDEX 0
 #define MEMORY_BASE_VAR_INDEX 1
-
-                                       symbol MEMORY
-                                       = 0;
+symbol MEMORY = 0;
 symbol __MEMORY_BASE = 0;
+symbol POW_FUN_NAME = 0;
+
 void _fun_context_init(struct fun_context *fc)
 {
     fc->fun_name = 0;
@@ -300,6 +284,7 @@ void wasm_codegen_init(struct wasm_module *module)
     _wasm_module_init(module);
     MEMORY = to_symbol("memory");
     __MEMORY_BASE = to_symbol("__memory_base");
+    POW_FUN_NAME = to_symbol("pow");
 }
 
 void wasm_codegen_deinit(struct wasm_module *module)
@@ -410,7 +395,10 @@ void _emit_literal(struct wasm_module *module, struct byte_array *ba, struct ast
     u32 len;
     switch(node->type->type){
         default:
-            assert(false);
+            printf("not expected type: %s\n", string_get(type_symbols[node->type->type]));
+            exit(-1);
+        case TYPE_CHAR:
+        case TYPE_BOOL:
         case TYPE_INT:
             ba_add(ba, type_2_const[node->type->type]);
             _emit_int(ba, node->liter->int_val);
@@ -446,20 +434,42 @@ void _emit_literal(struct wasm_module *module, struct byte_array *ba, struct ast
 
 void _emit_unary(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
-    struct ast_node *zero = 0;
-    if (node->unop->opcode == OP_MINUS){
-        zero = int_node_new(0, node->loc);
-        zero->type = node->type;
-        _emit_code(module, ba, zero);
-    }
+    struct ast_node *bin_node = 0;
+    symbol s = 0;
+    switch (node->unop->opcode){
+        default:
+            s = get_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
+            printf("Not implemented unary for : %s\n", string_get(s));
+            exit(-1);
+        case OP_MINUS:
+            bin_node = int_node_new(0, node->loc);
+            bin_node->type = node->type;
+            _emit_code(module, ba, bin_node);
+            break;
+        case OP_NOT:
+            bin_node = int_node_new(1, node->loc);
+            bin_node->type = node->type;
+            _emit_code(module, ba, bin_node);
+            break;
+        case OP_BNOT:
+            bin_node = int_node_new(-1, node->loc);
+            bin_node->type = node->type;
+            _emit_code(module, ba, bin_node);
+            break;
+        }
     _emit_code(module, ba, node->unop->operand);
     enum type type_index = prune(node->unop->operand->type)->type;
     assert(type_index >= 0 && type_index < TYPE_TYPES);
     assert(node->unop->opcode >= 0 && node->unop->opcode < OP_TOTAL);
-    if(zero){
+    if (bin_node) {
         u8 opcode = op_maps[node->unop->opcode][type_index];
+        if(!opcode){
+            symbol s = get_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
+            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(type_symbols[type_index]));
+            exit(-1);
+        }
         ba_add(ba, opcode);
-        ast_node_free(zero);
+        ast_node_free(bin_node);
     }
 }
 
@@ -470,8 +480,20 @@ void _emit_binary(struct wasm_module *module, struct byte_array *ba, struct ast_
     enum type type_index = prune(node->binop->lhs->type)->type;
     assert(type_index >= 0 && type_index < TYPE_TYPES);
     assert(node->binop->opcode >= 0 && node->binop->opcode < OP_TOTAL);
-    u8 opcode = op_maps[node->binop->opcode][type_index];
-    ba_add(ba, opcode);
+    if (node->binop->opcode != OP_POW){
+        u8 opcode = op_maps[node->binop->opcode][type_index];
+        if(!opcode){
+            symbol s = get_symbol_by_token_opcode(TOKEN_OP, node->binop->opcode);
+            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(type_symbols[type_index]));
+            exit(-1);
+        }
+        ba_add(ba, opcode);
+    }else{
+        //call pow function
+        u32 func_index = hashtable_get_int(&module->func_name_2_idx, POW_FUN_NAME);
+        ba_add(ba, OPCODE_CALL);
+        _emit_uint(ba, func_index);
+    }
 }
 
 bool _is_variadic_call_with_optional_arguments(struct wasm_module *module, struct ast_node *node)
