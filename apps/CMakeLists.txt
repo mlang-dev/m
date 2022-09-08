@@ -5,25 +5,29 @@ if(WASM)
     ${CMAKE_SOURCE_DIR}/include
   )
 
-  add_executable(wm
-    wasm/wm.c
+  add_executable(mw
+    wasm/mw.c
+    wasm/libc.c
   )
 
-  set_target_properties(wm PROPERTIES LINKER_LANGUAGE C
+  set_target_properties(mw PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
-  target_link_libraries(wm PRIVATE mlr clib
+  target_link_libraries(mw PRIVATE mlr clib
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
     --target=wasm32
     -nostdlib
     -g
     -Wl,--no-entry,--export-dynamic
+    -Xlinker --features=mutable-globals
+    -Xlinker --export=__stack_pointer
+    -Xlinker --initial-memory=655360
     -v
   )
 
   message(STATUS "copy ${CMAKE_CURRENT_BINARY_DIR}/wm.wasm ${CMAKE_SOURCE_DIR}/docs")
-  add_custom_command(TARGET wm POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/wm.wasm ${CMAKE_SOURCE_DIR}/docs
+  add_custom_command(TARGET mw POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mw.wasm ${CMAKE_SOURCE_DIR}/docs
   )
 
 

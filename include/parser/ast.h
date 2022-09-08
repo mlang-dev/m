@@ -26,6 +26,9 @@ extern "C" {
  */
 #define FOREACH_NODETYPE(ENUM_ITEM) \
     ENUM_ITEM(NULL_NODE)            \
+    ENUM_ITEM(UNIT_NODE)            \
+    ENUM_ITEM(IMPORT_NODE)          \
+    ENUM_ITEM(MEMORY_NODE)          \
     ENUM_ITEM(LITERAL_NODE)         \
     ENUM_ITEM(IDENT_NODE)           \
     ENUM_ITEM(VAR_NODE)             \
@@ -72,6 +75,11 @@ struct _literal_node {
 
 struct _ident_node {
     symbol name;
+};
+
+struct _memory_node {
+    struct ast_node *initial;
+    struct ast_node *max;
 };
 
 struct _var_node {
@@ -142,6 +150,11 @@ struct _call_node {
     struct ast_node *callee_func_type;
 };
 
+struct _import_node {
+    symbol from_module;
+    struct ast_node *import;
+};
+
 struct ast_node {
     enum node_type node_type;
     enum type annotated_type_enum;
@@ -166,10 +179,11 @@ struct ast_node {
         
         struct _type_node *type_def; 
         struct _type_value_node *type_value;
-        
+        struct _import_node *import;
         struct _if_node *cond;
         struct _for_node *forloop;
         struct _block_node *block;
+        struct _memory_node *memory;
     };
 };
 
@@ -200,6 +214,8 @@ struct ast_node *var_node_new(symbol var_name, enum type type, symbol ext_type, 
 struct ast_node *var_node_new2(symbol var_name, symbol type_name, struct ast_node *init_value, bool is_global, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
+struct ast_node *import_node_new(symbol from_module, struct ast_node *node, struct source_location loc);
+struct ast_node *memory_node_new(struct ast_node *initial, struct ast_node *max, struct source_location loc);
 struct ast_node *func_type_node_new(
     symbol name,
     struct ast_node *params, 
@@ -220,8 +236,11 @@ struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, b
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *for_node_new(symbol var_name, struct ast_node *start,
     struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc);
+struct ast_node *block_node_new_empty();
 struct ast_node *block_node_new(struct array *nodes);
 struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node);
+struct ast_node *block_node_add_block(struct ast_node *block, struct ast_node *node);
+void free_block_node(struct ast_node *node, bool deep_free);
 struct ast_node *node_copy(struct ast_node *node);
 struct module *module_new(const char *mod_name, FILE *file);
 void node_free(struct ast_node *node);
@@ -239,6 +258,7 @@ enum node_type symbol_to_node_type(symbol node_type_name);
 struct node_type_name *get_node_type_names();
 
 struct ast_node *wrap_expr_as_function(struct hashtable *symbol_2_int_types, struct ast_node *exp, symbol fn);
+struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, symbol func_name, struct ast_node *block);
 
 #ifdef __cplusplus
 }

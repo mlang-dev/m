@@ -10,6 +10,7 @@
 
 #include "parser/amodule.h"
 #include "clib/byte_array.h"
+#include "clib/hashtable.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,8 +37,11 @@ extern "C" {
 #define TYPE_FUNC 0x60
 
 // limits
-#define LIMITS_MIN 0x00
-#define LIMITS_MIN_MAX 0x01
+
+enum LimitsType {
+    LIMITS_MIN_ONLY = 0, // 0, min
+    LIMITS_MIN_MAX // 1, min, max
+};
 // limits := 0x00 n:u32
 //          |0x01 n:u32 m: u32
 
@@ -51,6 +55,10 @@ extern "C" {
 // globaltype    := t:valuetype  m:mut   => m t
 //   mut         := 0x00     => const
 //               |  0x01     => var
+enum GlobalType{
+    GLOBAL_CONST = 0,
+    GLOBAL_VAR
+};
 
 // control instructions
 // blocktype :=  0x40    =>  epsilon
@@ -92,7 +100,12 @@ extern "C" {
                             // 15 table.grow
                             // 16 table.size
                             // 17 table.fill
-
+enum MemAlignType{
+    ALIGN_BYTE = 0,
+    ALIGN_TWO_BYTES,
+    ALIGN_FOUR_BYTES,
+    ALIGN_EIGHT_BYTES
+};
 // memory instructions
 // memarg    :=  a:u32   o:u32   => {align a, offset o}
 #define OPCODE_I32LOAD 0x28
@@ -307,8 +320,95 @@ enum ExportType {
     EXPORT_GLOBAL
 };
 
-void wasm_codegen_init();
-struct byte_array parse_as_module(const char *expr);
+enum ImportType {
+    IMPORT_FUNC = 0,
+    IMPORT_TABLE,
+    IMPORT_MEMORY,
+    IMPORT_GLOBAL
+};
+
+enum DataSegmentType {
+    DATA_ACTIVE = 0,  //active, {memory 0, offset e}
+    DATA_PASSIVE,     //passive
+    DATA_ACTIVE_M     //active, {memory idx, offset e}
+};
+
+struct var_info{
+    u32 index; //
+    u8 type;  //wasm type
+};
+
+struct fun_context {
+    symbol fun_name;
+    /*
+     *  symboltable of <symbol, u32>
+     *  binding variable name to index of variable in the function
+     *  used in function codegen
+     */
+    struct symboltable varname_2_index;
+
+    /*
+     *  hashtable of <struct ast_node *, u32>
+     *  binding ast_node pointer to index of local variable in the function
+     *  used in function codegen
+     */
+    struct hashtable ast_2_index;
+
+    /*
+     *  number of local variables
+     */
+    u32 local_vars;
+};
+
+#define FUN_LEVELS 512
+#define LOCAL_VARS 1024 //TODO: need to eliminate this limitation
+
+struct imports{
+    struct ast_node *import_block;
+    u32 num_global;
+    u32 num_fun;
+    u32 num_memory;
+};
+
+struct wasm_module {
+    struct byte_array ba;
+    struct hashtable func_name_2_idx;
+    struct hashtable func_name_2_ast;
+    /*
+     *  symboltable of <symbol, struct fun_context>
+     *  binding variable name to index of variable in the function
+     *  used in function codegen
+     */
+    struct fun_context fun_contexts[FUN_LEVELS];
+    struct var_info local_vars[LOCAL_VARS];
+
+    u32 fun_top;
+    u32 var_top;
+    u32 func_idx;
+
+    struct imports imports;
+
+    /*
+     * function types including imports function type, and those in fun definitions
+     */
+    struct ast_node *fun_types;
+
+    /*
+     * function definitions
+     */
+    struct ast_node *funs;
+
+    /*
+     * data section, for example: string literal
+     */
+    struct ast_node *data_block;
+
+    u32 data_offset;
+};
+
+void wasm_codegen_init(struct wasm_module *module);
+void wasm_codegen_deinit(struct wasm_module *module);
+void parse_as_module(struct wasm_module *module, const char *expr);
 
 #ifdef __cplusplus
 }

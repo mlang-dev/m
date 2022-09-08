@@ -78,7 +78,29 @@ TEST(test_lexer, token_string)
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
     frontend_deinit();
- }
+}
+
+TEST(test_lexer, token_utc_string)
+{
+    frontend_init();
+    char test_code[] = "\"你好\"\n"
+                       "\n";
+
+    struct token *tok;
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+
+    tok = get_tok(lexer);
+    ASSERT_EQ(TOKEN_STRING, tok->token_type);
+    ASSERT_EQ(1, tok->loc.line);
+    ASSERT_EQ(1, tok->loc.col);
+    ASSERT_EQ(0, tok->loc.start);
+    ASSERT_EQ(8, tok->loc.end);
+    ASSERT_STREQ("你好", string_get(tok->str_val));
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
+    lexer_free(lexer);
+    frontend_deinit();
+}
 
 TEST(test_lexer, token_num_int)
 {
@@ -101,6 +123,44 @@ TEST(test_lexer, token_num_int)
     lexer_free(lexer);
     frontend_deinit();
  }
+
+ TEST(test_lexer, token_num_int_hex)
+ {
+     frontend_init();
+     char test_code[] = "\n"
+                        "0x2\n"
+                        "\n";
+
+     struct token *tok;
+     struct lexer *lexer;
+     lexer = lexer_new_for_string(test_code);
+     tok = get_tok(lexer);
+     ASSERT_EQ(TOKEN_INT, tok->token_type);
+     ASSERT_EQ(2, tok->int_val);
+     ASSERT_EQ(2, tok->loc.line);
+     ASSERT_EQ(1, tok->loc.col);
+     ASSERT_EQ(1, tok->loc.start);
+     ASSERT_EQ(4, tok->loc.end);
+     lexer_free(lexer);
+     frontend_deinit();
+}
+
+TEST(test_lexer, token_num_int_hex2)
+{
+    frontend_init();
+    char test_code[] = "\n"
+                       "0xffffffff\n"
+                       "\n";
+
+    struct token *tok;
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    tok = get_tok(lexer);
+    ASSERT_EQ(TOKEN_INT, tok->token_type);
+    ASSERT_EQ(-1, tok->int_val);
+    lexer_free(lexer);
+    frontend_deinit();
+}
 
 TEST(test_lexer, token_num_float)
 {
@@ -229,7 +289,7 @@ TEST(test_lexer, expr)
 TEST(test_lexer, other_symbols)
 {
     frontend_init();
-    char test_code[] = "()[]{} .. ... .< <= == != >= > || && ! |&+-*/^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ?";
+    char test_code[] = "( )()[]{} .. ... .< <= == != >= > || && ! |&+-*/^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ?";
 
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
@@ -237,6 +297,7 @@ TEST(test_lexer, other_symbols)
     //'('
     ASSERT_EQ(TOKEN_LPAREN, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_RPAREN, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_UNIT, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_LBRACKET, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_RBRACKET, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_LCBRACKET, get_tok(lexer)->token_type);
@@ -261,7 +322,7 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(OP_TIMES, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_DIVISION, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_BEOR, get_tok(lexer)->opcode);
-    ASSERT_EQ(OP_EXPO, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_POW, get_tok(lexer)->opcode);
 
     ASSERT_EQ(OP_MUL_ASSN, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_DIV_ASSN, get_tok(lexer)->opcode);
@@ -297,6 +358,23 @@ TEST(test_lexer, token_indent_dedent)
     frontend_deinit();
 }
 
+TEST(test_lexer, token_import_memory)
+{
+    frontend_init();
+    char test_code[] = "from sys import memory";
+
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+
+    ASSERT_EQ(TOKEN_FROM, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_IDENT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_IMPORT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_MEMORY, get_tok(lexer)->token_type);
+
+    lexer_free(lexer);
+    frontend_deinit();
+}
+
 int test_lexer()
 {
     UNITY_BEGIN();
@@ -304,14 +382,18 @@ int test_lexer()
     RUN_TEST(test_lexer_skip_comment);
     RUN_TEST(test_lexer_token_char);
     RUN_TEST(test_lexer_token_string);
+    RUN_TEST(test_lexer_token_utc_string);
     RUN_TEST(test_lexer_token_id);
     RUN_TEST(test_lexer_token_num_float);
     RUN_TEST(test_lexer_token_num_float2);
     RUN_TEST(test_lexer_token_num_float3);
     RUN_TEST(test_lexer_token_num_id);
     RUN_TEST(test_lexer_token_num_int);
+    RUN_TEST(test_lexer_token_num_int_hex);
+    RUN_TEST(test_lexer_token_num_int_hex2);
     RUN_TEST(test_lexer_expr);
     RUN_TEST(test_lexer_other_symbols);
     RUN_TEST(test_lexer_token_indent_dedent);
+    RUN_TEST(test_lexer_token_import_memory);
     return UNITY_END();
 }

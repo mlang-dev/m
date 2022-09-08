@@ -29,10 +29,13 @@ extern "C" {
     ENUM_ITEM(TOKEN_FLOAT)           \
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
+    ENUM_ITEM(TOKEN_FROM)            \
     ENUM_ITEM(TOKEN_IMPORT)          \
+    ENUM_ITEM(TOKEN_MEMORY)          \
     ENUM_ITEM(TOKEN_EXTERN)          \
     ENUM_ITEM(TOKEN_TYPE)            \
     ENUM_ITEM(TOKEN_LET)             \
+    ENUM_ITEM(TOKEN_FUN)             \
     ENUM_ITEM(TOKEN_IF)              \
     ENUM_ITEM(TOKEN_THEN)            \
     ENUM_ITEM(TOKEN_ELSE)            \
@@ -43,6 +46,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_LPAREN)          \
     ENUM_ITEM(TOKEN_RPAREN)          \
+    ENUM_ITEM(TOKEN_UNIT)            \
     ENUM_ITEM(TOKEN_LBRACKET)        \
     ENUM_ITEM(TOKEN_RBRACKET)        \
     ENUM_ITEM(TOKEN_LCBRACKET)       \
@@ -70,7 +74,7 @@ enum op_code {
     OP_BSL, //<< shift left
     OP_BSR, //>> shift right
 
-    OP_EXPO,
+    OP_POW,
     OP_TIMES,
     OP_DIVISION,
     OP_MODULUS,

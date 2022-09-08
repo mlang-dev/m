@@ -53,8 +53,8 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     struct array args;
     array_init(&args, sizeof(struct type_exp *));
     /*nullary type: builtin default types*/
-    for (size_t i = 0; i < ARRAY_SIZE(type_strings); i++) {
-        symbol type_name = to_symbol(type_strings[i]);
+    for (size_t i = 0; i < ARRAY_SIZE(type_symbols); i++) {
+        symbol type_name = type_symbols[i];
         struct type_exp *exp = (struct type_exp *)create_type_oper(type_name, i, &args);
         push_symbol_type(&context->typename_2_typexps, type_name, exp);
     }

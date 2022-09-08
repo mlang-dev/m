@@ -2,48 +2,11 @@ cmake_minimum_required(VERSION 3.16)
 
 project(mtest, VERSION 0.0.9 LANGUAGES CXX)
 
-IF (EMSCRIPTEN)
-  # exclude LLVM codegen testing
-  include_directories(
-    ${CMAKE_SOURCE_DIR}/test
-    ${CMAKE_SOURCE_DIR}/include
-  )
-
-
-  add_executable(mtest
-    clib/test_symbol.cc
-    clib/test_symboltable.cc
-    clib/test_math.cc
-    clib/test_string.cc
-    clib/test_array.c
-    clib/test_queue.cc
-    clib/test_stack.cc
-    clib/test_hashtable.cc
-    clib/test_hashset.cc
-    clib/test_util.cc
-    parser/test_earley_parser.cc
-    parser/test_parser_expr.c
-    parser/test_parser.c
-    parser/test_grammar.cc
-    codegen/test_wat_codegen.cc
-    codegen/test_wasm_codegen.c
-    app/test_mwat.cc
-  )
-
-  TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr clib
-  )
-
-
-  enable_testing()
-  include(GoogleTest)
-  gtest_discover_tests(mtest)
-  
-elseif (WASM)
+if (WASM)
   include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/unity
     ${CMAKE_SOURCE_DIR}/test
-#    ~/.wasmer/include
   )
 
   add_executable(mtest
@@ -69,7 +32,7 @@ elseif (WASM)
     parser/test_parser.c
     parser/test_grammar.c
     codegen/test_wat_codegen.c
-    app/test_mwat.c
+    codegen/test_wasm_codegen.c
   )
 
   set_target_properties(mtest PROPERTIES LINKER_LANGUAGE C
@@ -82,6 +45,10 @@ elseif (WASM)
     -g
     -v
     -Wl,--no-entry,--strip-all,--export-dynamic
+  )
+
+  add_custom_command(TARGET mtest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mtest.wasm ${CMAKE_SOURCE_DIR}/docs
   )
 
 else()
@@ -106,14 +73,10 @@ else()
     ${LLVM_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/test
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-linux-c-api/include
-    ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-macos-c-api/include
   )
 
   link_directories(
     ${LLVM_INCLUDE_DIRS}/../lib
-    ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-linux-c-api/lib
-    ${CMAKE_SOURCE_DIR}/extern/wasmtime-v0.39.1-x86_64-macos-c-api/lib
   )
 
   add_executable(mtest
@@ -161,11 +124,6 @@ else()
 endif()
 
 if(WASM)
-  add_custom_command(
-    TARGET mtest
-    POST_BUILD
-    COMMAND wasmtime mtest.wasm
-  )
 else()
   include_directories(
     ${CMAKE_SOURCE_DIR}/unity
@@ -193,10 +151,9 @@ else()
   parser/test_grammar.c
   codegen/test_wat_codegen.c
   codegen/test_wasm_codegen.c
-  app/test_mwat.c
   )
 
-  TARGET_LINK_LIBRARIES(mctest mlr clib unity wasmtime
+  TARGET_LINK_LIBRARIES(mctest mlr clib unity
   )
 
   add_custom_command(

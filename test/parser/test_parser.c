@@ -433,6 +433,23 @@ TEST(test_parser, func_type_no_param)
     frontend_deinit();
 }
 
+TEST(test_parser, func_type_no_param_no_return)
+{
+    char test_code[] = "extern print:() ()";
+    frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
+    ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
+    ASSERT_STREQ("print", string_get(node->ft->name));
+    ASSERT_STREQ("()", string_get(node->annotated_type_name));
+    ast_node_free(block);
+    parser_free(parser);
+    frontend_deinit();
+}
+
 TEST(test_parser, type_decl)
 {
     char test_code[] = "\n\
@@ -580,6 +597,78 @@ xy.x";
     frontend_deinit();
 }
 
+TEST(test_parser, import_fun_type)
+{
+    char test_code[] = "from sys import fun print:() ()";
+    frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(IMPORT_NODE, node->node_type);
+    ASSERT_STREQ("sys", string_get(node->import->from_module));
+    node = node->import->import;
+    ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
+    ASSERT_STREQ("print", string_get(node->ft->name));
+    ASSERT_STREQ("()", string_get(node->annotated_type_name));
+    ast_node_free(block);
+    parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_parser, import_memory_init)
+{
+    char test_code[] = "from sys import memory 2";
+    frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(IMPORT_NODE, node->node_type);
+    node = node->import->import;
+    ASSERT_EQ(MEMORY_NODE, node->node_type);
+    ASSERT_EQ(2, node->memory->initial->liter->int_val);
+    ASSERT_EQ(0, node->memory->max);
+    ast_node_free(block);
+    parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_parser, import_memory_init_max)
+{
+    char test_code[] = "from sys import memory 2, 10";
+    frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(IMPORT_NODE, node->node_type);
+    node = node->import->import;
+    ASSERT_EQ(MEMORY_NODE, node->node_type);
+    ASSERT_EQ(2, node->memory->initial->liter->int_val);
+    ASSERT_EQ(10, node->memory->max->liter->int_val);
+    ast_node_free(block);
+    parser_free(parser);
+    frontend_deinit();
+}
+
+TEST(test_parser, import_global)
+{
+    char test_code[] = "from sys import __stack_pointer:int";
+    frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(IMPORT_NODE, node->node_type);
+    node = node->import->import;
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    ASSERT_STREQ("__stack_pointer", string_get(node->var->var_name));
+    ast_node_free(block);
+    parser_free(parser);
+    frontend_deinit();
+}
+
 int test_lr_parser()
 {
     UNITY_BEGIN();
@@ -606,10 +695,15 @@ int test_lr_parser()
     RUN_TEST(test_parser_variadic_function);
     RUN_TEST(test_parser_func_type);
     RUN_TEST(test_parser_func_type_no_param);
+    RUN_TEST(test_parser_func_type_no_param_no_return);
     RUN_TEST(test_parser_type_decl);
     RUN_TEST(test_parser_type_decl2);
     RUN_TEST(test_parser_type_var_init);
     RUN_TEST(test_parser_func_returns_type_init);
     RUN_TEST(test_parser_use_type_field);
+    RUN_TEST(test_parser_import_fun_type);
+    RUN_TEST(test_parser_import_memory_init);
+    RUN_TEST(test_parser_import_memory_init_max);
+    RUN_TEST(test_parser_import_global);
     return UNITY_END();
 }

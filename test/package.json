@@ -1,0 +1,14 @@
+{
+  "name": "wmtest",
+  "version": "1.0.0",
+  "description": "m web test",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Ligang Wang",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}

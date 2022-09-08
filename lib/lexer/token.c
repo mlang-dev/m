@@ -13,16 +13,19 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, INDENT, NULL),
     TOKEN_PATTERN(0, DEDENT, NULL),
     TOKEN_PATTERN("\n", NEWLINE, NULL),
-    TOKEN_PATTERN("[0-9]+", INT, NULL), // 5
+    TOKEN_PATTERN("[0-9]+|0x[0-9a-fA-F]+", INT, NULL), // 5
     TOKEN_PATTERN("([0-9]*.)?[0-9]+", FLOAT, NULL),
 
     TOKEN_PATTERN(0, CHAR, NULL),
     TOKEN_PATTERN(0, STRING, NULL),
 
+    KEYWORD_PATTERN("from", FROM, NULL),
     KEYWORD_PATTERN("import", IMPORT, NULL),
+    KEYWORD_PATTERN("memory", MEMORY, NULL),
     KEYWORD_PATTERN("extern", EXTERN, NULL), // 10
     KEYWORD_PATTERN("type", TYPE, NULL),
     KEYWORD_PATTERN("let", LET, NULL),
+    KEYWORD_PATTERN("fun", FUN, NULL),
     KEYWORD_PATTERN("if", IF, NULL),
     KEYWORD_PATTERN("then", THEN, NULL),
     KEYWORD_PATTERN("else", ELSE, NULL), // 15
@@ -35,6 +38,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
 
     NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL),
     NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL),
+    NAME_KEYWORD_PATTERN("()", "\\(\\)", UNIT, NULL),
     NAME_KEYWORD_PATTERN("[", "\\[", LBRACKET, NULL),
     NAME_KEYWORD_PATTERN("]", "\\]", RBRACKET, NULL),
     KEYWORD_PATTERN("{", LCBRACKET, NULL), // 25
@@ -61,7 +65,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN(">>", OP, BSR),
 
     // KEYWORD_PATTERN("^", OP, EXPO),
-    NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, EXPO), // 40
+    NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, POW), // 40
     NAME_KEYWORD_PATTERN("*", "\\*", OP, TIMES), // 40
     KEYWORD_PATTERN("/", OP, DIVISION),
     KEYWORD_PATTERN("%", OP, MODULUS),
@@ -173,7 +177,7 @@ u16 get_symbol_index(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
     if(tp == 0){
-        printf("unkown symbol: %s\n", string_get(symbol));
+        printf("unknown symbol: %s\n", string_get(symbol));
         assert(false);
     }
     

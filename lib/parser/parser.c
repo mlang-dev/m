@@ -22,7 +22,7 @@ struct parser *_parser_new(parsing_table *pt, parsing_rules *pr)
     parser->pr = pr;
     hashtable_init_with_value_size(&parser->symbol_2_int_types, sizeof(int), 0);
     for (int i = 0; i < TYPE_TYPES; i++) {
-        hashtable_set_int(&parser->symbol_2_int_types, to_symbol(type_strings[i]), i);
+        hashtable_set_int(&parser->symbol_2_int_types, type_symbols[i], i);
     }
     return parser;
 }
@@ -78,6 +78,9 @@ struct ast_node *_build_terminal_ast(struct token *tok)
         case TOKEN_EOF:
             ast = ast_node_new(NULL_NODE, 0, 0, tok->loc);
             break;
+        case TOKEN_UNIT:
+            ast = ast_node_new(UNIT_NODE, TYPE_UNIT, type_symbols[TYPE_UNIT], tok->loc);
+            break;
         case TOKEN_OP:
             //*hacky way to transfer opcode
             node_type = (tok->token_type << 16) | tok->opcode;
@@ -125,6 +128,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
     bool is_variadic = false;
+    symbol type_name = 0;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
             return items[0].ast;
@@ -133,8 +137,25 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }
     }
     switch (rule->action.node_type) {
-    default:
-        assert(false);
+    case NULL_NODE:
+    case TOTAL_NODE:
+    case UNIT_NODE:
+    case LITERAL_NODE:
+    case IDENT_NODE:
+        printf("type: %d is not supported for nonterm node.", rule->action.node_type);
+        exit(-1);
+        break;
+    case IMPORT_NODE:
+        node = items[rule->action.item_index[0]].ast;
+        node1 = items[rule->action.item_index[1]].ast;
+        ast = import_node_new(node->ident->name, node1, node->loc);
+        break;
+    case MEMORY_NODE:
+        node = items[rule->action.item_index[0]].ast;
+        if (rule->action.item_index_count==2){
+            node1 = items[rule->action.item_index[1]].ast;
+        }
+        ast = memory_node_new(node, node1, node->loc);
         break;
     case UNARY_NODE:
         assert(rule->action.item_index_count==2);
@@ -201,7 +222,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         break;
     case FUNC_TYPE_NODE:
         assert(rule->action.item_index_count == 3);
-        node = items[rule->action.item_index[0]].ast;
+        node = items[rule->action.item_index[0]].ast; //fun name
         assert(node->node_type == IDENT_NODE);
         node1 = items[rule->action.item_index[2]].ast; // parameters
         assert(node1->node_type == BLOCK_NODE);
@@ -212,11 +233,12 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 array_pop(&node1->block->nodes);
             }
         }
-        node3 = items[rule->action.item_index[1]].ast;
-        ast = func_type_node_default_new(node->ident->name, node1, node3->ident->name, is_variadic, true, node->loc);
+        node3 = items[rule->action.item_index[1]].ast; //return type name
+        type_name = node3->node_type == UNIT_NODE ? node3->annotated_type_name : node3->ident->name;
+        ast = func_type_node_default_new(node->ident->name, node1, type_name, is_variadic, true, node->loc);
         break;
     case FUNC_NODE:
-        node = items[rule->action.item_index[0]].ast;
+        node = items[rule->action.item_index[0]].ast; //fun name
         assert(node->node_type == IDENT_NODE);
         node1 = items[rule->action.item_index[1]].ast; //parameters
         assert(node1->node_type == BLOCK_NODE);
@@ -236,7 +258,10 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             //has return type
             node4 = items[rule->action.item_index[3]].ast;
         }
-        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, node4?node4->ident->name:0, is_variadic, false, node->loc);
+        if(node4){
+            type_name = node4->node_type == UNIT_NODE ? node4->annotated_type_name : node4->ident->name;
+        }
+        struct ast_node *ft = func_type_node_default_new(node->ident->name, node1, type_name, is_variadic, false, node->loc);
         ast = function_node_new(ft, node3, node->loc);
         hashtable_set_int(symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
         break;

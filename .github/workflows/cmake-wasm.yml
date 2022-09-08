@@ -17,6 +17,10 @@ jobs:
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x]
+
     steps:
     - name: Install LLVM & LLD
       run: |
@@ -40,14 +44,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
-    - name: Get wasmtime
-      run: |
-        curl https://wasmtime.dev/install.sh -sSf | bash
-        echo "${HOME}/.wasmtime/bin" >> $GITHUB_PATH
-
-    - name: Test wasmtime path
-      run: |
-        wasmtime -V
 
     - name: Build wasi-libc
       run: (cd ${{github.workspace}}/extern/wasi-libc && make)
@@ -71,3 +67,15 @@ jobs:
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
+
+    #use nodes now
+    - name: use node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - run: | 
+        cd ${{github.workspace}}/test
+        npm ci
+        npm run build --if-present
+        npm test

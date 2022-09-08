@@ -25,7 +25,7 @@ const char *relational_ops[] = {
 symbol get_type_symbol(enum type type_enum)
 {
     // assert(g_parser);
-    return to_symbol(type_strings[type_enum]);
+    return type_symbols[type_enum];
 }
 
 bool _is_predicate_op(const char *op)
@@ -174,6 +174,7 @@ struct type_exp *_analyze_func_type(struct sema_context *context, struct ast_nod
     array_push(&fun_sig, &to);
     node->type = (struct type_exp *)create_type_fun(&fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
+    push_symbol_type(&context->decl_2_typexps, node->ft->name, node->type);
     return node->type;
 }
 
@@ -240,7 +241,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
         assert(type);
         array_push(&args, &type);
     }
-
+    struct ast_node *sp_fun = 0;
     /* monomorphization of generic */
     if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args))) {
         struct ast_node *parent_func = stack_size(&context->func_stack) ? *(struct ast_node**)stack_top(&context->func_stack) : 0;
@@ -254,7 +255,7 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
             }
             /* specialized callee */
             struct ast_node *generic_fun = hashtable_get(&context->generic_ast, string_get(node->call->callee));
-            struct ast_node *sp_fun = node_copy(generic_fun);
+            sp_fun = node_copy(generic_fun);
             array_push(&generic_fun->func->sp_funs, &sp_fun);
 
             sp_fun->func->func_type->ft->name = node->call->specialized_callee;
@@ -271,6 +272,11 @@ struct type_exp *_analyze_call(struct sema_context *context, struct ast_node *no
     array_push(&args, &result_type);
     struct type_exp *call_fun = (struct type_exp *)create_type_fun(&args);
     unify(call_fun, fun_type, &context->nongens);
+    if(sp_fun){
+        fun_type = prune(fun_type);
+        sp_fun->type = fun_type;
+        sp_fun->func->func_type->type = fun_type;
+    }
     if (hashtable_in_p(&context->builtin_ast, node->call->callee)) {
         array_push(&context->used_builtin_names, &node->call->callee);
     }
@@ -393,6 +399,17 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
         case NULL_NODE:
             //type = _analyze_unk(context, node);
             assert(false);
+            break;
+        case UNIT_NODE:
+            type = (struct type_exp *)create_unit_type();
+            break;
+        case IMPORT_NODE:
+            type = analyze(context, node->import->import);
+            break;
+        case MEMORY_NODE:
+            type = analyze(context, node->memory->initial);
+            if (node->memory->max)
+                type = analyze(context, node->memory->max);
             break;
         case LITERAL_NODE:
             type = _analyze_liter(context, node);

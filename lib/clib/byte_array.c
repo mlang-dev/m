@@ -40,6 +40,13 @@ void ba_add(struct byte_array *ba, u8 byte)
     ba->data[ba->size++] = byte;
 }
 
+void ba_add_array(struct byte_array *ba, u8* byte, u32 bytes)
+{
+    for(u32 i=0;i<bytes; i++){
+        ba_add(ba, byte[i]);
+    }
+}
+
 void ba_add2(struct byte_array *dst, struct byte_array *src)
 {
     if (dst->cap < dst->size + src->size) {
@@ -63,7 +70,9 @@ void ba_reset(struct byte_array *ba)
 
 void ba_deinit(struct byte_array *ba)
 {
-    FREE(ba->data);
+    if(ba->data){
+        FREE(ba->data);
+        ba->data = 0;
+    }
     ba->size = ba->cap = 0;
-    ba->data = 0;
 }
