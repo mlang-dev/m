@@ -59,29 +59,6 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		dst[ta.length] = 0;
 	}
 
-	function _decode_uint(buffer, offset)
-	{
-		result = 0;
-		shift = 0;
-		while(true){
-			byte = buffer[offset++];
-			result |= (byte & 0x7F) << shift;
-			if ((byte & 0x80) == 0){
-				break;
-			}
-			shift += 7;
-		}
-		return [offset, result];
-	}
-
-	function print_log(fmt_offset, ...params)
-	{
-		[fmt_offset, fmt_length] = _decode_uint(code_memory_as_array, fmt_offset);
-		var bytes = new Uint8Array(code_instance.exports.memory.buffer, fmt_offset, fmt_length);
-		var string = new TextDecoder('utf8').decode(bytes);
-		print_func(string, ...params);
-	}
-
 	function run_wasm_code(instance, wasm, wasm_size)
 	{
 		let ta = new Uint8Array(instance.exports.memory.buffer, wasm, wasm_size);

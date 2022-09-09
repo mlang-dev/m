@@ -36,6 +36,23 @@
 		</div>
 		<textarea id='console' rows="5" cols="80" readonly style="color:grey"></textarea><br/>
 		<script>
+	var codeInput = document.getElementById("code");
+	if (codeInput.addEventListener) {
+		codeInput.addEventListener('keydown', this.keyHandler, false);
+	} else if (codeInput.attachEvent) {
+		codeInput.attachEvent('onkeydown', this.keyHandler); /* damn IE hack */
+	}
+
+	function keyHandler(e) {
+		var TABKEY = 9;
+		if (e.keyCode == TABKEY) {
+			this.value += "\t";
+			if (e.preventDefault) {
+				e.preventDefault();
+			}
+			return false;
+		}
+	}						
 			var instance = null;
 			mw(new wasi(), 'mw.wasm', print, true).then(
 				result=>{
@@ -50,7 +67,7 @@
 				print(instance.run_mcode(code));
 			}
 			
-			function print(text, ...params){
+			function print(text){
 				if(text == null || text == undefined){
 					return;
 				}
