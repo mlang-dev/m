@@ -18,9 +18,11 @@ TEST(test_wasm_codegen, parse_as_module)
     struct wasm_module module;
     wasm_codegen_init(&module);
     char test_code[] = "\n\
-let sub x y = x - y\n\
-sub 10 30\n\
-";
+sum = 0\n\
+for i in 1..3 \n\
+    for j in 1..3\n\
+        sum = sum + i * j\n\
+sum";
     parse_as_module(&module, test_code);
     ASSERT_TRUE(module.ba.size!=0);
     wasm_codegen_deinit(&module);

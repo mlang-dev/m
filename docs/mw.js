@@ -70,6 +70,7 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 				sys: 
 				{ 
 					print: instance.exports.print,
+					putchar: instance.exports.putchar,
 					memory: instance.exports.memory,
 					__memory_base: __memory_base,
 					__stack_pointer: instance.exports.__stack_pointer,
@@ -102,7 +103,7 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 			print_func("m loading is failed.");
 			return;
 		}
-		let new_ptr = mw_instance.exports.malloc(1024);
+		let new_ptr = mw_instance.exports.malloc(10*1024);
 		str_to_ab(mw_instance, code, new_ptr);
 		let wasm = mw_instance.exports.compile_code(new_ptr);
 		let wasm_size = mw_instance.exports.get_code_size();

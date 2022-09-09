@@ -68,6 +68,90 @@ if false then 100 else 10
     });
 });
 
+test('if - else if 1st branch statement', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let choice n = 
+    if n <= 10 then 100 
+    else if n <= 20 then 200
+    else if n <= 30 then 300
+    else 400
+choice 10
+        `;
+        expect(m.run_mcode(code)).toEqual(100);
+    });
+});
+
+test('if - else if 2nd branch statement', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let choice n = 
+    if n <= 10 then 100 
+    else if n <= 20 then 200
+    else if n <= 30 then 300
+    else 400
+choice 20
+        `;
+        expect(m.run_mcode(code)).toEqual(200);
+    });
+});
+
+test('if - else if 3rd branch statement', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let choice n = 
+    if n <= 10 then 100 
+    else if n <= 20 then 200
+    else if n <= 30 then 300
+    else 400
+choice 30
+        `;
+        expect(m.run_mcode(code)).toEqual(300);
+    });
+});
+
+test('if - else if 4th branch statement', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let choice n = 
+    if n <= 10 then 100 
+    else if n <= 20 then 200
+    else if n <= 30 then 300
+    else 400
+choice 40
+        `;
+        expect(m.run_mcode(code)).toEqual(400);
+    });
+});
+
+test('if - else if print statement', () => {
+    let outputs = [];
+    function log_fun(text) {
+        outputs.push(text);
+    }
+    var result = get_mw(log_fun);
+    return result.then((m) => {
+        let code = `
+let choice n = 
+    if n <= 10 then 
+        putchar '#' 
+    else if n <= 20 then
+        putchar '?'
+    else
+        putchar '*' 
+choice 4
+choice 14
+choice 24
+        `;
+        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(outputs).toEqual(['#', '?', '*']);
+    });
+});
+
 test('for loop statement', () => {
     var result = get_mw();
     return result.then((m) => {
@@ -81,3 +165,42 @@ sum
     });
 });
 
+test('for nest loop statement', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+sum = 0
+for i in 1..3
+    for j in 1..3
+        sum = sum + i * j
+sum`;
+        m.compile(code, "test.wasm");
+        expect(m.run_mcode(code)).toEqual(9);
+    });
+});
+
+test('recursive factorial', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let factorial n = if n == 1 then n else n * factorial (n-1)
+factorial 5
+        `;
+        expect(m.run_mcode(code)).toEqual(120);
+    });
+});
+
+test('for loop factorial', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let factorial n = 
+    p = 1
+    for i in 2..n+1
+        p = p * i
+    p
+factorial 5
+        `;
+        expect(m.run_mcode(code)).toEqual(120);
+    });
+});

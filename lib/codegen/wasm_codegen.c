@@ -112,10 +112,11 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
 } ;
 
 const char *imports = "\n\
-from sys import fun print:() fmt:string ...\n\
 from sys import memory 10\n\
 from sys import __stack_pointer:int\n\
 from sys import __memory_base:int\n\
+from sys import fun print:() fmt:string ...\n\
+from sys import fun putchar:() ch:int\n\
 from math import fun acos:double x:double\n\
 from math import fun asin:double x:double\n\
 from math import fun atan:double x:double\n\
@@ -519,6 +520,7 @@ void _collect_local_variables(struct wasm_module *module, struct ast_node *node)
             break;
         case FOR_NODE:
             _func_register_local_variable(module, node, node->forloop->start->type->type, true);
+            _collect_local_variables(module, node->forloop->body);
             break;
         case VAR_NODE:
             _func_register_local_variable(module, node, node->type->type, true);
