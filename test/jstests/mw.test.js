@@ -25,7 +25,6 @@ test('call func with params', () => {
 let id x = x
 id 10
         `;
-        m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(10);
     });
 });
@@ -92,7 +91,6 @@ test('string format with var', () => {
 v = 10
 print "hello %d" v
 `;
-        m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(undefined);
         expect(output).toEqual("hello 10");
     });

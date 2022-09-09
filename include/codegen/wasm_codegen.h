@@ -8,9 +8,10 @@
 #ifndef __MLANG_WASM_CODEGEN_H__
 #define __MLANG_WASM_CODEGEN_H__
 
-#include "parser/amodule.h"
 #include "clib/byte_array.h"
 #include "clib/hashtable.h"
+#include "clib/symbol.h"
+#include "clib/symboltable.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,15 +20,16 @@ extern "C" {
 
 // valtype
 // number type numtype
-#define TYPE_I32 0x7F
-#define TYPE_I64 0x7E
-#define TYPE_F32 0x7D
-#define TYPE_F64 0x7C
+#define WASM_TYPE_VOID  0x40
+#define WASM_TYPE_I32 0x7F
+#define WASM_TYPE_I64 0x7E
+#define WASM_TYPE_F32 0x7D
+#define WASM_TYPE_F64 0x7C
 // vectype: vector types
-#define TYPE_VECTOR 0x7B
+#define WASM_TYPE_VECTOR 0x7B
 // reftype: reference types
-#define TYPE_FUNCREF 0x70
-#define TYPE_EXTERNREF 0x6F
+#define WASM_TYPE_FUNCREF 0x70
+#define WASM_TYPE_EXTERNREF 0x6F
 // valtype := t:numtype => t
 //   |t:vectype => t
 //   |t:reftype => t
@@ -358,6 +360,11 @@ struct fun_context {
      *  number of local variables
      */
     u32 local_vars;
+
+    /*
+     *  number of local params
+     */
+    u32 local_params;
 };
 
 #define FUN_LEVELS 512
