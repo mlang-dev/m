@@ -36,7 +36,6 @@ test('call func sub', () => {
 let sub x y = x - y
 sub 10 30
         `;
-        m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(-20);
     });
 });
