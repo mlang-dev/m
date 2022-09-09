@@ -40,6 +40,20 @@ sub 10 30
     });
 });
 
+test('print char', () => {
+    let output = null;
+    function log_fun(text) {
+        output = text;
+    }
+    var result = get_mw(log_fun);
+    return result.then((m) => {
+        let code = `
+putchar '#'`;
+        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(output).toEqual('#');
+    });
+});
+
 test('use variable', () => {
     var result = get_mw();
     return result.then((m) => {

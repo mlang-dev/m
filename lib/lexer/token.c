@@ -15,11 +15,10 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN("\n", NEWLINE, NULL),
     TOKEN_PATTERN("[0-9]+|0x[0-9a-fA-F]+", INT, NULL), // 5
     TOKEN_PATTERN("([0-9]*.)?[0-9]+", FLOAT, NULL),
-
     TOKEN_PATTERN(0, CHAR, NULL),
     TOKEN_PATTERN(0, STRING, NULL),
 
-    KEYWORD_PATTERN("from", FROM, NULL),
+    KEYWORD_PATTERN("from", FROM, NULL), // 10
     KEYWORD_PATTERN("import", IMPORT, NULL),
     KEYWORD_PATTERN("memory", MEMORY, NULL),
     KEYWORD_PATTERN("extern", EXTERN, NULL), // 10
@@ -29,12 +28,13 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("if", IF, NULL),
     KEYWORD_PATTERN("then", THEN, NULL),
     KEYWORD_PATTERN("else", ELSE, NULL), // 15
+
     KEYWORD_PATTERN("true", TRUE, NULL),
     KEYWORD_PATTERN("false", FALSE, NULL),
     KEYWORD_PATTERN("in", IN, NULL),
     KEYWORD_PATTERN("for", FOR, NULL),
 
-    TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL), // 20
+    TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL), //
 
     NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL),
     NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL),
@@ -51,6 +51,29 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("=", ASSIGN, NULL),
     KEYWORD_PATTERN(":", ISTYPEOF, NULL),
 
+    /*reserved keywords*/
+    KEYWORD_PATTERN("do", DO, NULL),
+    KEYWORD_PATTERN("while", WHILE, NULL),
+    KEYWORD_PATTERN("switch", SWITCH, NULL),
+    KEYWORD_PATTERN("case", CASE, NULL),
+    KEYWORD_PATTERN("default", DEFAULT, NULL),
+    KEYWORD_PATTERN("break", BREAK, NULL),
+    KEYWORD_PATTERN("continue", CONTINUE, NULL),
+    KEYWORD_PATTERN("yield", YIELD, NULL),
+    KEYWORD_PATTERN("async", ASYNC, NULL),
+    KEYWORD_PATTERN("await", AWAIT, NULL),
+    KEYWORD_PATTERN("match", MATCH, NULL),
+    KEYWORD_PATTERN("with", WITH, NULL),
+    KEYWORD_PATTERN("select", SELECT, NULL),
+    KEYWORD_PATTERN("join", JOIN, NULL),
+    KEYWORD_PATTERN("when", WHEN, NULL),
+    KEYWORD_PATTERN("end", END, NULL),
+    KEYWORD_PATTERN("where", WHERE, NULL),
+    KEYWORD_PATTERN("and", AND, NULL),
+    KEYWORD_PATTERN("or", OR, NULL),
+    KEYWORD_PATTERN("order by", ORDERBY, NULL),
+
+    /*operators*/
     TOKEN_PATTERN(0, OP, NULL),
     NAME_KEYWORD_PATTERN(".", "\\.", OP, DOT), // literal dot
     NAME_KEYWORD_PATTERN("||", "\\|\\|", OP, OR),

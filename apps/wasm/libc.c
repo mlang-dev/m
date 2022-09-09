@@ -37,6 +37,11 @@ int _printf(const char *restrict fmt, ...)
     return result;
 }
 
+void _putchar(int ch)
+{
+    putchar(ch);
+}
+
 double _acos(double x)
 {
     return acos(x);
