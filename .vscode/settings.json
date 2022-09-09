@@ -153,7 +153,8 @@
         "float.h": "c",
         "source_location.h": "c",
         "math.h": "c",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "libc.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

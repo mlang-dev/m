@@ -52,11 +52,11 @@ cd ./extern/wasi-libc
 make (required: clang, llvm-ar, llvm-nm)
 ```
 
-## build mlang
+## build mlang as WebAssembly module
 ```
 mkdir build
 cd build
-cmake ..  (WASM version: cmake -DWASM=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..)
+cmake -DWASM=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
 cmake --build .
 ```
 The build system will build mw.wasm under ./apps

@@ -1,12 +1,13 @@
 #include "wasm/mw.h"
 #include "clib/typedef.h"
 #include "codegen/wasm_codegen.h"
-
+#include <stdlib.h>
+#include <string.h>
 
 const char *version()
 {
     void * p = malloc(32);
-    strcpy(p, "m - 0.0.22");
+    strcpy(p, "m - 0.0.23");
     return p;
 }
 

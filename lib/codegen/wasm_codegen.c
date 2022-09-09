@@ -37,21 +37,21 @@ u8 type_2_const[TYPE_TYPES] = {
 
 u8 type_2_wtype[TYPE_TYPES] = {
     /*UNK*/ 0,
-    /*GENERIC*/ TYPE_I32,
-    /*UNIT*/ 0,
-    /*BOOL*/ TYPE_I32,
-    /*CHAR*/ TYPE_I32,
-    /*INT*/ TYPE_I32,
-    /*FLOAT*/ TYPE_F32,
-    /*DOUBLE*/ TYPE_F64,
-    /*STRING*/ TYPE_I32,
+    /*GENERIC*/ WASM_TYPE_I32,
+    /*UNIT*/ WASM_TYPE_VOID,
+    /*BOOL*/ WASM_TYPE_I32,
+    /*CHAR*/ WASM_TYPE_I32,
+    /*INT*/ WASM_TYPE_I32,
+    /*FLOAT*/ WASM_TYPE_F32,
+    /*DOUBLE*/ WASM_TYPE_F64,
+    /*STRING*/ WASM_TYPE_I32,
     /*FUNCTION*/ 0,
     /*EXT*/ 0,
 };
 
 u8 type_2_store_op[TYPE_TYPES] = {
     /*UNK*/ 0,
-    /*GENERIC*/ TYPE_I32,
+    /*GENERIC*/ WASM_TYPE_I32,
     /*UNIT*/ 0,
     /*BOOL*/ OPCODE_I32STORE,
     /*CHAR*/ OPCODE_I32STORE,
@@ -139,10 +139,13 @@ symbol MEMORY = 0;
 symbol __MEMORY_BASE = 0;
 symbol POW_FUN_NAME = 0;
 
+#define ASSERT_TYPE(type_index) assert(type_index > 0 && type_index < TYPE_TYPES);
+
 void _fun_context_init(struct fun_context *fc)
 {
     fc->fun_name = 0;
     fc->local_vars = 0;
+    fc->local_params = 0;
     symboltable_init(&fc->varname_2_index);
     hashtable_init(&fc->ast_2_index);
 }
@@ -175,12 +178,6 @@ struct fun_context *_fun_context_top(struct wasm_module *module)
     return module->fun_top >= 1 ? &module->fun_contexts[module->fun_top - 1] : 0;
 }
 
-u32 _func_get_var_nums(struct wasm_module *module)
-{
-    struct fun_context *fc = _fun_context_top(module);
-    return hashtable_size(&fc->varname_2_index.ht);
-}
-
 u32 _func_get_local_var_index(struct wasm_module *module, struct ast_node *node)
 {
     struct fun_context *fc = _fun_context_top(module);
@@ -192,29 +189,41 @@ u32 _func_get_local_var_index(struct wasm_module *module, struct ast_node *node)
 u32 _func_get_local_var_nums(struct wasm_module *module)
 {
     struct fun_context *fc = _fun_context_top(module);
-    return fc->local_vars;
+    return fc->local_vars - fc->local_params;
 }
 
+struct var_info *_req_new_local_var(struct wasm_module *module, enum type type, bool is_local_var)
+{
+    struct fun_context *fc = _fun_context_top(module);
+    u32 index = fc->local_vars++;
+    if (!is_local_var) {
+        fc->local_params++;
+    }
+    struct var_info *vi = &module->local_vars[module->var_top];
+    vi->index = index;
+    ASSERT_TYPE(type);
+    vi->type = type_2_wtype[type];
+    module->var_top++;
+    return vi;
+}
 void _func_register_local_variable(struct wasm_module *module, struct ast_node *node, enum type type, bool is_local_var)
 {
-    u32 index = _func_get_var_nums(module);
     struct fun_context *fc = _fun_context_top(module);
-    struct var_info *vi = &module->local_vars[module->var_top];
-    if(is_local_var){
-        fc->local_vars++;
-    }
-    vi->index = index;
-    assert(type > 0 && type < TYPE_TYPES);
-    vi->type = type_2_wtype[type];
-    if(node->node_type == VAR_NODE){
+    struct var_info *vi = _req_new_local_var(module, type, is_local_var);
+    if (node->node_type == VAR_NODE) {
         symboltable_push(&fc->varname_2_index, node->var->var_name, vi);
-    }else if(node->node_type == CALL_NODE){
+    } else if (node->node_type == FOR_NODE) {
+        symboltable_push(&fc->varname_2_index, node->forloop->var_name, vi);
+        vi = _req_new_local_var(module, node->forloop->step->type->type, true);
+        hashtable_set_p(&fc->ast_2_index, node->forloop->step, vi);
+        vi = _req_new_local_var(module, node->forloop->end->type->type, true);
+        hashtable_set_p(&fc->ast_2_index, node->forloop->end, vi);
+    } else if (node->node_type == CALL_NODE) {
         hashtable_set_p(&fc->ast_2_index, node, vi);
     }
-    module->var_top++;
 }
 
-u32 _func_context_get_index(struct wasm_module *module, symbol var_name)
+u32 _func_context_get_var_index(struct wasm_module *module, symbol var_name)
 {
     struct fun_context *fc = _fun_context_top(module);
     struct var_info *vi = symboltable_get(&fc->varname_2_index, var_name);
@@ -508,6 +517,9 @@ void _collect_local_variables(struct wasm_module *module, struct ast_node *node)
     {
         default:
             break;
+        case FOR_NODE:
+            _func_register_local_variable(module, node, node->forloop->start->type->type, true);
+            break;
         case VAR_NODE:
             _func_register_local_variable(module, node, node->type->type, true);
             break;
@@ -639,15 +651,116 @@ void _emit_var(struct wasm_module *module, struct byte_array *ba, struct ast_nod
     if (node->var->init_value){
         _emit_code(module, ba, node->var->init_value);
         ba_add(ba, OPCODE_LOCALSET); // local.set
-        u32 var_index = _func_context_get_index(module, node->var->var_name);
+        u32 var_index = _func_context_get_var_index(module, node->var->var_name);
         _emit_uint(ba, var_index);
     }
+}
+
+void _emit_if(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
+{
+    assert(node->node_type == IF_NODE);
+    _emit_code(module, ba, node->cond->if_node);
+    ba_add(ba, OPCODE_IF);
+    ASSERT_TYPE(node->cond->then_node->type->type);
+    ba_add(ba, type_2_wtype[node->cond->then_node->type->type]);
+    _emit_code(module, ba, node->cond->then_node);
+    if (node->cond->else_node) {
+        ba_add(ba, OPCODE_ESLE);
+        _emit_code(module, ba, node->cond->else_node);
+    }
+    ba_add(ba, OPCODE_END);
+}
+
+bool _check_loop_forward(struct ast_node *step)
+{
+    if (step->node_type != LITERAL_NODE){
+        assert(false);
+    }
+    switch(step->type->type){
+    default:
+        assert(false);
+    case TYPE_INT:
+        assert(step->liter->int_val);
+        return step->liter->int_val > 0;
+    case TYPE_BOOL:
+        assert(step->liter->bool_val);
+        return step->liter->bool_val;
+    case TYPE_CHAR:
+        assert(step->liter->char_val);
+        return step->liter->char_val > 0;
+    case TYPE_DOUBLE:
+        assert(step->liter->double_val!=0.0);
+        return step->liter->double_val > 0.0;
+    }
+    return false;
+}
+
+void _emit_loop(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
+{
+    assert(node->node_type == FOR_NODE);
+    u32 var_index = _func_context_get_var_index(module, node->forloop->var_name);
+    u32 step_index = _func_get_local_var_index(module, node->forloop->step);
+    u32 end_index = _func_get_local_var_index(module, node->forloop->end);
+    enum type type = node->forloop->end->type->type;
+    enum type body_type = node->forloop->body->type->type;
+    ASSERT_TYPE(type);
+    ASSERT_TYPE(body_type);
+    // initializing start value
+    _emit_code(module, ba, node->forloop->start);
+    ba_add(ba, OPCODE_LOCALSET);
+    _emit_uint(ba, var_index);  //1
+    // set step value
+    _emit_code(module, ba, node->forloop->step);
+    ba_add(ba, OPCODE_LOCALSET);
+    _emit_uint(ba, step_index); //2
+    // set end value
+    assert(node->forloop->end->node_type == BINARY_NODE);
+    _emit_code(module, ba, node->forloop->end->binop->rhs);
+    ba_add(ba, OPCODE_LOCALSET);
+    _emit_uint(ba, end_index);  //3
+
+    ba_add(ba, OPCODE_BLOCK); // outside block branch labelidx 1
+    ba_add(ba, WASM_TYPE_VOID); // type_2_wtype[body_type]); // branch type
+
+    ba_add(ba, OPCODE_LOOP);  // loop branch, branch labelidx 0
+    ba_add(ba, WASM_TYPE_VOID); //type_2_wtype[body_type]); // branch type
+
+    bool loop_forward = _check_loop_forward(node->forloop->step);
+    //branch body
+    //1. get var value
+    //nested a if branch
+    ba_add(ba, OPCODE_LOCALGET);
+    _emit_uint(ba, var_index);
+    ba_add(ba, OPCODE_LOCALGET);
+    _emit_uint(ba, end_index);
+    if (loop_forward){
+        ba_add(ba, op_maps[OP_GE][type]);
+    }else{
+        ba_add(ba, op_maps[OP_LE][type]);
+    }
+    ba_add(ba, OPCODE_BR_IF); //if out of scope, branch to out side block
+    _emit_uint(ba, 1);
+
+    //body
+    _emit_code(module, ba, node->forloop->body);
+    //var += step
+    ba_add(ba, OPCODE_LOCALGET);
+    _emit_uint(ba, var_index);
+    ba_add(ba, OPCODE_LOCALGET);
+    _emit_uint(ba, step_index);
+    ba_add(ba, op_maps[OP_PLUS][type]);
+    ba_add(ba, OPCODE_LOCALSET);
+    _emit_uint(ba, var_index);
+    ba_add(ba, OPCODE_BR); //branch to loop again
+    _emit_uint(ba, 0); 
+    ba_add(ba, OPCODE_END); //end of loop branch
+    ba_add(ba, OPCODE_END); //end of outside branch
 }
 
 void _emit_ident(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == IDENT_NODE);
-    u32 var_index = _func_context_get_index(module, node->ident->name);
+    u32 var_index = _func_context_get_var_index(module, node->ident->name);
     //TODO: var_index zero better is not matched
     ba_add(ba, OPCODE_LOCALGET); // num local variables
     _emit_uint(ba, var_index);
@@ -689,8 +802,15 @@ void _emit_code(struct wasm_module *module, struct byte_array *ba, struct ast_no
         case VAR_NODE:
             _emit_var(module, ba, node);
             break;
+        case IF_NODE:
+            _emit_if(module, ba, node);
+            break;
+        case FOR_NODE:
+            _emit_loop(module, ba, node);
+            break;
         default:
-            assert(false);
+            printf("%s is not implemented !\n", node_type_strings[node->node_type]);
+            exit(-1);
     }
 }
 
@@ -716,14 +836,14 @@ void _emit_type_section(struct wasm_module *module, struct byte_array *ba, struc
         _emit_uint(ba, num_params); // num params
         for (j = 0; j < num_params; j++) {
             to = *(struct type_oper **)array_get(&func_type->args, j);
-            assert(to->base.type > 0 && to->base.type < TYPE_TYPES);
+            ASSERT_TYPE(to->base.type);
             ba_add(ba, type_2_wtype[to->base.type]);
         }
         to = *(struct type_oper **)array_back(&func_type->args);
-        assert(to->base.type > 0 && to->base.type < TYPE_TYPES);
-        if (to->base.type == TYPE_UNIT){
+        ASSERT_TYPE(to->base.type);
+        if (to->base.type == TYPE_UNIT) {
             ba_add(ba, 0); // num result
-        }else{
+        } else {
             ba_add(ba, 1); // num result
             ba_add(ba, type_2_wtype[to->base.type]); // i32 output
         }
@@ -753,6 +873,7 @@ void _emit_import_section(struct wasm_module *module, struct byte_array *ba, str
         case VAR_NODE:
             _emit_string(ba, node->var->var_name);
             ba_add(ba, IMPORT_GLOBAL);
+            ASSERT_TYPE(node->type->type);
             ba_add(ba, type_2_wtype[node->type->type]);
             if (__MEMORY_BASE == node->var->var_name)
                 ba_add(ba, GLOBAL_CONST); // immutable
@@ -797,7 +918,7 @@ void _emit_global_section(struct wasm_module *module, struct byte_array *ba)
 {
     //__stack_pointer: base address
     ba_add(ba, 1);  //num globals
-    ba_add(ba, TYPE_I32);
+    ba_add(ba, WASM_TYPE_I32);
     ba_add(ba, GLOBAL_VAR); //mutable
     _emit_const_i32(ba, STACK_BASE_ADDRESS);
     ba_add(ba, OPCODE_END);

@@ -4,9 +4,11 @@ extern unsigned int __stack_pointer;
 
 EXPORT void _start()
 {
-    double v = 10.0;
-    int i = 20;
-    print("hello %d %d", i, i);
+    int s = 0;
+    for(int i = 0; i < 2; i++){
+        s += i;
+    }
+    print("hello: %d", s);
 }
 // struct Point2D {
 //     double x;
