@@ -51,7 +51,7 @@ u8 type_2_wtype[TYPE_TYPES] = {
 
 u8 type_2_store_op[TYPE_TYPES] = {
     /*UNK*/ 0,
-    /*GENERIC*/ WASM_TYPE_I32,
+    /*GENERIC*/ 0,
     /*UNIT*/ 0,
     /*BOOL*/ OPCODE_I32STORE,
     /*CHAR*/ OPCODE_I32STORE,
