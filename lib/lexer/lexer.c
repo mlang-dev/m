@@ -11,6 +11,8 @@
 #include "clib/regex.h"
 #include "clib/win/libfmemopen.h"
 
+char escape_2_char[128];
+
 void indent_level_stack_init(struct indent_level_stack *stack)
 {
     stack->stack_top = 0;
@@ -54,6 +56,21 @@ struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size
         printf("only %d bytes of m code is allowed to parse, but here is the size of the code: %zu.\n",  CODE_BUFF_SIZE, code_size);
         exit(-1);
     }
+    for(int i = 0; i < 128; i++){
+        escape_2_char[i] = i;
+    }
+    escape_2_char['n'] = '\n';
+    escape_2_char['t'] = '\t';
+    escape_2_char['v'] = '\v';
+    escape_2_char['b'] = '\b';
+    escape_2_char['r'] = '\r';
+    escape_2_char['f'] = '\f';
+    escape_2_char['a'] = '\a';
+    escape_2_char['\\'] = '\\';
+    escape_2_char['?'] = '\?';
+    escape_2_char['\''] = '\'';
+    escape_2_char['\"'] = '\"';
+    escape_2_char['0'] = '\0';
     struct lexer *lexer;
     MALLOC(lexer, sizeof(*lexer));
     lexer->buff_base = 0;
@@ -301,12 +318,16 @@ struct token *get_tok(struct lexer *lexer)
         _mark_token(lexer, TOKEN_CHAR, 0);
         _scan_until(lexer, '\'');
         _move_ahead(lexer); //skip the single quote
-        if(lexer->buff_base + lexer->pos - tok->loc.start != 3){
-            printf("character is supposed to be 1 char long.\n");
+        if(lexer->buff_base + lexer->pos - tok->loc.start != 3 && lexer->buff_base + lexer->pos - tok->loc.start != 4){
+            printf("character is supposed to be 1 char long. (%d, %d, %d)\n", lexer->buff_base, lexer->pos, tok->loc.start);
             exit(-1);
             return 0;
         }
-        lexer->tok.int_val = lexer->buff[tok->loc.start - lexer->buff_base + 1];
+        if(lexer->buff[tok->loc.start - lexer->buff_base + 1] == '\\'){
+            lexer->tok.int_val = escape_2_char[(int)lexer->buff[tok->loc.start - lexer->buff_base + 2]];
+        }else{
+            lexer->tok.int_val = lexer->buff[tok->loc.start - lexer->buff_base + 1];
+        }
         break;
     case '"':
         _mark_token(lexer, TOKEN_STRING, 0);
