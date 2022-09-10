@@ -29,12 +29,11 @@
 		<p/>
 		<strong>
 		</strong>
-		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false">print "hello world"</textarea>
+		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false" style="color:gray">print "hello world"</textarea>
 		<div style="width: 100%;">
 			<button type="button" id="run" style="min-width: 70px;">run</button>
-			<button type="button" id="clear" style="min-width: 70px;">clear</button>
 		</div>
-		<textarea id='console' rows="5" cols="80" readonly style="color:grey"></textarea><br/>
+		<textarea id='console' rows="5" cols="80" readonly style="color:darkslategrey"></textarea><br/>
 		<script>
 	var codeInput = document.getElementById("code");
 	if (codeInput.addEventListener) {
@@ -61,8 +60,8 @@
 				}
 			);
 			document.getElementById("run").addEventListener("click", run);
-			document.getElementById("clear").addEventListener("click", clear);
 			function run(event) {
+				clear();
 				let code = document.getElementById("code").value;
 				print(instance.run_mcode(code));
 			}
@@ -71,14 +70,7 @@
 				if(text == null || text == undefined){
 					return;
 				}
-				let new_text = document.getElementById("console").textContent;
-				if (new_text == ''){
-					new_text = text;
-				}
-				else{
-					new_text += '\n' + text;
-				}
-				document.getElementById("console").textContent = new_text;
+				document.getElementById("console").textContent += text;
 			}
 
 			function clear(){
