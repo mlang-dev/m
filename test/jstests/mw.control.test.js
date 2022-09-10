@@ -161,6 +161,7 @@ for i in 0..5
     sum = sum + i
 sum
         `;
+        m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(10);
     });
 });
@@ -174,8 +175,20 @@ for i in 1..3
     for j in 1..3
         sum = sum + i * j
 sum`;
-        m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(9);
+    });
+});
+
+test('for loop with step statement', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+step = 2
+sum = 0
+for i in 2..step..10
+    sum = sum + i
+sum`;
+        expect(m.run_mcode(code)).toEqual(20);
     });
 });
 

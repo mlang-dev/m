@@ -31,7 +31,6 @@ struct env *get_env();
 void emit_code(struct env *env, struct ast_node *node);
 void emit_sp_code(struct code_generator *cg);
 
-#define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
 
 #ifdef __cplusplus
 }

@@ -123,7 +123,6 @@ struct code_generator {
     struct hashtable fun_infos;
 };
 
-#define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
 
 struct code_generator *cg_new(struct sema_context *sema_context);
 void cg_free(struct code_generator *cg);

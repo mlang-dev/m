@@ -399,6 +399,12 @@ void _emit_const_i32(struct byte_array *ba, i32 const_value)
     _emit_uint(ba, const_value);
 }
 
+void _emit_const_f64(struct byte_array *ba, double const_value)
+{
+    ba_add(ba, OPCODE_F64CONST);
+    _emit_f64(ba, const_value);
+}
+
 void _emit_literal(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->type && node->type->type < TYPE_TYPES && node->type->type >= 0);
@@ -658,6 +664,15 @@ void _emit_var(struct wasm_module *module, struct byte_array *ba, struct ast_nod
     }
 }
 
+void _emit_const_zero(struct byte_array* ba, enum  type type)
+{
+    if(is_int_type(type)){
+        _emit_const_i32(ba, 0);
+    }else{
+        _emit_const_f64(ba, 0.0);
+    }
+}
+
 void _emit_if(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == IF_NODE);
@@ -667,7 +682,7 @@ void _emit_if(struct wasm_module *module, struct byte_array *ba, struct ast_node
     ba_add(ba, type_2_wtype[node->cond->then_node->type->type]);
     _emit_code(module, ba, node->cond->then_node);
     if (node->cond->else_node) {
-        ba_add(ba, OPCODE_ESLE);
+        ba_add(ba, OPCODE_ELSE);
         _emit_code(module, ba, node->cond->else_node);
     }
     ba_add(ba, OPCODE_END);
@@ -695,6 +710,16 @@ bool _check_loop_forward(struct ast_node *step)
         return step->liter->double_val > 0.0;
     }
     return false;
+}
+
+void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type type)
+{
+    ba_add(ba, OPCODE_LOCALGET);
+    _emit_uint(ba, var_index);
+    _emit_const_zero(ba, type);
+    ba_add(ba, op_maps[OP_GE][type]);
+    ba_add(ba, OPCODE_IF);
+    ba_add(ba, WASM_TYPE_I32);
 }
 
 void _emit_loop(struct wasm_module *module, struct byte_array *ba, struct ast_node *node)
@@ -727,7 +752,10 @@ void _emit_loop(struct wasm_module *module, struct byte_array *ba, struct ast_no
     ba_add(ba, OPCODE_LOOP);  // loop branch, branch labelidx 0
     ba_add(ba, WASM_TYPE_VOID); //type_2_wtype[body_type]); // branch type
 
-    bool loop_forward = _check_loop_forward(node->forloop->step);
+    //bool loop_forward = _check_loop_forward(node->forloop->step);
+
+    //if step >= 0
+    _emit_if_local_var_ge_zero(ba, step_index, node->forloop->step->type->type);
     //branch body
     //1. get var value
     //nested a if branch
@@ -735,11 +763,18 @@ void _emit_loop(struct wasm_module *module, struct byte_array *ba, struct ast_no
     _emit_uint(ba, var_index);
     ba_add(ba, OPCODE_LOCALGET);
     _emit_uint(ba, end_index);
-    if (loop_forward){
-        ba_add(ba, op_maps[OP_GE][type]);
-    }else{
-        ba_add(ba, op_maps[OP_LE][type]);
-    }
+    ba_add(ba, op_maps[OP_GE][type]);
+
+    ba_add(ba, OPCODE_ELSE);
+
+    ba_add(ba, OPCODE_LOCALGET);
+    _emit_uint(ba, var_index);
+    ba_add(ba, OPCODE_LOCALGET);
+    _emit_uint(ba, end_index);
+    ba_add(ba, op_maps[OP_LE][type]);
+    ba_add(ba, OPCODE_END); 
+    //end of if step >= 0
+
     ba_add(ba, OPCODE_BR_IF); //if out of scope, branch to out side block
     _emit_uint(ba, 1);
 
