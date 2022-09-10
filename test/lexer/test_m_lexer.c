@@ -302,8 +302,8 @@ TEST(test_m_lexer, string_literal_with_newline)
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_STRING, token->token_type);
-    ASSERT_STREQ("hello\\n", string_get(token->str_val));
-    ASSERT_EQ(7, strlen(string_get(token->str_val)));
+    ASSERT_STREQ("hello\n", string_get(token->str_val));
+    ASSERT_EQ(6, strlen(string_get(token->str_val)));
     lexer_free(lexer);
     frontend_deinit();
 }
