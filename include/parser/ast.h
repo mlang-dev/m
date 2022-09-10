@@ -67,8 +67,6 @@ struct _literal_node {
     union {
         double double_val;
         int int_val;
-        bool bool_val;
-        char char_val;
         const char *str_val;
     };
 };

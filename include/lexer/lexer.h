@@ -24,7 +24,7 @@ struct pattern_matches {
     int pattern_match_count;
 };
 
-#define CODE_BUFF_SIZE 4096
+#define CODE_BUFF_SIZE 40960
 
 #define MAX_INDENTS     254
 #define INVALID_INDENTS 255
@@ -48,9 +48,9 @@ struct lexer {
     int pending_dedents;
 };
 
-struct lexer *lexer_new(FILE *file, const char *filename);
-
+struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size_t code_size);
 struct lexer *lexer_new_for_string(const char *text);
+struct lexer *lexer_new_with_string(const char *text);
 
 void lexer_free(struct lexer *lexer);
 

@@ -116,7 +116,7 @@ struct grammar *grammar_parse(const char *grammar_text)
             }
         } else if (tok.token_type == TOKEN_STRING || tok.token_type == TOKEN_CHAR) {
             if(tok.token_type == TOKEN_CHAR)
-                s = to_symbol2(&tok.char_val, 1);
+                s = to_symbol2((char*)&tok.int_val, 1);
             else
                 s = string_2_symbol(tok.str_val);
             expr_add_symbol(expr, s, EI_EXACT_MATCH);

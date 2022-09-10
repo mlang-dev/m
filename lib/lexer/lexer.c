@@ -48,8 +48,12 @@ int indent_level_stack_match(struct indent_level_stack *stack, u32 leading_space
     return 0;
 }
 
-struct lexer *lexer_new(FILE *file, const char *filename)
+struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size_t code_size)
 {
+    if (code && code_size > CODE_BUFF_SIZE){
+        printf("only %d bytes of m code is allowed to parse, but here is the size of the code: %zu.\n",  CODE_BUFF_SIZE, code_size);
+        exit(-1);
+    }
     struct lexer *lexer;
     MALLOC(lexer, sizeof(*lexer));
     lexer->buff_base = 0;
@@ -58,11 +62,13 @@ struct lexer *lexer_new(FILE *file, const char *filename)
     lexer->col = 1;
     lexer->file = file;
     lexer->filename = filename;
-    lexer->buff[0] = '\0';
+    memset(lexer->buff, '\0', CODE_BUFF_SIZE + 1);
     lexer->tok.token_type = TOKEN_EOF;
     if(lexer->file){
         //fmemopen in MacOs will open empty string as null file handle
         fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file);
+    }else{
+        memcpy(lexer->buff, code, code_size);
     }
 
     //init indent level stack
@@ -92,8 +98,14 @@ struct lexer *lexer_new(FILE *file, const char *filename)
 
 struct lexer *lexer_new_for_string(const char *text)
 {
-    FILE *file = fmemopen((void *)text, strlen(text), "r");
-    return lexer_new(file, "");
+    size_t size = strlen(text);
+    FILE *file = fmemopen((void *)text, size, "r");
+    return lexer_new(file, "", 0, 0);
+}
+
+struct lexer *lexer_new_with_string(const char *text)
+{
+    return lexer_new(0, 0, text, strlen(text));
 }
 
 void lexer_free(struct lexer *lexer)
@@ -115,7 +127,7 @@ void _move_ahead(struct lexer *lexer)
     lexer->pos++;
     if(!lexer->buff[lexer->pos]){
         //fgets
-        if(fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file)){
+        if(lexer->file && fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file)){
             lexer->buff_base += lexer->pos;
             lexer->pos = 0;
         }else{
@@ -294,7 +306,7 @@ struct token *get_tok(struct lexer *lexer)
             exit(-1);
             return 0;
         }
-        lexer->tok.char_val = lexer->buff[tok->loc.start - lexer->buff_base + 1];
+        lexer->tok.int_val = lexer->buff[tok->loc.start - lexer->buff_base + 1];
         break;
     case '"':
         _mark_token(lexer, TOKEN_STRING, 0);

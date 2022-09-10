@@ -153,8 +153,6 @@ struct token {
         string *str_val; //string literal
         double double_val; //double literal
         int int_val; //int literal
-        char char_val; //char literal
-        bool bool_val; //bool literal
         symbol symbol_val;
         enum op_code opcode;
     };
