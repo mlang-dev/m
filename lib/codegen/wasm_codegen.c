@@ -688,30 +688,6 @@ void _emit_if(struct wasm_module *module, struct byte_array *ba, struct ast_node
     ba_add(ba, OPCODE_END);
 }
 
-bool _check_loop_forward(struct ast_node *step)
-{
-    if (step->node_type != LITERAL_NODE){
-        assert(false);
-    }
-    switch(step->type->type){
-    default:
-        assert(false);
-    case TYPE_INT:
-        assert(step->liter->int_val);
-        return step->liter->int_val > 0;
-    case TYPE_BOOL:
-        assert(step->liter->bool_val);
-        return step->liter->bool_val;
-    case TYPE_CHAR:
-        assert(step->liter->char_val);
-        return step->liter->char_val > 0;
-    case TYPE_DOUBLE:
-        assert(step->liter->double_val!=0.0);
-        return step->liter->double_val > 0.0;
-    }
-    return false;
-}
-
 void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type type)
 {
     ba_add(ba, OPCODE_LOCALGET);
@@ -751,8 +727,6 @@ void _emit_loop(struct wasm_module *module, struct byte_array *ba, struct ast_no
 
     ba_add(ba, OPCODE_LOOP);  // loop branch, branch labelidx 0
     ba_add(ba, WASM_TYPE_VOID); //type_2_wtype[body_type]); // branch type
-
-    //bool loop_forward = _check_loop_forward(node->forloop->step);
 
     //if step >= 0
     _emit_if_local_var_ge_zero(ba, step_index, node->forloop->step->type->type);

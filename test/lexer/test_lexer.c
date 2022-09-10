@@ -58,6 +58,62 @@ TEST(test_lexer, token_char)
     frontend_deinit();
 }
 
+TEST(test_lexer, token_char_with_escape)
+{
+    frontend_init();
+    char test_code[] = 
+"'\n'";
+    struct token *tok;
+    struct lexer *lexer;
+    lexer = lexer_new_with_string(test_code);
+    tok = get_tok(lexer);
+    ASSERT_EQ(TOKEN_CHAR, tok->token_type);
+    ASSERT_EQ(1, tok->loc.line);
+    ASSERT_EQ(1, tok->loc.col);
+    ASSERT_EQ(0, tok->loc.start);
+    ASSERT_EQ(3, tok->loc.end);
+    ASSERT_EQ('\n', tok->int_val);
+    lexer_free(lexer);
+    frontend_deinit();
+}
+
+
+TEST(test_lexer, token_bool_litteral_true)
+{
+    frontend_init();
+    char test_code[] = 
+"true";
+    struct token *tok;
+    struct lexer *lexer;
+    lexer = lexer_new_with_string(test_code);
+    tok = get_tok(lexer);
+    ASSERT_EQ(TOKEN_TRUE, tok->token_type);
+    ASSERT_EQ(1, tok->loc.line);
+    ASSERT_EQ(1, tok->loc.col);
+    ASSERT_EQ(0, tok->loc.start);
+    ASSERT_EQ(4, tok->loc.end);
+    lexer_free(lexer);
+    frontend_deinit();
+}
+
+TEST(test_lexer, token_bool_litteral_false)
+{
+    frontend_init();
+    char test_code[] = 
+"false";
+    struct token *tok;
+    struct lexer *lexer;
+    lexer = lexer_new_with_string(test_code);
+    tok = get_tok(lexer);
+    ASSERT_EQ(TOKEN_FALSE, tok->token_type);
+    ASSERT_EQ(1, tok->loc.line);
+    ASSERT_EQ(1, tok->loc.col);
+    ASSERT_EQ(0, tok->loc.start);
+    ASSERT_EQ(5, tok->loc.end);
+    lexer_free(lexer);
+    frontend_deinit();
+}
+
 TEST(test_lexer, token_string)
 {
     frontend_init();
@@ -381,6 +437,9 @@ int test_lexer()
     RUN_TEST(test_lexer_empty_string);
     RUN_TEST(test_lexer_skip_comment);
     RUN_TEST(test_lexer_token_char);
+    RUN_TEST(test_lexer_token_char_with_escape);
+    RUN_TEST(test_lexer_token_bool_litteral_true);
+    RUN_TEST(test_lexer_token_bool_litteral_false);
     RUN_TEST(test_lexer_token_string);
     RUN_TEST(test_lexer_token_utc_string);
     RUN_TEST(test_lexer_token_id);

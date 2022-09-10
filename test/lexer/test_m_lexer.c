@@ -236,7 +236,7 @@ TEST(test_m_lexer, char_literal)
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_CHAR, token->token_type);
-    ASSERT_EQ('c', token->char_val);
+    ASSERT_EQ('c', token->int_val);
     lexer_free(lexer);
     frontend_deinit();
 }
@@ -248,10 +248,10 @@ TEST(test_m_lexer, char_multi_literal)
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_CHAR, token->token_type);
-    ASSERT_EQ('c', token->char_val);
+    ASSERT_EQ('c', token->int_val);
     token = get_tok(lexer);
     ASSERT_EQ(TOKEN_CHAR, token->token_type);
-    ASSERT_EQ('d', token->char_val);
+    ASSERT_EQ('d', token->int_val);
     lexer_free(lexer);
     frontend_deinit();
 }

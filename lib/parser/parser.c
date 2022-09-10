@@ -102,7 +102,7 @@ struct ast_node *_build_terminal_ast(struct token *tok)
             ast = bool_node_new(false, tok->loc);
             break;
         case TOKEN_CHAR:
-            ast = char_node_new(tok->char_val, tok->loc);
+            ast = char_node_new(tok->int_val, tok->loc);
             break;
         case TOKEN_STRING:
             ast = string_node_new(string_get(tok->str_val), tok->loc);
@@ -318,7 +318,7 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
 {
     struct ast_node *ast = 0;
     _push_state(parser, 0, 0); 
-    struct lexer *lexer = lexer_new_for_string(code);
+    struct lexer *lexer = lexer_new_with_string(code);
     struct token *tok = get_tok(lexer);
     u8 a = get_token_index(tok->token_type, tok->opcode);
     u16 s, t;

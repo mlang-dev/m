@@ -92,7 +92,7 @@ TEST(test_parser, bool_init)
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
     struct ast_node *literal = node->var->init_value;
-    ASSERT_EQ(true, literal->liter->bool_val);
+    ASSERT_EQ(true, literal->liter->int_val);
     ast_node_free(block);
     parser_free(parser);
     frontend_deinit();
@@ -110,7 +110,7 @@ TEST(test_parser, char_init)
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
     struct ast_node *literal = node->var->init_value;
-    ASSERT_EQ('c', literal->liter->char_val);
+    ASSERT_EQ('c', literal->liter->int_val);
     ast_node_free(block);
     parser_free(parser);
     frontend_deinit();

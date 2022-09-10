@@ -183,21 +183,40 @@ void _free_ident_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *_create_literal_int_node(int val, enum type type, struct source_location loc)
+{
+    symbol type_name = type ? type_symbols[type] : 0;
+    struct ast_node *node = ast_node_new(LITERAL_NODE, type, type_name, loc);
+    MALLOC(node->liter, sizeof(*node->liter));
+    switch (type){ 
+        case TYPE_INT:
+        case TYPE_CHAR:
+        case TYPE_BOOL:
+            node->liter->int_val = val;
+            break;
+        default:
+            printf("doesn't support the type %s for int literal.\n", string_get(type_symbols[type]));
+            break;
+    }
+    return node;
+}
+
 struct ast_node *_create_literal_node(void *val, enum type type, struct source_location loc)
 {
     symbol type_name = type ? type_symbols[type] : 0;
     struct ast_node *node = ast_node_new(LITERAL_NODE, type, type_name, loc);
     MALLOC(node->liter, sizeof(*node->liter));
-    if (type == TYPE_INT)
-        node->liter->int_val = *(int *)val;
-    else if (type == TYPE_DOUBLE)
-        node->liter->double_val = *(double *)val;
-    else if (type == TYPE_CHAR)
-        node->liter->char_val = *(char *)val;
-    else if (type == TYPE_BOOL)
-        node->liter->bool_val = *(bool *)val;
-    else if (type == TYPE_STRING)
-        node->liter->str_val = str_clone((const char *)val);
+    switch (type){ 
+        case TYPE_DOUBLE:
+            node->liter->double_val = *(double *)val;
+            break;
+        case TYPE_STRING:
+            node->liter->str_val = str_clone((const char *)val);
+            break;
+        default:
+            printf("doesn't support the type %s for literal.\n", string_get(type_symbols[type]));
+            break;
+    }
     return node;
 }
 
@@ -217,17 +236,17 @@ struct ast_node *double_node_new(double val, struct source_location loc)
 
 struct ast_node *int_node_new(int val, struct source_location loc)
 {
-    return _create_literal_node(&val, TYPE_INT, loc);
+    return _create_literal_int_node(val, TYPE_INT, loc);
 }
 
 struct ast_node *bool_node_new(bool val, struct source_location loc)
 {
-    return _create_literal_node(&val, TYPE_BOOL, loc);
+    return _create_literal_int_node((int)val, TYPE_BOOL, loc);
 }
 
 struct ast_node *char_node_new(char val, struct source_location loc)
 {
-    return _create_literal_node(&val, TYPE_CHAR, loc);
+    return _create_literal_int_node((int)val, TYPE_CHAR, loc);
 }
 
 struct ast_node *unit_node_new(struct source_location loc)
@@ -242,7 +261,7 @@ struct ast_node *string_node_new(const char *val, struct source_location loc)
 
 struct ast_node *_copy_literal_node(struct ast_node *orig_node)
 {
-    return _create_literal_node(&orig_node->liter->char_val,
+    return _create_literal_node(&orig_node->liter->int_val,
         orig_node->annotated_type_enum, orig_node->loc);
 }
 

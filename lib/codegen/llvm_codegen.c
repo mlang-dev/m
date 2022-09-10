@@ -418,7 +418,7 @@ LLVMValueRef _emit_literal_node(struct code_generator *cg, struct ast_node *node
     enum type type = get_type(node->type);
     void *value = 0;
     if (type == TYPE_CHAR)
-        value = &node->liter->char_val;
+        value = &node->liter->int_val;
     else if (is_int_type(type))
         value = &node->liter->int_val;
     else if (type == TYPE_DOUBLE)
