@@ -424,7 +424,7 @@ printf "hello\n"
         eval_statement(jit, node);
     }
     auto msg = testing::internal::GetCapturedStdout();
-    ASSERT_STREQ("hello\\n7:int\n", msg.c_str()); //TODO: fix me later
+    ASSERT_STREQ("hello\n6:int\n", msg.c_str()); //TODO: fix me later
     ast_node_free(block);
     jit_free(jit);
     env_free(env);

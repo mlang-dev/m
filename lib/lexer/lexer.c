@@ -71,6 +71,7 @@ struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size
     escape_2_char['\''] = '\'';
     escape_2_char['\"'] = '\"';
     escape_2_char['0'] = '\0';
+
     struct lexer *lexer;
     MALLOC(lexer, sizeof(*lexer));
     lexer->buff_base = 0;
@@ -162,8 +163,8 @@ void _scan_until(struct lexer *lexer, char until)
 {
     do{
         _move_ahead(lexer);
-
-    } while (lexer->buff[lexer->pos] != until);
+        if (lexer->buff[lexer->pos] == until && lexer->buff[lexer->pos-1] != '\\') break;
+    } while (true);
 }
 
 bool _scan_until_no_digit(struct lexer *lexer)
@@ -247,6 +248,23 @@ void _mark_regex_tok(struct lexer *lexer)
         printf("no valid token found for %c\n", ch);
         exit(-1);
     }
+}
+
+const char * _copy_string_strip_escape(const char *text, size_t len, size_t *out_size)
+{
+    char *dst = malloc(len+1);
+    size_t i = 0;
+    size_t j = 0;
+    for(i=0; i<len; i++){
+        if(text[i] == '\\'){
+            i++;
+            dst[j++] = escape_2_char[(int)text[i]];
+        }else{
+            dst[j++] = text[i];
+        }
+    }
+    *out_size = j;
+    return dst;
 }
 
 struct token *get_tok(struct lexer *lexer)
@@ -333,7 +351,10 @@ struct token *get_tok(struct lexer *lexer)
         _mark_token(lexer, TOKEN_STRING, 0);
         _scan_until(lexer, '"');
         _move_ahead(lexer); // skip the double quote
-        lexer->tok.str_val = string_new2(&lexer->buff[tok->loc.start - lexer->buff_base + 1], lexer->buff_base + lexer->pos - tok->loc.start - 2);
+        size_t char_len = 0;
+        const char *code = _copy_string_strip_escape(&lexer->buff[tok->loc.start - lexer->buff_base + 1], lexer->buff_base + lexer->pos - tok->loc.start - 2, &char_len);
+        lexer->tok.str_val = string_new2(code, char_len);
+        free((void*)code);
         break;
     }
     if(tok->token_type){
