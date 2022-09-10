@@ -73,7 +73,7 @@ enum GlobalType{
 #define OPCODE_END 0x0B
 #define OPCODE_LOOP 0x03
 #define OPCODE_IF 0x04
-#define OPCODE_ESLE 0x05
+#define OPCODE_ELSE 0x05
 #define OPCODE_BR 0x0C
 #define OPCODE_BR_IF 0x0D
 #define OPCODE_BR_TABLE 0x0E
