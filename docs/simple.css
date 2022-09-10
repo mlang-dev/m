@@ -19,6 +19,23 @@
   --disabled: #efefef;
 }
 
+/* Light theme */
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #fff;
+    --accent-bg: #f5f7ff;
+    --text: #212121;
+    --text-light: #585858;
+    --border: #d8dae1;
+    --accent: #0d47a1;
+    --code: #d81b60;
+    --preformatted: #444;
+    --marked: #ffdd33;
+    --disabled: #efefef;
+    }
+}
+
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
   :root {
