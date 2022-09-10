@@ -298,7 +298,7 @@ struct type_exp *get_symbol_type(symboltable *st, struct array *nongens, symbol 
 {
     struct type_exp *exp = (struct type_exp *)symboltable_get(st, name);
     if (!exp){
-        printf("No type is found for the symple: %s.\n", string_get(name));
+        printf("No type is found for the symble: %s.\n", string_get(name));
         return 0;
     }
     return fresh(exp, nongens);

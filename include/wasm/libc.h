@@ -6,7 +6,6 @@
 /*libc*/
 /*io*/
 wasm_export_name(print) void print(const char *fmt, ...);
-wasm_export_name(fprint) void _fprint(const char *fmt, ...);
 wasm_export_name(putchar) void _putchar(int);
 
 wasm_export_name(malloc) void *_malloc(size_t bytes);

@@ -29,7 +29,7 @@
 		<p/>
 		<strong>
 		</strong>
-		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false" style="color:gray;white-space: pre-wrap">print "hello world"</textarea>
+		<textarea rows="15", cols="80" autocomplete="off" id="code" wrap="logical" spellcheck="false" style="color:gray;white-space: pre-wrap"></textarea>
 		<div style="width: 100%;">
 			<button type="button" id="run" style="min-width: 70px;">run</button>
 		</div>
@@ -41,7 +41,17 @@
 	} else if (codeInput.attachEvent) {
 		codeInput.attachEvent('onkeydown', this.keyHandler); /* damn IE hack */
 	}
+	var code_text = 
+`print "hello world\\n"  # call c io printf function
 
+let distance x1 y1 x2 y2 = 
+	xx = (x1-x2) ** 2.0
+	yy = (y1-y2) ** 2.0
+	sqrt (xx + yy) # call c sqrt math function
+
+distance 1.0 2.0 4.0 6.0
+	`;
+	codeInput.value = code_text;
 	function keyHandler(e) {
 		var TABKEY = 9;
 		if (e.keyCode == TABKEY) {

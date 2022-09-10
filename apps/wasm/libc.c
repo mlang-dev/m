@@ -28,15 +28,6 @@ void print(const char *restrict fmt, ...)
     va_end(ap);
 }
 
-int _printf(const char *restrict fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int result = vfprintf(stdout, fmt, ap);
-    va_end(ap);
-    return result;
-}
-
 void _putchar(int ch)
 {
     putchar(ch);
