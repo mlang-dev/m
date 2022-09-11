@@ -107,6 +107,9 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		str_to_ab(mw_instance, code, new_ptr);
 		let wasm = mw_instance.exports.compile_code(new_ptr);
 		let wasm_size = mw_instance.exports.get_code_size();
+		if(!wasm_size){
+			return undefined;
+		}
 		let result = run_wasm_code(mw_instance, wasm, wasm_size);
 		mw_instance.exports.free(wasm);
 		return result;
@@ -118,6 +121,9 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		str_to_ab(mw_instance, code, new_ptr);
 		let wasm = mw_instance.exports.compile_code(new_ptr);
 		let wasm_size = mw_instance.exports.get_code_size();
+		if(!wasm_size){
+			return undefined;
+		}
 		let ta = new Uint8Array(mw_instance.exports.memory.buffer, wasm, wasm_size);
 		const fs = require('fs');
 		fs.writeFileSync(file_path, ta, 'binary');
