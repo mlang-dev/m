@@ -25,11 +25,13 @@ if (WASM)
     clib/test_regex.c
 
     lexer/test_lexer.c
+    lexer/test_lexer_error.c
     lexer/test_m_lexer.c
     lexer/test_token.c
     parser/test_ast.c
     parser/test_parser_expr.c
     parser/test_parser.c
+    parser/test_parser_error.c
     parser/test_grammar.c
     codegen/test_wat_codegen.c
     codegen/test_wasm_codegen.c
@@ -143,11 +145,13 @@ else()
   clib/test_util.c
   clib/test_regex.c
   lexer/test_lexer.c
+  lexer/test_lexer_error.c
   lexer/test_m_lexer.c
   lexer/test_token.c
   parser/test_ast.c
   parser/test_parser_expr.c
   parser/test_parser.c
+  parser/test_parser_error.c
   parser/test_grammar.c
   codegen/test_wat_codegen.c
   codegen/test_wasm_codegen.c

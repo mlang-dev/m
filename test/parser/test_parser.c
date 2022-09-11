@@ -669,7 +669,7 @@ TEST(test_parser, import_global)
     frontend_deinit();
 }
 
-int test_lr_parser()
+int test_parser()
 {
     UNITY_BEGIN();
     RUN_TEST(test_parser_int_type);

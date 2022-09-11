@@ -20,6 +20,7 @@ extern "C" {
 #endif
 
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
+    ENUM_ITEM(TOKEN_ERROR)             \
     ENUM_ITEM(TOKEN_EOF)             \
     ENUM_ITEM(TOKEN_EPSILON)         \
     ENUM_ITEM(TOKEN_INDENT)          \
