@@ -1148,9 +1148,13 @@ void _parsed_imports(struct imports *imports, struct ast_node *block)
 void parse_as_module(struct wasm_module *module, const char *expr)
 {
     struct parser *parser = parser_new();
+    struct ast_node *expr_ast = parse_code(parser, expr);
+    if (!expr_ast){
+        parser_free(parser);
+        return;
+    }
     _parsed_imports(&module->imports, parse_code(parser, imports));
     struct ast_node *ast = block_node_new_empty();
-    struct ast_node *expr_ast = parse_code(parser, expr);
     block_node_add_block(ast, module->imports.import_block);
     block_node_add_block(ast, expr_ast);
     free_block_node(expr_ast, false);

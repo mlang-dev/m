@@ -270,6 +270,11 @@ const char * _copy_string_strip_escape(const char *text, size_t len, size_t *out
     return dst;
 }
 
+bool _is_valid_char(struct lexer *lexer)
+{
+    return lexer->buff_base + lexer->pos - lexer->tok.loc.start != 3 && lexer->buff_base + lexer->pos - lexer->tok.loc.start != 4;
+}
+
 struct token *get_tok(struct lexer *lexer)
 {
     struct token *tok = &lexer->tok;
@@ -338,8 +343,13 @@ struct token *get_tok(struct lexer *lexer)
     case '\'':
         _mark_token(lexer, TOKEN_CHAR, 0);
         _scan_until(lexer, '\'');
+        if(lexer->buff[lexer->pos] != '\''){
+            tok->token_type = TOKEN_ERROR;
+            sprintf(error_messages, "missing end quote for char literal. location: (%d, %d)\n", tok->loc.line, tok->loc.col);
+            goto mark_end;
+        }
         _move_ahead(lexer); //skip the single quote
-        if(lexer->buff_base + lexer->pos - tok->loc.start != 3 && lexer->buff_base + lexer->pos - tok->loc.start != 4){
+        if(_is_valid_char(lexer)){
             tok->token_type = TOKEN_ERROR;
             sprintf(error_messages, "character is supposed to be 1 char long but got %d long. location: (%d, %d)\n", lexer->buff_base + lexer->pos - tok->loc.start - 2, tok->loc.line, tok->loc.col);
             goto mark_end;

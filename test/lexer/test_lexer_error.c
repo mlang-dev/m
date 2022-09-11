@@ -35,7 +35,7 @@ TEST(test_lexer, char_error_missing_end_quote)
         lexer = lexer_new_with_string("'");
         tok = get_tok(lexer);
         ASSERT_EQ(TOKEN_ERROR, tok->token_type);
-        ASSERT_STREQ("character is supposed to be 1 char long but got 0 long. location: (1, 1)\n", string_get(tok->str_val));
+        ASSERT_STREQ("missing end quote for char literal. location: (1, 1)\n", string_get(tok->str_val));
         lexer_free(lexer);
         frontend_deinit();
         TEST_ABORT();

@@ -349,6 +349,10 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
             si = _pop_state(parser);
             ast = si->ast;
             break;
+        }else if(tok->token_type == TOKEN_ERROR){
+            printf("%s", string_get(tok->str_val));
+            ast = 0;
+            break;
         }else{
             //error recovery
             printf("error found in state: %d on terminal: %s\n", s, string_get(get_symbol_by_index(a)));
