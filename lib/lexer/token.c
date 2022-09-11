@@ -8,7 +8,8 @@
 #define NAME_KEYWORD_PATTERN(name, keyword, tok_name, op_name) {name, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
 
 struct token_pattern token_patterns[TERMINAL_COUNT] = {
-    TOKEN_PATTERN(0, EOF, NULL), // 0
+    TOKEN_PATTERN(0, ERROR, NULL), // 1
+    TOKEN_PATTERN(0, EOF, NULL), // 1
     TOKEN_PATTERN(0, EPSILON, NULL),
     TOKEN_PATTERN(0, INDENT, NULL),
     TOKEN_PATTERN(0, DEDENT, NULL),

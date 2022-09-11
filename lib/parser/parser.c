@@ -357,7 +357,6 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
                 printf("%d,", parser->stack[i].state_index);
             }
             printf("\n");
-            assert(false);
             ast = 0;
             break;
         }

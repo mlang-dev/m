@@ -24,10 +24,12 @@ int test_regex();
 
 int test_token();
 int test_lexer();
+int test_lexer_error();
 int test_m_lexer();
 int test_ast();
-int test_lr_parser_expr();
-int test_lr_parser();
+int test_parser_expr();
+int test_parser();
+int test_parser_error();
 int test_grammar();
 int test_wat_codegen();
 int test_wasm_codegen();
@@ -54,10 +56,12 @@ EXPORT int ENTRY()
 
   failures += test_token();
   failures += test_lexer();
+  failures += test_lexer_error();
   failures += test_m_lexer();
   failures += test_ast();
-  failures += test_lr_parser_expr();
-  failures += test_lr_parser();
+  failures += test_parser_expr();
+  failures += test_parser();
+  failures += test_parser_error();
   failures += test_grammar();
   failures += test_wat_codegen();
   failures += test_wasm_codegen();

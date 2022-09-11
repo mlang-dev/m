@@ -217,7 +217,7 @@ TEST(test_parser_expr, le)
     frontend_deinit();
 }
 
-int test_lr_parser_expr()
+int test_parser_expr()
 {
     UNITY_BEGIN();
     RUN_TEST(test_parser_expr_arithmetic_simple_add);

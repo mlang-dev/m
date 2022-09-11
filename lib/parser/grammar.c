@@ -102,7 +102,7 @@ struct grammar *grammar_parse(const char *grammar_text)
     struct expr *expr = 0;
     symbol s = 0;
     string group;
-    while (tok.token_type) {
+    while (tok.token_type!=TOKEN_EOF) {
         next_tok = *get_tok(lexer);
         if(tok.token_type == TOKEN_IDENT){
             s = tok.symbol_val;

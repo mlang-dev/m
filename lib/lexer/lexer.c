@@ -12,6 +12,7 @@
 #include "clib/win/libfmemopen.h"
 
 char escape_2_char[128];
+char error_messages[512];
 
 void indent_level_stack_init(struct indent_level_stack *stack)
 {
@@ -163,7 +164,9 @@ void _scan_until(struct lexer *lexer, char until)
 {
     do{
         _move_ahead(lexer);
-        if (lexer->buff[lexer->pos] == until && lexer->buff[lexer->pos-1] != '\\') break;
+        if (!lexer->buff[lexer->pos] || (lexer->buff[lexer->pos] == until && lexer->buff[lexer->pos-1] != '\\')){
+            break;
+        }
     } while (true);
 }
 
@@ -337,9 +340,9 @@ struct token *get_tok(struct lexer *lexer)
         _scan_until(lexer, '\'');
         _move_ahead(lexer); //skip the single quote
         if(lexer->buff_base + lexer->pos - tok->loc.start != 3 && lexer->buff_base + lexer->pos - tok->loc.start != 4){
-            printf("character is supposed to be 1 char long. (%d, %d, %d)\n", lexer->buff_base, lexer->pos, tok->loc.start);
-            exit(-1);
-            return 0;
+            tok->token_type = TOKEN_ERROR;
+            sprintf(error_messages, "character is supposed to be 1 char long but got %d long. location: (%d, %d)\n", lexer->buff_base + lexer->pos - tok->loc.start - 2, tok->loc.line, tok->loc.col);
+            goto mark_end;
         }
         if(lexer->buff[tok->loc.start - lexer->buff_base + 1] == '\\'){
             lexer->tok.int_val = escape_2_char[(int)lexer->buff[tok->loc.start - lexer->buff_base + 2]];
@@ -350,6 +353,11 @@ struct token *get_tok(struct lexer *lexer)
     case '"':
         _mark_token(lexer, TOKEN_STRING, 0);
         _scan_until(lexer, '"');
+        if(lexer->buff[lexer->pos] != '"'){
+            tok->token_type = TOKEN_ERROR;
+            sprintf(error_messages, "missing end quote for string literal. location: (%d, %d)\n", tok->loc.line, tok->loc.col);
+            goto mark_end;
+        }
         _move_ahead(lexer); // skip the double quote
         size_t char_len = 0;
         const char *code = _copy_string_strip_escape(&lexer->buff[tok->loc.start - lexer->buff_base + 1], lexer->buff_base + lexer->pos - tok->loc.start - 2, &char_len);
@@ -357,8 +365,10 @@ struct token *get_tok(struct lexer *lexer)
         free((void*)code);
         break;
     }
-    if(tok->token_type){
-        tok->loc.end = lexer->buff_base + lexer->pos;
+mark_end:
+    if(tok->token_type == TOKEN_ERROR){
+        tok->str_val = string_new2(error_messages, strlen(error_messages));
     }
+    tok->loc.end = lexer->buff_base + lexer->pos;
     return tok;
 }
