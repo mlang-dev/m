@@ -92,7 +92,7 @@ struct ast_node *_build_terminal_ast(struct token *tok)
         case TOKEN_INT:
             ast = int_node_new(tok->int_val, tok->loc);
             break;
-        case TOKEN_FLOAT:
+        case TOKEN_DOUBLE:
             ast = double_node_new(tok->double_val,tok->loc);
             break;
         case TOKEN_TRUE:
@@ -273,7 +273,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(node1->node_type == BLOCK_NODE);
         ast = call_node_new(node->ident->name, node1, node->loc);
         break;
-    case TYPE_NODE: // new type definition, like struct in C
+    case UNION_NODE:
+    case ENUM_NODE:
+    case STRUCT_NODE: // new type definition, like struct in C
         assert(rule->action.item_index_count == 2);
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == IDENT_NODE);

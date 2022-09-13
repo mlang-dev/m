@@ -32,7 +32,9 @@ extern "C" {
     ENUM_ITEM(LITERAL_NODE)         \
     ENUM_ITEM(IDENT_NODE)           \
     ENUM_ITEM(VAR_NODE)             \
-    ENUM_ITEM(TYPE_NODE)            \
+    ENUM_ITEM(ENUM_NODE)            \
+    ENUM_ITEM(STRUCT_NODE)          \
+    ENUM_ITEM(UNION_NODE)           \
     ENUM_ITEM(TYPE_VALUE_NODE)      \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \

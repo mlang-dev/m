@@ -270,7 +270,7 @@ TEST(test_lexer, token_num_float)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_FLOAT, tok->token_type);
+    ASSERT_EQ(TOKEN_DOUBLE, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
@@ -289,7 +289,7 @@ TEST(test_lexer, token_num_float2)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_FLOAT, tok->token_type);
+    ASSERT_EQ(TOKEN_DOUBLE, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
@@ -308,7 +308,7 @@ TEST(test_lexer, token_num_float3)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_FLOAT, tok->token_type);
+    ASSERT_EQ(TOKEN_DOUBLE, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
@@ -378,7 +378,7 @@ TEST(test_lexer, expr)
     ASSERT_EQ(TOKEN_OP, tok->token_type);
     ASSERT_EQ(OP_PLUS, tok->opcode);
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_FLOAT, tok->token_type);
+    ASSERT_EQ(TOKEN_DOUBLE, tok->token_type);
 
     lexer_free(lexer);
     frontend_deinit();
@@ -473,6 +473,20 @@ TEST(test_lexer, token_import_memory)
     frontend_deinit();
 }
 
+TEST(test_lexer, complex_number)
+{
+    frontend_init();
+    char test_code[] = "3.0 + 1.0i";
+
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+
+    ASSERT_EQ(TOKEN_COMPLEX, get_tok(lexer)->token_type);
+
+    lexer_free(lexer);
+    frontend_deinit();
+}
+
 int test_lexer()
 {
     UNITY_BEGIN();
@@ -498,5 +512,6 @@ int test_lexer()
     RUN_TEST(test_lexer_other_symbols);
     RUN_TEST(test_lexer_token_indent_dedent);
     RUN_TEST(test_lexer_token_import_memory);
+    RUN_TEST(test_lexer_complex_number);
     return UNITY_END();
 }

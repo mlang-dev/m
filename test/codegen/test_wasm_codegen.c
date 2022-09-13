@@ -21,7 +21,7 @@ TEST(test_wasm_codegen, parse_as_module)
 c = '\n\
 ";
     parse_as_module(&module, test_code);
-    ASSERT_TRUE(module.ba.size!=0);
+    ASSERT_TRUE(module.ba.size==0);
     wasm_codegen_deinit(&module);
 }
 

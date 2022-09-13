@@ -20,20 +20,24 @@ extern "C" {
 #endif
 
 #define FOREACH_TOKENTYPE(ENUM_ITEM) \
-    ENUM_ITEM(TOKEN_ERROR)             \
+    ENUM_ITEM(TOKEN_ERROR)           \
     ENUM_ITEM(TOKEN_EOF)             \
     ENUM_ITEM(TOKEN_EPSILON)         \
     ENUM_ITEM(TOKEN_INDENT)          \
     ENUM_ITEM(TOKEN_DEDENT)          \
     ENUM_ITEM(TOKEN_NEWLINE)         \
     ENUM_ITEM(TOKEN_INT)             \
-    ENUM_ITEM(TOKEN_FLOAT)           \
+    ENUM_ITEM(TOKEN_DOUBLE)          \
+    ENUM_ITEM(TOKEN_COMPLEX)         \
     ENUM_ITEM(TOKEN_CHAR)            \
     ENUM_ITEM(TOKEN_STRING)          \
     ENUM_ITEM(TOKEN_FROM)            \
     ENUM_ITEM(TOKEN_IMPORT)          \
     ENUM_ITEM(TOKEN_MEMORY)          \
     ENUM_ITEM(TOKEN_EXTERN)          \
+    ENUM_ITEM(TOKEN_ENUM)            \
+    ENUM_ITEM(TOKEN_STRUCT)          \
+    ENUM_ITEM(TOKEN_UNION)           \
     ENUM_ITEM(TOKEN_TYPE)            \
     ENUM_ITEM(TOKEN_LET)             \
     ENUM_ITEM(TOKEN_FUN)             \

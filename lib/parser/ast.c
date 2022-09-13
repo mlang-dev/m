@@ -22,7 +22,9 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(literal, LITERAL),
     NODE_TYPE_NAME(ident, IDENT),
     NODE_TYPE_NAME(var, VAR),
-    NODE_TYPE_NAME(type_def, TYPE),
+    NODE_TYPE_NAME(enum_def, ENUM),
+    NODE_TYPE_NAME(struct_def, STRUCT),
+    NODE_TYPE_NAME(union_def, UNION),
     NODE_TYPE_NAME(type_value, TYPE_VALUE),
     NODE_TYPE_NAME(unop, UNARY),
     NODE_TYPE_NAME(binop, BINARY),
@@ -306,7 +308,7 @@ void _free_var_node(struct ast_node *node)
 
 struct ast_node *type_node_new(symbol name, struct ast_node *body, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(TYPE_NODE, 0, 0, loc);
+    struct ast_node *node = ast_node_new(STRUCT_NODE, 0, 0, loc);
     MALLOC(node->type_def, sizeof(*node->type_def));
     node->type_def->name = name;
     node->type_def->body = body;
@@ -667,7 +669,7 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_function_node(node);
     case VAR_NODE:
         return _copy_var_node(node);
-    case TYPE_NODE:
+    case STRUCT_NODE:
         return _copy_type_node(node);
     case TYPE_VALUE_NODE:
         return _copy_type_value_node(node);
@@ -712,7 +714,7 @@ void node_free(struct ast_node *node)
     case VAR_NODE:
         _free_var_node(node);
         break;
-    case TYPE_NODE:
+    case STRUCT_NODE:
         _free_type_node(node);
         break;
     case TYPE_VALUE_NODE:
