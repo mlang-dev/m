@@ -68,7 +68,7 @@ entry:
 TEST(testCGFunCall, testReturnStructDirect)
 {
     const char test_code[] = R"(
-type Point2D = x:int, y:int
+struct Point2D = x:int, y:int
 let f () = 
    xy:Point2D = Point2D(10, 20)
    xy
@@ -108,7 +108,7 @@ entry:
 TEST(testCGFunCall, testReturnStructDirectWithoutName)
 {
     const char test_code[] = R"(
-type Point2D = x:int, y:int
+struct Point2D = x:int, y:int
 let f() = Point2D(10, 20)
    
 let main() = 
@@ -173,7 +173,7 @@ entry:
 TEST(testCGFunCall, testPassStructIndirect)
 {
     const char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 let f xy:Point2D = xy.y
 let main() = 
   xy:Point2D = Point2D(10.0, 20.0)
@@ -206,7 +206,7 @@ entry:
 TEST(testCGFunCall, testPassStructDirect)
 {
     const char test_code[] = R"(
-type Point2D = x:int, y:int
+struct Point2D = x:int, y:int
 let f xy:Point2D = xy.x
 let main() = 
   xy:Point2D = Point2D(10, 20)
@@ -244,7 +244,7 @@ entry:
 TEST(testCGFunCall, testReturnStructInDirect)
 { 
     const char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 let f () = 
    xy:Point2D = Point2D(10.0, 20.0)
    xy
@@ -279,7 +279,7 @@ entry:
 TEST(testCGFunCall, testReturnStructInDirectWithoutName)
 {
     const char test_code[] = R"(
- type Point2D = x:double y:double
+ struct Point2D = x:double y:double
  f () = Point2D 10.0 20.0
  main() = 
    xy = f()
@@ -312,7 +312,7 @@ entry:
 TEST(testCGFunCall, testReturnStructInDirectWithoutNameCalling)
 {
     const char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 let f() = Point2D(10.0, 20.0)
 let main() = f()
 )";

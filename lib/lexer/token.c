@@ -15,7 +15,8 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, DEDENT, NULL),
     TOKEN_PATTERN("\n", NEWLINE, NULL),
     TOKEN_PATTERN("[0-9]+|0x[0-9a-fA-F]+", INT, NULL), // 5
-    TOKEN_PATTERN("([0-9]*.)?[0-9]+", FLOAT, NULL),
+    TOKEN_PATTERN("([0-9]*.)?[0-9]+", DOUBLE, NULL),
+    TOKEN_PATTERN("([0-9]*.)?[0-9]+ \\+ ([0-9]*.)?[0-9]*i", COMPLEX, NULL),
     TOKEN_PATTERN(0, CHAR, NULL),
     TOKEN_PATTERN(0, STRING, NULL),
 
@@ -23,6 +24,9 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("import", IMPORT, NULL),
     KEYWORD_PATTERN("memory", MEMORY, NULL),
     KEYWORD_PATTERN("extern", EXTERN, NULL), // 10
+    KEYWORD_PATTERN("enum", ENUM, NULL),
+    KEYWORD_PATTERN("struct", STRUCT, NULL),
+    KEYWORD_PATTERN("union", UNION, NULL),
     KEYWORD_PATTERN("type", TYPE, NULL),
     KEYWORD_PATTERN("let", LET, NULL),
     KEYWORD_PATTERN("fun", FUN, NULL),

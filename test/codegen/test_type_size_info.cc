@@ -17,7 +17,7 @@ class testTypeSizeInfo : public TestBase {
 
 TEST_F(testTypeSizeInfo, testStructTypeSize)
 {
-    char test_code[] = "type Point2D = x:double, y:double";
+    char test_code[] = "struct Point2D = x:double, y:double";
     env *env = env_new(false);
     struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -31,7 +31,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSize)
 
 TEST_F(testTypeSizeInfo, testStructTypeSizeCharDouble)
 {
-    char test_code[] = "type Point2D = x:char, y:double";
+    char test_code[] = "struct Point2D = x:char, y:double";
     env *env = env_new(false);
     struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -45,7 +45,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeCharDouble)
 
 TEST_F(testTypeSizeInfo, testStructTypeSizeCharChar)
 {
-    char test_code[] = "type Point2D = x:char, y:char";
+    char test_code[] = "struct Point2D = x:char, y:char";
     env *env = env_new(false);
     struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -59,7 +59,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeCharChar)
 
 TEST_F(testTypeSizeInfo, testStructTypeSizeBoolChar)
 {
-    char test_code[] = "type Point2D = x:bool, y:char";
+    char test_code[] = "struct Point2D = x:bool, y:char";
     env *env = env_new(false);
     struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -73,7 +73,7 @@ TEST_F(testTypeSizeInfo, testStructTypeSizeBoolChar)
 
 TEST_F(testTypeSizeInfo, testStructTypeSizeCharInt)
 {
-    char test_code[] = "type Point2D = x:char, y:int";
+    char test_code[] = "struct Point2D = x:char, y:int";
     env *env = env_new(false);
     struct ast_node *block = parse_code(env->new_parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);

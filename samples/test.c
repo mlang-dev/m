@@ -1,14 +1,20 @@
+
+#include <complex.h>
+#include <math.h>
+
+
 #define EXPORT __attribute__((visibility("default")))
 __attribute__((import_module("imports"), import_name("print"))) void print(const char *fmt, ...);
-extern unsigned int __stack_pointer;
+double complex _get_complex()
+{
+    double complex d = 1.0 + 2.0i;
+    return d;
+}
 
 EXPORT void _start()
 {
-    int s = 0;
-    for(int i = 0; i < 2; i++){
-        s += i;
-    }
-    print("hello: %d", s);
+    double complex z = _get_complex();
+    print("hello: %f, %f", creal(z), cimag(z));
 }
 // struct Point2D {
 //     double x;

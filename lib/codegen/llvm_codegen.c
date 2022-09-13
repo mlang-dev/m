@@ -707,7 +707,9 @@ LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node)
         case VAR_NODE:
             value = emit_var_node(cg, node);
             break;
-        case TYPE_NODE:
+        case ENUM_NODE:
+        case UNION_NODE:
+        case STRUCT_NODE:
             value = _emit_type_node(cg, node);
             break;
         case TYPE_VALUE_NODE:

@@ -9,7 +9,7 @@ type_expr       = IDENT
                 | unit_expr
 
 primary_expr    = INT                                                                 
-                | FLOAT                                                               
+                | DOUBLE                                                               
                 | IDENT                                                               
                 | CHAR                                                                
                 | STRING                                                              
@@ -112,7 +112,9 @@ block           = NEWLINE INDENT statements DEDENT                              
 statements      = statements statement                                                      { block 0 1 }
                 | statement                                                                 { block 0 }                                                     
 
-type_def        = "type" IDENT '=' statement                                                { type_def 1 3 }
+type_def        = "enum" IDENT '=' statement                                                { enum_def 1 3 }
+                | "struct" IDENT '=' statement                                              { struct_def 1 3 }
+                | "union" IDENT '=' statement                                               { union_def 1 3 }
 
 type_init       = IDENT '(' exprs ')'                                                       { type_value 0 2 }
 

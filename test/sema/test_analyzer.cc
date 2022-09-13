@@ -419,7 +419,7 @@ printf "%d" 100
 TEST(testAnalyzer, testStructLikeType)
 {
     char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 )";
     env *env = env_new(false);
     create_ir_module(env->cg, "test");
@@ -428,7 +428,7 @@ type Point2D = x:double, y:double
     emit_code(env, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_EQ(TYPE_NODE, node->node_type);
+    ASSERT_EQ(STRUCT_NODE, node->node_type);
     string type_str = to_string(node->type);
     ASSERT_EQ(TYPE_EXT, node->type->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
@@ -565,7 +565,7 @@ x = 10
 TEST(testAnalyzer, testStructTypeVariables)
 {
     char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 xy:Point2D = Point2D(0.0, 0.0)
 xy.x
 )";
@@ -592,7 +592,7 @@ xy.x
 TEST(testAnalyzer, testStructTypeVariablesNewForm)
 {
     char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 xy = Point2D(10.0, 20.0)
 xy.x
 )";
@@ -619,7 +619,7 @@ xy.x
 TEST(testAnalyzer, testStructTypeLocalVariables)
 {
     char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 let getx()=
     xy:Point2D = Point2D(10.0, 0.0)
     xy.x
@@ -649,7 +649,7 @@ getx()
 TEST(testAnalyzer, testStructTypeLocalVariablesNewForm)
 {
     char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 let getx()=
     xy = Point2D(10.0, 0.0)
     xy.x
@@ -679,7 +679,7 @@ getx()
 TEST(testAnalyzer, testStructTypeReturn)
 {
     char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 let getx()=
     xy:Point2D = Point2D(10.0, 0.0)
     xy
@@ -722,7 +722,7 @@ z = getx()
 TEST(testAnalyzer, testStructTypeReturnNewForm)
 {
     char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 let getx()=
     xy = Point2D(10.0, 0.0)
     xy
@@ -764,7 +764,7 @@ z = getx()
 TEST(testAnalyzer, testStructTypeReturnNoNamed)
 {
     char test_code[] = R"(
-type Point2D = x:double, y:double
+struct Point2D = x:double, y:double
 let get_point() = Point2D(10.0, 0.0)
 let z() = get_point()
 )";

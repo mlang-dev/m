@@ -245,7 +245,7 @@ void _mark_regex_tok(struct lexer *lexer)
                 base = 16;
             }
             tok->int_val = (int)strtol(&lexer->buff[tok->loc.start - lexer->buff_base], 0, base);
-        } else if (used_tp->token_type == TOKEN_FLOAT)
+        } else if (used_tp->token_type == TOKEN_DOUBLE)
             tok->double_val = strtod(&lexer->buff[tok->loc.start - lexer->buff_base], 0);
     }else{
         printf("no valid token found for %c\n", ch);

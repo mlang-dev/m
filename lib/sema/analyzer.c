@@ -420,7 +420,9 @@ struct type_exp *analyze(struct sema_context *context, struct ast_node *node)
         case VAR_NODE:
             type = _analyze_var(context, node);
             break;
-        case TYPE_NODE:
+        case ENUM_NODE:
+        case STRUCT_NODE:
+        case UNION_NODE:
             type = _analyze_type(context, node);
             break;
         case TYPE_VALUE_NODE:
