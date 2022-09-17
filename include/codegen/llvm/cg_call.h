@@ -12,7 +12,7 @@
 #include <llvm-c/Core.h>
 
 #include "clib/array.h"
-#include "codegen/codegen.h"
+#include "codegen/llvm/codegen.h"
 #include "parser/ast.h"
 
 #ifdef __cplusplus

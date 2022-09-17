@@ -1,4 +1,4 @@
-#include "codegen/target_info.h"
+#include "codegen/llvm/target_info.h"
 #include "clib/string.h"
 #include "clib/util.h"
 #include <llvm-c/TargetMachine.h>

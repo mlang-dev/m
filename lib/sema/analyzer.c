@@ -90,7 +90,7 @@ struct type_exp *_analyze_var(struct sema_context *context, struct ast_node *nod
     assert(node->annotated_type_name || node->var->init_value);
     if (node->annotated_type_name && 
         hashtable_in_p(&context->ext_typename_2_asts, node->annotated_type_name)
-        /* hashtable_get_int(&context->parser->symbol_2_int_types, node->annotated_type_name) == TYPE_EXT*/
+        /* hashtable_get_int(&context->parser->symbol_2_int_types, node->annotated_type_name) == TYPE_STRUCT*/
         ) {
         assert(node->annotated_type_name);
         type = retrieve_type_with_type_name(context, node->annotated_type_name);
@@ -190,7 +190,7 @@ struct type_exp *_analyze_func(struct sema_context *context, struct ast_node *no
         _fill_type_enum(context, param);
         struct type_exp *exp;
         if (param->annotated_type_name) {
-            if (param->annotated_type_enum == TYPE_EXT)
+            if (param->annotated_type_enum == TYPE_STRUCT)
                 exp = retrieve_type_with_type_name(context, param->annotated_type_name);
             else{
                 struct type_oper *to = create_nullary_type(param->annotated_type_enum, param->annotated_type_name);

@@ -1,6 +1,6 @@
-#include "codegen/ir_arg_info.h"
-#include "codegen/codegen.h"
-#include "codegen/fun_info.h"
+#include "codegen/llvm/ir_arg_info.h"
+#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/fun_info.h"
 
 const unsigned InvalidIndex = ~0U;
 
@@ -25,7 +25,7 @@ void ir_arg_range_init(struct ir_arg_range *iar)
 
 int get_expansion_size(struct type_exp *type)
 {
-    if (type->type == TYPE_EXT) {
+    if (type->type == TYPE_STRUCT) {
         struct type_oper *to = (struct type_oper *)type;
         int size = 0;
         size_t member_count = array_size(&to->args);
@@ -40,7 +40,7 @@ int get_expansion_size(struct type_exp *type)
 
 void get_expanded_types(struct type_exp *type, struct array *types)
 {
-    if (type->type == TYPE_EXT) {
+    if (type->type == TYPE_STRUCT) {
         struct type_oper *to = (struct type_oper *)type;
         size_t member_count = array_size(&to->args);
         for (size_t i = 0; i < member_count; i++) {

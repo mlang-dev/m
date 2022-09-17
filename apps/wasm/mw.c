@@ -1,6 +1,6 @@
 #include "wasm/mw.h"
 #include "clib/typedef.h"
-#include "codegen/wasm_codegen.h"
+#include "codegen/wasm/wasm_codegen.h"
 #include <stdlib.h>
 #include <string.h>
 

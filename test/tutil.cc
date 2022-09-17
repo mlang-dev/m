@@ -5,7 +5,7 @@
  */
 #include "tutil.h"
 #include "clib/win/libfmemopen.h"
-#include "codegen/codegen.h"
+#include "codegen/llvm/codegen.h"
 #include "codegen/env.h"
 #include "compiler/compiler.h"
 #include "parser/grammar.h"

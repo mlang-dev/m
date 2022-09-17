@@ -3,7 +3,7 @@
  *
  * Unit tests for type inference and semantic analsysis
  */
-#include "codegen/codegen.h"
+#include "codegen/llvm/codegen.h"
 #include "codegen/env.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
@@ -430,7 +430,7 @@ struct Point2D = x:double, y:double
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(STRUCT_NODE, node->node_type);
     string type_str = to_string(node->type);
-    ASSERT_EQ(TYPE_EXT, node->type->type);
+    ASSERT_EQ(TYPE_STRUCT, node->type->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     env_free(env);
 }

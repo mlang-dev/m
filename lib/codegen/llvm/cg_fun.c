@@ -8,11 +8,11 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
-#include "codegen/abi_arg_info.h"
-#include "codegen/cg_fun.h"
-#include "codegen/codegen.h"
-#include "codegen/fun_info.h"
-#include "codegen/ir_api.h"
+#include "codegen/llvm/abi_arg_info.h"
+#include "codegen/llvm/cg_fun.h"
+#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/fun_info.h"
+#include "codegen/llvm/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
@@ -51,7 +51,7 @@ void _emit_argument_allocas(struct code_generator *cg, struct ast_node *node,
             assert(ir_arg_num == 1);
             param_value.pointer = arg_value;
             param_value.alignment = aaa->info.align.indirect_align;
-            if (proto_type->base.type < TYPE_EXT) { //aggregate
+            if (proto_type->base.type < TYPE_STRUCT) { //aggregate
                 //
                 if (aaa->info.indirect_realign || aaa->info.kind == AK_INDIRECT_ALIASED) {
                     //realign the value, if the address is aliased, copy the param to ensure
@@ -128,7 +128,7 @@ LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct ast_node *
         struct ast_node *fun_param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
         LLVMSetValueName2(param, string_get(fun_param->var->var_name), string_size(fun_param->var->var_name));
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        if (aa->type->type == TYPE_EXT)
+        if (aa->type->type == TYPE_STRUCT)
             hashtable_set_p(&cg->varname_2_typename, fun_param->var->var_name, aa->type->name);
     }
     return fun;

@@ -12,7 +12,7 @@
 #include "clib/array.h"
 #include "clib/hashset.h"
 #include "clib/symboltable.h"
-#include "codegen/codegen.h"
+#include "codegen/llvm/codegen.h"
 #include "parser/parser.h"
 #include "sema/type.h"
 

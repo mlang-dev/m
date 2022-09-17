@@ -37,8 +37,7 @@ if (WASM)
     sema/type.c
     sema/sema_context.c
     sema/analyzer.c
-    codegen/wat_codegen.c
-    codegen/wasm_codegen.c
+    codegen/wasm/wasm_codegen.c
     wasm/sys.c
   )
 else()
@@ -106,22 +105,21 @@ else()
     sema/type.c
     sema/analyzer.c
     sema/sema_context.c
-    codegen/type_size_info.c
-    codegen/abi_arg_info.c
-    codegen/fun_info.c
-    codegen/target_info.c
-    codegen/x86_64_abi.c
-    codegen/winx86_64_abi.c
-    codegen/llvm_codegen.c
-    codegen/wat_codegen.c
-    codegen/wasm_codegen.c
-    codegen/cg_fun.c
-    codegen/cg_var.c
-    codegen/cg_call.c
-    codegen/ir_arg_info.c
     codegen/env.c
-    codegen/compute_fun_info.c
-    codegen/ir_api.c
+    codegen/type_size_info.c
+    codegen/llvm/abi_arg_info.c
+    codegen/llvm/fun_info.c
+    codegen/llvm/target_info.c
+    codegen/llvm/x86_64_abi.c
+    codegen/llvm/winx86_64_abi.c
+    codegen/llvm/llvm_codegen.c
+    codegen/llvm/cg_fun.c
+    codegen/llvm/cg_var.c
+    codegen/llvm/cg_call.c
+    codegen/llvm/ir_arg_info.c
+    codegen/llvm/compute_fun_info.c
+    codegen/llvm/ir_api.c
+    codegen/wasm/wasm_codegen.c
     compiler/repl.c
     compiler/jit.c
     compiler/compiler.c

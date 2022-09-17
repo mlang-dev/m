@@ -1,7 +1,7 @@
-#include "codegen/abi_arg_info.h"
-#include "codegen/codegen.h"
-#include "codegen/compute_fun_info.h"
-#include "codegen/fun_info.h"
+#include "codegen/llvm/abi_arg_info.h"
+#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/compute_fun_info.h"
+#include "codegen/llvm/fun_info.h"
 #include "codegen/type_size_info.h"
 #include <assert.h>
 #include <llvm-c/Core.h>
@@ -48,7 +48,7 @@ void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum 
     *low = *high = NO_CLASS;
     current = offset_base < 64 ? low : high;
     *current = MEMORY;
-    if (te->type < TYPE_EXT) {
+    if (te->type < TYPE_STRUCT) {
         //builtin types
         if (te->type == TYPE_UNIT) {
             *current = NO_CLASS;
@@ -60,7 +60,7 @@ void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum 
         return;
     } /*else if pointer then make current pointing to INTEGER*/
     //TODO: vector, complex, int type with specified bitwidth, constant array
-    else if (te->type == TYPE_EXT) {
+    else if (te->type == TYPE_STRUCT) {
         struct type_oper *to = (struct type_oper *)te;
         struct type_size_info tsi = get_type_size_info(te);
         uint64_t size = tsi.width_bits;
@@ -103,7 +103,7 @@ bool _bits_contain_no_user_data(struct type_exp *type, unsigned start_bit, unsig
 
     //TODO: for array type
     //record type
-    if (type->type == TYPE_EXT) {
+    if (type->type == TYPE_STRUCT) {
         struct type_oper *to = (struct type_oper *)type;
         struct struct_layout *sl = layout_struct(to);
         for (unsigned i = 0; i < array_size(&to->args); i++) {
