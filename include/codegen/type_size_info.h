@@ -2,6 +2,7 @@
 #define __MLANG_TYPE_SIZE_INFO_H__
 
 #include "clib/hashtable.h"
+#include "clib/typedef.h"
 #include "parser/ast.h"
 
 #ifdef __cplusplus
@@ -10,7 +11,7 @@ extern "C" {
 
 //type size info
 struct type_size_info {
-    uint64_t width_bits;
+    u64 width_bits;
     unsigned align_bits;
     bool align_required;
 };
@@ -41,7 +42,7 @@ struct struct_layout *sl_new();
 void sl_free(struct struct_layout *sl);
 void tsi_init();
 void tsi_deinit();
-uint64_t align_to(uint64_t field_offset, uint64_t align);
+u64 align_to(u64 field_offset, u64 align);
 
 #ifdef __cplusplus
 }

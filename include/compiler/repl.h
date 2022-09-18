@@ -8,7 +8,7 @@
 #ifndef __MLANG_REPL_H__
 #define __MLANG_REPL_H__
 
-#include "codegen/env.h"
+#include "codegen/llvm/env.h"
 #include "compiler/jit.h"
 #include "sema/type.h"
 

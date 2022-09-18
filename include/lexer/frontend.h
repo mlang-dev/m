@@ -1,12 +1,12 @@
 /*
- * init.h
+ * frontend.h
  *
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
  * header file for m front end initializer
  */
-#ifndef __MLANG_FE_INIT_H__
-#define __MLANG_FE_INIT_H__
+#ifndef __MLANG_FRONTEND_H__
+#define __MLANG_FRONTEND_H__
 
 
 #ifdef __cplusplus

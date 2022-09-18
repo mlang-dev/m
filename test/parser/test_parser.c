@@ -7,7 +7,7 @@
 #include "parser/ast.h"
 #include "tutil.h"
 #include "test.h"
-#include "lexer/init.h"
+#include "lexer/frontend.h"
 #include <stdio.h>
 
 TEST(test_parser, int_type)

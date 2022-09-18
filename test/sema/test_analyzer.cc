@@ -4,7 +4,7 @@
  * Unit tests for type inference and semantic analsysis
  */
 #include "codegen/llvm/codegen.h"
-#include "codegen/env.h"
+#include "codegen/llvm/env.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
 #include "tutil.h"

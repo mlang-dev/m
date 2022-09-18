@@ -11,7 +11,7 @@
 #include "parser/astdump.h"
 #include "parser/parser.h"
 #include "sema/analyzer.h"
-#include "lexer/init.h"
+#include "lexer/frontend.h"
 #include "test_base.h"
 #include "tutil.h"
 

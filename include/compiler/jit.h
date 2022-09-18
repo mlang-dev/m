@@ -11,7 +11,7 @@
 
 #include "clib/util.h"
 #include "codegen/llvm/codegen.h"
-#include "codegen/env.h"
+#include "codegen/llvm/env.h"
 #include "sema/sema_context.h"
 
 #ifdef __cplusplus

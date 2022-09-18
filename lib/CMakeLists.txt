@@ -28,7 +28,7 @@ if (WASM)
   add_library(mlr 
     lexer/token.c
     lexer/lexer.c
-    lexer/init.c
+    lexer/frontend.c
     parser/ast.c
     parser/astdump.c
     parser/m_parsing_table.c
@@ -37,6 +37,8 @@ if (WASM)
     sema/type.c
     sema/sema_context.c
     sema/analyzer.c
+    codegen/backend.c
+    codegen/type_size_info.c
     codegen/wasm/wasm_codegen.c
     wasm/sys.c
   )
@@ -72,7 +74,7 @@ else()
   add_executable(pgen
     lexer/token.c
     lexer/lexer.c
-    lexer/init.c
+    lexer/frontend.c
     sema/type.c
     parser/ast.c
     parser/grammar.c
@@ -96,7 +98,7 @@ else()
     tool/cmodule.c
     lexer/token.c
     lexer/lexer.c
-    lexer/init.c
+    lexer/frontend.c
     parser/ast.c
     parser/astdump.c
     parser/grammar.c
@@ -105,8 +107,9 @@ else()
     sema/type.c
     sema/analyzer.c
     sema/sema_context.c
-    codegen/env.c
+    codegen/backend.c
     codegen/type_size_info.c
+    codegen/llvm/env.c
     codegen/llvm/abi_arg_info.c
     codegen/llvm/fun_info.c
     codegen/llvm/target_info.c
