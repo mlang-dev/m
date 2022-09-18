@@ -3,12 +3,12 @@
  *
  * LLVM IR Code Generation for function calls
  */
-#include "codegen/cg_call.h"
-#include "codegen/cg_fun.h"
-#include "codegen/codegen.h"
-#include "codegen/fun_info.h"
-#include "codegen/ir_api.h"
-#include "codegen/ir_arg_info.h"
+#include "codegen/llvm/cg_call.h"
+#include "codegen/llvm/cg_fun.h"
+#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/fun_info.h"
+#include "codegen/llvm/ir_api.h"
+#include "codegen/llvm/ir_arg_info.h"
 #include "codegen/type_size_info.h"
 #include <assert.h>
 

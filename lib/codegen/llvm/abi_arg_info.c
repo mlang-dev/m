@@ -1,5 +1,5 @@
-#include "codegen/abi_arg_info.h"
-#include "codegen/codegen.h"
+#include "codegen/llvm/abi_arg_info.h"
+#include "codegen/llvm/codegen.h"
 #include "codegen/type_size_info.h"
 #include <assert.h>
 
@@ -67,7 +67,7 @@ struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type, boo
 
 struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type)
 {
-    if (ret_type->type < TYPE_EXT) {
+    if (ret_type->type < TYPE_STRUCT) {
         if (is_promotable_int(ret_type))
             return create_extend(ret_type);
         else
@@ -78,7 +78,7 @@ struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type)
 
 struct abi_arg_info create_indirect_result(struct type_exp *type, unsigned free_int_regs)
 {
-    if (type->type < TYPE_EXT) {
+    if (type->type < TYPE_STRUCT) {
         if (is_promotable_int(type))
             return create_extend(type);
         else

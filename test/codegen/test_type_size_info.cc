@@ -3,7 +3,7 @@
  *
  * Unit tests for calculating type size info
  */
-#include "codegen/codegen.h"
+#include "codegen/llvm/codegen.h"
 #include "codegen/env.h"
 #include "codegen/type_size_info.h"
 #include "sema/analyzer.h"

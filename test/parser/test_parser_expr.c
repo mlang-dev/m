@@ -6,7 +6,6 @@
 #include "parser/grammar.h"
 #include "parser/parser.h"
 #include "parser/astdump.h"
-#include "codegen/wat_codegen.h"
 #include "lexer/init.h"
 #include "test.h"
 #include <stdio.h>

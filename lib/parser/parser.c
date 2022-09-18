@@ -282,7 +282,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         node1 = items[rule->action.item_index[1]].ast;
         assert(node1->node_type == BLOCK_NODE);
         ast = type_node_new(node->ident->name, node1, node->loc);
-        hashtable_set_int(symbol_2_int_types, node->ident->name, TYPE_EXT);
+        hashtable_set_int(symbol_2_int_types, node->ident->name, TYPE_STRUCT);
         break;
     case TYPE_VALUE_NODE: 
         assert(rule->action.item_index_count == 2);

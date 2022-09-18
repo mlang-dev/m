@@ -1,21 +1,22 @@
 #include "codegen/type_size_info.h"
 #include "clib/util.h"
-#include "codegen/codegen.h"
+#include "codegen/llvm/codegen.h"
+#include "clib/typedef.h"
 #include <assert.h>
 
-uint64_t align_to(uint64_t field_offset, uint64_t align)
+u64 align_to(u64 field_offset, u64 align)
 {
     return (field_offset + align - 1) / align * align;
 }
 
 void _itanium_layout_field(struct struct_layout *sl, struct type_exp *field_type)
 {
-    uint64_t field_offset_bytes = sl->data_size_bits / 8;
+    u64 field_offset_bytes = sl->data_size_bits / 8;
     //uint64_t unpadded_field_offset_bits = sl->data_size_bits - sl->unfilled_bits_last_unit;
     sl->unfilled_bits_last_unit = 0;
     sl->last_bit_field_storage_unit_size = 0;
 
-    uint64_t field_size_bytes, field_align_bytes, effective_field_size_bytes;
+    u64 field_size_bytes, field_align_bytes, effective_field_size_bytes;
     //bool align_required;
     assert(field_type);
     struct type_size_info tsi = get_type_size_info(field_type);
@@ -23,15 +24,15 @@ void _itanium_layout_field(struct struct_layout *sl, struct type_exp *field_type
     field_align_bytes = tsi.align_bits / 8;
     //align_required = tsi.align_required;
     // TODO: adjust for microsft struct, AIX
-    uint64_t preferred_align_bytes = field_align_bytes;
-    uint64_t unpacked_field_offset_bytes = field_offset_bytes;
-    uint64_t unpacked_field_align_bytes = field_align_bytes;
+    u64 preferred_align_bytes = field_align_bytes;
+    u64 unpacked_field_offset_bytes = field_offset_bytes;
+    u64 unpacked_field_align_bytes = field_align_bytes;
     field_offset_bytes = align_to(field_offset_bytes, field_align_bytes);
     unpacked_field_offset_bytes = align_to(unpacked_field_offset_bytes, unpacked_field_align_bytes);
-    uint64_t field_offset_bits = field_offset_bytes * 8;
+    u64 field_offset_bits = field_offset_bytes * 8;
     array_push(&sl->field_offsets, &field_offset_bits);
     sl->data_size_bits = (unsigned)(field_offset_bytes + effective_field_size_bytes) * 8;
-    uint64_t padded_field_size = field_offset_bytes + field_size_bytes;
+    u64 padded_field_size = field_offset_bytes + field_size_bytes;
     if (sl->padded_field_size < padded_field_size)
         sl->padded_field_size = (unsigned)padded_field_size;
     if (sl->size_bits < sl->data_size_bits)
@@ -119,7 +120,8 @@ struct type_size_info _create_builtin_type_size_info(struct type_exp *type)
         break;
     case TYPE_GENERIC:
     case TYPE_FUNCTION:
-    case TYPE_EXT:
+    case TYPE_STRUCT:
+    case TYPE_UNION:
     case TYPE_TYPES:
     case TYPE_UNK:
         //assert(false);
@@ -135,7 +137,7 @@ struct type_size_info get_type_size_info(struct type_exp *type)
         return *(struct type_size_info *)hashtable_get_p(type_size_infos, type->name);
     }
     struct type_size_info ti;
-    if (type->type == TYPE_EXT) {
+    if (type->type == TYPE_STRUCT) {
         struct type_oper *to = (struct type_oper *)type;
         ti = _create_ext_type_size_info(to);
     } else {

@@ -1,4 +1,4 @@
-#include "codegen/wasm_codegen.h"
+#include "codegen/wasm/wasm_codegen.h"
 #include <stdio.h>
 
 #ifdef WASM
@@ -31,7 +31,6 @@ int test_parser_expr();
 int test_parser();
 int test_parser_error();
 int test_grammar();
-int test_wat_codegen();
 int test_wasm_codegen();
 
 void setUp(){}
@@ -63,7 +62,6 @@ EXPORT int ENTRY()
   failures += test_parser();
   failures += test_parser_error();
   failures += test_grammar();
-  failures += test_wat_codegen();
   failures += test_wasm_codegen();
 
   if (!failures)

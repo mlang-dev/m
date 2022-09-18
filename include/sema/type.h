@@ -31,7 +31,8 @@ extern "C" {
     ENUM_ITEM(TYPE_DOUBLE)      \
     ENUM_ITEM(TYPE_STRING)      \
     ENUM_ITEM(TYPE_FUNCTION)    \
-    ENUM_ITEM(TYPE_EXT)         \
+    ENUM_ITEM(TYPE_STRUCT)      \
+    ENUM_ITEM(TYPE_UNION)       \
     ENUM_ITEM(TYPE_TYPES)
 
 enum type { FOREACH_TYPE(GENERATE_ENUM) };

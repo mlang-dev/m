@@ -10,7 +10,7 @@
 #define __MLANG_JIT_H__
 
 #include "clib/util.h"
-#include "codegen/codegen.h"
+#include "codegen/llvm/codegen.h"
 #include "codegen/env.h"
 #include "sema/sema_context.h"
 

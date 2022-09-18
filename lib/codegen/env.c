@@ -1,9 +1,8 @@
 #include "codegen/env.h"
 #include "clib/util.h"
-#include "codegen/codegen.h"
-#include "codegen/fun_info.h"
+#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/fun_info.h"
 #include "codegen/type_size_info.h"
-#include "codegen/wat_codegen.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
 #include "lexer/init.h"
@@ -26,7 +25,6 @@ struct env *env_new(bool is_repl)
     join_path(libpath, sizeof(libpath), mpath, "mlib/math.m");
     math = parse_file(env->new_parser, libpath);
     env->cg = cg_new(sema_context_new(&env->new_parser->symbol_2_int_types, stdio, math, is_repl));
-    wat_codegen_init();
     g_env = env;
     return env;
 }

@@ -1,5 +1,5 @@
-#include "codegen/ir_api.h"
-#include "codegen/codegen.h"
+#include "codegen/llvm/ir_api.h"
+#include "codegen/llvm/codegen.h"
 #include "sema/type.h"
 #include <assert.h>
 #include <llvm-c/Target.h>

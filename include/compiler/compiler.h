@@ -8,7 +8,7 @@
 #ifndef __MLANG_COMPILER_H__
 #define __MLANG_COMPILER_H__
 
-#include "codegen/codegen.h"
+#include "codegen/llvm/codegen.h"
 #include "parser/ast.h"
 
 #ifdef __cplusplus

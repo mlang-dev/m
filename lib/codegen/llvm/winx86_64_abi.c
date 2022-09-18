@@ -1,7 +1,7 @@
 #include "clib/util.h"
-#include "codegen/abi_arg_info.h"
-#include "codegen/codegen.h"
-#include "codegen/fun_info.h"
+#include "codegen/llvm/abi_arg_info.h"
+#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/fun_info.h"
 #include "codegen/type_size_info.h"
 
 struct abi_arg_info _winx86_64_classify(struct type_exp *te, unsigned *free_sse_regs, bool is_return_type, bool is_vector_call, bool is_reg_call)
@@ -14,7 +14,7 @@ struct abi_arg_info _winx86_64_classify(struct type_exp *te, unsigned *free_sse_
     struct type_size_info tsi = get_type_size_info(te);
     unsigned width = (unsigned)tsi.width_bits;
     //uint64_t align = tsi.align_bits / 8;
-    if (te->type == TYPE_EXT) {
+    if (te->type == TYPE_STRUCT) {
         if (!is_return_type) {
             //has flexiable array member
             //return natural align indirect

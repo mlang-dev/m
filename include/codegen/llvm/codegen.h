@@ -14,8 +14,8 @@
 
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
-#include "codegen/ir_api.h"
-#include "codegen/target_info.h"
+#include "codegen/llvm/ir_api.h"
+#include "codegen/llvm/target_info.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
 #include "parser/ast.h"

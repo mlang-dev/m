@@ -1,8 +1,8 @@
-#include "codegen/fun_info.h"
+#include "codegen/llvm/fun_info.h"
 #include "clib/util.h"
-#include "codegen/codegen.h"
-#include "codegen/compute_fun_info.h"
-#include "codegen/ir_arg_info.h"
+#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/compute_fun_info.h"
+#include "codegen/llvm/ir_arg_info.h"
 #include <assert.h>
 
 const unsigned ALL_REQUIRED = ~0U;
@@ -211,5 +211,5 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
 
 bool check_rvo(struct fun_info *fi)
 {
-    return fi->ret.type->type == TYPE_EXT && (fi->ret.info.kind == AK_INDIRECT || fi->ret.info.kind == AK_INDIRECT_ALIASED);
+    return fi->ret.type->type == TYPE_STRUCT && (fi->ret.info.kind == AK_INDIRECT || fi->ret.info.kind == AK_INDIRECT_ALIASED);
 }

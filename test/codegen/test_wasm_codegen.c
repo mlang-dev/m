@@ -7,7 +7,7 @@
 #include "clib/util.h"
 #include "clib/typedef.h"
 #include "test.h"
-#include "codegen/wasm_codegen.h"
+#include "codegen/wasm/wasm_codegen.h"
 #include <stdio.h>
 
 

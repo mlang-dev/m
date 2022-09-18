@@ -33,7 +33,6 @@ if (WASM)
     parser/test_parser.c
     parser/test_parser_error.c
     parser/test_grammar.c
-    codegen/test_wat_codegen.c
     codegen/test_wasm_codegen.c
   )
 
@@ -153,7 +152,6 @@ else()
   parser/test_parser.c
   parser/test_parser_error.c
   parser/test_grammar.c
-  codegen/test_wat_codegen.c
   codegen/test_wasm_codegen.c
   )
 

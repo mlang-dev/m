@@ -8,11 +8,11 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
-#include "codegen/cg_fun.h"
-#include "codegen/cg_var.h"
-#include "codegen/codegen.h"
-#include "codegen/fun_info.h"
-#include "codegen/ir_api.h"
+#include "codegen/llvm/cg_fun.h"
+#include "codegen/llvm/cg_var.h"
+#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/fun_info.h"
+#include "codegen/llvm/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
@@ -72,7 +72,7 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct ast_nod
 
 LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct ast_node *node)
 {
-    if (node->type->type == TYPE_EXT)
+    if (node->type->type == TYPE_STRUCT)
         return _emit_local_var_type_node(cg, node);
     // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
@@ -163,7 +163,7 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct ast_no
 LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct ast_node *node,
     bool is_external)
 {
-    if (node->type->type == TYPE_EXT) {
+    if (node->type->type == TYPE_STRUCT) {
         return _emit_global_var_type_node(cg, node, is_external);
     }
     const char *var_name = string_get(node->var->var_name);

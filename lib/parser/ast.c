@@ -329,7 +329,7 @@ void _free_type_node(struct ast_node *node)
 
 struct ast_node *type_value_node_new(struct ast_node *body, symbol type_symbol, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(TYPE_VALUE_NODE, TYPE_EXT, type_symbol, loc);
+    struct ast_node *node = ast_node_new(TYPE_VALUE_NODE, TYPE_STRUCT, type_symbol, loc);
     MALLOC(node->type_value, sizeof(*node->type_value));
     node->type_value->body = body;
     return node;

@@ -8,8 +8,8 @@
 #ifndef __COMPUTE_FUN_INFO_H__
 #define __COMPUTE_FUN_INFO_H__
 
-#include "codegen/fun_info.h"
-#include "codegen/target_info.h"
+#include "codegen/llvm/fun_info.h"
+#include "codegen/llvm/target_info.h"
 
 #ifdef __cplusplus
 extern "C" {

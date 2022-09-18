@@ -10,8 +10,8 @@
 #define __MLANG_FUN_INFO_H__
 
 #include "clib/hashtable.h"
-#include "codegen/abi_arg_info.h"
-#include "codegen/ir_arg_info.h"
+#include "codegen/llvm/abi_arg_info.h"
+#include "codegen/llvm/ir_arg_info.h"
 #include "parser/ast.h"
 #include "sema/type.h"
 

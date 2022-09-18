@@ -68,7 +68,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
             if (is_int_type(ret_type)) {
                 result.i_value = fp.fp.i_fp();
                 result.type = ret_type;
-            } else if (ret_type == TYPE_DOUBLE || ret_type == TYPE_EXT) {
+            } else if (ret_type == TYPE_DOUBLE || ret_type == TYPE_STRUCT) {
                 result.d_value = fp.fp.d_fp();
                 result.type = TYPE_DOUBLE;
             } else if (ret_type == TYPE_STRING) {

@@ -8,12 +8,12 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
-#include "codegen/cg_call.h"
-#include "codegen/cg_fun.h"
-#include "codegen/cg_var.h"
-#include "codegen/codegen.h"
-#include "codegen/fun_info.h"
-#include "codegen/ir_api.h"
+#include "codegen/llvm/cg_call.h"
+#include "codegen/llvm/cg_fun.h"
+#include "codegen/llvm/cg_var.h"
+#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/fun_info.h"
+#include "codegen/llvm/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
@@ -53,7 +53,7 @@ LLVMTypeRef get_double_type(LLVMContextRef context, struct type_exp *type)
 
 LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
 {
-    assert(type_exp->type == TYPE_EXT);
+    assert(type_exp->type == TYPE_STRUCT);
     assert(g_cg);
     LLVMTypeRef struct_type = hashtable_get_p(&g_cg->typename_2_irtypes, type_exp->name);
     if (struct_type)
@@ -344,7 +344,7 @@ void _set_bin_ops(struct code_generator *cg)
     cg->ops[TYPE_DOUBLE] = double_ops;
     cg->ops[TYPE_STRING] = str_ops;
     cg->ops[TYPE_FUNCTION] = double_ops;
-    cg->ops[TYPE_EXT] = ext_ops;
+    cg->ops[TYPE_STRUCT] = ext_ops;
 }
 
 struct code_generator *cg_new(struct sema_context *sema_context)
@@ -438,7 +438,7 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct ast_node *node)
         v = get_global_variable(cg, node->ident->name);
         assert(v);
     }
-    if (node->type->type < TYPE_EXT){
+    if (node->type->type < TYPE_STRUCT){
         return LLVMBuildLoad(cg->builder, v, string_get(node->ident->name));
     }
     else{
@@ -486,7 +486,7 @@ LLVMValueRef _emit_accessor_node(struct code_generator *cg, struct ast_node *nod
     symbol attr = node->binop->rhs->ident->name;
     int index = find_member_index(type_node, attr);
     v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
-    if (node->type->type < TYPE_EXT){
+    if (node->type->type < TYPE_STRUCT){
         string dot_id ;
         string_init(&dot_id);
         string_add(&dot_id, id);

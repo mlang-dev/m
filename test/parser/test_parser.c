@@ -585,7 +585,7 @@ xy.x";
     struct ast_node *var = node;
     ASSERT_STREQ("xy", string_get(var->var->var_name));
     ASSERT_STREQ("Point2D", string_get(var->annotated_type_name));
-    //ASSERT_EQ(TYPE_EXT, var->annotated_type_enum);
+    //ASSERT_EQ(TYPE_STRUCT, var->annotated_type_enum);
     node = *(struct ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_EQ(IDENT_NODE, node->binop->lhs->node_type);

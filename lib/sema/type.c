@@ -27,7 +27,9 @@ const char *const _type_strings[] = {
     "double",
     "string",
     "->",
-    "*",
+    "struct",
+    "union",
+    "enum"
 };
 
 symbol type_symbols[] = {
@@ -104,7 +106,7 @@ struct type_oper *create_unit_type()
 
 struct type_oper *create_type_oper_ext(symbol type_name, struct array *args)
 {
-    return create_type_oper(type_name, TYPE_EXT, args);
+    return create_type_oper(type_name, TYPE_STRUCT, args);
 }
 
 struct type_oper *create_nullary_type(enum type type, symbol type_symbol)
@@ -279,7 +281,7 @@ struct type_exp *_freshrec(struct type_exp *type, struct array *nongens, struct 
         struct type_exp *new_arg_type = _freshrec(arg_type, nongens, type_vars);
         array_push(&refreshed, &new_arg_type);
     }
-    if (type->type == TYPE_EXT) {
+    if (type->type == TYPE_STRUCT) {
         return (struct type_exp *)create_type_oper_ext(type->name, &refreshed);
     }
     return (struct type_exp *)create_type_oper(type->name, type->type, &refreshed);
@@ -340,7 +342,7 @@ string to_string(struct type_exp *type)
         if (array_size(&oper->args) == 0) { /* nullary operator, e.g. builtin types: int, double*/
             string_add(&typestr, type_symbols[oper->base.type]);
             return typestr;
-        } else if (oper->base.type == TYPE_EXT) {
+        } else if (oper->base.type == TYPE_STRUCT) {
             string_copy(&typestr, oper->base.name);
             return typestr;
         } else {
