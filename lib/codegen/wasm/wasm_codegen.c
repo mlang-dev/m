@@ -9,7 +9,7 @@
 #include "clib/string.h"
 #include "clib/symbol.h"
 #include "clib/util.h"
-#include "lexer/init.h"
+#include "lexer/frontend.h"
 #include "lexer/lexer.h"
 #include "parser/amodule.h"
 #include "parser/parser.h"

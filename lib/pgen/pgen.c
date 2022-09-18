@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "parser/lalr_parser_generator.h"
-#include "lexer/init.h"
+#include "lexer/frontend.h"
 
 #define header_comment_template  "/*\n"\
                               " * parsing table for parser\n"\

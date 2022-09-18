@@ -5,9 +5,8 @@
  */
 #include "parser/grammar.h"
 #include "lexer/lexer.h"
-#include "lexer/init.h"
+#include "lexer/frontend.h"
 #include "test.h"
-#include <stdio.h>
 
 
 TEST(test_lexer, empty_string)

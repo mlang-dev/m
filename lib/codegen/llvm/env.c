@@ -1,11 +1,11 @@
-#include "codegen/env.h"
+#include "codegen/llvm/env.h"
 #include "clib/util.h"
 #include "codegen/llvm/codegen.h"
 #include "codegen/llvm/fun_info.h"
 #include "codegen/type_size_info.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
-#include "lexer/init.h"
+#include "lexer/frontend.h"
 #include <assert.h>
 
 struct env *g_env = 0;

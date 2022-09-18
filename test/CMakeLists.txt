@@ -33,6 +33,7 @@ if (WASM)
     parser/test_parser.c
     parser/test_parser_error.c
     parser/test_grammar.c
+    codegen/test_type_size_info.c
     codegen/test_wasm_codegen.c
   )
 
@@ -89,7 +90,6 @@ else()
     compiler/test_jit_logical.cc
     compiler/test_jit.cc
     tool/test_cmodule.cc
-    codegen/test_type_size_info.cc
     codegen/test_cg_var.cc
     codegen/test_cg_fun_call.cc
   )
@@ -152,6 +152,7 @@ else()
   parser/test_parser.c
   parser/test_parser_error.c
   parser/test_grammar.c
+  codegen/test_type_size_info.c
   codegen/test_wasm_codegen.c
   )
 

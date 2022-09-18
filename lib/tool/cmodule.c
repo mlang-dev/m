@@ -10,7 +10,7 @@
 #include "parser/astdump.h"
 #include "parser/parser.h"
 #include "sema/analyzer.h"
-#include "lexer/init.h"
+#include "lexer/frontend.h"
 #include <clang-c/Index.h>
 #include <stdio.h>
 

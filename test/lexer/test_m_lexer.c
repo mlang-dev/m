@@ -4,7 +4,7 @@
  * Unit tests for lexer
  */
 #include "lexer/lexer.h"
-#include "lexer/init.h"
+#include "lexer/frontend.h"
 #include "tutil.h"
 #include "test.h"
 #include <stdio.h>

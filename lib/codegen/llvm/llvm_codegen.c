@@ -358,6 +358,7 @@ struct code_generator *cg_new(struct sema_context *sema_context)
     MALLOC(cg, sizeof(*cg));
     cg->sema_context = sema_context;
     cg->context = context;
+    cg->cg = backend_init(sema_context);
     cg->builder = LLVMCreateBuilderInContext(context);
     hashset_init(&cg->builtins);
     cg->module = 0;
@@ -368,7 +369,6 @@ struct code_generator *cg_new(struct sema_context *sema_context)
     hashtable_init(&cg->typename_2_irtypes);
     hashtable_init(&cg->typename_2_ast);
     hashtable_init(&cg->varname_2_typename);
-    hashtable_init_with_value_size(&cg->type_size_infos, sizeof(struct type_size_info), 0);
     hashtable_init_with_value_size(&cg->fun_infos, sizeof(struct fun_info), (free_fun)fun_info_deinit);
     cg->target_info = ti_new();
     g_cg = cg;
@@ -383,7 +383,6 @@ void cg_free(struct code_generator *cg)
     LLVMContextDispose(cg->context);
     ti_free(cg->target_info);
     hashtable_deinit(&cg->fun_infos);
-    hashtable_deinit(&cg->type_size_infos);
     hashtable_deinit(&cg->gvs);
     hashtable_deinit(&cg->protos);
     hashtable_deinit(&cg->varname_2_irvalues);
@@ -391,6 +390,7 @@ void cg_free(struct code_generator *cg)
     hashtable_deinit(&cg->typename_2_irtypes);
     hashtable_deinit(&cg->typename_2_ast);
     hashtable_deinit(&cg->varname_2_typename);
+    backend_deinit(cg->cg);
     FREE(cg);
     g_cg = 0;
 }
@@ -788,12 +788,6 @@ enum OS get_os()
 {
     assert(g_cg);
     return g_cg->target_info->os;
-}
-
-struct hashtable *get_type_size_infos()
-{
-    assert(g_cg);
-    return &g_cg->type_size_infos;
 }
 
 LLVMModuleRef get_llvm_module()

@@ -154,7 +154,9 @@
         "source_location.h": "c",
         "math.h": "c",
         "stdarg.h": "c",
-        "libc.h": "c"
+        "libc.h": "c",
+        "frontend.h": "c",
+        "tutil.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

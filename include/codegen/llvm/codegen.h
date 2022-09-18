@@ -16,6 +16,7 @@
 #include "clib/hashtable.h"
 #include "codegen/llvm/ir_api.h"
 #include "codegen/llvm/target_info.h"
+#include "codegen/backend.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
 #include "parser/ast.h"
@@ -62,7 +63,7 @@ struct code_generator {
     LLVMBuilderRef builder;
     LLVMModuleRef module;
     struct sema_context *sema_context;
-
+    struct cg *cg;
     struct ops ops[TYPE_TYPES];
 
     /* 
@@ -109,12 +110,6 @@ struct code_generator {
 
     /// target info
     struct target_info *target_info;
-
-    /* 
-     *  symboltable of <symbol, struct type_size_info>
-     *  binding type name to type size
-     */
-    struct hashtable type_size_infos;
 
     /* 
      *  symboltable of <symbol, struct fun_info>
