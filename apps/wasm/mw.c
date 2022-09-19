@@ -1,6 +1,7 @@
 #include "wasm/mw.h"
 #include "clib/typedef.h"
-#include "codegen/wasm/wasm_codegen.h"
+#include "compiler/engine.h"
+#include "codegen/wasm/cg_wasm.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -15,14 +16,14 @@ u32 code_size = 0;
 
 u8 *compile_code(const char *text)
 {
-    struct wasm_module module;
-    wasm_codegen_init(&module);
-    parse_as_module(&module, text);
-    u8 *data = module.ba.data;
-    code_size = module.ba.size;
-    module.ba.data = 0;
+    struct engine *engine = engine_wasm_new();
+    struct cg_wasm *cg = (struct cg_wasm*)engine->be->cg;
+    compile_to_wasm(engine, text);
+    u8 *data = cg->ba.data;
+    code_size = cg->ba.size;
+    cg->ba.data = 0;
     free((void *)text);
-    wasm_codegen_deinit(&module);
+    engine_free(engine);
     return data;
 }
 

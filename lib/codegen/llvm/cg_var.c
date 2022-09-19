@@ -10,14 +10,14 @@
 #include "clib/util.h"
 #include "codegen/llvm/cg_fun.h"
 #include "codegen/llvm/cg_var.h"
-#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/cg_llvm.h"
 #include "codegen/llvm/fun_info.h"
 #include "codegen/llvm/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 
-void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct ast_node *values)
+void _store_type_values(struct cg_llvm *cg, LLVMValueRef alloca, struct ast_node *values)
 {
     for (size_t i = 0; i < array_size(&values->type_value->body->block->nodes); i++) {
         struct ast_node *arg = *(struct ast_node **)array_get(&values->type_value->body->block->nodes, i);
@@ -27,7 +27,7 @@ void _store_type_values(struct code_generator *cg, LLVMValueRef alloca, struct a
     }
 }
 
-LLVMValueRef emit_type_value_node(struct code_generator *cg, struct ast_node *type_values, bool is_ret, const char *name)
+LLVMValueRef emit_type_value_node(struct cg_llvm *cg, struct ast_node *type_values, bool is_ret, const char *name)
 {
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->sema_context->func_stack);
     struct ast_node *ft_node = parent_func->func->func_type;
@@ -51,7 +51,7 @@ LLVMValueRef emit_type_value_node(struct code_generator *cg, struct ast_node *ty
     return alloca;
 }
 
-LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_local_var_type_node(struct cg_llvm *cg, struct ast_node *node)
 {
     symbol var_name = node->var->var_name;
     LLVMValueRef alloca = 0;
@@ -70,7 +70,7 @@ LLVMValueRef _emit_local_var_type_node(struct code_generator *cg, struct ast_nod
     // KSDbgInfo.emitLocation(this);
 }
 
-LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
 {
     if (node->type->type == TYPE_STRUCT)
         return _emit_local_var_type_node(cg, node);
@@ -91,7 +91,7 @@ LLVMValueRef _emit_local_var_node(struct code_generator *cg, struct ast_node *no
     // KSDbgInfo.emitLocation(this);
 }
 
-LLVMValueRef _get_const_value_ext_type(struct code_generator *cg, LLVMTypeRef type, struct ast_node *struct_values)
+LLVMValueRef _get_const_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, struct ast_node *struct_values)
 {
     size_t element_count = array_size(&struct_values->type_value->body->block->nodes);
     LLVMValueRef *values;
@@ -105,7 +105,7 @@ LLVMValueRef _get_const_value_ext_type(struct code_generator *cg, LLVMTypeRef ty
     return value;
 }
 
-LLVMValueRef _get_zero_value_ext_type(struct code_generator *cg, LLVMTypeRef type, struct type_oper *type_ext)
+LLVMValueRef _get_zero_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, struct type_oper *type_ext)
 {
     size_t element_count = array_size(&type_ext->args);
     LLVMValueRef *values;
@@ -120,7 +120,7 @@ LLVMValueRef _get_zero_value_ext_type(struct code_generator *cg, LLVMTypeRef typ
     return value;
 }
 
-LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct ast_node *node,
+LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *node,
     bool is_external)
 {
     const char *var_name = string_get(node->var->var_name);
@@ -160,7 +160,7 @@ LLVMValueRef _emit_global_var_type_node(struct code_generator *cg, struct ast_no
     return 0;
 }
 
-LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct ast_node *node,
+LLVMValueRef _emit_global_var_node(struct cg_llvm *cg, struct ast_node *node,
     bool is_external)
 {
     if (node->type->type == TYPE_STRUCT) {
@@ -196,7 +196,7 @@ LLVMValueRef _emit_global_var_node(struct code_generator *cg, struct ast_node *n
     return 0;
 }
 
-LLVMValueRef emit_var_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef emit_var_node(struct cg_llvm *cg, struct ast_node *node)
 {
     if (node->var->is_global){
         return _emit_global_var_node(cg, node, false);
@@ -206,7 +206,7 @@ LLVMValueRef emit_var_node(struct code_generator *cg, struct ast_node *node)
     }
 }
 
-LLVMValueRef get_global_variable(struct code_generator *cg, symbol gv_name)
+LLVMValueRef get_global_variable(struct cg_llvm *cg, symbol gv_name)
 {
     const char *name = string_get(gv_name);
     LLVMValueRef gv = LLVMGetNamedGlobal(cg->module, name);

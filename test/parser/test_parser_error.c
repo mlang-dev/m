@@ -7,19 +7,19 @@
 #include "parser/ast.h"
 #include "tutil.h"
 #include "test.h"
-#include "lexer/frontend.h"
+#include "sema/frontend.h"
 #include <stdio.h>
 
 TEST(test_parser_error, char_literal)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "x = '";
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     ASSERT_EQ(0, block);
     ast_node_free(block);
     parser_free(parser);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 int test_parser_error()

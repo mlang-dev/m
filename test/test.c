@@ -1,4 +1,4 @@
-#include "codegen/wasm/wasm_codegen.h"
+#include "codegen/wasm/cg_wasm.h"
 #include <stdio.h>
 
 #ifdef WASM

@@ -5,8 +5,8 @@
  */
 #include "tutil.h"
 #include "clib/win/libfmemopen.h"
-#include "codegen/llvm/codegen.h"
-#include "codegen/llvm/env.h"
+#include "codegen/llvm/cg_llvm.h"
+#include "compiler/engine.h"
 #include "compiler/compiler.h"
 #include "parser/grammar.h"
 #include "sema/sema_context.h"
@@ -37,14 +37,15 @@ target triple = "%s"
 void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)
 {
     char module_ir[1024 * 4];
-    env *env = env_new(false);
-    create_ir_module(env->cg, module_name);
-    make_module_ir(env->cg->module, module_name, ir_code, module_ir);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, module_name);
+    make_module_ir(cg->module, module_name, ir_code, module_ir);
     struct ast_node *block;
-    block = parse_code(env->new_parser, m_code);
-    char *ir_string = emit_ir_string(env->cg, block);
+    block = parse_code(engine->fe->parser, m_code);
+    char *ir_string = emit_ir_string(cg, block);
     ASSERT_STREQ(module_ir, ir_string);
     //ast_node_free(block);
     free_ir_string(ir_string);
-    env_free(env);
+    engine_free(engine);
 }

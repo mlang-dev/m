@@ -5,7 +5,7 @@
  */
 #include "codegen/llvm/cg_call.h"
 #include "codegen/llvm/cg_fun.h"
-#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/cg_llvm.h"
 #include "codegen/llvm/fun_info.h"
 #include "codegen/llvm/ir_api.h"
 #include "codegen/llvm/ir_arg_info.h"
@@ -14,7 +14,7 @@
 
 
 // get parent func sret parameter if exists
-LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _get_parent_call_sret_pointer(struct cg_llvm *cg, struct ast_node *node)
 {
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->sema_context->func_stack);
     struct ast_node *parent_ft = parent_func->func->func_type;
@@ -28,7 +28,7 @@ LLVMValueRef _get_parent_call_sret_pointer(struct code_generator *cg, struct ast
     return ret;
 }
 
-LLVMValueRef emit_call_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
 {
     assert(node->call->callee_func_type);
     symbol callee_name = get_callee(node);

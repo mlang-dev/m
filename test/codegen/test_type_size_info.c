@@ -7,108 +7,79 @@
 #include "codegen/backend.h"
 #include "sema/analyzer.h"
 #include "parser/parser.h"
-#include "lexer/frontend.h"
+#include "sema/frontend.h"
+#include "compiler/engine.h"
 #include "test.h"
 
 
 TEST(test_type_size_info, struct_double_double)
 {
     char test_code[] = "struct Point2D = x:double, y:double";
-    frontend_init();
-    struct parser *parser = parser_new();
-    struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
-    struct cg* cg = backend_init(context);
-    struct ast_node *block = parse_code(parser, test_code);
+    struct engine *engine = engine_wasm_new();
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    analyze(cg->sema_context, node);
+    analyze(engine->fe->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
     ast_node_free(block);
-    parser_free(parser);
-    sema_context_free(context);
-    backend_deinit(cg);
-    frontend_deinit();
+    engine_free(engine);
 }
 
 TEST(test_type_size_info, struct_char_double)
 {
     char test_code[] = "struct Point2D = x:char, y:double";
-    frontend_init();
-    struct parser *parser = parser_new();
-    struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
-    struct cg* cg = backend_init(context);
-    struct ast_node *block = parse_code(parser, test_code);
+    struct engine *engine = engine_wasm_new();
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    analyze(cg->sema_context, node);
+    analyze(engine->fe->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
     ast_node_free(block);
-    parser_free(parser);
-    sema_context_free(context);
-    backend_deinit(cg);
-    frontend_deinit();
+    engine_free(engine);
 }
 
 TEST(test_type_size_info, struct_char_char)
 {
     char test_code[] = "struct Point2D = x:char, y:char";
-    frontend_init();
-    struct parser *parser = parser_new();
-    struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
-    struct cg* cg = backend_init(context);
-    struct ast_node *block = parse_code(parser, test_code);
+    struct engine *engine = engine_wasm_new();
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    analyze(cg->sema_context, node);
+    analyze(engine->fe->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(16, tsi.width_bits);
     ASSERT_EQ(8, tsi.align_bits);
     ast_node_free(block);
-    parser_free(parser);
-    sema_context_free(context);
-    backend_deinit(cg);
-    frontend_deinit();
+    engine_free(engine);
 }
 
 TEST(test_type_size_info, struct_bool_char)
 {
     char test_code[] = "struct Point2D = x:bool, y:char";
-    frontend_init();
-    struct parser *parser = parser_new();
-    struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
-    struct cg* cg = backend_init(context);
-    struct ast_node *block = parse_code(parser, test_code);
+    struct engine *engine = engine_wasm_new();
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    analyze(cg->sema_context, node);
+    analyze(engine->fe->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(16, tsi.width_bits);
     ASSERT_EQ(8, tsi.align_bits);
     ast_node_free(block);
-    parser_free(parser);
-    sema_context_free(context);
-    backend_deinit(cg);
-    frontend_deinit();
+    engine_free(engine);
 }
 
 TEST(test_type_size_info, struct_char_int)
 {
     char test_code[] = "struct Point2D = x:char, y:int";
-    frontend_init();
-    struct parser *parser = parser_new();
-    struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, 0);
-    struct cg* cg = backend_init(context);
-    struct ast_node *block = parse_code(parser, test_code);
+    struct engine *engine = engine_wasm_new();
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    analyze(cg->sema_context, node);
+    analyze(engine->fe->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(64, tsi.width_bits);
     ASSERT_EQ(32, tsi.align_bits);
     ast_node_free(block);
-    parser_free(parser);
-    sema_context_free(context);
-    backend_deinit(cg);
-    frontend_deinit();
+    engine_free(engine);
 }
 
 int test_type_size_info()

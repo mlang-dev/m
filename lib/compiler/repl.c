@@ -9,6 +9,7 @@
 #include "compiler/repl.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
+#include "codegen/llvm/cg_llvm.h"
 
 const char *boolean_values[2] = {
     "false",
@@ -32,33 +33,35 @@ void _print(struct eval_result result)
 
 void _add_current_module_to_jit(struct JIT *jit)
 {
-    add_module(jit, jit->env->cg->module);
-    jit->env->cg->module = 0;
+    struct cg_llvm *cg = jit->engine->be->cg;
+    add_module(jit, cg->module);
+    cg->module = 0;
 }
 
-void _create_jit_module(struct env *env)
+void _create_jit_module(struct cg_llvm *cg)
 {
     string mod_name = make_unique_name("mjit");
-    create_ir_module(env->cg, string_get(&mod_name));
+    create_ir_module(cg, string_get(&mod_name));
     string_deinit(&mod_name);
 }
 
 struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
 {
+    struct cg_llvm *cg = jit->engine->be->cg;
     string fn = make_unique_name("main-fn");
     symbol fn_symbol = string_2_symbol(&fn);
     enum node_type node_type = node->node_type;
     if (!node->type){
-        //analyze(jit->env->cg->sema_context, node);
-        emit_code(jit->env, node);
+        //analyze(jit->cg->sema_context, node);
+        emit_code(jit->engine->be->cg, node);
     }
     struct type_exp *type = node->type;
     struct eval_result result = { 0 };
-    node = wrap_expr_as_function(&jit->env->new_parser->symbol_2_int_types, node, fn_symbol);
-    analyze(jit->env->cg->sema_context, node);
-    emit_code(jit->env, node);
+    node = wrap_expr_as_function(&jit->engine->fe->parser->symbol_2_int_types, node, fn_symbol);
+    analyze(cg->sema_context, node);
+    emit_code(cg, node);
     if (node) {
-        void *p_fun = emit_ir_code(jit->env->cg, node);
+        void *p_fun = emit_ir_code(cg, node);
         if (p_fun) {
             //LLVMDumpModule(jit->env->module);
             _add_current_module_to_jit(jit);
@@ -78,7 +81,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
             if (node_type != VAR_NODE) {
                 //jit->mjit->removeModule(mk);
             }
-            _create_jit_module(jit->env);
+            _create_jit_module(jit->engine->be->cg);
         }
     }
     string_deinit(&fn);
@@ -89,7 +92,8 @@ void eval(void *p_jit, struct ast_node *node)
 {
     if(!node) return;
     struct JIT *jit = (struct JIT *)p_jit;
-    analyze(jit->env->cg->sema_context, node);
+    struct cg_llvm *cg = jit->engine->be->cg;
+    analyze(cg->sema_context, node);
     eval_statement(p_jit, node);
 }
 
@@ -99,18 +103,19 @@ void eval_statement(void *p_jit, struct ast_node *node)
         return;
     //printf("node->type: %s\n", node_type_strings[node->node_type]);
     struct JIT *jit = (struct JIT *)p_jit;
-    emit_code(jit->env, node);
+    struct cg_llvm *cg = jit->engine->be->cg;
+    emit_code(cg, node);
     string type_node_str = to_string(node->type);
     if (!node->type)
         goto exit;
     if (node->node_type == FUNC_TYPE_NODE) {
-        emit_ir_code(jit->env->cg, node);
+        emit_ir_code(cg, node);
     } else if (node->node_type == FUNC_NODE || node->node_type == STRUCT_NODE) {
         // function definition
-        emit_ir_code(jit->env->cg, node);
+        emit_ir_code(cg, node);
         //LLVMDumpModule(jit->env->module);
         _add_current_module_to_jit(jit);
-        _create_jit_module(jit->env);
+        _create_jit_module(jit->engine->be->cg);
     } else {
         /*
             * evaluate an expression
@@ -125,23 +130,24 @@ exit:
     fprintf(stderr, "m> ");
 }
 
-struct JIT *build_jit(struct env *env)
+struct JIT *build_jit(struct engine *engine)
 {
-    struct JIT *jit = jit_new(env);
-    _create_jit_module(env);
+    struct JIT *jit = jit_new(engine);
+    _create_jit_module(engine->be->cg);
     _add_current_module_to_jit(jit);
-    _create_jit_module(env);
+    _create_jit_module(engine->be->cg);
     return jit;
 }
 
+
 int run_repl()
 {
-    struct env *env = env_new(true);
-    struct JIT *jit = build_jit(env);
+    struct engine *engine = engine_llvm_new(true);
+    struct JIT *jit = build_jit(engine);
     printf("m> ");
-    parse_repl_code(env->new_parser, &eval, jit);
+    parse_repl_code(engine->fe->parser, &eval, jit);
     printf("bye !\n");
     jit_free(jit);
-    env_free(env);
+    engine_free(engine);
     return 0;
 }

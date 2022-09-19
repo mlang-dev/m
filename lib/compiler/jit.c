@@ -39,11 +39,11 @@ void _destroy_jit_instance(void *instance)
     }
 }
 
-struct JIT *jit_new(struct env *env)
+struct JIT *jit_new(struct engine *engine)
 {
     struct JIT *jit;
     MALLOC(jit, sizeof(*jit));
-    jit->env = env;
+    jit->engine = engine;
     jit->instance = _create_jit_instance();
     return jit;
 }

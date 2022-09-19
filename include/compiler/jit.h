@@ -10,8 +10,7 @@
 #define __MLANG_JIT_H__
 
 #include "clib/util.h"
-#include "codegen/llvm/codegen.h"
-#include "codegen/llvm/env.h"
+#include "compiler/engine.h"
 #include "sema/sema_context.h"
 
 #ifdef __cplusplus
@@ -19,7 +18,7 @@ extern "C" {
 #endif
 
 struct JIT {
-    struct env *env;
+    struct engine *engine;
     void *instance;
 };
 
@@ -33,7 +32,7 @@ struct fun_pointer
     } fp;
 };
 
-struct JIT *jit_new(struct env *cg);
+struct JIT *jit_new(struct engine *engine);
 void jit_free(struct JIT *jit);
 void add_module(struct JIT *jit, void *module);
 typedef double (*target_address_double)();
