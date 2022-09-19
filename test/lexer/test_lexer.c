@@ -5,25 +5,25 @@
  */
 #include "parser/grammar.h"
 #include "lexer/lexer.h"
-#include "lexer/frontend.h"
+#include "sema/frontend.h"
 #include "test.h"
 
 
 TEST(test_lexer, empty_string)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     struct token *tok;
     struct lexer *lexer;
     lexer = lexer_new_for_string("");
     tok = get_tok(lexer);
     ASSERT_EQ(TOKEN_EOF, tok->token_type);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, skip_comment)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = 
 "\n"
 "#123\n"
@@ -33,12 +33,12 @@ TEST(test_lexer, skip_comment)
 
     ASSERT_EQ(TOKEN_EOF, get_tok(lexer)->token_type);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
  }
 
 TEST(test_lexer, token_char)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = 
 "'4'\n";
 
@@ -54,12 +54,12 @@ TEST(test_lexer, token_char)
     ASSERT_EQ(3, tok->loc.end);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_char_with_escape)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = 
 "'\n'";
     struct token *tok;
@@ -73,13 +73,13 @@ TEST(test_lexer, token_char_with_escape)
     ASSERT_EQ(3, tok->loc.end);
     ASSERT_EQ('\n', tok->int_val);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 
 TEST(test_lexer, token_bool_litteral_true)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = 
 "true";
     struct token *tok;
@@ -92,12 +92,12 @@ TEST(test_lexer, token_bool_litteral_true)
     ASSERT_EQ(0, tok->loc.start);
     ASSERT_EQ(4, tok->loc.end);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_bool_litteral_false)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = 
 "false";
     struct token *tok;
@@ -110,12 +110,12 @@ TEST(test_lexer, token_bool_litteral_false)
     ASSERT_EQ(0, tok->loc.start);
     ASSERT_EQ(5, tok->loc.end);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_string)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = 
 "\"234\"\n"
 "\n";
@@ -132,12 +132,12 @@ TEST(test_lexer, token_string)
     ASSERT_EQ(5, tok->loc.end);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_string_with_escape)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = 
 "\"\n\"\n"
 "\n";
@@ -153,12 +153,12 @@ TEST(test_lexer, token_string_with_escape)
     ASSERT_STREQ("\n", string_get(tok->str_val));
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_string_with_raw_escape)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = 
 "\"\\n\"\n"
 "\n";
@@ -174,12 +174,12 @@ TEST(test_lexer, token_string_with_raw_escape)
     ASSERT_STREQ("\n", string_get(tok->str_val));
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_utc_string)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "\"你好\"\n"
                        "\n";
 
@@ -196,12 +196,12 @@ TEST(test_lexer, token_utc_string)
     ASSERT_STREQ("你好", string_get(tok->str_val));
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_num_int)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = 
 "\n"
 "234\n"
@@ -218,12 +218,12 @@ TEST(test_lexer, token_num_int)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(4, tok->loc.end);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
  }
 
  TEST(test_lexer, token_num_int_hex)
  {
-     frontend_init();
+     struct frontend *fe = frontend_init();
      char test_code[] = "\n"
                         "0x2\n"
                         "\n";
@@ -239,12 +239,12 @@ TEST(test_lexer, token_num_int)
      ASSERT_EQ(1, tok->loc.start);
      ASSERT_EQ(4, tok->loc.end);
      lexer_free(lexer);
-     frontend_deinit();
+     frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_num_int_hex2)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "\n"
                        "0xffffffff\n"
                        "\n";
@@ -256,12 +256,12 @@ TEST(test_lexer, token_num_int_hex2)
     ASSERT_EQ(TOKEN_INT, tok->token_type);
     ASSERT_EQ(-1, tok->int_val);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_num_float)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "\n23.1";
 
     struct token *tok;
@@ -275,12 +275,12 @@ TEST(test_lexer, token_num_float)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(5, tok->loc.end);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_num_float2)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "\n2.3";
 
     struct token *tok;
@@ -294,12 +294,12 @@ TEST(test_lexer, token_num_float2)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(4, tok->loc.end);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
  }
 
 TEST(test_lexer, token_num_float3)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "\n.23";
 
     struct token *tok;
@@ -313,12 +313,12 @@ TEST(test_lexer, token_num_float3)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(4, tok->loc.end);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
  }
 
 TEST(test_lexer, token_id)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "\n_abc123";
     struct token *tok;
     struct lexer *lexer;
@@ -331,12 +331,12 @@ TEST(test_lexer, token_id)
     ASSERT_EQ(1, tok->loc.start);
     ASSERT_EQ(8, tok->loc.end);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
  }
 
 TEST(test_lexer, token_num_id)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "\n123 abc";
 
     struct token *tok;
@@ -359,12 +359,12 @@ TEST(test_lexer, token_num_id)
     ASSERT_EQ(5, tok->loc.start);
     ASSERT_EQ(8, tok->loc.end);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, expr)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "10+20.0";
 
     struct token *tok;
@@ -380,12 +380,12 @@ TEST(test_lexer, expr)
     ASSERT_EQ(TOKEN_DOUBLE, tok->token_type);
 
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, other_symbols)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "( )()[]{} .. ... .< <= == != >= > || && ! |&+-*/^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ?";
 
     struct lexer *lexer;
@@ -435,12 +435,12 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(OP_DEC, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_COND, get_tok(lexer)->opcode);
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_indent_dedent)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "\n  abc";
 
     struct lexer *lexer;
@@ -452,12 +452,12 @@ TEST(test_lexer, token_indent_dedent)
     ASSERT_EQ(TOKEN_EOF, get_tok(lexer)->token_type);
 
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, token_import_memory)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "from sys import memory";
 
     struct lexer *lexer;
@@ -469,12 +469,12 @@ TEST(test_lexer, token_import_memory)
     ASSERT_EQ(TOKEN_MEMORY, get_tok(lexer)->token_type);
 
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_lexer, complex_number)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     char test_code[] = "3.0 + 1.0i";
 
     struct lexer *lexer;
@@ -483,7 +483,7 @@ TEST(test_lexer, complex_number)
     ASSERT_EQ(TOKEN_COMPLEX, get_tok(lexer)->token_type);
 
     lexer_free(lexer);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 int test_lexer()

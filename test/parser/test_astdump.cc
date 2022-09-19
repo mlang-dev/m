@@ -11,7 +11,7 @@
 #include "parser/astdump.h"
 #include "parser/parser.h"
 #include "sema/analyzer.h"
-#include "lexer/frontend.h"
+#include "sema/frontend.h"
 #include "test_base.h"
 #include "tutil.h"
 
@@ -20,7 +20,7 @@ class testAstDump : public TestBase {
 
 TEST_F(testAstDump, testPrototypeNodeDump)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, false);
     char test_code[] = "extern printf:int format:string ...";
@@ -34,12 +34,12 @@ TEST_F(testAstDump, testPrototypeNodeDump)
     ASSERT_STREQ(test_code, string_get(&dump_str));
     sema_context_free(context);
     parser_free(parser);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST_F(testAstDump, testFuncTypeWithNoParam)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, false);
     char test_code[] = "extern printf:int ()";
@@ -53,5 +53,5 @@ TEST_F(testAstDump, testFuncTypeWithNoParam)
     ASSERT_STREQ(test_code, string_get(&dump_str));
     sema_context_free(context);
     parser_free(parser);
-    frontend_deinit();
+    frontend_deinit(fe);
 }

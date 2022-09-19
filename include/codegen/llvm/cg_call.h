@@ -12,14 +12,14 @@
 #include <llvm-c/Core.h>
 
 #include "clib/array.h"
-#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/cg_llvm.h"
 #include "parser/ast.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-LLVMValueRef emit_call_node(struct code_generator *cg, struct ast_node *node);
+LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node);
 
 #ifdef __cplusplus
 }

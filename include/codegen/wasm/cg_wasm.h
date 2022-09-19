@@ -1,12 +1,12 @@
 /*
- * wasm_codegen.h
+ * cg_wasm.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for WASM IR Binary Format codegen
+ * header file for WASM Binary Format codegen
  */
-#ifndef __MLANG_WASM_CODEGEN_H__
-#define __MLANG_WASM_CODEGEN_H__
+#ifndef __MLANG_CG_WASM_H__
+#define __MLANG_CG_WASM_H__
 
 #include "clib/byte_array.h"
 #include "clib/hashtable.h"
@@ -377,7 +377,7 @@ struct imports{
     u32 num_memory;
 };
 
-struct wasm_module {
+struct cg_wasm {
     struct byte_array ba;
     struct hashtable func_name_2_idx;
     struct hashtable func_name_2_ast;
@@ -411,11 +411,13 @@ struct wasm_module {
     struct ast_node *data_block;
 
     u32 data_offset;
+
 };
 
-void wasm_codegen_init(struct wasm_module *module);
-void wasm_codegen_deinit(struct wasm_module *module);
-void parse_as_module(struct wasm_module *module, const char *expr);
+struct cg_wasm * cg_wasm_new();
+void emit_wasm(struct cg_wasm *cg, struct ast_node *node);
+void cg_wasm_free(struct cg_wasm *cg);
+
 
 #ifdef __cplusplus
 }

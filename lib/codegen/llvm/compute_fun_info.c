@@ -1,6 +1,6 @@
 
 #include "codegen/llvm/compute_fun_info.h"
-#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/cg_llvm.h"
 
 ///compute abi info
 void compute_fun_info(struct fun_info *fi)

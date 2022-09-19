@@ -8,8 +8,8 @@
 #ifndef __MLANG_REPL_H__
 #define __MLANG_REPL_H__
 
-#include "codegen/llvm/env.h"
 #include "compiler/jit.h"
+#include "compiler/engine.h"
 #include "sema/type.h"
 
 #ifdef __cplusplus
@@ -27,7 +27,7 @@ struct eval_result {
     };
 };
 
-struct JIT *build_jit(struct env *env);
+struct JIT *build_jit(struct engine *engine);
 //analyze first then evaluate the node
 void eval(void *p_jit, struct ast_node *node);
 void eval_statement(void *p_jit, struct ast_node *node);

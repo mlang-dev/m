@@ -5,7 +5,7 @@
  */
 #include "parser/grammar.h"
 #include "lexer/lexer.h"
-#include "lexer/frontend.h"
+#include "sema/frontend.h"
 #include "test.h"
 #include <stdio.h>
 
@@ -13,7 +13,7 @@
 TEST(test_lexer, string_error_missing_end_quote)
 {
     if(TEST_PROTECT()){
-        frontend_init();
+        struct frontend *fe = frontend_init();
         struct token *tok;
         struct lexer *lexer;
         lexer = lexer_new_with_string("\"");
@@ -21,7 +21,7 @@ TEST(test_lexer, string_error_missing_end_quote)
         ASSERT_EQ(TOKEN_ERROR, tok->token_type);
         ASSERT_STREQ("missing end quote for string literal. location: (1, 1)\n", string_get(tok->str_val));
         lexer_free(lexer);
-        frontend_deinit();
+        frontend_deinit(fe);
         TEST_ABORT();
     }
 }
@@ -29,7 +29,7 @@ TEST(test_lexer, string_error_missing_end_quote)
 TEST(test_lexer, char_error_missing_end_quote)
 {
     if(TEST_PROTECT()){
-        frontend_init();
+        struct frontend *fe = frontend_init();
         struct token *tok;
         struct lexer *lexer;
         lexer = lexer_new_with_string("'");
@@ -37,7 +37,7 @@ TEST(test_lexer, char_error_missing_end_quote)
         ASSERT_EQ(TOKEN_ERROR, tok->token_type);
         ASSERT_STREQ("missing end quote for char literal. location: (1, 1)\n", string_get(tok->str_val));
         lexer_free(lexer);
-        frontend_deinit();
+        frontend_deinit(fe);
         TEST_ABORT();
     }
 }
@@ -45,7 +45,7 @@ TEST(test_lexer, char_error_missing_end_quote)
 TEST(test_lexer, char_error_multichar_end_quote)
 {
     if(TEST_PROTECT()){
-        frontend_init();
+        struct frontend *fe = frontend_init();
         struct token *tok;
         struct lexer *lexer;
         lexer = lexer_new_with_string("'abc'");
@@ -53,7 +53,7 @@ TEST(test_lexer, char_error_multichar_end_quote)
         ASSERT_EQ(TOKEN_ERROR, tok->token_type);
         ASSERT_STREQ("character is supposed to be 1 char long but got 3 long. location: (1, 1)\n", string_get(tok->str_val));
         lexer_free(lexer);
-        frontend_deinit();
+        frontend_deinit(fe);
         TEST_ABORT();
     }
 }

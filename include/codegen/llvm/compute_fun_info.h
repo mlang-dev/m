@@ -1,9 +1,9 @@
 /*
- * codegen.h
+ * compute_fun_info.h
  * 
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file for LLVM IR codegen
+ * header file to compute function info
  */
 #ifndef __COMPUTE_FUN_INFO_H__
 #define __COMPUTE_FUN_INFO_H__

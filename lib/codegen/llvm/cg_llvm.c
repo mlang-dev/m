@@ -11,14 +11,14 @@
 #include "codegen/llvm/cg_call.h"
 #include "codegen/llvm/cg_fun.h"
 #include "codegen/llvm/cg_var.h"
-#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/cg_llvm.h"
 #include "codegen/llvm/fun_info.h"
 #include "codegen/llvm/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 
-struct code_generator *g_cg = 0;
+struct cg_llvm *g_cg = 0;
 
 LLVMContextRef get_llvm_context()
 {
@@ -333,7 +333,7 @@ struct ops ext_ops = {
     LLVMBuildNeg,
 };
 
-void _set_bin_ops(struct code_generator *cg)
+void _set_bin_ops(struct cg_llvm *cg)
 {
     cg->ops[TYPE_UNK] = double_ops;
     cg->ops[TYPE_GENERIC] = double_ops;
@@ -347,18 +347,17 @@ void _set_bin_ops(struct code_generator *cg)
     cg->ops[TYPE_STRUCT] = ext_ops;
 }
 
-struct code_generator *cg_new(struct sema_context *sema_context)
+struct cg_llvm *cg_new(struct sema_context *sema_context)
 {
     LLVMContextRef context = LLVMContextCreate();
     LLVMInitializeCore(LLVMGetGlobalPassRegistry());
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();
-    struct code_generator *cg;
+    struct cg_llvm *cg;
     MALLOC(cg, sizeof(*cg));
     cg->sema_context = sema_context;
     cg->context = context;
-    cg->cg = backend_init(sema_context);
     cg->builder = LLVMCreateBuilderInContext(context);
     hashset_init(&cg->builtins);
     cg->module = 0;
@@ -375,7 +374,7 @@ struct code_generator *cg_new(struct sema_context *sema_context)
     return cg;
 }
 
-void cg_free(struct code_generator *cg)
+void cg_free(struct cg_llvm *cg)
 {
     LLVMDisposeBuilder(cg->builder);
     if (cg->module)
@@ -390,18 +389,17 @@ void cg_free(struct code_generator *cg)
     hashtable_deinit(&cg->typename_2_irtypes);
     hashtable_deinit(&cg->typename_2_ast);
     hashtable_deinit(&cg->varname_2_typename);
-    backend_deinit(cg->cg);
     FREE(cg);
     g_cg = 0;
 }
 
-LLVMTypeRef _get_llvm_type(struct code_generator *cg, struct type_exp *type)
+LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_exp *type)
 {
     enum type en_type = get_type(type);
     return cg->ops[en_type].get_type(cg->context, type);
 }
 
-LLVMValueRef _emit_block_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_block_node(struct cg_llvm *cg, struct ast_node *node)
 {
     LLVMValueRef codegen = 0;
     for (size_t i = 0; i < array_size(&node->block->nodes); i++) {
@@ -411,7 +409,7 @@ LLVMValueRef _emit_block_node(struct code_generator *cg, struct ast_node *node)
     return codegen;
 }
 
-LLVMValueRef _emit_literal_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_literal_node(struct cg_llvm *cg, struct ast_node *node)
 {
     assert(node->type);
     assert(node->node_type == LITERAL_NODE);
@@ -430,7 +428,7 @@ LLVMValueRef _emit_literal_node(struct code_generator *cg, struct ast_node *node
 }
 
 /*xy->TypeNode*/
-LLVMValueRef _emit_ident_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_ident_node(struct cg_llvm *cg, struct ast_node *node)
 {
     // const char *idname = string_get(id);
     LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, node->ident->name);
@@ -446,7 +444,7 @@ LLVMValueRef _emit_ident_node(struct code_generator *cg, struct ast_node *node)
     }
 }
 
-LLVMValueRef _emit_unary_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_unary_node(struct cg_llvm *cg, struct ast_node *node)
 {
     LLVMValueRef operand_v = emit_ir_code(cg, node->unop->operand);
     assert(operand_v);
@@ -470,7 +468,7 @@ LLVMValueRef _emit_unary_node(struct code_generator *cg, struct ast_node *node)
     return LLVMBuildCall(cg->builder, fun, &operand_v, 1, "unop");
 }
 
-LLVMValueRef _emit_accessor_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_accessor_node(struct cg_llvm *cg, struct ast_node *node)
 {
     assert(node->node_type == BINARY_NODE);
     assert(node->binop->lhs->node_type == IDENT_NODE);
@@ -499,7 +497,7 @@ LLVMValueRef _emit_accessor_node(struct code_generator *cg, struct ast_node *nod
     }
 }
 
-LLVMValueRef _emit_binary_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_binary_node(struct cg_llvm *cg, struct ast_node *node)
 {
     if (node->binop->opcode == OP_DOT)
         return _emit_accessor_node(cg, node);
@@ -566,7 +564,7 @@ LLVMValueRef _emit_binary_node(struct code_generator *cg, struct ast_node *node)
     }
 }
 
-LLVMValueRef _emit_condition_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
 {
     // KSDbgInfo.emitLocation(this);
     LLVMValueRef cond_v = emit_ir_code(cg, node->cond->if_node);
@@ -604,7 +602,7 @@ LLVMValueRef _emit_condition_node(struct code_generator *cg, struct ast_node *no
     return phi_node;
 }
 
-LLVMValueRef _emit_type_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_type_node(struct cg_llvm *cg, struct ast_node *node)
 {
     struct type_oper *type = (struct type_oper *)node->type;
     assert(node->type);
@@ -614,12 +612,12 @@ LLVMValueRef _emit_type_node(struct code_generator *cg, struct ast_node *node)
     return 0;
 }
 
-LLVMValueRef _emit_type_value_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_type_value_node(struct cg_llvm *cg, struct ast_node *node)
 {
     return emit_type_value_node(cg, node, false, "tmp");
 }
 
-LLVMValueRef _emit_for_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
 {
     symbol var_name = node->forloop->var_name;
     LLVMBasicBlockRef bb = LLVMGetInsertBlock(cg->builder);
@@ -668,7 +666,7 @@ LLVMValueRef _emit_for_node(struct code_generator *cg, struct ast_node *node)
     return LLVMConstNull(cg->ops[TYPE_INT].get_type(cg->context, 0));
 }
 
-void create_ir_module(struct code_generator *cg,
+void create_ir_module(struct cg_llvm *cg,
     const char *module_name)
 {
     LLVMModuleRef module = LLVMModuleCreateWithNameInContext(module_name, cg->context);
@@ -678,7 +676,7 @@ void create_ir_module(struct code_generator *cg,
     cg->module = module;
 }
 
-LLVMValueRef _emit_unk_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef _emit_unk_node(struct cg_llvm *cg, struct ast_node *node)
 {
     if (!cg || !node)
         return 0;
@@ -686,7 +684,7 @@ LLVMValueRef _emit_unk_node(struct code_generator *cg, struct ast_node *node)
     return 0;
 }
 
-LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
 {
     LLVMValueRef value = 0;
     switch(node->node_type){
@@ -796,8 +794,39 @@ LLVMModuleRef get_llvm_module()
     return g_cg->module;
 }
 
+struct cg_llvm *get_cg()
+{
+    assert(g_cg);
+    return g_cg;
+}
+
 struct hashtable *get_fun_infos()
 {
     assert(g_cg);
     return &g_cg->fun_infos;
+}
+
+void emit_sp_code(struct cg_llvm *cg)
+{
+    for(size_t i = 0; i < array_size(&cg->sema_context->new_specialized_asts); i++){
+        struct ast_node *new_sp = *(struct ast_node **)array_get(&cg->sema_context->new_specialized_asts, i);
+        emit_ir_code(cg, new_sp);
+    }
+    array_reset(&cg->sema_context->new_specialized_asts);
+}
+
+void emit_code(struct cg_llvm *cg, struct ast_node *node)
+{
+    emit_sp_code(cg);
+    if (array_size(&cg->sema_context->used_builtin_names)) {
+        for (size_t i = 0; i < array_size(&cg->sema_context->used_builtin_names); i++) {
+            symbol built_name = *((symbol *)array_get(&cg->sema_context->used_builtin_names, i));
+            struct ast_node *n = hashtable_get_p(&cg->sema_context->builtin_ast, built_name);
+            if (!hashset_in_p(&cg->builtins, built_name)) {
+                hashset_set_p(&cg->builtins, built_name);
+                emit_ir_code(cg, n);
+            }
+        }
+        array_clear(&cg->sema_context->used_builtin_names);
+    }
 }

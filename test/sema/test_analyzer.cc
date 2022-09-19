@@ -3,8 +3,8 @@
  *
  * Unit tests for type inference and semantic analsysis
  */
-#include "codegen/llvm/codegen.h"
-#include "codegen/llvm/env.h"
+#include "codegen/llvm/cg_llvm.h"
+#include "compiler/engine.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
 #include "tutil.h"
@@ -14,10 +14,11 @@
 TEST(testAnalyzer, testIntVariable)
 {
     char test_code[] = "x = 11";
-    env *env = env_new(false);
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var_name));
@@ -27,16 +28,17 @@ TEST(testAnalyzer, testIntVariable)
     string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testDoubleVariable)
 {
     char test_code[] = "x = 11.0";
-    env *env = env_new(false);
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var_name));
@@ -45,16 +47,17 @@ TEST(testAnalyzer, testDoubleVariable)
     string type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testBoolVariable)
 {
     char test_code[] = "x = true";
-    env *env = env_new(false);
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var_name));
@@ -63,17 +66,18 @@ TEST(testAnalyzer, testBoolVariable)
     string type_str = to_string(node->type);
     ASSERT_STREQ("bool", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testCharVariable)
 {
     char test_code[] = "x = 'c'";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var_name));
@@ -82,17 +86,18 @@ TEST(testAnalyzer, testCharVariable)
     string type_str = to_string(node->type);
     ASSERT_STREQ("char", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testStringVariable)
 {
     char test_code[] = "x = \"hello world!\"";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var_name));
@@ -101,17 +106,18 @@ TEST(testAnalyzer, testStringVariable)
     string type_str = to_string(node->type);
     ASSERT_STREQ("string", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testCallNode)
 {
     char test_code[] = "printf \"hello\"";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(CALL_NODE, node->node_type);
@@ -119,24 +125,25 @@ TEST(testAnalyzer, testCallNode)
     string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testDoubleIntLiteralError)
 {
     char test_code[] = "x = 11.0 + 10";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var_name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(0, node->type);
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testGreaterThan)
@@ -144,28 +151,30 @@ TEST(testAnalyzer, testGreaterThan)
     char test_code[] = R"(
 11>10
   )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     auto node = *(ast_node **)array_front(&block->block->nodes);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("bool", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testIdentityFunc)
 {
     reset_id_name("a");
     char test_code[] = "let id x = x";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("id", string_get(node->func->func_type->ft->name));
@@ -176,17 +185,18 @@ TEST(testAnalyzer, testIdentityFunc)
     string type_str = to_string(node->type);
     ASSERT_STREQ("a -> a", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testIntIntFunc)
 {
     char test_code[] = "let f x = x + 10";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
@@ -197,17 +207,18 @@ TEST(testAnalyzer, testIntIntFunc)
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testDoubleDoubleFunc)
 {
     char test_code[] = "let f x = x + 10.0";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
@@ -218,17 +229,18 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
     string type_str = to_string(node->type);
     ASSERT_STREQ("double -> double", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testBoolFunc)
 {
     char test_code[] = "let f x = !x";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
@@ -239,17 +251,18 @@ TEST(testAnalyzer, testBoolFunc)
     string type_str = to_string(node->type);
     ASSERT_STREQ("bool -> bool", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testMultiParamFunc)
 {
     char test_code[] = "let avg x y = (x + y) / 2.0";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("avg", string_get(node->func->func_type->ft->name));
@@ -260,7 +273,7 @@ TEST(testAnalyzer, testMultiParamFunc)
     string type_str = to_string(node->type);
     ASSERT_STREQ("double * double -> double", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testRecursiveFunc)
@@ -270,11 +283,12 @@ let factorial n =
   if n < 2 then n
   else n * factorial (n-1)
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("factorial", string_get(node->func->func_type->ft->name));
@@ -285,7 +299,7 @@ let factorial n =
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testForLoopFunc)
@@ -296,11 +310,12 @@ let loopprint n =
   for i in 0..n
     printf "%d" i
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
@@ -316,7 +331,7 @@ let loopprint n =
     ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->end->type));
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->body->type));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testLocalVariableFunc)
@@ -329,11 +344,12 @@ let distance x1 y1 x2 y2 =
   sqrt (xx + yy)
 )";
     reset_id_name("a");
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("distance", string_get(node->func->func_type->ft->name));
@@ -344,7 +360,7 @@ let distance x1 y1 x2 y2 =
     string type_str = to_string(node->type);
     ASSERT_STREQ("double * double * double * double -> double", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testLocalStringFunc)
@@ -355,11 +371,12 @@ let to_string () =
   y = x
   y
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("to_string", string_get(node->func->func_type->ft->name));
@@ -370,7 +387,7 @@ let to_string () =
     string type_str = to_string(node->type);
     ASSERT_STREQ("() -> string", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testVariadicFunc)
@@ -378,11 +395,12 @@ TEST(testAnalyzer, testVariadicFunc)
     char test_code[] = R"(
 let var_func ... = 0
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("var_func", string_get(node->func->func_type->ft->name));
@@ -394,7 +412,7 @@ let var_func ... = 0
     string type_str = to_string(node->type);
     ASSERT_STREQ("... -> int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testPrintfFunc)
@@ -402,18 +420,19 @@ TEST(testAnalyzer, testPrintfFunc)
     char test_code[] = R"(
 printf "%d" 100
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(CALL_NODE, node->node_type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testStructLikeType)
@@ -421,18 +440,19 @@ TEST(testAnalyzer, testStructLikeType)
     char test_code[] = R"(
 struct Point2D = x:double, y:double
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(STRUCT_NODE, node->node_type);
     string type_str = to_string(node->type);
     ASSERT_EQ(TYPE_STRUCT, node->type->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testFunctionTypeAnnotation)
@@ -440,11 +460,12 @@ TEST(testAnalyzer, testFunctionTypeAnnotation)
     char test_code[] = R"(
 let print x:int = printf "%d" x
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("print", string_get(node->func->func_type->ft->name));
@@ -455,7 +476,7 @@ let print x:int = printf "%d" x
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testFunctionTypeAnnotationWithParentheses)
@@ -463,11 +484,12 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithParentheses)
     char test_code[] = R"(
 let prt x:int = printf "%d" x
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("prt", string_get(node->func->func_type->ft->name));
@@ -478,7 +500,7 @@ let prt x:int = printf "%d" x
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
@@ -486,11 +508,12 @@ TEST(testAnalyzer, testFunctionTypeAnnotationWithReturnType)
     char test_code[] = R"(
 let prt:int x:int = printf "%d" x
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("prt", string_get(node->func->func_type->ft->name));
@@ -501,7 +524,7 @@ let prt:int x:int = printf "%d" x
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testVariableWithScope)
@@ -514,12 +537,13 @@ let getx()=
 getx()
 x
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(4, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
@@ -536,7 +560,7 @@ x
     type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testRedefinitionInTheSameScropeIsNotAllowed)
@@ -545,12 +569,13 @@ TEST(testAnalyzer, testRedefinitionInTheSameScropeIsNotAllowed)
 x = 10.0
 x = 10
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
@@ -559,7 +584,7 @@ x = 10
     type_str = to_string(node->type);
     ASSERT_STREQ("type mismatch", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testStructTypeVariables)
@@ -569,12 +594,13 @@ struct Point2D = x:double, y:double
 xy:Point2D = Point2D(0.0, 0.0)
 xy.x
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
@@ -586,7 +612,7 @@ xy.x
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testStructTypeVariablesNewForm)
@@ -596,12 +622,13 @@ struct Point2D = x:double, y:double
 xy = Point2D(10.0, 20.0)
 xy.x
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
@@ -613,7 +640,7 @@ xy.x
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testStructTypeLocalVariables)
@@ -625,12 +652,13 @@ let getx()=
     xy.x
 getx()
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
@@ -643,7 +671,7 @@ getx()
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testStructTypeLocalVariablesNewForm)
@@ -655,12 +683,13 @@ let getx()=
     xy.x
 getx()
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
@@ -673,7 +702,7 @@ getx()
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testStructTypeReturn)
@@ -685,12 +714,13 @@ let getx()=
     xy
 z = getx()
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
@@ -713,9 +743,9 @@ z = getx()
 
     /*verify variable xy in inner function is out of scope*/
     symbol xy = to_symbol("xy");
-    ASSERT_EQ(false, has_symbol(&env->cg->sema_context->decl_2_typexps, xy));
+    ASSERT_EQ(false, has_symbol(&cg->sema_context->decl_2_typexps, xy));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 
@@ -728,12 +758,13 @@ let getx()=
     xy
 z = getx()
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
@@ -756,9 +787,9 @@ z = getx()
 
     /*verify variable xy in inner function is out of scope*/
     symbol xy = to_symbol("xy");
-    ASSERT_EQ(false, has_symbol(&env->cg->sema_context->decl_2_typexps, xy));
+    ASSERT_EQ(false, has_symbol(&cg->sema_context->decl_2_typexps, xy));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testStructTypeReturnNoNamed)
@@ -768,12 +799,13 @@ struct Point2D = x:double, y:double
 let get_point() = Point2D(10.0, 0.0)
 let z() = get_point()
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     //1. type definition
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
@@ -789,7 +821,7 @@ let z() = get_point()
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> Point2D", string_get(&type_str));
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testReturnValueFlag)
@@ -800,12 +832,13 @@ let getx()=
     y = x + 1
     y
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     /*validate fun definition*/
     auto node = *(ast_node **)array_get(&block->block->nodes, 0);
     auto type_str = to_string(node->type);
@@ -818,7 +851,7 @@ let getx()=
     ASSERT_EQ(false, var_x->is_ret);
     ASSERT_EQ(true, var_y->is_ret);
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testAnalyzer, testReturnExpression)
@@ -828,12 +861,13 @@ let getx()=
     x = 10
     x + 1
 )";
-    env *env = env_new(false);
-    create_ir_module(env->cg, "test");
-    struct ast_node *block = parse_code(env->new_parser, test_code);
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    analyze(env->cg->sema_context, block);
-    emit_code(env, block);
+    analyze(cg->sema_context, block);
+    emit_code(cg, block);
     /*validate fun definition*/
     auto node = *(ast_node **)array_get(&block->block->nodes, 0);
     auto type_str = to_string(node->type);
@@ -846,5 +880,5 @@ let getx()=
     ASSERT_EQ(false, var_x->is_ret);
     ASSERT_EQ(BINARY_NODE, exp->node_type);
     ast_node_free(block);
-    env_free(env);
+    engine_free(engine);
 }

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "parser/lalr_parser_generator.h"
-#include "lexer/frontend.h"
+#include "sema/frontend.h"
 
 #define header_comment_template  "/*\n"\
                               " * parsing table for parser\n"\
@@ -180,7 +180,7 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
 
 int generate_files(const char *grammar_path, const char *header_path, const char *source_path)
 {
-    frontend_init();
+    struct frontend *fe = frontend_init();
     printf("parsing grammar file %s ...\n", grammar_path);
     const char *grammar = read_text_file(grammar_path);
     struct lalr_parser_generator *pg = lalr_parser_generator_new(grammar);
@@ -190,7 +190,7 @@ int generate_files(const char *grammar_path, const char *header_path, const char
     write_to_source_file(pg, source_path);
     lalr_parser_generator_free(pg);
     free((void *)grammar);
-    frontend_deinit();
+    frontend_deinit(fe);
     return 0;
 }
 

@@ -10,14 +10,14 @@
 #include "clib/util.h"
 #include "codegen/llvm/abi_arg_info.h"
 #include "codegen/llvm/cg_fun.h"
-#include "codegen/llvm/codegen.h"
+#include "codegen/llvm/cg_llvm.h"
 #include "codegen/llvm/fun_info.h"
 #include "codegen/llvm/ir_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 
-struct address emit_address_at_offset(struct code_generator *cg, struct address adr, struct abi_arg_info *info)
+struct address emit_address_at_offset(struct cg_llvm *cg, struct address adr, struct abi_arg_info *info)
 {
     (void)cg;
     unsigned offset = info->align.direct_offset;
@@ -26,7 +26,7 @@ struct address emit_address_at_offset(struct code_generator *cg, struct address 
     return adr;
 }
 
-void _emit_argument_allocas(struct code_generator *cg, struct ast_node *node,
+void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
     struct fun_info *fi, LLVMValueRef fun)
 {
     struct type_oper *proto_type = (struct type_oper *)node->type;
@@ -98,12 +98,12 @@ void _emit_argument_allocas(struct code_generator *cg, struct ast_node *node,
     array_deinit(&params);
 }
 
-LLVMValueRef emit_func_type_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef emit_func_type_node(struct cg_llvm *cg, struct ast_node *node)
 {
     return emit_func_type_node_fi(cg, node, 0);
 }
 
-LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct ast_node *node, struct fun_info **out_fi)
+LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, struct fun_info **out_fi)
 {
     assert(node->type);
     hashtable_set_p(&cg->protos, node->ft->name, node);
@@ -134,7 +134,7 @@ LLVMValueRef emit_func_type_node_fi(struct code_generator *cg, struct ast_node *
     return fun;
 }
 
-LLVMValueRef emit_function_node(struct code_generator *cg, struct ast_node *node)
+LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
 {
     if (is_generic(node->type)) {
         return 0;
@@ -193,7 +193,7 @@ LLVMValueRef emit_function_node(struct code_generator *cg, struct ast_node *node
     return fun;
 }
 
-LLVMValueRef get_llvm_function(struct code_generator *cg, symbol fun_name)
+LLVMValueRef get_llvm_function(struct cg_llvm *cg, symbol fun_name)
 {
     const char *name = string_get(fun_name);
     LLVMValueRef f = LLVMGetNamedFunction(cg->module, name);

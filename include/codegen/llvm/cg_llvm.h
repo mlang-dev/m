@@ -1,5 +1,5 @@
 /*
- * codegen.h
+ * cg_llvm.h
  * 
  * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
  *
@@ -58,12 +58,11 @@ struct ops {
     unary_op neg_op;
 };
 
-struct code_generator {
+struct cg_llvm {
     LLVMContextRef context;
     LLVMBuilderRef builder;
     LLVMModuleRef module;
     struct sema_context *sema_context;
-    struct cg *cg;
     struct ops ops[TYPE_TYPES];
 
     /* 
@@ -119,11 +118,15 @@ struct code_generator {
 };
 
 
-struct code_generator *cg_new(struct sema_context *sema_context);
-void cg_free(struct code_generator *cg);
+struct cg_llvm *cg_new(struct sema_context *sema_context);
+void cg_free(struct cg_llvm *cg);
 
-void create_ir_module(struct code_generator *cg, const char *module_name);
-LLVMValueRef emit_ir_code(struct code_generator *cg, struct ast_node *node);
+void emit_code(struct cg_llvm *cg, struct ast_node *node);
+void emit_sp_code(struct cg_llvm *cg);
+
+
+void create_ir_module(struct cg_llvm *cg, const char *module_name);
+LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
 LLVMContextRef get_llvm_context();
 LLVMTypeRef get_llvm_type(struct type_exp *type);
@@ -131,6 +134,7 @@ LLVMTypeRef get_llvm_type_for_abi(struct type_exp *type);
 LLVMTargetDataRef get_llvm_data_layout();
 enum OS get_os();
 LLVMModuleRef get_llvm_module();
+struct cg_llvm *get_cg();
 struct hashtable *get_type_size_infos();
 struct hashtable *get_fun_infos();
 

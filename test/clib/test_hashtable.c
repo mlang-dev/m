@@ -174,7 +174,8 @@ TEST(test_hashtable, grow_with_collision)
 /*
 TEST(testHashtable, TestHashtablePointerKey)
 {
-    struct env *env = env_new(false);
+    struct struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     reset_id_name("a");
     hashtable ht;
     hashtable_init(&ht);
@@ -191,7 +192,7 @@ TEST(testHashtable, TestHashtablePointerKey)
     type_exp_free((type_exp *)op1);
     type_exp_free((type_exp *)op2);
     type_exp_free((type_exp *)op3);
-    env_free(env);
+    engine_free(engine);
 }
 
 TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)

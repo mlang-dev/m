@@ -156,7 +156,9 @@
         "stdarg.h": "c",
         "libc.h": "c",
         "frontend.h": "c",
-        "tutil.h": "c"
+        "tutil.h": "c",
+        "cg_llvm.h": "c",
+        "analyzer.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

@@ -16,17 +16,27 @@
 extern "C" {
 #endif
 
-struct cg{
+typedef void* (*cg_alloc_fun)(struct sema_context *context);
+typedef void (*cg_free_fun)(void *);
+
+
+struct backend{
     struct sema_context *sema_context;
     /* 
      *  symboltable of <symbol, struct type_size_info>
      *  binding type name to type size
      */
     struct hashtable type_size_infos;
+
+    /*
+     *  custom code generator
+     */
+    void *cg;
+    cg_free_fun cg_free;
 };
 
-struct cg *backend_init(struct sema_context *sema_context);
-void backend_deinit(struct cg *cg);
+struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_alloc, cg_free_fun cg_free);
+void backend_deinit(struct backend *be);
 struct hashtable *get_type_size_infos();
 
 #ifdef __cplusplus

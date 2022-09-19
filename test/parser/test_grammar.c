@@ -7,12 +7,12 @@
 #include "test.h"
 #include <stdio.h>
 #include "clib/hashtable.h"
-#include "lexer/frontend.h"
+#include "sema/frontend.h"
 
 TEST(test_grammar, num_token)
 {
     char test_grammar[] = "power       = INT";
-    frontend_init();
+    struct frontend *fe = frontend_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("power", 5);
     ASSERT_EQ(start, grammar->start_symbol);
@@ -36,7 +36,7 @@ TEST(test_grammar, num_token)
     ASSERT_EQ(ei->sym, to_symbol2("INT", 3));
     ASSERT_EQ(0, hashset_size(&grammar->keywords));
     grammar_free(grammar);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_grammar, arithmetic_exp)
@@ -55,7 +55,7 @@ TEST(test_grammar, arithmetic_exp)
 "power       = INT '^' factor    {}\n"
 "            | INT               {}\n";
 
-    frontend_init();
+    struct frontend *fe = frontend_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("sum", 3);
     ASSERT_EQ(start, grammar->start_symbol);
@@ -77,7 +77,7 @@ TEST(test_grammar, arithmetic_exp)
     }
     ASSERT_EQ(6, hashset_size(&grammar->keywords));
     grammar_free(grammar);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 TEST(test_grammar, arithmetic_exp_using_charset)
@@ -93,7 +93,7 @@ TEST(test_grammar, arithmetic_exp_using_charset)
 "            | power             { 0 }\n"
 "power       = INT '^' factor    { binop 0 1 2 }\n"
 "            | INT               { 0 }\n";
-    frontend_init();
+    struct frontend *fe = frontend_init();
     struct grammar *grammar = grammar_parse(test_grammar);
     symbol start = to_symbol2("sum", 3);
     ASSERT_EQ(start, grammar->start_symbol);
@@ -122,7 +122,7 @@ TEST(test_grammar, arithmetic_exp_using_charset)
     }
     ASSERT_EQ(8, hashset_size(&grammar->keywords));
     grammar_free(grammar);
-    frontend_deinit();
+    frontend_deinit(fe);
 }
 
 int test_grammar()
