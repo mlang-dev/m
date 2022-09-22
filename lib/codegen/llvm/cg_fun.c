@@ -8,11 +8,11 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
-#include "codegen/llvm/abi_arg_info.h"
+#include "codegen/abi_arg_info.h"
 #include "codegen/llvm/cg_fun.h"
 #include "codegen/llvm/cg_llvm.h"
-#include "codegen/llvm/fun_info.h"
-#include "codegen/llvm/ir_api.h"
+#include "codegen/fun_info.h"
+#include "codegen/llvm/llvm_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
@@ -38,7 +38,7 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
         //struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
+        struct target_arg_range *iar = (struct target_arg_range *)array_get(&fi->iai.args, i);
         unsigned first_ir_arg = iar->first_arg_index;
         unsigned ir_arg_num = iar->ir_arg_num;
         struct address param_value;
@@ -103,17 +103,19 @@ LLVMValueRef emit_func_type_node(struct cg_llvm *cg, struct ast_node *node)
     return emit_func_type_node_fi(cg, node, 0);
 }
 
+//compute abi info
+
 LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, struct fun_info **out_fi)
 {
     assert(node->type);
     hashtable_set_p(&cg->protos, node->ft->name, node);
     struct type_oper *proto_type = (struct type_oper *)node->type;
     assert(proto_type->base.kind == KIND_OPER);
-    struct fun_info *fi = get_fun_info(node);
+    struct fun_info *fi = get_fun_info(cg->target_info, compute_fun_info_llvm, node);
     if (out_fi)
         *out_fi = fi;
     assert(fi);
-    LLVMTypeRef fun_type = get_fun_type(fi);
+    LLVMTypeRef fun_type = get_fun_type(cg->target_info, fi);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(node->ft->name), fun_type);
     if (fi->iai.sret_arg_no != InvalidIndex) {
         LLVMValueRef ai = LLVMGetParam(fun, fi->iai.sret_arg_no);

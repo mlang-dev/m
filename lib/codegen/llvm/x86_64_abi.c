@@ -1,7 +1,6 @@
-#include "codegen/llvm/abi_arg_info.h"
+#include "codegen/abi_arg_info.h"
 #include "codegen/llvm/cg_llvm.h"
-#include "codegen/llvm/compute_fun_info.h"
-#include "codegen/llvm/fun_info.h"
+#include "codegen/fun_info.h"
 #include "codegen/type_size_info.h"
 #include <assert.h>
 #include <llvm-c/Core.h>
@@ -202,7 +201,7 @@ LLVMTypeRef _get_x86_64_byval_arg_pair(LLVMTypeRef low, LLVMTypeRef high, LLVMTa
     return LLVMStructType(pair, 2, false);
 }
 
-struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
+struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_exp *ret_type)
 {
     enum Class low, high;
     _classify(ret_type, 0, &low, &high);
@@ -217,12 +216,12 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
     case X87UP:
         assert(false);
     case MEMORY:
-        return create_indirect_return_result(ret_type);
+        return create_indirect_return_result(ti, ret_type);
     case INTEGER:
         result_type = _get_int_type_at_offset(get_llvm_type(ret_type), 0, ret_type, 0);
         if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
             if (is_promotable_int(ret_type))
-                return create_extend(ret_type);
+                return create_extend(ti, ret_type);
         }
         break;
     // AMD64-ABI 3.2.3p4: Rule 4. If the class is SSE, the next
@@ -281,7 +280,7 @@ struct abi_arg_info _classify_return_type(struct type_exp *ret_type)
     return create_direct_type(result_type);
 }
 
-struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free_int_regs, unsigned *needed_int, unsigned *needed_sse)
+struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_exp *type, unsigned free_int_regs, unsigned *needed_int, unsigned *needed_sse)
 {
     //struct abi_arg_info aa;
     enum Class low, high;
@@ -297,7 +296,7 @@ struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free
     case MEMORY:
     case X87:
     case COMPLEX_X87:
-        return create_indirect_result(type, free_int_regs);
+        return create_indirect_result(ti, type, free_int_regs);
     case SSEUP:
     case X87UP:
         assert(false);
@@ -306,7 +305,7 @@ struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free
         result_type = _get_int_type_at_offset(get_llvm_type(type), 0, type, 0);
         if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
             if (is_promotable_int(type))
-                return create_extend(type);
+                return create_extend(ti, type);
         }
         break;
     case SSE: {
@@ -348,12 +347,12 @@ struct abi_arg_info _classify_argument_type(struct type_exp *type, unsigned free
 }
 
 ///compute abi info
-void x86_64_compute_fun_info(struct fun_info *fi)
+void x86_64_compute_fun_info(struct target_info *ti, struct fun_info *fi)
 {
     unsigned free_int_regs = 6;
     unsigned free_sse_regs = 8;
     unsigned needed_int, needed_sse;
-    fi->ret.info = _classify_return_type(fi->ret.type);
+    fi->ret.info = _classify_return_type(ti, fi->ret.type);
     if (fi->ret.info.kind == AK_INDIRECT)
         --free_int_regs;
     if (fi->is_chain_call)
@@ -362,13 +361,13 @@ void x86_64_compute_fun_info(struct fun_info *fi)
     for (unsigned arg_no = 0; arg_no < array_size(&fi->args); arg_no++) {
         //bool is_named_arg = arg_no < required_args;
         struct ast_abi_arg *arg = array_get(&fi->args, arg_no);
-        arg->info = _classify_argument_type(arg->type, free_int_regs, &needed_int, &needed_sse);
+        arg->info = _classify_argument_type(ti, arg->type, free_int_regs, &needed_int, &needed_sse);
 
         if (free_int_regs >= needed_int && free_sse_regs >= needed_sse) {
             free_int_regs -= needed_int;
             free_sse_regs -= needed_sse;
         } else {
-            arg->info = create_indirect_result(arg->type, free_int_regs);
+            arg->info = create_indirect_result(ti, arg->type, free_int_regs);
         }
     }
 }

@@ -14,8 +14,9 @@
 
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
-#include "codegen/llvm/ir_api.h"
-#include "codegen/llvm/target_info.h"
+#include "codegen/llvm/llvm_api.h"
+#include "codegen/target_info.h"
+#include "codegen/fun_info.h"
 #include "codegen/backend.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
@@ -109,12 +110,6 @@ struct cg_llvm {
 
     /// target info
     struct target_info *target_info;
-
-    /* 
-     *  symboltable of <symbol, struct fun_info>
-     *  binding fun name to struct fun_info
-     */
-    struct hashtable fun_infos;
 };
 
 
@@ -135,7 +130,8 @@ enum OS get_os();
 LLVMModuleRef get_llvm_module();
 struct cg_llvm *get_cg();
 struct hashtable *get_type_size_infos();
-struct hashtable *get_fun_infos();
+void compute_fun_info_llvm(struct target_info *ti, struct fun_info *fi);
+
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
-#include "codegen/llvm/target_info.h"
+#include "codegen/target_info.h"
+#include "codegen/fun_info.h"
 #include "clib/string.h"
 #include "clib/util.h"
-#include <llvm-c/TargetMachine.h>
 
 //x86_64-pc-windows-msvc
 //x86_64-apple-darwin19.6.0
@@ -114,11 +114,11 @@ void _parse_triple(struct target_info *ti)
     string_deinit(&str);
 }
 
-struct target_info *ti_new()
+struct target_info *ti_new(const char *target_triple)
 {
     struct target_info *ti;
     MALLOC(ti, sizeof(struct target_info));
-    ti->target_triple = LLVMGetDefaultTargetTriple();
+    ti->target_triple = target_triple;
     _parse_triple(ti);
     bool is64 = ti->arch == ARCH_X86_64;
     ti->unit_width = 0;
@@ -135,10 +135,12 @@ struct target_info *ti_new()
     //FIXME: or 32 depending on pointer size (32arch or 64arch)
     ti->pointer_width = is64 ? 64 : 32;
     ti->pointer_align = is64 ? 64 : 32;
+    hashtable_init_with_value_size(&ti->fun_infos, sizeof(struct fun_info), (free_fun)fun_info_deinit);
     return ti;
 }
 
 void ti_free(struct target_info *ti)
 {
+    hashtable_deinit(&ti->fun_infos);
     FREE(ti);
 }

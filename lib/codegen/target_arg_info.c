@@ -1,26 +1,25 @@
-#include "codegen/llvm/ir_arg_info.h"
-#include "codegen/llvm/cg_llvm.h"
-#include "codegen/llvm/fun_info.h"
+#include "codegen/target_arg_info.h"
+#include "codegen/fun_info.h"
 
 const unsigned InvalidIndex = ~0U;
 
-void ir_arg_info_init(struct ir_arg_info *iai)
+void target_arg_info_init(struct target_arg_info *tai)
 {
-    iai->sret_arg_no = InvalidIndex;
-    iai->total_ir_args = 0;
-    array_init(&iai->args, sizeof(struct ir_arg_range));
+    tai->sret_arg_no = InvalidIndex;
+    tai->total_ir_args = 0;
+    array_init(&tai->args, sizeof(struct target_arg_range));
 }
 
-void ir_arg_info_deinit(struct ir_arg_info *iai)
+void target_arg_info_deinit(struct target_arg_info *tai)
 {
-    array_deinit(&iai->args);
+    array_deinit(&tai->args);
 }
 
-void ir_arg_range_init(struct ir_arg_range *iar)
+void target_arg_range_init(struct target_arg_range *tar)
 {
-    iar->padding_arg_index = InvalidIndex;
-    iar->first_arg_index = InvalidIndex;
-    iar->ir_arg_num = 0;
+    tar->padding_arg_index = InvalidIndex;
+    tar->first_arg_index = InvalidIndex;
+    tar->ir_arg_num = 0;
 }
 
 int get_expansion_size(struct type_exp *type)
@@ -38,22 +37,22 @@ int get_expansion_size(struct type_exp *type)
     return 1;
 }
 
-void get_expanded_types(struct type_exp *type, struct array *types)
+void get_expanded_types(struct target_info *ti, struct type_exp *type, struct array *types)
 {
     if (type->type == TYPE_STRUCT) {
         struct type_oper *to = (struct type_oper *)type;
         size_t member_count = array_size(&to->args);
         for (size_t i = 0; i < member_count; i++) {
             struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);
-            get_expanded_types(field_type, types);
+            get_expanded_types(ti, field_type, types);
         }
     } else {
-        LLVMTypeRef var_type = get_llvm_type(type);
+        TargetType var_type = ti->get_target_type(type);
         array_push(types, &var_type);
     }
 }
 
-struct ir_arg_range *get_ir_arg_range(struct ir_arg_info *iai, unsigned arg_no)
+struct target_arg_range *get_target_arg_range(struct target_arg_info *tai, unsigned arg_no)
 {
-    return (struct ir_arg_range *)array_get(&iai->args, arg_no);
+    return (struct target_arg_range *)array_get(&tai->args, arg_no);
 }

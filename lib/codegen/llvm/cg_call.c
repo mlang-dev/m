@@ -6,9 +6,9 @@
 #include "codegen/llvm/cg_call.h"
 #include "codegen/llvm/cg_fun.h"
 #include "codegen/llvm/cg_llvm.h"
-#include "codegen/llvm/fun_info.h"
-#include "codegen/llvm/ir_api.h"
-#include "codegen/llvm/ir_arg_info.h"
+#include "codegen/fun_info.h"
+#include "codegen/llvm/llvm_api.h"
+#include "codegen/target_arg_info.h"
 #include "codegen/type_size_info.h"
 #include <assert.h>
 
@@ -18,7 +18,7 @@ LLVMValueRef _get_parent_call_sret_pointer(struct cg_llvm *cg, struct ast_node *
 {
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->sema_context->func_stack);
     struct ast_node *parent_ft = parent_func->func->func_type;
-    struct fun_info *fi = get_fun_info(parent_ft);
+    struct fun_info *fi = get_fun_info(cg->target_info, compute_fun_info_llvm, parent_ft);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
     LLVMValueRef ret = 0;
     if (has_sret && node->is_ret) {
@@ -34,7 +34,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
     symbol callee_name = get_callee(node);
     LLVMValueRef callee = get_llvm_function(cg, callee_name);
     assert(callee);
-    struct fun_info *fi = get_fun_info(node->call->callee_func_type);
+    struct fun_info *fi = get_fun_info(cg->target_info, compute_fun_info_llvm, node->call->callee_func_type);
     assert(fi);
     size_t arg_count = array_size(&node->call->arg_block->block->nodes);
     bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
@@ -59,7 +59,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
     }
     for (size_t i = 0; i < arg_count; ++i) {
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
+        struct target_arg_range *iar = (struct target_arg_range *)array_get(&fi->iai.args, i);
         struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
         struct type_size_info tsi = get_type_size_info(arg->type);
         LLVMValueRef arg_value = emit_ir_code(cg, arg);
