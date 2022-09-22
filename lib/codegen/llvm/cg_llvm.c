@@ -767,15 +767,6 @@ LLVMTypeRef get_llvm_type(struct type_exp *type)
     return _get_llvm_type(g_cg, type);
 }
 
-LLVMTypeRef get_llvm_type_for_abi(struct type_exp *type)
-{
-    assert(g_cg);
-    struct type_size_info tsi = get_type_size_info(type);
-    if (type->type == TYPE_BOOL) // bool type is 1 bit size in llvm but we need to comply with abi size
-        return LLVMIntTypeInContext(get_llvm_context(), (unsigned)tsi.width_bits);
-    return _get_llvm_type(g_cg, type);
-}
-
 LLVMTargetDataRef get_llvm_data_layout()
 {
     assert(g_cg && g_cg->module);

@@ -130,7 +130,6 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
 LLVMContextRef get_llvm_context();
 LLVMTypeRef get_llvm_type(struct type_exp *type);
-LLVMTypeRef get_llvm_type_for_abi(struct type_exp *type);
 LLVMTargetDataRef get_llvm_data_layout();
 enum OS get_os();
 LLVMModuleRef get_llvm_module();
