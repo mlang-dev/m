@@ -156,7 +156,7 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
         case AK_INDIRECT: {
             assert(iar->ir_arg_num == 1);
             assert(iar->first_arg_index == array_size(&arg_types));
-            LLVMTypeRef lty = get_llvm_type_for_abi(aa->type);
+            LLVMTypeRef lty = get_llvm_type(aa->type);
             LLVMTypeRef pointer_type = LLVMPointerType(lty, 0); //TODO: should use AllocaAddressSpace in Layout
             array_push(&arg_types, &pointer_type);
             break;
@@ -164,7 +164,7 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
         case AK_INDIRECT_ALIASED: {
             assert(iar->ir_arg_num == 1);
             assert(iar->first_arg_index == array_size(&arg_types));
-            LLVMTypeRef lty = get_llvm_type_for_abi(aa->type);
+            LLVMTypeRef lty = get_llvm_type(aa->type);
             LLVMTypeRef pointer_type = LLVMPointerType(lty, 0); //TODO: should use AllocaAddressSpace in Layout
             array_push(&arg_types, &pointer_type);
             break;
