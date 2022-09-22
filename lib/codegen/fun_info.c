@@ -1,7 +1,6 @@
 #include "codegen/llvm/fun_info.h"
 #include "clib/util.h"
 #include "codegen/llvm/cg_llvm.h"
-#include "codegen/llvm/compute_fun_info.h"
 #include "codegen/llvm/ir_arg_info.h"
 #include <assert.h>
 
@@ -108,9 +107,9 @@ struct fun_info *get_fun_info(struct ast_node *func_type)
     return (struct fun_info *)hashtable_get_p(fun_infos, func_type->ft->name);
 }
 
-LLVMTypeRef get_fun_type(struct fun_info *fi)
+TargetType get_fun_type(struct target_info *ti, struct fun_info *fi)
 {
-    LLVMTypeRef ret_type = 0;
+    TargetType ret_type = 0;
     switch (fi->ret.info.kind) {
     case AK_EXPAND:
     case AK_INDIRECT_ALIASED:
@@ -124,7 +123,7 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
         break;
     case AK_INDIRECT:
     case AK_IGNORE:
-        ret_type = LLVMVoidTypeInContext(get_llvm_context());
+        ret_type = ti->void_type;
         break;
     case AK_COERCE_AND_EXPAND:
         ret_type = fi->ret.info.padding.coerce_and_expand_type;
@@ -132,11 +131,11 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
     }
 
     struct array arg_types;
-    array_init(&arg_types, sizeof(LLVMTypeRef *));
+    array_init(&arg_types, sizeof(TargetType *));
     if (fi->iai.sret_arg_no != InvalidIndex) {
         assert(fi->iai.sret_arg_no == 0);
         //TODO: fixme address space
-        LLVMTypeRef ret_type_as_arg = LLVMPointerType(get_llvm_type(fi->ret.type), 0);
+        TargetType ret_type_as_arg = ti->get_pointer_type(ti->get_target_type(fi->ret.type));
         array_push(&arg_types, &ret_type_as_arg);
     }
     //TODO: inalloca
@@ -156,16 +155,14 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
         case AK_INDIRECT: {
             assert(iar->ir_arg_num == 1);
             assert(iar->first_arg_index == array_size(&arg_types));
-            LLVMTypeRef lty = get_llvm_type(aa->type);
-            LLVMTypeRef pointer_type = LLVMPointerType(lty, 0); //TODO: should use AllocaAddressSpace in Layout
+            TargetType pointer_type = ti->get_pointer_type(ti->get_target_type(aa->type));
             array_push(&arg_types, &pointer_type);
             break;
         }
         case AK_INDIRECT_ALIASED: {
             assert(iar->ir_arg_num == 1);
             assert(iar->first_arg_index == array_size(&arg_types));
-            LLVMTypeRef lty = get_llvm_type(aa->type);
-            LLVMTypeRef pointer_type = LLVMPointerType(lty, 0); //TODO: should use AllocaAddressSpace in Layout
+            TargetType pointer_type = ti->get_pointer_type(ti->get_target_type(aa->type));
             array_push(&arg_types, &pointer_type);
             break;
         }
@@ -173,7 +170,11 @@ LLVMTypeRef get_fun_type(struct fun_info *fi)
         case AK_DIRECT: {
             assert(iar->first_arg_index == array_size(&arg_types));
             LLVMTypeRef arg_type = aa->info.type;
+<<<<<<< Updated upstream
+            if (aa->type->type == TYPE_STRUCT) {
+=======
             if (LLVMGetTypeKind(arg_type) == LLVMStructTypeKind) {
+>>>>>>> Stashed changes
                 for (unsigned j = 0; j < LLVMCountStructElementTypes(arg_type); ++j) {
                     LLVMTypeRef field_type = LLVMStructGetTypeAtIndex(arg_type, j);
                     array_push(&arg_types, &field_type);

@@ -10,7 +10,7 @@
 
 #include "sema/sema_context.h"
 #include "clib/hashtable.h"
-
+#include "codegen/fun_info.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +19,10 @@ extern "C" {
 typedef void* (*cg_alloc_fun)(struct sema_context *context);
 typedef void (*cg_free_fun)(void *);
 
+struct codegen{
+    fn_compute_fun_info compute_fun_info;
+    TargetType extend_type;
+};
 
 struct backend{
     struct sema_context *sema_context;

@@ -17,6 +17,7 @@
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
+#include <llvm-c/TargetMachine.h>
 
 struct cg_llvm *g_cg = 0;
 
@@ -369,7 +370,7 @@ struct cg_llvm *cg_new(struct sema_context *sema_context)
     hashtable_init(&cg->typename_2_ast);
     hashtable_init(&cg->varname_2_typename);
     hashtable_init_with_value_size(&cg->fun_infos, sizeof(struct fun_info), (free_fun)fun_info_deinit);
-    cg->target_info = ti_new();
+    cg->target_info = ti_new(LLVMGetDefaultTargetTriple());
     g_cg = cg;
     return cg;
 }
@@ -767,6 +768,19 @@ LLVMTypeRef get_llvm_type(struct type_exp *type)
     return _get_llvm_type(g_cg, type);
 }
 
+<<<<<<< Updated upstream
+=======
+LLVMTypeRef get_llvm_type_for_abi(struct type_exp *type)
+{
+    assert(g_cg);
+    if (type->type == TYPE_BOOL){ // bool type is 1 bit size in llvm but we need to comply with abi size
+        struct type_size_info tsi = get_type_size_info(type);
+        return LLVMIntTypeInContext(get_llvm_context(), (unsigned)tsi.width_bits);
+    }
+    return _get_llvm_type(g_cg, type);
+}
+
+>>>>>>> Stashed changes
 LLVMTargetDataRef get_llvm_data_layout()
 {
     assert(g_cg && g_cg->module);

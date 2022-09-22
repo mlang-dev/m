@@ -10,7 +10,6 @@
 
 #include "clib/array.h"
 #include "parser/ast.h"
-#include <llvm-c/Core.h>
 
 #ifdef __cplusplus
 extern "C" {

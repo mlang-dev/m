@@ -10,8 +10,9 @@
 #define __MLANG_FUN_INFO_H__
 
 #include "clib/hashtable.h"
-#include "codegen/llvm/abi_arg_info.h"
-#include "codegen/llvm/ir_arg_info.h"
+#include "codegen/abi_arg_info.h"
+#include "codegen/ir_arg_info.h"
+#include "codegen/target_info.h"
 #include "parser/ast.h"
 #include "sema/type.h"
 
@@ -35,12 +36,11 @@ struct fun_info {
 };
 
 bool is_variadic(struct fun_info *fi);
-
 void fun_info_init(struct fun_info *fi, unsigned required_args);
 void fun_info_deinit(struct fun_info *fi);
-
-struct fun_info *get_fun_info(struct ast_node *func_type);
-LLVMTypeRef get_fun_type(struct fun_info *fi);
+typedef void (*fn_compute_fun_info)(struct fun_info *fi);
+struct fun_info *get_fun_info(struct target_info *ti, struct ast_node *func_type);
+TargetType get_fun_type(struct target_info *ti, struct fun_info *fi);
 bool check_rvo(struct fun_info *fi);
 
 #ifdef __cplusplus

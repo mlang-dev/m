@@ -1,7 +1,6 @@
-#include "codegen/llvm/target_info.h"
+#include "codegen/target_info.h"
 #include "clib/string.h"
 #include "clib/util.h"
-#include <llvm-c/TargetMachine.h>
 
 //x86_64-pc-windows-msvc
 //x86_64-apple-darwin19.6.0
@@ -114,11 +113,11 @@ void _parse_triple(struct target_info *ti)
     string_deinit(&str);
 }
 
-struct target_info *ti_new()
+struct target_info *ti_new(const char *target_triple)
 {
     struct target_info *ti;
     MALLOC(ti, sizeof(struct target_info));
-    ti->target_triple = LLVMGetDefaultTargetTriple();
+    ti->target_triple = target_triple;
     _parse_triple(ti);
     bool is64 = ti->arch == ARCH_X86_64;
     ti->unit_width = 0;

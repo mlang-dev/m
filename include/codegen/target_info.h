@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+typedef void* TargetType;
+
 enum c_abi_target_kind {
     /// Unix-like http://www.codesourcery.com/public/cxx-abi/
     ITANIUM,
@@ -92,6 +94,10 @@ enum ObjectFormatType {
     OFT_XCOFF
 };
 
+typedef TargetType (*fn_get_size_int_type)(unsigned size);
+typedef TargetType (*fn_get_pointer_type)(TargetType target_type);
+typedef TargetType (*fn_get_target_type)(struct type_exp *type);
+
 struct target_info {
     enum c_abi_target_kind target_kind;
     unsigned char unit_width, unit_align;
@@ -108,9 +114,16 @@ struct target_info {
     enum OS os;
     enum Env env;
     enum ObjectFormatType oft;
+
+    /*type get*/
+    TargetType extend_type; //LLVMInt8TypeInContext(get_llvm_context()); //would use 32 bits
+    fn_get_size_int_type get_size_int_type;//LLVMIntTypeInContext(get_llvm_context(), width)
+    fn_get_pointer_type get_pointer_type; //LLVMPointerType(get_llvm_type(fi->ret.type), 0)
+    fn_get_target_type get_target_type; //get_llvm_type(fi->ret.type)
+    TargetType void_type; // LLVMVoidTypeInContext(get_llvm_context());
 };
 
-struct target_info *ti_new();
+struct target_info *ti_new(const char *target_triple);
 void ti_free(struct target_info *ti);
 
 #ifdef __cplusplus

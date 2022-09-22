@@ -9,7 +9,7 @@
 #define __MLANG_ABI_ARG_INFO_H__
 
 #include "sema/type.h"
-#include <llvm-c/Core.h>
+#include "codegen/target_info.h"
 
 enum ArgKind {
     AK_DIRECT = 0,
@@ -25,10 +25,10 @@ enum ArgKind {
 };
 
 struct abi_arg_info {
-    LLVMTypeRef type;
+    TargetType type;
     union {
-        LLVMTypeRef padding_type; //Direct || Extend || Indirect || Expand
-        LLVMTypeRef coerce_and_expand_type; //CoerceAndExpand
+        TargetType padding_type; //Direct || Extend || Indirect || Expand
+        TargetType coerce_and_expand_type; //CoerceAndExpand
     } padding;
     union {
         unsigned direct_offset; //Direct || Extend
@@ -45,19 +45,19 @@ struct abi_arg_info {
     bool sign_ext; //Extend
 };
 
-struct abi_arg_info create_expand(bool padding_inreg, LLVMTypeRef padding_type);
-struct abi_arg_info create_direct_type_offset(LLVMTypeRef type, unsigned offset);
-struct abi_arg_info create_direct_type(LLVMTypeRef type);
+struct abi_arg_info create_expand(bool padding_inreg, TargetType padding_type);
+struct abi_arg_info create_direct_type_offset(TargetType type, unsigned offset);
+struct abi_arg_info create_direct_type(TargetType type);
 struct abi_arg_info create_direct();
-struct abi_arg_info create_extend(struct type_exp *ret_type);
-struct abi_arg_info create_indirect_return_result(struct type_exp *ret_type);
-struct abi_arg_info create_indirect_result(struct type_exp *ret_type, unsigned free_int_regs);
+struct abi_arg_info create_extend(struct target_info *ti, struct type_exp *ret_type);
+struct abi_arg_info create_indirect_return_result(struct target_info *ti, struct type_exp *ret_type);
+struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_exp *ret_type, unsigned free_int_regs);
 struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type, bool indirect_byval);
 struct abi_arg_info create_ignore();
 
 bool can_have_padding_type(struct abi_arg_info *aai);
-LLVMTypeRef get_padding_type(struct abi_arg_info *aai);
-void get_coerce_and_expand_types(struct abi_arg_info *aai, LLVMTypeRef *types);
+TargetType get_padding_type(struct abi_arg_info *aai);
+void get_coerce_and_expand_types(struct abi_arg_info *aai, TargetType *types);
 bool can_have_coerce_to_type(struct abi_arg_info *aai);
 
 #endif //__MLANG_ABI_ARG_INFO_H__
