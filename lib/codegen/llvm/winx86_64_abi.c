@@ -1,10 +1,10 @@
 #include "clib/util.h"
-#include "codegen/llvm/abi_arg_info.h"
+#include "codegen/abi_arg_info.h"
 #include "codegen/llvm/cg_llvm.h"
-#include "codegen/llvm/fun_info.h"
+#include "codegen/fun_info.h"
 #include "codegen/type_size_info.h"
 
-struct abi_arg_info _winx86_64_classify(struct type_exp *te, unsigned *free_sse_regs, bool is_return_type, bool is_vector_call, bool is_reg_call)
+struct abi_arg_info _winx86_64_classify(struct target_info *ti, struct type_exp *te, unsigned *free_sse_regs, bool is_return_type, bool is_vector_call, bool is_reg_call)
 {
     (void)free_sse_regs;
     (void)is_vector_call;
@@ -27,17 +27,17 @@ struct abi_arg_info _winx86_64_classify(struct type_exp *te, unsigned *free_sse_
         //coerce it into the small integer type
         return create_direct_type(LLVMIntTypeInContext(get_llvm_context(), width));
     } else if (te->type == TYPE_BOOL) {
-        return create_extend(te);
+        return create_extend(ti, te);
     }
 
     //TODO: Member pointer, complex type, big int etc
     return create_direct();
 }
 ///compute abi info
-void winx86_64_compute_fun_info(struct fun_info *fi)
+void winx86_64_compute_fun_info(struct target_info *ti, struct fun_info *fi)
 {
     unsigned free_sse_regs = 0;
-    fi->ret.info = _winx86_64_classify(fi->ret.type, &free_sse_regs, true, false, false);
+    fi->ret.info = _winx86_64_classify(ti, fi->ret.type, &free_sse_regs, true, false, false);
     unsigned zero_sse_regs = 0;
     bool is_vector_call = false;
     for (unsigned arg_no = 0; arg_no < array_size(&fi->args); arg_no++) {
@@ -46,6 +46,6 @@ void winx86_64_compute_fun_info(struct fun_info *fi)
         // registers are left.
         struct ast_abi_arg *arg = array_get(&fi->args, arg_no);
         unsigned *maybe_free_sse_regs = (is_vector_call && arg_no >= 6) ? &zero_sse_regs : &free_sse_regs;
-        arg->info = _winx86_64_classify(arg->type, maybe_free_sse_regs, false, false, false);
+        arg->info = _winx86_64_classify(ti, arg->type, maybe_free_sse_regs, false, false, false);
     }
 }

@@ -11,8 +11,8 @@
 #include "codegen/llvm/cg_fun.h"
 #include "codegen/llvm/cg_var.h"
 #include "codegen/llvm/cg_llvm.h"
-#include "codegen/llvm/fun_info.h"
-#include "codegen/llvm/ir_api.h"
+#include "codegen/fun_info.h"
+#include "codegen/llvm/llvm_api.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
@@ -35,7 +35,7 @@ LLVMValueRef emit_type_value_node(struct cg_llvm *cg, struct ast_node *type_valu
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
     struct type_size_info tsi = get_type_size_info(te);
-    struct fun_info *fi = get_fun_info(ft_node);
+    struct fun_info *fi = get_fun_info(cg->target_info, compute_fun_info_llvm, ft_node);
     bool is_rvo = check_rvo(fi);
     is_ret = is_ret || type_values->is_ret;
     LLVMValueRef alloca = 0;

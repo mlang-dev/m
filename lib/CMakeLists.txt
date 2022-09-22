@@ -126,7 +126,6 @@ else()
     codegen/llvm/cg_var.c
     codegen/llvm/cg_call.c
     codegen/llvm/ir_arg_info.c
-    codegen/llvm/compute_fun_info.c
     codegen/llvm/llvm_api.c
     codegen/wasm/cg_wasm.c
     compiler/repl.c

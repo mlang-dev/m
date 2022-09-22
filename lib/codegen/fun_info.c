@@ -1,7 +1,6 @@
-#include "codegen/llvm/fun_info.h"
+#include "codegen/fun_info.h"
 #include "clib/util.h"
-#include "codegen/llvm/cg_llvm.h"
-#include "codegen/llvm/ir_arg_info.h"
+#include "codegen/ir_arg_info.h"
 #include <assert.h>
 
 const unsigned ALL_REQUIRED = ~0U;
@@ -24,7 +23,7 @@ bool is_variadic(struct fun_info *fi)
     return fi->required_args != ALL_REQUIRED;
 }
 
-void _map_to_ir_arg_info(struct fun_info *fi)
+void _map_to_ir_arg_info(struct target_info *ti, struct fun_info *fi)
 {
     unsigned ir_arg_no = 0;
     if (fi->ret.info.kind == AK_INDIRECT)
@@ -41,8 +40,8 @@ void _map_to_ir_arg_info(struct fun_info *fi)
         switch (aa->info.kind) {
         case AK_EXTEND:
         case AK_DIRECT: {
-            if (aa->info.kind == AK_DIRECT && aa->info.can_be_flattened && LLVMGetTypeKind(aa->info.type) == LLVMStructTypeKind) {
-                iar.ir_arg_num = LLVMCountStructElementTypes(aa->info.type);
+            if (aa->info.kind == AK_DIRECT && aa->info.can_be_flattened && aa->type->type == TYPE_STRUCT) {
+                iar.ir_arg_num = ti->get_count_struct_element_types(aa->info.type);
             } else {
                 iar.ir_arg_num = 1;
             }
@@ -58,7 +57,7 @@ void _map_to_ir_arg_info(struct fun_info *fi)
             break;
         case AK_COERCE_AND_EXPAND:
             //TODO: different than LLVMGetStructElementTypes returned number of types ?
-            iar.ir_arg_num = LLVMCountStructElementTypes(aa->info.type);
+            iar.ir_arg_num = ti->get_count_struct_element_types(aa->info.type);
             break;
         case AK_EXPAND:
             iar.ir_arg_num = get_expansion_size(aa->type);
@@ -73,10 +72,10 @@ void _map_to_ir_arg_info(struct fun_info *fi)
     fi->iai.total_ir_args = ir_arg_no;
 }
 
-struct fun_info *get_fun_info(struct ast_node *func_type)
+struct fun_info *get_fun_info(struct target_info *ti, fn_compute_fun_info compute_fun_info, struct ast_node *func_type)
 {
     struct type_oper *fun_type = (struct type_oper *)func_type->type;
-    struct hashtable *fun_infos = get_fun_infos();
+    struct hashtable *fun_infos = &ti->fun_infos;
     struct fun_info *result = hashtable_get_p(fun_infos, func_type->ft->name);
     if (result)
         return result;
@@ -91,18 +90,18 @@ struct fun_info *get_fun_info(struct ast_node *func_type)
         aa.type = *(struct type_exp **)array_get(&fun_type->args, i);
         array_push(&fi.args, &aa);
     }
-    compute_fun_info(&fi);
+    compute_fun_info(ti, &fi);
     // direct or extend without a specified coerce type, specify the
     // default now.
     if (can_have_coerce_to_type(&fi.ret.info) && !fi.ret.info.type)
-        fi.ret.info.type = get_llvm_type(fi.ret.type);
+        fi.ret.info.type = ti->get_target_type(fi.ret.type);
     unsigned arg_num = (unsigned)array_size(&fi.args);
     for (unsigned i = 0; i < arg_num; i++) {
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi.args, i);
         if (can_have_coerce_to_type(&aa->info) && !aa->info.type)
-            aa->info.type = get_llvm_type(aa->type);
+            aa->info.type = ti->get_target_type(aa->type);
     }
-    _map_to_ir_arg_info(&fi);
+    _map_to_ir_arg_info(ti, &fi);
     hashtable_set_p(fun_infos, func_type->ft->name, &fi);
     return (struct fun_info *)hashtable_get_p(fun_infos, func_type->ft->name);
 }
@@ -169,32 +168,33 @@ TargetType get_fun_type(struct target_info *ti, struct fun_info *fi)
         case AK_EXTEND:
         case AK_DIRECT: {
             assert(iar->first_arg_index == array_size(&arg_types));
-            LLVMTypeRef arg_type = aa->info.type;
-<<<<<<< Updated upstream
             if (aa->type->type == TYPE_STRUCT) {
-=======
-            if (LLVMGetTypeKind(arg_type) == LLVMStructTypeKind) {
->>>>>>> Stashed changes
-                for (unsigned j = 0; j < LLVMCountStructElementTypes(arg_type); ++j) {
-                    LLVMTypeRef field_type = LLVMStructGetTypeAtIndex(arg_type, j);
-                    array_push(&arg_types, &field_type);
-                }
+                ti->fill_struct_fields(&arg_types, aa->info.type);
             } else {
                 assert(iar->ir_arg_num == 1);
-                array_push(&arg_types, &arg_type);
+                array_push(&arg_types, &aa->info.type);
             }
             break;
         }
         case AK_COERCE_AND_EXPAND: {
+            /*
+    /// CoerceAndExpand - Only valid for aggregate argument types. The
+    /// structure should be expanded into consecutive arguments corresponding
+    /// to the non-array elements of the type stored in CoerceToType.
+    /// Array elements in the type are assumed to be padding and skipped.            
+    */
+        /*
             assert(iar->first_arg_index == array_size(&arg_types));
             assert(iar->ir_arg_num);
-            LLVMTypeRef *types;
+            TargetType *types;
             MALLOC(types, sizeof(*types) * iar->ir_arg_num);
             get_coerce_and_expand_types(&aa->info, types);
             for (unsigned j = 0; j < iar->ir_arg_num; ++j) {
                 array_push(&arg_types, &types[j]);
             }
             FREE(types);
+            */
+           assert(false);
             break;
         }
         case AK_EXPAND:
@@ -205,7 +205,7 @@ TargetType get_fun_type(struct target_info *ti, struct fun_info *fi)
     }
     assert(fi->iai.total_ir_args == array_size(&arg_types));
     assert(ret_type);
-    LLVMTypeRef fun_type = LLVMFunctionType(ret_type, fi->iai.total_ir_args ? array_get(&arg_types, 0) : 0, fi->iai.total_ir_args, is_variadic(fi));
+    TargetType fun_type = ti->get_function_type(ret_type, fi->iai.total_ir_args ? array_get(&arg_types, 0) : 0, fi->iai.total_ir_args, is_variadic(fi));
     array_deinit(&arg_types);
     return fun_type;
 }

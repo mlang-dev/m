@@ -8,14 +8,14 @@
 #ifndef __WINX86_64_COMPUTE_FUN_INFO_H__
 #define __WINX86_64_COMPUTE_FUN_INFO_H__
 
-#include "codegen/llvm/fun_info.h"
-#include "codegen/llvm/target_info.h"
+#include "codegen/fun_info.h"
+#include "codegen/target_info.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void winx86_64_compute_fun_info(struct fun_info *fi);
+void winx86_64_compute_fun_info(struct target_info *ti, struct fun_info *fi);
 
 
 #ifdef __cplusplus
