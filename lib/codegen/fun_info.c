@@ -1,6 +1,6 @@
 #include "codegen/fun_info.h"
 #include "clib/util.h"
-#include "codegen/ir_arg_info.h"
+#include "codegen/target_arg_info.h"
 #include <assert.h>
 
 const unsigned ALL_REQUIRED = ~0U;
@@ -10,7 +10,7 @@ void fun_info_init(struct fun_info *fi, unsigned required_args)
     fi->is_chain_call = false;
     fi->required_args = required_args;
     array_init(&fi->args, sizeof(struct ast_abi_arg));
-    ir_arg_info_init(&fi->iai);
+    target_arg_info_init(&fi->iai);
 }
 
 void fun_info_deinit(struct fun_info *fi)
@@ -33,8 +33,8 @@ void _map_to_ir_arg_info(struct target_info *ti, struct fun_info *fi)
     unsigned arg_num = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range iar;
-        ir_arg_range_init(&iar);
+        struct target_arg_range iar;
+        target_arg_range_init(&iar);
         if (get_padding_type(&aa->info))
             iar.padding_arg_index = ir_arg_no++;
         switch (aa->info.kind) {
@@ -141,7 +141,7 @@ TargetType get_fun_type(struct target_info *ti, struct fun_info *fi)
     unsigned arg_num = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
         struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range *iar = get_ir_arg_range(&fi->iai, i);
+        struct target_arg_range *iar = get_target_arg_range(&fi->iai, i);
         if (iar->padding_arg_index != InvalidIndex) {
             assert(iar->padding_arg_index == array_size(&arg_types));
             array_push(&arg_types, &aa->info.padding.padding_type);
@@ -199,7 +199,7 @@ TargetType get_fun_type(struct target_info *ti, struct fun_info *fi)
         }
         case AK_EXPAND:
             assert(iar->first_arg_index == array_size(&arg_types));
-            get_expanded_types(aa->type, &arg_types);
+            get_expanded_types(ti, aa->type, &arg_types);
             break;
         }
     }

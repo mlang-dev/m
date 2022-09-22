@@ -38,7 +38,7 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
         //struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
+        struct target_arg_range *iar = (struct target_arg_range *)array_get(&fi->iai.args, i);
         unsigned first_ir_arg = iar->first_arg_index;
         unsigned ir_arg_num = iar->ir_arg_num;
         struct address param_value;

@@ -11,7 +11,7 @@
 
 #include "clib/hashtable.h"
 #include "codegen/abi_arg_info.h"
-#include "codegen/ir_arg_info.h"
+#include "codegen/target_arg_info.h"
 #include "codegen/target_info.h"
 #include "parser/ast.h"
 #include "sema/type.h"
@@ -29,7 +29,7 @@ extern const unsigned ALL_REQUIRED;
 
 struct fun_info {
     struct ast_abi_arg ret;
-    struct ir_arg_info iai;
+    struct target_arg_info iai;
     struct array args; //array of ast_abi_arg
     bool is_chain_call;
     unsigned required_args; //required number of arguments: ~0U meaning all are requireed in args array

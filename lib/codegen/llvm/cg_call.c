@@ -8,7 +8,7 @@
 #include "codegen/llvm/cg_llvm.h"
 #include "codegen/fun_info.h"
 #include "codegen/llvm/llvm_api.h"
-#include "codegen/ir_arg_info.h"
+#include "codegen/target_arg_info.h"
 #include "codegen/type_size_info.h"
 #include <assert.h>
 
@@ -59,7 +59,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
     }
     for (size_t i = 0; i < arg_count; ++i) {
         struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct ir_arg_range *iar = (struct ir_arg_range *)array_get(&fi->iai.args, i);
+        struct target_arg_range *iar = (struct target_arg_range *)array_get(&fi->iai.args, i);
         struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
         struct type_size_info tsi = get_type_size_info(arg->type);
         LLVMValueRef arg_value = emit_ir_code(cg, arg);
