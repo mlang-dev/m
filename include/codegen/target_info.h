@@ -96,6 +96,7 @@ enum ObjectFormatType {
     OFT_XCOFF
 };
 
+
 typedef TargetType (*fn_get_size_int_type)(unsigned size);
 typedef TargetType (*fn_get_pointer_type)(TargetType target_type);
 typedef TargetType (*fn_get_target_type)(struct type_exp *type);

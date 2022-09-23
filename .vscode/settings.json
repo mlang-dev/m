@@ -159,7 +159,8 @@
         "tutil.h": "c",
         "cg_llvm.h": "c",
         "analyzer.h": "c",
-        "target_info.h": "c"
+        "target_info.h": "c",
+        "target_arg_info.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

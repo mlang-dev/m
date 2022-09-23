@@ -110,11 +110,13 @@ struct cg_llvm {
 
     /// target info
     struct target_info *target_info;
+
+    fn_compute_fun_info compute_fun_info;
 };
 
 
-struct cg_llvm *cg_new(struct sema_context *sema_context);
-void cg_free(struct cg_llvm *cg);
+struct cg_llvm *llvm_cg_new(struct sema_context *sema_context);
+void llvm_cg_free(struct cg_llvm *cg);
 
 void emit_code(struct cg_llvm *cg, struct ast_node *node);
 void emit_sp_code(struct cg_llvm *cg);
@@ -130,7 +132,6 @@ enum OS get_os();
 LLVMModuleRef get_llvm_module();
 struct cg_llvm *get_cg();
 struct hashtable *get_type_size_infos();
-void compute_fun_info_llvm(struct target_info *ti, struct fun_info *fi);
 
 
 #ifdef __cplusplus

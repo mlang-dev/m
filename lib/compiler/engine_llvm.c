@@ -9,12 +9,12 @@
 
 void *_cg_llvm_new(struct sema_context *context)
 {
-    return cg_new(context);
+    return llvm_cg_new(context);
 }
 
 void _cg_llvm_free(void *cg)
 {
-    cg_free(cg);
+    llvm_cg_free(cg);
 }
 
 struct engine *engine_llvm_new(bool is_repl)

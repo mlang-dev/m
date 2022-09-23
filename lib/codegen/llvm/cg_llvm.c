@@ -398,7 +398,7 @@ void _init_target_info(struct target_info *ti)
     ti->void_type = LLVMVoidTypeInContext(get_llvm_context());
 }
 
-struct cg_llvm *cg_new(struct sema_context *sema_context)
+struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
 {
     LLVMContextRef context = LLVMContextCreate();
     LLVMInitializeCore(LLVMGetGlobalPassRegistry());
@@ -422,10 +422,15 @@ struct cg_llvm *cg_new(struct sema_context *sema_context)
     cg->target_info = ti_new(LLVMGetDefaultTargetTriple());
     g_cg = cg;
     _init_target_info(cg->target_info);
+    if (get_os() == OS_WIN32){
+        cg->compute_fun_info = winx86_64_compute_fun_info;
+    }else{
+        cg->compute_fun_info = x86_64_compute_fun_info;
+    }
     return cg;
 }
 
-void cg_free(struct cg_llvm *cg)
+void llvm_cg_free(struct cg_llvm *cg)
 {
     LLVMDisposeBuilder(cg->builder);
     if (cg->module)
@@ -865,12 +870,4 @@ void emit_code(struct cg_llvm *cg, struct ast_node *node)
         }
         array_clear(&cg->sema_context->used_builtin_names);
     }
-}
-
-void compute_fun_info_llvm(struct target_info *ti, struct fun_info *fi)
-{
-    if (get_os() == OS_WIN32)
-        winx86_64_compute_fun_info(ti, fi);
-    else
-        x86_64_compute_fun_info(ti, fi);
 }
