@@ -40,9 +40,9 @@ LLVMValueRef emit_type_value_node(struct cg_llvm *cg, struct ast_node *type_valu
     is_ret = is_ret || type_values->is_ret;
     LLVMValueRef alloca = 0;
     if (is_rvo && is_ret) {
-        assert(fi->iai.sret_arg_no != InvalidIndex);
+        assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
-        alloca = LLVMGetParam(fun, fi->iai.sret_arg_no);
+        alloca = LLVMGetParam(fun, fi->tai.sret_arg_no);
         _store_type_values(cg, alloca, type_values);
     } else {
         alloca = create_alloca(type, tsi.align_bits / 8, fun, name);

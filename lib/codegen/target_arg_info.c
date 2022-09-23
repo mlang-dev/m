@@ -6,7 +6,7 @@ const unsigned InvalidIndex = ~0U;
 void target_arg_info_init(struct target_arg_info *tai)
 {
     tai->sret_arg_no = InvalidIndex;
-    tai->total_ir_args = 0;
+    tai->total_target_args = 0;
     array_init(&tai->args, sizeof(struct target_arg_range));
 }
 
@@ -19,7 +19,7 @@ void target_arg_range_init(struct target_arg_range *tar)
 {
     tar->padding_arg_index = InvalidIndex;
     tar->first_arg_index = InvalidIndex;
-    tar->ir_arg_num = 0;
+    tar->target_arg_num = 0;
 }
 
 int get_expansion_size(struct type_exp *type)

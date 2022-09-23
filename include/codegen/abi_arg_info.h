@@ -25,7 +25,8 @@ enum ArgKind {
 };
 
 struct abi_arg_info {
-    TargetType type;
+    struct type_exp *type;
+    TargetType target_type;
     union {
         TargetType padding_type; //Direct || Extend || Indirect || Expand
         TargetType coerce_and_expand_type; //CoerceAndExpand
@@ -45,15 +46,15 @@ struct abi_arg_info {
     bool sign_ext; //Extend
 };
 
-struct abi_arg_info create_expand(bool padding_inreg, TargetType padding_type);
-struct abi_arg_info create_direct_type_offset(TargetType type, unsigned offset);
-struct abi_arg_info create_direct_type(TargetType type);
-struct abi_arg_info create_direct();
+struct abi_arg_info create_expand(struct type_exp *type, bool padding_inreg, TargetType padding_type);
+struct abi_arg_info create_direct_type_offset(struct type_exp *type, TargetType target_type, unsigned offset);
+struct abi_arg_info create_direct_type(struct type_exp *type, TargetType target_type);
+struct abi_arg_info create_direct(struct type_exp *type);
 struct abi_arg_info create_extend(struct target_info *ti, struct type_exp *ret_type);
 struct abi_arg_info create_indirect_return_result(struct target_info *ti, struct type_exp *ret_type);
 struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_exp *ret_type, unsigned free_int_regs);
 struct abi_arg_info create_natural_align_indirect(struct type_exp *ret_type, bool indirect_byval);
-struct abi_arg_info create_ignore();
+struct abi_arg_info create_ignore(struct type_exp *type);
 
 bool can_have_padding_type(struct abi_arg_info *aai);
 TargetType get_padding_type(struct abi_arg_info *aai);
