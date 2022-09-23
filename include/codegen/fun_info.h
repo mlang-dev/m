@@ -20,17 +20,12 @@
 extern "C" {
 #endif
 
-struct ast_abi_arg {
-    struct type_exp *type;
-    struct abi_arg_info info;
-};
-
 extern const unsigned ALL_REQUIRED;
 
 struct fun_info {
-    struct ast_abi_arg ret;
-    struct target_arg_info iai;
-    struct array args; //array of ast_abi_arg
+    struct abi_arg_info ret;
+    struct target_arg_info tai;
+    struct array args; //array of abi_arg_info
     bool is_chain_call;
     unsigned required_args; //required number of arguments: ~0U meaning all are requireed in args array
 };

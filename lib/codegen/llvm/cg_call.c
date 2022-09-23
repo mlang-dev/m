@@ -19,11 +19,11 @@ LLVMValueRef _get_parent_call_sret_pointer(struct cg_llvm *cg, struct ast_node *
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->sema_context->func_stack);
     struct ast_node *parent_ft = parent_func->func->func_type;
     struct fun_info *fi = get_fun_info(cg->target_info, compute_fun_info_llvm, parent_ft);
-    bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
+    bool has_sret = fi->tai.sret_arg_no != InvalidIndex;
     LLVMValueRef ret = 0;
     if (has_sret && node->is_ret) {
         LLVMValueRef fun = get_llvm_function(cg, parent_ft->ft->name);
-        ret = LLVMGetParam(fun, fi->iai.sret_arg_no);
+        ret = LLVMGetParam(fun, fi->tai.sret_arg_no);
     }
     return ret;
 }
@@ -37,7 +37,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
     struct fun_info *fi = get_fun_info(cg->target_info, compute_fun_info_llvm, node->call->callee_func_type);
     assert(fi);
     size_t arg_count = array_size(&node->call->arg_block->block->nodes);
-    bool has_sret = fi->iai.sret_arg_no != InvalidIndex;
+    bool has_sret = fi->tai.sret_arg_no != InvalidIndex;
     size_t ir_arg_count =  has_sret ? arg_count + 1 : arg_count;
     LLVMValueRef *arg_values;
     MALLOC(arg_values, ir_arg_count * sizeof(LLVMValueRef));
@@ -55,27 +55,27 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
         ret_alloca = _get_parent_call_sret_pointer(cg, node);
         if (!ret_alloca)
             ret_alloca = create_alloca(sig_ret_type, ret_tsi.align_bits / 8, parent_fun, "");
-        arg_values[fi->iai.sret_arg_no] = ret_alloca;
+        arg_values[fi->tai.sret_arg_no] = ret_alloca;
     }
     for (size_t i = 0; i < arg_count; ++i) {
-        struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct target_arg_range *iar = (struct target_arg_range *)array_get(&fi->iai.args, i);
+        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
+        struct target_arg_range *tar = (struct target_arg_range *)array_get(&fi->tai.args, i);
         struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
         struct type_size_info tsi = get_type_size_info(arg->type);
         LLVMValueRef arg_value = emit_ir_code(cg, arg);
-        switch (aaa->info.kind) {
+        switch (aai->kind) {
         case AK_DIRECT: {
-            if (!aaa->info.type)
+            if (!aai->target_type)
                 break; //FIXIME: is_variadic arg, no available ir arg
-            LLVMTypeKind tk = LLVMGetTypeKind(aaa->info.type);
-            if (tk != LLVMStructTypeKind && aaa->info.type == get_llvm_type(aaa->type) && aaa->info.align.direct_offset == 0) {
+            LLVMTypeKind tk = LLVMGetTypeKind(aai->target_type);
+            if (tk != LLVMStructTypeKind && aai->target_type == get_llvm_type(aai->type) && aai->align.direct_offset == 0) {
                 break;
             }
-            if (tk == LLVMStructTypeKind && aaa->info.kind == AK_DIRECT && aaa->info.can_be_flattened) {
+            if (tk == LLVMStructTypeKind && aai->kind == AK_DIRECT && aai->can_be_flattened) {
 
             } else {
-                assert(iar->ir_arg_num == 1);
-                arg_value = create_coerced_load(cg->builder, arg_value, aaa->info.type, tsi.align_bits / 8);
+                assert(tar->target_arg_num == 1);
+                arg_value = create_coerced_load(cg->builder, arg_value, aai->target_type, tsi.align_bits / 8);
             }
             break;
         }
@@ -94,8 +94,8 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
     FREE(arg_values);
 
     if (has_sret) {
-        add_call_arg_type_attribute(cg->context, call_inst, fi->iai.sret_arg_no, "sret", sig_ret_type);
-        LLVMSetInstrParamAlignment(call_inst, fi->iai.sret_arg_no + 1 /*always shift with 1*/, ret_tsi.align_bits / 8);
+        add_call_arg_type_attribute(cg->context, call_inst, fi->tai.sret_arg_no, "sret", sig_ret_type);
+        LLVMSetInstrParamAlignment(call_inst, fi->tai.sret_arg_no + 1 /*always shift with 1*/, ret_tsi.align_bits / 8);
         return ret_alloca;
     }
 
@@ -104,7 +104,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
 
     assert(parent_ft->node_type == FUNC_TYPE_NODE);
     //TODO: fix return has to be a valid type, not null
-    if (fi->ret.info.type && sig_ret_type != fi->ret.info.type) {
+    if (fi->ret.target_type && sig_ret_type != fi->ret.target_type) {
         //create temp memory
         if (!ret_alloca)
             ret_alloca = create_alloca(sig_ret_type, ret_tsi.align_bits / 8, parent_fun, "");

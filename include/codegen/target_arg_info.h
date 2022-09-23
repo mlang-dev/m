@@ -22,14 +22,14 @@ struct target_arg_range {
     unsigned padding_arg_index;
     //[first_arg_index, first_arg_index + arg_num]
     unsigned first_arg_index;
-    unsigned ir_arg_num;
+    unsigned target_arg_num;
 };
 
 struct target_arg_info {
     unsigned sret_arg_no;
-    unsigned total_ir_args;
+    unsigned total_target_args;
 
-    /*map ast arg into ir arg range, array of struct target_arg_range*/
+    /*map ast arg into target arg range, array of struct target_arg_range*/
     struct array args;
 };
 

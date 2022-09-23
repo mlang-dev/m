@@ -37,23 +37,23 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
     for (unsigned i = 0; i < param_count; i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
         //struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
-        struct ast_abi_arg *aaa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        struct target_arg_range *iar = (struct target_arg_range *)array_get(&fi->iai.args, i);
-        unsigned first_ir_arg = iar->first_arg_index;
-        unsigned ir_arg_num = iar->ir_arg_num;
+        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
+        struct target_arg_range *tar = (struct target_arg_range *)array_get(&fi->tai.args, i);
+        unsigned first_ir_arg = tar->first_arg_index;
+        unsigned target_arg_num = tar->target_arg_num;
         struct address param_value;
         LLVMValueRef arg_value = LLVMGetParam(fun, first_ir_arg);
         param_value.pointer = 0;
         param_value.alignment = 0;
-        switch (aaa->info.kind) {
+        switch (aai->kind) {
         case AK_INDIRECT:
         case AK_INDIRECT_ALIASED: {
-            assert(ir_arg_num == 1);
+            assert(target_arg_num == 1);
             param_value.pointer = arg_value;
-            param_value.alignment = aaa->info.align.indirect_align;
+            param_value.alignment = aai->align.indirect_align;
             if (proto_type->base.type < TYPE_STRUCT) { //aggregate
                 //
-                if (aaa->info.indirect_realign || aaa->info.kind == AK_INDIRECT_ALIASED) {
+                if (aai->indirect_realign || aai->kind == AK_INDIRECT_ALIASED) {
                     //realign the value, if the address is aliased, copy the param to ensure
                     //a unique address
                 } else {
@@ -65,13 +65,13 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
         }
         case AK_DIRECT: {
             LLVMValueRef alloca = 0;
-            struct type_size_info tsi = get_type_size_info(aaa->type);
+            struct type_size_info tsi = get_type_size_info(aai->type);
             unsigned align = tsi.align_bits / 8;
-            LLVMTypeRef sig_type = get_llvm_type(aaa->type);
-            if (LLVMGetTypeKind(aaa->info.type) != LLVMStructTypeKind && aaa->info.align.direct_offset == 0
-                && aaa->info.type == sig_type) {
+            LLVMTypeRef sig_type = get_llvm_type(aai->type);
+            if (LLVMGetTypeKind(aai->target_type) != LLVMStructTypeKind && aai->align.direct_offset == 0
+                && aai->target_type == sig_type) {
                 alloca = create_alloca(
-                    aaa->info.type, align, fun, string_get(param->var->var_name));
+                    aai->target_type, align, fun, string_get(param->var->var_name));
                 LLVMBuildStore(cg->builder, arg_value, alloca);
             } else {
                 //TODO: if struct type
@@ -117,21 +117,21 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
     assert(fi);
     LLVMTypeRef fun_type = get_fun_type(cg->target_info, fi);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(node->ft->name), fun_type);
-    if (fi->iai.sret_arg_no != InvalidIndex) {
-        LLVMValueRef ai = LLVMGetParam(fun, fi->iai.sret_arg_no);
+    if (fi->tai.sret_arg_no != InvalidIndex) {
+        LLVMValueRef ai = LLVMGetParam(fun, fi->tai.sret_arg_no);
         const char *sret_var = "agg.result";
         LLVMSetValueName2(ai, sret_var, strlen(sret_var));
-        add_fun_param_attribute(cg->context, fun, fi->iai.sret_arg_no, "noalias");
-        add_fun_param_type_attribute(cg->context, fun, fi->iai.sret_arg_no, "sret", get_llvm_type(fi->ret.type));
+        add_fun_param_attribute(cg->context, fun, fi->tai.sret_arg_no, "noalias");
+        add_fun_param_type_attribute(cg->context, fun, fi->tai.sret_arg_no, "sret", get_llvm_type(fi->ret.type));
     }
     unsigned param_count = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < param_count; i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
         struct ast_node *fun_param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
         LLVMSetValueName2(param, string_get(fun_param->var->var_name), string_size(fun_param->var->var_name));
-        struct ast_abi_arg *aa = (struct ast_abi_arg *)array_get(&fi->args, i);
-        if (aa->type->type == TYPE_STRUCT)
-            hashtable_set_p(&cg->varname_2_typename, fun_param->var->var_name, aa->type->name);
+        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
+        if (aai->type->type == TYPE_STRUCT)
+            hashtable_set_p(&cg->varname_2_typename, fun_param->var->var_name, aai->type->name);
     }
     return fun;
 }
@@ -169,7 +169,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
         struct ast_node *stmt = *(struct ast_node **)array_get(&node->func->body->block->nodes, i);
         ret_val = emit_ir_code(cg, stmt);
     }
-    if (!ret_val || !fi->ret.info.type) {
+    if (!ret_val || !fi->ret.target_type) {
         //struct type_exp *ret_type = get_ret_type(fun_node);
         //enum type type = get_type(ret_type);
         //ret_val = cg->ops[type].get_zero(cg->context, cg->builder);
@@ -177,15 +177,15 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
     } else {
 
         LLVMTypeRef ret_type = LLVMTypeOf(ret_val);
-        if (LLVMGetTypeKind(ret_type) != LLVMGetTypeKind(fi->ret.info.type)) {
+        if (LLVMGetTypeKind(ret_type) != LLVMGetTypeKind(fi->ret.target_type)) {
             // assuming cast struct to
             struct type_size_info tsi = get_type_size_info(fi->ret.type);
-            LLVMTypeRef ret_ptr = LLVMPointerType(fi->ret.info.type, 0);
+            LLVMTypeRef ret_ptr = LLVMPointerType(fi->ret.target_type, 0);
             assert(LLVMGetTypeKind(ret_type) == LLVMGetTypeKind(ret_ptr));
             //cast struct pointer to int pointer
             ret_val = LLVMBuildBitCast(cg->builder, ret_val, ret_ptr, "");
             //load int from int pointer
-            ret_val = LLVMBuildLoad2(cg->builder, fi->ret.info.type, ret_val, "");
+            ret_val = LLVMBuildLoad2(cg->builder, fi->ret.target_type, ret_val, "");
             LLVMSetAlignment(ret_val, tsi.align_bits / 8);
         }
         LLVMBuildRet(cg->builder, ret_val);

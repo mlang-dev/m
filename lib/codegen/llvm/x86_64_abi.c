@@ -210,7 +210,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_ex
     switch (low) {
     case NO_CLASS:
         if (high == NO_CLASS)
-            return create_ignore();
+            return create_ignore(ret_type);
         break;
     case SSEUP:
     case X87UP:
@@ -256,12 +256,12 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_ex
     case INTEGER:
         high_part = _get_int_type_at_offset(get_llvm_type(ret_type), 8, ret_type, 8);
         if (low == NO_CLASS)
-            return create_direct_type_offset(high_part, 8);
+            return create_direct_type_offset(ret_type, high_part, 8);
         break;
     case SSE:
         high_part = _get_sse_type_at_offset(get_llvm_type(ret_type), 8, ret_type, 8);
         if (low == NO_CLASS)
-            return create_direct_type_offset(high_part, 8);
+            return create_direct_type_offset(ret_type, high_part, 8);
         break;
     case SSEUP:
         //TODO: vector type
@@ -270,14 +270,14 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_ex
         if (low != X87) {
             high_part = _get_sse_type_at_offset(get_llvm_type(ret_type), 8, ret_type, 8);
             if (low == NO_CLASS)
-                return create_direct_type_offset(high_part, 8);
+                return create_direct_type_offset(ret_type, high_part, 8);
         }
         break;
     }
 
     if (high_part)
         result_type = _get_x86_64_byval_arg_pair(result_type, high_part, get_llvm_data_layout());
-    return create_direct_type(result_type);
+    return create_direct_type(ret_type, result_type);
 }
 
 struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_exp *type, unsigned free_int_regs, unsigned *needed_int, unsigned *needed_sse)
@@ -291,7 +291,7 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
     switch (low) {
     case NO_CLASS:
         if (high == NO_CLASS)
-            return create_ignore();
+            return create_ignore(type);
         break;
     case MEMORY:
     case X87:
@@ -327,13 +327,13 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
         ++(*needed_int);
         high_part = _get_int_type_at_offset(get_llvm_type(type), 8, type, 8);
         if (low == NO_CLASS)
-            return create_direct_type_offset(high_part, 8);
+            return create_direct_type_offset(type, high_part, 8);
         break;
     case X87UP:
     case SSE:
         high_part = _get_sse_type_at_offset(get_llvm_type(type), 8, type, 8);
         if (low == NO_CLASS)
-            return create_direct_type_offset(high_part, 8);
+            return create_direct_type_offset(type, high_part, 8);
         ++(*needed_sse);
         break;
     case SSEUP:
@@ -343,7 +343,7 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
     if (high_part)
         result_type = _get_x86_64_byval_arg_pair(result_type, high_part, get_llvm_data_layout());
 
-    return create_direct_type(result_type);
+    return create_direct_type(type, result_type);
 }
 
 ///compute abi info
@@ -352,22 +352,22 @@ void x86_64_compute_fun_info(struct target_info *ti, struct fun_info *fi)
     unsigned free_int_regs = 6;
     unsigned free_sse_regs = 8;
     unsigned needed_int, needed_sse;
-    fi->ret.info = _classify_return_type(ti, fi->ret.type);
-    if (fi->ret.info.kind == AK_INDIRECT)
+    fi->ret = _classify_return_type(ti, fi->ret.type);
+    if (fi->ret.kind == AK_INDIRECT)
         --free_int_regs;
     if (fi->is_chain_call)
         ++free_int_regs;
     //unsigned required_args = fi->required_args;
     for (unsigned arg_no = 0; arg_no < array_size(&fi->args); arg_no++) {
         //bool is_named_arg = arg_no < required_args;
-        struct ast_abi_arg *arg = array_get(&fi->args, arg_no);
-        arg->info = _classify_argument_type(ti, arg->type, free_int_regs, &needed_int, &needed_sse);
+        struct abi_arg_info *aai = array_get(&fi->args, arg_no);
+        *aai = _classify_argument_type(ti, aai->type, free_int_regs, &needed_int, &needed_sse);
 
         if (free_int_regs >= needed_int && free_sse_regs >= needed_sse) {
             free_int_regs -= needed_int;
             free_sse_regs -= needed_sse;
         } else {
-            arg->info = create_indirect_result(ti, arg->type, free_int_regs);
+            *aai = create_indirect_result(ti, aai->type, free_int_regs);
         }
     }
 }
