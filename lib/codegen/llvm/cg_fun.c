@@ -115,7 +115,7 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
     if (out_fi)
         *out_fi = fi;
     assert(fi);
-    LLVMTypeRef fun_type = map_to_target_fun_type(cg->target_info, fi);
+    LLVMTypeRef fun_type = create_target_fun_type(cg->target_info, fi);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(node->ft->name), fun_type);
     if (fi->tai.sret_arg_no != InvalidIndex) {
         LLVMValueRef ai = LLVMGetParam(fun, fi->tai.sret_arg_no);

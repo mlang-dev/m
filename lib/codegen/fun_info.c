@@ -108,7 +108,7 @@ struct fun_info *compute_target_fun_info(struct target_info *ti, fn_compute_fun_
     return (struct fun_info *)hashtable_get_p(fun_infos, func_type->ft->name);
 }
 
-TargetType map_to_target_fun_type(struct target_info *ti, struct fun_info *fi)
+TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi)
 {
     TargetType ret_type = 0;
     switch (fi->ret.kind) {

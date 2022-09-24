@@ -160,7 +160,9 @@
         "cg_llvm.h": "c",
         "analyzer.h": "c",
         "target_info.h": "c",
-        "target_arg_info.h": "c"
+        "target_arg_info.h": "c",
+        "wasm_api.h": "c",
+        "wasm_abi.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

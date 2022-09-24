@@ -16,6 +16,7 @@ extern "C" {
 
 typedef void* TargetType;
 
+
 enum c_abi_target_kind {
     /// Unix-like http://www.codesourcery.com/public/cxx-abi/
     ITANIUM,
