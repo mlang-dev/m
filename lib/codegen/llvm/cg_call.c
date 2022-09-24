@@ -18,7 +18,7 @@ LLVMValueRef _get_parent_call_sret_pointer(struct cg_llvm *cg, struct ast_node *
 {
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->sema_context->func_stack);
     struct ast_node *parent_ft = parent_func->func->func_type;
-    struct fun_info *fi = get_fun_info(cg->target_info, compute_fun_info_llvm, parent_ft);
+    struct fun_info *fi = compute_target_fun_info(cg->target_info, cg->compute_fun_info, parent_ft);
     bool has_sret = fi->tai.sret_arg_no != InvalidIndex;
     LLVMValueRef ret = 0;
     if (has_sret && node->is_ret) {
@@ -34,7 +34,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
     symbol callee_name = get_callee(node);
     LLVMValueRef callee = get_llvm_function(cg, callee_name);
     assert(callee);
-    struct fun_info *fi = get_fun_info(cg->target_info, compute_fun_info_llvm, node->call->callee_func_type);
+    struct fun_info *fi = compute_target_fun_info(cg->target_info, cg->compute_fun_info, node->call->callee_func_type);
     assert(fi);
     size_t arg_count = array_size(&node->call->arg_block->block->nodes);
     bool has_sret = fi->tai.sret_arg_no != InvalidIndex;

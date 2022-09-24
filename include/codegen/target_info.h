@@ -16,6 +16,7 @@ extern "C" {
 
 typedef void* TargetType;
 
+
 enum c_abi_target_kind {
     /// Unix-like http://www.codesourcery.com/public/cxx-abi/
     ITANIUM,
@@ -95,6 +96,7 @@ enum ObjectFormatType {
     OFT_WASM,
     OFT_XCOFF
 };
+
 
 typedef TargetType (*fn_get_size_int_type)(unsigned size);
 typedef TargetType (*fn_get_pointer_type)(TargetType target_type);

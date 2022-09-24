@@ -12,6 +12,7 @@
 #include "clib/hashtable.h"
 #include "clib/symbol.h"
 #include "clib/symboltable.h"
+#include "codegen/fun_info.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -412,12 +413,27 @@ struct cg_wasm {
 
     u32 data_offset;
 
+    fn_compute_fun_info compute_fun_info;
 };
+extern u8 type_2_store_op[TYPE_TYPES];
+extern u8 type_2_wtype[TYPE_TYPES];
+
+#define ASSERT_TYPE(type_index) assert(type_index > 0 && type_index < TYPE_TYPES);
 
 struct cg_wasm * cg_wasm_new();
-void emit_wasm(struct cg_wasm *cg, struct ast_node *node);
+void wasm_emit_module(struct cg_wasm *cg, struct ast_node *node);
+void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
+void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
+void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void cg_wasm_free(struct cg_wasm *cg);
+bool is_variadic_call_with_optional_arguments(struct cg_wasm *cg, struct ast_node *node);
 
+u32 func_get_local_var_index(struct cg_wasm *cg, struct ast_node *node);
+void fun_context_init(struct fun_context *fc);
+void fun_context_deinit(struct fun_context *fc);
+void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, enum type type, bool is_local_var);
+u32 func_context_get_var_index(struct cg_wasm *cg, symbol var_name);
+void collect_local_variables(struct cg_wasm *cg, struct ast_node *node);
 
 #ifdef __cplusplus
 }

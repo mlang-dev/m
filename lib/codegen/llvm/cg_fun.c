@@ -111,11 +111,11 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
     hashtable_set_p(&cg->protos, node->ft->name, node);
     struct type_oper *proto_type = (struct type_oper *)node->type;
     assert(proto_type->base.kind == KIND_OPER);
-    struct fun_info *fi = get_fun_info(cg->target_info, compute_fun_info_llvm, node);
+    struct fun_info *fi = compute_target_fun_info(cg->target_info, cg->compute_fun_info, node);
     if (out_fi)
         *out_fi = fi;
     assert(fi);
-    LLVMTypeRef fun_type = get_fun_type(cg->target_info, fi);
+    LLVMTypeRef fun_type = create_target_fun_type(cg->target_info, fi);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(node->ft->name), fun_type);
     if (fi->tai.sret_arg_no != InvalidIndex) {
         LLVMValueRef ai = LLVMGetParam(fun, fi->tai.sret_arg_no);

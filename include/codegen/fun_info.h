@@ -31,11 +31,11 @@ struct fun_info {
 };
 
 bool is_variadic(struct fun_info *fi);
-void fun_info_init(struct fun_info *fi, unsigned required_args);
+void fun_info_init(struct fun_info *fi, struct ast_node *func_type);
 void fun_info_deinit(struct fun_info *fi);
 typedef void (*fn_compute_fun_info)(struct target_info* ti, struct fun_info *fi);
-struct fun_info *get_fun_info(struct target_info *ti, fn_compute_fun_info compute_fun_info, struct ast_node *func_type);
-TargetType get_fun_type(struct target_info *ti, struct fun_info *fi);
+struct fun_info *compute_target_fun_info(struct target_info *ti, fn_compute_fun_info compute_fun_info, struct ast_node *func_type);
+TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi);
 bool check_rvo(struct fun_info *fi);
 
 #ifdef __cplusplus

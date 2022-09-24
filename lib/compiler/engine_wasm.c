@@ -139,6 +139,6 @@ void compile_to_wasm(struct engine *engine, const char *expr)
     free_block_node(expr_ast, false);
     analyze(engine->fe->sema_context, ast);
     ast = _decorate_as_module(cg, &engine->fe->parser->symbol_2_int_types, ast);
-    emit_wasm(cg, ast);
+    wasm_emit_module(cg, ast);
     ast_node_free(ast);
 }

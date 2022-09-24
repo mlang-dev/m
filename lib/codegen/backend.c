@@ -15,12 +15,12 @@
 
 struct backend *g_backend = 0;
 
-struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_alloc, cg_free_fun cg_free)
+struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_alloc, cg_free_fun llvm_cg_free)
 {
     struct backend *be;
     MALLOC(be, sizeof(*be));
     be->cg = cg_alloc(sema_context);
-    be->cg_free = cg_free;
+    be->llvm_cg_free = llvm_cg_free;
     be->sema_context = sema_context;
     hashtable_init_with_value_size(&be->type_size_infos, sizeof(struct type_size_info), 0);
     g_backend = be;
@@ -30,7 +30,7 @@ struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_
 void backend_deinit(struct backend *be)
 {
     hashtable_deinit(&be->type_size_infos);
-    be->cg_free(be->cg);
+    be->llvm_cg_free(be->cg);
     free(be);
 }
 

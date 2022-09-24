@@ -19,11 +19,6 @@ extern "C" {
 typedef void* (*cg_alloc_fun)(struct sema_context *context);
 typedef void (*cg_free_fun)(void *);
 
-struct codegen{
-    fn_compute_fun_info compute_fun_info;
-    TargetType extend_type;
-};
-
 struct backend{
     struct sema_context *sema_context;
     /* 
@@ -36,10 +31,10 @@ struct backend{
      *  custom code generator
      */
     void *cg;
-    cg_free_fun cg_free;
+    cg_free_fun llvm_cg_free;
 };
 
-struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_alloc, cg_free_fun cg_free);
+struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_alloc, cg_free_fun llvm_cg_free);
 void backend_deinit(struct backend *be);
 struct hashtable *get_type_size_infos();
 

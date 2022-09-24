@@ -5,12 +5,24 @@
 
 const unsigned ALL_REQUIRED = ~0U;
 
-void fun_info_init(struct fun_info *fi, unsigned required_args)
+void fun_info_init(struct fun_info *fi, struct ast_node *func_type)
 {
+    struct type_oper *fun_type = (struct type_oper *)func_type->type;
+    unsigned param_num = (unsigned)array_size(&fun_type->args) - 1; //args -> ret type
+    if (func_type->ft->is_variadic)
+        param_num -= 1;
     fi->is_chain_call = false;
-    fi->required_args = required_args;
+    fi->required_args = func_type->ft->is_variadic ? param_num : ALL_REQUIRED;
     array_init(&fi->args, sizeof(struct abi_arg_info));
     target_arg_info_init(&fi->tai);
+
+    fi->ret.type = *(struct type_exp **)array_back(&fun_type->args);
+    struct abi_arg_info aai;
+    for (unsigned i = 0; i < param_num; i++) {
+        aai.type = *(struct type_exp **)array_get(&fun_type->args, i);
+        array_push(&fi->args, &aai);
+    }
+
 }
 
 void fun_info_deinit(struct fun_info *fi)
@@ -25,12 +37,20 @@ bool is_variadic(struct fun_info *fi)
 
 void _map_to_target_arg_info(struct target_info *ti, struct fun_info *fi)
 {
+    if (can_have_coerce_to_type(&fi->ret) && !fi->ret.target_type)
+        fi->ret.target_type = ti->get_target_type(fi->ret.type);
+    unsigned arg_num = (unsigned)array_size(&fi->args);
+    for (unsigned i = 0; i < arg_num; i++) {
+        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
+        if (can_have_coerce_to_type(aai) && !aai->target_type)
+            aai->target_type = ti->get_target_type(aai->type);
+    }
+
     unsigned ir_arg_no = 0;
     if (fi->ret.kind == AK_INDIRECT)
         fi->tai.sret_arg_no = ir_arg_no++;
 
     //unsigned arg_no = 0;
-    unsigned arg_num = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
         struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
         struct target_arg_range iar;
@@ -72,41 +92,23 @@ void _map_to_target_arg_info(struct target_info *ti, struct fun_info *fi)
     fi->tai.total_target_args = ir_arg_no;
 }
 
-struct fun_info *get_fun_info(struct target_info *ti, fn_compute_fun_info compute_fun_info, struct ast_node *func_type)
+struct fun_info *compute_target_fun_info(struct target_info *ti, fn_compute_fun_info compute_fun_info, struct ast_node *func_type)
 {
-    struct type_oper *fun_type = (struct type_oper *)func_type->type;
     struct hashtable *fun_infos = &ti->fun_infos;
     struct fun_info *result = hashtable_get_p(fun_infos, func_type->ft->name);
     if (result)
         return result;
     struct fun_info fi;
-    unsigned param_num = (unsigned)array_size(&fun_type->args) - 1;
-    if (func_type->ft->is_variadic)
-        param_num -= 1;
-    fun_info_init(&fi, func_type->ft->is_variadic ? param_num : ALL_REQUIRED);
-    fi.ret.type = *(struct type_exp **)array_back(&fun_type->args);
-    struct abi_arg_info aai;
-    for (unsigned i = 0; i < param_num; i++) {
-        aai.type = *(struct type_exp **)array_get(&fun_type->args, i);
-        array_push(&fi.args, &aai);
-    }
+    fun_info_init(&fi, func_type);
     compute_fun_info(ti, &fi);
     // direct or extend without a specified coerce type, specify the
     // default now.
-    if (can_have_coerce_to_type(&fi.ret) && !fi.ret.target_type)
-        fi.ret.target_type = ti->get_target_type(fi.ret.type);
-    unsigned arg_num = (unsigned)array_size(&fi.args);
-    for (unsigned i = 0; i < arg_num; i++) {
-        struct abi_arg_info *aa = (struct abi_arg_info *)array_get(&fi.args, i);
-        if (can_have_coerce_to_type(aa) && !aa->target_type)
-            aa->target_type = ti->get_target_type(aa->type);
-    }
     _map_to_target_arg_info(ti, &fi);
     hashtable_set_p(fun_infos, func_type->ft->name, &fi);
     return (struct fun_info *)hashtable_get_p(fun_infos, func_type->ft->name);
 }
 
-TargetType get_fun_type(struct target_info *ti, struct fun_info *fi)
+TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi)
 {
     TargetType ret_type = 0;
     switch (fi->ret.kind) {
@@ -141,37 +143,37 @@ TargetType get_fun_type(struct target_info *ti, struct fun_info *fi)
     unsigned arg_num = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
         struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
-        struct target_arg_range *iar = get_target_arg_range(&fi->tai, i);
-        if (iar->padding_arg_index != InvalidIndex) {
-            assert(iar->padding_arg_index == array_size(&arg_types));
+        struct target_arg_range *tar = get_target_arg_range(&fi->tai, i);
+        if (tar->padding_arg_index != InvalidIndex) {
+            assert(tar->padding_arg_index == array_size(&arg_types));
             array_push(&arg_types, &aai->padding.padding_type);
         }
         switch (aai->kind) {
         case AK_IGNORE:
         case AK_INALLOCA:
-            assert(iar->target_arg_num == 0);
+            assert(tar->target_arg_num == 0);
             break;
         case AK_INDIRECT: {
-            assert(iar->target_arg_num == 1);
-            assert(iar->first_arg_index == array_size(&arg_types));
+            assert(tar->target_arg_num == 1);
+            assert(tar->first_arg_index == array_size(&arg_types));
             TargetType pointer_type = ti->get_pointer_type(ti->get_target_type(aai->type));
             array_push(&arg_types, &pointer_type);
             break;
         }
         case AK_INDIRECT_ALIASED: {
-            assert(iar->target_arg_num == 1);
-            assert(iar->first_arg_index == array_size(&arg_types));
+            assert(tar->target_arg_num == 1);
+            assert(tar->first_arg_index == array_size(&arg_types));
             TargetType pointer_type = ti->get_pointer_type(ti->get_target_type(aai->type));
             array_push(&arg_types, &pointer_type);
             break;
         }
         case AK_EXTEND:
         case AK_DIRECT: {
-            assert(iar->first_arg_index == array_size(&arg_types));
+            assert(tar->first_arg_index == array_size(&arg_types));
             if (aai->type->type == TYPE_STRUCT) {
                 ti->fill_struct_fields(&arg_types, aai->target_type);
             } else {
-                assert(iar->target_arg_num == 1);
+                assert(tar->target_arg_num == 1);
                 array_push(&arg_types, &aai->target_type);
             }
             break;
@@ -183,22 +185,21 @@ TargetType get_fun_type(struct target_info *ti, struct fun_info *fi)
     /// to the non-array elements of the type stored in CoerceToType.
     /// Array elements in the type are assumed to be padding and skipped.            
     */
-        /*
-            assert(iar->first_arg_index == array_size(&arg_types));
-            assert(iar->target_arg_num);
+            assert(tar->first_arg_index == array_size(&arg_types));
+            assert(tar->target_arg_num);
             TargetType *types;
-            MALLOC(types, sizeof(*types) * iar->target_arg_num);
-            get_coerce_and_expand_types(&aa->info, types);
-            for (unsigned j = 0; j < iar->target_arg_num; ++j) {
+            MALLOC(types, sizeof(*types) * tar->target_arg_num);
+            get_coerce_and_expand_types(aai, types);
+            for (unsigned j = 0; j < tar->target_arg_num; ++j) {
                 array_push(&arg_types, &types[j]);
             }
             FREE(types);
-            */
-           assert(false);
+            
+            assert(false);
             break;
         }
         case AK_EXPAND:
-            assert(iar->first_arg_index == array_size(&arg_types));
+            assert(tar->first_arg_index == array_size(&arg_types));
             get_expanded_types(ti, aai->type, &arg_types);
             break;
         }
