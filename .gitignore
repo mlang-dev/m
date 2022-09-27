@@ -9,7 +9,6 @@ extern/
 *.ll
 *.out
 *.o
-*.a
 *.bc
 *.ir
 *.lock
