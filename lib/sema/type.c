@@ -439,3 +439,46 @@ u8 type_size(enum type type)
 {
     return type == TYPE_DOUBLE ? 8 : 4;
 }
+
+bool is_empty_struct(struct type_exp *type)
+{
+    struct type_oper *to = (struct type_oper *)type;
+    if(!is_aggregate_type(type->type)) 
+        return false;
+    if(array_size(&to->args) == 0){
+        return true;
+    }
+    for(size_t i = 0; i < array_size(&to->args); i++){
+        type = *(struct type_exp **)array_get(&to->args, i);
+        if(!is_empty_struct(type)){
+            return false;
+        }
+    }
+    return true;
+}
+
+struct type_exp *is_single_element_struct(struct type_exp *type)
+{
+    struct type_oper *to = (struct type_oper *)type;
+    if(array_size(&to->args) == 0){
+        return 0;
+    }
+    struct type_exp *found = 0;
+    for(size_t i = 0; i < array_size(&to->args); i++){
+        type = *(struct type_exp **)array_get(&to->args, i);
+        if(is_empty_struct(type)){
+            continue;
+        }
+        if(found){
+            //already found 
+            return 0;
+        }
+        found = is_single_element_struct(type);
+        if(!found){
+            //not empty and no single element, then it's not single element
+            return 0;
+        }
+    }
+    return found;
+
+}

@@ -87,7 +87,10 @@ string monomorphize(const char *fun_name, struct array *types);
 struct type_exp *clone_type(struct type_exp *type);
 bool is_promotable_int(struct type_exp *type);
 u8 type_size(enum type type);
+bool is_empty_struct(struct type_exp *type);
+struct type_exp *is_single_element_struct(struct type_exp *type);
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
+#define is_aggregate_type(type) (type>=TYPE_STRUCT)
 
 #ifdef __cplusplus
 }
