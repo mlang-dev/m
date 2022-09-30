@@ -32,12 +32,12 @@ struct abi_arg_info {
         TargetType coerce_and_expand_type; //CoerceAndExpand
     } padding;
     union {
-        unsigned direct_offset; //Direct || Extend
-        unsigned indirect_align; //Indirect
-        unsigned alloca_field_index; //InAlloca
+        u32 direct_offset; //Direct || Extend
+        u32 indirect_align; //Indirect
+        u32 alloca_field_index; //InAlloca
     } align;
     enum ArgKind kind;
-    unsigned indirect_as; //indirect address space
+    u32 indirect_as; //indirect address space
     bool padding_inreg;
     bool indirect_byval; //Indirect
     bool indirect_realign; //Indirect
