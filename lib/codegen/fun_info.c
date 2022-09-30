@@ -22,7 +22,6 @@ void fun_info_init(struct fun_info *fi, struct ast_node *func_type)
         aai.type = *(struct type_exp **)array_get(&fun_type->args, i);
         array_push(&fi->args, &aai);
     }
-
 }
 
 void fun_info_deinit(struct fun_info *fi)

@@ -19,15 +19,15 @@ extern "C" {
 extern const unsigned InvalidIndex;
 
 struct target_arg_range {
-    unsigned padding_arg_index;
+    u32 padding_arg_index;
     //[first_arg_index, first_arg_index + arg_num]
-    unsigned first_arg_index;
-    unsigned target_arg_num;
+    u32 first_arg_index;
+    u32 target_arg_num;
 };
 
 struct target_arg_info {
-    unsigned sret_arg_no;
-    unsigned total_target_args;
+    u32 sret_arg_no;
+    u32 total_target_args;
 
     /*map ast arg into target arg range, array of struct target_arg_range*/
     struct array args;

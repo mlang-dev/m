@@ -17,6 +17,7 @@
 #include "sema/analyzer.h"
 #include "sema/type.h"
 #include "sema/frontend.h"
+#include "codegen/type_size_info.h"
 #include <assert.h>
 #include <stdint.h>
 #include <float.h>
@@ -28,13 +29,6 @@ bool _is_indirect(struct type_exp *type)
     return is_aggregate_type(type->type) && !is_empty_struct(type) && !is_single_element_struct(type);
 }
 
-
-
-void wasm_emit_va_arg(struct cg_wasm *cg)
-{
-    
-}
-
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == CALL_NODE);
@@ -44,14 +38,21 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     u32 param_num = array_size(&fun_type->ft->params->block->nodes);
     u32 func_index = hashtable_get_int(&cg->func_name_2_idx, callee);
     u32 stack_size = 0;
+    u32 size;
     for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
         arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
         if (!fun_type->ft->is_variadic||i < param_num - 1) {
             wasm_emit_code(cg, ba, arg);
         }else{//optional arguments
-            stack_size += 16;  //clang-wasm ABI always uses 16 bytes alignment
+            size = get_type_size(arg->type);
+            if (size < 4) size = 4;
+            stack_size = align_to(stack_size, size);
+            stack_size += size;  //clang-wasm ABI always uses 16 bytes alignment
         }
     }
+    //make a copy to prevent the callee from changing it
+    stack_size = align_to(stack_size * 2, 16);
+
     u32 local_var_index = 0;
     u32 arg_type_size = 0;
     if (fun_type->ft->is_variadic){ 

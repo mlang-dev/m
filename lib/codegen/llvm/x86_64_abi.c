@@ -357,7 +357,7 @@ void x86_64_compute_fun_info(struct target_info *ti, struct fun_info *fi)
         --free_int_regs;
     if (fi->is_chain_call)
         ++free_int_regs;
-    //unsigned required_args = fi->required_args;
+    //unsigned required_args = fi->required_args;    
     for (unsigned arg_no = 0; arg_no < array_size(&fi->args); arg_no++) {
         //bool is_named_arg = arg_no < required_args;
         struct abi_arg_info *aai = array_get(&fi->args, arg_no);
