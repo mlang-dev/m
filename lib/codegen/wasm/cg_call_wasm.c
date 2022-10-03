@@ -24,7 +24,7 @@
 
 #define STACK_POINTER_VAR_INDEX 0
 
-bool _is_indirect(struct type_exp *type)
+bool _is_indirect(struct type_expr *type)
 {
     return is_aggregate_type(type->type) && !is_empty_struct(type) && !is_single_element_struct(type);
 }

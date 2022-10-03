@@ -35,13 +35,14 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     CALLOC(context, 1, sizeof(*context));
     context->symbol_2_int_types = symbol_2_int_types;
     context->is_repl = is_repl;
-    array_init(&context->nongens, sizeof(struct type_exp *));
+    array_init(&context->nongens, sizeof(struct type_expr *));
     array_init(&context->used_builtin_names, sizeof(symbol));
     symboltable_init(&context->typename_2_typexps);
     symboltable_init(&context->decl_2_typexps);
     symboltable_init(&context->varname_2_asts);
+    hashtable_init(&context->gvar_name_2_ast);
     stack_init(&context->func_stack, sizeof(struct ast_node *));
-    hashtable_init(&context->ext_typename_2_asts);
+    hashtable_init(&context->struct_typename_2_asts);
     hashtable_init(&context->builtin_ast);
     hashtable_init(&context->generic_ast);
     hashtable_init(&context->specialized_ast);
@@ -51,11 +52,11 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     context->scope_level = 0;
     context->scope_marker = to_symbol("<enter_scope_marker>");
     struct array args;
-    array_init(&args, sizeof(struct type_exp *));
+    array_init(&args, sizeof(struct type_expr *));
     /*nullary type: builtin default types*/
     for (size_t i = 0; i < ARRAY_SIZE(type_symbols); i++) {
         symbol type_name = type_symbols[i];
-        struct type_exp *exp = (struct type_exp *)create_type_oper(type_name, i, &args);
+        struct type_expr *exp = (struct type_expr *)create_type_oper(type_name, i, &args);
         push_symbol_type(&context->typename_2_typexps, type_name, exp);
     }
 
@@ -83,13 +84,14 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
 
 void sema_context_free(struct sema_context *context)
 {
-    hashtable_deinit(&context->ext_typename_2_asts);
+    hashtable_deinit(&context->struct_typename_2_asts);
     hashtable_deinit(&context->specialized_ast);
     hashtable_deinit(&context->generic_ast);
     hashtable_deinit(&context->builtin_ast);
     hashtable_deinit(&context->func_types);
     hashtable_deinit(&context->calls);
     stack_deinit(&context->func_stack);
+    hashtable_deinit(&context->gvar_name_2_ast);
     symboltable_deinit(&context->varname_2_asts);
     symboltable_deinit(&context->decl_2_typexps);
     symboltable_deinit(&context->typename_2_typexps);

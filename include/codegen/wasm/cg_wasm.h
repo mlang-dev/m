@@ -397,6 +397,10 @@ struct cg_wasm {
     struct imports imports;
 
     /*
+     * sys block, like zf64 complex type definition
+     */
+    struct ast_node *sys_block;
+    /*
      * function types including imports function type, and those in fun definitions
      */
     struct ast_node *fun_types;

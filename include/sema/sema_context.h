@@ -23,7 +23,7 @@ struct sema_context {
     struct hashtable *symbol_2_int_types;
 
     /* 
-     *  value type env: symboltable of <symbol, struct type_exp>*>
+     *  value type env: symboltable of <symbol, struct type_expr>*>
      *  binding variable name to type expression
      */
     struct symboltable decl_2_typexps;
@@ -35,22 +35,27 @@ struct sema_context {
     struct symboltable varname_2_asts;
 
     /* 
-     *  type env: symboltable of <symbol, struct type_exp>*>
+     *  symboltable of <symbol, var ast_node*>
+     *  binding global variable name to var ast_node*
+     */
+    struct hashtable gvar_name_2_ast;
+
+    /* 
+     *  type env: symboltable of <symbol, struct type_expr>*>
      *  binding type name to type expression
      */
     struct symboltable typename_2_typexps;
 
     /* 
-     *  type env: symboltable of <symbol, struct ast_node*>
-     *  binding type name to type expression
-     */
-    struct stack func_stack;
-
-    /* 
      *  new type AST def: hashtable of <symbol, struct ast_node （type_node)*> 
      *      example: type Point2D = x:int y:int
      */
-    struct hashtable ext_typename_2_asts;
+    struct hashtable struct_typename_2_asts;
+
+    /* 
+     *  function ast_node pointer stacks
+     */
+    struct stack func_stack;
 
     /* 
      *  builtin ASTs: symbol to ast_node*, only used for codegen
@@ -82,7 +87,7 @@ struct sema_context {
      */
     struct hashtable calls;
     /* 
-     *  struct array of struct type_exp*, specialized (non generic) 
+     *  struct array of struct type_expr*, specialized (non generic) 
      */
     struct array nongens;
 

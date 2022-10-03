@@ -1,3 +1,6 @@
+const wasi = require('../../docs/wasi.js');
+const mw = require('../../docs/mw.js');
+
 function get_mtest() {
     return mw(wasi(), './mtest.wasm', console.log, false);
 }

@@ -134,7 +134,7 @@ const struct parse_rule m_parsing_rules[PARSING_RULE_COUNT] = {
  121 - block
  122 - statements
  123 - type_def
- 124 - type_init
+ 124 - struct_init
  125 - func_decl
  126 - func_type
  127 - import_decl
@@ -287,7 +287,7 @@ const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_C
   rule  11: primary_expr = ( expr )
   rule  12: postfix_expr = primary_expr
   rule  13: postfix_expr = postfix_expr [ expr ]
-  rule  14: postfix_expr = type_init
+  rule  14: postfix_expr = struct_init
   rule  15: postfix_expr = func_call
   rule  16: postfix_expr = postfix_expr . IDENT
   rule  17: postfix_expr = postfix_expr ++
@@ -364,7 +364,7 @@ const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_C
   rule  88: type_def = enum IDENT = statement
   rule  89: type_def = struct IDENT = statement
   rule  90: type_def = union IDENT = statement
-  rule  91: type_init = IDENT ( exprs )
+  rule  91: struct_init = IDENT ( exprs )
   rule  92: func_decl = extern func_type
   rule  93: func_type = IDENT : type_expr param_decls
   rule  94: import_decl = from IDENT import memory_decl
@@ -460,7 +460,7 @@ const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_C
             var_decl = IDENT .: IDENT = expr[]
             var_decl = IDENT .= expr[]
             primary_expr = IDENT.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || DEDENT else ]
-            type_init = IDENT .( exprs )[]
+            struct_init = IDENT .( exprs )[]
             func_call = IDENT .arg_exprs[]
             
   state  27 cond_expr = logic_or_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( then ) DEDENT , : ] .. else ]
@@ -496,7 +496,7 @@ const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_C
             
   state  38 postfix_expr = primary_expr.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
             
-  state  39 postfix_expr = type_init.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
+  state  39 postfix_expr = struct_init.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
             
   state  40 postfix_expr = func_call.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
             
@@ -574,7 +574,7 @@ const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_C
             cond_stmt = if expr .then statement else statement[]
             
   state  68 primary_expr = IDENT.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- then ? + - * / % << >> < > <= >= == != & ^ | && || EOF extern let enum struct union for if NEWLINE from IDENT ~ ! INT DOUBLE CHAR STRING true false ( ) DEDENT , : ] .. else ]
-            type_init = IDENT .( exprs )[]
+            struct_init = IDENT .( exprs )[]
             func_call = IDENT .arg_exprs[]
             
   state  69 block = NEWLINE INDENT .statements DEDENT[]
@@ -612,7 +612,7 @@ const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_C
             
   state  84 var_decl = IDENT = .expr[]
             
-  state  85 type_init = IDENT ( .exprs )[]
+  state  85 struct_init = IDENT ( .exprs )[]
             primary_expr = ( .expr )[]
             
   state  86 func_call = IDENT arg_exprs.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
@@ -733,7 +733,7 @@ const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_C
             
   state 139 var_decl = IDENT = expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( , DEDENT else ]
             
-  state 140 type_init = IDENT ( exprs .)[]
+  state 140 struct_init = IDENT ( exprs .)[]
             exprs = exprs ., expr[]
             
   state 141 primary_expr = ( expr .)[]
@@ -860,7 +860,7 @@ const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_C
             
   state 184 var_decl = IDENT : IDENT = .expr[]
             
-  state 185 type_init = IDENT ( exprs ).[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
+  state 185 struct_init = IDENT ( exprs ).[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
             
   state 186 exprs = exprs , .expr[]
             

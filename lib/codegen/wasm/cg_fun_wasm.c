@@ -149,7 +149,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     struct type_oper *to = (struct type_oper *)node->type;
     for(u32 i=0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++){
         struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
-        func_register_local_variable(cg, param, (*(struct type_exp**)array_get(&to->args,i))->type, false);
+        func_register_local_variable(cg, param, (*(struct type_expr**)array_get(&to->args,i))->type, false);
     }
     collect_local_variables(cg, node->func->body);
     struct byte_array func;

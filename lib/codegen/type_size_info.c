@@ -9,7 +9,7 @@ u64 align_to(u64 field_offset, u64 align)
     return (field_offset + align - 1) / align * align;
 }
 
-void _itanium_layout_field(struct struct_layout *sl, struct type_exp *field_type)
+void _itanium_layout_field(struct struct_layout *sl, struct type_expr *field_type)
 {
     u64 field_offset_bytes = sl->data_size_bits / 8;
     //uint64_t unpadded_field_offset_bits = sl->data_size_bits - sl->unfilled_bits_last_unit;
@@ -61,7 +61,7 @@ struct struct_layout *_itanium_layout_struct(struct type_oper *to)
     struct struct_layout *sl = sl_new();
     u32 member_count = (u32)array_size(&to->args);
     for (u32 i = 0; i < member_count; i++) {
-        struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);
+        struct type_expr *field_type = *(struct type_expr **)array_get(&to->args, i);
         _itanium_layout_field(sl, field_type);
     }
     _itanium_end_layout(sl);
@@ -83,7 +83,7 @@ struct type_size_info _create_struct_type_size_info(struct type_oper *to)
     return ti;
 }
 
-struct type_size_info _create_scalar_type_size_info(struct type_exp *type)
+struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
 {
     struct type_size_info ti;
     ti.width_bits = 0;
@@ -122,6 +122,7 @@ struct type_size_info _create_scalar_type_size_info(struct type_exp *type)
     case TYPE_FUNCTION:
     case TYPE_STRUCT:
     case TYPE_UNION:
+    case TYPE_COMPLEX:
     case TYPE_TYPES:
     case TYPE_UNK:
         //assert(false);
@@ -130,7 +131,7 @@ struct type_size_info _create_scalar_type_size_info(struct type_exp *type)
     return ti;
 }
 
-struct type_size_info get_type_size_info(struct type_exp *type)
+struct type_size_info get_type_size_info(struct type_expr *type)
 {
     struct hashtable *type_size_infos = get_type_size_infos();
     if (hashtable_in_p(type_size_infos, type->name)) {
@@ -147,13 +148,13 @@ struct type_size_info get_type_size_info(struct type_exp *type)
     return ti;
 }
 
-u64 get_type_size(struct type_exp *type)
+u64 get_type_size(struct type_expr *type)
 {
     struct type_size_info tsi = get_type_size_info(type);
     return tsi.width_bits;
 }
 
-u64 get_type_align(struct type_exp *type)
+u64 get_type_align(struct type_expr *type)
 {
     struct type_size_info tsi = get_type_size_info(type);
     return tsi.align_bits;

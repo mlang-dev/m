@@ -61,7 +61,7 @@ TEST(test_parser, var_init_name_with_underlying)
     frontend_deinit(fe);
 }
 
-TEST(test_parser, var_type_init)
+TEST(test_parser, var_struct_init)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "x:int = 11";
@@ -480,10 +480,10 @@ struct Point2D = \n\
     struct ast_node *node = *(struct ast_node **)array_back(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(STRUCT_NODE, node->node_type);
-    ASSERT_STREQ("Point2D", string_get(node->type_def->name));
-    ASSERT_EQ(2, array_size(&node->type_def->body->block->nodes));
-    struct ast_node *var1 = *(struct ast_node **)array_front(&node->type_def->body->block->nodes);
-    struct ast_node *var2 = *(struct ast_node **)array_back(&node->type_def->body->block->nodes);
+    ASSERT_STREQ("Point2D", string_get(node->struct_def->name));
+    ASSERT_EQ(2, array_size(&node->struct_def->body->block->nodes));
+    struct ast_node *var1 = *(struct ast_node **)array_front(&node->struct_def->body->block->nodes);
+    struct ast_node *var2 = *(struct ast_node **)array_back(&node->struct_def->body->block->nodes);
     ASSERT_EQ(VAR_NODE, var1->node_type);
     ASSERT_EQ(VAR_NODE, var2->node_type);
     ASSERT_STREQ("x", string_get(var1->var->var_name));
@@ -504,10 +504,10 @@ xy = Point2D(10.0, 20.0)";
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_EQ(STRUCT_NODE, node->node_type);
-    ASSERT_STREQ("Point2D", string_get(node->type_def->name));
-    ASSERT_EQ(2, array_size(&node->type_def->body->block->nodes));
-    struct ast_node *var1 = *(struct ast_node **)array_front(&node->type_def->body->block->nodes);
-    struct ast_node *var2 = *(struct ast_node **)array_back(&node->type_def->body->block->nodes);
+    ASSERT_STREQ("Point2D", string_get(node->struct_def->name));
+    ASSERT_EQ(2, array_size(&node->struct_def->body->block->nodes));
+    struct ast_node *var1 = *(struct ast_node **)array_front(&node->struct_def->body->block->nodes);
+    struct ast_node *var2 = *(struct ast_node **)array_back(&node->struct_def->body->block->nodes);
     ASSERT_EQ(VAR_NODE, var1->node_type);
     ASSERT_EQ(VAR_NODE, var2->node_type);
     ASSERT_STREQ("x", string_get(var1->var->var_name));
@@ -516,10 +516,10 @@ xy = Point2D(10.0, 20.0)";
     // struct type variable assignement
     struct ast_node *var = *(struct ast_node **)array_back(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, var->node_type);
-    ASSERT_EQ(TYPE_VALUE_NODE, var->var->init_value->node_type);
+    ASSERT_EQ(STRUCT_INIT_NODE, var->var->init_value->node_type);
     struct ast_node *value_node = var->var->init_value;
-    struct ast_node *value1 = *(struct ast_node **)array_front(&value_node->type_value->body->block->nodes);
-    struct ast_node *value2 = *(struct ast_node **)array_back(&value_node->type_value->body->block->nodes);
+    struct ast_node *value1 = *(struct ast_node **)array_front(&value_node->struct_init->body->block->nodes);
+    struct ast_node *value2 = *(struct ast_node **)array_back(&value_node->struct_init->body->block->nodes);
     ASSERT_EQ(LITERAL_NODE, value1->node_type);
     ASSERT_EQ(LITERAL_NODE, value2->node_type);
     ASSERT_EQ(10.0, value1->liter->double_val);
@@ -529,7 +529,7 @@ xy = Point2D(10.0, 20.0)";
     frontend_deinit(fe);
 }
 
-TEST(test_parser, func_returns_type_init)
+TEST(test_parser, func_returns_struct_init)
 {
     char test_code[] = "\n\
 struct Point2D = x:double, y:double \n\
@@ -542,10 +542,10 @@ let get_point() = Point2D(10.0, 20.0)";
     // 1. first line is to define type
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(STRUCT_NODE, node->node_type);
-    ASSERT_STREQ("Point2D", string_get(node->type_def->name));
-    ASSERT_EQ(2, array_size(&node->type_def->body->block->nodes));
-    struct ast_node *var1 = *(struct ast_node **)array_front(&node->type_def->body->block->nodes);
-    struct ast_node *var2 = *(struct ast_node **)array_back(&node->type_def->body->block->nodes);
+    ASSERT_STREQ("Point2D", string_get(node->struct_def->name));
+    ASSERT_EQ(2, array_size(&node->struct_def->body->block->nodes));
+    struct ast_node *var1 = *(struct ast_node **)array_front(&node->struct_def->body->block->nodes);
+    struct ast_node *var2 = *(struct ast_node **)array_back(&node->struct_def->body->block->nodes);
     ASSERT_EQ(VAR_NODE, var1->node_type);
     ASSERT_EQ(VAR_NODE, var2->node_type);
     ASSERT_STREQ("x", string_get(var1->var->var_name));
@@ -556,9 +556,9 @@ let get_point() = Point2D(10.0, 20.0)";
     ASSERT_EQ(FUNC_NODE, fun_node->node_type);
     ASSERT_EQ(1, array_size(&fun_node->func->body->block->nodes));
     struct ast_node *tv_node = *(struct ast_node **)array_back(&fun_node->func->body->block->nodes);
-    ASSERT_EQ(TYPE_VALUE_NODE, tv_node->node_type);
-    struct ast_node *value1 = *(struct ast_node **)array_front(&tv_node->type_value->body->block->nodes);
-    struct ast_node *value2 = *(struct ast_node **)array_back(&tv_node->type_value->body->block->nodes);
+    ASSERT_EQ(STRUCT_INIT_NODE, tv_node->node_type);
+    struct ast_node *value1 = *(struct ast_node **)array_front(&tv_node->struct_init->body->block->nodes);
+    struct ast_node *value2 = *(struct ast_node **)array_back(&tv_node->struct_init->body->block->nodes);
     ASSERT_EQ(LITERAL_NODE, value1->node_type);
     ASSERT_EQ(LITERAL_NODE, value2->node_type);
     ASSERT_EQ(10.0, value1->liter->double_val);
@@ -675,7 +675,7 @@ int test_parser()
     RUN_TEST(test_parser_int_type);
     RUN_TEST(test_parser_var_init);
     RUN_TEST(test_parser_var_init_name_with_underlying);
-    RUN_TEST(test_parser_var_type_init);
+    RUN_TEST(test_parser_var_struct_init);
     RUN_TEST(test_parser_bool_init);
     RUN_TEST(test_parser_char_init);
     RUN_TEST(test_parser_string_init);
@@ -699,7 +699,7 @@ int test_parser()
     RUN_TEST(test_parser_type_decl);
     RUN_TEST(test_parser_type_decl2);
     RUN_TEST(test_parser_type_var_init);
-    RUN_TEST(test_parser_func_returns_type_init);
+    RUN_TEST(test_parser_func_returns_struct_init);
     RUN_TEST(test_parser_use_type_field);
     RUN_TEST(test_parser_import_fun_type);
     RUN_TEST(test_parser_import_memory_init);

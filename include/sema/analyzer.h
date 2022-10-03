@@ -16,8 +16,8 @@
 extern "C" {
 #endif
 
-struct type_exp *retrieve_type_for_var_name(struct sema_context *env, symbol name);
-struct type_exp *analyze(struct sema_context *env, struct ast_node *node);
+struct type_expr *retrieve_type_for_var_name(struct sema_context *env, symbol name);
+struct type_expr *analyze(struct sema_context *env, struct ast_node *node);
 symbol get_type_symbol(enum type type_enum);
 
 #ifdef __cplusplus
