@@ -19,7 +19,7 @@ primary_expr    = INT
 
 postfix_expr    = primary_expr
                 | postfix_expr '[' expr ']'                                                 { binop 0 1 2 } # lhs op rhs
-                | type_init                                                           
+                | struct_init                                                           
                 | func_call
                 | postfix_expr '.' IDENT                                                    { binop 0 1 2 } 
                 | postfix_expr "++"                                                         { unop 1 0 } # the disorder of operator and operand indicates a postfix op
@@ -116,7 +116,7 @@ type_def        = "enum" IDENT '=' statement                                    
                 | "struct" IDENT '=' statement                                              { struct_def 1 3 }
                 | "union" IDENT '=' statement                                               { union_def 1 3 }
 
-type_init       = IDENT '(' exprs ')'                                                       { type_value 0 2 }
+struct_init     = IDENT '(' exprs ')'                                                       { struct_init 0 2 }
 
 func_decl       = "extern" func_type                                                        { 1 }
 

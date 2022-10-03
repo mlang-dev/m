@@ -162,7 +162,8 @@
         "target_info.h": "c",
         "target_arg_info.h": "c",
         "wasm_api.h": "c",
-        "wasm_abi.h": "c"
+        "wasm_abi.h": "c",
+        "cg_wasm.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

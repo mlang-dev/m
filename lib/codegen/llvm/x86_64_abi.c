@@ -41,7 +41,7 @@ enum Class _merge(enum Class accum, enum Class field)
     return SSE;
 }
 
-void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum Class *high)
+void _classify(struct type_expr *te, uint64_t offset_base, enum Class *low, enum Class *high)
 {
     enum Class *current;
     *low = *high = NO_CLASS;
@@ -69,7 +69,7 @@ void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum 
         *current = NO_CLASS;
         for (size_t i = 0; i < array_size(&sl->field_offsets); i++) {
             uint64_t offset = offset_base + *(uint64_t *)array_get(&sl->field_offsets, i);
-            struct type_exp *field_type = *(struct type_exp **)array_get(&to->args, i);
+            struct type_expr *field_type = *(struct type_expr **)array_get(&to->args, i);
             uint64_t field_type_size = get_type_size(field_type);
             assert(field_type_size);
             if (size > 128 && size != field_type_size) {
@@ -94,7 +94,7 @@ void _classify(struct type_exp *te, uint64_t offset_base, enum Class *low, enum 
     }
 }
 
-bool _bits_contain_no_user_data(struct type_exp *type, unsigned start_bit, unsigned end_bit)
+bool _bits_contain_no_user_data(struct type_expr *type, unsigned start_bit, unsigned end_bit)
 {
     uint64_t type_size_bits = get_type_size(type);
     if (type_size_bits <= start_bit)
@@ -139,7 +139,7 @@ bool _contains_float_at_offset(LLVMTypeRef ir_type, unsigned ir_offset)
     return false;
 }
 
-LLVMTypeRef _get_sse_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, struct type_exp *source_type, unsigned source_offset)
+LLVMTypeRef _get_sse_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, struct type_expr *source_type, unsigned source_offset)
 {
     if (_bits_contain_no_user_data(source_type, source_offset * 8 + 32, source_offset * 8 + 64))
         return LLVMFloatTypeInContext(get_llvm_context());
@@ -149,7 +149,7 @@ LLVMTypeRef _get_sse_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
     return LLVMDoubleTypeInContext(get_llvm_context());
 }
 
-LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, struct type_exp *source_type, unsigned source_offset)
+LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, struct type_expr *source_type, unsigned source_offset)
 {
     LLVMTargetDataRef dl = get_llvm_data_layout();
     LLVMTypeKind tk = LLVMGetTypeKind(ir_type);
@@ -201,7 +201,7 @@ LLVMTypeRef _get_x86_64_byval_arg_pair(LLVMTypeRef low, LLVMTypeRef high, LLVMTa
     return LLVMStructType(pair, 2, false);
 }
 
-struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_exp *ret_type)
+struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_expr *ret_type)
 {
     enum Class low, high;
     _classify(ret_type, 0, &low, &high);
@@ -280,7 +280,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_ex
     return create_direct_type(ret_type, result_type);
 }
 
-struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_exp *type, unsigned free_int_regs, unsigned *needed_int, unsigned *needed_sse)
+struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_expr *type, unsigned free_int_regs, unsigned *needed_int, unsigned *needed_sse)
 {
     //struct abi_arg_info aa;
     enum Class low, high;

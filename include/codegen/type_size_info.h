@@ -34,9 +34,9 @@ struct struct_layout {
     struct array field_offsets; //field offsets in bits
 };
 
-struct type_size_info get_type_size_info(struct type_exp *type);
-u64 get_type_size(struct type_exp *type);
-u64 get_type_align(struct type_exp *type);
+struct type_size_info get_type_size_info(struct type_expr *type);
+u64 get_type_size(struct type_expr *type);
+u64 get_type_align(struct type_expr *type);
 struct struct_layout *layout_struct(struct type_oper *to);
 struct struct_layout *sl_new();
 void sl_free(struct struct_layout *sl);

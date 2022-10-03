@@ -32,31 +32,31 @@ LLVMContextRef get_llvm_context()
     return g_cg->context;
 }
 
-LLVMTypeRef get_int_type(LLVMContextRef context, struct type_exp *type)
+LLVMTypeRef get_int_type(LLVMContextRef context, struct type_expr *type)
 {
     (void)type;
     return LLVMInt32TypeInContext(context);
 }
 
-LLVMTypeRef get_char_type(LLVMContextRef context, struct type_exp *type)
+LLVMTypeRef get_char_type(LLVMContextRef context, struct type_expr *type)
 {
     (void)type;
     return LLVMInt8TypeInContext(context);
 }
 
-LLVMTypeRef get_bool_type(LLVMContextRef context, struct type_exp *type)
+LLVMTypeRef get_bool_type(LLVMContextRef context, struct type_expr *type)
 {
     (void)type;
     return LLVMInt1TypeInContext(context);
 }
 
-LLVMTypeRef get_double_type(LLVMContextRef context, struct type_exp *type)
+LLVMTypeRef get_double_type(LLVMContextRef context, struct type_expr *type)
 {
     (void)type;
     return LLVMDoubleTypeInContext(context);
 }
 
-LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
+LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_expr *type_exp)
 {
     assert(type_exp->type == TYPE_STRUCT);
     assert(g_cg);
@@ -69,7 +69,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
     LLVMTypeRef *members;
     MALLOC(members, member_count * sizeof(LLVMTypeRef));
     for (unsigned i = 0; i < member_count; i++) {
-        struct type_exp *field_type = *(struct type_exp **)array_get(&type->args, i);
+        struct type_expr *field_type = *(struct type_expr **)array_get(&type->args, i);
         members[i] = get_llvm_type(field_type);
     }
     LLVMStructSetBody(struct_type, members, member_count, false);
@@ -78,7 +78,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_exp *type_exp)
     return struct_type;
 }
 
-LLVMTypeRef get_str_type(LLVMContextRef context, struct type_exp *type)
+LLVMTypeRef get_str_type(LLVMContextRef context, struct type_expr *type)
 {
     (void)type;
     return LLVMPointerType(LLVMInt8TypeInContext(context), 0);
@@ -370,7 +370,7 @@ TargetType _get_function_type(TargetType ret_type, TargetType *param_types, unsi
     return LLVMFunctionType(ret_type, (LLVMTypeRef*)param_types, param_count, is_variadic);
 }
 
-TargetType _get_target_type(struct type_exp *type)
+TargetType _get_target_type(struct type_expr *type)
 {
     return get_llvm_type(type);
 }
@@ -410,14 +410,11 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
     cg->sema_context = sema_context;
     cg->context = context;
     cg->builder = LLVMCreateBuilderInContext(context);
-    hashset_init(&cg->builtins);
     cg->module = 0;
     _set_bin_ops(cg);
-    hashtable_init(&cg->gvs);
-    hashtable_init(&cg->protos);
+    hashtable_init(&cg->cg_gvar_name_2_asts);
     hashtable_init(&cg->varname_2_irvalues);
     hashtable_init(&cg->typename_2_irtypes);
-    hashtable_init(&cg->typename_2_ast);
     hashtable_init(&cg->varname_2_typename);
     cg->target_info = ti_new(LLVMGetDefaultTargetTriple());
     g_cg = cg;
@@ -437,18 +434,15 @@ void llvm_cg_free(struct cg_llvm *cg)
         LLVMDisposeModule(cg->module);
     LLVMContextDispose(cg->context);
     ti_free(cg->target_info);
-    hashtable_deinit(&cg->gvs);
-    hashtable_deinit(&cg->protos);
+    hashtable_deinit(&cg->cg_gvar_name_2_asts);
     hashtable_deinit(&cg->varname_2_irvalues);
-    hashset_deinit(&cg->builtins);
     hashtable_deinit(&cg->typename_2_irtypes);
-    hashtable_deinit(&cg->typename_2_ast);
     hashtable_deinit(&cg->varname_2_typename);
     FREE(cg);
     g_cg = 0;
 }
 
-LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_exp *type)
+LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_expr *type)
 {
     enum type en_type = get_type(type);
     return cg->ops[en_type].get_type(cg->context, type);
@@ -535,7 +529,7 @@ LLVMValueRef _emit_accessor_node(struct cg_llvm *cg, struct ast_node *node)
         assert(v);
     }
     string *type_name = hashtable_get_p(&cg->varname_2_typename, id);
-    struct ast_node *type_node = hashtable_get_p(&cg->typename_2_ast, type_name);
+    struct ast_node *type_node = hashtable_get_p(&cg->sema_context->struct_typename_2_asts, type_name);
     symbol attr = node->binop->rhs->ident->name;
     int index = find_member_index(type_node, attr);
     v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
@@ -657,19 +651,17 @@ LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
     return phi_node;
 }
 
-LLVMValueRef _emit_type_node(struct cg_llvm *cg, struct ast_node *node)
+LLVMValueRef _emit_struct_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    struct type_oper *type = (struct type_oper *)node->type;
     assert(node->type);
     // TODO: Notes: get_ext_type having set side effects, so can't be removed
     get_ext_type(cg->context, node->type);
-    hashtable_set_p(&cg->typename_2_ast, type->base.name, node);
     return 0;
 }
 
-LLVMValueRef _emit_type_value_node(struct cg_llvm *cg, struct ast_node *node)
+LLVMValueRef _emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    return emit_type_value_node(cg, node, false, "tmp");
+    return emit_struct_init_node(cg, node, false, "tmp");
 }
 
 LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
@@ -763,10 +755,10 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case ENUM_NODE:
         case UNION_NODE:
         case STRUCT_NODE:
-            value = _emit_type_node(cg, node);
+            value = _emit_struct_node(cg, node);
             break;
-        case TYPE_VALUE_NODE:
-            value = _emit_type_value_node(cg, node);
+        case STRUCT_INIT_NODE:
+            value = _emit_struct_init_node(cg, node);
             break;
         case UNARY_NODE:
             value = _emit_unary_node(cg, node);
@@ -816,7 +808,7 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
     return target_machine;
 }
 
-LLVMTypeRef get_llvm_type(struct type_exp *type)
+LLVMTypeRef get_llvm_type(struct type_expr *type)
 {
     assert(g_cg);
     return _get_llvm_type(g_cg, type);
@@ -863,10 +855,7 @@ void emit_code(struct cg_llvm *cg, struct ast_node *node)
         for (size_t i = 0; i < array_size(&cg->sema_context->used_builtin_names); i++) {
             symbol built_name = *((symbol *)array_get(&cg->sema_context->used_builtin_names, i));
             struct ast_node *n = hashtable_get_p(&cg->sema_context->builtin_ast, built_name);
-            if (!hashset_in_p(&cg->builtins, built_name)) {
-                hashset_set_p(&cg->builtins, built_name);
-                emit_ir_code(cg, n);
-            }
+            emit_ir_code(cg, n);
         }
         array_clear(&cg->sema_context->used_builtin_names);
     }

@@ -36,7 +36,7 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
     array_init(&params, sizeof(struct address));
     for (unsigned i = 0; i < param_count; i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
-        //struct type_exp *type_exp = *(struct type_exp **)array_get(&proto_type->args, i);
+        //struct type_expr *type_exp = *(struct type_expr **)array_get(&proto_type->args, i);
         struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
         struct target_arg_range *tar = (struct target_arg_range *)array_get(&fi->tai.args, i);
         unsigned first_ir_arg = tar->first_arg_index;
@@ -108,7 +108,6 @@ LLVMValueRef emit_func_type_node(struct cg_llvm *cg, struct ast_node *node)
 LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, struct fun_info **out_fi)
 {
     assert(node->type);
-    hashtable_set_p(&cg->protos, node->ft->name, node);
     struct type_oper *proto_type = (struct type_oper *)node->type;
     assert(proto_type->base.kind == KIND_OPER);
     struct fun_info *fi = compute_target_fun_info(cg->target_info, cg->compute_fun_info, node);
@@ -170,7 +169,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
         ret_val = emit_ir_code(cg, stmt);
     }
     if (!ret_val || !fi->ret.target_type) {
-        //struct type_exp *ret_type = get_ret_type(fun_node);
+        //struct type_expr *ret_type = get_ret_type(fun_node);
         //enum type type = get_type(ret_type);
         //ret_val = cg->ops[type].get_zero(cg->context, cg->builder);
         LLVMBuildRetVoid(cg->builder);
@@ -201,7 +200,7 @@ LLVMValueRef get_llvm_function(struct cg_llvm *cg, symbol fun_name)
     LLVMValueRef f = LLVMGetNamedFunction(cg->module, name);
     if (f)
         return f;
-    struct ast_node *fp = hashtable_get_p(&cg->protos, fun_name);
+    struct ast_node *fp = hashtable_get_p(&cg->sema_context->func_types, fun_name);
     if (fp)
         return emit_func_type_node(cg, fp);
     return 0;

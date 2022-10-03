@@ -11,7 +11,7 @@
 #include "sema/type.h"
 #include <assert.h>
 
-struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_exp *ret_type)
+struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_expr *ret_type)
 {
     if (ret_type->type == TYPE_UNIT){
         return create_ignore(ret_type);
@@ -28,7 +28,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_ex
     }
 }
 
-struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_exp *type)
+struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_expr *type)
 {
     //TODO: use first field if transparent union
     if(is_aggregate_type(type->type)){

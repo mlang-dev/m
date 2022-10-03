@@ -35,7 +35,7 @@ extern "C" {
     ENUM_ITEM(ENUM_NODE)            \
     ENUM_ITEM(STRUCT_NODE)          \
     ENUM_ITEM(UNION_NODE)           \
-    ENUM_ITEM(TYPE_VALUE_NODE)      \
+    ENUM_ITEM(STRUCT_INIT_NODE)      \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \
     ENUM_ITEM(IF_NODE)              \
@@ -108,12 +108,13 @@ struct _for_node {
     struct ast_node *start, *end, *step, *body;
 };
 
-struct _type_node {
+struct _struct_node {
     struct ast_node *body; //body block
     symbol name; /*type name*/
 };
 
-struct _type_value_node {
+/*struct initializer node*/
+struct _struct_init_node { 
     struct ast_node *body; /*body block*/
 };
 
@@ -159,7 +160,7 @@ struct ast_node {
     enum node_type node_type;
     enum type annotated_type_enum;
 
-    struct type_exp *type; // type inferred
+    struct type_expr *type; // type inferred
     struct source_location loc;
 
     symbol annotated_type_name; //this is expected to be removed
@@ -177,8 +178,8 @@ struct ast_node {
         struct _function_node *func;
         struct _call_node *call;
         
-        struct _type_node *type_def; 
-        struct _type_value_node *type_value;
+        struct _struct_node *struct_def; 
+        struct _struct_init_node *struct_init;
         struct _import_node *import;
         struct _if_node *cond;
         struct _for_node *forloop;
@@ -197,7 +198,7 @@ struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
 /*construct ast node with type enum directly*/
 struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type_enum, symbol type_name, struct source_location loc);
 void ast_node_free(struct ast_node *node);
-struct type_exp *get_ret_type(struct ast_node *fun_node);
+struct type_expr *get_ret_type(struct ast_node *fun_node);
 
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc);
@@ -224,8 +225,8 @@ struct ast_node *func_type_node_new(
     unsigned precedence,
     symbol op,
     bool is_variadic, bool is_external, struct source_location loc);
-struct ast_node *type_node_new(symbol name, struct ast_node *body, struct source_location loc);
-struct ast_node *type_value_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
+struct ast_node *struct_node_new(symbol name, struct ast_node *body, struct source_location loc);
+struct ast_node *struct_init_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
 struct ast_node *func_type_node_default_new(
     symbol name,
     struct ast_node *arg_block, symbol ret_type, bool is_variadic, bool is_external, struct source_location loc);

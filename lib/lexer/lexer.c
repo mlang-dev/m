@@ -244,7 +244,7 @@ void _mark_regex_tok(struct lexer *lexer)
             if (hex == 'x' || hex == 'X'){
                 base = 16;
             }
-            tok->int_val = (int)strtol(&lexer->buff[tok->loc.start - lexer->buff_base], 0, base);
+            tok->int_val = (int)strtoul(&lexer->buff[tok->loc.start - lexer->buff_base], 0, base);
         } else if (used_tp->token_type == TOKEN_DOUBLE)
             tok->double_val = strtod(&lexer->buff[tok->loc.start - lexer->buff_base], 0);
     }else{

@@ -161,7 +161,6 @@ for i in 0..5
     sum = sum + i
 sum
         `;
-        m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(10);
     });
 });

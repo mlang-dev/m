@@ -143,7 +143,7 @@ void _imports_deinit(struct imports *imports)
     imports->num_memory = 0;
 }
 
-void _wasm_module_init(struct cg_wasm *cg)
+void _cg_wasm_init(struct cg_wasm *cg)
 {
     ba_init(&cg->ba, 17);
     hashtable_init_with_value_size(&cg->func_name_2_idx, sizeof(u32), 0);
@@ -152,6 +152,7 @@ void _wasm_module_init(struct cg_wasm *cg)
         fun_context_init(&cg->fun_contexts[i]);
     }
     _imports_init(&cg->imports);
+    cg->sys_block = 0;
     cg->fun_top = 0;
     cg->var_top = 0;
     cg->func_idx = 0;
@@ -161,9 +162,10 @@ void _wasm_module_init(struct cg_wasm *cg)
     cg->data_block = block_node_new_empty();
 }
 
-void _wasm_module_deinit(struct cg_wasm *cg)
+void _cg_wasm_deinit(struct cg_wasm *cg)
 {
     _imports_deinit(&cg->imports);
+    ast_node_free(cg->sys_block);
     for (u32 i = 0; i < FUN_LEVELS; i++) {
         fun_context_deinit(&cg->fun_contexts[i]);
     }
@@ -186,7 +188,7 @@ struct cg_wasm *cg_wasm_new()
 {
     struct cg_wasm *cg;
     MALLOC(cg, sizeof(*cg));
-    _wasm_module_init(cg);
+    _cg_wasm_init(cg);
     MEMORY = to_symbol("memory");
     __MEMORY_BASE = to_symbol("__memory_base");
     POW_FUN_NAME = to_symbol("pow");
@@ -196,7 +198,7 @@ struct cg_wasm *cg_wasm_new()
 
 void cg_wasm_free(struct cg_wasm *cg)
 {
-    _wasm_module_deinit(cg);
+    _cg_wasm_deinit(cg);
     free(cg);
 }
 
@@ -347,6 +349,11 @@ void _emit_if(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
     ba_add(ba, OPCODE_END);
 }
 
+void _emit_struct(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+{
+    
+}
+
 void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type type)
 {
     ba_add(ba, OPCODE_LOCALGET);
@@ -477,6 +484,9 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             break;
         case FOR_NODE:
             _emit_loop(cg, ba, node);
+            break;
+        case STRUCT_NODE:
+            _emit_struct(cg, ba, node);
             break;
         default:
             printf("%s is not implemented !\n", node_type_strings[node->node_type]);

@@ -33,6 +33,7 @@ extern "C" {
     ENUM_ITEM(TYPE_FUNCTION)    \
     ENUM_ITEM(TYPE_STRUCT)      \
     ENUM_ITEM(TYPE_UNION)       \
+    ENUM_ITEM(TYPE_COMPLEX)     \
     ENUM_ITEM(TYPE_TYPES)
 
 enum type { FOREACH_TYPE(GENERATE_ENUM) };
@@ -49,20 +50,20 @@ enum kind { FOREACH_KIND(GENERATE_ENUM) };
 extern const char *kind_strings[];
 
 //type variable or operator
-struct type_exp {
+struct type_expr {
     enum kind kind; //type variable or type operator
     enum type type;
     symbol name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 };
 
 struct type_var {
-    struct type_exp base;
-    struct type_exp *instance;
+    struct type_expr base;
+    struct type_expr *instance;
 };
 
 struct type_oper {
-    struct type_exp base;
-    struct array args; //struct array of struct type_exp*
+    struct type_expr base;
+    struct array args; //struct array of struct type_expr*
 };
 void types_init();
 void types_deinit();
@@ -73,22 +74,22 @@ struct type_oper *create_nullary_type(enum type type, symbol type_symbol);
 struct type_oper *create_type_fun(struct array *args);
 struct type_oper *create_unit_type();
 struct type_oper *wrap_as_fun_type(struct type_oper *oper);
-void type_exp_free(struct type_exp *type);
-bool occurs_in_type(struct type_var *var, struct type_exp *type2);
-struct type_exp *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
+void type_exp_free(struct type_expr *type);
+bool occurs_in_type(struct type_var *var, struct type_expr *type2);
+struct type_expr *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
 void push_symbol_type(symboltable *st, symbol name, void *type);
-bool unify(struct type_exp *type1, struct type_exp *type2, struct array *nongens);
-string to_string(struct type_exp *type);
-enum type get_type(struct type_exp *type);
-struct type_exp *prune(struct type_exp *type);
-bool is_generic(struct type_exp *type);
+bool unify(struct type_expr *type1, struct type_expr *type2, struct array *nongens);
+string to_string(struct type_expr *type);
+enum type get_type(struct type_expr *type);
+struct type_expr *prune(struct type_expr *type);
+bool is_generic(struct type_expr *type);
 bool is_any_generic(struct array *types);
 string monomorphize(const char *fun_name, struct array *types);
-struct type_exp *clone_type(struct type_exp *type);
-bool is_promotable_int(struct type_exp *type);
+struct type_expr *clone_type(struct type_expr *type);
+bool is_promotable_int(struct type_expr *type);
 u8 type_size(enum type type);
-bool is_empty_struct(struct type_exp *type);
-struct type_exp *is_single_element_struct(struct type_exp *type);
+bool is_empty_struct(struct type_expr *type);
+struct type_expr *is_single_element_struct(struct type_expr *type);
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
 #define is_aggregate_type(type) (type>=TYPE_STRUCT)
 

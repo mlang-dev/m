@@ -31,7 +31,7 @@ typedef LLVMValueRef (*binary_op)(LLVMBuilderRef builder, LLVMValueRef lhs, LLVM
 typedef LLVMValueRef (*unary_op)(LLVMBuilderRef builder, LLVMValueRef v, const char *name);
 typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef builder, int op,
     LLVMValueRef lhs, LLVMValueRef rhs, const char *name);
-typedef LLVMTypeRef (*get_ir_type_func)(LLVMContextRef context, struct type_exp *type);
+typedef LLVMTypeRef (*get_ir_type_func)(LLVMContextRef context, struct type_expr *type);
 typedef LLVMValueRef (*get_const_func)(LLVMContextRef context, LLVMBuilderRef builder, void *value);
 typedef LLVMValueRef (*get_zero_func)(LLVMContextRef context, LLVMBuilderRef builder);
 typedef LLVMValueRef (*get_one_func)(LLVMContextRef context);
@@ -63,38 +63,6 @@ struct cg_llvm {
     LLVMContextRef context;
     LLVMBuilderRef builder;
     LLVMModuleRef module;
-    struct sema_context *sema_context;
-    struct ops ops[TYPE_TYPES];
-
-    /* 
-     *  hashset of <symbol, symbol>
-     *  built function symbol names
-     */
-    hashset builtins;
-
-    /* 
-     *  symboltable of <symbol, ast_node*>
-     *  binding func_type name to func type ast_node*
-     */
-    struct hashtable protos;
-
-    /* 
-     *  symboltable of <symbol, var ast_node*>
-     *  binding global variable name to var ast_node*
-     */
-    struct hashtable gvs;
-
-    /* 
-     *  symboltable of <symbol, LLVMValueRef>
-     *  binding variable name to LLVMValueRef
-     */
-    struct hashtable varname_2_irvalues;
-
-    /* 
-     *  symboltable of <symbol, symbol>
-     *  binding variable name to type name
-     */
-    struct hashtable varname_2_typename;
 
     /* 
      *  symboltable of <symbol, LLVMTypeRef>
@@ -103,10 +71,27 @@ struct cg_llvm {
     struct hashtable typename_2_irtypes;
 
     /* 
-     *  symboltable of <symbol, ast_node*>, type ast_node
-     *  binding type name to AST definition node
+     *  symboltable of <symbol, LLVMValueRef>
+     *  binding variable name to LLVMValueRef
      */
-    struct hashtable typename_2_ast;
+    struct hashtable varname_2_irvalues;
+
+    /* generic data structures*/
+    struct sema_context *sema_context;
+    struct ops ops[TYPE_TYPES];
+
+    /* 
+     *  symboltable of <symbol, var ast_node*>
+     *  starting with empty binding codegened global variable name to var ast_node*
+     */
+    struct hashtable cg_gvar_name_2_asts;
+
+    /* 
+     *  symboltable of <symbol, symbol>
+     *  binding variable name to type name
+     */
+    struct hashtable varname_2_typename;
+
 
     /// target info
     struct target_info *target_info;
@@ -120,13 +105,11 @@ void llvm_cg_free(struct cg_llvm *cg);
 
 void emit_code(struct cg_llvm *cg, struct ast_node *node);
 void emit_sp_code(struct cg_llvm *cg);
-
-
 void create_ir_module(struct cg_llvm *cg, const char *module_name);
 LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
 LLVMContextRef get_llvm_context();
-LLVMTypeRef get_llvm_type(struct type_exp *type);
+LLVMTypeRef get_llvm_type(struct type_expr *type);
 LLVMTargetDataRef get_llvm_data_layout();
 enum OS get_os();
 LLVMModuleRef get_llvm_module();
