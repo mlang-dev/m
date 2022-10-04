@@ -70,7 +70,7 @@ TEST(test_hashtable, symbol_int)
     ASSERT_EQ(100, hashtable_get_int(&ht, str1));
     ASSERT_EQ(200, hashtable_get_int(&ht, str2));
     ASSERT_FALSE(hashtable_in_p(&ht, str3));
-    ASSERT_EQ(0, hashtable_get_int(&ht, str3));
+    ASSERT_EQ(-1, hashtable_get_int(&ht, str3));
     hashtable_deinit(&ht);
     symbols_deinit();
 }

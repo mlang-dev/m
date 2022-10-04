@@ -64,10 +64,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             block_node_add(block, arg);
         }
     }
-    //make a copy to prevent the callee from changing it
     struct fun_context *fc = get_top_fun_context(cg);
-    fun_alloc_memory(fc, block, true);
-    struct mem_alloc *alloc = array_back(&fc->allocs);
     u32 local_var_index = 0;
     //u32 arg_type_size = 0;
     if (fun_type->ft->is_variadic){ 
@@ -77,14 +74,16 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             //global variable 0 as stack pointer
             //global sp -> stack
             local_var_index = func_get_local_var_index(cg, node);
-
-            wasm_emit_assign_var(ba, local_var_index, false, OPCODE_I32SUB, alloc->size, STACK_POINTER_VAR_INDEX, true);
+            int alloc_index = hashtable_get_int(&fc->ast_2_alloc_index, node);
+            assert(alloc_index >= 0);
+            struct mem_alloc *alloc = array_get(&fc->allocs, alloc_index);
+            if(alloc->address){
+                wasm_emit_assign_var(ba, local_var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->index, false);
+            } else {
+                wasm_emit_assign_var(ba, local_var_index, false, 0, 0, fc->local_sp->index, false);
+            }
            
-            //set global sp to the new address
-            wasm_emit_assign_var(ba, STACK_POINTER_VAR_INDEX, true, 0, 0, local_var_index, false);
-
             u32 offset = 0;
-            //for (u32 i = array_size(&fun_type->ft->params->block->nodes) - 1; i < array_size(&node->call->arg_block->block->nodes); i++) {
             for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
                 arg = *(struct ast_node **)array_get(&block->block->nodes, i);
                 offset = wasm_emit_store_value(cg, ba, local_var_index, offset, arg);
@@ -94,10 +93,5 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         }
     }
     wasm_emit_call_fun(ba, func_index);
-
-    if(is_variadic_call_with_optional_arguments(cg, node)){
-        // reset back to stack size
-        wasm_emit_assign_var(ba, STACK_POINTER_VAR_INDEX, true, OPCODE_I32ADD, alloc->size, local_var_index, false);
-    }
     free_block_node(block, false);
 }

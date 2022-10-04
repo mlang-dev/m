@@ -339,11 +339,6 @@ enum DataSegmentType {
     DATA_ACTIVE_M     //active, {memory idx, offset e}
 };
 
-struct var_info{
-    u32 index; //
-    u8 type;  //wasm type
-};
-
 #define FUN_LEVELS 512
 #define LOCAL_VARS 1024 //TODO: need to eliminate this limitation
 
@@ -400,7 +395,7 @@ extern u8 type_2_wtype[TYPE_TYPES];
 
 #define ASSERT_TYPE(type_index) assert(type_index > 0 && type_index < TYPE_TYPES);
 
-struct cg_wasm * cg_wasm_new();
+struct cg_wasm * cg_wasm_new(struct sema_context *context);
 void wasm_emit_module(struct cg_wasm *cg, struct ast_node *node);
 void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);

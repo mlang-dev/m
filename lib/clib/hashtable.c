@@ -224,7 +224,7 @@ int hashtable_get_int(struct hashtable *ht, void *key)
 {
     int *int_p = hashtable_get_p(ht, key);
     if (!int_p)
-        return 0;
+        return -1;
     return *int_p;
 }
 

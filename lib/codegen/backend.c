@@ -21,7 +21,6 @@ struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_
     MALLOC(be, sizeof(*be));
     be->cg = cg_alloc(sema_context);
     be->cg_free = cg_free;
-    be->sema_context = sema_context;
     hashtable_init_with_value_size(&be->type_size_infos, sizeof(struct type_size_info), 0);
     g_backend = be;
     return be;

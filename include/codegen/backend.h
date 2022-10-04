@@ -18,7 +18,6 @@ extern "C" {
 #endif
 
 struct backend{
-    struct sema_context *sema_context;
     /* 
      *  symboltable of <symbol, struct type_size_info>
      *  binding type name to type size

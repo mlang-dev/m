@@ -148,9 +148,10 @@ void _cg_wasm_init(struct cg_wasm *cg)
     ba_init(&cg->ba, 17);
     hashtable_init_with_value_size(&cg->func_name_2_idx, sizeof(u32), 0);
     hashtable_init(&cg->func_name_2_ast);
-    for(u32 i = 0; i < FUN_LEVELS; i++){
-        fun_context_init(&cg->fun_contexts[i]);
-    }
+
+    // for(u32 i = 0; i < FUN_LEVELS; i++){
+    //     fun_context_init(&cg->fun_contexts[i]);
+    // }
     _imports_init(&cg->imports);
     cg->sys_block = 0;
     cg->fun_top = 0;
@@ -166,9 +167,9 @@ void _cg_wasm_deinit(struct cg_wasm *cg)
 {
     _imports_deinit(&cg->imports);
     ast_node_free(cg->sys_block);
-    for (u32 i = 0; i < FUN_LEVELS; i++) {
-        fun_context_deinit(&cg->fun_contexts[i]);
-    }
+    // for (u32 i = 0; i < FUN_LEVELS; i++) {
+    //     fun_context_deinit(&cg->fun_contexts[i]);
+    // }
     cg->fun_top = 0;
     hashtable_deinit(&cg->func_name_2_ast);
     hashtable_deinit(&cg->func_name_2_idx);
@@ -184,7 +185,7 @@ void _cg_wasm_deinit(struct cg_wasm *cg)
     }
 }
 
-struct cg_wasm *cg_wasm_new()
+struct cg_wasm *cg_wasm_new(struct sema_context *context)
 {
     struct cg_wasm *cg;
     MALLOC(cg, sizeof(*cg));
@@ -193,6 +194,8 @@ struct cg_wasm *cg_wasm_new()
     __MEMORY_BASE = to_symbol("__memory_base");
     POW_FUN_NAME = to_symbol("pow");
     cg->base.compute_fun_info = wasm_compute_fun_info;
+    cg->base.sema_context = context;
+    cg->base.target_info = ti_new("wasm32");
     return cg;
 }
 
@@ -475,9 +478,9 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case STRUCT_NODE:
             wasm_emit_struct(cg, ba, node);
             break;
-        case STRUCT_INIT_NODE:
-            wasm_emit_struct_init(cg, ba, node);
-            break;
+        // case STRUCT_INIT_NODE:
+        //     wasm_emit_struct_init(cg, ba, node);
+        //     break;
         default:
             printf("%s is not implemented !\n", node_type_strings[node->node_type]);
             exit(-1);

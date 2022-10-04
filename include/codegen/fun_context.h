@@ -26,7 +26,13 @@ enum MemType{
 struct mem_alloc{
     u32 address; /*for stack memory, it's the offset value from sp*/
     u32 size;
+    u32 align;
     enum MemType mem_type;
+};
+
+struct var_info{
+    u32 index; //
+    u8 target_type; //wasm type
 };
 
 struct fun_context {
@@ -39,11 +45,18 @@ struct fun_context {
     struct symboltable varname_2_index;
 
     /*
-     *  hashtable of <struct ast_node *, u32>
+     *  hashtable of <struct ast_node *, struct var_info>
      *  binding ast_node pointer to index of local variable in the function
      *  used in function codegen
      */
     struct hashtable ast_2_index;
+
+    /*
+     *  hashtable of <struct ast_node *, alloc index>
+     *  binding ast_node pointer to index of local stack allocation in the function
+     *  used in function codegen
+     */
+    struct hashtable ast_2_alloc_index;
 
     /*
      *  number of local variables, including number of local params
@@ -59,11 +72,14 @@ struct fun_context {
      *  allocs: memory allocations supporting stack and heap memory, array of (struct mem_alloc)
      */
     struct array allocs; 
+
+    struct var_info *local_sp;
 };
 
 void fun_context_init(struct fun_context *fc);
 void fun_context_deinit(struct fun_context *fc);
-void fun_alloc_memory(struct fun_context *fc, struct ast_node *block, bool save_original_copy);
+int fun_alloc_memory(struct fun_context *fc, struct ast_node *block, bool save_original_copy);
+u32 get_stack_size(struct fun_context *fc);
 
 #ifdef __cplusplus
 }
