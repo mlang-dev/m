@@ -131,14 +131,33 @@ void wasm_emit_string(WasmModule module, string *str)
     wasm_emit_chars(module, string_get(str), string_size(str));
 }
 
+/*
+ *  read value from variable and save it to stack
+ */
+void wasm_emit_get_var(WasmModule ba, u32 var_index, bool is_global)
+{
+    ba_add(ba, get_vars[is_global]);
+    wasm_emit_uint(ba, var_index);
+}
+
+void wasm_emit_set_var(WasmModule ba, u32 var_index, bool is_global)
+{
+    ba_add(ba, set_vars[is_global]);
+    wasm_emit_uint(ba, var_index);
+}
+
 void wasm_emit_assign_var(WasmModule ba, u32 to_var_index, bool is_to_global, u8 op, u32 operand, u32 from_var_index, bool is_from_global)
 {
-    ba_add(ba, get_vars[is_from_global]);
-    wasm_emit_uint(ba, from_var_index);
+    wasm_emit_get_var(ba, from_var_index, is_from_global);
     if(op){
         wasm_emit_const_i32(ba, operand);
         ba_add(ba, op); 
     }
-    ba_add(ba, set_vars[is_to_global]);
-    wasm_emit_uint(ba, to_var_index); 
+    wasm_emit_set_var(ba, to_var_index, is_to_global);
+}
+
+void wasm_emit_call_fun(WasmModule ba, u32 fun_index)
+{
+    ba_add(ba, OPCODE_CALL); // num local variables
+    wasm_emit_uint(ba, fun_index);
 }

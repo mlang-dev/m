@@ -24,7 +24,7 @@ enum MemType{
 };
 
 struct mem_alloc{
-    u32 address;
+    u32 address; /*for stack memory, it's the offset value from sp*/
     u32 size;
     enum MemType mem_type;
 };
@@ -63,6 +63,7 @@ struct fun_context {
 
 void fun_context_init(struct fun_context *fc);
 void fun_context_deinit(struct fun_context *fc);
+void fun_alloc_memory(struct fun_context *fc, struct ast_node *block, bool save_original_copy);
 
 #ifdef __cplusplus
 }
