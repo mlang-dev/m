@@ -34,6 +34,10 @@ void wasm_emit_chars(WasmModule module, const char *str, u32 len);
 void wasm_emit_null_terminated_string(WasmModule module, const char *str, u32 len);
 void wasm_emit_string(WasmModule module, string *str);
 void wasm_emit_assign_var(WasmModule ba, u32 to_var_index, bool is_to_global, u8 op, u32 operand,  u32 from_var_index, bool is_from_global);
+void wasm_emit_get_var(WasmModule ba, u32 var_index, bool is_global);
+void wasm_emit_set_var(WasmModule ba, u32 var_index, bool is_global);
+void wasm_emit_call_fun(WasmModule ba, u32 fun_index);
+
 
 #ifdef __cplusplus
 }
