@@ -69,7 +69,7 @@ int compile(const char *source_file, enum object_file_type file_type)
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     create_ir_module(cg, string_get(&filename));
     struct ast_node *block = parse_file(engine->fe->parser, source_file);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     emit_code(cg, block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->block->nodes); i++) {
@@ -98,7 +98,7 @@ char *emit_ir_string(struct cg_llvm *cg, struct ast_node *ast_node)
 {
     if (!ast_node)
         return 0;
-    analyze(cg->sema_context, ast_node);
+    analyze(cg->base.sema_context, ast_node);
     emit_sp_code(cg);
     emit_ir_code(cg, ast_node);
     return LLVMPrintModuleToString(cg->module);

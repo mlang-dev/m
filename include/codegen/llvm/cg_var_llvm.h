@@ -1,12 +1,12 @@
 /*
- * cg_var.h
+ * cg_var_llvm.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
  * header file for LLVM IR codegen of variable declare/definitions
  */
-#ifndef __MLANG_CG_VAR_H__
-#define __MLANG_CG_VAR_H__
+#ifndef __MLANG_CG_VAR_LLVM_H__
+#define __MLANG_CG_VAR_LLVM_H__
 
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>

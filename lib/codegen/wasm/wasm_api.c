@@ -8,6 +8,9 @@
 #include "codegen/wasm/cg_wasm.h"
 #include <assert.h>
 
+u8 set_vars[2] = {OPCODE_LOCALSET, OPCODE_GLOBALSET};
+u8 get_vars[2] = {OPCODE_LOCALGET, OPCODE_GLOBALGET};
+
 void wasm_emit_instruction(WasmModule module, Instruction ins)
 {
     ba_add(module, ins);
@@ -126,4 +129,16 @@ void wasm_emit_null_terminated_string(WasmModule module, const char *str, u32 le
 void wasm_emit_string(WasmModule module, string *str)
 {
     wasm_emit_chars(module, string_get(str), string_size(str));
+}
+
+void wasm_emit_assign_var(WasmModule ba, u32 to_var_index, bool is_to_global, u8 op, u32 operand, u32 from_var_index, bool is_from_global)
+{
+    ba_add(ba, get_vars[is_from_global]);
+    wasm_emit_uint(ba, from_var_index);
+    if(op){
+        wasm_emit_const_i32(ba, operand);
+        ba_add(ba, op); 
+    }
+    ba_add(ba, set_vars[is_to_global]);
+    wasm_emit_uint(ba, to_var_index); 
 }

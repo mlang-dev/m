@@ -22,47 +22,26 @@
 #include <float.h>
 
 
-void fun_context_init(struct fun_context *fc)
-{
-    fc->fun_name = 0;
-    fc->local_vars = 0;
-    fc->local_params = 0;
-    symboltable_init(&fc->varname_2_index);
-    hashtable_init(&fc->ast_2_index);
-}
-
-void fun_context_deinit(struct fun_context *fc)
-{
-    hashtable_deinit(&fc->ast_2_index);
-    symboltable_deinit(&fc->varname_2_index);
-}
-
-void _func_enter(struct cg_wasm *cg, symbol fun_name)
+void _func_enter(struct cg_wasm *cg, struct ast_node *fun)
 {
     struct fun_context *fc = &cg->fun_contexts[cg->fun_top];
     fun_context_init(fc);
-    fc->fun_name = fun_name;
+    fc->fun = fun;
     cg->fun_top ++;
 }
 
-void _func_leave(struct cg_wasm *cg, symbol fun_name)
+void _func_leave(struct cg_wasm *cg, struct ast_node *fun)
 {
     cg->fun_top--;
     struct fun_context *fc = &cg->fun_contexts[cg->fun_top];
     cg->var_top -= fc->local_vars;
     fun_context_deinit(fc);
-    assert(cg->fun_contexts[cg->fun_top].fun_name == fun_name);
-}
-
-
-struct fun_context *_fun_context_top(struct cg_wasm *cg)
-{
-    return cg->fun_top >= 1 ? &cg->fun_contexts[cg->fun_top - 1] : 0;
+    assert(cg->fun_contexts[cg->fun_top].fun == fun);
 }
 
 u32 func_get_local_var_index(struct cg_wasm *cg, struct ast_node *node)
 {
-    struct fun_context *fc = _fun_context_top(cg);
+    struct fun_context *fc = get_top_fun_context(cg);
     struct var_info *vi = (struct var_info *)hashtable_get_p(&fc->ast_2_index, node);
     assert(vi);
     return vi->index;
@@ -97,13 +76,13 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
 
 u32 _func_get_local_var_nums(struct cg_wasm *cg)
 {
-    struct fun_context *fc = _fun_context_top(cg);
+    struct fun_context *fc = get_top_fun_context(cg);
     return fc->local_vars - fc->local_params;
 }
 
 struct var_info *_req_new_local_var(struct cg_wasm *cg, enum type type, bool is_local_var)
 {
-    struct fun_context *fc = _fun_context_top(cg);
+    struct fun_context *fc = get_top_fun_context(cg);
     u32 index = fc->local_vars++;
     if (!is_local_var) {
         fc->local_params++;
@@ -118,7 +97,7 @@ struct var_info *_req_new_local_var(struct cg_wasm *cg, enum type type, bool is_
 
 void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, enum type type, bool is_local_var)
 {
-    struct fun_context *fc = _fun_context_top(cg);
+    struct fun_context *fc = get_top_fun_context(cg);
     struct var_info *vi = _req_new_local_var(cg, type, is_local_var);
     if (node->node_type == VAR_NODE) {
         symboltable_push(&fc->varname_2_index, node->var->var_name, vi);
@@ -135,7 +114,7 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, enu
 
 u32 func_context_get_var_index(struct cg_wasm *cg, symbol var_name)
 {
-    struct fun_context *fc = _fun_context_top(cg);
+    struct fun_context *fc = get_top_fun_context(cg);
     struct var_info *vi = symboltable_get(&fc->varname_2_index, var_name);
     assert(vi);
     return vi->index;
@@ -144,7 +123,7 @@ u32 func_context_get_var_index(struct cg_wasm *cg, symbol var_name)
 void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == FUNC_NODE);
-    _func_enter(cg, node->func->func_type->ft->name);
+    _func_enter(cg, node);
     assert(node->type->kind == KIND_OPER);
     struct type_oper *to = (struct type_oper *)node->type;
     for(u32 i=0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++){
@@ -167,5 +146,5 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     wasm_emit_uint(ba, func.size); //function body size
     ba_add2(ba, &func);
     ba_deinit(&func);
-    _func_leave(cg, node->func->func_type->ft->name);
+    _func_leave(cg, node);
 }

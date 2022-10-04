@@ -1,13 +1,13 @@
 /*
- * cg_call.h
+ * cg_call_llvm.h
  *
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
  * header file defining interface emitting call site
  */
 
-#ifndef __MLANG_CG_CALL_H__
-#define __MLANG_CG_CALL_H__
+#ifndef __MLANG_CG_CALL_LLVM_H__
+#define __MLANG_CG_CALL_LLVM_H__
 
 #include <llvm-c/Core.h>
 

@@ -29,6 +29,26 @@ bool _is_indirect(struct type_expr *type)
     return is_aggregate_type(type->type) && !is_empty_struct(type) && !is_single_element_struct(type);
 }
 
+u32 wasm_emit_store_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct ast_node *node)
+{
+    ba_add(ba, OPCODE_LOCALGET);
+    wasm_emit_uint(ba, local_address_var_index);
+
+    // content of the arg to stack
+    wasm_emit_code(cg, ba, node);  
+    ba_add(ba, type_2_store_op[node->type->type]);
+    //align(u32), and offset(u32)
+    u32 node_type_size = type_size(node->type->type); 
+    wasm_emit_uint(ba, node_type_size == 8? ALIGN_EIGHT_BYTES : ALIGN_FOUR_BYTES);
+    //we need to adjust offset for better alignment
+    if (offset % node_type_size != 0){
+        offset = (offset / node_type_size + 1) * node_type_size;
+    }
+    wasm_emit_uint(ba, offset);
+    offset += node_type_size;
+    return offset;
+}
+
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == CALL_NODE);
@@ -54,7 +74,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     stack_size = align_to(stack_size * 2, 16);
 
     u32 local_var_index = 0;
-    u32 arg_type_size = 0;
+    //u32 arg_type_size = 0;
     if (fun_type->ft->is_variadic){ 
         if (array_size(&node->call->arg_block->block->nodes) < array_size(&fun_type->ft->params->block->nodes)){
             wasm_emit_const_i32(ba, 0);
@@ -62,38 +82,16 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             //global variable 0 as stack pointer
             //global sp -> stack
             local_var_index = func_get_local_var_index(cg, node);
-            ba_add(ba, OPCODE_GLOBALGET);
-            wasm_emit_uint(ba, STACK_POINTER_VAR_INDEX);
-            wasm_emit_const_i32(ba, stack_size);
-            ba_add(ba, OPCODE_I32SUB); // saved sp-stack_size address to stack
-            ba_add(ba, OPCODE_LOCALSET);
-            wasm_emit_uint(ba, local_var_index); //saved stack value to local var
 
+            wasm_emit_assign_var(ba, local_var_index, false, OPCODE_I32SUB, stack_size, STACK_POINTER_VAR_INDEX, true);
+           
             //set global sp to the new address
-            ba_add(ba, OPCODE_LOCALGET);
-            wasm_emit_uint(ba, local_var_index);
-            ba_add(ba, OPCODE_GLOBALSET);
-            wasm_emit_uint(ba, STACK_POINTER_VAR_INDEX); // global set variable
+            wasm_emit_assign_var(ba, STACK_POINTER_VAR_INDEX, true, 0, 0, local_var_index, false);
 
             u32 offset = 0;
             for (u32 i = array_size(&fun_type->ft->params->block->nodes) - 1; i < array_size(&node->call->arg_block->block->nodes); i++) {
                 arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
-                //get local variable containing the start address to stack
-                ba_add(ba, OPCODE_LOCALGET);
-                wasm_emit_uint(ba, local_var_index);
-
-                // content of the arg to stack
-                wasm_emit_code(cg, ba, arg);  
-                ba_add(ba, type_2_store_op[arg->type->type]);
-                //align(u32), and offset(u32)
-                arg_type_size = type_size(arg->type->type); 
-                wasm_emit_uint(ba, arg_type_size == 8? ALIGN_EIGHT_BYTES : ALIGN_FOUR_BYTES);
-                //we need to adjust offset for better alignment
-                if (offset % arg_type_size != 0){
-                    offset = (offset / arg_type_size + 1) * arg_type_size;
-                }
-                wasm_emit_uint(ba, offset);
-                offset += arg_type_size;
+                offset = wasm_emit_store_value(cg, ba, local_var_index, offset, arg);
             }
             //lastly, sending start address as optional arguments as the rest call parameter
             ba_add(ba, OPCODE_LOCALGET);
@@ -105,11 +103,6 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
 
     if(is_variadic_call_with_optional_arguments(cg, node)){
         // reset back to stack size
-        ba_add(ba, OPCODE_LOCALGET);
-        wasm_emit_uint(ba, local_var_index);
-        wasm_emit_const_i32(ba, stack_size);
-        ba_add(ba, OPCODE_I32ADD); // add back to original sp
-        ba_add(ba, OPCODE_GLOBALSET);
-        wasm_emit_uint(ba, 0); //global sp always is zero
+        wasm_emit_assign_var(ba, STACK_POINTER_VAR_INDEX, true, OPCODE_I32ADD, stack_size, local_var_index, false);
     }
 }

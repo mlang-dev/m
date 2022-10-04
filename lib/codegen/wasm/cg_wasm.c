@@ -192,7 +192,7 @@ struct cg_wasm *cg_wasm_new()
     MEMORY = to_symbol("memory");
     __MEMORY_BASE = to_symbol("__memory_base");
     POW_FUN_NAME = to_symbol("pow");
-    cg->compute_fun_info = wasm_compute_fun_info;
+    cg->base.compute_fun_info = wasm_compute_fun_info;
     return cg;
 }
 
@@ -200,6 +200,11 @@ void cg_wasm_free(struct cg_wasm *cg)
 {
     _cg_wasm_deinit(cg);
     free(cg);
+}
+
+struct fun_context *get_top_fun_context(struct cg_wasm *cg)
+{
+    return cg->fun_top >= 1 ? &cg->fun_contexts[cg->fun_top - 1] : 0;
 }
 
 void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -312,19 +317,6 @@ bool is_variadic_call_with_optional_arguments(struct cg_wasm *cg, struct ast_nod
     return fun_type->ft->is_variadic && array_size(&node->call->arg_block->block->nodes) >= array_size(&fun_type->ft->params->block->nodes);
 }
 
-
-void _emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
-{
-    assert(node->node_type == VAR_NODE);
-    // TODO: var_index zero better is not matched
-    if (node->var->init_value){
-        wasm_emit_code(cg, ba, node->var->init_value);
-        ba_add(ba, OPCODE_LOCALSET); // local.set
-        u32 var_index = func_context_get_var_index(cg, node->var->var_name);
-        wasm_emit_uint(ba, var_index);
-    }
-}
-
 void _emit_const_zero(struct byte_array* ba, enum  type type)
 {
     if(is_int_type(type)){
@@ -347,11 +339,6 @@ void _emit_if(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
         wasm_emit_code(cg, ba, node->cond->else_node);
     }
     ba_add(ba, OPCODE_END);
-}
-
-void _emit_struct(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
-{
-    
 }
 
 void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type type)
@@ -477,7 +464,7 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             _emit_ident(cg, ba, node);
             break;
         case VAR_NODE:
-            _emit_var(cg, ba, node);
+            wasm_emit_var(cg, ba, node);
             break;
         case IF_NODE:
             _emit_if(cg, ba, node);
@@ -486,7 +473,10 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             _emit_loop(cg, ba, node);
             break;
         case STRUCT_NODE:
-            _emit_struct(cg, ba, node);
+            wasm_emit_struct(cg, ba, node);
+            break;
+        case STRUCT_INIT_NODE:
+            wasm_emit_struct_init(cg, ba, node);
             break;
         default:
             printf("%s is not implemented !\n", node_type_strings[node->node_type]);

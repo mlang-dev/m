@@ -29,7 +29,7 @@ TEST(testJIT, testNumber)
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     auto node2 = *(ast_node **)array_back(&block->block->nodes);
@@ -50,7 +50,7 @@ TEST(testJIT, testNegNumber)
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
@@ -69,7 +69,7 @@ TEST(testJIT, testRemainderOp)
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
@@ -88,7 +88,7 @@ TEST(testJIT, testPositiveNumber)
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
@@ -107,7 +107,7 @@ TEST(testJIT, testChar)
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_CHAR, result.type);
@@ -126,7 +126,7 @@ TEST(testJIT, testString)
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_STRING, result.type);
@@ -145,7 +145,7 @@ TEST(testJIT, testTypeError)
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     eval_statement(jit, node);
     ASSERT_EQ(0, node->type);
@@ -164,7 +164,7 @@ y
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
@@ -184,7 +184,7 @@ y
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
@@ -205,7 +205,7 @@ y
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto node2 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node3 = *(ast_node **)array_get(&block->block->nodes, 2);
@@ -227,7 +227,7 @@ id 10.0
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node1 = *(ast_node **)array_front(&block->block->nodes);
     auto node2 = *(ast_node **)array_back(&block->block->nodes);
     eval_statement(jit, node1);
@@ -249,7 +249,7 @@ id_g 20
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node2 = *(ast_node **)array_back(&block->block->nodes);
@@ -273,7 +273,7 @@ sq 10.0
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
@@ -297,7 +297,7 @@ if_f 10
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     auto node2 = *(ast_node **)array_get(&block->block->nodes, 2);
@@ -323,7 +323,7 @@ forloop 4
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto node1 = *(ast_node **)array_back(&block->block->nodes);
     eval_statement(jit, node);
@@ -413,7 +413,7 @@ to_string()
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto end = 1;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -437,7 +437,7 @@ printf "hello\n"
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto end = 1;
     testing::internal::CaptureStdout();
     for (int i = 0; i < end; i++) {
@@ -460,7 +460,7 @@ printf "hello:%d" 1
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     testing::internal::CaptureStdout();
     auto end = 1;
     for (int i = 0; i < end; i++) {
@@ -487,7 +487,7 @@ xy.y
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -514,7 +514,7 @@ xy.y
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -541,7 +541,7 @@ xy.y
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);
@@ -569,7 +569,7 @@ getx()
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto end = 2;
     for (int i = 0; i < end; i++) {
         auto node = *(ast_node **)array_get(&block->block->nodes, i);

@@ -20,7 +20,7 @@ no_exist_function_call ()
     struct engine *engine = engine_llvm_new(false);
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
 
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
@@ -40,7 +40,7 @@ TEST(testAnalyzerError, testRemError)
     struct engine *engine = engine_llvm_new(false);
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     emit_code(cg, (ast_node *)block);
@@ -59,7 +59,7 @@ x:int = true
     struct engine *engine = engine_llvm_new(false);
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->sema_context, block);
+    analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
     emit_code(cg, (ast_node *)block);
