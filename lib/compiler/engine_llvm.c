@@ -7,14 +7,14 @@
 #include "sema/frontend.h"
 #include "codegen/llvm/cg_llvm.h"
 
-void *_cg_llvm_new(struct sema_context *context)
+struct codegen *_cg_llvm_new(struct sema_context *context)
 {
-    return llvm_cg_new(context);
+    return (struct codegen *)llvm_cg_new(context);
 }
 
-void _cg_llvm_free(void *cg)
+void _cg_llvm_free(struct codegen *cg)
 {
-    llvm_cg_free(cg);
+    llvm_cg_free((struct cg_llvm*)cg);
 }
 
 struct engine *engine_llvm_new(bool is_repl)

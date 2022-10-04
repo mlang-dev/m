@@ -9,7 +9,7 @@
 #include "clib/object.h"
 #include "clib/util.h"
 #include "codegen/abi_arg_info.h"
-#include "codegen/llvm/cg_fun.h"
+#include "codegen/llvm/cg_fun_llvm.h"
 #include "codegen/llvm/cg_llvm.h"
 #include "codegen/fun_info.h"
 #include "codegen/llvm/llvm_api.h"
@@ -110,11 +110,11 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
     assert(node->type);
     struct type_oper *proto_type = (struct type_oper *)node->type;
     assert(proto_type->base.kind == KIND_OPER);
-    struct fun_info *fi = compute_target_fun_info(cg->target_info, cg->compute_fun_info, node);
+    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node);
     if (out_fi)
         *out_fi = fi;
     assert(fi);
-    LLVMTypeRef fun_type = create_target_fun_type(cg->target_info, fi);
+    LLVMTypeRef fun_type = create_target_fun_type(cg->base.target_info, fi);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(node->ft->name), fun_type);
     if (fi->tai.sret_arg_no != InvalidIndex) {
         LLVMValueRef ai = LLVMGetParam(fun, fi->tai.sret_arg_no);
@@ -140,7 +140,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
     if (is_generic(node->type)) {
         return 0;
     }
-    stack_push(&cg->sema_context->func_stack, &node);
+    stack_push(&cg->base.sema_context->func_stack, &node);
     assert(node->type->kind == KIND_OPER);
     hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
@@ -189,7 +189,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
         }
         LLVMBuildRet(cg->builder, ret_val);
     }
-    struct ast_node *saved_node = *(struct ast_node **)stack_pop(&cg->sema_context->func_stack);
+    struct ast_node *saved_node = *(struct ast_node **)stack_pop(&cg->base.sema_context->func_stack);
     assert(node == saved_node);
     return fun;
 }
@@ -200,7 +200,7 @@ LLVMValueRef get_llvm_function(struct cg_llvm *cg, symbol fun_name)
     LLVMValueRef f = LLVMGetNamedFunction(cg->module, name);
     if (f)
         return f;
-    struct ast_node *fp = hashtable_get_p(&cg->sema_context->func_types, fun_name);
+    struct ast_node *fp = hashtable_get_p(&cg->base.sema_context->func_types, fun_name);
     if (fp)
         return emit_func_type_node(cg, fp);
     return 0;

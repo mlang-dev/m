@@ -52,13 +52,13 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
     symbol fn_symbol = string_2_symbol(&fn);
     enum node_type node_type = node->node_type;
     if (!node->type){
-        //analyze(jit->cg->sema_context, node);
+        //analyze(jit->cg->base.sema_context, node);
         emit_code(jit->engine->be->cg, node);
     }
     struct type_expr *type = node->type;
     struct eval_result result = { 0 };
     node = wrap_expr_as_function(&jit->engine->fe->parser->symbol_2_int_types, node, fn_symbol);
-    analyze(cg->sema_context, node);
+    analyze(cg->base.sema_context, node);
     emit_code(cg, node);
     if (node) {
         void *p_fun = emit_ir_code(cg, node);
@@ -93,7 +93,7 @@ void eval(void *p_jit, struct ast_node *node)
     if(!node) return;
     struct JIT *jit = (struct JIT *)p_jit;
     struct cg_llvm *cg = jit->engine->be->cg;
-    analyze(cg->sema_context, node);
+    analyze(cg->base.sema_context, node);
     eval_statement(p_jit, node);
 }
 

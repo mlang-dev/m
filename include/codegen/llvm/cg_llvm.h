@@ -5,8 +5,8 @@
  *
  * header file for LLVM IR codegen
  */
-#ifndef __MLANG_CODEGEN_H__
-#define __MLANG_CODEGEN_H__
+#ifndef __MLANG_CG_LLVM_H__
+#define __MLANG_CG_LLVM_H__
 
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>
@@ -17,6 +17,7 @@
 #include "codegen/llvm/llvm_api.h"
 #include "codegen/target_info.h"
 #include "codegen/fun_info.h"
+#include "codegen/codegen.h"
 #include "codegen/backend.h"
 #include "sema/sema_context.h"
 #include "sema/type.h"
@@ -60,6 +61,7 @@ struct ops {
 };
 
 struct cg_llvm {
+    struct codegen base;
     LLVMContextRef context;
     LLVMBuilderRef builder;
     LLVMModuleRef module;
@@ -77,7 +79,6 @@ struct cg_llvm {
     struct hashtable varname_2_irvalues;
 
     /* generic data structures*/
-    struct sema_context *sema_context;
     struct ops ops[TYPE_TYPES];
 
     /* 
@@ -91,14 +92,7 @@ struct cg_llvm {
      *  binding variable name to type name
      */
     struct hashtable varname_2_typename;
-
-
-    /// target info
-    struct target_info *target_info;
-
-    fn_compute_fun_info compute_fun_info;
 };
-
 
 struct cg_llvm *llvm_cg_new(struct sema_context *sema_context);
 void llvm_cg_free(struct cg_llvm *cg);
@@ -114,11 +108,9 @@ LLVMTargetDataRef get_llvm_data_layout();
 enum OS get_os();
 LLVMModuleRef get_llvm_module();
 struct cg_llvm *get_cg();
-struct hashtable *get_type_size_infos();
-
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //__MLANG_CODEGEN_H__
+#endif //__MLANG_CG_LLVM_H__

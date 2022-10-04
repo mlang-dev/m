@@ -8,8 +8,8 @@
 #include "clib/array.h"
 #include "clib/object.h"
 #include "clib/util.h"
-#include "codegen/llvm/cg_fun.h"
-#include "codegen/llvm/cg_var.h"
+#include "codegen/llvm/cg_fun_llvm.h"
+#include "codegen/llvm/cg_var_llvm.h"
 #include "codegen/llvm/cg_llvm.h"
 #include "codegen/fun_info.h"
 #include "codegen/llvm/llvm_api.h"
@@ -27,26 +27,26 @@ void _store_struct_member_values(struct cg_llvm *cg, LLVMValueRef alloca, struct
     }
 }
 
-LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *member_values, bool is_ret, const char *name)
+LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bool is_ret, const char *name)
 {
-    struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->sema_context->func_stack);
+    struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->base.sema_context->func_stack);
     struct ast_node *ft_node = parent_func->func->func_type;
-    struct type_expr *te = member_values->type;
-    LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
-    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
+    struct type_expr *te = node->type;
     struct type_size_info tsi = get_type_size_info(te);
-    struct fun_info *fi = compute_target_fun_info(cg->target_info, cg->compute_fun_info, ft_node);
+    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node);
     bool is_rvo = check_rvo(fi);
-    is_ret = is_ret || member_values->is_ret;
+    is_ret = is_ret || node->is_ret;
     LLVMValueRef alloca = 0;
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
     if (is_rvo && is_ret) {
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
         alloca = LLVMGetParam(fun, fi->tai.sret_arg_no);
-        _store_struct_member_values(cg, alloca, member_values);
+        _store_struct_member_values(cg, alloca, node);
     } else {
+        LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
         alloca = create_alloca(type, tsi.align_bits / 8, fun, name);
-        _store_struct_member_values(cg, alloca, member_values);
+        _store_struct_member_values(cg, alloca, node);
     }
     return alloca;
 }
@@ -132,8 +132,10 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
         is_external = true;
     if (!gVar) {
         if (is_external) {
+            //global variable declare without initialization, initialized elsewhere
             gVar = LLVMAddGlobal(cg->module, type, var_name);
         } else {
+            //global variable with initialization
             hashtable_set_p(&cg->cg_gvar_name_2_asts, node->var->var_name, node);
             gVar = LLVMAddGlobal(cg->module, type, var_name);
             LLVMValueRef init_value;
@@ -145,7 +147,7 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
         }
     }
     hashtable_set_p(&cg->varname_2_typename, node->var->var_name, node->type->name);
-    if (!cg->sema_context->is_repl)
+    if (!cg->base.sema_context->is_repl)
         return 0;
     //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
     struct ast_node *values = node->var->init_value;
@@ -181,7 +183,7 @@ LLVMValueRef _emit_global_var_node(struct cg_llvm *cg, struct ast_node *node,
             hashtable_set_p(&cg->cg_gvar_name_2_asts, node->var->var_name, node);
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->type), var_name);
             LLVMSetExternallyInitialized(gVar, false);
-            if (cg->sema_context->is_repl)
+            if (cg->base.sema_context->is_repl)
                 // REPL treated as the global variable initialized as zero and
                 // then updated with any expression
                 LLVMSetInitializer(gVar, cg->ops[type].get_zero(cg->context, cg->builder));
@@ -191,7 +193,7 @@ LLVMValueRef _emit_global_var_node(struct cg_llvm *cg, struct ast_node *node,
             }
         }
     }
-    if (cg->sema_context->is_repl)
+    if (cg->base.sema_context->is_repl)
         LLVMBuildStore(cg->builder, exp, gVar);
     return 0;
 }

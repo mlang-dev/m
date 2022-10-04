@@ -33,14 +33,14 @@ const char *g_sys = "\n\
 struct zf64 = re:double, im:double\n\
 ";
 
-void *_cg_wasm_new(struct sema_context *context)
+struct codegen *_cg_wasm_new(struct sema_context *context)
 {
-    return cg_wasm_new();
+    return (struct codegen *)cg_wasm_new();
 }
 
-void _cg_wasm_free(void *cg)
+void _cg_wasm_free(struct codegen *cg)
 {
-    cg_wasm_free(cg);
+    cg_wasm_free((struct cg_wasm *)cg);
 }
 
 void _categorize_imports(struct imports *imports)

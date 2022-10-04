@@ -13,6 +13,9 @@
 #include "clib/symbol.h"
 #include "clib/symboltable.h"
 #include "codegen/fun_info.h"
+#include "codegen/fun_context.h"
+#include "codegen/codegen.h"
+#include "parser/ast.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -341,33 +344,6 @@ struct var_info{
     u8 type;  //wasm type
 };
 
-struct fun_context {
-    symbol fun_name;
-    /*
-     *  symboltable of <symbol, u32>
-     *  binding variable name to index of variable in the function
-     *  used in function codegen
-     */
-    struct symboltable varname_2_index;
-
-    /*
-     *  hashtable of <struct ast_node *, u32>
-     *  binding ast_node pointer to index of local variable in the function
-     *  used in function codegen
-     */
-    struct hashtable ast_2_index;
-
-    /*
-     *  number of local variables
-     */
-    u32 local_vars;
-
-    /*
-     *  number of local params
-     */
-    u32 local_params;
-};
-
 #define FUN_LEVELS 512
 #define LOCAL_VARS 1024 //TODO: need to eliminate this limitation
 
@@ -379,6 +355,8 @@ struct imports{
 };
 
 struct cg_wasm {
+    struct codegen base;
+
     struct byte_array ba;
     struct hashtable func_name_2_idx;
     struct hashtable func_name_2_ast;
@@ -416,8 +394,6 @@ struct cg_wasm {
     struct ast_node *data_block;
 
     u32 data_offset;
-
-    fn_compute_fun_info compute_fun_info;
 };
 extern u8 type_2_store_op[TYPE_TYPES];
 extern u8 type_2_wtype[TYPE_TYPES];
@@ -429,6 +405,12 @@ void wasm_emit_module(struct cg_wasm *cg, struct ast_node *node);
 void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
+void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
+void wasm_emit_struct(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
+void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
+u32 wasm_emit_store_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct ast_node *node);
+struct fun_context *get_top_fun_context(struct cg_wasm *cg);
+
 void cg_wasm_free(struct cg_wasm *cg);
 bool is_variadic_call_with_optional_arguments(struct cg_wasm *cg, struct ast_node *node);
 

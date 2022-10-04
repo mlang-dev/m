@@ -42,9 +42,11 @@ if (WASM)
     codegen/type_size_info.c
     codegen/abi_arg_info.c
     codegen/fun_info.c
+    codegen/fun_context.c
     codegen/target_arg_info.c
     codegen/target_info.c
     codegen/wasm/cg_wasm.c
+    codegen/wasm/cg_var_wasm.c
     codegen/wasm/cg_call_wasm.c
     codegen/wasm/cg_fun_wasm.c
     codegen/wasm/wasm_abi.c
@@ -127,16 +129,18 @@ else()
     codegen/type_size_info.c
     codegen/abi_arg_info.c
     codegen/fun_info.c
+    codegen/fun_context.c
     codegen/target_info.c
     codegen/target_arg_info.c
     codegen/llvm/x86_64_abi.c
     codegen/llvm/winx86_64_abi.c
     codegen/llvm/cg_llvm.c
-    codegen/llvm/cg_fun.c
-    codegen/llvm/cg_var.c
-    codegen/llvm/cg_call.c
+    codegen/llvm/cg_fun_llvm.c
+    codegen/llvm/cg_var_llvm.c
+    codegen/llvm/cg_call_llvm.c
     codegen/llvm/llvm_api.c
     codegen/wasm/cg_wasm.c
+    codegen/wasm/cg_var_wasm.c
     codegen/wasm/cg_fun_wasm.c
     codegen/wasm/cg_call_wasm.c
     codegen/wasm/wasm_abi.c
