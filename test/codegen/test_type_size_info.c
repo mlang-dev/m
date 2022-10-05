@@ -48,8 +48,8 @@ TEST(test_type_size_info, struct_char_char)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     analyze(engine->fe->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
-    ASSERT_EQ(16, tsi.width_bits);
-    ASSERT_EQ(8, tsi.align_bits);
+    ASSERT_EQ(64, tsi.width_bits);
+    ASSERT_EQ(32, tsi.align_bits);
     ast_node_free(block);
     engine_free(engine);
 }
@@ -62,8 +62,8 @@ TEST(test_type_size_info, struct_bool_char)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     analyze(engine->fe->sema_context, node);
     struct type_size_info tsi = get_type_size_info(node->type);
-    ASSERT_EQ(16, tsi.width_bits);
-    ASSERT_EQ(8, tsi.align_bits);
+    ASSERT_EQ(64, tsi.width_bits);
+    ASSERT_EQ(32, tsi.align_bits);
     ast_node_free(block);
     engine_free(engine);
 }
