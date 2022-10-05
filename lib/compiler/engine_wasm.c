@@ -35,7 +35,7 @@ struct zf64 = re:double, im:double\n\
 
 struct codegen *_cg_wasm_new(struct sema_context *context)
 {
-    return (struct codegen *)cg_wasm_new();
+    return (struct codegen *)cg_wasm_new(context);
 }
 
 void _cg_wasm_free(struct codegen *cg)

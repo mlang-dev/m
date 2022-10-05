@@ -1,38 +1,83 @@
 #include "codegen/fun_context.h"
 #include "codegen/type_size_info.h"
+#include <assert.h>
 
 
-void fun_context_init(struct fun_context *fc)
+void fc_init(struct fun_context *fc)
 {
     fc->fun = 0;
     fc->local_vars = 0;
     fc->local_params = 0;
+    fc->local_sp = 0;
     symboltable_init(&fc->varname_2_index);
     hashtable_init(&fc->ast_2_index);
     array_init(&fc->allocs, sizeof(struct mem_alloc));
 }
 
-void fun_context_deinit(struct fun_context *fc)
+void fc_deinit(struct fun_context *fc)
 {
     array_deinit(&fc->allocs);
     hashtable_deinit(&fc->ast_2_index);
     symboltable_deinit(&fc->varname_2_index);
 }
 
-void fun_alloc_memory(struct fun_context *fc, struct ast_node *block, bool save_original_copy)
+struct var_info *fc_get_var_info(struct fun_context *fc, struct ast_node *node)
 {
+    struct var_info *vi = (struct var_info *)hashtable_get_p(&fc->ast_2_index, node);
+    assert(vi);
+    return vi;
+}
+
+struct var_info *fc_get_var_info_by_varname(struct fun_context *fc, symbol varname)
+{
+    struct var_info *vi = symboltable_get(&fc->varname_2_index, varname);
+    assert(vi);
+    return vi;
+}
+
+struct mem_alloc *fc_get_alloc(struct fun_context *fc, struct ast_node *node)
+{
+    struct var_info *vi = fc_get_var_info(fc, node);
+    if(vi->alloc_index<0) return 0;
+    return array_get(&fc->allocs, vi->alloc_index);
+}
+
+struct mem_alloc *fc_get_alloc_by_varname(struct fun_context *fc, symbol varname)
+{
+    struct var_info *vi = fc_get_var_info_by_varname(fc, varname);
+    if(vi->alloc_index<0) return 0;
+    return array_get(&fc->allocs, vi->alloc_index);
+}
+
+int fc_register_alloc(struct fun_context *fc, struct type_expr *struct_type)
+{
+    assert(struct_type->kind == KIND_OPER);
+    struct type_size_info tsi = get_type_size_info(struct_type);
     struct mem_alloc alloc;
-    u64 block_size = 0;
-    for(size_t i = 0; i < array_size(&block->block->nodes); i++){
-        struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
-        u64 size = get_type_size(node->type);
-        if (size < 4) size = 4;
-        block_size = align_to(block_size, size);
-        block_size += size;  //clang-wasm ABI always uses 16 bytes alignment
-    }
-    block_size = save_original_copy? align_to(block_size * 2, 16) : align_to(block_size, 16);
-    alloc.size = block_size;
+    alloc.size = tsi.width_bits / 8;
     alloc.mem_type = Stack;
     alloc.address = 0;
+    alloc.align = tsi.align_bits / 8;
+    if(struct_type->name){
+        alloc.sl = tsi.sl;
+    }else{
+        alloc.sl = 0;
+        sl_free(tsi.sl);
+    }
     array_push(&fc->allocs, &alloc);
+    return array_size(&fc->allocs) - 1;
+}
+
+u32 fc_get_stack_size(struct fun_context *fc)
+{
+    size_t num_allocs = array_size(&fc->allocs);
+    u32 stack_size = 0;
+    for(size_t i = 0; i < num_allocs; i++){
+        struct mem_alloc *alloc = array_get(&fc->allocs, num_allocs - 1 - i);
+        alloc->address = stack_size;
+        stack_size += alloc->size;
+    }
+    //clang-wasm ABI always uses 16 bytes alignment
+    stack_size = align_to(stack_size, 16);
+    return stack_size;
 }

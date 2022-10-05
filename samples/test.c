@@ -7,8 +7,8 @@
 #define EXPORT __attribute__((visibility("default")))
 __attribute__((import_module("imports"), import_name("print"))) void print(const char *fmt, ...);
 struct abc{
-    bool a;
-    bool b;
+    int a;
+    int b;
 };
 
 int _get_int()
@@ -34,9 +34,15 @@ double _get_double()
 
 EXPORT void _start()
 {
-    char i = 'a';
-    int j = 100;
-    print("hello: %c, %d", i, j);
+    struct abc x;
+    x.a = 100;
+    x.b = 200;
+    print("hello: %d, %d", x.a, x.b);
+
+    struct abc y;
+    x.a = 300;
+    x.b = 400;
+    print("world: %d, %d, %d, %d", x.a, x.b, y.a, y.b);
 }
 // struct Point2D {
 //     double x;

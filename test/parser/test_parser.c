@@ -592,6 +592,7 @@ xy.x";
     ASSERT_EQ(IDENT_NODE, node->binop->rhs->node_type);
     ASSERT_STREQ("xy", string_get(node->binop->lhs->ident->name));
     ASSERT_STREQ("x", string_get(node->binop->rhs->ident->name));
+    ASSERT_EQ(OP_DOT, node->binop->opcode);
     ast_node_free(block);
     parser_free(parser);
     frontend_deinit(fe);

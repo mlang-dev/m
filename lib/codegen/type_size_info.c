@@ -4,12 +4,28 @@
 #include "codegen/backend.h"
 #include <assert.h>
 
+/* 
+    *  symboltable of <symbol, struct type_size_info>
+    *  binding type name to type size
+    */
+struct hashtable g_type_infos;
+
+void tsi_init()
+{
+    hashtable_init_with_value_size(&g_type_infos, sizeof(struct type_size_info), 0);
+}
+
+void tsi_deinit()
+{
+    hashtable_deinit(&g_type_infos);
+}
+
 u64 align_to(u64 field_offset, u64 align)
 {
     return (field_offset + align - 1) / align * align;
 }
 
-void _itanium_layout_field(struct struct_layout *sl, struct type_expr *field_type)
+void _layout_field(struct struct_layout *sl, struct type_expr *field_type)
 {
     u64 field_offset_bytes = sl->data_size_bits / 8;
     //uint64_t unpadded_field_offset_bits = sl->data_size_bits - sl->unfilled_bits_last_unit;
@@ -18,8 +34,8 @@ void _itanium_layout_field(struct struct_layout *sl, struct type_expr *field_typ
 
     u64 field_size_bytes, field_align_bytes, effective_field_size_bytes;
     //bool align_required;
-    assert(field_type);
     struct type_size_info tsi = get_type_size_info(field_type);
+    array_push(&sl->field_layouts, &tsi.sl);
     effective_field_size_bytes = field_size_bytes = tsi.width_bits / 8;
     field_align_bytes = tsi.align_bits / 8;
     //align_required = tsi.align_required;
@@ -47,7 +63,7 @@ void _itanium_layout_field(struct struct_layout *sl, struct type_expr *field_typ
         sl->preferred_alignment = (u32)preferred_align_bytes;
 }
 
-void _itanium_end_layout(struct struct_layout *sl)
+void _layout_end(struct struct_layout *sl)
 {
     if (sl->size_bits < sl->padded_field_size * 8)
         sl->size_bits = sl->padded_field_size * 8;
@@ -56,30 +72,25 @@ void _itanium_end_layout(struct struct_layout *sl)
     sl->size_bits = (u32)align_to(sl->size_bits, sl->alignment * 8);
 }
 
-struct struct_layout *_itanium_layout_struct(struct type_oper *to)
+struct struct_layout *layout_struct(struct type_oper *to)
 {
-    struct struct_layout *sl = sl_new();
+    struct struct_layout *sl = sl_new(to->base.name);
     u32 member_count = (u32)array_size(&to->args);
     for (u32 i = 0; i < member_count; i++) {
         struct type_expr *field_type = *(struct type_expr **)array_get(&to->args, i);
-        _itanium_layout_field(sl, field_type);
+        _layout_field(sl, field_type);
     }
-    _itanium_end_layout(sl);
+    _layout_end(sl);
     return sl;
-}
-
-struct struct_layout *layout_struct(struct type_oper *to)
-{
-    return _itanium_layout_struct(to);
 }
 
 struct type_size_info _create_struct_type_size_info(struct type_oper *to)
 {
     struct type_size_info ti;
-    struct struct_layout *sl = _itanium_layout_struct(to);
+    struct struct_layout *sl = layout_struct(to);
     ti.width_bits = sl->size_bits;
     ti.align_bits = sl->alignment * 8;
-    sl_free(sl);
+    ti.sl = sl;
     return ti;
 }
 
@@ -88,6 +99,7 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
     struct type_size_info ti;
     ti.width_bits = 0;
     ti.align_bits = 8;
+    ti.sl = 0;
     ti.align_required = false;
     switch (type->type) {
     case TYPE_UNIT:
@@ -128,14 +140,15 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
         //assert(false);
         break;
     }
+    if(ti.width_bits < 32) ti.width_bits = 32;
+    if(ti.align_bits < 32) ti.align_bits = 32;
     return ti;
 }
 
 struct type_size_info get_type_size_info(struct type_expr *type)
 {
-    struct hashtable *type_size_infos = get_type_size_infos();
-    if (hashtable_in_p(type_size_infos, type->name)) {
-        return *(struct type_size_info *)hashtable_get_p(type_size_infos, type->name);
+    if (type->name && hashtable_in_p(&g_type_infos, type->name)) {
+        return *(struct type_size_info *)hashtable_get_p(&g_type_infos, type->name);
     }
     struct type_size_info ti;
     if (type->type == TYPE_STRUCT) {
@@ -144,7 +157,9 @@ struct type_size_info get_type_size_info(struct type_expr *type)
     } else {
         ti = _create_scalar_type_size_info(type);
     }
-    hashtable_set_p(type_size_infos, type->name, &ti);
+    if(type->name){
+        hashtable_set_p(&g_type_infos, type->name, &ti);
+    }
     return ti;
 }
 
@@ -160,10 +175,16 @@ u64 get_type_align(struct type_expr *type)
     return tsi.align_bits;
 }
 
-struct struct_layout *sl_new()
+void _free_sl(void *sl)
+{
+    sl_free(sl);
+}
+
+struct struct_layout *sl_new(symbol type_name)
 {
     struct struct_layout *sl;
     MALLOC(sl, sizeof(*sl));
+    sl->type_name = type_name;
     sl->alignment = 1;
     sl->unpacked_alignment = 1;
     sl->preferred_alignment = 1;
@@ -174,12 +195,14 @@ struct struct_layout *sl_new()
     sl->last_bit_field_storage_unit_size = 0;
     sl->padded_field_size = 0;
     sl->required_alignment = true;
-    array_init(&sl->field_offsets, sizeof(uint64_t));
+    array_init(&sl->field_offsets, sizeof(u64));
+    array_init_free(&sl->field_layouts, sizeof(struct struct_layout *), _free_sl);
     return sl;
 }
 
 void sl_free(struct struct_layout *sl)
 {
+    array_deinit(&sl->field_layouts);
     array_deinit(&sl->field_offsets);
     FREE(sl);
 }

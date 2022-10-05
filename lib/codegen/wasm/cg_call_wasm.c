@@ -34,10 +34,12 @@ u32 wasm_emit_store_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_a
     wasm_emit_get_var(ba, local_address_var_index, false); 
     // content of the arg to stack
     wasm_emit_code(cg, ba, node);  
+
     ba_add(ba, type_2_store_op[node->type->type]);
     //align(u32), and offset(u32)
     u32 node_type_size = type_size(node->type->type); 
-    wasm_emit_uint(ba, node_type_size == 8? ALIGN_EIGHT_BYTES : ALIGN_FOUR_BYTES);
+    u32 align = get_type_align(node->type) / 8;
+    wasm_emit_uint(ba, align == 8? ALIGN_EIGHT_BYTES : ALIGN_FOUR_BYTES);
     //we need to adjust offset for better alignment
     if (offset % node_type_size != 0){
         offset = (offset / node_type_size + 1) * node_type_size;
@@ -64,11 +66,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             block_node_add(block, arg);
         }
     }
-    //make a copy to prevent the callee from changing it
-    struct fun_context *fc = get_top_fun_context(cg);
-    fun_alloc_memory(fc, block, true);
-    struct mem_alloc *alloc = array_back(&fc->allocs);
-    u32 local_var_index = 0;
+    struct fun_context *fc = cg_get_top_fun_context(cg);
     //u32 arg_type_size = 0;
     if (fun_type->ft->is_variadic){ 
         if (array_size(&node->call->arg_block->block->nodes) < array_size(&fun_type->ft->params->block->nodes)){
@@ -76,28 +74,24 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         }else{
             //global variable 0 as stack pointer
             //global sp -> stack
-            local_var_index = func_get_local_var_index(cg, node);
-
-            wasm_emit_assign_var(ba, local_var_index, false, OPCODE_I32SUB, alloc->size, STACK_POINTER_VAR_INDEX, true);
+            struct var_info *vi = fc_get_var_info(fc, node);
+            struct mem_alloc *alloc = fc_get_alloc(fc, node);
+            if(alloc->address){
+                wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
+            } else {
+                wasm_emit_assign_var(ba, vi->var_index, false, 0, 0, fc->local_sp->var_index, false);
+            }
            
-            //set global sp to the new address
-            wasm_emit_assign_var(ba, STACK_POINTER_VAR_INDEX, true, 0, 0, local_var_index, false);
-
             u32 offset = 0;
-            //for (u32 i = array_size(&fun_type->ft->params->block->nodes) - 1; i < array_size(&node->call->arg_block->block->nodes); i++) {
             for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
                 arg = *(struct ast_node **)array_get(&block->block->nodes, i);
-                offset = wasm_emit_store_value(cg, ba, local_var_index, offset, arg);
+                //offset = *(u64*)array_get(&alloc->sl->field_offsets, i) / 8;
+                offset = wasm_emit_store_value(cg, ba, vi->var_index, offset, arg);
             }
             //lastly, sending start address as optional arguments as the rest call parameter
-            wasm_emit_get_var(ba, local_var_index, false);
+            wasm_emit_get_var(ba, vi->var_index, false);
         }
     }
     wasm_emit_call_fun(ba, func_index);
-
-    if(is_variadic_call_with_optional_arguments(cg, node)){
-        // reset back to stack size
-        wasm_emit_assign_var(ba, STACK_POINTER_VAR_INDEX, true, OPCODE_I32ADD, alloc->size, local_var_index, false);
-    }
     free_block_node(block, false);
 }

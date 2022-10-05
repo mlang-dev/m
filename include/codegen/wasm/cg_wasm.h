@@ -339,11 +339,6 @@ enum DataSegmentType {
     DATA_ACTIVE_M     //active, {memory idx, offset e}
 };
 
-struct var_info{
-    u32 index; //
-    u8 type;  //wasm type
-};
-
 #define FUN_LEVELS 512
 #define LOCAL_VARS 1024 //TODO: need to eliminate this limitation
 
@@ -397,10 +392,11 @@ struct cg_wasm {
 };
 extern u8 type_2_store_op[TYPE_TYPES];
 extern u8 type_2_wtype[TYPE_TYPES];
+extern u8 type_2_load_op[TYPE_TYPES];
 
 #define ASSERT_TYPE(type_index) assert(type_index > 0 && type_index < TYPE_TYPES);
 
-struct cg_wasm * cg_wasm_new();
+struct cg_wasm * cg_wasm_new(struct sema_context *context);
 void wasm_emit_module(struct cg_wasm *cg, struct ast_node *node);
 void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
@@ -409,16 +405,14 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
 void wasm_emit_struct(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 u32 wasm_emit_store_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct ast_node *node);
-struct fun_context *get_top_fun_context(struct cg_wasm *cg);
+struct fun_context *cg_get_top_fun_context(struct cg_wasm *cg);
 
 void cg_wasm_free(struct cg_wasm *cg);
 bool is_variadic_call_with_optional_arguments(struct cg_wasm *cg, struct ast_node *node);
 
-u32 func_get_local_var_index(struct cg_wasm *cg, struct ast_node *node);
-void fun_context_init(struct fun_context *fc);
-void fun_context_deinit(struct fun_context *fc);
+void fc_init(struct fun_context *fc);
+void fc_deinit(struct fun_context *fc);
 void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, enum type type, bool is_local_var);
-u32 func_context_get_var_index(struct cg_wasm *cg, symbol var_name);
 void collect_local_variables(struct cg_wasm *cg, struct ast_node *node);
 
 #ifdef __cplusplus

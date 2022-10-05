@@ -11,7 +11,8 @@ test('zf64 complex type', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-10.0
+z = zf64(10.0, 20.0)
+z.re
         `;
         expect(m.run_mcode(code)).toEqual(10.0);
     });
