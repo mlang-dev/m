@@ -143,7 +143,7 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
         field_node->type = field_type;
         array_push(&args, &field_type);
     }
-    struct type_oper *result_type = create_type_oper_ext(node->struct_def->name, &args);
+    struct type_oper *result_type = create_type_oper_struct(node->struct_def->name, &args);
     assert(node->struct_def->name == result_type->base.name);
     push_symbol_type(&context->typename_2_typexps, node->struct_def->name, result_type);
     hashtable_set_p(&context->struct_typename_2_asts, node->struct_def->name, node);

@@ -21,20 +21,14 @@ struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_
     MALLOC(be, sizeof(*be));
     be->cg = cg_alloc(sema_context);
     be->cg_free = cg_free;
-    hashtable_init_with_value_size(&be->type_size_infos, sizeof(struct type_size_info), 0);
     g_backend = be;
+    tsi_init();
     return be;
 }
 
 void backend_deinit(struct backend *be)
 {
-    hashtable_deinit(&be->type_size_infos);
+    tsi_deinit();
     be->cg_free(be->cg);
     free(be);
-}
-
-struct hashtable *get_type_size_infos()
-{
-    assert(g_backend);
-    return &g_backend->type_size_infos;
 }

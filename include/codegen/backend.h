@@ -18,12 +18,6 @@ extern "C" {
 #endif
 
 struct backend{
-    /* 
-     *  symboltable of <symbol, struct type_size_info>
-     *  binding type name to type size
-     */
-    struct hashtable type_size_infos;
-
     /*
      *  custom code generator
      */
@@ -33,7 +27,6 @@ struct backend{
 
 struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_alloc, cg_free_fun cg_free);
 void backend_deinit(struct backend *be);
-struct hashtable *get_type_size_infos();
 
 #ifdef __cplusplus
 }

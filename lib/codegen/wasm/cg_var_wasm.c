@@ -23,7 +23,7 @@
 void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == VAR_NODE);
-    u32 var_index = func_context_get_var_index(cg, node->var->var_name);
+    u32 var_index = fc_get_var_info_by_varname(cg_get_top_fun_context(cg), node->var->var_name)->var_index;
     if (node->var->init_value){
         if (node->type->type==TYPE_STRUCT){
             wasm_emit_struct_init(cg, ba, node->var->init_value);
@@ -50,7 +50,7 @@ void _wasm_store_struct_init_members(struct cg_wasm *cg, u32 local_var_index, st
 
 void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
-    struct fun_context *fc = get_top_fun_context(cg);
+    struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *ft_node = fc->fun->func->func_type;
     //struct type_expr *te = node->type;
     //struct type_size_info tsi = get_type_size_info(te);
@@ -62,12 +62,9 @@ void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast
         //function parameter with sret: just directly used the pointer passed
         _wasm_store_struct_init_members(cg, fi->tai.sret_arg_no, ba, node);
     } else {
-        struct var_info *vi = hashtable_get_p(&fc->ast_2_index, node);
-        assert(vi);
-        int alloc_index = hashtable_get_int(&fc->ast_2_alloc_index, node);
-        assert(alloc_index>=0);
-        struct mem_alloc *alloc = array_get(&fc->allocs, alloc_index);
-        wasm_emit_assign_var(ba, vi->index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->index, false);
-        _wasm_store_struct_init_members(cg, vi->index, ba, node);
+        struct var_info *vi = fc_get_var_info(fc, node);
+        struct mem_alloc *alloc = fc_get_alloc(fc, node);
+        wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
+        _wasm_store_struct_init_members(cg, vi->var_index, ba, node);
     }
 }

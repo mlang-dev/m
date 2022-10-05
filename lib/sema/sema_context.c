@@ -105,3 +105,14 @@ struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name)
 {
     return hashtable_get(&context->generic_ast, string_get(fun_name));
 }
+
+struct field_info sc_get_field_info(struct sema_context *sc, symbol struct_name, symbol field_name)
+{
+    struct ast_node *struct_node = hashtable_get_p(&sc->struct_typename_2_asts, struct_name);
+    assert(struct_node->type->kind == KIND_OPER);
+    struct type_oper *struct_type = (struct type_oper*)struct_node->type;
+    struct field_info field;
+    field.index = find_member_index(struct_node, field_name);
+    field.type = *(struct type_expr **)array_get(&struct_type->args, field.index);
+    return field;
+}

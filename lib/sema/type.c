@@ -106,7 +106,7 @@ struct type_oper *create_unit_type()
     return oper;
 }
 
-struct type_oper *create_type_oper_ext(symbol type_name, struct array *args)
+struct type_oper *create_type_oper_struct(symbol type_name, struct array *args)
 {
     return create_type_oper(type_name, TYPE_STRUCT, args);
 }
@@ -284,7 +284,7 @@ struct type_expr *_freshrec(struct type_expr *type, struct array *nongens, struc
         array_push(&refreshed, &new_arg_type);
     }
     if (type->type == TYPE_STRUCT) {
-        return (struct type_expr *)create_type_oper_ext(type->name, &refreshed);
+        return (struct type_expr *)create_type_oper_struct(type->name, &refreshed);
     }
     return (struct type_expr *)create_type_oper(type->name, type->type, &refreshed);
 }

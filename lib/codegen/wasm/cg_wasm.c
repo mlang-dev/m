@@ -49,7 +49,7 @@ u8 type_2_wtype[TYPE_TYPES] = {
     /*DOUBLE*/ WASM_TYPE_F64,
     /*STRING*/ WASM_TYPE_I32,
     /*FUNCTION*/ 0,
-    /*STRUCT*/ 0,
+    /*STRUCT*/ WASM_TYPE_I32,
     /*UNION*/ 0,
 };
 
@@ -63,6 +63,21 @@ u8 type_2_store_op[TYPE_TYPES] = {
     /*FLOAT*/ OPCODE_F32STORE,
     /*DOUBLE*/ OPCODE_F64STORE,
     /*STRING*/ OPCODE_I32STORE,
+    /*FUNCTION*/ 0,
+    /*STRUCT*/ 0,
+    /*UNION*/ 0,
+};
+
+u8 type_2_load_op[TYPE_TYPES] = {
+    /*UNK*/ 0,
+    /*GENERIC*/ 0,
+    /*UNIT*/ 0,
+    /*BOOL*/ OPCODE_I32LOAD,
+    /*CHAR*/ OPCODE_I32LOAD,
+    /*INT*/ OPCODE_I32LOAD,
+    /*FLOAT*/ OPCODE_F32LOAD,
+    /*DOUBLE*/ OPCODE_F64LOAD,
+    /*STRING*/ OPCODE_I32LOAD,
     /*FUNCTION*/ 0,
     /*STRUCT*/ 0,
     /*UNION*/ 0,
@@ -150,7 +165,7 @@ void _cg_wasm_init(struct cg_wasm *cg)
     hashtable_init(&cg->func_name_2_ast);
 
     // for(u32 i = 0; i < FUN_LEVELS; i++){
-    //     fun_context_init(&cg->fun_contexts[i]);
+    //     fc_init(&cg->fun_contexts[i]);
     // }
     _imports_init(&cg->imports);
     cg->sys_block = 0;
@@ -168,7 +183,7 @@ void _cg_wasm_deinit(struct cg_wasm *cg)
     _imports_deinit(&cg->imports);
     ast_node_free(cg->sys_block);
     // for (u32 i = 0; i < FUN_LEVELS; i++) {
-    //     fun_context_deinit(&cg->fun_contexts[i]);
+    //     fc_deinit(&cg->fun_contexts[i]);
     // }
     cg->fun_top = 0;
     hashtable_deinit(&cg->func_name_2_ast);
@@ -185,6 +200,38 @@ void _cg_wasm_deinit(struct cg_wasm *cg)
     }
 }
 
+TargetType _get_function_type(TargetType ret_type, TargetType *param_types, unsigned param_count, bool is_variadic)
+{
+    return 0;
+}
+
+TargetType _get_target_type(struct type_expr *type)
+{
+    return &type_2_wtype[type->type];
+}
+
+TargetType _get_pointer_type(TargetType type)
+{
+    return &type_2_wtype[TYPE_INT];
+}
+
+TargetType _get_size_int_type(unsigned width)
+{
+    return &type_2_wtype[TYPE_INT];
+}
+
+
+void _init_target_info(struct target_info *ti)
+{
+    ti->extend_type = &type_2_wtype[TYPE_INT]; //would use 32 bits
+    ti->get_size_int_type = _get_size_int_type;
+    ti->get_pointer_type = _get_pointer_type; //LLVMPointerType(get_llvm_type(fi->ret.type), 0)
+    ti->get_target_type = _get_target_type; //get_llvm_type(fi->ret.type)
+    ti->get_function_type = _get_function_type;
+    ti->fill_struct_fields = 0;//
+    ti->get_count_struct_element_types = 0; //LLVMCountStructElementTypes
+    ti->void_type = &type_2_wtype[TYPE_UNIT];
+}
 struct cg_wasm *cg_wasm_new(struct sema_context *context)
 {
     struct cg_wasm *cg;
@@ -196,16 +243,18 @@ struct cg_wasm *cg_wasm_new(struct sema_context *context)
     cg->base.compute_fun_info = wasm_compute_fun_info;
     cg->base.sema_context = context;
     cg->base.target_info = ti_new("wasm32");
+    _init_target_info(cg->base.target_info);
     return cg;
 }
 
 void cg_wasm_free(struct cg_wasm *cg)
 {
     _cg_wasm_deinit(cg);
+    ti_free(cg->base.target_info);
     free(cg);
 }
 
-struct fun_context *get_top_fun_context(struct cg_wasm *cg)
+struct fun_context *cg_get_top_fun_context(struct cg_wasm *cg)
 {
     return cg->fun_top >= 1 ? &cg->fun_contexts[cg->fun_top - 1] : 0;
 }
@@ -291,6 +340,20 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     }
 }
 
+void _emit_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+{
+    //lhs is struct var, rhs is field var name
+    struct fun_context *fc = cg_get_top_fun_context(cg);
+    struct var_info *vi = fc_get_var_info_by_varname(fc, node->binop->lhs->ident->name);
+    assert(vi->alloc_index>=0);
+    struct mem_alloc *alloc = fc_get_alloc_by_varname(fc, node->binop->lhs->ident->name);
+    struct field_info field = sc_get_field_info(cg->base.sema_context, alloc->sl->type_name, node->binop->rhs->ident->name);
+    //get memory address
+    u32 field_offset = *(u64 *)array_get(&alloc->sl->field_offsets, field.index) / 8;
+    u32 align = get_type_align(field.type) / 8;
+    wasm_emit_load_from_mem(ba, fc->local_sp->var_index, false, align, alloc->address + field_offset, field.type->type);
+}
+
 void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     wasm_emit_code(cg, ba, node->binop->lhs);
@@ -356,10 +419,11 @@ void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type 
 
 void _emit_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
+    struct fun_context *fc = cg_get_top_fun_context(cg);
     assert(node->node_type == FOR_NODE);
-    u32 var_index = func_context_get_var_index(cg, node->forloop->var_name);
-    u32 step_index = func_get_local_var_index(cg, node->forloop->step);
-    u32 end_index = func_get_local_var_index(cg, node->forloop->end);
+    u32 var_index = fc_get_var_info_by_varname(fc, node->forloop->var_name)->var_index;
+    u32 step_index = fc_get_var_info(fc, node->forloop->step)->var_index;
+    u32 end_index = fc_get_var_info(fc, node->forloop->end)->var_index;
     enum type type = node->forloop->end->type->type;
     enum type body_type = node->forloop->body->type->type;
     ASSERT_TYPE(type);
@@ -427,10 +491,9 @@ void _emit_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
 void _emit_ident(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == IDENT_NODE);
-    u32 var_index = func_context_get_var_index(cg, node->ident->name);
+    u32 var_index = fc_get_var_info_by_varname(cg_get_top_fun_context(cg), node->ident->name)->var_index;
     //TODO: var_index zero better is not matched
-    ba_add(ba, OPCODE_LOCALGET); // num local variables
-    wasm_emit_uint(ba, var_index);
+    wasm_emit_get_var(ba, var_index, false);
 }
 
 void _emit_block(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -452,7 +515,11 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             _emit_block(cg, ba, node);
             break;
         case BINARY_NODE:
-            _emit_binary(cg, ba, node);
+            if(node->binop->opcode == OP_DOT){
+                _emit_field_accessor(cg, ba, node);
+            }else{
+                _emit_binary(cg, ba, node);
+            }
             break;
         case UNARY_NODE:
             _emit_unary(cg, ba, node);
