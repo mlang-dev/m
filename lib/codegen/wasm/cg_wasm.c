@@ -351,7 +351,7 @@ void _emit_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_
     //get memory address
     u32 field_offset = *(u64 *)array_get(&alloc->sl->field_offsets, field.index) / 8;
     u32 align = get_type_align(field.type) / 8;
-    wasm_emit_load_from_mem(ba, fc->local_sp->var_index, false, align, alloc->address + field_offset, field.type->type);
+    wasm_emit_load_mem(ba, fc->local_sp->var_index, false, align, alloc->address + field_offset, field.type->type);
 }
 
 void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
