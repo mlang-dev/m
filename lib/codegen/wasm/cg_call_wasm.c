@@ -29,24 +29,13 @@ bool _is_indirect(struct type_expr *type)
     return is_aggregate_type(type->type) && !is_empty_struct(type) && !is_single_element_struct(type);
 }
 
-u32 wasm_emit_store_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct ast_node *node)
+void wasm_emit_store_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node)
 {
     wasm_emit_get_var(ba, local_address_var_index, false); 
     // content of the arg to stack
     wasm_emit_code(cg, ba, node);  
 
-    ba_add(ba, type_2_store_op[node->type->type]);
-    //align(u32), and offset(u32)
-    u32 node_type_size = type_size(node->type->type); 
-    u32 align = get_type_align(node->type) / 8;
-    wasm_emit_uint(ba, align == 8? ALIGN_EIGHT_BYTES : ALIGN_FOUR_BYTES);
-    //we need to adjust offset for better alignment
-    if (offset % node_type_size != 0){
-        offset = (offset / node_type_size + 1) * node_type_size;
-    }
-    wasm_emit_uint(ba, offset);
-    offset += node_type_size;
-    return offset;
+    wasm_emit_store_mem(ba, align, offset, node->type->type);
 }
 
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -85,8 +74,9 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             u32 offset = 0;
             for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
                 arg = *(struct ast_node **)array_get(&block->block->nodes, i);
-                //offset = *(u64*)array_get(&alloc->sl->field_offsets, i) / 8;
-                offset = wasm_emit_store_value(cg, ba, vi->var_index, offset, arg);
+                offset = *(u64*)array_get(&alloc->sl->field_offsets, i) / 8;
+                u32 align = get_type_align(arg->type) / 8;
+                wasm_emit_store_value(cg, ba, vi->var_index, align, offset, arg);
             }
             //lastly, sending start address as optional arguments as the rest call parameter
             wasm_emit_get_var(ba, vi->var_index, false);

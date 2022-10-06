@@ -164,11 +164,18 @@ void wasm_emit_call_fun(WasmModule ba, u32 fun_index)
     wasm_emit_uint(ba, fun_index);
 }
 
-void wasm_emit_load_from_mem(WasmModule ba, u32 addr_var_index, bool is_global, u32 align, u32 offset, enum type type)
+void wasm_emit_load_mem(WasmModule ba, u32 addr_var_index, bool is_global, u32 align, u32 offset, enum type type)
 {
     assert(align <= 8);
     wasm_emit_get_var(ba, addr_var_index, is_global);
     ba_add(ba, type_2_load_op[type]);
+    wasm_emit_uint(ba, aligns[align]);
+    wasm_emit_uint(ba, offset);
+}
+
+void wasm_emit_store_mem(WasmModule ba, u32 align, u32 offset, enum type type)
+{
+    ba_add(ba, type_2_store_op[type]);
     wasm_emit_uint(ba, aligns[align]);
     wasm_emit_uint(ba, offset);
 }

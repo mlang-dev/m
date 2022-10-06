@@ -41,10 +41,14 @@ void wasm_emit_struct(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
 
 void _wasm_store_struct_init_members(struct cg_wasm *cg, u32 local_var_index, struct byte_array *ba, struct ast_node *node)
 {
-    u32 offset = 0;
+    assert(node->type->kind == KIND_OPER && node->type->type == TYPE_STRUCT);
+    struct type_size_info tsi = get_type_size_info(node->type);
+    u32 align, offset;
     for (size_t i = 0; i < array_size(&node->struct_init->body->block->nodes); i++) {
         struct ast_node *member = *(struct ast_node **)array_get(&node->struct_init->body->block->nodes, i);
-        offset = wasm_emit_store_value(cg, ba, local_var_index, offset, member);
+        align = get_type_align(member->type) / 8;
+        offset = *(u64*)array_get(&tsi.sl->field_offsets, i) / 8;
+        wasm_emit_store_value(cg, ba, local_var_index, align, offset, member);
     }
 }
 

@@ -16,6 +16,12 @@ void fc_init(struct fun_context *fc)
 
 void fc_deinit(struct fun_context *fc)
 {
+    for(size_t i = 0; i < array_size(&fc->allocs); i++){
+        struct mem_alloc *alloc = array_get(&fc->allocs, i);
+        if(alloc->sl && !alloc->sl->type_name){
+            sl_free(alloc->sl);
+        }
+    }
     array_deinit(&fc->allocs);
     hashtable_deinit(&fc->ast_2_index);
     symboltable_deinit(&fc->varname_2_index);
@@ -58,12 +64,7 @@ int fc_register_alloc(struct fun_context *fc, struct type_expr *struct_type)
     alloc.mem_type = Stack;
     alloc.address = 0;
     alloc.align = tsi.align_bits / 8;
-    if(struct_type->name){
-        alloc.sl = tsi.sl;
-    }else{
-        alloc.sl = 0;
-        sl_free(tsi.sl);
-    }
+    alloc.sl = tsi.sl;
     array_push(&fc->allocs, &alloc);
     return array_size(&fc->allocs) - 1;
 }
