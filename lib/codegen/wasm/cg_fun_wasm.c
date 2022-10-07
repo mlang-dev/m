@@ -57,6 +57,9 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
         case BINARY_NODE:
             func_register_local_variable(cg, node, true);
             break;
+        case MEMBER_INDEX_NODE:
+            func_register_local_variable(cg, node, true);
+            break;
         case FOR_NODE:
             func_register_local_variable(cg, node, true);
             collect_local_variables(cg, node->forloop->body);
@@ -129,6 +132,13 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         //     hashtable_set_p(&fc->ast_2_index, node->var->init_value, vi);
         // }
         symboltable_push(&fc->varname_2_index, node->var->var_name, vi);
+        break;
+    case MEMBER_INDEX_NODE:
+        if(node->index->object->type->type == TYPE_STRUCT && node->index->object->node_type != IDENT_NODE){
+            vi = _req_new_local_var(cg, node->index->object->type->type, is_local_var);
+            vi->alloc_index = fc_register_alloc(fc, node->index->object->type);
+            hashtable_set_p(&fc->ast_2_index, node->index->object, vi);
+        }
         break;
     case BINARY_NODE:
         if(node->binop->lhs->type->type == TYPE_STRUCT && node->binop->lhs->node_type != IDENT_NODE){

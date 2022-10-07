@@ -47,7 +47,7 @@ void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32
         u32 align = get_type_align(field->type) / 8;
         if(field->type->type == TYPE_STRUCT){
             assert(field->node_type == STRUCT_INIT_NODE);
-            struct struct_layout *field_sl = array_get(&sl->field_layouts, i);
+            struct struct_layout *field_sl = *(struct struct_layout**)array_get(&sl->field_layouts, i);
             wasm_emit_store_struct_value(cg, ba, local_address_var_index, offset + field_offset, field_sl, field->struct_init->body);
         }else{
             wasm_emit_store_scalar_value(cg, ba, local_address_var_index, align, offset + field_offset, field);

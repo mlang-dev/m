@@ -19,10 +19,9 @@ TEST(test_wasm_codegen, parse_as_module)
     struct engine* engine = engine_wasm_new();
     struct cg_wasm *cg = engine->be->cg;
     char test_code[] = "\n\
-let shift z:zf64 = \n\
-    zf64(z.re + 100.0, z.im + 200.0)\n\
-result = shift (zf64(10.0, 20.0))\n\
-result.re + result.im\n\
+struct AB = a:cf64, b:cf64\n\
+ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))\n\
+ab.b.im\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);

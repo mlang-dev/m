@@ -220,6 +220,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         node1 = items[rule->action.item_index[2]].ast;
         ast = binary_node_new(opcode, node, node1, node->loc);
         break;
+    case MEMBER_INDEX_NODE:
+        node = items[rule->action.item_index[0]].ast;
+        node1 = items[rule->action.item_index[1]].ast;
+        ast = member_index_node_new(node, node1, node->loc);
+        break;
     case FUNC_TYPE_NODE:
         assert(rule->action.item_index_count == 3);
         node = items[rule->action.item_index[0]].ast; //fun name

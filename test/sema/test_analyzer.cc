@@ -608,7 +608,7 @@ xy.x
     type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     node = *(ast_node **)array_get(&block->block->nodes, 2);
-    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
     ast_node_free(block);
@@ -636,7 +636,7 @@ xy.x
     type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     node = *(ast_node **)array_get(&block->block->nodes, 2);
-    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("double", string_get(&type_str));
     ast_node_free(block);
