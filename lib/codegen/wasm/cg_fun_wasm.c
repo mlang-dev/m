@@ -50,6 +50,7 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
             break;
         case STRUCT_INIT_NODE:
             func_register_local_variable(cg, node, true);
+            break;
         case BINARY_NODE:
             func_register_local_variable(cg, node, true);
             break;
