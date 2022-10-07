@@ -71,7 +71,6 @@ test('zf64 complex fun pass value without temp var', () => {
 let im z:zf64 = z.im
 im (zf64(10.0, 20.0))
         `;
-        m.compile(code, "test2.wasm");
         expect(m.run_mcode(code)).toEqual(20.0);
     });
 });
@@ -85,7 +84,6 @@ let im z:zf64 =
     z.im + 200.0
 im (zf64(10.0, 20.0))
         `;
-        m.compile(code, "test2.wasm");
         expect(m.run_mcode(code)).toEqual(220.0);
     });
 });
@@ -99,8 +97,28 @@ let shift z:zf64 =
 result = shift (zf64(10.0, 20.0))
 result.re + result.im
         `;
-        m.compile(code, "test2.wasm");
         expect(m.run_mcode(code)).toEqual(110.0 + 220.0);
     });
 });
 
+test('struct with different types', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+struct A = x:int, y:double
+a = A(10, 20.0)
+a.y`;
+        expect(m.run_mcode(code)).toEqual(20.0);
+    });
+});
+
+// test('struct in struct', () => {
+//     var result = get_mw();
+//     return result.then((m) => {
+//         let code = `
+// struct A = a:zf64, b:zf64
+// a = A(zf64(10.0, 20.0), zf64(30.0, 40.0))
+// a.b.im`;
+//         expect(m.run_mcode(code)).toEqual(40.0);
+//     });
+// });

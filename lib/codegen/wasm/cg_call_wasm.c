@@ -29,13 +29,30 @@ bool _is_indirect(struct type_expr *type)
     return is_aggregate_type(type->type) && !is_empty_struct(type) && !is_single_element_struct(type);
 }
 
-void wasm_emit_store_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node)
+void wasm_emit_store_scalar_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node)
 {
     wasm_emit_get_var(ba, local_address_var_index, false); 
     // content of the arg to stack
     wasm_emit_code(cg, ba, node);  
-
     wasm_emit_store_mem(ba, align, offset, node->type->type);
+}
+
+void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct struct_layout *sl, struct ast_node *block)
+{
+    struct ast_node *field;
+    u32 field_offset;
+    for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
+        field = *(struct ast_node **)array_get(&block->block->nodes, i);
+        field_offset = *(u64*)array_get(&sl->field_offsets, i) / 8;
+        u32 align = get_type_align(field->type) / 8;
+        if(field->type->type == TYPE_STRUCT){
+            assert(field->node_type == STRUCT_INIT_NODE);
+            struct struct_layout *field_sl = array_get(&sl->field_layouts, i);
+            wasm_emit_store_struct_value(cg, ba, local_address_var_index, offset + field_offset, field_sl, field->struct_init->body);
+        }else{
+            wasm_emit_store_scalar_value(cg, ba, local_address_var_index, align, offset + field_offset, field);
+        }
+    }
 }
 
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -76,14 +93,8 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             vi = fc_get_var_info(fc, node);
             alloc = fc_get_alloc(fc, node);
             wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
-           
-            u32 offset = 0;
-            for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
-                arg = *(struct ast_node **)array_get(&block->block->nodes, i);
-                offset = *(u64*)array_get(&alloc->sl->field_offsets, i) / 8;
-                u32 align = get_type_align(arg->type) / 8;
-                wasm_emit_store_value(cg, ba, vi->var_index, align, offset, arg);
-            }
+
+            wasm_emit_store_struct_value(cg, ba, vi->var_index, 0, alloc->sl, block);
             //lastly, sending start address as optional arguments as the rest call parameter
             wasm_emit_get_var(ba, vi->var_index, false);
         }
