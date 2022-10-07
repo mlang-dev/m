@@ -344,14 +344,22 @@ void _emit_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_
 {
     //lhs is struct var, rhs is field var name
     struct fun_context *fc = cg_get_top_fun_context(cg);
-    struct var_info *vi = fc_get_var_info_by_varname(fc, node->binop->lhs->ident->name);
-    assert(vi->alloc_index>=0);
-    struct mem_alloc *alloc = fc_get_alloc_by_varname(fc, node->binop->lhs->ident->name);
-    struct field_info field = sc_get_field_info(cg->base.sema_context, alloc->sl->type_name, node->binop->rhs->ident->name);
+    struct field_info field = sc_get_field_info(cg->base.sema_context, node->binop->lhs->type->name, node->binop->rhs->ident->name);
     //get memory address
-    u32 field_offset = *(u64 *)array_get(&alloc->sl->field_offsets, field.index) / 8;
+    struct struct_layout *sl = get_type_size_info(node->binop->lhs->type).sl;
+    struct var_info*vi;
+    if(node->binop->lhs->node_type == IDENT_NODE) {
+         vi = fc_get_var_info_by_varname(fc, node->binop->lhs->ident->name);
+    } else {
+        vi = fc_get_var_info(fc, node->binop->lhs);
+        wasm_emit_code(cg, ba, node->binop->lhs);
+        /*sret*/
+        //alloc = fc_get_alloc(fc, node->binop->lhs);
+        wasm_emit_set_var(ba, vi->var_index, false);
+    }
+    u32 field_offset = *(u64 *)array_get(&sl->field_offsets, field.index) / 8;
     u32 align = get_type_align(field.type) / 8;
-    wasm_emit_load_mem(ba, fc->local_sp->var_index, false, align, alloc->address + field_offset, field.type->type);
+    wasm_emit_load_mem(ba, vi->var_index, false, align, field_offset, field.type->type);
 }
 
 void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -545,9 +553,9 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case STRUCT_NODE:
             wasm_emit_struct(cg, ba, node);
             break;
-        // case STRUCT_INIT_NODE:
-        //     wasm_emit_struct_init(cg, ba, node);
-        //     break;
+        case STRUCT_INIT_NODE:
+            wasm_emit_struct_init(cg, ba, node);
+            break;
         default:
             printf("%s is not implemented !\n", node_type_strings[node->node_type]);
             exit(-1);
@@ -565,27 +573,41 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
 {
     u32 func_types = array_size(&block->block->nodes);
     wasm_emit_uint(ba, func_types);
-    struct ast_node *func;
+    struct ast_node *func_type_node;
     u32 i, j;
-    struct type_oper *to;
+    u32 pi; /*param index*/
+    struct type_expr *te;
     for (i = 0; i < func_types; i++) {
-        func = *(struct ast_node **)array_get(&block->block->nodes, i);
-        struct type_oper *func_type = (struct type_oper *)func->type;
+        func_type_node = *(struct ast_node **)array_get(&block->block->nodes, i);
+        struct type_oper *func_type = (struct type_oper *)func_type_node->type;
         u32 num_params = array_size(&func_type->args) - 1;
+        struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, func_type_node);
+        bool has_sret = fi_has_sret(fi);
         ba_add(ba, TYPE_FUNC);
+        if(has_sret){
+            num_params += 1;
+        }
         wasm_emit_uint(ba, num_params); // num params
         for (j = 0; j < num_params; j++) {
-            to = *(struct type_oper **)array_get(&func_type->args, j);
-            ASSERT_TYPE(to->base.type);
-            ba_add(ba, type_2_wtype[to->base.type]);
+            pi = j;
+            if(has_sret){
+                if(j) pi = j - 1;
+                else pi = num_params - 1;
+            }
+            te = *(struct type_expr **)array_get(&func_type->args, pi);
+            ASSERT_TYPE(te->type);
+            ba_add(ba, type_2_wtype[te->type]);
         }
-        to = *(struct type_oper **)array_back(&func_type->args);
-        ASSERT_TYPE(to->base.type);
-        if (to->base.type == TYPE_UNIT) {
+        te = *(struct type_expr **)array_back(&func_type->args);
+        if(!(te->type && te->type < TYPE_TYPES)){
+            printf("invalid ret type: %d for fun: %s", te->type, string_get(func_type_node->ft->name));
+            exit(-1);
+        }
+        if (te->type == TYPE_UNIT||has_sret) {
             ba_add(ba, 0); // num result
         } else {
             ba_add(ba, 1); // num result
-            ba_add(ba, type_2_wtype[to->base.type]); // i32 output
+            ba_add(ba, type_2_wtype[te->type]); // i32 output
         }
     }
 }

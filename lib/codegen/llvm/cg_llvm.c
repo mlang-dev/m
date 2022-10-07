@@ -340,7 +340,7 @@ struct ops ext_ops = {
 
 void _set_bin_ops(struct cg_llvm *cg)
 {
-    cg->ops[TYPE_UNK] = double_ops;
+    cg->ops[TYPE_NULL] = double_ops;
     cg->ops[TYPE_GENERIC] = double_ops;
     cg->ops[TYPE_UNIT] = double_ops;
     cg->ops[TYPE_BOOL] = bool_ops;

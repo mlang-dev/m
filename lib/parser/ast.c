@@ -295,7 +295,7 @@ struct ast_node *var_node_new2(symbol var_name, symbol type_name,
 struct ast_node *_copy_var_node(struct ast_node *orig_node)
 {
     return var_node_new(
-        orig_node->var->var_name, orig_node->type ? orig_node->type->type : TYPE_UNK, orig_node->annotated_type_name,
+        orig_node->var->var_name, orig_node->type ? orig_node->type->type : TYPE_NULL, orig_node->annotated_type_name,
         node_copy(orig_node->var->init_value), orig_node->var->is_global, orig_node->loc);
 }
 

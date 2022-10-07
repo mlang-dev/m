@@ -25,12 +25,8 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
     assert(node->node_type == VAR_NODE);
     u32 var_index = fc_get_var_info_by_varname(cg_get_top_fun_context(cg), node->var->var_name)->var_index;
     if (node->var->init_value){
-        if (node->type->type==TYPE_STRUCT){
-            wasm_emit_struct_init(cg, ba, node->var->init_value);
-        }else{
-            wasm_emit_code(cg, ba, node->var->init_value);
-            wasm_emit_set_var(ba, var_index, false);
-        }
+        wasm_emit_code(cg, ba, node->var->init_value);
+        wasm_emit_set_var(ba, var_index, false);
     }
 }
 
@@ -65,10 +61,12 @@ void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
         _wasm_store_struct_init_members(cg, fi->tai.sret_arg_no, ba, node);
+        //no return
     } else {
         struct var_info *vi = fc_get_var_info(fc, node);
         struct mem_alloc *alloc = fc_get_alloc(fc, node);
         wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
         _wasm_store_struct_init_members(cg, vi->var_index, ba, node);
+        wasm_emit_get_var(ba, vi->var_index, false);
     }
 }

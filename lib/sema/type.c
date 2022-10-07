@@ -103,6 +103,7 @@ struct type_oper *create_unit_type()
     oper->base.kind = KIND_OPER;
     oper->base.type = TYPE_UNIT;
     oper->base.name = type_symbols[TYPE_UNIT];
+    array_init(&oper->args, sizeof(struct type_expr *));
     return oper;
 }
 
@@ -151,8 +152,10 @@ struct type_expr *prune(struct type_expr *type)
     } else {
         assert(type->kind == KIND_OPER);
         struct type_oper *op_type = (struct type_oper *)type;
+        struct type_expr *argt;
         for (unsigned i = 0; i < array_size(&op_type->args); ++i) {
-            struct type_expr *element_type = prune(*(struct type_expr **)array_get(&op_type->args, i));
+            argt = *(struct type_expr **)array_get(&op_type->args, i);
+            struct type_expr *element_type = prune(argt);
             array_set(&op_type->args, i, &element_type);
         }
     }
@@ -379,8 +382,10 @@ bool is_generic(struct type_expr *type)
     if (type->kind == KIND_VAR)
         return true;
     struct type_oper *op = (struct type_oper *)type;
+    struct type_expr *argt;
     for (size_t i = 0; i < array_size(&op->args); i++) {
-        type = prune(*(struct type_expr **)array_get(&op->args, i));
+        argt = *(struct type_expr **)array_get(&op->args, i);
+        type = prune(argt);
         if (type->kind == KIND_VAR)
             return true;
     }

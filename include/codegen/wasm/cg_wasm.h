@@ -16,6 +16,7 @@
 #include "codegen/fun_context.h"
 #include "codegen/codegen.h"
 #include "parser/ast.h"
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -389,7 +390,7 @@ extern u8 type_2_store_op[TYPE_TYPES];
 extern u8 type_2_wtype[TYPE_TYPES];
 extern u8 type_2_load_op[TYPE_TYPES];
 
-#define ASSERT_TYPE(type_index) assert(type_index > 0 && type_index < TYPE_TYPES);
+#define ASSERT_TYPE(type_index) assert(type_index > TYPE_NULL && type_index < TYPE_TYPES);
 
 struct cg_wasm * cg_wasm_new(struct sema_context *context);
 void wasm_emit_module(struct cg_wasm *cg, struct ast_node *node);
@@ -407,7 +408,7 @@ bool is_variadic_call_with_optional_arguments(struct cg_wasm *cg, struct ast_nod
 
 void fc_init(struct fun_context *fc);
 void fc_deinit(struct fun_context *fc);
-void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, enum type type, bool is_local_var);
+void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, bool is_local_var);
 void collect_local_variables(struct cg_wasm *cg, struct ast_node *node);
 
 #ifdef __cplusplus

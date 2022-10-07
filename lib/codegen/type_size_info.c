@@ -136,7 +136,7 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
     case TYPE_UNION:
     case TYPE_COMPLEX:
     case TYPE_TYPES:
-    case TYPE_UNK:
+    case TYPE_NULL:
         //assert(false);
         break;
     }

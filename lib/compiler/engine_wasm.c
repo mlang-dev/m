@@ -111,6 +111,8 @@ struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbo
                 hashtable_set_int(&cg->func_name_2_idx, node->ft->name, cg->func_idx++);
                 hashtable_set_p(&cg->func_name_2_ast, node->ft->name, node);
             }
+        } else if(node->node_type == STRUCT_NODE){
+            block_node_add(wmodule, node);
         } else {
             block_node_add(_start_block, node);
         }
@@ -121,8 +123,10 @@ struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbo
         struct type_expr *ret_type = prune(ret->type);
         assert(ret_type->kind == KIND_OPER);
         _start_func->type = (struct type_expr *)wrap_as_fun_type((struct type_oper *)ret_type);
-        _start_func->func->func_type->type = _start_func->type;
+    }else{
+        _start_func->type = (struct type_expr *)wrap_as_fun_type(create_unit_type());
     }
+    _start_func->func->func_type->type = _start_func->type;
     block_node_add(wmodule, _start_func);
     block_node_add(cg->fun_types, _start_func->func->func_type);
     block_node_add(cg->funs, _start_func);

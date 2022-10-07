@@ -20,8 +20,8 @@ primary_expr    = INT
 postfix_expr    = primary_expr
                 | postfix_expr '[' expr ']'                                                 { binop 0 1 2 } # lhs op rhs
                 | struct_init                                                           
-                | func_call
                 | postfix_expr '.' IDENT                                                    { binop 0 1 2 } 
+                | func_call
                 | postfix_expr "++"                                                         { unop 1 0 } # the disorder of operator and operand indicates a postfix op
                 | postfix_expr "--"                                                         { unop 1 0 }
 

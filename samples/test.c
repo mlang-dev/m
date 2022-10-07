@@ -24,7 +24,7 @@ struct abc _get_struct()
 
 double complex _get_complex()
 {
-    return 100 + 200i;
+    return 10.0 + 20.0i;
 }
 
 double _get_double()
@@ -32,17 +32,12 @@ double _get_double()
     return 1.0;
 }
 
-EXPORT void _start()
+EXPORT double _start()
 {
-    struct abc x;
-    x.a = 100;
-    x.b = 200;
-    print("hello: %d, %d", x.a, x.b);
+    double complex z = _get_complex();
+    //print("hello: %d, %d", x.a, x.b);
 
-    struct abc y;
-    x.a = 300;
-    x.b = 400;
-    print("world: %d, %d, %d, %d", x.a, x.b, y.a, y.b);
+    return creal(z);
 }
 // struct Point2D {
 //     double x;
