@@ -214,3 +214,8 @@ bool check_rvo(struct fun_info *fi)
 {
     return fi->ret.type->type == TYPE_STRUCT && (fi->ret.kind == AK_INDIRECT || fi->ret.kind == AK_INDIRECT_ALIASED);
 }
+
+bool fi_has_sret(struct fun_info *fi)
+{
+    return fi->tai.sret_arg_no != InvalidIndex;
+}

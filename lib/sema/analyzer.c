@@ -305,22 +305,23 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
 
 struct type_expr *_analyze_field_accessor(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = retrieve_type_for_var_name(context, node->binop->lhs->ident->name);
-    struct type_oper *oper = (struct type_oper *)type;
-    struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, oper->base.name);
+    struct type_expr *type = analyze(context, node->binop->lhs);
+    if(type->type != TYPE_STRUCT){
+        printf("The left side of the dot is expected to be a struct type. It is : %s\n", string_get(type->name));
+        exit(-1);
+    }
+    struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, type->name);
     int index = find_member_index(type_node, node->binop->rhs->ident->name);
     if (index < 0) {
         _log_err(context, node->loc, "%s member not matched.");
         return 0;
     }
+    struct type_oper *oper = (struct type_oper *)type;
     return *(struct type_expr **)array_get(&oper->args, index);
 }
 
 struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node *node)
 {
-    if (node->binop->opcode == OP_DOT){
-        return _analyze_field_accessor(context, node);
-    }
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
@@ -410,6 +411,7 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             break;
         case IMPORT_NODE:
             type = analyze(context, node->import->import);
+            //type = &UNIT_TYPE->base;
             break;
         case MEMORY_NODE:
             type = analyze(context, node->memory->initial);
@@ -435,7 +437,11 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_unary(context, node);
             break;
         case BINARY_NODE:
-            type = _analyze_binary(context, node);
+            if(node->binop->opcode == OP_DOT){
+                type = _analyze_field_accessor(context, node);
+            }else{
+                type = _analyze_binary(context, node);
+            }
             break;
         case IF_NODE:
             type = _analyze_if(context, node);

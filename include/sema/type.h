@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 #define FOREACH_TYPE(ENUM_ITEM) \
-    ENUM_ITEM(TYPE_UNK)         \
+    ENUM_ITEM(TYPE_NULL)         \
     ENUM_ITEM(TYPE_GENERIC)     \
     ENUM_ITEM(TYPE_UNIT)        \
     ENUM_ITEM(TYPE_BOOL)        \
@@ -41,7 +41,7 @@ enum type { FOREACH_TYPE(GENERATE_ENUM) };
 extern symbol type_symbols[TYPE_TYPES];
 
 #define FOREACH_KIND(ENUM_ITEM) \
-    ENUM_ITEM(KIND_UNK)         \
+    ENUM_ITEM(KIND_NULL)        \
     ENUM_ITEM(KIND_VAR)         \
     ENUM_ITEM(KIND_OPER)
 
@@ -65,6 +65,7 @@ struct type_oper {
     struct type_expr base;
     struct array args; //struct array of struct type_expr*
 };
+
 void types_init();
 void types_deinit();
 struct type_var *create_type_var();

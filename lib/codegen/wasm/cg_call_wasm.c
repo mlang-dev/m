@@ -41,11 +41,23 @@ void wasm_emit_store_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == CALL_NODE);
+    struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *arg;
     symbol callee = node->call->specialized_callee ? node->call->specialized_callee : node->call->callee;
+    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->call->callee_func_type);
     struct ast_node *fun_type = hashtable_get_p(&cg->func_name_2_ast, callee);
     u32 param_num = array_size(&fun_type->ft->params->block->nodes);
     u32 func_index = hashtable_get_int(&cg->func_name_2_idx, callee);
+    bool has_sret = fi->tai.sret_arg_no != InvalidIndex;
+    struct var_info *vi = 0;
+    struct mem_alloc *alloc = 0;
+    if(has_sret){
+        //emit return value space
+        vi = fc_get_var_info(fc, node);
+        alloc = fc_get_alloc(fc, node);
+        wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
+        wasm_emit_get_var(ba, vi->var_index, false);
+    }
     struct ast_node *block = block_node_new_empty();
     for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
         arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
@@ -55,21 +67,15 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             block_node_add(block, arg);
         }
     }
-    struct fun_context *fc = cg_get_top_fun_context(cg);
-    //u32 arg_type_size = 0;
     if (fun_type->ft->is_variadic){ 
         if (array_size(&node->call->arg_block->block->nodes) < array_size(&fun_type->ft->params->block->nodes)){
             wasm_emit_const_i32(ba, 0);
         }else{
             //global variable 0 as stack pointer
             //global sp -> stack
-            struct var_info *vi = fc_get_var_info(fc, node);
-            struct mem_alloc *alloc = fc_get_alloc(fc, node);
-            if(alloc->address){
-                wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
-            } else {
-                wasm_emit_assign_var(ba, vi->var_index, false, 0, 0, fc->local_sp->var_index, false);
-            }
+            vi = fc_get_var_info(fc, node);
+            alloc = fc_get_alloc(fc, node);
+            wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
            
             u32 offset = 0;
             for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
@@ -83,5 +89,8 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         }
     }
     wasm_emit_call_fun(ba, func_index);
+    if(has_sret){
+        wasm_emit_get_var(ba, vi->var_index, false);
+    }
     free_block_node(block, false);
 }

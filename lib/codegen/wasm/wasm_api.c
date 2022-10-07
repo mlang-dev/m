@@ -151,7 +151,7 @@ void wasm_emit_set_var(WasmModule ba, u32 var_index, bool is_global)
 void wasm_emit_assign_var(WasmModule ba, u32 to_var_index, bool is_to_global, u8 op, u32 operand, u32 from_var_index, bool is_from_global)
 {
     wasm_emit_get_var(ba, from_var_index, is_from_global);
-    if(op){
+    if(op&&operand){
         wasm_emit_const_i32(ba, operand);
         ba_add(ba, op); 
     }
