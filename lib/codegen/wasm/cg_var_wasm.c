@@ -32,41 +32,25 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
 
 void wasm_emit_struct(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
-
-}
-
-void _wasm_store_struct_init_members(struct cg_wasm *cg, u32 local_var_index, struct byte_array *ba, struct ast_node *node)
-{
-    assert(node->type->kind == KIND_OPER && node->type->type == TYPE_STRUCT);
-    struct type_size_info tsi = get_type_size_info(node->type);
-    u32 align, offset;
-    for (size_t i = 0; i < array_size(&node->struct_init->body->block->nodes); i++) {
-        struct ast_node *member = *(struct ast_node **)array_get(&node->struct_init->body->block->nodes, i);
-        align = get_type_align(member->type) / 8;
-        offset = *(u64*)array_get(&tsi.sl->field_offsets, i) / 8;
-        wasm_emit_store_value(cg, ba, local_var_index, align, offset, member);
-    }
 }
 
 void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *ft_node = fc->fun->func->func_type;
-    //struct type_expr *te = node->type;
-    //struct type_size_info tsi = get_type_size_info(te);
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node);
     bool is_rvo = check_rvo(fi);
-    //is_ret = is_ret || member_values->is_ret;
+    struct type_size_info tsi = get_type_size_info(node->type);
     if (is_rvo && node->is_ret) {
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
-        _wasm_store_struct_init_members(cg, fi->tai.sret_arg_no, ba, node);
+        wasm_emit_store_struct_value(cg, ba, fi->tai.sret_arg_no, 0, tsi.sl, node->struct_init->body);
         //no return
     } else {
         struct var_info *vi = fc_get_var_info(fc, node);
         struct mem_alloc *alloc = fc_get_alloc(fc, node);
         wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
-        _wasm_store_struct_init_members(cg, vi->var_index, ba, node);
+        wasm_emit_store_struct_value(cg, ba, vi->var_index, 0, tsi.sl, node->struct_init->body);
         wasm_emit_get_var(ba, vi->var_index, false);
     }
 }

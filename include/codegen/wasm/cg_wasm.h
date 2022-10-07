@@ -400,7 +400,8 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
 void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_struct(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
-void wasm_emit_store_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node);
+void wasm_emit_store_scalar_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node);
+void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct struct_layout *sl, struct ast_node *block);
 struct fun_context *cg_get_top_fun_context(struct cg_wasm *cg);
 
 void cg_wasm_free(struct cg_wasm *cg);
