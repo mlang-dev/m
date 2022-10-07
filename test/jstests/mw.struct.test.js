@@ -7,33 +7,33 @@ function get_mw(log=null){
     return mw(wasi(), './mw.wasm', log, false);
 }
 
-test('zf64 complex re', () => {
+test('cf64 complex re', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-z = zf64(10.0, 20.0)
+z = cf64(10.0, 20.0)
 z.re
         `;
         expect(m.run_mcode(code)).toEqual(10.0);
     });
 });
 
-test('zf64 complex im', () => {
+test('cf64 complex im', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-z = zf64(10.0, 20.0)
+z = cf64(10.0, 20.0)
 z.im
         `;
         expect(m.run_mcode(code)).toEqual(20.0);
     });
 });
 
-test('zf64 complex fun return value', () => {
+test('cf64 complex fun return value', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-let z() = zf64(10.0, 20.0)
+let z() = cf64(10.0, 20.0)
 x = z()
 x.im
         `;
@@ -41,60 +41,60 @@ x.im
     });
 });
 
-test('zf64 complex fun return value without var', () => {
+test('cf64 complex fun return value without var', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-let z() = zf64(10.0, 20.0)
+let z() = cf64(10.0, 20.0)
 z().im
         `;
         expect(m.run_mcode(code)).toEqual(20.0);
     });
 });
 
-test('zf64 complex fun pass value', () => {
+test('cf64 complex fun pass value', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-let im z:zf64 = z.im
-x = zf64(10.0, 20.0)
+let im z:cf64 = z.im
+x = cf64(10.0, 20.0)
 im x
         `;
         expect(m.run_mcode(code)).toEqual(20.0);
     });
 });
 
-test('zf64 complex fun pass value without temp var', () => {
+test('cf64 complex fun pass value without temp var', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-let im z:zf64 = z.im
-im (zf64(10.0, 20.0))
+let im z:cf64 = z.im
+im (cf64(10.0, 20.0))
         `;
         expect(m.run_mcode(code)).toEqual(20.0);
     });
 });
 
 
-test('zf64 complex fun pass and add value', () => {
+test('cf64 complex fun pass and add value', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-let im z:zf64 = 
+let im z:cf64 = 
     z.im + 200.0
-im (zf64(10.0, 20.0))
+im (cf64(10.0, 20.0))
         `;
         expect(m.run_mcode(code)).toEqual(220.0);
     });
 });
 
-test('zf64 complex fun pass and return value', () => {
+test('cf64 complex fun pass and return value', () => {
     var result = get_mw();
     return result.then((m) => {
         let code = `
-let shift z:zf64 = 
-    zf64(z.re + 100.0, z.im + 200.0)
-result = shift (zf64(10.0, 20.0))
+let shift z:cf64 = 
+    cf64(z.re + 100.0, z.im + 200.0)
+result = shift (cf64(10.0, 20.0))
 result.re + result.im
         `;
         expect(m.run_mcode(code)).toEqual(110.0 + 220.0);
@@ -112,13 +112,15 @@ a.y`;
     });
 });
 
-// test('struct in struct', () => {
-//     var result = get_mw();
-//     return result.then((m) => {
-//         let code = `
-// struct A = a:zf64, b:zf64
-// a = A(zf64(10.0, 20.0), zf64(30.0, 40.0))
-// a.b.im`;
-//         expect(m.run_mcode(code)).toEqual(40.0);
-//     });
-// });
+test('struct in struct', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+struct AB = a:cf64, b:cf64
+ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))
+ab.b.im
+`;
+        m.compile(code, "test.wasm");
+        expect(m.run_mcode(code)).toEqual(40.0);
+    });
+});

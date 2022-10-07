@@ -344,22 +344,27 @@ void _emit_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_
 {
     //lhs is struct var, rhs is field var name
     struct fun_context *fc = cg_get_top_fun_context(cg);
-    struct field_info field = sc_get_field_info(cg->base.sema_context, node->binop->lhs->type->name, node->binop->rhs->ident->name);
+    struct field_info field = sc_get_field_info(cg->base.sema_context, node->index->object->type->name, node->index->index->ident->name);
     //get memory address
-    struct struct_layout *sl = get_type_size_info(node->binop->lhs->type).sl;
+    struct struct_layout *sl = get_type_size_info(node->index->object->type).sl;
     struct var_info*vi;
-    if(node->binop->lhs->node_type == IDENT_NODE) {
-         vi = fc_get_var_info_by_varname(fc, node->binop->lhs->ident->name);
+    if(node->index->object->node_type == IDENT_NODE) {
+         vi = fc_get_var_info_by_varname(fc, node->index->object->ident->name);
     } else {
-        vi = fc_get_var_info(fc, node->binop->lhs);
-        wasm_emit_code(cg, ba, node->binop->lhs);
-        /*sret*/
-        //alloc = fc_get_alloc(fc, node->binop->lhs);
-        wasm_emit_set_var(ba, vi->var_index, false);
+        vi = fc_get_var_info(fc, node->index->object);
     }
+    wasm_emit_code(cg, ba, node->index->object);
+    /*sret*/
+    wasm_emit_set_var(ba, vi->var_index, false);
     u32 field_offset = *(u64 *)array_get(&sl->field_offsets, field.index) / 8;
     u32 align = get_type_align(field.type) / 8;
-    wasm_emit_load_mem(ba, vi->var_index, false, align, field_offset, field.type->type);
+    if(node->index->index->type->type == TYPE_STRUCT){
+        //calculate new address and push it to stack
+        wasm_emit_change_var(ba, OPCODE_I32ADD, field_offset, vi->var_index, false);
+    }else{
+        //return scalar data
+        wasm_emit_load_mem(ba, vi->var_index, false, align, field_offset, field.type->type);
+    }
 }
 
 void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -522,12 +527,11 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case BLOCK_NODE:
             _emit_block(cg, ba, node);
             break;
+        case MEMBER_INDEX_NODE:
+            _emit_field_accessor(cg, ba, node);
+            break;
         case BINARY_NODE:
-            if(node->binop->opcode == OP_DOT){
-                _emit_field_accessor(cg, ba, node);
-            }else{
-                _emit_binary(cg, ba, node);
-            }
+            _emit_binary(cg, ba, node);
             break;
         case UNARY_NODE:
             _emit_unary(cg, ba, node);

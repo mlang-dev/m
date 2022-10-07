@@ -35,9 +35,10 @@ extern "C" {
     ENUM_ITEM(ENUM_NODE)            \
     ENUM_ITEM(STRUCT_NODE)          \
     ENUM_ITEM(UNION_NODE)           \
-    ENUM_ITEM(STRUCT_INIT_NODE)      \
+    ENUM_ITEM(STRUCT_INIT_NODE)     \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \
+    ENUM_ITEM(MEMBER_INDEX_NODE)    \
     ENUM_ITEM(IF_NODE)              \
     ENUM_ITEM(FOR_NODE)             \
     ENUM_ITEM(CALL_NODE)            \
@@ -97,6 +98,10 @@ struct _unary_node {
 struct _binary_node {
     enum op_code opcode;
     struct ast_node *lhs, *rhs;
+};
+
+struct _member_index_node {
+    struct ast_node *object, *index;
 };
 
 struct _if_node {
@@ -172,6 +177,7 @@ struct ast_node {
         struct _ident_node *ident;
         struct _unary_node *unop;
         struct _binary_node *binop;
+        struct _member_index_node *index;
         struct _var_node *var;
         
         struct _func_type_node *ft;
@@ -235,6 +241,7 @@ struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_n
     struct ast_node *else_node, struct source_location loc);
 struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
+struct ast_node *member_index_node_new(struct ast_node *object, struct ast_node *index, struct source_location loc);
 struct ast_node *for_node_new(symbol var_name, struct ast_node *start,
     struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc);
 struct ast_node *block_node_new_empty();
@@ -266,3 +273,4 @@ struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, sy
 #endif
 
 #endif
+

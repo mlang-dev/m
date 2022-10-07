@@ -28,6 +28,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(struct_init, STRUCT_INIT),
     NODE_TYPE_NAME(unop, UNARY),
     NODE_TYPE_NAME(binop, BINARY),
+    NODE_TYPE_NAME(indexing, MEMBER_INDEX),
     NODE_TYPE_NAME(if_cond, IF),
     NODE_TYPE_NAME(for_loop, FOR),
     NODE_TYPE_NAME(call, CALL),
@@ -593,6 +594,30 @@ void _free_binary_node(struct ast_node *node)
         node_free(node->binop->lhs);
     if (node->binop->rhs)
         node_free(node->binop->rhs);
+    ast_node_free(node);
+}
+
+struct ast_node *member_index_node_new(struct ast_node *object, struct ast_node *index, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(MEMBER_INDEX_NODE, 0, 0, loc);
+    MALLOC(node->index, sizeof(*node->index));
+    node->index->object = object;
+    node->index->index = index;
+    return node;
+}
+
+struct ast_node *_copy_member_index_node(struct ast_node *orig_node)
+{
+    return member_index_node_new(
+        orig_node->index->object, orig_node->index->index, orig_node->loc);
+}
+
+void _free_member_index_node(struct ast_node *node)
+{
+    if (node->index->object)
+        node_free(node->index->object);
+    if (node->index->index)
+        node_free(node->index->index);
     ast_node_free(node);
 }
 

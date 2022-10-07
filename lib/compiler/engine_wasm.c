@@ -30,7 +30,7 @@ from math import fun sqrt:double x:double\n\
 ";
 
 const char *g_sys = "\n\
-struct zf64 = re:double, im:double\n\
+struct cf64 = re:double, im:double\n\
 ";
 
 struct codegen *_cg_wasm_new(struct sema_context *context)

@@ -158,6 +158,13 @@ void wasm_emit_assign_var(WasmModule ba, u32 to_var_index, bool is_to_global, u8
     wasm_emit_set_var(ba, to_var_index, is_to_global);
 }
 
+void wasm_emit_change_var(WasmModule ba, u8 op, u32 operand, u32 var_index, bool is_global)
+{
+    wasm_emit_get_var(ba, var_index, is_global);
+    wasm_emit_const_i32(ba, operand);
+    ba_add(ba, op); 
+}
+
 void wasm_emit_call_fun(WasmModule ba, u32 fun_index)
 {
     ba_add(ba, OPCODE_CALL); // num local variables
