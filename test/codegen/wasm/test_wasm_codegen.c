@@ -20,9 +20,13 @@ TEST(test_wasm_codegen, parse_as_module)
     struct cg_wasm *cg = engine->be->cg;
     char test_code[] = "\n\
 struct AB = a:cf64, b:cf64\n\
-ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))\n\
-ab.b.im\n\
+let get () = \n\
+    ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))\n\
+    ab.a\n\
+get().re\n\
 ";
+
+
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);
     engine_free(engine);

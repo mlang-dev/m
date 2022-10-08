@@ -41,7 +41,7 @@ void wasm_emit_store_mem(WasmModule ba, u32 align, u32 offset, enum type type);
 void wasm_emit_get_var(WasmModule ba, u32 var_index, bool is_global);
 void wasm_emit_set_var(WasmModule ba, u32 var_index, bool is_global);
 void wasm_emit_call_fun(WasmModule ba, u32 fun_index);
-
+void wasm_drop(WasmModule ba);
 
 #ifdef __cplusplus
 }

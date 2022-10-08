@@ -91,6 +91,7 @@ bool is_promotable_int(struct type_expr *type);
 u8 type_size(enum type type);
 bool is_empty_struct(struct type_expr *type);
 struct type_expr *is_single_element_struct(struct type_expr *type);
+
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
 #define is_aggregate_type(type) (type>=TYPE_STRUCT)
 

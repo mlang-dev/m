@@ -112,6 +112,17 @@ a.y`;
     });
 });
 
+test('struct initialization without var', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+struct A = x:int, y:double
+A(10, 20.0).y
+`;
+        expect(m.run_mcode(code)).toEqual(20.0);
+    });
+});
+
 test('struct in struct', () => {
     var result = get_mw();
     return result.then((m) => {
@@ -120,7 +131,81 @@ struct AB = a:cf64, b:cf64
 ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))
 ab.b.im
 `;
-        m.compile(code, "test.wasm");
         expect(m.run_mcode(code)).toEqual(40.0);
+    });
+});
+
+test('return struct in struct', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+struct AB = a:cf64, b:cf64
+let get () = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))
+get().b.im
+`;
+        expect(m.run_mcode(code)).toEqual(40.0);
+    });
+});
+
+test('return struct in struct 1', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+struct AB = a:cf64, b:cf64
+let get () = 
+    ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))
+    ab
+get().b.re
+`;
+        expect(m.run_mcode(code)).toEqual(30.0);
+    });
+});
+
+test('return struct from struct', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+struct AB = a:cf64, b:cf64
+let get () = 
+    ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))
+    ab.a
+get().im
+`;
+        expect(m.run_mcode(code)).toEqual(20.0);
+    });
+});
+
+test('return struct from struct 1', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+struct AB = a:cf64, b:cf64
+let get () = AB(cf64(10.0, 20.0), cf64(30.0, 40.0)).a
+get().re
+`;
+        expect(m.run_mcode(code)).toEqual(10.0);
+    });
+});
+
+test('pass struct and return struct', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let add z:cf64 op:double = cf64(z.re + op, z.im + op)
+x = cf64(10.0, 20.0)
+(add x 10.0).im
+`;
+        expect(m.run_mcode(code)).toEqual(30.0);
+    });
+});
+
+test('pass struct and return struct more forms', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let add z:cf64 op:double = cf64(z.re + op, z.im + op)
+(add (cf64(10.0, 20.0)) 10.0).re
+`;
+        expect(m.run_mcode(code)).toEqual(20.0);
     });
 });

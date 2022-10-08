@@ -78,10 +78,10 @@ struct fun_context {
 void fc_init(struct fun_context *fc);
 void fc_deinit(struct fun_context *fc);
 int fc_register_alloc(struct fun_context *fc, struct type_expr *struct_type);
+
 struct var_info *fc_get_var_info(struct fun_context *fc, struct ast_node *node);
 struct mem_alloc *fc_get_alloc(struct fun_context *fc, struct ast_node *node);
-struct var_info *fc_get_var_info_by_varname(struct fun_context *fc, symbol varname);
-struct mem_alloc *fc_get_alloc_by_varname(struct fun_context *fc, symbol varname);
+
 u32 fc_get_stack_size(struct fun_context *fc);
 
 #ifdef __cplusplus

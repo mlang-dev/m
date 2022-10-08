@@ -658,7 +658,7 @@ LLVMValueRef _emit_struct_node(struct cg_llvm *cg, struct ast_node *node)
 
 LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    symbol var_name = node->forloop->var_name;
+    symbol var_name = node->forloop->var->var->var_name;
     LLVMBasicBlockRef bb = LLVMGetInsertBlock(cg->builder);
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 

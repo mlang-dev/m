@@ -41,7 +41,6 @@ void _func_leave(struct cg_wasm *cg, struct ast_node *fun)
     assert(cg->fun_contexts[cg->fun_top].fun == fun);
 }
 
-
 void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
 {
     switch(node->node_type)
@@ -49,15 +48,14 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
         default:
             break;
         case STRUCT_INIT_NODE:
+            //only the parent node is needed
             func_register_local_variable(cg, node, true);
-            for(u32 i = 0; i < array_size(&node->struct_init->body->block->nodes); i++){
-                collect_local_variables(cg, *(struct ast_node **)array_get(&node->struct_init->body->block->nodes, i));
-            }
             break;
         case BINARY_NODE:
             func_register_local_variable(cg, node, true);
             break;
         case MEMBER_INDEX_NODE:
+            collect_local_variables(cg, node->index->object);
             func_register_local_variable(cg, node, true);
             break;
         case FOR_NODE:
@@ -88,22 +86,46 @@ u32 _func_get_local_var_nums(struct cg_wasm *cg)
     return fc->local_vars - fc->local_params;
 }
 
-struct var_info *_req_new_local_var(struct cg_wasm *cg, enum type type, bool is_local_var)
+struct var_info *_req_new_local_var(struct cg_wasm *cg, struct type_expr *type, bool is_local_var, bool is_ret)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
+    if (type->type == TYPE_STRUCT && is_local_var && is_ret){
+        return &cg->local_vars[0];//return first sret
+    }
     u32 index = fc->local_vars++;
     if (!is_local_var) {
         fc->local_params++;
     }
     struct var_info *vi = &cg->local_vars[cg->var_top];
     vi->var_index = index;
-    ASSERT_TYPE(type);
-    vi->target_type = type_2_wtype[type];
-    vi->alloc_index = -1;
+    ASSERT_TYPE(type->type);
+    vi->target_type = type_2_wtype[type->type];
+    if (type->type == TYPE_STRUCT && is_local_var){
+        vi->alloc_index = fc_register_alloc(fc, type);
+    }else{
+        vi->alloc_index = -1;
+    }
     cg->var_top++;
     return vi;
 }
 
+struct type_expr *_create_type_for_call_with_optional_parameters(struct cg_wasm*cg, struct ast_node *node)
+{
+    symbol callee = node->call->specialized_callee ? node->call->specialized_callee : node->call->callee;
+    struct ast_node *fun_type = hashtable_get_p(&cg->func_name_2_ast, callee);
+    u32 param_num = array_size(&fun_type->ft->params->block->nodes);
+    struct array arg_types;
+    array_init(&arg_types, sizeof(struct type_expr *));
+    for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
+        struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
+        if (!fun_type->ft->is_variadic||i < param_num - 1) {
+            continue;
+        }
+        array_push(&arg_types, &arg->type);
+    }
+    struct type_oper *to = create_type_oper_struct(0, &arg_types);
+    return &to->base;
+}
 /*
  * register local variable & stack space
  */ 
@@ -116,75 +138,51 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
     default:
         break;
     case STRUCT_INIT_NODE:
-        vi = _req_new_local_var(cg, node->type->type, is_local_var);
-        if (node->type->type == TYPE_STRUCT && is_local_var){
-            vi->alloc_index = fc_register_alloc(fc, node->type);
-        }
+        vi = _req_new_local_var(cg, node->type, is_local_var, node->is_ret);
         hashtable_set_p(&fc->ast_2_index, node, vi);
         break;
     case  VAR_NODE:
-        vi = _req_new_local_var(cg, node->type->type, is_local_var);
-        if (node->type->type == TYPE_STRUCT && is_local_var){
-            vi->alloc_index = fc_register_alloc(fc, node->type);
+        if(symboltable_get(&fc->varname_2_index, node->var->var_name)){
+            break;
         }
+        vi = _req_new_local_var(cg, node->type, is_local_var, node->is_ret);
         hashtable_set_p(&fc->ast_2_index, node, vi);
-        // if(node->var->init_value){
-        //     hashtable_set_p(&fc->ast_2_index, node->var->init_value, vi);
-        // }
         symboltable_push(&fc->varname_2_index, node->var->var_name, vi);
         break;
     case MEMBER_INDEX_NODE:
         if(node->index->object->type->type == TYPE_STRUCT && node->index->object->node_type != IDENT_NODE){
-            vi = _req_new_local_var(cg, node->index->object->type->type, is_local_var);
-            vi->alloc_index = fc_register_alloc(fc, node->index->object->type);
+            vi = _req_new_local_var(cg, node->index->object->type, is_local_var, false);
             hashtable_set_p(&fc->ast_2_index, node->index->object, vi);
         }
         break;
     case BINARY_NODE:
         if(node->binop->lhs->type->type == TYPE_STRUCT && node->binop->lhs->node_type != IDENT_NODE){
-            vi = _req_new_local_var(cg, node->binop->lhs->type->type, is_local_var);
-            vi->alloc_index = fc_register_alloc(fc, node->binop->lhs->type);
+            vi = _req_new_local_var(cg, node->binop->lhs->type, is_local_var, false);
             hashtable_set_p(&fc->ast_2_index, node->binop->lhs, vi);
         }
         break;
     case FOR_NODE:
-        vi = _req_new_local_var(cg, node->forloop->start->type->type, is_local_var);
-        symboltable_push(&fc->varname_2_index, node->forloop->var_name, vi);
-        vi = _req_new_local_var(cg, node->forloop->step->type->type, true);
+        vi = _req_new_local_var(cg, node->forloop->start->type, is_local_var, false);
+        symboltable_push(&fc->varname_2_index, node->forloop->var->var->var_name, vi);
+        hashtable_set_p(&fc->ast_2_index, node->forloop->var, vi);
+        vi = _req_new_local_var(cg, node->forloop->step->type, true, false);
         hashtable_set_p(&fc->ast_2_index, node->forloop->step, vi);
-        vi = _req_new_local_var(cg, node->forloop->end->type->type, true);
+        vi = _req_new_local_var(cg, node->forloop->end->type, true, false);
         hashtable_set_p(&fc->ast_2_index, node->forloop->end, vi);
         break;
     case CALL_NODE:
         /*TODO: call node doesn't support both sret and varidic parameter*/
         /*for variadic function call, we might need one local variable*/
         fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->call->callee_func_type);
-        if(is_variadic_call_with_optional_arguments(cg, node) || fi_has_sret(fi)){
-            vi = _req_new_local_var(cg, TYPE_INT, is_local_var);
+        bool has_optional_args = is_variadic_call_with_optional_arguments(cg, node);
+        struct type_expr *te = 0;
+        if(has_optional_args || fi_has_sret(fi)){
+            te = has_optional_args ? _create_type_for_call_with_optional_parameters(cg, node) : fi->ret.type;
+            vi = _req_new_local_var(cg, te, is_local_var, has_optional_args ? false : node->is_ret);
             hashtable_set_p(&fc->ast_2_index, node, vi);
         }
-        if(is_variadic_call_with_optional_arguments(cg, node)){
-            symbol callee = node->call->specialized_callee ? node->call->specialized_callee : node->call->callee;
-            struct ast_node *fun_type = hashtable_get_p(&cg->func_name_2_ast, callee);
-            u32 param_num = array_size(&fun_type->ft->params->block->nodes);
-            struct array arg_types;
-            array_init(&arg_types, sizeof(struct type_expr *));
-            for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
-                struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
-                if (!fun_type->ft->is_variadic||i < param_num - 1) {
-                    continue;
-                }
-                array_push(&arg_types, &arg->type);
-            }
-            struct type_oper *to = create_type_oper_struct(0, &arg_types);
-            vi->alloc_index = fc_register_alloc(fc, &to->base);
-            type_exp_free(&to->base);
-            array_deinit(&arg_types);        
-        }
-        if(fi_has_sret(fi)){
-            //TODO: support both varidic and sret in one call
-            assert(vi->alloc_index < 0);
-            vi->alloc_index = fc_register_alloc(fc, fi->ret.type);
+        if(has_optional_args){
+            type_exp_free(te);
         }
         break;
     }
@@ -213,7 +211,10 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     collect_local_variables(cg, node->func->body);
     u32 stack_size = fc_get_stack_size(fc);
     if(stack_size){
-        fc->local_sp = _req_new_local_var(cg, TYPE_INT, true);
+        //TODO: make builtin type as constant
+        struct type_oper *to_sp = create_nullary_type(TYPE_INT, 0);
+        fc->local_sp = _req_new_local_var(cg, &to_sp->base, true, false);
+        type_exp_free(&to_sp->base);
     }
     
     struct byte_array func;
@@ -233,14 +234,14 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         //set global sp to the new address
         wasm_emit_assign_var(&func, STACK_POINTER_VAR_INDEX, true, 0, 0, fc->local_sp->var_index, false);
     }
+    //function body
     wasm_emit_code(cg, &func, node->func->body);
     if(stack_size){
         //adjustment back to original sp
         wasm_emit_assign_var(&func, STACK_POINTER_VAR_INDEX, true, OPCODE_I32ADD, stack_size, fc->local_sp->var_index, false);
     }
-
+    //end of function
     ba_add(&func, OPCODE_END);
-    //function body
     wasm_emit_uint(ba, func.size); //function body size
     ba_add2(ba, &func);
     ba_deinit(&func);

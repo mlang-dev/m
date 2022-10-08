@@ -23,10 +23,21 @@
 void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == VAR_NODE);
-    u32 var_index = fc_get_var_info_by_varname(cg_get_top_fun_context(cg), node->var->var_name)->var_index;
+    struct fun_context *fc = cg_get_top_fun_context(cg);
+    u32 var_index = fc_get_var_info(fc, node)->var_index;
     if (node->var->init_value){
         wasm_emit_code(cg, ba, node->var->init_value);
-        wasm_emit_set_var(ba, var_index, false);
+        if(node->type->type == TYPE_STRUCT){
+            struct var_info *init_vi = fc_get_var_info(fc, node->var->init_value);
+            if(init_vi->var_index != var_index){
+                //drop the top stack has init value node address
+                //copy struct from right side to left side
+                wasm_drop(ba);
+                wasm_emit_copy_struct_value(cg, ba, var_index, 0, node->type, init_vi->var_index, 0);
+            }
+        }else{
+            wasm_emit_set_var(ba, var_index, false);
+        }
     }
 }
 

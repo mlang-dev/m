@@ -621,12 +621,12 @@ void _free_member_index_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *for_node_new(symbol var_name, struct ast_node *start,
+struct ast_node *for_node_new(struct ast_node *var, struct ast_node *start,
     struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(FOR_NODE, 0, 0, loc);
     MALLOC(node->forloop, sizeof(*node->forloop));
-    node->forloop->var_name = var_name;
+    node->forloop->var = var;
     node->forloop->start = start;
     node->forloop->end = end;
     node->forloop->step = step;
@@ -637,12 +637,14 @@ struct ast_node *for_node_new(symbol var_name, struct ast_node *start,
 struct ast_node *_copy_for_node(struct ast_node *orig_node)
 {
     return for_node_new(
-        orig_node->forloop->var_name, orig_node->forloop->start, orig_node->forloop->end, orig_node->forloop->step, 
+        orig_node->forloop->var, orig_node->forloop->start, orig_node->forloop->end, orig_node->forloop->step, 
         orig_node->forloop->body, orig_node->loc);
 }
 
 void _free_for_node(struct ast_node *node)
 {
+    if (node->forloop->var)
+        node_free(node->forloop->var);
     if (node->forloop->start)
         node_free(node->forloop->start);
     if (node->forloop->end)

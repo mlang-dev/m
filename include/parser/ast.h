@@ -109,7 +109,7 @@ struct _if_node {
 };
 
 struct _for_node {
-    symbol var_name;
+    struct ast_node *var;
     struct ast_node *start, *end, *step, *body;
 };
 
@@ -242,7 +242,7 @@ struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_n
 struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *member_index_node_new(struct ast_node *object, struct ast_node *index, struct source_location loc);
-struct ast_node *for_node_new(symbol var_name, struct ast_node *start,
+struct ast_node *for_node_new(struct ast_node *var, struct ast_node *start,
     struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc);
 struct ast_node *block_node_new_empty();
 struct ast_node *block_node_new(struct array *nodes);
