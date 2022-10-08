@@ -203,7 +203,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             assert(false);
         }
         node3 = binary_node_new(OP_LT, ident_node_new(node->var->var_name, node->loc), node3, node->loc);
-        ast = for_node_new(node->var->var_name, node1, node3, node2, node4, node->loc);
+        ast = for_node_new(node, node1, node3, node2, node4, node->loc);
         break;
     case IF_NODE:
         node = items[rule->action.item_index[0]].ast;

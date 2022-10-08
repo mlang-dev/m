@@ -55,6 +55,27 @@ void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32
     }
 }
 
+void wasm_emit_copy_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32 to_var_index, u32 to_offset, struct type_expr *type, u32 from_var_index, u32 from_offset)
+{
+    assert(type->kind == KIND_OPER);
+    struct type_oper *to = (struct type_oper*)type;
+    struct type_expr *field_type;
+    u32 field_offset;
+    struct type_size_info tsi = get_type_size_info(type);
+    for (u32 i = 0; i < array_size(&to->args); i++) {
+        field_type = *(struct type_expr **)array_get(&to->args, i);
+        field_offset = *(u64*)array_get(&tsi.sl->field_offsets, i) / 8;
+        u32 align = get_type_align(field_type) / 8;
+        if(field_type->type == TYPE_STRUCT){
+            wasm_emit_copy_struct_value(cg, ba, to_var_index, to_offset + field_offset, field_type, from_var_index, from_offset + field_offset);
+        }else{
+            wasm_emit_get_var(ba, to_var_index, false); 
+            wasm_emit_load_mem(ba, from_var_index, false, align, from_offset + field_offset, field_type->type);
+            wasm_emit_store_mem(ba, align,  to_offset + field_offset, field_type->type);
+        }
+    }
+}
+
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == CALL_NODE);

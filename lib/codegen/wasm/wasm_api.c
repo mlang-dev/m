@@ -186,3 +186,8 @@ void wasm_emit_store_mem(WasmModule ba, u32 align, u32 offset, enum type type)
     wasm_emit_uint(ba, aligns[align]);
     wasm_emit_uint(ba, offset);
 }
+
+void wasm_drop(WasmModule ba)
+{
+    ba_add(ba, OPCODE_DROP);
+}

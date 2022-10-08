@@ -357,7 +357,7 @@ struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *no
 {
     struct type_expr *int_type = (struct type_expr *)create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
     struct type_expr *bool_type = (struct type_expr *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
-    push_symbol_type(&context->decl_2_typexps, node->forloop->var_name, int_type);
+    push_symbol_type(&context->decl_2_typexps, node->forloop->var->var->var_name, int_type);
     struct type_expr *start_type = analyze(context, node->forloop->start);
     struct type_expr *step_type = analyze(context, node->forloop->step);
     struct type_expr *end_type = analyze(context, node->forloop->end);
