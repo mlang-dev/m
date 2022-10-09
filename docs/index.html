@@ -33,7 +33,7 @@
 		<div style="width: 100%;">
 			<button type="button" id="run" style="min-width: 70px;">run</button>
 		</div>
-		<textarea id='console' rows="5" cols="80" readonly></textarea><br/>
+		<textarea id='console' rows="5" cols="80" readonly style="font-size:small"></textarea><br/>
 		<script>
 	var codeInput = document.getElementById("code");
 	if (codeInput.addEventListener) {
@@ -42,15 +42,33 @@
 		codeInput.attachEvent('onkeydown', this.keyHandler); /* damn IE hack */
 	}
 	var code_text = 
-`print "hello world\\n"  # call c io printf function
+`# print mandelbrot set
+print "print a mandelbrot set\\n"
 
-let distance x1 y1 x2 y2 = 
-	xx = (x1-x2) ** 2.0
-	yy = (y1-y2) ** 2.0
-	sqrt (xx + yy) # call c sqrt math function
-
-distance 1.0 2.0 4.0 6.0
-	`;
+let print_density d =
+  if d > 8 then
+    putchar ' '
+  else if d > 4 then
+    putchar '.'
+  else if d > 2 then
+    putchar '+'
+  else		
+    putchar '*'
+let sum_sq z:cf64 = z.re ** 2.0 + z.im ** 2.0
+let ms z:cf64 c:cf64 = cf64(z.re ** 2.0 - z.im ** 2.0 + c.re, 2.0 * z.re * z.im + c.im)
+let converger z:cf64 iters:int c:cf64 = 
+  if iters > 255 || (sum_sq z) > 4.0 then
+    iters
+  else
+    converger (ms z c) (iters + 1) c
+let converge z:cf64 = converger z 0 z
+let print_ms start:cf64 step:cf64 =
+  for y in start.im..step.im..start.im + step.im * 70.0
+    for x in start.re..step.re..start.re + step.re * 78.0
+       print_density (converge (cf64(x, y)))
+    putchar '\n'
+print_ms (cf64(-2.3, -1.3)) (cf64(0.05, 0.07))
+`;
 	codeInput.value = code_text;
 	function keyHandler(e) {
 		var TABKEY = 9;
