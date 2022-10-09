@@ -209,3 +209,42 @@ let add z:cf64 op:double = cf64(z.re + op, z.im + op)
         expect(m.run_mcode(code)).toEqual(20.0);
     });
 });
+
+test('complex addition', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let add_c a:cf64 b:cf64 = cf64(a.re + b.re, a.im + b.im)
+(add_c (cf64(10.0, 20.0)) (cf64(30.0, 40.0))).im
+`;
+        expect(m.run_mcode(code)).toEqual(60.0);
+    });
+});
+
+test('complex exponent', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let sq z:cf64 = cf64(z.re ** 2.0 - z.im ** 2.0, 2.0 * z.re * z.im)
+(sq (cf64(10.0, 20.0))).im
+`;
+        expect(m.run_mcode(code)).toEqual(400.0);
+    });
+});
+
+test('mandelbrot set function', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let sum_sq z:cf64 = z.re ** 2.0 + z.im ** 2.0
+let ms z:cf64 c:cf64 = cf64(z.re ** 2.0 - z.im ** 2.0 + c.re, 2.0 * z.re * z.im + c.im)
+let converger z:cf64 iters:int c:cf64 = 
+  if (iters > 255) || ((sum_sq z) > 4.0) then
+    iters
+  else
+    converger (ms z c) (iters + 1) c
+(ms (cf64(10.0, 20.0)) (cf64(10.0, 20.0))).im
+`;
+        expect(m.run_mcode(code)).toEqual(400.0 + 20.0);
+    });
+});
