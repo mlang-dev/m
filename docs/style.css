@@ -69,6 +69,6 @@ textarea {
     -moz-box-shadow: none;
     box-shadow: none;
 
-    resize: none;
+    font-family: Courier New, Courier, monospace;
     /*remove the resize handle on the bottom right*/
 }
