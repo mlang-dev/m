@@ -436,8 +436,8 @@ void _emit_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
     assert(node->node_type == FOR_NODE);
     u32 var_index = fc_get_var_info(fc, node->forloop->var)->var_index;
     u32 step_index = fc_get_var_info(fc, node->forloop->step)->var_index;
-    u32 end_index = fc_get_var_info(fc, node->forloop->end)->var_index;
-    enum type type = node->forloop->end->type->type;
+    u32 end_index = fc_get_var_info(fc, node->forloop->end->binop->rhs)->var_index;
+    enum type type = node->forloop->var->type->type;
     enum type body_type = node->forloop->body->type->type;
     ASSERT_TYPE(type);
     ASSERT_TYPE(body_type);
@@ -445,6 +445,7 @@ void _emit_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
     wasm_emit_code(cg, ba, node->forloop->start);
     ba_add(ba, OPCODE_LOCALSET);
     wasm_emit_uint(ba, var_index);  //1
+
     // set step value
     wasm_emit_code(cg, ba, node->forloop->step);
     ba_add(ba, OPCODE_LOCALSET);
@@ -483,7 +484,7 @@ void _emit_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
     //end of if step >= 0
 
     ba_add(ba, OPCODE_BR_IF); //if out of scope, branch to out side block
-    wasm_emit_uint(ba, 1);
+    wasm_emit_uint(ba, 1); //if true, jump out of block
 
     //body
     wasm_emit_code(cg, ba, node->forloop->body);

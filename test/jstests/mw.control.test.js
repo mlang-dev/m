@@ -165,6 +165,20 @@ sum
     });
 });
 
+test('for loop statement double type', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+sum = 0.0
+for i in 0.0..5.0
+    sum = sum + i
+sum
+        `;
+        m.compile(code, "test.wasm");
+        expect(m.run_mcode(code)).toEqual(10);
+    });
+});
+
 test('for nest loop statement', () => {
     var result = get_mw();
     return result.then((m) => {

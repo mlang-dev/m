@@ -224,7 +224,7 @@ let loopprint n = \n\
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FOR_NODE, body_node->node_type);
     ASSERT_EQ(TYPE_INT, body_node->forloop->start->annotated_type_enum);
-    ASSERT_EQ(TYPE_INT, body_node->forloop->step->annotated_type_enum);
+    ASSERT_EQ(0, body_node->forloop->step);
     ASSERT_EQ(BINARY_NODE, body_node->forloop->end->node_type);
     ASSERT_EQ(3, ((struct ast_node *)body_node->forloop->start)->liter->int_val);
     ast_node_free(block);

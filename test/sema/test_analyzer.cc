@@ -334,6 +334,38 @@ let loopprint n =
     engine_free(engine);
 }
 
+TEST(testAnalyzer, testForDoubleTypeLoopFunc)
+{
+    char test_code[] = R"(
+# using for loop
+let loopprint n:double = 
+  for i in 0.0..1.0..n
+    printf "%d" i
+)";
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    create_ir_module(cg, "test");
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    analyze(cg->base.sema_context, block);
+    emit_code(cg, block);
+    auto node = *(ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(FUNC_NODE, node->node_type);
+    auto var = (type_oper *)node->type;
+    ASSERT_EQ(TYPE_FUNCTION, var->base.type);
+    ASSERT_EQ(2, array_size(&var->args));
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("double -> ()", string_get(&type_str));
+    ast_node *forn = *(ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(TYPE_DOUBLE, get_type(forn->forloop->step->type));
+    ASSERT_EQ(TYPE_DOUBLE, get_type(forn->forloop->start->type));
+    ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->end->type));
+    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->body->type));
+    ast_node_free(block);
+    engine_free(engine);
+}
+
 TEST(testAnalyzer, testLocalVariableFunc)
 {
     char test_code[] = R"(

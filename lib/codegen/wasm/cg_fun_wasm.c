@@ -172,8 +172,8 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         hashtable_set_p(&fc->ast_2_index, node->forloop->var, vi);
         vi = _req_new_local_var(cg, node->forloop->step->type, true, false);
         hashtable_set_p(&fc->ast_2_index, node->forloop->step, vi);
-        vi = _req_new_local_var(cg, node->forloop->end->type, true, false);
-        hashtable_set_p(&fc->ast_2_index, node->forloop->end, vi);
+        vi = _req_new_local_var(cg, node->forloop->end->binop->rhs->type, true, false);
+        hashtable_set_p(&fc->ast_2_index, node->forloop->end->binop->rhs, vi);
         break;
     case CALL_NODE:
         /*TODO: call node doesn't support both sret and varidic parameter*/
