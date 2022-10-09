@@ -196,7 +196,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node3 = items[rule->action.item_index[3]].ast; //end
             node4 = items[rule->action.item_index[4]].ast; // body
         } else if (rule->action.item_index_count == 4){
-            node2 = int_node_new(1, node->loc);
+            node2 = 0;
             node3 = items[rule->action.item_index[2]].ast; // end
             node4 = items[rule->action.item_index[3]].ast; // body
         }else{

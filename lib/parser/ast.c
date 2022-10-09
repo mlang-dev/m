@@ -247,6 +247,14 @@ struct ast_node *bool_node_new(bool val, struct source_location loc)
     return _create_literal_int_node((int)val, TYPE_BOOL, loc);
 }
 
+struct ast_node *const_one_node_new(enum type type, struct source_location loc)
+{
+    if(type == TYPE_DOUBLE){
+        return double_node_new(1.0, loc);
+    }
+    return int_node_new(1, loc);
+}
+
 struct ast_node *char_node_new(char val, struct source_location loc)
 {
     return _create_literal_int_node((int)val, TYPE_CHAR, loc);

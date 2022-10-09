@@ -216,7 +216,7 @@ struct ast_node *bool_node_new(bool val, struct source_location loc);
 struct ast_node *char_node_new(char val, struct source_location loc);
 struct ast_node *unit_node_new(struct source_location loc);
 struct ast_node *string_node_new(const char *val, struct source_location loc);
-
+struct ast_node *const_one_node_new(enum type type, struct source_location loc);
 struct ast_node *var_node_new(symbol var_name, enum type type, symbol ext_type, struct ast_node *init_value, bool is_global, struct source_location loc);
 struct ast_node *var_node_new2(symbol var_name, symbol type_name, struct ast_node *init_value, bool is_global, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
