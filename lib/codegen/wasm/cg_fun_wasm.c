@@ -47,6 +47,11 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
     {
         default:
             break;
+        case IF_NODE:
+            collect_local_variables(cg, node->cond->if_node);
+            collect_local_variables(cg, node->cond->then_node);
+            collect_local_variables(cg, node->cond->else_node);
+            break;
         case STRUCT_INIT_NODE:
             //only the parent node is needed
             func_register_local_variable(cg, node, true);
