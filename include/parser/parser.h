@@ -34,10 +34,16 @@ struct parser{
 
     // two dimentional array:
     //      row is parse state, and columns are grammar symbols
-    //      content of the cell is action to drive the parser 
+    //      content of the cell is the action to drive the parser 
     parsing_table *pt;
     // symbols of grammar rules are converted to int index as parsing rules
     parsing_rules *pr;
+
+    //parsing symbol descriptions
+    parsing_symbols *psd;
+
+    //parsing state descriptions
+    parsing_states *pstd;
 };
 
 void parser_free(struct parser *parser);

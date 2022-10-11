@@ -8,17 +8,16 @@
 #include "tutil.h"
 #include "test.h"
 #include "sema/frontend.h"
+#include "error/error.h"
 #include <stdio.h>
 
 TEST(test_parser_error, char_literal)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "x = '";
-    struct parser *parser = parser_new();
-    struct ast_node *block = parse_code(parser, test_code);
+    char test_code[] = "let f x";
+    struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(0, block);
     ast_node_free(block);
-    parser_free(parser);
     frontend_deinit(fe);
 }
 

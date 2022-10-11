@@ -44,12 +44,19 @@ struct parser_action {
 
 // converted grammer rule with integer
 struct parse_rule {
+    const char *rule_string;
     u16 lhs; // non terminal symbol index
     u16 rhs[MAX_SYMBOLS_RULE]; // right hand side of production rule
     u8 symbol_count; // right side of
     struct rule_action action;
 };
 
+#define MAX_KERNEL_ITEMS   11
+
+struct parse_state_string{
+    u32 item_count;
+    const char *item_strings[MAX_KERNEL_ITEMS];
+};
 
 #ifndef M_PARSING_INITIALIZER
 // grammar rules converted to int index
@@ -58,6 +65,13 @@ typedef struct parse_rule parsing_rules[PARSING_RULE_COUNT];
 
 extern struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT];
 typedef struct parser_action parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT];
+
+extern const char *m_parsing_symbols[PARSING_SYMBOL_COUNT];
+typedef const char *parsing_symbols[PARSING_SYMBOL_COUNT];
+
+extern struct parse_state_string m_parsing_states[PARSING_STATE_COUNT];
+typedef struct parse_state_string parsing_states[PARSING_STATE_COUNT];
+
 #endif
 
 #ifdef __cplusplus

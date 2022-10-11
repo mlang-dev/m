@@ -8,912 +8,484 @@
 #define M_PARSING_INITIALIZER 1
 #include "parser/m_parsing_table.h"
 
+const char *m_parsing_symbols[PARSING_SYMBOL_COUNT] = {
+  /*symbol   0*/ "ERROR",
+  /*symbol   1*/ "EOF",
+  /*symbol   2*/ "EPSILON",
+  /*symbol   3*/ "INDENT",
+  /*symbol   4*/ "DEDENT",
+  /*symbol   5*/ "NEWLINE",
+  /*symbol   6*/ "INT",
+  /*symbol   7*/ "DOUBLE",
+  /*symbol   8*/ "COMPLEX",
+  /*symbol   9*/ "CHAR",
+  /*symbol  10*/ "STRING",
+  /*symbol  11*/ "from",
+  /*symbol  12*/ "import",
+  /*symbol  13*/ "memory",
+  /*symbol  14*/ "extern",
+  /*symbol  15*/ "enum",
+  /*symbol  16*/ "struct",
+  /*symbol  17*/ "union",
+  /*symbol  18*/ "type",
+  /*symbol  19*/ "let",
+  /*symbol  20*/ "fun",
+  /*symbol  21*/ "if",
+  /*symbol  22*/ "then",
+  /*symbol  23*/ "else",
+  /*symbol  24*/ "true",
+  /*symbol  25*/ "false",
+  /*symbol  26*/ "in",
+  /*symbol  27*/ "for",
+  /*symbol  28*/ "IDENT",
+  /*symbol  29*/ "(",
+  /*symbol  30*/ ")",
+  /*symbol  31*/ "()",
+  /*symbol  32*/ "[",
+  /*symbol  33*/ "]",
+  /*symbol  34*/ "{",
+  /*symbol  35*/ "}",
+  /*symbol  36*/ ",",
+  /*symbol  37*/ "..",
+  /*symbol  38*/ "...",
+  /*symbol  39*/ "=",
+  /*symbol  40*/ ":",
+  /*symbol  41*/ "do",
+  /*symbol  42*/ "while",
+  /*symbol  43*/ "switch",
+  /*symbol  44*/ "case",
+  /*symbol  45*/ "default",
+  /*symbol  46*/ "break",
+  /*symbol  47*/ "continue",
+  /*symbol  48*/ "yield",
+  /*symbol  49*/ "async",
+  /*symbol  50*/ "await",
+  /*symbol  51*/ "match",
+  /*symbol  52*/ "with",
+  /*symbol  53*/ "select",
+  /*symbol  54*/ "join",
+  /*symbol  55*/ "when",
+  /*symbol  56*/ "end",
+  /*symbol  57*/ "where",
+  /*symbol  58*/ "and",
+  /*symbol  59*/ "or",
+  /*symbol  60*/ "order by",
+  /*symbol  61*/ "OP",
+  /*symbol  62*/ ".",
+  /*symbol  63*/ "||",
+  /*symbol  64*/ "&&",
+  /*symbol  65*/ "!",
+  /*symbol  66*/ "~",
+  /*symbol  67*/ "|",
+  /*symbol  68*/ "^",
+  /*symbol  69*/ "&",
+  /*symbol  70*/ "<<",
+  /*symbol  71*/ ">>",
+  /*symbol  72*/ "**",
+  /*symbol  73*/ "*",
+  /*symbol  74*/ "/",
+  /*symbol  75*/ "%",
+  /*symbol  76*/ "+",
+  /*symbol  77*/ "-",
+  /*symbol  78*/ "<",
+  /*symbol  79*/ "<=",
+  /*symbol  80*/ "==",
+  /*symbol  81*/ ">",
+  /*symbol  82*/ ">=",
+  /*symbol  83*/ "!=",
+  /*symbol  84*/ "?",
+  /*symbol  85*/ "*=",
+  /*symbol  86*/ "/=",
+  /*symbol  87*/ "%=",
+  /*symbol  88*/ "+=",
+  /*symbol  89*/ "-=",
+  /*symbol  90*/ "<<=",
+  /*symbol  91*/ ">>=",
+  /*symbol  92*/ "&=",
+  /*symbol  93*/ "^=",
+  /*symbol  94*/ "|=",
+  /*symbol  95*/ "++",
+  /*symbol  96*/ "--",
+  /*symbol  97*/ "start",
+  /*symbol  98*/ "unit_expr",
+  /*symbol  99*/ "type_expr",
+  /*symbol 100*/ "primary_expr",
+  /*symbol 101*/ "postfix_expr",
+  /*symbol 102*/ "power_expr",
+  /*symbol 103*/ "unary_expr",
+  /*symbol 104*/ "multi_expr",
+  /*symbol 105*/ "add_expr",
+  /*symbol 106*/ "shift_expr",
+  /*symbol 107*/ "relation_expr",
+  /*symbol 108*/ "eq_expr",
+  /*symbol 109*/ "bit_and_expr",
+  /*symbol 110*/ "bit_xor_expr",
+  /*symbol 111*/ "bit_or_expr",
+  /*symbol 112*/ "logic_and_expr",
+  /*symbol 113*/ "logic_or_expr",
+  /*symbol 114*/ "cond_expr",
+  /*symbol 115*/ "assign_expr",
+  /*symbol 116*/ "assign_op",
+  /*symbol 117*/ "expr",
+  /*symbol 118*/ "stmt",
+  /*symbol 119*/ "cond_stmt",
+  /*symbol 120*/ "statement",
+  /*symbol 121*/ "block",
+  /*symbol 122*/ "statements",
+  /*symbol 123*/ "type_def",
+  /*symbol 124*/ "struct_init",
+  /*symbol 125*/ "func_decl",
+  /*symbol 126*/ "func_type",
+  /*symbol 127*/ "import_decl",
+  /*symbol 128*/ "memory_decl",
+  /*symbol 129*/ "func_def",
+  /*symbol 130*/ "func_call",
+  /*symbol 131*/ "arg_exprs",
+  /*symbol 132*/ "exprs",
+  /*symbol 133*/ "iterate_stmt",
+  /*symbol 134*/ "param_decls",
+  /*symbol 135*/ "var_decls",
+  /*symbol 136*/ "param_decl",
+  /*symbol 137*/ "var_decl",
+};
+
 const struct parse_rule m_parsing_rules[PARSING_RULE_COUNT] = {
-/*
-  0 - ERROR
-  1 - EOF
-  2 - EPSILON
-  3 - INDENT
-  4 - DEDENT
-  5 - NEWLINE
-  6 - INT
-  7 - DOUBLE
-  8 - COMPLEX
-  9 - CHAR
- 10 - STRING
- 11 - from
- 12 - import
- 13 - memory
- 14 - extern
- 15 - enum
- 16 - struct
- 17 - union
- 18 - type
- 19 - let
- 20 - fun
- 21 - if
- 22 - then
- 23 - else
- 24 - true
- 25 - false
- 26 - in
- 27 - for
- 28 - IDENT
- 29 - (
- 30 - )
- 31 - ()
- 32 - [
- 33 - ]
- 34 - {
- 35 - }
- 36 - ,
- 37 - ..
- 38 - ...
- 39 - =
- 40 - :
- 41 - do
- 42 - while
- 43 - switch
- 44 - case
- 45 - default
- 46 - break
- 47 - continue
- 48 - yield
- 49 - async
- 50 - await
- 51 - match
- 52 - with
- 53 - select
- 54 - join
- 55 - when
- 56 - end
- 57 - where
- 58 - and
- 59 - or
- 60 - order by
- 61 - OP
- 62 - .
- 63 - ||
- 64 - &&
- 65 - !
- 66 - ~
- 67 - |
- 68 - ^
- 69 - &
- 70 - <<
- 71 - >>
- 72 - **
- 73 - *
- 74 - /
- 75 - %
- 76 - +
- 77 - -
- 78 - <
- 79 - <=
- 80 - ==
- 81 - >
- 82 - >=
- 83 - !=
- 84 - ?
- 85 - *=
- 86 - /=
- 87 - %=
- 88 - +=
- 89 - -=
- 90 - <<=
- 91 - >>=
- 92 - &=
- 93 - ^=
- 94 - |=
- 95 - ++
- 96 - --
- 97 - start
- 98 - unit_expr
- 99 - type_expr
- 100 - primary_expr
- 101 - postfix_expr
- 102 - power_expr
- 103 - unary_expr
- 104 - multi_expr
- 105 - add_expr
- 106 - shift_expr
- 107 - relation_expr
- 108 - eq_expr
- 109 - bit_and_expr
- 110 - bit_xor_expr
- 111 - bit_or_expr
- 112 - logic_and_expr
- 113 - logic_or_expr
- 114 - cond_expr
- 115 - assign_expr
- 116 - assign_op
- 117 - expr
- 118 - stmt
- 119 - cond_stmt
- 120 - statement
- 121 - block
- 122 - statements
- 123 - type_def
- 124 - struct_init
- 125 - func_decl
- 126 - func_type
- 127 - import_decl
- 128 - memory_decl
- 129 - func_def
- 130 - func_call
- 131 - arg_exprs
- 132 - exprs
- 133 - iterate_stmt
- 134 - param_decls
- 135 - var_decls
- 136 - param_decl
- 137 - var_decl
-*/
-  /*rule   0*/ {97,{122,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule   1*/ {98,{31,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule   2*/ {99,{28,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule   3*/ {99,{98,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule   4*/ {100,{6,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule   5*/ {100,{7,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule   6*/ {100,{28,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule   7*/ {100,{9,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule   8*/ {100,{10,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule   9*/ {100,{24,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  10*/ {100,{25,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  11*/ {100,{29,117,30,0,0,0,0,0,0,0,0,},3,{0,{1,0,0,0,0,0,0,0,0,0,0,},1}},
-  /*rule  12*/ {101,{100,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  13*/ {101,{101,32,117,33,0,0,0,0,0,0,0,},4,{13,{0,2,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  14*/ {101,{124,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  15*/ {101,{101,62,28,0,0,0,0,0,0,0,0,},3,{13,{0,2,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  16*/ {101,{130,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  17*/ {101,{101,95,0,0,0,0,0,0,0,0,0,},2,{11,{1,0,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  18*/ {101,{101,96,0,0,0,0,0,0,0,0,0,},2,{11,{1,0,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  19*/ {102,{101,72,103,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  20*/ {102,{101,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  21*/ {103,{102,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  22*/ {103,{95,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  23*/ {103,{96,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  24*/ {103,{76,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  25*/ {103,{77,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  26*/ {103,{66,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  27*/ {103,{65,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  28*/ {104,{103,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  29*/ {104,{104,73,103,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  30*/ {104,{104,74,103,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  31*/ {104,{104,75,103,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  32*/ {105,{105,76,104,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  33*/ {105,{105,77,104,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  34*/ {105,{104,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  35*/ {106,{105,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  36*/ {106,{106,70,105,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  37*/ {106,{106,71,105,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  38*/ {107,{106,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  39*/ {107,{107,78,106,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  40*/ {107,{107,81,106,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  41*/ {107,{107,79,106,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  42*/ {107,{107,82,106,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  43*/ {108,{107,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  44*/ {108,{108,80,107,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  45*/ {108,{108,83,107,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  46*/ {109,{108,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  47*/ {109,{109,69,108,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  48*/ {110,{109,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  49*/ {110,{110,68,109,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  50*/ {111,{110,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  51*/ {111,{111,67,110,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  52*/ {112,{111,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  53*/ {112,{112,64,111,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  54*/ {113,{112,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  55*/ {113,{113,63,112,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule  56*/ {114,{113,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  57*/ {114,{113,84,117,40,114,0,0,0,0,0,0,},5,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  58*/ {115,{114,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  59*/ {115,{103,116,115,0,0,0,0,0,0,0,0,},3,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  60*/ {116,{39,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  61*/ {116,{85,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  62*/ {116,{86,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  63*/ {116,{87,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  64*/ {116,{88,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  65*/ {116,{89,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  66*/ {116,{90,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  67*/ {116,{91,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  68*/ {116,{92,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  69*/ {116,{93,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  70*/ {116,{94,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  71*/ {117,{115,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  72*/ {118,{125,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  73*/ {118,{129,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  74*/ {118,{123,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  75*/ {118,{117,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  76*/ {118,{135,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  77*/ {118,{133,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  78*/ {118,{119,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  79*/ {118,{121,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  80*/ {118,{127,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  81*/ {119,{21,117,22,120,0,0,0,0,0,0,0,},4,{14,{1,3,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  82*/ {119,{21,117,22,120,23,120,0,0,0,0,0,},6,{14,{1,3,5,0,0,0,0,0,0,0,0,},3}},
-  /*rule  83*/ {120,{118,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  84*/ {120,{118,5,0,0,0,0,0,0,0,0,0,},2,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule  85*/ {121,{5,3,122,4,0,0,0,0,0,0,0,},4,{0,{2,0,0,0,0,0,0,0,0,0,0,},1}},
-  /*rule  86*/ {122,{122,120,0,0,0,0,0,0,0,0,0,},2,{19,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  87*/ {122,{120,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},1}},
-  /*rule  88*/ {123,{15,28,39,120,0,0,0,0,0,0,0,},4,{7,{1,3,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  89*/ {123,{16,28,39,120,0,0,0,0,0,0,0,},4,{8,{1,3,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  90*/ {123,{17,28,39,120,0,0,0,0,0,0,0,},4,{9,{1,3,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  91*/ {124,{28,29,132,30,0,0,0,0,0,0,0,},4,{10,{0,2,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  92*/ {125,{14,126,0,0,0,0,0,0,0,0,0,},2,{0,{1,0,0,0,0,0,0,0,0,0,0,},1}},
-  /*rule  93*/ {126,{28,40,99,134,0,0,0,0,0,0,0,},4,{17,{0,2,3,0,0,0,0,0,0,0,0,},3}},
-  /*rule  94*/ {127,{11,28,12,128,0,0,0,0,0,0,0,},4,{2,{1,3,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  95*/ {127,{11,28,12,20,126,0,0,0,0,0,0,},5,{2,{1,4,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  96*/ {127,{11,28,12,137,0,0,0,0,0,0,0,},4,{2,{1,3,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  97*/ {128,{13,6,0,0,0,0,0,0,0,0,0,},2,{3,{1,0,0,0,0,0,0,0,0,0,0,},1}},
-  /*rule  98*/ {128,{13,6,36,6,0,0,0,0,0,0,0,},4,{3,{1,3,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule  99*/ {129,{19,28,134,39,120,0,0,0,0,0,0,},5,{18,{1,2,4,0,0,0,0,0,0,0,0,},3}},
-  /*rule 100*/ {129,{19,28,40,99,134,39,120,0,0,0,0,},7,{18,{1,4,6,3,0,0,0,0,0,0,0,},4}},
-  /*rule 101*/ {130,{28,131,0,0,0,0,0,0,0,0,0,},2,{16,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule 102*/ {131,{131,100,0,0,0,0,0,0,0,0,0,},2,{19,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule 103*/ {131,{100,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},1}},
-  /*rule 104*/ {131,{98,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule 105*/ {132,{132,36,117,0,0,0,0,0,0,0,0,},3,{19,{0,2,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule 106*/ {132,{117,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},1}},
-  /*rule 107*/ {133,{27,136,26,117,37,117,37,117,121,0,0,},9,{15,{1,3,5,7,8,0,0,0,0,0,0,},5}},
-  /*rule 108*/ {133,{27,136,26,117,37,117,121,0,0,0,0,},7,{15,{1,3,5,6,0,0,0,0,0,0,0,},4}},
-  /*rule 109*/ {134,{134,136,0,0,0,0,0,0,0,0,0,},2,{19,{0,1,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule 110*/ {134,{136,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},1}},
-  /*rule 111*/ {134,{98,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule 112*/ {135,{135,36,137,0,0,0,0,0,0,0,0,},3,{19,{0,2,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule 113*/ {135,{137,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule 114*/ {136,{28,40,28,0,0,0,0,0,0,0,0,},3,{6,{0,0,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule 115*/ {136,{28,0,0,0,0,0,0,0,0,0,0,},1,{6,{0,0,0,0,0,0,0,0,0,0,0,},2}},
-  /*rule 116*/ {136,{38,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
-  /*rule 117*/ {137,{28,40,28,0,0,0,0,0,0,0,0,},3,{6,{0,0,2,0,0,0,0,0,0,0,0,},3}},
-  /*rule 118*/ {137,{28,40,28,39,117,0,0,0,0,0,0,},5,{6,{1,0,2,4,0,0,0,0,0,0,0,},4}},
-  /*rule 119*/ {137,{28,39,117,0,0,0,0,0,0,0,0,},3,{6,{1,0,2,0,0,0,0,0,0,0,0,},3}},
+/* all rules */
+  /*rule   0*/ {"start = statements", 97,{122,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule   1*/ {"unit_expr = ()", 98,{31,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule   2*/ {"type_expr = IDENT", 99,{28,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule   3*/ {"type_expr = unit_expr", 99,{98,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule   4*/ {"primary_expr = INT", 100,{6,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule   5*/ {"primary_expr = DOUBLE", 100,{7,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule   6*/ {"primary_expr = IDENT", 100,{28,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule   7*/ {"primary_expr = CHAR", 100,{9,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule   8*/ {"primary_expr = STRING", 100,{10,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule   9*/ {"primary_expr = true", 100,{24,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  10*/ {"primary_expr = false", 100,{25,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  11*/ {"primary_expr = ( expr )", 100,{29,117,30,0,0,0,0,0,0,0,0,},3,{0,{1,0,0,0,0,0,0,0,0,0,0,},1}},
+  /*rule  12*/ {"postfix_expr = primary_expr", 101,{100,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  13*/ {"postfix_expr = postfix_expr [ expr ]", 101,{101,32,117,33,0,0,0,0,0,0,0,},4,{13,{0,2,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  14*/ {"postfix_expr = struct_init", 101,{124,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  15*/ {"postfix_expr = postfix_expr . IDENT", 101,{101,62,28,0,0,0,0,0,0,0,0,},3,{13,{0,2,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  16*/ {"postfix_expr = func_call", 101,{130,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  17*/ {"postfix_expr = postfix_expr ++", 101,{101,95,0,0,0,0,0,0,0,0,0,},2,{11,{1,0,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  18*/ {"postfix_expr = postfix_expr --", 101,{101,96,0,0,0,0,0,0,0,0,0,},2,{11,{1,0,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  19*/ {"power_expr = postfix_expr ** unary_expr", 102,{101,72,103,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  20*/ {"power_expr = postfix_expr", 102,{101,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  21*/ {"unary_expr = power_expr", 103,{102,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  22*/ {"unary_expr = ++ unary_expr", 103,{95,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  23*/ {"unary_expr = -- unary_expr", 103,{96,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  24*/ {"unary_expr = + unary_expr", 103,{76,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  25*/ {"unary_expr = - unary_expr", 103,{77,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  26*/ {"unary_expr = ~ unary_expr", 103,{66,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  27*/ {"unary_expr = ! unary_expr", 103,{65,103,0,0,0,0,0,0,0,0,0,},2,{11,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  28*/ {"multi_expr = unary_expr", 104,{103,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  29*/ {"multi_expr = multi_expr * unary_expr", 104,{104,73,103,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  30*/ {"multi_expr = multi_expr / unary_expr", 104,{104,74,103,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  31*/ {"multi_expr = multi_expr % unary_expr", 104,{104,75,103,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  32*/ {"add_expr = add_expr + multi_expr", 105,{105,76,104,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  33*/ {"add_expr = add_expr - multi_expr", 105,{105,77,104,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  34*/ {"add_expr = multi_expr", 105,{104,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  35*/ {"shift_expr = add_expr", 106,{105,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  36*/ {"shift_expr = shift_expr << add_expr", 106,{106,70,105,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  37*/ {"shift_expr = shift_expr >> add_expr", 106,{106,71,105,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  38*/ {"relation_expr = shift_expr", 107,{106,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  39*/ {"relation_expr = relation_expr < shift_expr", 107,{107,78,106,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  40*/ {"relation_expr = relation_expr > shift_expr", 107,{107,81,106,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  41*/ {"relation_expr = relation_expr <= shift_expr", 107,{107,79,106,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  42*/ {"relation_expr = relation_expr >= shift_expr", 107,{107,82,106,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  43*/ {"eq_expr = relation_expr", 108,{107,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  44*/ {"eq_expr = eq_expr == relation_expr", 108,{108,80,107,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  45*/ {"eq_expr = eq_expr != relation_expr", 108,{108,83,107,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  46*/ {"bit_and_expr = eq_expr", 109,{108,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  47*/ {"bit_and_expr = bit_and_expr & eq_expr", 109,{109,69,108,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  48*/ {"bit_xor_expr = bit_and_expr", 110,{109,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  49*/ {"bit_xor_expr = bit_xor_expr ^ bit_and_expr", 110,{110,68,109,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  50*/ {"bit_or_expr = bit_xor_expr", 111,{110,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  51*/ {"bit_or_expr = bit_or_expr | bit_xor_expr", 111,{111,67,110,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  52*/ {"logic_and_expr = bit_or_expr", 112,{111,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  53*/ {"logic_and_expr = logic_and_expr && bit_or_expr", 112,{112,64,111,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  54*/ {"logic_or_expr = logic_and_expr", 113,{112,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  55*/ {"logic_or_expr = logic_or_expr || logic_and_expr", 113,{113,63,112,0,0,0,0,0,0,0,0,},3,{12,{0,1,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule  56*/ {"cond_expr = logic_or_expr", 114,{113,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  57*/ {"cond_expr = logic_or_expr ? expr : cond_expr", 114,{113,84,117,40,114,0,0,0,0,0,0,},5,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  58*/ {"assign_expr = cond_expr", 115,{114,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  59*/ {"assign_expr = unary_expr assign_op assign_expr", 115,{103,116,115,0,0,0,0,0,0,0,0,},3,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  60*/ {"assign_op = =", 116,{39,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  61*/ {"assign_op = *=", 116,{85,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  62*/ {"assign_op = /=", 116,{86,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  63*/ {"assign_op = %=", 116,{87,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  64*/ {"assign_op = +=", 116,{88,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  65*/ {"assign_op = -=", 116,{89,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  66*/ {"assign_op = <<=", 116,{90,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  67*/ {"assign_op = >>=", 116,{91,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  68*/ {"assign_op = &=", 116,{92,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  69*/ {"assign_op = ^=", 116,{93,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  70*/ {"assign_op = |=", 116,{94,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  71*/ {"expr = assign_expr", 117,{115,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  72*/ {"stmt = func_decl", 118,{125,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  73*/ {"stmt = func_def", 118,{129,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  74*/ {"stmt = type_def", 118,{123,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  75*/ {"stmt = expr", 118,{117,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  76*/ {"stmt = var_decls", 118,{135,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  77*/ {"stmt = iterate_stmt", 118,{133,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  78*/ {"stmt = cond_stmt", 118,{119,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  79*/ {"stmt = block", 118,{121,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  80*/ {"stmt = import_decl", 118,{127,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  81*/ {"cond_stmt = if expr then statement", 119,{21,117,22,120,0,0,0,0,0,0,0,},4,{14,{1,3,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  82*/ {"cond_stmt = if expr then statement else statement", 119,{21,117,22,120,23,120,0,0,0,0,0,},6,{14,{1,3,5,0,0,0,0,0,0,0,0,},3}},
+  /*rule  83*/ {"statement = stmt", 120,{118,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  84*/ {"statement = stmt NEWLINE", 120,{118,5,0,0,0,0,0,0,0,0,0,},2,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule  85*/ {"block = NEWLINE INDENT statements DEDENT", 121,{5,3,122,4,0,0,0,0,0,0,0,},4,{0,{2,0,0,0,0,0,0,0,0,0,0,},1}},
+  /*rule  86*/ {"statements = statements statement", 122,{122,120,0,0,0,0,0,0,0,0,0,},2,{19,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  87*/ {"statements = statement", 122,{120,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},1}},
+  /*rule  88*/ {"type_def = enum IDENT = statement", 123,{15,28,39,120,0,0,0,0,0,0,0,},4,{7,{1,3,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  89*/ {"type_def = struct IDENT = statement", 123,{16,28,39,120,0,0,0,0,0,0,0,},4,{8,{1,3,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  90*/ {"type_def = union IDENT = statement", 123,{17,28,39,120,0,0,0,0,0,0,0,},4,{9,{1,3,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  91*/ {"struct_init = IDENT ( exprs )", 124,{28,29,132,30,0,0,0,0,0,0,0,},4,{10,{0,2,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  92*/ {"func_decl = extern func_type", 125,{14,126,0,0,0,0,0,0,0,0,0,},2,{0,{1,0,0,0,0,0,0,0,0,0,0,},1}},
+  /*rule  93*/ {"func_type = IDENT : type_expr param_decls", 126,{28,40,99,134,0,0,0,0,0,0,0,},4,{17,{0,2,3,0,0,0,0,0,0,0,0,},3}},
+  /*rule  94*/ {"import_decl = from IDENT import memory_decl", 127,{11,28,12,128,0,0,0,0,0,0,0,},4,{2,{1,3,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  95*/ {"import_decl = from IDENT import fun func_type", 127,{11,28,12,20,126,0,0,0,0,0,0,},5,{2,{1,4,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  96*/ {"import_decl = from IDENT import var_decl", 127,{11,28,12,137,0,0,0,0,0,0,0,},4,{2,{1,3,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  97*/ {"memory_decl = memory INT", 128,{13,6,0,0,0,0,0,0,0,0,0,},2,{3,{1,0,0,0,0,0,0,0,0,0,0,},1}},
+  /*rule  98*/ {"memory_decl = memory INT , INT", 128,{13,6,36,6,0,0,0,0,0,0,0,},4,{3,{1,3,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule  99*/ {"func_def = let IDENT param_decls = statement", 129,{19,28,134,39,120,0,0,0,0,0,0,},5,{18,{1,2,4,0,0,0,0,0,0,0,0,},3}},
+  /*rule 100*/ {"func_def = let IDENT : type_expr param_decls = statement", 129,{19,28,40,99,134,39,120,0,0,0,0,},7,{18,{1,4,6,3,0,0,0,0,0,0,0,},4}},
+  /*rule 101*/ {"func_call = IDENT arg_exprs", 130,{28,131,0,0,0,0,0,0,0,0,0,},2,{16,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule 102*/ {"arg_exprs = arg_exprs primary_expr", 131,{131,100,0,0,0,0,0,0,0,0,0,},2,{19,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule 103*/ {"arg_exprs = primary_expr", 131,{100,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},1}},
+  /*rule 104*/ {"arg_exprs = unit_expr", 131,{98,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule 105*/ {"exprs = exprs , expr", 132,{132,36,117,0,0,0,0,0,0,0,0,},3,{19,{0,2,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule 106*/ {"exprs = expr", 132,{117,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},1}},
+  /*rule 107*/ {"iterate_stmt = for param_decl in expr .. expr .. expr block", 133,{27,136,26,117,37,117,37,117,121,0,0,},9,{15,{1,3,5,7,8,0,0,0,0,0,0,},5}},
+  /*rule 108*/ {"iterate_stmt = for param_decl in expr .. expr block", 133,{27,136,26,117,37,117,121,0,0,0,0,},7,{15,{1,3,5,6,0,0,0,0,0,0,0,},4}},
+  /*rule 109*/ {"param_decls = param_decls param_decl", 134,{134,136,0,0,0,0,0,0,0,0,0,},2,{19,{0,1,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule 110*/ {"param_decls = param_decl", 134,{136,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},1}},
+  /*rule 111*/ {"param_decls = unit_expr", 134,{98,0,0,0,0,0,0,0,0,0,0,},1,{19,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule 112*/ {"var_decls = var_decls , var_decl", 135,{135,36,137,0,0,0,0,0,0,0,0,},3,{19,{0,2,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule 113*/ {"var_decls = var_decl", 135,{137,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule 114*/ {"param_decl = IDENT : IDENT", 136,{28,40,28,0,0,0,0,0,0,0,0,},3,{6,{0,0,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule 115*/ {"param_decl = IDENT", 136,{28,0,0,0,0,0,0,0,0,0,0,},1,{6,{0,0,0,0,0,0,0,0,0,0,0,},2}},
+  /*rule 116*/ {"param_decl = ...", 136,{38,0,0,0,0,0,0,0,0,0,0,},1,{0,{0,0,0,0,0,0,0,0,0,0,0,},0}},
+  /*rule 117*/ {"var_decl = IDENT : IDENT", 137,{28,40,28,0,0,0,0,0,0,0,0,},3,{6,{0,0,2,0,0,0,0,0,0,0,0,},3}},
+  /*rule 118*/ {"var_decl = IDENT : IDENT = expr", 137,{28,40,28,39,117,0,0,0,0,0,0,},5,{6,{1,0,2,4,0,0,0,0,0,0,0,},4}},
+  /*rule 119*/ {"var_decl = IDENT = expr", 137,{28,39,117,0,0,0,0,0,0,0,0,},3,{6,{1,0,2,0,0,0,0,0,0,0,0,},3}},
+};
+
+struct parse_state_string m_parsing_states[PARSING_STATE_COUNT] = {
+  /*state   0*/ {1, {"start = .statements", }},
+  /*state   1*/ {2, {"start = statements.", "statements = statements .statement", }},
+  /*state   2*/ {1, {"statements = statement.", }},
+  /*state   3*/ {2, {"statement = stmt.", "statement = stmt .NEWLINE", }},
+  /*state   4*/ {1, {"stmt = func_decl.", }},
+  /*state   5*/ {1, {"stmt = func_def.", }},
+  /*state   6*/ {1, {"stmt = type_def.", }},
+  /*state   7*/ {1, {"stmt = expr.", }},
+  /*state   8*/ {2, {"stmt = var_decls.", "var_decls = var_decls ., var_decl", }},
+  /*state   9*/ {1, {"stmt = iterate_stmt.", }},
+  /*state  10*/ {1, {"stmt = cond_stmt.", }},
+  /*state  11*/ {1, {"stmt = block.", }},
+  /*state  12*/ {1, {"stmt = import_decl.", }},
+  /*state  13*/ {1, {"func_decl = extern .func_type", }},
+  /*state  14*/ {2, {"func_def = let .IDENT param_decls = statement", "func_def = let .IDENT : type_expr param_decls = statement", }},
+  /*state  15*/ {1, {"type_def = enum .IDENT = statement", }},
+  /*state  16*/ {1, {"type_def = struct .IDENT = statement", }},
+  /*state  17*/ {1, {"type_def = union .IDENT = statement", }},
+  /*state  18*/ {1, {"expr = assign_expr.", }},
+  /*state  19*/ {1, {"var_decls = var_decl.", }},
+  /*state  20*/ {2, {"iterate_stmt = for .param_decl in expr .. expr .. expr block", "iterate_stmt = for .param_decl in expr .. expr block", }},
+  /*state  21*/ {2, {"cond_stmt = if .expr then statement", "cond_stmt = if .expr then statement else statement", }},
+  /*state  22*/ {1, {"block = NEWLINE .INDENT statements DEDENT", }},
+  /*state  23*/ {3, {"import_decl = from .IDENT import memory_decl", "import_decl = from .IDENT import fun func_type", "import_decl = from .IDENT import var_decl", }},
+  /*state  24*/ {1, {"assign_expr = cond_expr.", }},
+  /*state  25*/ {2, {"assign_expr = unary_expr .assign_op assign_expr", "multi_expr = unary_expr.", }},
+  /*state  26*/ {6, {"var_decl = IDENT .: IDENT", "var_decl = IDENT .: IDENT = expr", "var_decl = IDENT .= expr", "primary_expr = IDENT.", "struct_init = IDENT .( exprs )", "func_call = IDENT .arg_exprs", }},
+  /*state  27*/ {3, {"cond_expr = logic_or_expr.", "cond_expr = logic_or_expr .? expr : cond_expr", "logic_or_expr = logic_or_expr .|| logic_and_expr", }},
+  /*state  28*/ {1, {"unary_expr = power_expr.", }},
+  /*state  29*/ {1, {"unary_expr = ++ .unary_expr", }},
+  /*state  30*/ {1, {"unary_expr = -- .unary_expr", }},
+  /*state  31*/ {1, {"unary_expr = + .unary_expr", }},
+  /*state  32*/ {1, {"unary_expr = - .unary_expr", }},
+  /*state  33*/ {1, {"unary_expr = ~ .unary_expr", }},
+  /*state  34*/ {1, {"unary_expr = ! .unary_expr", }},
+  /*state  35*/ {2, {"logic_or_expr = logic_and_expr.", "logic_and_expr = logic_and_expr .&& bit_or_expr", }},
+  /*state  36*/ {6, {"power_expr = postfix_expr .** unary_expr", "power_expr = postfix_expr.", "postfix_expr = postfix_expr .[ expr ]", "postfix_expr = postfix_expr .. IDENT", "postfix_expr = postfix_expr .++", "postfix_expr = postfix_expr .--", }},
+  /*state  37*/ {2, {"logic_and_expr = bit_or_expr.", "bit_or_expr = bit_or_expr .| bit_xor_expr", }},
+  /*state  38*/ {1, {"postfix_expr = primary_expr.", }},
+  /*state  39*/ {1, {"postfix_expr = struct_init.", }},
+  /*state  40*/ {1, {"postfix_expr = func_call.", }},
+  /*state  41*/ {2, {"bit_or_expr = bit_xor_expr.", "bit_xor_expr = bit_xor_expr .^ bit_and_expr", }},
+  /*state  42*/ {1, {"primary_expr = INT.", }},
+  /*state  43*/ {1, {"primary_expr = DOUBLE.", }},
+  /*state  44*/ {1, {"primary_expr = CHAR.", }},
+  /*state  45*/ {1, {"primary_expr = STRING.", }},
+  /*state  46*/ {1, {"primary_expr = true.", }},
+  /*state  47*/ {1, {"primary_expr = false.", }},
+  /*state  48*/ {1, {"primary_expr = ( .expr )", }},
+  /*state  49*/ {2, {"bit_xor_expr = bit_and_expr.", "bit_and_expr = bit_and_expr .& eq_expr", }},
+  /*state  50*/ {3, {"bit_and_expr = eq_expr.", "eq_expr = eq_expr .== relation_expr", "eq_expr = eq_expr .!= relation_expr", }},
+  /*state  51*/ {5, {"eq_expr = relation_expr.", "relation_expr = relation_expr .< shift_expr", "relation_expr = relation_expr .> shift_expr", "relation_expr = relation_expr .<= shift_expr", "relation_expr = relation_expr .>= shift_expr", }},
+  /*state  52*/ {3, {"relation_expr = shift_expr.", "shift_expr = shift_expr .<< add_expr", "shift_expr = shift_expr .>> add_expr", }},
+  /*state  53*/ {3, {"shift_expr = add_expr.", "add_expr = add_expr .+ multi_expr", "add_expr = add_expr .- multi_expr", }},
+  /*state  54*/ {4, {"add_expr = multi_expr.", "multi_expr = multi_expr .* unary_expr", "multi_expr = multi_expr ./ unary_expr", "multi_expr = multi_expr .% unary_expr", }},
+  /*state  55*/ {1, {"statements = statements statement.", }},
+  /*state  56*/ {1, {"statement = stmt NEWLINE.", }},
+  /*state  57*/ {1, {"var_decls = var_decls , .var_decl", }},
+  /*state  58*/ {1, {"func_decl = extern func_type.", }},
+  /*state  59*/ {1, {"func_type = IDENT .: type_expr param_decls", }},
+  /*state  60*/ {2, {"func_def = let IDENT .param_decls = statement", "func_def = let IDENT .: type_expr param_decls = statement", }},
+  /*state  61*/ {1, {"type_def = enum IDENT .= statement", }},
+  /*state  62*/ {1, {"type_def = struct IDENT .= statement", }},
+  /*state  63*/ {1, {"type_def = union IDENT .= statement", }},
+  /*state  64*/ {2, {"iterate_stmt = for param_decl .in expr .. expr .. expr block", "iterate_stmt = for param_decl .in expr .. expr block", }},
+  /*state  65*/ {2, {"param_decl = IDENT .: IDENT", "param_decl = IDENT.", }},
+  /*state  66*/ {1, {"param_decl = ....", }},
+  /*state  67*/ {2, {"cond_stmt = if expr .then statement", "cond_stmt = if expr .then statement else statement", }},
+  /*state  68*/ {3, {"primary_expr = IDENT.", "struct_init = IDENT .( exprs )", "func_call = IDENT .arg_exprs", }},
+  /*state  69*/ {1, {"block = NEWLINE INDENT .statements DEDENT", }},
+  /*state  70*/ {3, {"import_decl = from IDENT .import memory_decl", "import_decl = from IDENT .import fun func_type", "import_decl = from IDENT .import var_decl", }},
+  /*state  71*/ {1, {"assign_expr = unary_expr assign_op .assign_expr", }},
+  /*state  72*/ {1, {"assign_op = =.", }},
+  /*state  73*/ {1, {"assign_op = *=.", }},
+  /*state  74*/ {1, {"assign_op = /=.", }},
+  /*state  75*/ {1, {"assign_op = %=.", }},
+  /*state  76*/ {1, {"assign_op = +=.", }},
+  /*state  77*/ {1, {"assign_op = -=.", }},
+  /*state  78*/ {1, {"assign_op = <<=.", }},
+  /*state  79*/ {1, {"assign_op = >>=.", }},
+  /*state  80*/ {1, {"assign_op = &=.", }},
+  /*state  81*/ {1, {"assign_op = ^=.", }},
+  /*state  82*/ {1, {"assign_op = |=.", }},
+  /*state  83*/ {2, {"var_decl = IDENT : .IDENT", "var_decl = IDENT : .IDENT = expr", }},
+  /*state  84*/ {1, {"var_decl = IDENT = .expr", }},
+  /*state  85*/ {2, {"struct_init = IDENT ( .exprs )", "primary_expr = ( .expr )", }},
+  /*state  86*/ {2, {"func_call = IDENT arg_exprs.", "arg_exprs = arg_exprs .primary_expr", }},
+  /*state  87*/ {1, {"arg_exprs = primary_expr.", }},
+  /*state  88*/ {1, {"arg_exprs = unit_expr.", }},
+  /*state  89*/ {1, {"primary_expr = IDENT.", }},
+  /*state  90*/ {1, {"unit_expr = ().", }},
+  /*state  91*/ {1, {"cond_expr = logic_or_expr ? .expr : cond_expr", }},
+  /*state  92*/ {1, {"logic_or_expr = logic_or_expr || .logic_and_expr", }},
+  /*state  93*/ {1, {"unary_expr = ++ unary_expr.", }},
+  /*state  94*/ {1, {"unary_expr = -- unary_expr.", }},
+  /*state  95*/ {1, {"unary_expr = + unary_expr.", }},
+  /*state  96*/ {1, {"unary_expr = - unary_expr.", }},
+  /*state  97*/ {1, {"unary_expr = ~ unary_expr.", }},
+  /*state  98*/ {1, {"unary_expr = ! unary_expr.", }},
+  /*state  99*/ {1, {"logic_and_expr = logic_and_expr && .bit_or_expr", }},
+  /*state 100*/ {1, {"power_expr = postfix_expr ** .unary_expr", }},
+  /*state 101*/ {1, {"postfix_expr = postfix_expr [ .expr ]", }},
+  /*state 102*/ {1, {"postfix_expr = postfix_expr . .IDENT", }},
+  /*state 103*/ {1, {"postfix_expr = postfix_expr ++.", }},
+  /*state 104*/ {1, {"postfix_expr = postfix_expr --.", }},
+  /*state 105*/ {1, {"bit_or_expr = bit_or_expr | .bit_xor_expr", }},
+  /*state 106*/ {1, {"bit_xor_expr = bit_xor_expr ^ .bit_and_expr", }},
+  /*state 107*/ {1, {"primary_expr = ( expr .)", }},
+  /*state 108*/ {1, {"bit_and_expr = bit_and_expr & .eq_expr", }},
+  /*state 109*/ {1, {"eq_expr = eq_expr == .relation_expr", }},
+  /*state 110*/ {1, {"eq_expr = eq_expr != .relation_expr", }},
+  /*state 111*/ {1, {"relation_expr = relation_expr < .shift_expr", }},
+  /*state 112*/ {1, {"relation_expr = relation_expr > .shift_expr", }},
+  /*state 113*/ {1, {"relation_expr = relation_expr <= .shift_expr", }},
+  /*state 114*/ {1, {"relation_expr = relation_expr >= .shift_expr", }},
+  /*state 115*/ {1, {"shift_expr = shift_expr << .add_expr", }},
+  /*state 116*/ {1, {"shift_expr = shift_expr >> .add_expr", }},
+  /*state 117*/ {1, {"add_expr = add_expr + .multi_expr", }},
+  /*state 118*/ {1, {"add_expr = add_expr - .multi_expr", }},
+  /*state 119*/ {1, {"multi_expr = multi_expr * .unary_expr", }},
+  /*state 120*/ {1, {"multi_expr = multi_expr / .unary_expr", }},
+  /*state 121*/ {1, {"multi_expr = multi_expr % .unary_expr", }},
+  /*state 122*/ {1, {"var_decls = var_decls , var_decl.", }},
+  /*state 123*/ {3, {"var_decl = IDENT .: IDENT", "var_decl = IDENT .: IDENT = expr", "var_decl = IDENT .= expr", }},
+  /*state 124*/ {1, {"func_type = IDENT : .type_expr param_decls", }},
+  /*state 125*/ {2, {"func_def = let IDENT param_decls .= statement", "param_decls = param_decls .param_decl", }},
+  /*state 126*/ {1, {"func_def = let IDENT : .type_expr param_decls = statement", }},
+  /*state 127*/ {1, {"param_decls = param_decl.", }},
+  /*state 128*/ {1, {"param_decls = unit_expr.", }},
+  /*state 129*/ {1, {"type_def = enum IDENT = .statement", }},
+  /*state 130*/ {1, {"type_def = struct IDENT = .statement", }},
+  /*state 131*/ {1, {"type_def = union IDENT = .statement", }},
+  /*state 132*/ {2, {"iterate_stmt = for param_decl in .expr .. expr .. expr block", "iterate_stmt = for param_decl in .expr .. expr block", }},
+  /*state 133*/ {1, {"param_decl = IDENT : .IDENT", }},
+  /*state 134*/ {2, {"cond_stmt = if expr then .statement", "cond_stmt = if expr then .statement else statement", }},
+  /*state 135*/ {2, {"block = NEWLINE INDENT statements .DEDENT", "statements = statements .statement", }},
+  /*state 136*/ {3, {"import_decl = from IDENT import .memory_decl", "import_decl = from IDENT import .fun func_type", "import_decl = from IDENT import .var_decl", }},
+  /*state 137*/ {1, {"assign_expr = unary_expr assign_op assign_expr.", }},
+  /*state 138*/ {2, {"var_decl = IDENT : IDENT.", "var_decl = IDENT : IDENT .= expr", }},
+  /*state 139*/ {1, {"var_decl = IDENT = expr.", }},
+  /*state 140*/ {2, {"struct_init = IDENT ( exprs .)", "exprs = exprs ., expr", }},
+  /*state 141*/ {2, {"primary_expr = ( expr .)", "exprs = expr.", }},
+  /*state 142*/ {1, {"arg_exprs = arg_exprs primary_expr.", }},
+  /*state 143*/ {1, {"cond_expr = logic_or_expr ? expr .: cond_expr", }},
+  /*state 144*/ {2, {"logic_or_expr = logic_or_expr || logic_and_expr.", "logic_and_expr = logic_and_expr .&& bit_or_expr", }},
+  /*state 145*/ {1, {"multi_expr = unary_expr.", }},
+  /*state 146*/ {2, {"logic_and_expr = logic_and_expr && bit_or_expr.", "bit_or_expr = bit_or_expr .| bit_xor_expr", }},
+  /*state 147*/ {1, {"power_expr = postfix_expr ** unary_expr.", }},
+  /*state 148*/ {1, {"postfix_expr = postfix_expr [ expr .]", }},
+  /*state 149*/ {1, {"postfix_expr = postfix_expr . IDENT.", }},
+  /*state 150*/ {2, {"bit_or_expr = bit_or_expr | bit_xor_expr.", "bit_xor_expr = bit_xor_expr .^ bit_and_expr", }},
+  /*state 151*/ {2, {"bit_xor_expr = bit_xor_expr ^ bit_and_expr.", "bit_and_expr = bit_and_expr .& eq_expr", }},
+  /*state 152*/ {1, {"primary_expr = ( expr ).", }},
+  /*state 153*/ {3, {"bit_and_expr = bit_and_expr & eq_expr.", "eq_expr = eq_expr .== relation_expr", "eq_expr = eq_expr .!= relation_expr", }},
+  /*state 154*/ {5, {"eq_expr = eq_expr == relation_expr.", "relation_expr = relation_expr .< shift_expr", "relation_expr = relation_expr .> shift_expr", "relation_expr = relation_expr .<= shift_expr", "relation_expr = relation_expr .>= shift_expr", }},
+  /*state 155*/ {5, {"eq_expr = eq_expr != relation_expr.", "relation_expr = relation_expr .< shift_expr", "relation_expr = relation_expr .> shift_expr", "relation_expr = relation_expr .<= shift_expr", "relation_expr = relation_expr .>= shift_expr", }},
+  /*state 156*/ {3, {"relation_expr = relation_expr < shift_expr.", "shift_expr = shift_expr .<< add_expr", "shift_expr = shift_expr .>> add_expr", }},
+  /*state 157*/ {3, {"relation_expr = relation_expr > shift_expr.", "shift_expr = shift_expr .<< add_expr", "shift_expr = shift_expr .>> add_expr", }},
+  /*state 158*/ {3, {"relation_expr = relation_expr <= shift_expr.", "shift_expr = shift_expr .<< add_expr", "shift_expr = shift_expr .>> add_expr", }},
+  /*state 159*/ {3, {"relation_expr = relation_expr >= shift_expr.", "shift_expr = shift_expr .<< add_expr", "shift_expr = shift_expr .>> add_expr", }},
+  /*state 160*/ {3, {"shift_expr = shift_expr << add_expr.", "add_expr = add_expr .+ multi_expr", "add_expr = add_expr .- multi_expr", }},
+  /*state 161*/ {3, {"shift_expr = shift_expr >> add_expr.", "add_expr = add_expr .+ multi_expr", "add_expr = add_expr .- multi_expr", }},
+  /*state 162*/ {4, {"add_expr = add_expr + multi_expr.", "multi_expr = multi_expr .* unary_expr", "multi_expr = multi_expr ./ unary_expr", "multi_expr = multi_expr .% unary_expr", }},
+  /*state 163*/ {4, {"add_expr = add_expr - multi_expr.", "multi_expr = multi_expr .* unary_expr", "multi_expr = multi_expr ./ unary_expr", "multi_expr = multi_expr .% unary_expr", }},
+  /*state 164*/ {1, {"multi_expr = multi_expr * unary_expr.", }},
+  /*state 165*/ {1, {"multi_expr = multi_expr / unary_expr.", }},
+  /*state 166*/ {1, {"multi_expr = multi_expr % unary_expr.", }},
+  /*state 167*/ {1, {"func_type = IDENT : type_expr .param_decls", }},
+  /*state 168*/ {1, {"type_expr = IDENT.", }},
+  /*state 169*/ {1, {"type_expr = unit_expr.", }},
+  /*state 170*/ {1, {"func_def = let IDENT param_decls = .statement", }},
+  /*state 171*/ {1, {"param_decls = param_decls param_decl.", }},
+  /*state 172*/ {1, {"func_def = let IDENT : type_expr .param_decls = statement", }},
+  /*state 173*/ {1, {"type_def = enum IDENT = statement.", }},
+  /*state 174*/ {1, {"type_def = struct IDENT = statement.", }},
+  /*state 175*/ {1, {"type_def = union IDENT = statement.", }},
+  /*state 176*/ {2, {"iterate_stmt = for param_decl in expr ... expr .. expr block", "iterate_stmt = for param_decl in expr ... expr block", }},
+  /*state 177*/ {1, {"param_decl = IDENT : IDENT.", }},
+  /*state 178*/ {2, {"cond_stmt = if expr then statement.", "cond_stmt = if expr then statement .else statement", }},
+  /*state 179*/ {1, {"block = NEWLINE INDENT statements DEDENT.", }},
+  /*state 180*/ {1, {"import_decl = from IDENT import memory_decl.", }},
+  /*state 181*/ {1, {"import_decl = from IDENT import fun .func_type", }},
+  /*state 182*/ {1, {"import_decl = from IDENT import var_decl.", }},
+  /*state 183*/ {2, {"memory_decl = memory .INT", "memory_decl = memory .INT , INT", }},
+  /*state 184*/ {1, {"var_decl = IDENT : IDENT = .expr", }},
+  /*state 185*/ {1, {"struct_init = IDENT ( exprs ).", }},
+  /*state 186*/ {1, {"exprs = exprs , .expr", }},
+  /*state 187*/ {1, {"cond_expr = logic_or_expr ? expr : .cond_expr", }},
+  /*state 188*/ {1, {"postfix_expr = postfix_expr [ expr ].", }},
+  /*state 189*/ {2, {"func_type = IDENT : type_expr param_decls.", "param_decls = param_decls .param_decl", }},
+  /*state 190*/ {1, {"func_def = let IDENT param_decls = statement.", }},
+  /*state 191*/ {2, {"func_def = let IDENT : type_expr param_decls .= statement", "param_decls = param_decls .param_decl", }},
+  /*state 192*/ {2, {"iterate_stmt = for param_decl in expr .. .expr .. expr block", "iterate_stmt = for param_decl in expr .. .expr block", }},
+  /*state 193*/ {1, {"cond_stmt = if expr then statement else .statement", }},
+  /*state 194*/ {1, {"import_decl = from IDENT import fun func_type.", }},
+  /*state 195*/ {2, {"memory_decl = memory INT.", "memory_decl = memory INT ., INT", }},
+  /*state 196*/ {1, {"var_decl = IDENT : IDENT = expr.", }},
+  /*state 197*/ {1, {"exprs = exprs , expr.", }},
+  /*state 198*/ {1, {"cond_expr = logic_or_expr ? expr : cond_expr.", }},
+  /*state 199*/ {1, {"func_def = let IDENT : type_expr param_decls = .statement", }},
+  /*state 200*/ {2, {"iterate_stmt = for param_decl in expr .. expr ... expr block", "iterate_stmt = for param_decl in expr .. expr .block", }},
+  /*state 201*/ {1, {"cond_stmt = if expr then statement else statement.", }},
+  /*state 202*/ {1, {"memory_decl = memory INT , .INT", }},
+  /*state 203*/ {1, {"func_def = let IDENT : type_expr param_decls = statement.", }},
+  /*state 204*/ {1, {"iterate_stmt = for param_decl in expr .. expr .. .expr block", }},
+  /*state 205*/ {1, {"iterate_stmt = for param_decl in expr .. expr block.", }},
+  /*state 206*/ {1, {"memory_decl = memory INT , INT.", }},
+  /*state 207*/ {1, {"iterate_stmt = for param_decl in expr .. expr .. expr .block", }},
+  /*state 208*/ {1, {"iterate_stmt = for param_decl in expr .. expr .. expr block.", }},
 };
 
 const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT] = {
-/*
-  rule   0: start = statements
-  rule   1: unit_expr = ()
-  rule   2: type_expr = IDENT
-  rule   3: type_expr = unit_expr
-  rule   4: primary_expr = INT
-  rule   5: primary_expr = DOUBLE
-  rule   6: primary_expr = IDENT
-  rule   7: primary_expr = CHAR
-  rule   8: primary_expr = STRING
-  rule   9: primary_expr = true
-  rule  10: primary_expr = false
-  rule  11: primary_expr = ( expr )
-  rule  12: postfix_expr = primary_expr
-  rule  13: postfix_expr = postfix_expr [ expr ]
-  rule  14: postfix_expr = struct_init
-  rule  15: postfix_expr = postfix_expr . IDENT
-  rule  16: postfix_expr = func_call
-  rule  17: postfix_expr = postfix_expr ++
-  rule  18: postfix_expr = postfix_expr --
-  rule  19: power_expr = postfix_expr ** unary_expr
-  rule  20: power_expr = postfix_expr
-  rule  21: unary_expr = power_expr
-  rule  22: unary_expr = ++ unary_expr
-  rule  23: unary_expr = -- unary_expr
-  rule  24: unary_expr = + unary_expr
-  rule  25: unary_expr = - unary_expr
-  rule  26: unary_expr = ~ unary_expr
-  rule  27: unary_expr = ! unary_expr
-  rule  28: multi_expr = unary_expr
-  rule  29: multi_expr = multi_expr * unary_expr
-  rule  30: multi_expr = multi_expr / unary_expr
-  rule  31: multi_expr = multi_expr % unary_expr
-  rule  32: add_expr = add_expr + multi_expr
-  rule  33: add_expr = add_expr - multi_expr
-  rule  34: add_expr = multi_expr
-  rule  35: shift_expr = add_expr
-  rule  36: shift_expr = shift_expr << add_expr
-  rule  37: shift_expr = shift_expr >> add_expr
-  rule  38: relation_expr = shift_expr
-  rule  39: relation_expr = relation_expr < shift_expr
-  rule  40: relation_expr = relation_expr > shift_expr
-  rule  41: relation_expr = relation_expr <= shift_expr
-  rule  42: relation_expr = relation_expr >= shift_expr
-  rule  43: eq_expr = relation_expr
-  rule  44: eq_expr = eq_expr == relation_expr
-  rule  45: eq_expr = eq_expr != relation_expr
-  rule  46: bit_and_expr = eq_expr
-  rule  47: bit_and_expr = bit_and_expr & eq_expr
-  rule  48: bit_xor_expr = bit_and_expr
-  rule  49: bit_xor_expr = bit_xor_expr ^ bit_and_expr
-  rule  50: bit_or_expr = bit_xor_expr
-  rule  51: bit_or_expr = bit_or_expr | bit_xor_expr
-  rule  52: logic_and_expr = bit_or_expr
-  rule  53: logic_and_expr = logic_and_expr && bit_or_expr
-  rule  54: logic_or_expr = logic_and_expr
-  rule  55: logic_or_expr = logic_or_expr || logic_and_expr
-  rule  56: cond_expr = logic_or_expr
-  rule  57: cond_expr = logic_or_expr ? expr : cond_expr
-  rule  58: assign_expr = cond_expr
-  rule  59: assign_expr = unary_expr assign_op assign_expr
-  rule  60: assign_op = =
-  rule  61: assign_op = *=
-  rule  62: assign_op = /=
-  rule  63: assign_op = %=
-  rule  64: assign_op = +=
-  rule  65: assign_op = -=
-  rule  66: assign_op = <<=
-  rule  67: assign_op = >>=
-  rule  68: assign_op = &=
-  rule  69: assign_op = ^=
-  rule  70: assign_op = |=
-  rule  71: expr = assign_expr
-  rule  72: stmt = func_decl
-  rule  73: stmt = func_def
-  rule  74: stmt = type_def
-  rule  75: stmt = expr
-  rule  76: stmt = var_decls
-  rule  77: stmt = iterate_stmt
-  rule  78: stmt = cond_stmt
-  rule  79: stmt = block
-  rule  80: stmt = import_decl
-  rule  81: cond_stmt = if expr then statement
-  rule  82: cond_stmt = if expr then statement else statement
-  rule  83: statement = stmt
-  rule  84: statement = stmt NEWLINE
-  rule  85: block = NEWLINE INDENT statements DEDENT
-  rule  86: statements = statements statement
-  rule  87: statements = statement
-  rule  88: type_def = enum IDENT = statement
-  rule  89: type_def = struct IDENT = statement
-  rule  90: type_def = union IDENT = statement
-  rule  91: struct_init = IDENT ( exprs )
-  rule  92: func_decl = extern func_type
-  rule  93: func_type = IDENT : type_expr param_decls
-  rule  94: import_decl = from IDENT import memory_decl
-  rule  95: import_decl = from IDENT import fun func_type
-  rule  96: import_decl = from IDENT import var_decl
-  rule  97: memory_decl = memory INT
-  rule  98: memory_decl = memory INT , INT
-  rule  99: func_def = let IDENT param_decls = statement
-  rule 100: func_def = let IDENT : type_expr param_decls = statement
-  rule 101: func_call = IDENT arg_exprs
-  rule 102: arg_exprs = arg_exprs primary_expr
-  rule 103: arg_exprs = primary_expr
-  rule 104: arg_exprs = unit_expr
-  rule 105: exprs = exprs , expr
-  rule 106: exprs = expr
-  rule 107: iterate_stmt = for param_decl in expr .. expr .. expr block
-  rule 108: iterate_stmt = for param_decl in expr .. expr block
-  rule 109: param_decls = param_decls param_decl
-  rule 110: param_decls = param_decl
-  rule 111: param_decls = unit_expr
-  rule 112: var_decls = var_decls , var_decl
-  rule 113: var_decls = var_decl
-  rule 114: param_decl = IDENT : IDENT
-  rule 115: param_decl = IDENT
-  rule 116: param_decl = ...
-  rule 117: var_decl = IDENT : IDENT
-  rule 118: var_decl = IDENT : IDENT = expr
-  rule 119: var_decl = IDENT = expr
-==========================================================
-==========================================================
-  state   0 start = .statements[]
-            
-  state   1 start = statements.[EOF ]
-            statements = statements .statement[]
-            
-  state   2 statements = statement.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT ]
-            
-  state   3 statement = stmt.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            statement = stmt .NEWLINE[]
-            
-  state   4 stmt = func_decl.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state   5 stmt = func_def.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state   6 stmt = type_def.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state   7 stmt = expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state   8 stmt = var_decls.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            var_decls = var_decls ., var_decl[]
-            
-  state   9 stmt = iterate_stmt.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state  10 stmt = cond_stmt.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state  11 stmt = block.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state  12 stmt = import_decl.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state  13 func_decl = extern .func_type[]
-            
-  state  14 func_def = let .IDENT param_decls = statement[]
-            func_def = let .IDENT : type_expr param_decls = statement[]
-            
-  state  15 type_def = enum .IDENT = statement[]
-            
-  state  16 type_def = struct .IDENT = statement[]
-            
-  state  17 type_def = union .IDENT = statement[]
-            
-  state  18 expr = assign_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( then ) DEDENT , else : ] .. ]
-            
-  state  19 var_decls = var_decl.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( , DEDENT else ]
-            
-  state  20 iterate_stmt = for .param_decl in expr .. expr .. expr block[]
-            iterate_stmt = for .param_decl in expr .. expr block[]
-            
-  state  21 cond_stmt = if .expr then statement[]
-            cond_stmt = if .expr then statement else statement[]
-            
-  state  22 block = NEWLINE .INDENT statements DEDENT[]
-            
-  state  23 import_decl = from .IDENT import memory_decl[]
-            import_decl = from .IDENT import fun func_type[]
-            import_decl = from .IDENT import var_decl[]
-            
-  state  24 assign_expr = cond_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( then ) DEDENT , : ] .. else ]
-            
-  state  25 assign_expr = unary_expr .assign_op assign_expr[]
-            multi_expr = unary_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  26 var_decl = IDENT .: IDENT[]
-            var_decl = IDENT .: IDENT = expr[]
-            var_decl = IDENT .= expr[]
-            primary_expr = IDENT.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || DEDENT else ]
-            struct_init = IDENT .( exprs )[]
-            func_call = IDENT .arg_exprs[]
-            
-  state  27 cond_expr = logic_or_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( then ) DEDENT , : ] .. else ]
-            cond_expr = logic_or_expr .? expr : cond_expr[]
-            logic_or_expr = logic_or_expr .|| logic_and_expr[]
-            
-  state  28 unary_expr = power_expr.[= *= /= %= += -= <<= >>= &= ^= |= EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  29 unary_expr = ++ .unary_expr[]
-            
-  state  30 unary_expr = -- .unary_expr[]
-            
-  state  31 unary_expr = + .unary_expr[]
-            
-  state  32 unary_expr = - .unary_expr[]
-            
-  state  33 unary_expr = ~ .unary_expr[]
-            
-  state  34 unary_expr = ! .unary_expr[]
-            
-  state  35 logic_or_expr = logic_and_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? || then ) DEDENT , : ] .. else ]
-            logic_and_expr = logic_and_expr .&& bit_or_expr[]
-            
-  state  36 power_expr = postfix_expr .** unary_expr[]
-            power_expr = postfix_expr.[= *= /= %= += -= <<= >>= &= ^= |= EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            postfix_expr = postfix_expr .[ expr ][]
-            postfix_expr = postfix_expr .. IDENT[]
-            postfix_expr = postfix_expr .++[]
-            postfix_expr = postfix_expr .--[]
-            
-  state  37 logic_and_expr = bit_or_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? && || then ) DEDENT , : ] .. else ]
-            bit_or_expr = bit_or_expr .| bit_xor_expr[]
-            
-  state  38 postfix_expr = primary_expr.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  39 postfix_expr = struct_init.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  40 postfix_expr = func_call.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  41 bit_or_expr = bit_xor_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? | && || then ) DEDENT , : ] .. else ]
-            bit_xor_expr = bit_xor_expr .^ bit_and_expr[]
-            
-  state  42 primary_expr = INT.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then DEDENT else ) , : ] .. ]
-            
-  state  43 primary_expr = DOUBLE.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then DEDENT else ) , : ] .. ]
-            
-  state  44 primary_expr = CHAR.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then DEDENT else ) , : ] .. ]
-            
-  state  45 primary_expr = STRING.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then DEDENT else ) , : ] .. ]
-            
-  state  46 primary_expr = true.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then DEDENT else ) , : ] .. ]
-            
-  state  47 primary_expr = false.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then DEDENT else ) , : ] .. ]
-            
-  state  48 primary_expr = ( .expr )[]
-            
-  state  49 bit_xor_expr = bit_and_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? ^ | && || then ) DEDENT , : ] .. else ]
-            bit_and_expr = bit_and_expr .& eq_expr[]
-            
-  state  50 bit_and_expr = eq_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? & ^ | && || then ) DEDENT , : ] .. else ]
-            eq_expr = eq_expr .== relation_expr[]
-            eq_expr = eq_expr .!= relation_expr[]
-            
-  state  51 eq_expr = relation_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? == != & ^ | && || then ) DEDENT , : ] .. else ]
-            relation_expr = relation_expr .< shift_expr[]
-            relation_expr = relation_expr .> shift_expr[]
-            relation_expr = relation_expr .<= shift_expr[]
-            relation_expr = relation_expr .>= shift_expr[]
-            
-  state  52 relation_expr = shift_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            shift_expr = shift_expr .<< add_expr[]
-            shift_expr = shift_expr .>> add_expr[]
-            
-  state  53 shift_expr = add_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            add_expr = add_expr .+ multi_expr[]
-            add_expr = add_expr .- multi_expr[]
-            
-  state  54 add_expr = multi_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            multi_expr = multi_expr .* unary_expr[]
-            multi_expr = multi_expr ./ unary_expr[]
-            multi_expr = multi_expr .% unary_expr[]
-            
-  state  55 statements = statements statement.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT ]
-            
-  state  56 statement = stmt NEWLINE.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state  57 var_decls = var_decls , .var_decl[]
-            
-  state  58 func_decl = extern func_type.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state  59 func_type = IDENT .: type_expr param_decls[]
-            
-  state  60 func_def = let IDENT .param_decls = statement[]
-            func_def = let IDENT .: type_expr param_decls = statement[]
-            
-  state  61 type_def = enum IDENT .= statement[]
-            
-  state  62 type_def = struct IDENT .= statement[]
-            
-  state  63 type_def = union IDENT .= statement[]
-            
-  state  64 iterate_stmt = for param_decl .in expr .. expr .. expr block[]
-            iterate_stmt = for param_decl .in expr .. expr block[]
-            
-  state  65 param_decl = IDENT .: IDENT[]
-            param_decl = IDENT.[in = IDENT ... EOF extern let enum struct union for if NEWLINE from ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state  66 param_decl = ....[in = IDENT ... EOF extern let enum struct union for if NEWLINE from ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state  67 cond_stmt = if expr .then statement[]
-            cond_stmt = if expr .then statement else statement[]
-            
-  state  68 primary_expr = IDENT.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- then ? + - * / % << >> < > <= >= == != & ^ | && || EOF extern let enum struct union for if NEWLINE from IDENT ~ ! INT DOUBLE CHAR STRING true false ( ) DEDENT , : ] .. else ]
-            struct_init = IDENT .( exprs )[]
-            func_call = IDENT .arg_exprs[]
-            
-  state  69 block = NEWLINE INDENT .statements DEDENT[]
-            
-  state  70 import_decl = from IDENT .import memory_decl[]
-            import_decl = from IDENT .import fun func_type[]
-            import_decl = from IDENT .import var_decl[]
-            
-  state  71 assign_expr = unary_expr assign_op .assign_expr[]
-            
-  state  72 assign_op = =.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  73 assign_op = *=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  74 assign_op = /=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  75 assign_op = %=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  76 assign_op = +=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  77 assign_op = -=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  78 assign_op = <<=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  79 assign_op = >>=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  80 assign_op = &=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  81 assign_op = ^=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  82 assign_op = |=.[++ -- + - ~ ! INT DOUBLE IDENT CHAR STRING true false ( ]
-            
-  state  83 var_decl = IDENT : .IDENT[]
-            var_decl = IDENT : .IDENT = expr[]
-            
-  state  84 var_decl = IDENT = .expr[]
-            
-  state  85 struct_init = IDENT ( .exprs )[]
-            primary_expr = ( .expr )[]
-            
-  state  86 func_call = IDENT arg_exprs.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            arg_exprs = arg_exprs .primary_expr[]
-            
-  state  87 arg_exprs = primary_expr.[** = *= /= %= += -= <<= >>= &= ^= |= [ . INT DOUBLE IDENT CHAR STRING true false ( ++ -- EOF extern let enum struct union for if NEWLINE from + - ~ ! ? DEDENT else * / % << >> < > <= >= == != & ^ | && || then ) , : ] .. ]
-            
-  state  88 arg_exprs = unit_expr.[** = *= /= %= += -= <<= >>= &= ^= |= [ . INT DOUBLE IDENT CHAR STRING true false ( ++ -- EOF extern let enum struct union for if NEWLINE from + - ~ ! ? DEDENT else * / % << >> < > <= >= == != & ^ | && || then ) , : ] .. ]
-            
-  state  89 primary_expr = IDENT.[** = *= /= %= += -= <<= >>= &= ^= |= [ . INT DOUBLE IDENT CHAR STRING true false ( ++ -- EOF extern let enum struct union for if NEWLINE from + - ~ ! ? DEDENT else * / % << >> < > <= >= == != & ^ | && || then ) , : ] .. ]
-            
-  state  90 unit_expr = ().[** = *= /= %= += -= <<= >>= &= ^= |= [ . INT DOUBLE IDENT CHAR STRING true false ( ++ -- EOF extern let enum struct union for if NEWLINE from + - ~ ! ? DEDENT else * / % << >> < > <= >= == != & ^ | && || ... then ) , : ] .. () ]
-            
-  state  91 cond_expr = logic_or_expr ? .expr : cond_expr[]
-            
-  state  92 logic_or_expr = logic_or_expr || .logic_and_expr[]
-            
-  state  93 unary_expr = ++ unary_expr.[= *= /= %= += -= <<= >>= &= ^= |= EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  94 unary_expr = -- unary_expr.[= *= /= %= += -= <<= >>= &= ^= |= EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  95 unary_expr = + unary_expr.[= *= /= %= += -= <<= >>= &= ^= |= EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  96 unary_expr = - unary_expr.[= *= /= %= += -= <<= >>= &= ^= |= EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  97 unary_expr = ~ unary_expr.[= *= /= %= += -= <<= >>= &= ^= |= EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  98 unary_expr = ! unary_expr.[= *= /= %= += -= <<= >>= &= ^= |= EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state  99 logic_and_expr = logic_and_expr && .bit_or_expr[]
-            
-  state 100 power_expr = postfix_expr ** .unary_expr[]
-            
-  state 101 postfix_expr = postfix_expr [ .expr ][]
-            
-  state 102 postfix_expr = postfix_expr . .IDENT[]
-            
-  state 103 postfix_expr = postfix_expr ++.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state 104 postfix_expr = postfix_expr --.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state 105 bit_or_expr = bit_or_expr | .bit_xor_expr[]
-            
-  state 106 bit_xor_expr = bit_xor_expr ^ .bit_and_expr[]
-            
-  state 107 primary_expr = ( expr .)[]
-            
-  state 108 bit_and_expr = bit_and_expr & .eq_expr[]
-            
-  state 109 eq_expr = eq_expr == .relation_expr[]
-            
-  state 110 eq_expr = eq_expr != .relation_expr[]
-            
-  state 111 relation_expr = relation_expr < .shift_expr[]
-            
-  state 112 relation_expr = relation_expr > .shift_expr[]
-            
-  state 113 relation_expr = relation_expr <= .shift_expr[]
-            
-  state 114 relation_expr = relation_expr >= .shift_expr[]
-            
-  state 115 shift_expr = shift_expr << .add_expr[]
-            
-  state 116 shift_expr = shift_expr >> .add_expr[]
-            
-  state 117 add_expr = add_expr + .multi_expr[]
-            
-  state 118 add_expr = add_expr - .multi_expr[]
-            
-  state 119 multi_expr = multi_expr * .unary_expr[]
-            
-  state 120 multi_expr = multi_expr / .unary_expr[]
-            
-  state 121 multi_expr = multi_expr % .unary_expr[]
-            
-  state 122 var_decls = var_decls , var_decl.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( , DEDENT else ]
-            
-  state 123 var_decl = IDENT .: IDENT[]
-            var_decl = IDENT .: IDENT = expr[]
-            var_decl = IDENT .= expr[]
-            
-  state 124 func_type = IDENT : .type_expr param_decls[]
-            
-  state 125 func_def = let IDENT param_decls .= statement[]
-            param_decls = param_decls .param_decl[]
-            
-  state 126 func_def = let IDENT : .type_expr param_decls = statement[]
-            
-  state 127 param_decls = param_decl.[= IDENT ... EOF extern let enum struct union for if NEWLINE from ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 128 param_decls = unit_expr.[= IDENT ... EOF extern let enum struct union for if NEWLINE from ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 129 type_def = enum IDENT = .statement[]
-            
-  state 130 type_def = struct IDENT = .statement[]
-            
-  state 131 type_def = union IDENT = .statement[]
-            
-  state 132 iterate_stmt = for param_decl in .expr .. expr .. expr block[]
-            iterate_stmt = for param_decl in .expr .. expr block[]
-            
-  state 133 param_decl = IDENT : .IDENT[]
-            
-  state 134 cond_stmt = if expr then .statement[]
-            cond_stmt = if expr then .statement else statement[]
-            
-  state 135 block = NEWLINE INDENT statements .DEDENT[]
-            statements = statements .statement[]
-            
-  state 136 import_decl = from IDENT import .memory_decl[]
-            import_decl = from IDENT import .fun func_type[]
-            import_decl = from IDENT import .var_decl[]
-            
-  state 137 assign_expr = unary_expr assign_op assign_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( then ) DEDENT , : ] .. else ]
-            
-  state 138 var_decl = IDENT : IDENT.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( , DEDENT else ]
-            var_decl = IDENT : IDENT .= expr[]
-            
-  state 139 var_decl = IDENT = expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( , DEDENT else ]
-            
-  state 140 struct_init = IDENT ( exprs .)[]
-            exprs = exprs ., expr[]
-            
-  state 141 primary_expr = ( expr .)[]
-            exprs = expr.[) , ]
-            
-  state 142 arg_exprs = arg_exprs primary_expr.[** = *= /= %= += -= <<= >>= &= ^= |= [ . INT DOUBLE IDENT CHAR STRING true false ( ++ -- EOF extern let enum struct union for if NEWLINE from + - ~ ! ? DEDENT else * / % << >> < > <= >= == != & ^ | && || then ) , : ] .. ]
-            
-  state 143 cond_expr = logic_or_expr ? expr .: cond_expr[]
-            
-  state 144 logic_or_expr = logic_or_expr || logic_and_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? || then ) DEDENT , : ] .. else ]
-            logic_and_expr = logic_and_expr .&& bit_or_expr[]
-            
-  state 145 multi_expr = unary_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? || then ) DEDENT , : * / % << >> < > <= >= == != & ^ | && ] .. else ]
-            
-  state 146 logic_and_expr = logic_and_expr && bit_or_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? && || then ) DEDENT , : ] .. else ]
-            bit_or_expr = bit_or_expr .| bit_xor_expr[]
-            
-  state 147 power_expr = postfix_expr ** unary_expr.[= *= /= %= += -= <<= >>= &= ^= |= EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state 148 postfix_expr = postfix_expr [ expr .][]
-            
-  state 149 postfix_expr = postfix_expr . IDENT.[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state 150 bit_or_expr = bit_or_expr | bit_xor_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? | && || then ) DEDENT , : ] .. else ]
-            bit_xor_expr = bit_xor_expr .^ bit_and_expr[]
-            
-  state 151 bit_xor_expr = bit_xor_expr ^ bit_and_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? ^ | && || then ) DEDENT , : ] .. else ]
-            bit_and_expr = bit_and_expr .& eq_expr[]
-            
-  state 152 primary_expr = ( expr ).[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then DEDENT else ) , : ] .. ]
-            
-  state 153 bit_and_expr = bit_and_expr & eq_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? & ^ | && || then ) DEDENT , : ] .. else ]
-            eq_expr = eq_expr .== relation_expr[]
-            eq_expr = eq_expr .!= relation_expr[]
-            
-  state 154 eq_expr = eq_expr == relation_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? == != & ^ | && || then ) DEDENT , : ] .. else ]
-            relation_expr = relation_expr .< shift_expr[]
-            relation_expr = relation_expr .> shift_expr[]
-            relation_expr = relation_expr .<= shift_expr[]
-            relation_expr = relation_expr .>= shift_expr[]
-            
-  state 155 eq_expr = eq_expr != relation_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? == != & ^ | && || then ) DEDENT , : ] .. else ]
-            relation_expr = relation_expr .< shift_expr[]
-            relation_expr = relation_expr .> shift_expr[]
-            relation_expr = relation_expr .<= shift_expr[]
-            relation_expr = relation_expr .>= shift_expr[]
-            
-  state 156 relation_expr = relation_expr < shift_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            shift_expr = shift_expr .<< add_expr[]
-            shift_expr = shift_expr .>> add_expr[]
-            
-  state 157 relation_expr = relation_expr > shift_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            shift_expr = shift_expr .<< add_expr[]
-            shift_expr = shift_expr .>> add_expr[]
-            
-  state 158 relation_expr = relation_expr <= shift_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            shift_expr = shift_expr .<< add_expr[]
-            shift_expr = shift_expr .>> add_expr[]
-            
-  state 159 relation_expr = relation_expr >= shift_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            shift_expr = shift_expr .<< add_expr[]
-            shift_expr = shift_expr .>> add_expr[]
-            
-  state 160 shift_expr = shift_expr << add_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            add_expr = add_expr .+ multi_expr[]
-            add_expr = add_expr .- multi_expr[]
-            
-  state 161 shift_expr = shift_expr >> add_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            add_expr = add_expr .+ multi_expr[]
-            add_expr = add_expr .- multi_expr[]
-            
-  state 162 add_expr = add_expr + multi_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            multi_expr = multi_expr .* unary_expr[]
-            multi_expr = multi_expr ./ unary_expr[]
-            multi_expr = multi_expr .% unary_expr[]
-            
-  state 163 add_expr = add_expr - multi_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            multi_expr = multi_expr .* unary_expr[]
-            multi_expr = multi_expr ./ unary_expr[]
-            multi_expr = multi_expr .% unary_expr[]
-            
-  state 164 multi_expr = multi_expr * unary_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state 165 multi_expr = multi_expr / unary_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state 166 multi_expr = multi_expr % unary_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state 167 func_type = IDENT : type_expr .param_decls[]
-            
-  state 168 type_expr = IDENT.[IDENT ... () ]
-            
-  state 169 type_expr = unit_expr.[IDENT ... () ]
-            
-  state 170 func_def = let IDENT param_decls = .statement[]
-            
-  state 171 param_decls = param_decls param_decl.[= IDENT ... EOF extern let enum struct union for if NEWLINE from ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 172 func_def = let IDENT : type_expr .param_decls = statement[]
-            
-  state 173 type_def = enum IDENT = statement.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 174 type_def = struct IDENT = statement.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 175 type_def = union IDENT = statement.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 176 iterate_stmt = for param_decl in expr ... expr .. expr block[]
-            iterate_stmt = for param_decl in expr ... expr block[]
-            
-  state 177 param_decl = IDENT : IDENT.[in = IDENT ... EOF extern let enum struct union for if NEWLINE from ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 178 cond_stmt = if expr then statement.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            cond_stmt = if expr then statement .else statement[]
-            
-  state 179 block = NEWLINE INDENT statements DEDENT.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 180 import_decl = from IDENT import memory_decl.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 181 import_decl = from IDENT import fun .func_type[]
-            
-  state 182 import_decl = from IDENT import var_decl.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 183 memory_decl = memory .INT[]
-            memory_decl = memory .INT , INT[]
-            
-  state 184 var_decl = IDENT : IDENT = .expr[]
-            
-  state 185 struct_init = IDENT ( exprs ).[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state 186 exprs = exprs , .expr[]
-            
-  state 187 cond_expr = logic_or_expr ? expr : .cond_expr[]
-            
-  state 188 postfix_expr = postfix_expr [ expr ].[** = *= /= %= += -= <<= >>= &= ^= |= [ . ++ -- EOF extern let enum struct union for if NEWLINE from IDENT + - ~ ! INT DOUBLE CHAR STRING true false ( ? * / % << >> < > <= >= == != & ^ | && || then ) DEDENT , : ] .. else ]
-            
-  state 189 func_type = IDENT : type_expr param_decls.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            param_decls = param_decls .param_decl[]
-            
-  state 190 func_def = let IDENT param_decls = statement.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 191 func_def = let IDENT : type_expr param_decls .= statement[]
-            param_decls = param_decls .param_decl[]
-            
-  state 192 iterate_stmt = for param_decl in expr .. .expr .. expr block[]
-            iterate_stmt = for param_decl in expr .. .expr block[]
-            
-  state 193 cond_stmt = if expr then statement else .statement[]
-            
-  state 194 import_decl = from IDENT import fun func_type.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 195 memory_decl = memory INT.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            memory_decl = memory INT ., INT[]
-            
-  state 196 var_decl = IDENT : IDENT = expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( , DEDENT else ]
-            
-  state 197 exprs = exprs , expr.[) , ]
-            
-  state 198 cond_expr = logic_or_expr ? expr : cond_expr.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( then ) DEDENT , : ] .. else ]
-            
-  state 199 func_def = let IDENT : type_expr param_decls = .statement[]
-            
-  state 200 iterate_stmt = for param_decl in expr .. expr ... expr block[]
-            iterate_stmt = for param_decl in expr .. expr .block[]
-            
-  state 201 cond_stmt = if expr then statement else statement.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 202 memory_decl = memory INT , .INT[]
-            
-  state 203 func_def = let IDENT : type_expr param_decls = statement.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 204 iterate_stmt = for param_decl in expr .. expr .. .expr block[]
-            
-  state 205 iterate_stmt = for param_decl in expr .. expr block.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 206 memory_decl = memory INT , INT.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-  state 207 iterate_stmt = for param_decl in expr .. expr .. expr .block[]
-            
-  state 208 iterate_stmt = for param_decl in expr .. expr .. expr block.[EOF extern let enum struct union for if NEWLINE from IDENT ++ -- + - ~ ! INT DOUBLE CHAR STRING true false ( DEDENT else ]
-            
-*/
   /*state   0*/ {{E,0},{E,0},{E,0},{E,0},{E,0},{S,22},{S,42},{S,43},{E,0},{S,44},{S,45},{S,23},{E,0},{E,0},{S,13},{S,15},{S,16},{S,17},{E,0},{S,14},{E,0},{S,21},{E,0},{E,0},{S,46},{S,47},{E,0},{S,20},{S,26},{S,48},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,34},{S,33},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,31},{S,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,29},{S,30},{E,0},{E,0},{E,0},{G,38},{G,36},{G,28},{G,25},{G,54},{G,53},{G,52},{G,51},{G,50},{G,49},{G,41},{G,37},{G,35},{G,27},{G,24},{G,18},{E,0},{G,7},{G,3},{G,10},{G,2},{G,11},{G,1},{G,6},{G,39},{G,4},{E,0},{G,12},{E,0},{G,5},{G,40},{E,0},{E,0},{G,9},{E,0},{G,8},{E,0},{G,19},},
   /*state   1*/ {{E,0},{A,0},{E,0},{E,0},{E,0},{S,22},{S,42},{S,43},{E,0},{S,44},{S,45},{S,23},{E,0},{E,0},{S,13},{S,15},{S,16},{S,17},{E,0},{S,14},{E,0},{S,21},{E,0},{E,0},{S,46},{S,47},{E,0},{S,20},{S,26},{S,48},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,34},{S,33},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,31},{S,32},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{S,29},{S,30},{E,0},{E,0},{E,0},{G,38},{G,36},{G,28},{G,25},{G,54},{G,53},{G,52},{G,51},{G,50},{G,49},{G,41},{G,37},{G,35},{G,27},{G,24},{G,18},{E,0},{G,7},{G,3},{G,10},{G,55},{G,11},{E,0},{G,6},{G,39},{G,4},{E,0},{G,12},{E,0},{G,5},{G,40},{E,0},{E,0},{G,9},{E,0},{G,8},{E,0},{G,19},},
   /*state   2*/ {{E,0},{R,87},{E,0},{E,0},{R,87},{R,87},{R,87},{R,87},{E,0},{R,87},{R,87},{R,87},{E,0},{E,0},{R,87},{R,87},{R,87},{R,87},{E,0},{R,87},{E,0},{R,87},{E,0},{E,0},{R,87},{R,87},{E,0},{R,87},{R,87},{R,87},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,87},{R,87},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,87},{R,87},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{R,87},{R,87},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},{E,0},},
