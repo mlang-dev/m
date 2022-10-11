@@ -11,15 +11,18 @@
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
+#include "error/error.h"
 #include <assert.h>
 
-struct parser *_parser_new(parsing_table *pt, parsing_rules *pr)
+struct parser *_parser_new(parsing_table *pt, parsing_rules *pr, parsing_symbols *psd, parsing_states *pstd)
 {
     struct parser *parser;
     MALLOC(parser, sizeof(*parser));
     parser->stack_top = 0;
     parser->pt = pt;
     parser->pr = pr;
+    parser->psd = psd;
+    parser->pstd = pstd;
     hashtable_init_with_value_size(&parser->symbol_2_int_types, sizeof(int), 0);
     for (int i = 0; i < TYPE_TYPES; i++) {
         hashtable_set_int(&parser->symbol_2_int_types, type_symbols[i], i);
@@ -29,7 +32,7 @@ struct parser *_parser_new(parsing_table *pt, parsing_rules *pr)
 
 struct parser *parser_new()
 {
-    return _parser_new(&m_parsing_table, &m_parsing_rules);
+    return _parser_new(&m_parsing_table, &m_parsing_rules, &m_parsing_symbols, &m_parsing_states);
 }
 
 void parser_free(struct parser *parser)
@@ -332,7 +335,6 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
     struct parse_rule *rule;
     struct stack_item *si;
     struct parser_action *pa;
-    u32 i;
     //driver 
     while(1){
         s = _get_top_state(parser)->state_index;
@@ -357,17 +359,22 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
             ast = si->ast;
             break;
         }else if(tok->token_type == TOKEN_ERROR){
-            printf("%s", string_get(tok->str_val));
+            struct error_report *er = get_last_error_report(lexer);
+            printf("%s location (line, col): (%d, %d)\n", er->error_msg, er->loc.line, er->loc.col);
             ast = 0;
             break;
         }else{
             //error recovery
-            printf("error found in state: %d on terminal: %s\n", s, string_get(get_symbol_by_index(a)));
-            printf("the parser stack is: \n");
-            for (i = 0; i < parser->stack_top; i++){
-                printf("%d,", parser->stack[i].state_index);
+            printf("parsing error. got token: %s\n", string_get(get_symbol_by_index(a)));
+            struct parse_state_string *pss = &(*parser->pstd)[s];
+            for(u32 i = 0; i < pss->item_count; i++){
+                printf("%s\n", pss->item_strings[i]);
             }
-            printf("\n");
+            // printf("the parser stack is: \n");
+            // for (i = 0; i < parser->stack_top; i++){
+            //     printf("%d,", parser->stack[i].state_index);
+            // }
+            // printf("\n");
             ast = 0;
             break;
         }

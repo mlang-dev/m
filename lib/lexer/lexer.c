@@ -10,9 +10,10 @@
 #include "lexer/token.h"
 #include "clib/regex.h"
 #include "clib/win/libfmemopen.h"
+#include "error/error.h"
+
 
 char escape_2_char[128];
-char error_messages[512];
 
 void indent_level_stack_init(struct indent_level_stack *stack)
 {
@@ -218,8 +219,8 @@ void _mark_regex_tok(struct lexer *lexer)
     char ch = lexer->buff[lexer->pos];
     struct pattern_matches *pm = &lexer->char_matches[(int)ch];
     if(!pm->pattern_match_count){
-        printf("invalid char : %c\n", ch);
-        exit(-1);
+        report_error(lexer, EC_UNRECOGNIZED_CHAR, tok->loc);
+        return;
     }
     int max_matched = 0;
     struct token_pattern *used_tp = 0;
@@ -248,8 +249,7 @@ void _mark_regex_tok(struct lexer *lexer)
         } else if (used_tp->token_type == TOKEN_DOUBLE)
             tok->double_val = strtod(&lexer->buff[tok->loc.start - lexer->buff_base], 0);
     }else{
-        printf("no valid token found for %c\n", ch);
-        exit(-1);
+        report_error(lexer, EC_UNRECOGNIZED_TOKEN, tok->loc);
     }
 }
 
@@ -312,8 +312,9 @@ struct token *get_tok(struct lexer *lexer)
             return tok;
         }
         else if(match == INVALID_INDENTS){
-            printf("inconsistent indent level with num of space: %d is found.\n", spaces);
-            exit(-1);
+            tok->token_type = TOKEN_ERROR;
+            report_error(lexer, EC_INCONSISTENT_INDENT_LEVEL, tok->loc);
+            goto mark_end;
         }
         else if(match < 0){
             //dedent
@@ -345,13 +346,13 @@ struct token *get_tok(struct lexer *lexer)
         _scan_until(lexer, '\'');
         if(lexer->buff[lexer->pos] != '\''){
             tok->token_type = TOKEN_ERROR;
-            sprintf(error_messages, "missing end quote for char literal. location: (%d, %d)\n", tok->loc.line, tok->loc.col);
+            report_error(lexer, EC_CHAR_MISS_END_QUOTE, tok->loc);
             goto mark_end;
         }
         _move_ahead(lexer); //skip the single quote
         if(_is_valid_char(lexer)){
             tok->token_type = TOKEN_ERROR;
-            sprintf(error_messages, "character is supposed to be 1 char long but got %d long. location: (%d, %d)\n", lexer->buff_base + lexer->pos - tok->loc.start - 2, tok->loc.line, tok->loc.col);
+            report_error(lexer, EC_CHAR_LEN_TOO_LONG, tok->loc);
             goto mark_end;
         }
         if(lexer->buff[tok->loc.start - lexer->buff_base + 1] == '\\'){
@@ -365,7 +366,7 @@ struct token *get_tok(struct lexer *lexer)
         _scan_until(lexer, '"');
         if(lexer->buff[lexer->pos] != '"'){
             tok->token_type = TOKEN_ERROR;
-            sprintf(error_messages, "missing end quote for string literal. location: (%d, %d)\n", tok->loc.line, tok->loc.col);
+            report_error(lexer, EC_STR_MISS_END_QUOTE, tok->loc);
             goto mark_end;
         }
         _move_ahead(lexer); // skip the double quote
@@ -376,9 +377,6 @@ struct token *get_tok(struct lexer *lexer)
         break;
     }
 mark_end:
-    if(tok->token_type == TOKEN_ERROR){
-        tok->str_val = string_new2(error_messages, strlen(error_messages));
-    }
     tok->loc.end = lexer->buff_base + lexer->pos;
     return tok;
 }

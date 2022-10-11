@@ -26,6 +26,7 @@ if (WASM)
   )
 
   add_library(mlr 
+    error/error.c
     lexer/token.c
     lexer/lexer.c
     parser/ast.c
@@ -37,7 +38,6 @@ if (WASM)
     sema/sema_context.c
     sema/analyzer.c
     sema/frontend.c
-
     codegen/backend.c
     codegen/type_size_info.c
     codegen/abi_arg_info.c
@@ -85,6 +85,7 @@ else()
   )
 
   add_executable(pgen
+    error/error.c
     lexer/token.c
     lexer/lexer.c
     sema/type.c
@@ -113,6 +114,7 @@ else()
 
   add_library(mlr
     tool/cmodule.c
+    error/error.c
     lexer/token.c
     lexer/lexer.c
     parser/ast.c
