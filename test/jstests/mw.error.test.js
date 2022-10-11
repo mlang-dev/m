@@ -18,6 +18,6 @@ test('parse char not having correct length', () => {
 c = '
 `;
         expect(m.run_mcode(code)).toEqual(undefined);
-        expect(output).toEqual("missing end quote for char literal. location: (2, 5)\n");
+        expect(output).toEqual("missing end quote for char literal. location (line, col): (2, 5)\n");
     });
 });
