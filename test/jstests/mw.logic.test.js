@@ -13,7 +13,7 @@ test('true', () => {
         let code = `
 true
         `;
-        expect(m.run_mcode(code)).toEqual(1);
+        expect(m.run_code(code)).toEqual(1);
     });
 });
 
@@ -23,7 +23,7 @@ test('false', () => {
         let code = `
 false
         `;
-        expect(m.run_mcode(code)).toEqual(0);
+        expect(m.run_code(code)).toEqual(0);
     });
 });
 
@@ -33,7 +33,7 @@ test('true && true', () => {
         let code = `
 true && true
         `;
-        expect(m.run_mcode(code)).toEqual(1);
+        expect(m.run_code(code)).toEqual(1);
     });
 });
 
@@ -43,7 +43,7 @@ test('true && false', () => {
         let code = `
 true && false
         `;
-        expect(m.run_mcode(code)).toEqual(0);
+        expect(m.run_code(code)).toEqual(0);
     });
 });
 
@@ -54,7 +54,7 @@ test('false && true', () => {
         let code = `
 false && true
         `;
-        expect(m.run_mcode(code)).toEqual(0);
+        expect(m.run_code(code)).toEqual(0);
     });
 });
 
@@ -64,7 +64,7 @@ test('false && false', () => {
         let code = `
 false && false
         `;
-        expect(m.run_mcode(code)).toEqual(0);
+        expect(m.run_code(code)).toEqual(0);
     });
 });
 
@@ -74,7 +74,7 @@ test('false || false', () => {
         let code = `
 false || false
         `;
-        expect(m.run_mcode(code)).toEqual(0);
+        expect(m.run_code(code)).toEqual(0);
     });
 });
 
@@ -84,7 +84,7 @@ test('true || false', () => {
         let code = `
 true || false
         `;
-        expect(m.run_mcode(code)).toEqual(1);
+        expect(m.run_code(code)).toEqual(1);
     });
 });
 
@@ -94,7 +94,7 @@ test('false || true', () => {
         let code = `
 false || true
         `;
-        expect(m.run_mcode(code)).toEqual(1);
+        expect(m.run_code(code)).toEqual(1);
     });
 });
 
@@ -104,7 +104,7 @@ test('true || true', () => {
         let code = `
 true || true
         `;
-        expect(m.run_mcode(code)).toEqual(1);
+        expect(m.run_code(code)).toEqual(1);
     });
 });
 
@@ -114,7 +114,7 @@ test('!false', () => {
         let code = `
 !false
         `;
-        expect(m.run_mcode(code)).toEqual(1);
+        expect(m.run_code(code)).toEqual(1);
     });
 });
 
@@ -124,6 +124,6 @@ test('!true', () => {
         let code = `
 !true
         `;
-        expect(m.run_mcode(code)).toEqual(0);
+        expect(m.run_code(code)).toEqual(0);
     });
 });

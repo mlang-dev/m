@@ -10,6 +10,7 @@
 #include "clib/symboltable.h"
 #include "clib/util.h"
 #include "tool/cmodule.h"
+#include "error/error.h"
 #include <assert.h>
 #include <limits.h>
 
@@ -114,6 +115,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         return 0;
     if (node->annotated_type_name && node->var->init_value->annotated_type_name
         && node->annotated_type_name != node->var->init_value->annotated_type_name) {
+        report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
         _log_err(context, node->loc, "variable type not matched with literal constant");
         return 0;
     }
@@ -307,8 +309,8 @@ struct type_expr *_analyze_field_accessor(struct sema_context *context, struct a
 {
     struct type_expr *type = analyze(context, node->index->object);
     if(type->type != TYPE_STRUCT){
-        printf("The left side of the dot is expected to be a struct type. It is : %s\n", string_get(type->name));
-        exit(-1);
+        report_error(context, EC_EXPECT_STRUCT_TYPE, node->loc);
+        return 0;
     }
     struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, type->name);
     int index = find_member_index(type_node, node->index->index->ident->name);

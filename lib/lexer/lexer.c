@@ -56,7 +56,7 @@ struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size
 {
     if (code && code_size > CODE_BUFF_SIZE){
         printf("only %d bytes of m code is allowed to parse, but here is the size of the code: %zu.\n",  CODE_BUFF_SIZE, code_size);
-        exit(-1);
+        return 0;
     }
     for(int i = 0; i < 128; i++){
         escape_2_char[i] = i;
@@ -272,7 +272,10 @@ const char * _copy_string_strip_escape(const char *text, size_t len, size_t *out
 
 bool _is_valid_char(struct lexer *lexer)
 {
-    return lexer->buff_base + lexer->pos - lexer->tok.loc.start != 3 && lexer->buff_base + lexer->pos - lexer->tok.loc.start != 4;
+    int len = lexer->buff_base + lexer->pos - lexer->tok.loc.start;
+    if (len == 3) return true;
+    if ((len == 4) && lexer->buff[lexer->tok.loc.start + 1] == '\\') return true;
+    return false;
 }
 
 struct token *get_tok(struct lexer *lexer)
@@ -350,7 +353,7 @@ struct token *get_tok(struct lexer *lexer)
             goto mark_end;
         }
         _move_ahead(lexer); //skip the single quote
-        if(_is_valid_char(lexer)){
+        if(!_is_valid_char(lexer)){
             tok->token_type = TOKEN_ERROR;
             report_error(lexer, EC_CHAR_LEN_TOO_LONG, tok->loc);
             goto mark_end;

@@ -19,14 +19,17 @@ extern "C" {
 enum error_code {
     EC_SUCCESS = 0,
 
+    //lexer
     EC_UNRECOGNIZED_CHAR,
     EC_UNRECOGNIZED_TOKEN,
-    
     EC_CHAR_MISS_END_QUOTE,
     EC_CHAR_LEN_TOO_LONG,
     EC_STR_MISS_END_QUOTE,
     EC_INCONSISTENT_INDENT_LEVEL,
 
+    //analyzer
+    EC_EXPECT_STRUCT_TYPE,
+    EC_VAR_TYPE_NO_MATCH_LITERAL,
     ALL_ERROR
 };
 
