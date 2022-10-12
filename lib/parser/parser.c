@@ -367,10 +367,11 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
         }else{
             //error recovery
             printf("parsing error. got token: %s\n", string_get(get_symbol_by_index(ti)));
-            struct parse_state_string *pss = &(*parser->pstd)[si];
-            struct parser_action *pa = &(*parser->pt)[si];
-            for(u32 i = 0; i < pss->item_count; i++){
-                printf("%s\n", pss->item_strings[i]);
+            struct parse_state_items *psi = &(*parser->pstd)[si];
+            for(u32 i = 0; i < psi->item_count; i++){
+                rule = &(*parser->pr)[psi->items[i].rule];
+                u16 next_symbol = pr->rhs[psi->items[i].dot];
+                printf("%s\n", psi->items[i].item_string);
             }
             // printf("the parser stack is: \n");
             // for (i = 0; i < parser->stack_top; i++){

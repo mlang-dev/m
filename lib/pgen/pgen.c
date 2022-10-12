@@ -20,7 +20,7 @@
 
 #define source_parsing_symbols_initializer "const char *m_parsing_symbols[PARSING_SYMBOL_COUNT] = {\n"
 #define source_parsing_rules_initializer "const struct parse_rule m_parsing_rules[PARSING_RULE_COUNT] = {\n"
-#define source_parsing_states_initializer "struct parse_state_string m_parsing_states[PARSING_STATE_COUNT] = {\n"
+#define source_parsing_states_initializer "struct parse_state_items m_parsing_states[PARSING_STATE_COUNT] = {\n"
 #define source_parsing_table_initializer "const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT] = {\n"
 #define source_data_initializer_end  "};\n"
 
@@ -112,7 +112,7 @@ void print_state_string(FILE *f, struct parse_rule *rules, struct parse_state *s
             break;
         item = &entry->data;
         string rule_str = to_rule_string(&rules[item->rule], item->dot);
-        fprintf(f, "\"%s\", ", string_get(&rule_str));
+        fprintf(f, "{%d, %d, \"%s\"}, ", item->rule, item->dot, string_get(&rule_str));
         string_deinit(&rule_str);
         i++;
     }
