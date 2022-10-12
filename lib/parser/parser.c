@@ -146,7 +146,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     case LITERAL_NODE:
     case IDENT_NODE:
         printf("type: %d is not supported for nonterm node.", rule->action.node_type);
-        exit(-1);
         break;
     case IMPORT_NODE:
         node = items[rule->action.item_index[0]].ast;
@@ -329,34 +328,35 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
     struct ast_node *ast = 0;
     _push_state(parser, 0, 0); 
     struct lexer *lexer = lexer_new_with_string(code);
+    if(!lexer) return 0;
     struct token *tok = get_tok(lexer);
-    u8 a = get_token_index(tok->token_type, tok->opcode);
-    u16 s, t;
+    u8 ti = get_token_index(tok->token_type, tok->opcode);
+    u16 si, tsi;
     struct parse_rule *rule;
-    struct stack_item *si;
+    struct stack_item *s_item;
     struct parser_action *pa;
     //driver 
     while(1){
-        s = _get_top_state(parser)->state_index;
-        pa = &(*parser->pt)[s][a];
+        si = _get_top_state(parser)->state_index;
+        pa = &(*parser->pt)[si][ti];
         if(pa->code == S){
             ast = _build_terminal_ast(tok);
             _push_state(parser, pa->state_index, ast);
             tok = get_tok(lexer);
-            a = get_token_index(tok->token_type, tok->opcode);
+            ti = get_token_index(tok->token_type, tok->opcode);
         }else if(pa->code == R){
             //do reduce action and build ast node
             rule = &(*parser->pr)[pa->rule_index];
-            si = _get_start_item(parser, rule->symbol_count);
-            ast = _build_nonterm_ast(&parser->symbol_2_int_types, rule, si); //build ast according to the rule 
+            s_item = _get_start_item(parser, rule->symbol_count);
+            ast = _build_nonterm_ast(&parser->symbol_2_int_types, rule, s_item); //build ast according to the rule 
             _pop_states(parser, rule->symbol_count);
-            t = _get_top_state(parser)->state_index;
-            assert((*parser->pt)[t][rule->lhs].code == G);
-            _push_state(parser, (*parser->pt)[t][rule->lhs].state_index, ast);
+            tsi = _get_top_state(parser)->state_index;
+            assert((*parser->pt)[tsi][rule->lhs].code == G);
+            _push_state(parser, (*parser->pt)[tsi][rule->lhs].state_index, ast);
             //
         }else if(pa->code == A){
-            si = _pop_state(parser);
-            ast = si->ast;
+            s_item = _pop_state(parser);
+            ast = s_item->ast;
             break;
         }else if(tok->token_type == TOKEN_ERROR){
             struct error_report *er = get_last_error_report(lexer);
@@ -365,10 +365,21 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
             break;
         }else{
             //error recovery
-            printf("parsing error. got token: %s\n", string_get(get_symbol_by_index(a)));
-            struct parse_state_string *pss = &(*parser->pstd)[s];
-            for(u32 i = 0; i < pss->item_count; i++){
-                printf("%s\n", pss->item_strings[i]);
+            char *got_symbol = string_get(get_symbol_by_index(ti));
+            struct parse_state_items *psi = &(*parser->pstd)[si];
+            for(u32 i = 0; i < psi->item_count; i++){
+                rule = &(*parser->pr)[psi->items[i].rule];
+                u8 parsed = psi->items[i].dot;
+                if(parsed == rule->symbol_count){
+                    //rule is complete, but 
+                    printf("symbol [%s] is not expected after grammar [%s]\n", got_symbol, rule->rule_string);
+                }else{
+                    if(!is_terminal(rule->rhs[parsed])){
+                        continue;
+                    }
+                    char *next_symbol = string_get(get_symbol_by_index(rule->rhs[parsed]));
+                    printf("symbol [%s] is expected to parse [%s] but got [%s].\n", next_symbol, psi->items[i].item_string, got_symbol);
+                }
             }
             // printf("the parser stack is: \n");
             // for (i = 0; i < parser->stack_top; i++){

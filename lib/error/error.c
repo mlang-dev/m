@@ -21,7 +21,13 @@ const char *err_messages[ALL_ERROR] = {
     "missing end quote for char literal.",
     "character literal is found to have more than 1 character.",
     "missing end quote for string literal.",
-    "inconsistent indent level found."
+    "inconsistent indent level found.",
+
+    "The left side of the dot is expected to be a struct type.",
+    "field does not exist.",
+    "variable type not matched with literal constant.",
+    "types do not match.",
+    "function is not defined."
 };
 
 struct hashtable g_error_reports;

@@ -265,8 +265,8 @@ void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
     u32 len;
     switch(node->type->type){
         default:
-            printf("not expected type: %s\n", string_get(type_symbols[node->type->type]));
-            exit(-1);
+            printf("unknown type: %s\n", string_get(type_symbols[node->type->type]));
+            break;
         case TYPE_CHAR:
         case TYPE_BOOL:
         case TYPE_INT:
@@ -307,7 +307,7 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
         default:
             s = get_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
             printf("Not implemented unary for : %s\n", string_get(s));
-            exit(-1);
+            break;
         case OP_MINUS:
             bin_node = int_node_new(0, node->loc);
             bin_node->type = node->type;
@@ -333,10 +333,10 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
         if(!opcode){
             symbol s = get_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
             printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(type_symbols[type_index]));
-            exit(-1);
+        }else{
+            ba_add(ba, opcode);
+            ast_node_free(bin_node);
         }
-        ba_add(ba, opcode);
-        ast_node_free(bin_node);
     }
 }
 
@@ -379,9 +379,9 @@ void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *no
         if(!opcode){
             symbol s = get_symbol_by_token_opcode(TOKEN_OP, node->binop->opcode);
             printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(type_symbols[type_index]));
-            exit(-1);
+        }else{
+            ba_add(ba, opcode);
         }
-        ba_add(ba, opcode);
     }else{
         //call pow function
         u32 func_index = hashtable_get_int(&cg->func_name_2_idx, POW_FUN_NAME);
@@ -563,8 +563,8 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             wasm_emit_struct_init(cg, ba, node);
             break;
         default:
-            printf("%s is not implemented !\n", node_type_strings[node->node_type]);
-            exit(-1);
+            printf("node type %s is not implemented yet !\n", node_type_strings[node->node_type]);
+            break;
     }
 }
 
@@ -605,10 +605,7 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
             ba_add(ba, type_2_wtype[te->type]);
         }
         te = *(struct type_expr **)array_back(&func_type->args);
-        if(!(te->type && te->type < TYPE_TYPES)){
-            printf("invalid ret type: %d for fun: %s", te->type, string_get(func_type_node->ft->name));
-            exit(-1);
-        }
+        ASSERT_TYPE(te->type);
         if (te->type == TYPE_UNIT||has_sret) {
             ba_add(ba, 0); // num result
         } else {
@@ -631,7 +628,6 @@ void _emit_import_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_
         switch(node->node_type){
         default:
             printf("%s node is not allowed in import section", node_type_strings[node->node_type]);
-            exit(-1);
             break;
         case FUNC_TYPE_NODE:
             wasm_emit_string(ba, node->ft->name);

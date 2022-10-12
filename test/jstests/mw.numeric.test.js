@@ -10,48 +10,48 @@ function get_mw(log=null){
 test('10 + 20', ()=>{
     var result = get_mw();
     return result.then((m)=>{
-        expect(m.run_mcode("10 + 20")).toEqual(30);
+        expect(m.run_code("10 + 20")).toEqual(30);
     });
 });
 
 test('10 + 20 * 3', () => {
     var result = get_mw();
     return result.then((m) => {
-        expect(m.run_mcode("10 + 20 * 3")).toEqual(70);
+        expect(m.run_code("10 + 20 * 3")).toEqual(70);
     });
 });
 
 test('-10 + 20 * 3', () => {
     var result = get_mw();
     return result.then((m) => {
-        expect(m.run_mcode("-10 + 20 * 3")).toEqual(50);
+        expect(m.run_code("-10 + 20 * 3")).toEqual(50);
     });
 });
 
 test('-10.0 + 20.0 * 3.0', () => {
     var result = get_mw();
     return result.then((m) => {
-        expect(m.run_mcode("-10.0 + 20.0 * 3.0")).toEqual(50.0);
+        expect(m.run_code("-10.0 + 20.0 * 3.0")).toEqual(50.0);
     });
 });
 
 test('2.0 ** 3.0', () => {
     var result = get_mw();
     return result.then((m) => {
-        expect(m.run_mcode("2.0 ** 3.0")).toEqual(8.0);
+        expect(m.run_code("2.0 ** 3.0")).toEqual(8.0);
     });
 });
 
 test('8 % 2', () => {
     var result = get_mw();
     return result.then((m) => {
-        expect(m.run_mcode("8 % 2")).toEqual(0);
+        expect(m.run_code("8 % 2")).toEqual(0);
     });
 });
 
 test('8 % 5 == 3', () => {
     var result = get_mw();
     return result.then((m) => {
-        expect(m.run_mcode("8 % 5")).toEqual(3);
+        expect(m.run_code("8 % 5")).toEqual(3);
     });
 });

@@ -13,7 +13,7 @@ test('bitwise not 0', () => {
         let code = `
 ~0
         `;
-        expect(m.run_mcode(code)).toEqual(-1);
+        expect(m.run_code(code)).toEqual(-1);
     });
 });
 
@@ -23,7 +23,7 @@ test('bitwise not -1', () => {
         let code = `
 ~-1
         `;
-        expect(m.run_mcode(code)).toEqual(0);
+        expect(m.run_code(code)).toEqual(0);
     });
 });
 
@@ -33,7 +33,7 @@ test('bitwise not 1', () => {
         let code = `
 ~1
         `;
-        expect(m.run_mcode(code)).toEqual(-2);
+        expect(m.run_code(code)).toEqual(-2);
     });
 });
 
@@ -43,7 +43,7 @@ test('bitwise left', () => {
         let code = `
 1 << 1
         `;
-        expect(m.run_mcode(code)).toEqual(2);
+        expect(m.run_code(code)).toEqual(2);
     });
 });
 
@@ -53,7 +53,7 @@ test('bitwise right', () => {
         let code = `
 2 >> 1
         `;
-        expect(m.run_mcode(code)).toEqual(1);
+        expect(m.run_code(code)).toEqual(1);
     });
 });
 
@@ -63,7 +63,7 @@ test('bitwise and', () => {
         let code = `
 2 & 1
         `;
-        expect(m.run_mcode(code)).toEqual(0);
+        expect(m.run_code(code)).toEqual(0);
     });
 });
 
@@ -73,7 +73,7 @@ test('bitwise or', () => {
         let code = `
 2 | 1
         `;
-        expect(m.run_mcode(code)).toEqual(3);
+        expect(m.run_code(code)).toEqual(3);
     });
 });
 
@@ -83,6 +83,6 @@ test('bitwise xor', () => {
         let code = `
 8 ^ 15
         `;
-        expect(m.run_mcode(code)).toEqual(7);
+        expect(m.run_code(code)).toEqual(7);
     });
 });

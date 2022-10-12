@@ -14,7 +14,7 @@ test('call func', () => {
 let run() = 10 + 20
 run()
         `;
-        expect(m.run_mcode(code)).toEqual(30);
+        expect(m.run_code(code)).toEqual(30);
     });
 });
 
@@ -25,7 +25,7 @@ test('call func with params', () => {
 let id x = x
 id 10
         `;
-        expect(m.run_mcode(code)).toEqual(10);
+        expect(m.run_code(code)).toEqual(10);
     });
 });
 
@@ -36,7 +36,7 @@ test('call func sub', () => {
 let sub x y = x - y
 sub 10 30
         `;
-        expect(m.run_mcode(code)).toEqual(-20);
+        expect(m.run_code(code)).toEqual(-20);
     });
 });
 
@@ -49,7 +49,7 @@ test('print char', () => {
     return result.then((m) => {
         let code = `
 putchar '#'`;
-        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(m.run_code(code)).toEqual(undefined);
         expect(output).toEqual('#');
     });
 });
@@ -60,7 +60,7 @@ test('use variable', () => {
         let code = `
 x = 1000
 x * 2`;
-        expect(m.run_mcode(code)).toEqual(2000);
+        expect(m.run_code(code)).toEqual(2000);
     });
 });
 
@@ -74,7 +74,7 @@ test('hello world', () => {
         let code = `
 print "hello world"
 `;
-        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(m.run_code(code)).toEqual(undefined);
         expect(output).toEqual("hello world");
     });
 });
@@ -89,7 +89,7 @@ test('string format', () => {
         let code = `
 print "hello %d" 10
 `;      
-        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(m.run_code(code)).toEqual(undefined);
         expect(output).toEqual("hello 10");
     });
 });
@@ -105,7 +105,7 @@ test('string format with var', () => {
 v = 10
 print "hello %d" v
 `;
-        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(m.run_code(code)).toEqual(undefined);
         expect(output).toEqual("hello 10");
     });
 });
@@ -122,7 +122,7 @@ v1 = 10
 v2 = 20
 print "hello %d %d" v1 v2
 `;
-        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(m.run_code(code)).toEqual(undefined);
         expect(output).toEqual("hello 10 20");
     });
 });
@@ -138,7 +138,7 @@ test('string format with float param', () => {
 v = 10.0
 print "hello %.2f" v
 `;
-        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(m.run_code(code)).toEqual(undefined);
         expect(output).toEqual("hello 10.00");
     });
 });
@@ -156,7 +156,7 @@ f = 20.0
 i = 10
 print "hello %s %.2f %d" s f i
 `;
-        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(m.run_code(code)).toEqual(undefined);
         expect(output).toEqual("hello world 20.00 10");
     });
 });
@@ -171,7 +171,7 @@ test('utc-8 string', () => {
         let code = `
 print "你好"
 `;
-        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(m.run_code(code)).toEqual(undefined);
         expect(output).toEqual("你好");
     });
 });
@@ -182,6 +182,6 @@ test('math.sqrt', () => {
         let code = `
 sqrt 4.0
 `;
-        expect(m.run_mcode(code)).toEqual(2.0);
+        expect(m.run_code(code)).toEqual(2.0);
     });
 });

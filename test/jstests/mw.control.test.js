@@ -13,7 +13,7 @@ test('if 1 statement', () => {
         let code = `
 if 1 then 100 else 10
         `;
-        expect(m.run_mcode(code)).toEqual(100);
+        expect(m.run_code(code)).toEqual(100);
     });
 });
 
@@ -23,7 +23,7 @@ test('if 1000 statement', () => {
         let code = `
 if 1000 then 100 else 10
         `;
-        expect(m.run_mcode(code)).toEqual(100);
+        expect(m.run_code(code)).toEqual(100);
     });
 });
 
@@ -33,7 +33,7 @@ test('if true statement', () => {
         let code = `
 if true then 100 else 10
         `;
-        expect(m.run_mcode(code)).toEqual(100);
+        expect(m.run_code(code)).toEqual(100);
     });
 });
 
@@ -44,7 +44,7 @@ test('if true variable statement', () => {
 x = 10
 if x then 100 else 10
         `;
-        expect(m.run_mcode(code)).toEqual(100);
+        expect(m.run_code(code)).toEqual(100);
     });
 });
 
@@ -54,7 +54,7 @@ test('if 0 statement', () => {
         let code = `
 if 0 then 100 else 10
         `;
-        expect(m.run_mcode(code)).toEqual(10);
+        expect(m.run_code(code)).toEqual(10);
     });
 });
 
@@ -64,7 +64,7 @@ test('if false statement', () => {
         let code = `
 if false then 100 else 10
         `;
-        expect(m.run_mcode(code)).toEqual(10);
+        expect(m.run_code(code)).toEqual(10);
     });
 });
 
@@ -79,7 +79,7 @@ let choice n =
     else 400
 choice 10
         `;
-        expect(m.run_mcode(code)).toEqual(100);
+        expect(m.run_code(code)).toEqual(100);
     });
 });
 
@@ -94,7 +94,7 @@ let choice n =
     else 400
 choice 20
         `;
-        expect(m.run_mcode(code)).toEqual(200);
+        expect(m.run_code(code)).toEqual(200);
     });
 });
 
@@ -109,7 +109,7 @@ let choice n =
     else 400
 choice 30
         `;
-        expect(m.run_mcode(code)).toEqual(300);
+        expect(m.run_code(code)).toEqual(300);
     });
 });
 
@@ -124,7 +124,7 @@ let choice n =
     else 400
 choice 40
         `;
-        expect(m.run_mcode(code)).toEqual(400);
+        expect(m.run_code(code)).toEqual(400);
     });
 });
 
@@ -147,7 +147,7 @@ choice 4
 choice 14
 choice 24
         `;
-        expect(m.run_mcode(code)).toEqual(undefined);
+        expect(m.run_code(code)).toEqual(undefined);
         expect(outputs).toEqual(['#', '?', '*']);
     });
 });
@@ -161,7 +161,7 @@ for i in 0..5
     sum = sum + i
 sum
         `;
-        expect(m.run_mcode(code)).toEqual(10);
+        expect(m.run_code(code)).toEqual(10);
     });
 });
 
@@ -175,7 +175,7 @@ for i in 0.0..5.0
 sum
         `;
         m.compile(code, "test.wasm");
-        expect(m.run_mcode(code)).toEqual(10);
+        expect(m.run_code(code)).toEqual(10);
     });
 });
 
@@ -188,7 +188,7 @@ for i in 1..3
     for j in 1..3
         sum = sum + i * j
 sum`;
-        expect(m.run_mcode(code)).toEqual(9);
+        expect(m.run_code(code)).toEqual(9);
     });
 });
 
@@ -201,7 +201,7 @@ sum = 0
 for i in 2..step..10
     sum = sum + i
 sum`;
-        expect(m.run_mcode(code)).toEqual(20);
+        expect(m.run_code(code)).toEqual(20);
     });
 });
 
@@ -212,7 +212,7 @@ test('recursive factorial', () => {
 let factorial n = if n == 1 then n else n * factorial (n-1)
 factorial 5
         `;
-        expect(m.run_mcode(code)).toEqual(120);
+        expect(m.run_code(code)).toEqual(120);
     });
 });
 
@@ -227,6 +227,6 @@ let factorial n =
     p
 factorial 5
         `;
-        expect(m.run_mcode(code)).toEqual(120);
+        expect(m.run_code(code)).toEqual(120);
     });
 });

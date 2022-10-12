@@ -52,10 +52,15 @@ struct parse_rule {
 };
 
 #define MAX_KERNEL_ITEMS   11
+struct parse_rule_state{
+    u8 rule;    //rule index
+    u8 dot;     //dot position
+    const char *item_string;
+};
 
-struct parse_state_string{
+struct parse_state_items{
     u32 item_count;
-    const char *item_strings[MAX_KERNEL_ITEMS];
+    struct parse_rule_state items[MAX_KERNEL_ITEMS];
 };
 
 #ifndef M_PARSING_INITIALIZER
@@ -66,11 +71,12 @@ typedef struct parse_rule parsing_rules[PARSING_RULE_COUNT];
 extern struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT];
 typedef struct parser_action parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT];
 
+/*for debugger references*/
 extern const char *m_parsing_symbols[PARSING_SYMBOL_COUNT];
 typedef const char *parsing_symbols[PARSING_SYMBOL_COUNT];
 
-extern struct parse_state_string m_parsing_states[PARSING_STATE_COUNT];
-typedef struct parse_state_string parsing_states[PARSING_STATE_COUNT];
+extern struct parse_state_items m_parsing_states[PARSING_STATE_COUNT];
+typedef struct parse_state_items parsing_states[PARSING_STATE_COUNT];
 
 #endif
 

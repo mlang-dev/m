@@ -20,7 +20,7 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		module.then(function (obj) {
 			init_module(obj);
 			resolve({
-				run_mcode: run_mcode, 
+				run_code: run_code, 
 				compile: compile,
 				module: obj,
 				version: version
@@ -97,7 +97,7 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		return ret;
 	}
 
-	function run_mcode(code) 
+	function run_code(code) 
 	{
 		if (mw_instance == null) {
 			print_func("m loading is failed.");

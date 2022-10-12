@@ -6,6 +6,7 @@
 #include "compiler/engine.h"
 #include "codegen/wasm/cg_wasm.h"
 #include "sema/analyzer.h"
+#include "error/error.h"
 #include <assert.h>
 
 const char *g_imports = "\n\
@@ -148,6 +149,11 @@ void compile_to_wasm(struct engine *engine, const char *expr)
     block_node_add_block(ast, expr_ast);
     free_block_node(expr_ast, false);
     analyze(engine->fe->sema_context, ast);
+    struct error_report *er = get_last_error_report(engine->fe->sema_context);
+    if(er){
+        printf("type error: %s\n", er->error_msg);
+        return;
+    }
     ast = _decorate_as_module(cg, &engine->fe->parser->symbol_2_int_types, ast);
     wasm_emit_module(cg, ast);
     ast_node_free(ast);
