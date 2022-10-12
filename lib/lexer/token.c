@@ -259,7 +259,6 @@ symbol get_symbol_by_index(u16 symbol_index)
         tp = &token_patterns[symbol_index];
     }else{
         symbol_index -= TERMINAL_COUNT;
-        assert(symbol_index < g_nonterm_count);
         tp = &g_nonterms[symbol_index];
     }
     return tp->symbol_name;

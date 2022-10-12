@@ -146,7 +146,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     case LITERAL_NODE:
     case IDENT_NODE:
         printf("type: %d is not supported for nonterm node.", rule->action.node_type);
-        exit(-1);
         break;
     case IMPORT_NODE:
         node = items[rule->action.item_index[0]].ast;
@@ -366,12 +365,21 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
             break;
         }else{
             //error recovery
-            printf("parsing error. got token: %s\n", string_get(get_symbol_by_index(ti)));
+            char *got_symbol = string_get(get_symbol_by_index(ti));
             struct parse_state_items *psi = &(*parser->pstd)[si];
             for(u32 i = 0; i < psi->item_count; i++){
                 rule = &(*parser->pr)[psi->items[i].rule];
-                u16 next_symbol = pr->rhs[psi->items[i].dot];
-                printf("%s\n", psi->items[i].item_string);
+                u8 parsed = psi->items[i].dot;
+                if(parsed == rule->symbol_count){
+                    //rule is complete, but 
+                    printf("symbol [%s] is not expected after grammar [%s]\n", got_symbol, rule->rule_string);
+                }else{
+                    if(!is_terminal(rule->rhs[parsed])){
+                        continue;
+                    }
+                    char *next_symbol = string_get(get_symbol_by_index(rule->rhs[parsed]));
+                    printf("symbol [%s] is expected to parse [%s] but got [%s].\n", next_symbol, psi->items[i].item_string, got_symbol);
+                }
             }
             // printf("the parser stack is: \n");
             // for (i = 0; i < parser->stack_top; i++){

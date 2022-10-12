@@ -7,7 +7,7 @@ function get_mw(log=null){
     return mw(wasi(), './mw.wasm', log, false);
 }
 
-test('parse char not having correct length', () => {
+test('analyzer type mismatch', () => {
     let output = [];
     function log_fun(text) {
         output = text;
@@ -15,9 +15,9 @@ test('parse char not having correct length', () => {
     var result = get_mw(log_fun);
     return result.then((m) => {
         let code = `
-c = '
+i:int = "string"
 `;
         expect(m.run_code(code)).toEqual(undefined);
-        expect(output).toEqual("missing end quote for char literal. location (line, col): (2, 5)\n");
+        expect(output).toEqual("type error: variable type not matched with literal constant.\n");
     });
 });

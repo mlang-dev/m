@@ -38,14 +38,6 @@ bool _is_predicate_op(const char *op)
     return false;
 }
 
-void _log_err(struct sema_context *context, struct source_location loc, const char *msg)
-{
-    (void)context;
-    char full_msg[512];
-    sprintf_s(full_msg, sizeof(full_msg), "%s:%d:%d: %s", "", loc.line, loc.col, msg);
-    log_info(ERROR, full_msg);
-}
-
 void _fill_type_enum(struct sema_context *context, struct ast_node *node)
 {
     if (!node->annotated_type_enum && node->annotated_type_name) {
@@ -116,7 +108,6 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     if (node->annotated_type_name && node->var->init_value->annotated_type_name
         && node->annotated_type_name != node->var->init_value->annotated_type_name) {
         report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
-        _log_err(context, node->loc, "variable type not matched with literal constant");
         return 0;
     }
     struct type_expr *var_type;
@@ -126,7 +117,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         var_type = (struct type_expr *)create_type_var();
     bool unified = unify(var_type, type, &context->nongens);
     if (!unified) {
-        _log_err(context, node->loc, "variable type not matched with literal constant");
+        report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
         return 0;
     }
     push_symbol_type(&context->decl_2_typexps, node->var->var_name, var_type);
@@ -233,11 +224,7 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
     struct type_expr *fun_type = retrieve_type_for_var_name(context, node->call->callee);
     if (!fun_type) {
         struct source_location loc = { 1, 1, 0, 0 };
-        string error;
-        string_copy(&error, node->call->callee);
-        string_add_chars(&error, " not defined");
-        _log_err(context, loc, string_get(&error));
-        string_deinit(&error);
+        report_error(context, EC_FUNC_NOT_DEFINED, loc);
         return 0;
     }
     struct array args;
@@ -315,7 +302,7 @@ struct type_expr *_analyze_field_accessor(struct sema_context *context, struct a
     struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, type->name);
     int index = find_member_index(type_node, node->index->index->ident->name);
     if (index < 0) {
-        _log_err(context, node->loc, "%s member not matched.");
+        report_error(context, EC_FIELD_NOT_EXISTS, node->loc);
         return 0;
     }
     struct type_oper *oper = (struct type_oper *)type;
@@ -336,10 +323,7 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
             result = lhs_type;
         return result;
     } else {
-        string error;
-        string_init_chars(&error, "type not same for binary op: ");
-        string_add_chars(&error, get_opcode(node->binop->opcode));
-        _log_err(context, node->loc, string_get(&error));
+        report_error(context, EC_TYPES_DO_NOT_MATCH, node->loc);
     }
     return result;
 }

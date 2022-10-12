@@ -18,6 +18,6 @@ test('parse fun def missing =', () => {
 let f x
 `;
         expect(m.run_code(code)).toEqual(undefined);
-        expect(output).toEqual("missing end quote for char literal. location (line, col): (2, 5)\n");
+        expect(output).toEqual("symbol [=] is expected to parse [func_def = let IDENT param_decls .= statement] but got [NEWLINE].\n");
     });
 });
