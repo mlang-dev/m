@@ -165,6 +165,11 @@ void wasm_emit_change_var(WasmModule ba, u8 op, u32 operand, u32 var_index, bool
     ba_add(ba, op); 
 }
 
+void wasm_emit_addr_offset(WasmModule ba, u32 var_index, bool is_global, u32 offset)
+{
+    wasm_emit_change_var(ba, OPCODE_I32ADD, offset, var_index, is_global);
+}
+
 void wasm_emit_call_fun(WasmModule ba, u32 fun_index)
 {
     ba_add(ba, OPCODE_CALL); // num local variables
@@ -187,7 +192,7 @@ void wasm_emit_store_mem(WasmModule ba, u32 align, u32 offset, enum type type)
     wasm_emit_uint(ba, offset);
 }
 
-void wasm_drop(WasmModule ba)
+void wasm_emit_drop(WasmModule ba)
 {
     ba_add(ba, OPCODE_DROP);
 }

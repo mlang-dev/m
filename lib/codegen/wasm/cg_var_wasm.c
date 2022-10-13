@@ -32,7 +32,7 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
             if(init_vi->var_index != var_index){
                 //drop the top stack has init value node address
                 //copy struct from right side to left side
-                wasm_drop(ba);
+                wasm_emit_drop(ba);
                 wasm_emit_copy_struct_value(cg, ba, var_index, 0, node->type, init_vi->var_index, 0);
             }
         }else{

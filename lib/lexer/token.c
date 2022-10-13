@@ -53,7 +53,6 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
 
     NAME_KEYWORD_PATTERN("..", "\\.\\.", RANGE, NULL),
     NAME_KEYWORD_PATTERN("...", "\\.\\.\\.", VARIADIC, NULL), // 30
-    KEYWORD_PATTERN("=", ASSIGN, NULL),
     KEYWORD_PATTERN(":", ISTYPEOF, NULL),
 
     /*reserved keywords*/
@@ -108,6 +107,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("!=", OP, NE),
     NAME_KEYWORD_PATTERN("?", "\\?", OP, COND), // 40
 
+    KEYWORD_PATTERN("=", OP, ASSIGN),
     NAME_KEYWORD_PATTERN("*=", "\\*=", OP, MUL_ASSN),
     KEYWORD_PATTERN("/=", OP, DIV_ASSN),
     KEYWORD_PATTERN("%=", OP, MOD_ASSN),
@@ -262,4 +262,9 @@ symbol get_symbol_by_index(u16 symbol_index)
         tp = &g_nonterms[symbol_index];
     }
     return tp->symbol_name;
+}
+
+bool is_assign(enum op_code opcode)
+{
+    return opcode >= OP_ASSIGN && opcode <= OP_OR_ASSN;
 }

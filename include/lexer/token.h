@@ -59,7 +59,6 @@ extern "C" {
     ENUM_ITEM(TOKEN_COMMA)           \
     ENUM_ITEM(TOKEN_RANGE)           \
     ENUM_ITEM(TOKEN_VARIADIC)        \
-    ENUM_ITEM(TOKEN_ASSIGN)          \
     ENUM_ITEM(TOKEN_ISTYPEOF)        \
     ENUM_ITEM(TOKEN_DO)              \
     ENUM_ITEM(TOKEN_WHILE)           \
@@ -115,6 +114,7 @@ enum op_code {
 
     OP_COND, //? conditional check
 
+    OP_ASSIGN, //=
     OP_MUL_ASSN, //  *=
     OP_DIV_ASSN, //  /=
     OP_MOD_ASSN, //  %=
@@ -128,6 +128,7 @@ enum op_code {
 
     OP_INC, // ++
     OP_DEC, // --
+
     OP_TOTAL // mark end of all tokens
 };
 
@@ -194,6 +195,7 @@ u16 register_grammar_nonterm(symbol symbol);
 
 bool is_terminal(u16 symbol_index);
 
+bool is_assign(enum op_code opcode);
 #ifdef __cplusplus
 }
 #endif

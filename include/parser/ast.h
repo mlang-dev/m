@@ -169,7 +169,8 @@ struct ast_node {
     struct source_location loc;
 
     symbol annotated_type_name; //this is expected to be removed
-    bool is_ret;        //tihs is expected to be removed from sema analysis
+    bool is_ret;        //this is expected to be removed from sema analysis
+    bool is_write;      //default is zero (read), for left side of assignment node, it will be set as 1
     union{
         void *data; //node data represents any of following pointer
         struct _literal_node *liter;

@@ -106,7 +106,7 @@ struct grammar *grammar_parse(const char *grammar_text)
         next_tok = *get_tok(lexer);
         if(tok.token_type == TOKEN_IDENT){
             s = tok.symbol_val;
-            if(next_tok.token_type == TOKEN_ASSIGN){
+            if(next_tok.token_type == TOKEN_OP && next_tok.opcode == OP_ASSIGN){
                 //nonterm
                 rule = grammar_add_rule(g, s, rule_no++);
                 expr = rule_add_expr(rule);
