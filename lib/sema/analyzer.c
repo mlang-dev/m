@@ -313,6 +313,9 @@ struct type_expr *_analyze_field_accessor(struct sema_context *context, struct a
 
 struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node *node)
 {
+    if(is_assign(node->binop->opcode)){
+        node->binop->lhs->is_write = true;
+    }
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;

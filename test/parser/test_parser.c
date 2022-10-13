@@ -597,6 +597,37 @@ xy.x";
     frontend_deinit(fe);
 }
 
+TEST(test_parser, member_field_assignment)
+{
+    char test_code[] = "\n\
+struct Point2D = x:double, y:double \n\
+xy:Point2D = Point2D(0.0, 0.0) \n\
+xy.x = 10.0";
+    struct frontend *fe = frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(3, array_size(&block->block->nodes));
+    ASSERT_EQ(STRUCT_NODE, node->node_type);
+    node = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    struct ast_node *var = node;
+    ASSERT_STREQ("xy", string_get(var->var->var_name));
+    ASSERT_STREQ("Point2D", string_get(var->annotated_type_name));
+    //ASSERT_EQ(TYPE_STRUCT, var->annotated_type_enum);
+    node = *(struct ast_node **)array_get(&block->block->nodes, 2);
+    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_EQ(MEMBER_INDEX_NODE, node->binop->lhs->node_type);
+    ASSERT_EQ(LITERAL_NODE, node->binop->rhs->node_type);
+    ASSERT_EQ(OP_ASSIGN, node->binop->opcode);
+    node = node->binop->lhs;
+    ASSERT_STREQ("xy", string_get(node->index->object->ident->name));
+    ASSERT_STREQ("x", string_get(node->index->index->ident->name));
+    ast_node_free(block);
+    parser_free(parser);
+    frontend_deinit(fe);
+}
+
 TEST(test_parser, import_fun_type)
 {
     char test_code[] = "from sys import fun print:() ()";
@@ -701,6 +732,7 @@ int test_parser()
     RUN_TEST(test_parser_type_var_init);
     RUN_TEST(test_parser_func_returns_struct_init);
     RUN_TEST(test_parser_use_type_field);
+    RUN_TEST(test_parser_member_field_assignment);
     RUN_TEST(test_parser_import_fun_type);
     RUN_TEST(test_parser_import_memory_init);
     RUN_TEST(test_parser_import_memory_init_max);

@@ -232,6 +232,18 @@ let sq z:cf64 = cf64(z.re ** 2.0 - z.im ** 2.0, 2.0 * z.re * z.im)
     });
 });
 
+test('struct member assign', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+z = cf64(10.0, 20.0)
+z.re = 30.0
+z.re
+`;
+        expect(m.run_code(code)).toEqual(30.0);
+    });
+});
+
 test('mandelbrot set function', () => {
     var result = get_mw();
     return result.then((m) => {

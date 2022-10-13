@@ -63,8 +63,8 @@ let converger z:cf64 iters:int c:cf64 =
     converger (ms z c) (iters + 1) c
 let converge z:cf64 = converger z 0 z
 let print_ms start:cf64 step:cf64 =
-  for y in start.im..step.im..start.im + step.im * 70.0
-    for x in start.re..step.re..start.re + step.re * 78.0
+  for y in start.im..step.im..start.im + step.im * 40.0
+    for x in start.re..step.re..start.re + step.re * 70.0
        print_density (converge (cf64(x, y)))
     putchar '\n'
 print_ms (cf64(-2.3, -1.3)) (cf64(0.05, 0.07))

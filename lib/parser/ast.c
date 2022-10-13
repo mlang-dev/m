@@ -81,9 +81,9 @@ struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type
     node->annotated_type_name = type_name;
     node->annotated_type_enum = annotated_type_enum;
     node->type = 0;
-
     node->loc = loc;
     node->is_ret = false;
+    node->is_write = false;
     node->data = 0;
    
     return node;
