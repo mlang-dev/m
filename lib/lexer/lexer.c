@@ -287,6 +287,9 @@ struct token *get_tok(struct lexer *lexer)
     char ch;
     do {
         spaces = _scan_until_no_space(lexer);
+        if(lexer->buff[lexer->pos] == '#') {
+            _scan_until(lexer, '\n');
+        }
         ch = lexer->buff[lexer->pos];
         if (ch=='\n' && (tok->token_type == TOKEN_EOF || tok->token_type == TOKEN_NEWLINE)){
             //skip the empty line
@@ -323,7 +326,6 @@ struct token *get_tok(struct lexer *lexer)
             return tok;
         }
     }
-
     tok->token_type = TOKEN_EOF;    
     switch (ch)
     {
@@ -336,10 +338,6 @@ struct token *get_tok(struct lexer *lexer)
     case '\n':
         _mark_token(lexer, TOKEN_NEWLINE, OP_NULL);
         _move_ahead(lexer); // skip the new line
-        break;
-    case '#': //comments
-        _scan_until(lexer, '\n');
-        get_tok(lexer);
         break;
     case '\'':
         _mark_token(lexer, TOKEN_CHAR, 0);

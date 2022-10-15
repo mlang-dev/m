@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>m | succinct, expressive and efficient programming</title>
+		<script src="wasi.js"></script>
+		<script src="mw.js"></script>
+		<link rel="stylesheet" href="simple.css">
+		<link rel="stylesheet" href="style.css">
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+	</head>
+	<body>
+		<header>
+		<nav>
+			<a href="/">M</a>
+			<a href="/tutorials.html" class="current">Tutorials</a>
+			<a href="/grammar.html">Grammar</a>
+			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
+					<path
+						d="M16 0.395c-8.836 0-16 7.163-16 16 0 7.069 4.585 13.067 10.942 15.182 0.8 0.148 1.094-0.347 1.094-0.77 0-0.381-0.015-1.642-0.022-2.979-4.452 0.968-5.391-1.888-5.391-1.888-0.728-1.849-1.776-2.341-1.776-2.341-1.452-0.993 0.11-0.973 0.11-0.973 1.606 0.113 2.452 1.649 2.452 1.649 1.427 2.446 3.743 1.739 4.656 1.33 0.143-1.034 0.558-1.74 1.016-2.14-3.554-0.404-7.29-1.777-7.29-7.907 0-1.747 0.625-3.174 1.649-4.295-0.166-0.403-0.714-2.030 0.155-4.234 0 0 1.344-0.43 4.401 1.64 1.276-0.355 2.645-0.532 4.005-0.539 1.359 0.006 2.729 0.184 4.008 0.539 3.054-2.070 4.395-1.64 4.395-1.64 0.871 2.204 0.323 3.831 0.157 4.234 1.026 1.12 1.647 2.548 1.647 4.295 0 6.145-3.743 7.498-7.306 7.895 0.574 0.497 1.085 1.47 1.085 2.963 0 2.141-0.019 3.864-0.019 4.391 0 0.426 0.288 0.925 1.099 0.768 6.354-2.118 10.933-8.113 10.933-15.18 0-8.837-7.164-16-16-16z">
+					</path>
+				</svg>Github</a>
+		</nav>
+		</header>
+		<p/>
+		<strong>
+		</strong>
+		<script>
+			var instance = null;
+			var result_control = null;
+			mw(new wasi(), 'mw.wasm', print, true).then(
+				result=>{
+					instance = result;
+					print_version(instance.version);
+				}
+			);
+			function run(code_control) {
+				result_control = code_control + "_result";
+				clear();
+				let code = document.getElementById(code_control).value;
+				print(instance.run_code(code));
+			}
+			
+			function print(text){
+				if(text == null || text == undefined){
+					return;
+				}
+				document.getElementById(result_control).textContent = text;
+			}
+
+			function clear(){
+				document.getElementById(result_control).textContent = '';
+			}
+			function print_version(version) {
+				document.getElementById("version").textContent = version;
+			}
+		</script>
+	
+    <h5>print string</h5>
+
+	<!--hello world-->
+	<div>The following is the simple statement to print out string "Hello World !" to the console.</div>
+    <div style="margin-top: 10px;">
+		<textarea id="string_code"  rows = "1" style="resize: none;">
+print "Hello World !"</textarea>
+	</div>
+    <div>
+        <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('string_code')" style="min-width: 50px;">run</button></div>
+        <div style="display: inline-block; margin-left:5px;" id= "string_code_result"></div>
+    </div>
+
+	<!--print format-->
+	<div>mlang uses printf function in c stdio library to print content. The following is to print with formats of string and int types.</div>
+    <div style="margin-top: 10px;">
+		<textarea id="print_format_code"  rows = "1" style="resize: none;">
+print "Hello %s ! - %d" "World" 123</textarea>
+	</div>
+    <div>
+        <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('print_format_code')" style="min-width: 50px;">run</button></div>
+        <div style="display: inline-block; margin-left:5px;" id= "print_format_code_result"></div>
+    </div>
+
+	<!--variable assignment-->
+	<div>Print string and int type value using variable. Variable's type is inferred from assignment statements.</div>
+    <div style="margin-top: 10px;">
+		<textarea id="print_variable" rows = "3" style="resize: none;">
+str = "World"
+n = 123
+print "Hello %s ! - %d" str n</textarea></div>
+    <div>
+        <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('print_variable')" style="min-width: 50px;">run</button></div>
+        <div style="display: inline-block; margin-left:5px;" id= "print_variable_result"></div>
+    </div>
+
+	<!--function definition-->
+    <h5>function definitions</h5>
+	<div>Use keyword "let" to define a function. 
+		The grammar is: "let" IDENT param_decls '=' statement. The following code is to define a sq function taking
+	a double value and output a squared double value.</div>
+    <div style="margin-top: 10px;">
+		<textarea id="func_def" rows = "2" style="resize: none;">
+let sq x:double = x ** 2.0
+print "square of %.2f is %.2f !" 10.0 (sq 10.0)</textarea></div>
+    <div>
+        <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('func_def')" style="min-width: 50px;">run</button></div>
+        <div style="display: inline-block; margin-left:5px;" id= "func_def_result"></div>
+    </div>
+
+	<!--function definition-->
+    <h5>generic function</h5>
+	<div>If type annotation is omitted from the function, then we are defining a generic function. The type of the function is to be infered 
+		by how it is being used. Character '#' starts comments until the end of the line.
+	</div>
+    <div style="margin-top: 10px;">
+		<textarea id="generic_func" rows = "2" style="resize: none;">
+let sq x = x * x  # generic function
+print "square of %.2f is %.2f !" 10.0 (sq 10.0)</textarea></div>
+    <div>
+        <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('generic_func')" style="min-width: 50px;">run</button></div>
+        <div style="display: inline-block; margin-left:5px;" id= "generic_func_result"></div>
+    </div>
+
+	<!-----------------footer----------------->
+	<footer>
+		<label id="version"></label>
+		<p>mlang is created by <a href="https://wangs.dev">Ligang Wang</a> and is licensed under the MIT license.</p>
+	</footer>
+	</body>
+</html>

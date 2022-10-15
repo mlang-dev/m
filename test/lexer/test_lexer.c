@@ -36,6 +36,26 @@ TEST(test_lexer, skip_comment)
     frontend_deinit(fe);
  }
 
+TEST(test_lexer, skip_comment_in_func)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = 
+"\n"
+"let id x = x #123\n"
+"\n";
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    ASSERT_EQ(TOKEN_LET, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_IDENT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_IDENT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_OP, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_IDENT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_EOF, get_tok(lexer)->token_type);
+    lexer_free(lexer);
+    frontend_deinit(fe);
+ }
+
 TEST(test_lexer, token_char)
 {
     struct frontend *fe = frontend_init();
@@ -492,6 +512,7 @@ int test_lexer()
     UNITY_BEGIN();
     RUN_TEST(test_lexer_empty_string);
     RUN_TEST(test_lexer_skip_comment);
+    RUN_TEST(test_lexer_skip_comment_in_func);
     RUN_TEST(test_lexer_token_char);
     RUN_TEST(test_lexer_token_char_with_escape);
     RUN_TEST(test_lexer_token_bool_litteral_true);
