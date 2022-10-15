@@ -129,12 +129,11 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
 {
     struct array args;
     array_init(&args, sizeof(struct type_expr *));
+    analyze(context, node->struct_def->body);
     for (size_t i = 0; i < array_size(&node->struct_def->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
         struct ast_node *field_node = *(struct ast_node **)array_get(&node->struct_def->body->block->nodes, i);
-        struct type_expr *field_type = _analyze_var(context, field_node);
-        field_node->type = field_type;
-        array_push(&args, &field_type);
+        array_push(&args, &field_node->type);
     }
     struct type_oper *result_type = create_type_oper_struct(node->struct_def->name, &args);
     assert(node->struct_def->name == result_type->base.name);

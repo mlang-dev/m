@@ -157,7 +157,6 @@ let get () =
     ab
 get().b.re
 `;
-        m.compile(code, "test.wasm");
         expect(m.run_code(code)).toEqual(30.0);
     });
 });
@@ -289,5 +288,17 @@ print_ms (cf64(-2.3, -1.3)) (cf64(0.05, 0.07))
 (ms (cf64(10.0, 20.0)) (cf64(10.0, 20.0))).im
 `;
         expect(m.run_code(code)).toEqual(400.0 + 20.0);
+    });
+});
+
+test('variable scope', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+struct wz = w:double, z:double
+z = wz(10.0, 20.0)
+z.z
+`;
+        expect(m.run_code(code)).toEqual(20.0);
     });
 });
