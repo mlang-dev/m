@@ -42,10 +42,10 @@
                     | '(' expr ')'                                                              { 1 }
     
     postfix_expr    = primary_expr
-                    | postfix_expr '[' expr ']'                                                 { binop 0 1 2 } # lhs op rhs
+                    | postfix_expr '[' expr ']'                                                 { indexing 0 2 }
                     | struct_init                                                           
+                    | postfix_expr '.' IDENT                                                    { indexing 0 2 } 
                     | func_call
-                    | postfix_expr '.' IDENT                                                    { binop 0 1 2 } 
                     | postfix_expr "++"                                                         { unop 1 0 } # the disorder of operator and operand indicates a postfix op
                     | postfix_expr "--"                                                         { unop 1 0 }
     
@@ -99,7 +99,7 @@
                     | logic_or_expr '?' expr ':' cond_expr
     
     assign_expr     = cond_expr
-                    | unary_expr assign_op  assign_expr
+                    | unary_expr assign_op  assign_expr                                         { binop 0 1 2 }
     
     assign_op       = '='
                     | "*="
@@ -115,7 +115,7 @@
     
     expr            = assign_expr
     
-    stmt            = func_decl
+    stmt            = func_type
                     | func_def                                                            
                     | type_def                                                            
                     | expr                                                                
@@ -142,12 +142,10 @@
     
     struct_init     = IDENT '(' exprs ')'                                                       { struct_init 0 2 }
     
-    func_decl       = "extern" func_type                                                        { 1 }
-    
-    func_type       = IDENT ':' type_expr param_decls                                           { func_type 0 2 3 }
+    func_type       = "fun" IDENT param_decls "->" type_expr                                    { func_type 1 4 2 }
     
     import_decl     = "from" IDENT "import" memory_decl                                         { import_decl 1 3 }
-                    | "from" IDENT "import" "fun" func_type                                     { import_decl 1 4 }    
+                    | "from" IDENT "import" func_type                                           { import_decl 1 3 }    
                     | "from" IDENT "import" var_decl                                            { import_decl 1 3 }
     
     memory_decl     = "memory" INT                                                              { memory_decl 1 }
@@ -182,7 +180,7 @@
     var_decl        = IDENT ':' IDENT                                                           { var 0 0 2 } # var name:type, no initial value
                     | IDENT ':' IDENT '=' expr                                                  { var 1 0 2 4 } # var name:type with init value
                     | IDENT '=' expr                                                            { var 1 0 2 }   # var name with initial value
-                
+                    
 </pre>
 <footer>
 	<p>m was created by <a href="https://wangs.dev">Ligang Wang</a> and is licensed under the MIT license.</p>
