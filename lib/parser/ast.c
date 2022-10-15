@@ -847,3 +847,11 @@ struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, sy
     hashtable_set_int(symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
     return function_node_new(func_type, block, block->loc);
 }
+
+struct ast_node *get_root_object(struct ast_node *node)
+{
+    //for member index node, getting the root of index node
+    while(node->node_type == MEMBER_INDEX_NODE)
+        node = node->index->object;
+    return node;
+}

@@ -174,7 +174,6 @@ for i in 0.0..5.0
     sum = sum + i
 sum
         `;
-        m.compile(code, "test.wasm");
         expect(m.run_code(code)).toEqual(10);
     });
 });

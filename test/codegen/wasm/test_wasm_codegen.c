@@ -19,9 +19,9 @@ TEST(test_wasm_codegen, parse_as_module)
     struct engine* engine = engine_wasm_new();
     struct cg_wasm *cg = engine->be->cg;
     char test_code[] = "\n\
-struct Point2D = x:double, y:double \n\
-xy:Point2D = Point2D(0.0, 0.0) \n\
-xy.x = 10.0\n\
+z = cf64(10.0, 20.0)\n\
+z.re = 30.0\n\
+z.re\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);

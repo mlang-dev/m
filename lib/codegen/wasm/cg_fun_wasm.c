@@ -60,8 +60,9 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
             func_register_local_variable(cg, node, true);
             break;
         case MEMBER_INDEX_NODE:
-            collect_local_variables(cg, node->index->object);
-            func_register_local_variable(cg, node, true);
+            /*get the root ast_node*/
+            node = get_root_object(node);
+            collect_local_variables(cg, node);
             break;
         case FOR_NODE:
             func_register_local_variable(cg, node, true);
@@ -154,16 +155,16 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         hashtable_set_p(&fc->ast_2_index, node, vi);
         symboltable_push(&fc->varname_2_index, node->var->var_name, vi);
         break;
-    case MEMBER_INDEX_NODE:
-        if(node->index->object->type->type == TYPE_STRUCT && node->index->object->node_type != IDENT_NODE){
-            vi = _req_new_local_var(cg, node->index->object->type, is_local_var, false);
-            hashtable_set_p(&fc->ast_2_index, node->index->object, vi);
-        }
-        break;
     case BINARY_NODE:
-        if(node->binop->lhs->type->type == TYPE_STRUCT && node->binop->lhs->node_type != IDENT_NODE){
-            vi = _req_new_local_var(cg, node->binop->lhs->type, is_local_var, false);
-            hashtable_set_p(&fc->ast_2_index, node->binop->lhs, vi);
+        if(node->binop->lhs->type->type == TYPE_STRUCT){
+            if(node->binop->lhs->node_type != IDENT_NODE){
+                vi = _req_new_local_var(cg, node->binop->lhs->type, is_local_var, false);
+                hashtable_set_p(&fc->ast_2_index, node->binop->lhs, vi);
+            }
+            if(node->binop->rhs->node_type != IDENT_NODE){
+                vi = _req_new_local_var(cg, node->binop->rhs->type, is_local_var, false);
+                hashtable_set_p(&fc->ast_2_index, node->binop->rhs, vi);
+            }
         }
         break;
     case FOR_NODE:

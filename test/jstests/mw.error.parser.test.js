@@ -10,7 +10,7 @@ function get_mw(log=null){
 test('parse fun def missing =', () => {
     let output = [];
     function log_fun(text) {
-        output = text;
+        output.push(text);
     }
     var result = get_mw(log_fun);
     return result.then((m) => {
@@ -18,6 +18,10 @@ test('parse fun def missing =', () => {
 let f x
 `;
         expect(m.run_code(code)).toEqual(undefined);
-        expect(output).toEqual("symbol [=] is expected to parse [func_def = let IDENT param_decls .= statement] but got [NEWLINE].\n");
+        expected = [
+            "symbol [:] is expected to parse [param_decl = IDENT .: IDENT] but got [NEWLINE].\n",
+            "symbol [NEWLINE] is not expected after grammar [param_decl = IDENT].\n"
+        ];     
+        expect(output).toEqual(expected, output);
     });
 });

@@ -8,7 +8,9 @@
 #include "clib/hashset.h"
 #include "clib/hashtable.h"
 #include "clib/util.h"
+#include "clib/array.h"
 #include "sema/analyzer.h"
+#include "codegen/type_size_info.h"
 #include "tool/cmodule.h"
 #include <assert.h>
 #include <limits.h>
@@ -112,7 +114,42 @@ struct field_info sc_get_field_info(struct sema_context *sc, symbol struct_name,
     assert(struct_node->type->kind == KIND_OPER);
     struct type_oper *struct_type = (struct type_oper*)struct_node->type;
     struct field_info field;
-    field.index = find_member_index(struct_node, field_name);
-    field.type = *(struct type_expr **)array_get(&struct_type->args, field.index);
+    int index = find_member_index(struct_node, field_name);
+    struct type_expr *field_type = *(struct type_expr **)array_get(&struct_type->args, index);
+    struct struct_layout *sl = get_type_size_info(struct_node->type).sl;
+    field.offset = *(u64 *)array_get(&sl->field_offsets, index) / 8;
+    field.align = get_type_align(field_type) / 8;
+    field.type = field_type;
     return field;
+}
+
+struct field_info sc_get_field_info_from_root(struct sema_context *sc, struct ast_node* index)
+{
+    assert(index->node_type == MEMBER_INDEX_NODE);
+    struct ast_node *root = index;
+    struct array fields;
+    struct array types;
+    array_init(&fields, sizeof(symbol));
+    array_init(&types, sizeof(symbol));
+    while(root->node_type == MEMBER_INDEX_NODE){
+        assert(root->index->index->node_type == IDENT_NODE);
+        array_push(&fields, &root->index->index->ident->name);
+        array_push(&types, &root->index->object->type->name);
+        root = root->index->object;
+    }
+    struct field_info rfi;
+    rfi.offset = 0;
+    rfi.root_struct = root;
+    for(int i = array_size(&fields) - 1; i >= 0; i--){
+        symbol field_name = *(symbol*)array_get(&fields, i);
+        symbol type_name = *(symbol*)array_get(&types, i);
+        struct field_info fi = sc_get_field_info(sc, type_name, field_name);
+        rfi.offset += fi.offset;
+        rfi.align = fi.align;
+        rfi.type = fi.type;
+    }
+    assert(rfi.type->name == index->index->index->type->name);
+    array_deinit(&fields);
+    array_deinit(&types);
+    return rfi;
 }

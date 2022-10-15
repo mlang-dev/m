@@ -97,6 +97,7 @@ else()
     parser/parser.c
     parser/m_parsing_table.c
     parser/lalr_parser_generator.c
+    codegen/type_size_info.c
     pgen/pgen.c
   )
 

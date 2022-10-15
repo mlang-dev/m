@@ -305,7 +305,7 @@ struct type_expr *get_symbol_type(symboltable *st, struct array *nongens, symbol
 {
     struct type_expr *exp = (struct type_expr *)symboltable_get(st, name);
     if (!exp){
-        printf("No type is found for the symble: %s.\n", string_get(name));
+        printf("No type is found for the symbol: %s.\n", string_get(name));
         return 0;
     }
     return fresh(exp, nongens);
