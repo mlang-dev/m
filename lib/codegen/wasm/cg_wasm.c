@@ -200,6 +200,31 @@ void _cg_wasm_deinit(struct cg_wasm *cg)
     }
 }
 
+void wasm_emit_store_scalar_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node)
+{
+    wasm_emit_get_var(ba, local_address_var_index, false); 
+    wasm_emit_code(cg, ba, node);  
+    wasm_emit_store_mem(ba, align, offset, node->type->type);
+}
+
+void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct struct_layout *sl, struct ast_node *block)
+{
+    struct ast_node *field;
+    u32 field_offset;
+    for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
+        field = *(struct ast_node **)array_get(&block->block->nodes, i);
+        field_offset = *(u64*)array_get(&sl->field_offsets, i) / 8;
+        u32 align = get_type_align(field->type) / 8;
+        if(field->type->type == TYPE_STRUCT){
+            assert(field->node_type == STRUCT_INIT_NODE);
+            struct struct_layout *field_sl = *(struct struct_layout**)array_get(&sl->field_layouts, i);
+            wasm_emit_store_struct_value(cg, ba, local_address_var_index, offset + field_offset, field_sl, field->struct_init->body);
+        }else{
+            wasm_emit_store_scalar_value(cg, ba, local_address_var_index, align, offset + field_offset, field);
+        }
+    }
+}
+
 TargetType _get_function_type(TargetType ret_type, TargetType *param_types, unsigned param_count, bool is_variadic)
 {
     return 0;
@@ -344,46 +369,51 @@ void _emit_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_
 {
     //lhs is struct var, rhs is field var name
     struct fun_context *fc = cg_get_top_fun_context(cg);
-    struct field_info field = sc_get_field_info(cg->base.sema_context, node->index->object->type->name, node->index->index->ident->name);
-    //get memory address
-    struct struct_layout *sl = get_type_size_info(node->index->object->type).sl;
-    struct var_info*vi = fc_get_var_info(fc, node->index->object);
-    wasm_emit_code(cg, ba, node->index->object);
-    /*sret*/
-    wasm_emit_set_var(ba, vi->var_index, false);
-    u32 field_offset = *(u64 *)array_get(&sl->field_offsets, field.index) / 8;
-    u32 align = get_type_align(field.type) / 8;
-    if(node->index->index->type->type == TYPE_STRUCT){
+    struct field_info field = sc_get_field_info_from_root(cg->base.sema_context, node);
+    struct var_info*root_vi = fc_get_var_info(fc, field.root_struct);
+    wasm_emit_code(cg, ba, field.root_struct);
+    if(field.type->type == TYPE_STRUCT){
         if(node->is_ret){
             //copy result into variable index 0
-            wasm_emit_copy_struct_value(cg, ba, 0, 0, node->index->index->type, vi->var_index, field_offset);
-        }else{
-            //calculate new address and push it to stack
-            wasm_emit_change_var(ba, OPCODE_I32ADD, field_offset, vi->var_index, false);
+            //for sret
+            wasm_emit_copy_struct_value(ba, 0, 0, field.type, root_vi->var_index, field.offset);
         }
-    }else{
-        //return scalar data
-        if(node->is_write){
-            //emit the target address
-            wasm_emit_addr_offset(ba, vi->var_index, false, field_offset);
-        }else{
-            wasm_emit_load_mem(ba, vi->var_index, false, align, field_offset, field.type->type);
+        //calculate new address and push it to stack
+        //wasm_emit_change_var(ba, OPCODE_I32ADD, field.offset, root_vi->var_index, false);
+    }else{ //scalar value
+        //read the value: scalar value read
+        if(!node->is_write){//return value only for right side
+            wasm_emit_load_mem(ba, root_vi->var_index, false, field.align, field.offset, field.type->type);
         }
     }
 }
 
+void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+{
+    wasm_emit_code(cg, ba, node->binop->lhs); 
+    assert(node->binop->lhs->node_type == MEMBER_INDEX_NODE);
+    struct fun_context *fc = cg_get_top_fun_context(cg);
+    struct field_info field = sc_get_field_info_from_root(cg->base.sema_context, node->binop->lhs);
+    struct var_info*vi = fc_get_var_info(fc, field.root_struct);
+    if(field.type->type == TYPE_STRUCT){
+        //struct assignment/copy
+        struct var_info *rhs_vi = fc_get_var_info(fc, node->binop->rhs);
+        wasm_emit_code(cg, ba, node->binop->rhs); 
+        wasm_emit_copy_struct_value(ba, vi->var_index, field.offset, node->binop->rhs->type, rhs_vi->var_index, 0);
+    } else {
+        //scalar version
+        wasm_emit_store_scalar_value(cg, ba, vi->var_index, field.align, field.offset, node->binop->rhs);
+    }    
+}
+
 void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
-    wasm_emit_code(cg, ba, node->binop->lhs);
-    wasm_emit_code(cg, ba, node->binop->rhs);
-    //if left side is aggregate type, then it is to store the right value to the left address
-    if(node->binop->lhs->node_type == MEMBER_INDEX_NODE && is_assign(node->binop->opcode)){
-        u32 align = get_type_align(node->binop->lhs->type);
-        wasm_emit_store_mem(ba, align, 0, node->binop->lhs->type->type);
-    }
+    wasm_emit_code(cg, ba, node->binop->lhs); 
+    wasm_emit_code(cg, ba, node->binop->rhs); 
     enum type type_index = prune(node->binop->lhs->type)->type;
     assert(type_index >= 0 && type_index < TYPE_TYPES);
     assert(node->binop->opcode >= 0 && node->binop->opcode < OP_TOTAL);
+    //if left side is aggregate type, then it is to store the right value to the left address
     if (node->binop->opcode != OP_POW){
         u8 opcode = op_maps[node->binop->opcode][type_index];
         if(!opcode){
@@ -516,8 +546,7 @@ void _emit_ident(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
 {
     assert(node->node_type == IDENT_NODE);
     u32 var_index = fc_get_var_info(cg_get_top_fun_context(cg), node)->var_index;
-    //TODO: var_index zero better is not matched
-    if(node->type->type != TYPE_STRUCT || !node->is_ret)
+    if(!is_aggregate_type(node->type->type))
         wasm_emit_get_var(ba, var_index, false);
 }
 
@@ -543,7 +572,11 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             _emit_field_accessor(cg, ba, node);
             break;
         case BINARY_NODE:
-            _emit_binary(cg, ba, node);
+            if(is_assign(node->binop->opcode)){
+                _emit_assignment(cg, ba, node);
+            }else{
+                _emit_binary(cg, ba, node);
+            }
             break;
         case UNARY_NODE:
             _emit_unary(cg, ba, node);

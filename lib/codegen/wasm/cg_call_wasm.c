@@ -29,53 +29,6 @@ bool _is_indirect(struct type_expr *type)
     return is_aggregate_type(type->type) && !is_empty_struct(type) && !is_single_element_struct(type);
 }
 
-void wasm_emit_store_scalar_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node)
-{
-    wasm_emit_get_var(ba, local_address_var_index, false); 
-    // content of the arg to stack
-    wasm_emit_code(cg, ba, node);  
-    wasm_emit_store_mem(ba, align, offset, node->type->type);
-}
-
-void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct struct_layout *sl, struct ast_node *block)
-{
-    struct ast_node *field;
-    u32 field_offset;
-    for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
-        field = *(struct ast_node **)array_get(&block->block->nodes, i);
-        field_offset = *(u64*)array_get(&sl->field_offsets, i) / 8;
-        u32 align = get_type_align(field->type) / 8;
-        if(field->type->type == TYPE_STRUCT){
-            assert(field->node_type == STRUCT_INIT_NODE);
-            struct struct_layout *field_sl = *(struct struct_layout**)array_get(&sl->field_layouts, i);
-            wasm_emit_store_struct_value(cg, ba, local_address_var_index, offset + field_offset, field_sl, field->struct_init->body);
-        }else{
-            wasm_emit_store_scalar_value(cg, ba, local_address_var_index, align, offset + field_offset, field);
-        }
-    }
-}
-
-void wasm_emit_copy_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32 to_var_index, u32 to_offset, struct type_expr *type, u32 from_var_index, u32 from_offset)
-{
-    assert(type->kind == KIND_OPER);
-    struct type_oper *to = (struct type_oper*)type;
-    struct type_expr *field_type;
-    u32 field_offset;
-    struct type_size_info tsi = get_type_size_info(type);
-    for (u32 i = 0; i < array_size(&to->args); i++) {
-        field_type = *(struct type_expr **)array_get(&to->args, i);
-        field_offset = *(u64*)array_get(&tsi.sl->field_offsets, i) / 8;
-        u32 align = get_type_align(field_type) / 8;
-        if(field_type->type == TYPE_STRUCT){
-            wasm_emit_copy_struct_value(cg, ba, to_var_index, to_offset + field_offset, field_type, from_var_index, from_offset + field_offset);
-        }else{
-            wasm_emit_get_var(ba, to_var_index, false); 
-            wasm_emit_load_mem(ba, from_var_index, false, align, from_offset + field_offset, field_type->type);
-            wasm_emit_store_mem(ba, align,  to_offset + field_offset, field_type->type);
-        }
-    }
-}
-
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == CALL_NODE);
@@ -94,19 +47,29 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         vi = fc_get_var_info(fc, node);
         alloc = fc_get_alloc(fc, node);
         wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
-        wasm_emit_get_var(ba, vi->var_index, false);
+        wasm_emit_get_var(ba, vi->var_index, false); 
+        //send the sret address to the calling stack
     }
     struct ast_node *block = block_node_new_empty();
     for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
         arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
         if (!fun_type->ft->is_variadic||i < param_num - 1) {
+            //normal argument
             wasm_emit_code(cg, ba, arg);
-        }else{//optional arguments
+            //for value type, the value is on the stack
+            //for aggregate type, put the reference(address) on the stack
+            if(is_aggregate_type(arg->type->type)){
+                vi = fc_get_var_info(fc, arg);
+                wasm_emit_get_var(ba, vi->var_index, false);
+            }
+        }else{
+            //optional arguments
             block_node_add(block, arg);
         }
     }
     if (fun_type->ft->is_variadic){ 
         if (array_size(&node->call->arg_block->block->nodes) < array_size(&fun_type->ft->params->block->nodes)){
+            /*there is no extra arguments, the extra pointer is zero*/
             wasm_emit_const_i32(ba, 0);
         }else{
             //global variable 0 as stack pointer
@@ -122,7 +85,8 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     }
     wasm_emit_call_fun(ba, func_index);
     if(has_sret){
-        wasm_emit_get_var(ba, vi->var_index, false);
+        //for reference type, return as a reference to the result
+        //wasm_emit_get_var(ba, vi->var_index, false);
     }
     free_block_node(block, false);
 }

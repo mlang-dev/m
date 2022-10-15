@@ -386,12 +386,13 @@ TEST(test_lexer, expr)
 TEST(test_lexer, other_symbols)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "( )()[]{} .. ... .< <= == != >= > || && ! |&+-*/^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ?";
+    char test_code[] = "->( )()[]{} .. ... .< <= == != >= > || && ! |&+-*/^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ?";
 
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
 
     //'('
+    ASSERT_EQ(TOKEN_MAPTO, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_LPAREN, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_RPAREN, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_UNIT, get_tok(lexer)->token_type);

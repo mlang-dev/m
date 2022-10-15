@@ -41,6 +41,7 @@ extern "C" {
     ENUM_ITEM(TOKEN_TYPE)            \
     ENUM_ITEM(TOKEN_LET)             \
     ENUM_ITEM(TOKEN_FUN)             \
+    ENUM_ITEM(TOKEN_MAPTO)           \
     ENUM_ITEM(TOKEN_IF)              \
     ENUM_ITEM(TOKEN_THEN)            \
     ENUM_ITEM(TOKEN_ELSE)            \

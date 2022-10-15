@@ -108,8 +108,10 @@ struct sema_context {
 };
 
 struct field_info{
-    int index; //index in the struct
-    struct type_expr* type; //type 
+    u32 offset; //offset to the root struct.
+    u32 align;  //alignment of the field.
+    struct type_expr *type;
+    struct ast_node *root_struct;
 };
 
 struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, struct ast_node *stdio, struct ast_node *math, bool is_repl);
@@ -118,6 +120,7 @@ size_t enter_scope(struct sema_context *env);
 size_t leave_scope(struct sema_context *env);
 struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name);
 struct field_info sc_get_field_info(struct sema_context *sc, symbol struct_name, symbol field_name);
+struct field_info sc_get_field_info_from_root(struct sema_context *sc, struct ast_node* index);
 
 #ifdef __cplusplus
 }

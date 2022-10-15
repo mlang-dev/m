@@ -30,6 +30,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("type", TYPE, NULL),
     KEYWORD_PATTERN("let", LET, NULL),
     KEYWORD_PATTERN("fun", FUN, NULL),
+    KEYWORD_PATTERN("->", MAPTO, NULL),
     KEYWORD_PATTERN("if", IF, NULL),
     KEYWORD_PATTERN("then", THEN, NULL),
     KEYWORD_PATTERN("else", ELSE, NULL), // 15

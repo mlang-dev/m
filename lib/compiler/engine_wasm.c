@@ -13,21 +13,21 @@ const char *g_imports = "\n\
 from sys import memory 10\n\
 from sys import __stack_pointer:int\n\
 from sys import __memory_base:int\n\
-from sys import fun print:() fmt:string ...\n\
-from sys import fun putchar:() ch:int\n\
-from math import fun acos:double x:double\n\
-from math import fun asin:double x:double\n\
-from math import fun atan:double x:double\n\
-from math import fun atan2:double y:double x:double\n\
-from math import fun cos:double x:double\n\
-from math import fun sin:double x:double\n\
-from math import fun sinh:double x:double\n\
-from math import fun tanh:double x:double\n\
-from math import fun exp:double x:double\n\
-from math import fun log:double x:double\n\
-from math import fun log10:double x:double\n\
-from math import fun pow:double x:double y:double\n\
-from math import fun sqrt:double x:double\n\
+from sys import fun print fmt:string ... -> ()\n\
+from sys import fun putchar ch:int -> ()\n\
+from math import fun acos x:double -> double\n\
+from math import fun asin x:double -> double\n\
+from math import fun atan x:double -> double\n\
+from math import fun atan2 y:double x:double -> double\n\
+from math import fun cos x:double -> double\n\
+from math import fun sin x:double -> double\n\
+from math import fun sinh x:double -> double\n\
+from math import fun tanh x:double -> double\n\
+from math import fun exp x:double -> double\n\
+from math import fun log x:double -> double\n\
+from math import fun log10 x:double -> double\n\
+from math import fun pow x:double y:double -> double\n\
+from math import fun sqrt x:double -> double\n\
 ";
 
 const char *g_sys = "\n\

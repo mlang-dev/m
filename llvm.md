@@ -36,3 +36,7 @@ The above command using m compiler generates an object file "sample_lib.o" under
 ```
 clang++ ./samples/sample_main.cc ./samples/sample_lib.o ./runtime.o -o ./sample
 ```
+
+## re-generate c sys file to m
+./build/apps/c2m -i /usr/include/ -o ./mlib stdio.h
+./build/apps/c2m -i /usr/include/ -o ./mlib math.h

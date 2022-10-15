@@ -287,7 +287,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == IDENT_NODE);
         node1 = items[rule->action.item_index[1]].ast;
-        assert(node1->node_type == BLOCK_NODE);
+        if(node1->node_type != BLOCK_NODE){
+            node1 = _wrap_as_block_node(node1);
+        }
         ast = struct_node_new(node->ident->name, node1, node->loc);
         hashtable_set_int(symbol_2_int_types, node->ident->name, TYPE_STRUCT);
         break;
@@ -372,12 +374,13 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
                 u8 parsed = psi->items[i].dot;
                 if(parsed == rule->symbol_count){
                     //rule is complete, but 
-                    printf("symbol [%s] is not expected after grammar [%s]\n", got_symbol, rule->rule_string);
+                    printf("symbol [%s] is not expected after grammar [%s].\n", got_symbol, rule->rule_string);
                 }else{
+                    char *next_symbol = string_get(get_symbol_by_index(rule->rhs[parsed]));
                     if(!is_terminal(rule->rhs[parsed])){
+                        //printf("skip next symbol: %s\n", next_symbol);
                         continue;
                     }
-                    char *next_symbol = string_get(get_symbol_by_index(rule->rhs[parsed]));
                     printf("symbol [%s] is expected to parse [%s] but got [%s].\n", next_symbol, psi->items[i].item_string, got_symbol);
                 }
             }

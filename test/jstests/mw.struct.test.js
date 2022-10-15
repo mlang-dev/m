@@ -157,6 +157,7 @@ let get () =
     ab
 get().b.re
 `;
+        m.compile(code, "test.wasm");
         expect(m.run_code(code)).toEqual(30.0);
     });
 });
@@ -241,6 +242,19 @@ z.re = 30.0
 z.re
 `;
         expect(m.run_code(code)).toEqual(30.0);
+    });
+});
+
+test('struct member assign struct', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+struct wz = w:double, z:cf64
+ab = wz(10.0, cf64(20.0, 30.0))
+ab.z = cf64(200.0, 300.0)
+ab.z.im
+`;
+        expect(m.run_code(code)).toEqual(300.0);
     });
 });
 
