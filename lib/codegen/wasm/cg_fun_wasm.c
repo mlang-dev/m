@@ -105,9 +105,14 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
                 arg_node = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
                 collect_local_variables(cg, arg_node);
                 if(is_aggregate_type(arg_node->type->type) && is_lvalue_node(arg_node)){
+                    struct fun_context *fc = cg_get_top_fun_context(cg);
+                    struct var_info *vi = fc_get_var_info(fc, arg_node);
+                    if(vi->var_index>=fc->local_params){
+                    //only for lvalue, and local variable (not parameter)
                     //request a temp variable for copy-by-value struct pass style 
                     //to prevent callee from changing the argument
-                    _req_new_local_var(cg, arg_node->type, true, false);
+                        _req_new_local_var(cg, arg_node->type, true, false);
+                    }
                 }
             }
             break;
