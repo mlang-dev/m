@@ -7,6 +7,7 @@ start           = statements
 unit_expr       = "()"
 type_expr       = IDENT
                 | unit_expr
+                | '&' IDENT                                                                 { unop 0 1 }
 
 primary_expr    = INT                                                                 
                 | DOUBLE                                                               
@@ -31,7 +32,7 @@ power_expr      = postfix_expr "**" unary_expr                                  
 unary_expr      = power_expr                                                          
                 | "++" unary_expr                                                           { unop 0 1 }
                 | "--" unary_expr                                                           { unop 0 1 }
-                | [+-~!] unary_expr                                                         { unop 0 1 }
+                | [&+-~!] unary_expr                                                        { unop 0 1 }
 
 #next should be cast_expr 
 
@@ -149,11 +150,11 @@ param_decls     = param_decls param_decl                                        
 var_decls       = var_decls ',' var_decl                                                    { block 0 2 }
                 | var_decl
 
-param_decl      = IDENT ':' IDENT                                                           { var 0 0 2 } # var name:type, no initial value
+param_decl      = IDENT ':' type_expr                                                       { var 0 0 2 } # var name:type, no initial value
                 | IDENT                                                                     { var 0 0 } # value name, no type, no initial value
                 | "..."
 
-var_decl        = IDENT ':' IDENT                                                           { var 0 0 2 } # var name:type, no initial value
-                | IDENT ':' IDENT '=' expr                                                  { var 1 0 2 4 } # var name:type with init value
+var_decl        = IDENT ':' type_expr                                                       { var 0 0 2 }   # var name:type, no initial value
+                | IDENT ':' type_expr '=' expr                                              { var 1 0 2 4 } # var name:type with init value
                 | IDENT '=' expr                                                            { var 1 0 2 }   # var name with initial value
             

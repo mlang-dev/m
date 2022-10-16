@@ -169,6 +169,7 @@ struct ast_node {
     struct source_location loc;
 
     symbol annotated_type_name; //this is expected to be removed
+    bool is_ref_annotated;  //is reference '&' annotated in the type
     bool is_ret;        //this is expected to be removed from sema analysis
     bool is_write;      //default is zero (read), for left side of assignment node, it will be set as 1
     union{
@@ -203,7 +204,7 @@ struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
  * in codegen.c & analyzer.c shall be changed accordingly.
  */
 /*construct ast node with type enum directly*/
-struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type_enum, symbol type_name, struct source_location loc);
+struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type_enum, symbol type_name, bool is_ref_annotated, struct source_location loc);
 void ast_node_free(struct ast_node *node);
 struct type_expr *get_ret_type(struct ast_node *fun_node);
 
@@ -218,8 +219,8 @@ struct ast_node *char_node_new(char val, struct source_location loc);
 struct ast_node *unit_node_new(struct source_location loc);
 struct ast_node *string_node_new(const char *val, struct source_location loc);
 struct ast_node *const_one_node_new(enum type type, struct source_location loc);
-struct ast_node *var_node_new(symbol var_name, enum type type, symbol ext_type, struct ast_node *init_value, bool is_global, struct source_location loc);
-struct ast_node *var_node_new2(symbol var_name, symbol type_name, struct ast_node *init_value, bool is_global, struct source_location loc);
+struct ast_node *var_node_new(symbol var_name, enum type type, symbol ext_type, bool is_ref_annotated, struct ast_node *init_value, bool is_global, struct source_location loc);
+struct ast_node *var_node_new2(symbol var_name, symbol type_name, bool is_ref_annotated, struct ast_node *init_value, bool is_global, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
 struct ast_node *import_node_new(symbol from_module, struct ast_node *node, struct source_location loc);

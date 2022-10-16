@@ -76,18 +76,18 @@ struct ast_node *_build_terminal_ast(struct token *tok)
     switch(tok->token_type){
         default:
             node_type = tok->token_type << 16;
-            ast = ast_node_new(node_type, 0, 0, tok->loc);
+            ast = ast_node_new(node_type, 0, 0, false, tok->loc);
             break;
         case TOKEN_EOF:
-            ast = ast_node_new(NULL_NODE, 0, 0, tok->loc);
+            ast = ast_node_new(NULL_NODE, 0, 0, false, tok->loc);
             break;
         case TOKEN_UNIT:
-            ast = ast_node_new(UNIT_NODE, TYPE_UNIT, type_symbols[TYPE_UNIT], tok->loc);
+            ast = ast_node_new(UNIT_NODE, TYPE_UNIT, type_symbols[TYPE_UNIT], false, tok->loc);
             break;
         case TOKEN_OP:
             //*hacky way to transfer opcode
             node_type = (tok->token_type << 16) | tok->opcode;
-            ast = ast_node_new(node_type, 0, 0, tok->loc);
+            ast = ast_node_new(node_type, 0, 0, false, tok->loc);
             break;
         case TOKEN_IDENT:
             ast = ident_node_new(tok->symbol_val, tok->loc);
@@ -131,6 +131,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
     bool is_variadic = false;
+    bool is_ref_annotated = false;
     symbol type_name = 0;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
@@ -173,20 +174,36 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node1 = items[rule->action.item_index[2]].ast;
             if (rule->action.item_index_count == 4) {
                 //has type and has init value
-                assert(node1->node_type == IDENT_NODE);
+                assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE);
+                if(node1->node_type == IDENT_NODE){
+                    type_name = node1->ident->name;
+                }else{
+                    assert(node1->unop->opcode == OP_BITAND_REF);
+                    assert(node1->unop->operand->node_type == IDENT_NODE);
+                    type_name = node1->unop->operand->ident->name;
+                    is_ref_annotated = true;
+                }
                 node2 = items[rule->action.item_index[3]].ast;
-                ast = var_node_new2(node->ident->name, node1->ident->name, node2, false, node->loc);
+                ast = var_node_new2(node->ident->name, type_name, is_ref_annotated, node2, false, node->loc);
             } else { // has no type info, has init value
-                ast = var_node_new2(node->ident->name, 0, node1, false, node->loc);
+                ast = var_node_new2(node->ident->name, 0, false, node1, false, node->loc);
             }
         } else if (rule->action.item_index_count > 2) {
             //just has ID and type
             node1 = items[rule->action.item_index[2]].ast;
-            assert(node1->node_type == IDENT_NODE);
-            ast = var_node_new2(node->ident->name, node1->ident->name, 0, false, node->loc);
+            assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE);
+            if(node1->node_type == IDENT_NODE){
+                type_name = node1->ident->name;
+            }else{
+                assert(node1->unop->opcode == OP_BITAND_REF);
+                assert(node1->unop->operand->node_type == IDENT_NODE);
+                type_name = node1->unop->operand->ident->name;
+                is_ref_annotated = true;
+            }
+            ast = var_node_new2(node->ident->name, type_name, is_ref_annotated, 0, false, node->loc);
         } else {
             //just ID
-            ast = var_node_new2(node->ident->name, 0, 0, false, node->loc);
+            ast = var_node_new2(node->ident->name, 0, false, 0, false, node->loc);
         }
         break;
     case FOR_NODE:
