@@ -269,3 +269,8 @@ bool is_assign(enum op_code opcode)
 {
     return opcode >= OP_ASSIGN && opcode <= OP_OR_ASSN;
 }
+
+bool is_relational_op(enum op_code opcode)
+{
+    return opcode >= OP_LT && opcode <= OP_NE;
+}

@@ -14,28 +14,11 @@
 #include <assert.h>
 #include <limits.h>
 
-const char *relational_ops[] = {
-    "<",
-    ">",
-    "==",
-    "!=",
-    "<=",
-    ">="
-};
 
 symbol get_type_symbol(enum type type_enum)
 {
     // assert(g_parser);
     return type_symbols[type_enum];
-}
-
-bool _is_predicate_op(const char *op)
-{
-    for (size_t i = 0; i < ARRAY_SIZE(relational_ops); i++) {
-        if (strcmp(relational_ops[i], op) == 0)
-            return true;
-    }
-    return false;
 }
 
 void _fill_type_enum(struct sema_context *context, struct ast_node *node)
@@ -319,7 +302,10 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
     if (unify(lhs_type, rhs_type, &context->nongens)) {
-        if (_is_predicate_op(get_opcode(node->binop->opcode)))
+        if(is_assign(node->binop->opcode)){
+            result = (struct type_expr *)create_unit_type();
+        }
+        else if (is_relational_op(node->binop->opcode))
             result = (struct type_expr *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         else
             result = lhs_type;
