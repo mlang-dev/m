@@ -302,3 +302,18 @@ z.z
         expect(m.run_code(code)).toEqual(20.0);
     });
 });
+
+test('test struct pass by value', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let update z:cf64 =
+    z.re = 10.0
+z = cf64(100.0, 200.0)
+update z
+z.re
+`;
+        m.compile(code, "test.wasm");
+        expect(m.run_code(code)).toEqual(100.0);
+    });
+});

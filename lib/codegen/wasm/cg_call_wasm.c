@@ -58,9 +58,17 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             wasm_emit_code(cg, ba, arg);
             //for value type, the value is on the stack
             //for aggregate type, put the reference(address) on the stack
-            if(is_aggregate_type(arg->type->type)){
+            if(is_aggregate_type(arg->type->type)){                
                 vi = fc_get_var_info(fc, arg);
-                wasm_emit_get_var(ba, vi->var_index, false);
+                if(!is_lvalue_node(arg)){
+                    wasm_emit_get_var(ba, vi->var_index, false);
+                }else{
+                    u32 temp_var_index = vi->var_index + 1; //TODO: we should do it explicity in collect_local_variables
+                    struct mem_alloc *temp_alloc = array_get(&fc->allocs, temp_var_index);
+                    wasm_emit_assign_var(ba, temp_var_index, false, OPCODE_I32ADD, temp_alloc->address, fc->local_sp->var_index, false);
+                    wasm_emit_copy_struct_value(ba, temp_var_index, 0, arg->type, vi->var_index, 0);
+                    wasm_emit_get_var(ba, temp_var_index, false);
+                }
             }
         }else{
             //optional arguments

@@ -41,8 +41,33 @@ void _func_leave(struct cg_wasm *cg, struct ast_node *fun)
     assert(cg->fun_contexts[cg->fun_top].fun == fun);
 }
 
+
+struct var_info *_req_new_local_var(struct cg_wasm *cg, struct type_expr *type, bool is_local_var, bool is_ret)
+{
+    struct fun_context *fc = cg_get_top_fun_context(cg);
+    if (type->type == TYPE_STRUCT && is_local_var && is_ret){
+        return &cg->local_vars[0];//return first sret
+    }
+    u32 index = fc->local_vars++;
+    if (!is_local_var) {
+        fc->local_params++;
+    }
+    struct var_info *vi = &cg->local_vars[cg->var_top];
+    vi->var_index = index;
+    ASSERT_TYPE(type->type);
+    vi->target_type = type_2_wtype[type->type];
+    if (type->type == TYPE_STRUCT && is_local_var){
+        vi->alloc_index = fc_register_alloc(fc, type);
+    }else{
+        vi->alloc_index = -1;
+    }
+    cg->var_top++;
+    return vi;
+}
+
 void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
 {
+    struct ast_node *arg_node;
     switch(node->node_type)
     {
         default:
@@ -76,7 +101,15 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
             break;
         case CALL_NODE:
             func_register_local_variable(cg, node, true);
-            collect_local_variables(cg, node->call->arg_block);
+            for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
+                arg_node = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
+                collect_local_variables(cg, arg_node);
+                if(is_aggregate_type(arg_node->type->type) && is_lvalue_node(arg_node)){
+                    //request a temp variable for copy-by-value struct pass style 
+                    //to prevent callee from changing the argument
+                    _req_new_local_var(cg, arg_node->type, true, false);
+                }
+            }
             break;
         case BLOCK_NODE:
             for(u32 i = 0; i < array_size(&node->block->nodes); i++){
@@ -90,29 +123,6 @@ u32 _func_get_local_var_nums(struct cg_wasm *cg)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
     return fc->local_vars - fc->local_params;
-}
-
-struct var_info *_req_new_local_var(struct cg_wasm *cg, struct type_expr *type, bool is_local_var, bool is_ret)
-{
-    struct fun_context *fc = cg_get_top_fun_context(cg);
-    if (type->type == TYPE_STRUCT && is_local_var && is_ret){
-        return &cg->local_vars[0];//return first sret
-    }
-    u32 index = fc->local_vars++;
-    if (!is_local_var) {
-        fc->local_params++;
-    }
-    struct var_info *vi = &cg->local_vars[cg->var_top];
-    vi->var_index = index;
-    ASSERT_TYPE(type->type);
-    vi->target_type = type_2_wtype[type->type];
-    if (type->type == TYPE_STRUCT && is_local_var){
-        vi->alloc_index = fc_register_alloc(fc, type);
-    }else{
-        vi->alloc_index = -1;
-    }
-    cg->var_top++;
-    return vi;
 }
 
 struct type_expr *_create_type_for_call_with_optional_parameters(struct cg_wasm*cg, struct ast_node *node)

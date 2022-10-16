@@ -855,3 +855,8 @@ struct ast_node *get_root_object(struct ast_node *node)
         node = node->index->object;
     return node;
 }
+
+bool is_lvalue_node(struct ast_node *node)
+{
+    return node->node_type == IDENT_NODE;
+}

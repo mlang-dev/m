@@ -197,6 +197,9 @@ u16 register_grammar_nonterm(symbol symbol);
 bool is_terminal(u16 symbol_index);
 
 bool is_assign(enum op_code opcode);
+
+bool is_relational_op(enum op_code opcode);
+
 #ifdef __cplusplus
 }
 #endif
