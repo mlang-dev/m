@@ -101,6 +101,21 @@ result.re + result.im
     });
 });
 
+test('cf64 return complex using identifier', () => {
+    var result = get_mw();
+    return result.then((m) => {
+        let code = `
+let change z:cf64 = 
+    z.re = z.re * 2.0
+    z
+old_z = cf64(10.0, 20.0)
+new_z = change old_z
+new_z.re
+        `;
+        expect(m.run_code(code)).toEqual(20.0);
+    });
+});
+
 test('struct with different types', () => {
     var result = get_mw();
     return result.then((m) => {
@@ -313,7 +328,6 @@ z = cf64(100.0, 200.0)
 update z
 z.re
 `;
-        m.compile(code, "test.wasm");
         expect(m.run_code(code)).toEqual(100.0);
     });
 });

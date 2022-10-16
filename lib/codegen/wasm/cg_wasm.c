@@ -548,6 +548,12 @@ void _emit_ident(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     u32 var_index = fc_get_var_info(cg_get_top_fun_context(cg), node)->var_index;
     if(!is_aggregate_type(node->type->type))
         wasm_emit_get_var(ba, var_index, false);
+    else{
+        //for aggregate data
+        if(node->is_ret){
+            wasm_emit_copy_struct_value(ba, 0, 0, node->type, var_index, 0);
+        }
+    }
 }
 
 void _emit_block(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)

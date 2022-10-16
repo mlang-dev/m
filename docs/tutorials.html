@@ -125,6 +125,23 @@ print "square of %.2f is %.2f !" 10.0 (sq 10.0)</textarea></div>
         <div style="display: inline-block; margin-left:5px;" id= "generic_func_result"></div>
     </div>
 
+	<!--function definition-->
+    <h5>pass by value</h5>
+	<div>mlang uses pass-by value calling convention. The argument value won't be changed by callee. cf64 is a builtin complex struct type.
+	</div>
+    <div style="margin-top: 10px;">
+		<textarea id="pass_by_value" rows = "6" style="resize: none;">
+let change z:cf64 = 
+    z.re = z.re * 10.0
+    z
+old_z = cf64(10.0, 20.0)
+new_z = change old_z
+print "old_z.re: %.2f, new_z.re: %.2f" (old_z.re) (new_z.re)</textarea></div>
+    <div>
+        <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_by_value')" style="min-width: 50px;">run</button></div>
+        <div style="display: inline-block; margin-left:5px;" id= "pass_by_value_result"></div>
+    </div>
+
 	<!-----------------footer----------------->
 	<footer>
 		<label id="version"></label>
