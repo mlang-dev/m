@@ -39,7 +39,7 @@ struct struct_layout {
 struct type_size_info get_type_size_info(struct type_expr *type);
 u64 get_type_size(struct type_expr *type);
 u64 get_type_align(struct type_expr *type);
-struct struct_layout *layout_struct(struct type_oper *to);
+struct struct_layout *layout_struct(struct type_expr *to);
 struct struct_layout *sl_new(symbol type_name);
 void sl_free(struct struct_layout *sl);
 void tsi_init();

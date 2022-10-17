@@ -105,7 +105,7 @@ LLVMValueRef _get_const_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, str
     return value;
 }
 
-LLVMValueRef _get_zero_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, struct type_oper *type_ext)
+LLVMValueRef _get_zero_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, struct type_expr *type_ext)
 {
     size_t element_count = array_size(&type_ext->args);
     LLVMValueRef *values;
@@ -142,7 +142,7 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
             if (node->var->init_value)
                 init_value = _get_const_value_ext_type(cg, type, node->var->init_value);
             else
-                init_value = _get_zero_value_ext_type(cg, type, (struct type_oper *)node->type);
+                init_value = _get_zero_value_ext_type(cg, type, node->type);
             LLVMSetInitializer(gVar, init_value);
         }
     }

@@ -123,9 +123,9 @@ struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbo
         struct ast_node *ret = *(struct ast_node **)array_back(&_start_block->block->nodes);
         struct type_expr *ret_type = prune(ret->type);
         assert(ret_type->kind == KIND_OPER);
-        _start_func->type = (struct type_expr *)wrap_as_fun_type((struct type_oper *)ret_type);
+        _start_func->type = wrap_as_fun_type(ret_type);
     }else{
-        _start_func->type = (struct type_expr *)wrap_as_fun_type(create_unit_type());
+        _start_func->type = wrap_as_fun_type(create_unit_type());
     }
     _start_func->func->func_type->type = _start_func->type;
     block_node_add(wmodule, _start_func);

@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <llvm-c/Target.h>
 
-struct address create_temp_mem(struct type_oper *to, unsigned align, symbol name)
+struct address create_temp_mem(struct type_expr *to, unsigned align, symbol name)
 {
     (void)to;
     (void)align;

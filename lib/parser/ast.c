@@ -116,8 +116,7 @@ char get_op_name(struct ast_node *node)
 
 struct type_expr *get_ret_type(struct ast_node *fun_node)
 {
-    struct type_oper *oper = (struct type_oper *)fun_node->type;
-    return *(struct type_expr **)array_back(&oper->args);
+    return *(struct type_expr **)array_back(&fun_node->type->args);
 }
 
 struct ast_node *_copy_block_node(struct ast_node *orig_node)
@@ -189,7 +188,7 @@ void _free_ident_node(struct ast_node *node)
 
 struct ast_node *_create_literal_int_node(int val, enum type type, struct source_location loc)
 {
-    symbol type_name = type ? type_symbols[type] : 0;
+    symbol type_name = type ? get_type_symbol(type) : 0;
     struct ast_node *node = ast_node_new(LITERAL_NODE, type, type_name, false, loc);
     MALLOC(node->liter, sizeof(*node->liter));
     switch (type){ 
@@ -199,7 +198,7 @@ struct ast_node *_create_literal_int_node(int val, enum type type, struct source
             node->liter->int_val = val;
             break;
         default:
-            printf("doesn't support the type %s for int literal.\n", string_get(type_symbols[type]));
+            printf("doesn't support the type %s for int literal.\n", string_get(get_type_symbol(type)));
             break;
     }
     return node;
@@ -207,7 +206,7 @@ struct ast_node *_create_literal_int_node(int val, enum type type, struct source
 
 struct ast_node *_create_literal_node(void *val, enum type type, struct source_location loc)
 {
-    symbol type_name = type ? type_symbols[type] : 0;
+    symbol type_name = type ? get_type_symbol(type) : 0;
     struct ast_node *node = ast_node_new(LITERAL_NODE, type, type_name, false, loc);
     MALLOC(node->liter, sizeof(*node->liter));
     switch (type){ 
@@ -218,7 +217,7 @@ struct ast_node *_create_literal_node(void *val, enum type type, struct source_l
             node->liter->str_val = str_clone((const char *)val);
             break;
         default:
-            printf("doesn't support the type %s for literal.\n", string_get(type_symbols[type]));
+            printf("doesn't support the type %s for literal.\n", string_get(get_type_symbol(type)));
             break;
     }
     return node;
@@ -281,7 +280,7 @@ struct ast_node *var_node_new(symbol var_name, enum type annotated_type_enum, sy
     bool is_ref_annotated,
     struct ast_node *init_value, bool is_global, struct source_location loc)
 {
-    symbol type_name = annotated_type_enum ? type_symbols[annotated_type_enum] : 0;
+    symbol type_name = annotated_type_enum ? get_type_symbol(annotated_type_enum) : 0;
     struct ast_node *node = ast_node_new(VAR_NODE, annotated_type_enum, type_name, is_ref_annotated, loc);
     MALLOC(node->var, sizeof(*node->var));
     if (annotated_type_name)
@@ -459,7 +458,7 @@ struct ast_node *func_type_node_new(symbol name,
     node->ft->is_extern = is_external;
     node->ft->op = op;
     if (is_variadic) {
-        struct ast_node *fun_param = var_node_new(type_symbols[TYPE_GENERIC], TYPE_GENERIC, 0, false, 0, false, loc);
+        struct ast_node *fun_param = var_node_new(get_type_symbol(TYPE_GENERIC), TYPE_GENERIC, 0, false, 0, false, loc);
         fun_param->type = (struct type_expr *)create_nullary_type(TYPE_GENERIC, fun_param->annotated_type_name);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }
@@ -479,7 +478,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
     node->ft->is_extern = func_type->ft->is_extern;
     node->ft->op = func_type->ft->op;
     if (func_type->ft->is_variadic) {
-        symbol var_name = type_symbols[TYPE_GENERIC];
+        symbol var_name = get_type_symbol(TYPE_GENERIC);
         struct ast_node *fun_param = var_node_new(var_name, TYPE_GENERIC, 0, 0, false, false, node->loc);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }

@@ -60,16 +60,15 @@ void _classify(struct type_expr *te, uint64_t offset_base, enum Class *low, enum
     } /*else if pointer then make current pointing to INTEGER*/
     //TODO: vector, complex, int type with specified bitwidth, constant array
     else if (te->type == TYPE_STRUCT) {
-        struct type_oper *to = (struct type_oper *)te;
         struct type_size_info tsi = get_type_size_info(te);
         uint64_t size = tsi.width_bits;
         if (size > 512)
             return;
-        struct struct_layout *sl = layout_struct(to);
+        struct struct_layout *sl = layout_struct(te);
         *current = NO_CLASS;
         for (size_t i = 0; i < array_size(&sl->field_offsets); i++) {
             uint64_t offset = offset_base + *(uint64_t *)array_get(&sl->field_offsets, i);
-            struct type_expr *field_type = *(struct type_expr **)array_get(&to->args, i);
+            struct type_expr *field_type = *(struct type_expr **)array_get(&te->args, i);
             uint64_t field_type_size = get_type_size(field_type);
             assert(field_type_size);
             if (size > 128 && size != field_type_size) {
@@ -103,14 +102,13 @@ bool _bits_contain_no_user_data(struct type_expr *type, unsigned start_bit, unsi
     //TODO: for array type
     //record type
     if (type->type == TYPE_STRUCT) {
-        struct type_oper *to = (struct type_oper *)type;
-        struct struct_layout *sl = layout_struct(to);
-        for (unsigned i = 0; i < array_size(&to->args); i++) {
+        struct struct_layout *sl = layout_struct(type);
+        for (unsigned i = 0; i < array_size(&type->args); i++) {
             unsigned field_offset = (unsigned)*(uint64_t *)array_get(&sl->field_offsets, i);
             if (field_offset >= end_bit)
                 break;
             unsigned field_start = field_offset < start_bit ? start_bit - field_offset : 0;
-            if (_bits_contain_no_user_data(array_get(&to->args, i), field_start, end_bit - field_offset))
+            if (_bits_contain_no_user_data(array_get(&type->args, i), field_start, end_bit - field_offset))
                 return false;
         }
 

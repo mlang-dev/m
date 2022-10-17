@@ -56,9 +56,9 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     struct array args;
     array_init(&args, sizeof(struct type_expr *));
     /*nullary type: builtin default types*/
-    for (size_t i = 0; i < ARRAY_SIZE(type_symbols); i++) {
-        symbol type_name = type_symbols[i];
-        struct type_expr *exp = (struct type_expr *)create_type_oper(type_name, i, &args);
+    for (size_t i = 0; i < TYPE_TYPES; i++) {
+        symbol type_name = get_type_symbol(i);
+        struct type_expr *exp = create_type_oper(type_name, i, 0, &args);
         push_symbol_type(&context->typename_2_typexps, type_name, exp);
     }
 
@@ -112,7 +112,7 @@ struct field_info sc_get_field_info(struct sema_context *sc, symbol struct_name,
 {
     struct ast_node *struct_node = hashtable_get_p(&sc->struct_typename_2_asts, struct_name);
     assert(struct_node->type->kind == KIND_OPER);
-    struct type_oper *struct_type = (struct type_oper*)struct_node->type;
+    struct type_expr *struct_type = struct_node->type;
     struct field_info field;
     int index = find_member_index(struct_node, field_name);
     struct type_expr *field_type = *(struct type_expr **)array_get(&struct_type->args, index);

@@ -72,9 +72,9 @@ void _layout_end(struct struct_layout *sl)
     sl->size_bits = (u32)align_to(sl->size_bits, sl->alignment * 8);
 }
 
-struct struct_layout *layout_struct(struct type_oper *to)
+struct struct_layout *layout_struct(struct type_expr *to)
 {
-    struct struct_layout *sl = sl_new(to->base.name);
+    struct struct_layout *sl = sl_new(to->name);
     u32 member_count = (u32)array_size(&to->args);
     for (u32 i = 0; i < member_count; i++) {
         struct type_expr *field_type = *(struct type_expr **)array_get(&to->args, i);
@@ -84,7 +84,7 @@ struct struct_layout *layout_struct(struct type_oper *to)
     return sl;
 }
 
-struct type_size_info _create_struct_type_size_info(struct type_oper *to)
+struct type_size_info _create_struct_type_size_info(struct type_expr *to)
 {
     struct type_size_info ti;
     struct struct_layout *sl = layout_struct(to);
@@ -101,49 +101,45 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
     ti.align_bits = 8;
     ti.sl = 0;
     ti.align_required = false;
-    if(type->is_ref){
+    switch (type->type) {
+    case TYPE_UNIT:
+        ti.width_bits = 0;
+        ti.align_bits = 8;
+        break;
+    case TYPE_CHAR:
+        ti.width_bits = 8;
+        ti.align_bits = 8;
+        break;
+    case TYPE_BOOL:
+        ti.width_bits = 8;
+        ti.align_bits = 8;
+        break;
+    case TYPE_INT:
+        ti.width_bits = 32;
+        ti.align_bits = 32;
+        break;
+    case TYPE_FLOAT:
+        ti.width_bits = 32;
+        ti.align_bits = 32;
+        break;
+    case TYPE_DOUBLE:
+        ti.width_bits = 64;
+        ti.align_bits = 64;
+        break;
+    case TYPE_REF:
+    case TYPE_STRING:
         ti.width_bits = 32; // FIXME: or 64 depending on pointer size (32arch or 64arch)
         ti.align_bits = 32;
-    }else{
-        switch (type->type) {
-        case TYPE_UNIT:
-            ti.width_bits = 0;
-            ti.align_bits = 8;
-            break;
-        case TYPE_CHAR:
-            ti.width_bits = 8;
-            ti.align_bits = 8;
-            break;
-        case TYPE_BOOL:
-            ti.width_bits = 8;
-            ti.align_bits = 8;
-            break;
-        case TYPE_INT:
-            ti.width_bits = 32;
-            ti.align_bits = 32;
-            break;
-        case TYPE_FLOAT:
-            ti.width_bits = 32;
-            ti.align_bits = 32;
-            break;
-        case TYPE_DOUBLE:
-            ti.width_bits = 64;
-            ti.align_bits = 64;
-            break;
-        case TYPE_STRING:
-            ti.width_bits = 32; // FIXME: or 64 depending on pointer size (32arch or 64arch)
-            ti.align_bits = 32;
-            break;
-        case TYPE_GENERIC:
-        case TYPE_FUNCTION:
-        case TYPE_STRUCT:
-        case TYPE_UNION:
-        case TYPE_COMPLEX:
-        case TYPE_TYPES:
-        case TYPE_NULL:
-            //assert(false);
-            break;
-        }
+        break;
+    case TYPE_GENERIC:
+    case TYPE_FUNCTION:
+    case TYPE_STRUCT:
+    case TYPE_UNION:
+    case TYPE_COMPLEX:
+    case TYPE_TYPES:
+    case TYPE_NULL:
+        //assert(false);
+        break;
     }
     if(ti.width_bits < 32) ti.width_bits = 32;
     if(ti.align_bits < 32) ti.align_bits = 32;
@@ -157,8 +153,7 @@ struct type_size_info get_type_size_info(struct type_expr *type)
     }
     struct type_size_info ti;
     if (type->type == TYPE_STRUCT) {
-        struct type_oper *to = (struct type_oper *)type;
-        ti = _create_struct_type_size_info(to);
+        ti = _create_struct_type_size_info(type);
     } else {
         ti = _create_scalar_type_size_info(type);
     }
