@@ -25,7 +25,7 @@ struct parser *_parser_new(parsing_table *pt, parsing_rules *pr, parsing_symbols
     parser->pstd = pstd;
     hashtable_init_with_value_size(&parser->symbol_2_int_types, sizeof(int), 0);
     for (int i = 0; i < TYPE_TYPES; i++) {
-        hashtable_set_int(&parser->symbol_2_int_types, type_symbols[i], i);
+        hashtable_set_int(&parser->symbol_2_int_types, get_type_symbol(i), i);
     }
     return parser;
 }
@@ -82,7 +82,7 @@ struct ast_node *_build_terminal_ast(struct token *tok)
             ast = ast_node_new(NULL_NODE, 0, 0, false, tok->loc);
             break;
         case TOKEN_UNIT:
-            ast = ast_node_new(UNIT_NODE, TYPE_UNIT, type_symbols[TYPE_UNIT], false, tok->loc);
+            ast = ast_node_new(UNIT_NODE, TYPE_UNIT, get_type_symbol(TYPE_UNIT), false, tok->loc);
             break;
         case TOKEN_OP:
             //*hacky way to transfer opcode

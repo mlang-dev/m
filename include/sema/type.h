@@ -34,11 +34,10 @@ extern "C" {
     ENUM_ITEM(TYPE_STRUCT)      \
     ENUM_ITEM(TYPE_UNION)       \
     ENUM_ITEM(TYPE_COMPLEX)     \
+    ENUM_ITEM(TYPE_REF)         \
     ENUM_ITEM(TYPE_TYPES)
 
 enum type { FOREACH_TYPE(GENERATE_ENUM) };
-
-extern symbol type_symbols[TYPE_TYPES];
 
 #define FOREACH_KIND(ENUM_ITEM) \
     ENUM_ITEM(KIND_NULL)        \
@@ -53,7 +52,7 @@ extern const char *kind_strings[];
 struct type_expr {
     enum kind kind; //type variable or type operator
     enum type type;
-    bool is_ref;// is reference type '&'
+    struct type_expr* ref_type;// reference type to
     symbol name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 };
 
@@ -70,12 +69,13 @@ struct type_oper {
 void types_init();
 void types_deinit();
 struct type_var *create_type_var();
-struct type_oper *create_type_oper(symbol type_name, enum type type, struct array *args);
+struct type_oper *create_type_oper(symbol type_name, enum type type, struct type_expr *ref_type, struct array *args);
 struct type_oper *create_type_oper_struct(symbol type_name, struct array *args);
 struct type_oper *create_nullary_type(enum type type, symbol type_symbol);
 struct type_oper *create_type_fun(struct array *args);
 struct type_oper *create_unit_type();
 struct type_oper *wrap_as_fun_type(struct type_oper *oper);
+struct type_expr *create_ref_type(struct type_expr *ref);
 void type_exp_free(struct type_expr *type);
 bool occurs_in_type(struct type_var *var, struct type_expr *type2);
 struct type_expr *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
@@ -92,6 +92,8 @@ bool is_promotable_int(struct type_expr *type);
 u8 type_size(enum type type);
 bool is_empty_struct(struct type_expr *type);
 struct type_expr *is_single_element_struct(struct type_expr *type);
+symbol get_type_symbol(enum type type_enum);
+symbol get_ref_type_symbol(enum type type_enum);
 
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
 #define is_aggregate_type(type) (type>=TYPE_STRUCT)

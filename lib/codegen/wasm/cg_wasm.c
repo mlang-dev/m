@@ -290,7 +290,7 @@ void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
     u32 len;
     switch(node->type->type){
         default:
-            printf("unknown type: %s\n", string_get(type_symbols[node->type->type]));
+            printf("unknown type: %s\n", string_get(get_type_symbol(node->type->type)));
             break;
         case TYPE_CHAR:
         case TYPE_BOOL:
@@ -357,7 +357,7 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
         u8 opcode = op_maps[node->unop->opcode][type_index];
         if(!opcode){
             symbol s = get_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
-            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(type_symbols[type_index]));
+            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(get_type_symbol(type_index)));
         }else{
             ba_add(ba, opcode);
             ast_node_free(bin_node);
@@ -418,7 +418,7 @@ void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *no
         u8 opcode = op_maps[node->binop->opcode][type_index];
         if(!opcode){
             symbol s = get_symbol_by_token_opcode(TOKEN_OP, node->binop->opcode);
-            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(type_symbols[type_index]));
+            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(get_type_symbol(type_index)));
         }else{
             ba_add(ba, opcode);
         }

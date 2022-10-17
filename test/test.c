@@ -31,6 +31,7 @@ int test_parser_expr();
 int test_parser();
 int test_parser_error();
 int test_grammar();
+int test_analyzer();
 int test_type_size_info();
 int test_wasm_codegen();
 
@@ -63,6 +64,7 @@ EXPORT int ENTRY()
   failures += test_parser();
   failures += test_parser_error();
   failures += test_grammar();
+  failures += test_analyzer();
   failures += test_type_size_info();
   failures += test_wasm_codegen();
 

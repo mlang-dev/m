@@ -15,12 +15,6 @@
 #include <limits.h>
 
 
-symbol get_type_symbol(enum type type_enum)
-{
-    // assert(g_parser);
-    return type_symbols[type_enum];
-}
-
 void _fill_type_enum(struct sema_context *context, struct ast_node *node)
 {
     if (!node->annotated_type_enum && node->annotated_type_name) {
@@ -270,6 +264,10 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
         struct type_expr *bool_type = (struct type_expr *)create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         unify(op_type, bool_type, &context->nongens);
         node->unop->operand->type = op_type;
+    }
+    else if(node->unop->opcode == OP_BITAND_REF){
+        //reference 
+        op_type = create_ref_type(op_type);
     }
     return op_type;
 }

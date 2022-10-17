@@ -220,7 +220,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     bool has_sret = fi_has_sret(fi);
     struct ast_node *p0 = 0;
     if(has_sret){
-        p0 = var_node_new2(to_symbol("p0"), fi->ret.type->name, fi->ret.type->is_ref, 0, false, node->loc);
+        p0 = var_node_new2(to_symbol("p0"), fi->ret.type->name, fi->ret.type->ref_type, 0, false, node->loc);
         p0->type = fi->ret.type;
         func_register_local_variable(cg, p0, false); //register one parameter
     }
@@ -233,9 +233,8 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     u32 stack_size = fc_get_stack_size(fc);
     if(stack_size){
         //TODO: make builtin type as constant
-        struct type_oper *to_sp = create_nullary_type(TYPE_INT, 0);
+        struct type_oper *to_sp = create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
         fc->local_sp = _req_new_local_var(cg, &to_sp->base, true, false);
-        type_exp_free(&to_sp->base);
     }
     
     struct byte_array func;

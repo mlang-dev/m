@@ -914,24 +914,3 @@ let getx()=
     ast_node_free(block);
     engine_free(engine);
 }
-
-TEST(testAnalyzer, ref_type_variable)
-{
-    char test_code[] = R"(
-x = 10
-y = &x
-)";
-    struct engine *engine = engine_llvm_new(false);
-    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
-    create_ir_module(cg, "test");
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    ASSERT_EQ(2, array_size(&block->block->nodes));
-    analyze(cg->base.sema_context, block);
-    struct ast_node* x = *(struct ast_node **)array_get(&block->block->nodes, 0);
-    struct ast_node* y = *(struct ast_node **)array_get(&block->block->nodes, 1);
-    ASSERT_EQ(TYPE_INT, x->type->type);
-    ASSERT_FALSE(x->type->is_ref);
-    ASSERT_EQ(TYPE_INT, y->type->type);
-    ast_node_free(block);
-    engine_free(engine);
-}

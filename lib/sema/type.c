@@ -30,33 +30,61 @@ const char *const _type_strings[] = {
     "struct",
     "union",
     "complex",
-    "enum"
+    "enum",
+    "ref"
 };
 
-symbol type_symbols[] = {
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
+struct symbol_ref_pair{
+    symbol type_symbol; 
+    symbol ref_type_symbol;
 };
+
+struct symbol_ref_pair type_symbols[TYPE_TYPES] = {
+    {0, 0},
+    {0, 0},
+    {0, 0},
+    {0, 0},
+    {0, 0},
+
+    {0, 0},
+    {0, 0},
+    {0, 0},
+    {0, 0},
+    {0, 0},
+
+    {0, 0},
+    {0, 0},
+    {0, 0},
+    {0, 0},
+};
+
+/*symbol 2 type exprs*/
+struct hashtable g_symbol_2_type_exprs; 
+struct hashtable g_ref_symbol_2_type_exprs; 
+
+void _free_type_expr(void *type)
+{
+    type_exp_free(type);
+}
 
 void types_init()
 {
     for(int i = 0; i < TYPE_TYPES; i++){
-        type_symbols[i] = to_symbol(_type_strings[i]);
+        type_symbols[i].type_symbol = to_symbol(_type_strings[i]);
+        string str;
+        string_init_chars(&str, "&");
+        string_add_chars(&str, _type_strings[i]);
+        type_symbols[i].ref_type_symbol = to_symbol(string_get(&str));
+        string_deinit(&str);
     }
+    hashtable_init_with_value_size(&g_symbol_2_type_exprs, 0, _free_type_expr);
+    hashtable_init_with_value_size(&g_ref_symbol_2_type_exprs, 0, _free_type_expr);
 }
 
 void types_deinit()
 {
+    hashtable_deinit(&g_symbol_2_type_exprs);
+    hashtable_deinit(&g_ref_symbol_2_type_exprs);
 }
 
 struct type_var *_create_type_var(symbol name)
@@ -66,6 +94,7 @@ struct type_var *_create_type_var(symbol name)
     var->base.kind = KIND_VAR;
     var->base.type = 0;
     var->base.name = name;
+    var->base.ref_type = 0;
     var->instance = 0;
     return var;
 }
@@ -85,44 +114,68 @@ struct type_var *copy_type_var(struct type_var *var)
     return copy_var;
 }
 
-struct type_oper *create_type_oper(symbol type_name, enum type type, struct array *args)
+struct type_oper *create_type_oper(symbol type_name, enum type type, struct type_expr *ref_type, struct array *args)
 {
     struct type_oper *oper;
     MALLOC(oper, sizeof(*oper));
     oper->base.kind = KIND_OPER;
     oper->base.type = type;
     oper->base.name = type_name;
-    oper->args = *args;
+    oper->base.ref_type = ref_type;
+    if(args){
+        oper->args = *args;
+    } else {
+        array_init(&oper->args, sizeof(struct type_expr *));
+    }
     return oper;
+}
+
+/*ref_type: referenced type: e.g. it's int for &int type */
+struct type_expr *create_ref_type(struct type_expr *ref_type)
+{
+    symbol ref_type_name = get_ref_type_symbol(ref_type->type);
+    return (struct type_expr *)create_type_oper(ref_type_name, TYPE_REF, ref_type, 0);
 }
 
 struct type_oper *create_unit_type()
 {
-    struct type_oper *oper;
+    symbol type_name = get_type_symbol(TYPE_UNIT);
+    struct type_oper *oper = hashtable_get_p(&g_symbol_2_type_exprs, type_name);
+    if(oper)
+        return oper;
     MALLOC(oper, sizeof(*oper));
     oper->base.kind = KIND_OPER;
     oper->base.type = TYPE_UNIT;
-    oper->base.name = type_symbols[TYPE_UNIT];
+    oper->base.name = type_name;
+    oper->base.ref_type = 0;
     array_init(&oper->args, sizeof(struct type_expr *));
+    hashtable_set_p(&g_symbol_2_type_exprs, type_name, oper);
     return oper;
 }
 
 struct type_oper *create_type_oper_struct(symbol type_name, struct array *args)
 {
-    return create_type_oper(type_name, TYPE_STRUCT, args);
+    return create_type_oper(type_name, TYPE_STRUCT, 0, args);
 }
 
 struct type_oper *create_nullary_type(enum type type, symbol type_symbol)
 {
+    assert(type_symbol);
+    struct type_oper *oper;
+    oper = hashtable_get_p(&g_symbol_2_type_exprs, type_symbol);
+    if(oper)
+        return oper;
     struct array args;
     array_init(&args, sizeof(struct type_expr *));
-    return create_type_oper(type_symbol, type, &args);
+    oper = create_type_oper(type_symbol, type, 0, &args);
+    hashtable_set_p(&g_symbol_2_type_exprs, type_symbol, oper);
+    return oper;
 }
 
 struct type_oper *create_type_fun(struct array *args)
 {
-    symbol type_name = type_symbols[TYPE_FUNCTION];
-    return create_type_oper(type_name, TYPE_FUNCTION, args);
+    symbol type_name = get_type_symbol(TYPE_FUNCTION);
+    return create_type_oper(type_name, TYPE_FUNCTION, 0, args);
 }
 
 struct type_oper *wrap_as_fun_type(struct type_oper *oper)
@@ -135,6 +188,10 @@ struct type_oper *wrap_as_fun_type(struct type_oper *oper)
 
 void type_exp_free(struct type_expr *type)
 {
+    if(type->kind == KIND_OPER){
+        struct type_oper *to = (struct type_oper *)type;
+        array_deinit(&to->args);
+    }
     FREE(type);
 }
 
@@ -172,6 +229,7 @@ bool _occurs_in_type_list(struct type_var *var, struct array *list)
     return false;
 }
 
+/* whether the type variable is in any of the type2, true - found*/
 bool occurs_in_type(struct type_var *var, struct type_expr *type2)
 {
     type2 = prune(type2);
@@ -207,40 +265,38 @@ bool unify(struct type_expr *type1, struct type_expr *type2, struct array *nonge
     type1 = prune(type1);
     type2 = prune(type2);
     assert(type1 && type2);
+    /*type1 and type2 are the same one*/
     if (type1 == type2)
         return true;
-    if (type1->kind == KIND_VAR && type2->kind == KIND_VAR) {
-        /*type1 is non-generic, type2 is generic*/
-        if (_occurs_in_type_list((struct type_var *)type1, nongens) && !_occurs_in_type_list((struct type_var *)type2, nongens))
+    if (type2->kind == KIND_VAR){
+        if (type1->kind != KIND_VAR){
             return unify(type2, type1, nongens);
-        else {
-            struct type_var *var = (struct type_var *)type1;
-            var->instance = type2;
+        } else {
+            /*type1 is non-generic, type2 is generic, swap the arguments, and the first is generic, the second one is not*/
+            if (_occurs_in_type_list((struct type_var *)type1, nongens) && !_occurs_in_type_list((struct type_var *)type2, nongens))
+                return unify(type2, type1, nongens);
+            else {
+                struct type_var *var = (struct type_var *)type1;
+                var->instance = type2;//assign the type2 to type1 variable
+            }
         }
     }
     if (type1->kind == KIND_VAR) {
         struct type_var *var = (struct type_var *)type1;
-        if (occurs_in_type(var, type2) && type1 != type2) {
-            assert(false);
-            return false;
-        } else {
-            var->instance = type2;
-        }
+        assert(!occurs_in_type(var, type2) || type1 == type2);
+        var->instance = type2;
     } else {
-        if (type2->kind == KIND_VAR) {
-            return unify(type2, type1, nongens);
-        } else {
-            struct type_oper *oper1 = (struct type_oper *)type1;
-            struct type_oper *oper2 = (struct type_oper *)type2;
-            if (type1->type != type2->type || !_is_valid_args_size(&oper1->args, &oper2->args))
-                return false;
-            size_t arg_size1 = array_size(&oper1->args);
-            size_t arg_size2 = array_size(&oper2->args);
-            size_t arg_size = MIN(arg_size1, arg_size2);
-            for (size_t i = 0; i < arg_size; i++) {
-                unify(*(struct type_expr **)array_get(&oper1->args, i == arg_size - 1 ? arg_size1 - 1 : i),
-                    *(struct type_expr **)array_get(&oper2->args, i == arg_size - 1 ? arg_size2 - 1 : i), nongens);
-            }
+        /*type1 is known type: type_oper*/
+        struct type_oper *oper1 = (struct type_oper *)type1;
+        struct type_oper *oper2 = (struct type_oper *)type2;
+        if (type1->ref_type != type2->ref_type || type1->type != type2->type || !_is_valid_args_size(&oper1->args, &oper2->args))
+            return false;
+        size_t arg_size1 = array_size(&oper1->args);
+        size_t arg_size2 = array_size(&oper2->args);
+        size_t arg_size = MIN(arg_size1, arg_size2);
+        for (size_t i = 0; i < arg_size; i++) {
+            unify(*(struct type_expr **)array_get(&oper1->args, i == arg_size - 1 ? arg_size1 - 1 : i),
+                *(struct type_expr **)array_get(&oper2->args, i == arg_size - 1 ? arg_size2 - 1 : i), nongens);
         }
     }
     return true;
@@ -261,6 +317,7 @@ bool _all_is_oper(struct array *arr)
     return true;
 }
 
+/*for any generic type in the type, create a a type variable thunk for it*/
 struct type_expr *_freshrec(struct type_expr *type, struct array *nongens, struct hashtable *type_vars)
 {
     type = prune(type);
@@ -289,7 +346,7 @@ struct type_expr *_freshrec(struct type_expr *type, struct array *nongens, struc
     if (type->type == TYPE_STRUCT) {
         return (struct type_expr *)create_type_oper_struct(type->name, &refreshed);
     }
-    return (struct type_expr *)create_type_oper(type->name, type->type, &refreshed);
+    return (struct type_expr *)create_type_oper(type->name, type->type, 0, &refreshed);
 }
 
 struct type_expr *fresh(struct type_expr *type, struct array *nongens)
@@ -345,7 +402,7 @@ string to_string(struct type_expr *type)
     } else if (type->kind == KIND_OPER) {
         struct type_oper *oper = (struct type_oper *)type;
         if (array_size(&oper->args) == 0) { /* nullary operator, e.g. builtin types: int, double*/
-            string_add(&typestr, type_symbols[oper->base.type]);
+            string_add(&typestr, get_type_symbol(oper->base.type));
             return typestr;
         } else if (oper->base.type == TYPE_STRUCT) {
             string_copy(&typestr, oper->base.name);
@@ -430,7 +487,7 @@ struct type_expr *clone_type(struct type_expr *type)
             struct type_expr *arg = clone_type(*(struct type_expr **)array_get(&oper->args, i));
             array_push(&args, &arg);
         }
-        copy = (struct type_expr *)create_type_oper(oper->base.name, oper->base.type, &args);
+        copy = (struct type_expr *)create_type_oper(oper->base.name, oper->base.type, 0, &args);
     } else {
         assert(false);
     }
@@ -488,4 +545,14 @@ struct type_expr *is_single_element_struct(struct type_expr *type)
     }
     return found;
 
+}
+
+symbol get_type_symbol(enum type type_enum)
+{
+    return type_symbols[type_enum].type_symbol;
+}
+
+symbol get_ref_type_symbol(enum type type_enum)
+{
+    return type_symbols[type_enum].ref_type_symbol;
 }
