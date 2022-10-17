@@ -116,8 +116,7 @@ char get_op_name(struct ast_node *node)
 
 struct type_expr *get_ret_type(struct ast_node *fun_node)
 {
-    struct type_oper *oper = (struct type_oper *)fun_node->type;
-    return *(struct type_expr **)array_back(&oper->args);
+    return *(struct type_expr **)array_back(&fun_node->type->args);
 }
 
 struct ast_node *_copy_block_node(struct ast_node *orig_node)

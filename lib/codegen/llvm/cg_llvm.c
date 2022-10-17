@@ -63,17 +63,16 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_expr *type_exp)
     LLVMTypeRef struct_type = hashtable_get_p(&g_cg->typename_2_irtypes, type_exp->name);
     if (struct_type)
         return struct_type;
-    struct type_oper *type = (struct type_oper *)type_exp;
-    struct_type = LLVMStructCreateNamed(context, string_get(type->base.name));
-    unsigned member_count = (unsigned)array_size(&type->args);
+    struct_type = LLVMStructCreateNamed(context, string_get(type_exp->name));
+    unsigned member_count = (unsigned)array_size(&type_exp->args);
     LLVMTypeRef *members;
     MALLOC(members, member_count * sizeof(LLVMTypeRef));
     for (unsigned i = 0; i < member_count; i++) {
-        struct type_expr *field_type = *(struct type_expr **)array_get(&type->args, i);
+        struct type_expr *field_type = *(struct type_expr **)array_get(&type_exp->args, i);
         members[i] = get_llvm_type(field_type);
     }
     LLVMStructSetBody(struct_type, members, member_count, false);
-    hashtable_set_p(&g_cg->typename_2_irtypes, type->base.name, struct_type);
+    hashtable_set_p(&g_cg->typename_2_irtypes, type_exp->name, struct_type);
     FREE(members);
     return struct_type;
 }

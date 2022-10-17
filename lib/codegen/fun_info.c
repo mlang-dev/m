@@ -7,7 +7,7 @@ const unsigned ALL_REQUIRED = ~0U;
 
 void fun_info_init(struct fun_info *fi, struct ast_node *func_type)
 {
-    struct type_oper *fun_type = (struct type_oper *)func_type->type;
+    struct type_expr *fun_type = func_type->type;
     unsigned param_num = (unsigned)array_size(&fun_type->args) - 1; //args -> ret type
     if (func_type->ft->is_variadic)
         param_num -= 1;

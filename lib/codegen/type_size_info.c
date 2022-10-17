@@ -72,9 +72,9 @@ void _layout_end(struct struct_layout *sl)
     sl->size_bits = (u32)align_to(sl->size_bits, sl->alignment * 8);
 }
 
-struct struct_layout *layout_struct(struct type_oper *to)
+struct struct_layout *layout_struct(struct type_expr *to)
 {
-    struct struct_layout *sl = sl_new(to->base.name);
+    struct struct_layout *sl = sl_new(to->name);
     u32 member_count = (u32)array_size(&to->args);
     for (u32 i = 0; i < member_count; i++) {
         struct type_expr *field_type = *(struct type_expr **)array_get(&to->args, i);
@@ -84,7 +84,7 @@ struct struct_layout *layout_struct(struct type_oper *to)
     return sl;
 }
 
-struct type_size_info _create_struct_type_size_info(struct type_oper *to)
+struct type_size_info _create_struct_type_size_info(struct type_expr *to)
 {
     struct type_size_info ti;
     struct struct_layout *sl = layout_struct(to);
@@ -153,8 +153,7 @@ struct type_size_info get_type_size_info(struct type_expr *type)
     }
     struct type_size_info ti;
     if (type->type == TYPE_STRUCT) {
-        struct type_oper *to = (struct type_oper *)type;
-        ti = _create_struct_type_size_info(to);
+        ti = _create_struct_type_size_info(type);
     } else {
         ti = _create_scalar_type_size_info(type);
     }

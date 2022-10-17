@@ -634,7 +634,7 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
     struct type_expr *te;
     for (i = 0; i < func_types; i++) {
         func_type_node = *(struct ast_node **)array_get(&block->block->nodes, i);
-        struct type_oper *func_type = (struct type_oper *)func_type_node->type;
+        struct type_expr *func_type = func_type_node->type;
         u32 num_params = array_size(&func_type->args) - 1;
         struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, func_type_node);
         bool has_sret = fi_has_sret(fi);

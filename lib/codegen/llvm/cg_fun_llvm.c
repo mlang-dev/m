@@ -29,7 +29,7 @@ struct address emit_address_at_offset(struct cg_llvm *cg, struct address adr, st
 void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
     struct fun_info *fi, LLVMValueRef fun)
 {
-    struct type_oper *proto_type = (struct type_oper *)node->type;
+    struct type_expr *proto_type = node->type;
     //assert (LLVMCountParams(fun) == array_size(&proto_type->args) - 1);
     unsigned param_count = (unsigned)array_size(&fi->args);
     struct array params;
@@ -51,7 +51,7 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
             assert(target_arg_num == 1);
             param_value.pointer = arg_value;
             param_value.alignment = aai->align.indirect_align;
-            if (proto_type->base.type < TYPE_STRUCT) { //aggregate
+            if (proto_type->type < TYPE_STRUCT) { //aggregate
                 //
                 if (aai->indirect_realign || aai->kind == AK_INDIRECT_ALIASED) {
                     //realign the value, if the address is aliased, copy the param to ensure
@@ -108,8 +108,8 @@ LLVMValueRef emit_func_type_node(struct cg_llvm *cg, struct ast_node *node)
 LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, struct fun_info **out_fi)
 {
     assert(node->type);
-    struct type_oper *proto_type = (struct type_oper *)node->type;
-    assert(proto_type->base.kind == KIND_OPER);
+    struct type_expr *proto_type = node->type;
+    assert(proto_type->kind == KIND_OPER);
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node);
     if (out_fi)
         *out_fi = fi;
