@@ -122,7 +122,7 @@ struct grammar *grammar_parse(const char *grammar_text)
             expr_add_symbol(expr, s, EI_EXACT_MATCH);
             hashset_set2(&g->keywords, string_get(s), string_size(s));
         }
-        if(tok.opcode == OP_BOR){
+        if(tok.opcode == OP_BITOR){
             expr = rule_add_expr(rule);
         } else if (tok.token_type == TOKEN_LBRACKET){ //regex
             string_init_chars2(&group, "", 0);

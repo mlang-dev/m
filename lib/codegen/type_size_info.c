@@ -101,44 +101,49 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
     ti.align_bits = 8;
     ti.sl = 0;
     ti.align_required = false;
-    switch (type->type) {
-    case TYPE_UNIT:
-        ti.width_bits = 0;
-        ti.align_bits = 8;
-        break;
-    case TYPE_CHAR:
-        ti.width_bits = 8;
-        ti.align_bits = 8;
-        break;
-    case TYPE_BOOL:
-        ti.width_bits = 8;
-        ti.align_bits = 8;
-        break;
-    case TYPE_INT:
-        ti.width_bits = 32;
-        ti.align_bits = 32;
-        break;
-    case TYPE_FLOAT:
-        ti.width_bits = 32;
-        ti.align_bits = 32;
-        break;
-    case TYPE_DOUBLE:
-        ti.width_bits = 64;
-        ti.align_bits = 64;
-        break;
-    case TYPE_STRING:
+    if(type->is_ref){
         ti.width_bits = 32; // FIXME: or 64 depending on pointer size (32arch or 64arch)
         ti.align_bits = 32;
-        break;
-    case TYPE_GENERIC:
-    case TYPE_FUNCTION:
-    case TYPE_STRUCT:
-    case TYPE_UNION:
-    case TYPE_COMPLEX:
-    case TYPE_TYPES:
-    case TYPE_NULL:
-        //assert(false);
-        break;
+    }else{
+        switch (type->type) {
+        case TYPE_UNIT:
+            ti.width_bits = 0;
+            ti.align_bits = 8;
+            break;
+        case TYPE_CHAR:
+            ti.width_bits = 8;
+            ti.align_bits = 8;
+            break;
+        case TYPE_BOOL:
+            ti.width_bits = 8;
+            ti.align_bits = 8;
+            break;
+        case TYPE_INT:
+            ti.width_bits = 32;
+            ti.align_bits = 32;
+            break;
+        case TYPE_FLOAT:
+            ti.width_bits = 32;
+            ti.align_bits = 32;
+            break;
+        case TYPE_DOUBLE:
+            ti.width_bits = 64;
+            ti.align_bits = 64;
+            break;
+        case TYPE_STRING:
+            ti.width_bits = 32; // FIXME: or 64 depending on pointer size (32arch or 64arch)
+            ti.align_bits = 32;
+            break;
+        case TYPE_GENERIC:
+        case TYPE_FUNCTION:
+        case TYPE_STRUCT:
+        case TYPE_UNION:
+        case TYPE_COMPLEX:
+        case TYPE_TYPES:
+        case TYPE_NULL:
+            //assert(false);
+            break;
+        }
     }
     if(ti.width_bits < 32) ti.width_bits = 32;
     if(ti.align_bits < 32) ti.align_bits = 32;

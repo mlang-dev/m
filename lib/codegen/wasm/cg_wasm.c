@@ -93,10 +93,10 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_AND    */{0, 0, 0, OPCODE_I32AND, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_NOT    */{0, 0, 0, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0, 0, 0,}, //xor 1
 
-    /*OP_BNOT   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0,},             //xor -1
-    /*OP_BOR    */{0, 0, 0, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, 0, 0, 0, 0, 0, 0,},
-    /*OP_BEOR   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0,},
-    /*OP_BAND   */{0, 0, 0, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, 0, 0, 0, 0, 0, 0,},
+    /*OP_BITNOT   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0,},             //xor -1
+    /*OP_BITOR    */{0, 0, 0, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, 0, 0, 0, 0, 0, 0,},
+    /*OP_BITEXOR   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0,},
+    /*OP_BITAND_REF   */{0, 0, 0, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, 0, 0, 0, 0, 0, 0,},
     /*OP_BSL    */{0, 0, 0, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, 0, 0, 0, 0, 0, 0,},
     /*OP_BSR    */{0, 0, 0, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, 0, 0, 0, 0, 0, 0,},
 
@@ -343,7 +343,7 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
             bin_node->type = node->type;
             wasm_emit_code(cg, ba, bin_node);
             break;
-        case OP_BNOT:
+        case OP_BITNOT:
             bin_node = int_node_new(-1, node->loc);
             bin_node->type = node->type;
             wasm_emit_code(cg, ba, bin_node);

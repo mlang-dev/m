@@ -53,6 +53,7 @@ extern const char *kind_strings[];
 struct type_expr {
     enum kind kind; //type variable or type operator
     enum type type;
+    bool is_ref;// is reference type '&'
     symbol name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 };
 
