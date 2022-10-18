@@ -459,7 +459,7 @@ struct ast_node *func_type_node_new(symbol name,
     node->ft->op = op;
     if (is_variadic) {
         struct ast_node *fun_param = var_node_new(get_type_symbol(TYPE_GENERIC), TYPE_GENERIC, 0, false, 0, false, loc);
-        fun_param->type = (struct type_expr *)create_nullary_type(TYPE_GENERIC, fun_param->annotated_type_name);
+        fun_param->type = create_nullary_type(TYPE_GENERIC, fun_param->annotated_type_name);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }
     return node;

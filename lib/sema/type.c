@@ -60,7 +60,6 @@ struct symbol_ref_pair type_symbols[TYPE_TYPES] = {
 
 /*symbol 2 type exprs*/
 struct hashtable g_symbol_2_type_exprs; 
-struct hashtable g_ref_symbol_2_type_exprs; 
 
 void _free_type_expr(void *type)
 {
@@ -78,13 +77,11 @@ void types_init()
         string_deinit(&str);
     }
     hashtable_init_with_value_size(&g_symbol_2_type_exprs, 0, _free_type_expr);
-    hashtable_init_with_value_size(&g_ref_symbol_2_type_exprs, 0, _free_type_expr);
 }
 
 void types_deinit()
 {
     hashtable_deinit(&g_symbol_2_type_exprs);
-    hashtable_deinit(&g_ref_symbol_2_type_exprs);
 }
 
 struct type_expr *_create_type_var(symbol name)
@@ -281,7 +278,7 @@ bool unify(struct type_expr *type1, struct type_expr *type2, struct array *nonge
         type1->instance = type2;
     } else {
         /*type1 is known type: KIND_OPER*/
-        if (type1->ref_type != type2->ref_type || type1->type != type2->type || !_is_valid_args_size(&type1->args, &type2->args))
+        if (type1->name != type2->name || !_is_valid_args_size(&type1->args, &type2->args))
             return false;
         size_t arg_size1 = array_size(&type1->args);
         size_t arg_size2 = array_size(&type2->args);
