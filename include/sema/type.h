@@ -52,7 +52,7 @@ extern const char *kind_strings[];
 struct type_expr {
     enum kind kind; //type variable or type operator
     enum type type;
-    struct type_expr* ref_type;// reference type to
+    struct type_expr* val_type;// val_type the reference type is referred to
     symbol name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
 
     union {
@@ -64,13 +64,13 @@ struct type_expr {
 void types_init();
 void types_deinit();
 struct type_expr *create_type_var();
-struct type_expr *create_type_oper(symbol type_name, enum type type, struct type_expr *ref_type, struct array *args);
+struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type type, struct type_expr *ref_type, struct array *args);
 struct type_expr *create_type_oper_struct(symbol type_name, struct array *args);
 struct type_expr *create_nullary_type(enum type type, symbol type_symbol);
 struct type_expr *create_type_fun(struct array *args);
 struct type_expr *create_unit_type();
 struct type_expr *wrap_as_fun_type(struct type_expr *oper);
-struct type_expr *create_ref_type(struct type_expr *ref);
+struct type_expr *create_ref_type(struct type_expr *val_type);
 void type_exp_free(struct type_expr *type);
 bool occurs_in_type(struct type_expr *var, struct type_expr *type2);
 struct type_expr *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
@@ -82,7 +82,6 @@ struct type_expr *prune(struct type_expr *type);
 bool is_generic(struct type_expr *type);
 bool is_any_generic(struct array *types);
 string monomorphize(const char *fun_name, struct array *types);
-struct type_expr *clone_type(struct type_expr *type);
 bool is_promotable_int(struct type_expr *type);
 u8 type_size(enum type type);
 bool is_empty_struct(struct type_expr *type);
