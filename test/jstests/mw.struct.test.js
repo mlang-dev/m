@@ -331,3 +331,17 @@ z.re
         expect(m.run_code(code)).toEqual(100.0);
     });
 });
+
+// test('test struct pass by reference', () => {
+//     var result = get_mw();
+//     return result.then((m) => {
+//         let code = `
+// let update z:&cf64 =
+//     z.re = 10.0
+// z = &cf64(100.0, 200.0)
+// update z
+// z.re
+// `;
+//         expect(m.run_code(code)).toEqual(10.0);
+//     });
+// });

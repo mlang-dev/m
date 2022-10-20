@@ -63,7 +63,6 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     }
     if (node->annotated_type_name && 
         hashtable_in_p(&context->struct_typename_2_asts, node->annotated_type_name)
-        /* hashtable_get_int(&context->parser->symbol_2_int_types, node->annotated_type_name) == TYPE_STRUCT*/
         ) {
         assert(node->annotated_type_name);
         type = retrieve_type_with_type_name(context, node->annotated_type_name);
@@ -168,6 +167,9 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
                 exp = retrieve_type_with_type_name(context, param->annotated_type_name);
             else{
                 exp = create_nullary_type(param->annotated_type_enum, param->annotated_type_name);
+            }
+            if(param->is_ref_annotated){
+                exp = create_ref_type(exp);
             }
         } else
             exp = create_type_var();
