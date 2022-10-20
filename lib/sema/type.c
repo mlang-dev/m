@@ -74,6 +74,36 @@ symbol _to_ref_symbol(symbol type_symbol)
     return ref_symbol;
 }
 
+symbol _to_fun_type_name(struct array *types)
+{
+    if(!array_size(types)){
+        return 0;
+    }
+    struct type_expr *result_type = *(struct type_expr**)array_back(types);
+    if (result_type->kind == KIND_VAR) return 0;
+    string str;
+    string_init(&str);
+    struct type_expr *param_type;
+    for(size_t i = 0; i < array_size(types) - 1; i++){
+        param_type = *(struct type_expr**)array_get(types, i);
+        if(param_type->kind == KIND_VAR){
+            string_deinit(&str);
+            return 0;
+        }
+        string_add(&str, param_type->name);
+        string_add_chars(&str, " ");
+    }
+    if(string_size(&str) == 0){
+        string_add(&str, get_type_symbol(TYPE_UNIT));
+        string_add_chars(&str, " ");
+    }
+    string_add(&str, get_type_symbol(TYPE_FUNCTION));
+    string_add_chars(&str, " ");
+    string_add(&str, result_type->name);
+    symbol fun_type_symbol = to_symbol(string_get(&str));
+    string_deinit(&str);
+    return fun_type_symbol;
+}
 /*symbol 2 type expr pairs*/
 struct hashtable _symbol_2_type_exprs; 
 
@@ -182,9 +212,15 @@ struct type_expr *create_nullary_type(enum type type, symbol type_symbol)
 struct type_expr *create_type_fun(struct array *args)
 {
     symbol type_name = get_type_symbol(TYPE_FUNCTION);
-    return _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
+    symbol fun_type_name = _to_fun_type_name(args);
+    if(fun_type_name){
+        return _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
+    } else {
+        return _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
+    }
 }
 
+//wrap as function type with signature: () -> oper
 struct type_expr *wrap_as_fun_type(struct type_expr *oper)
 {
     struct array fun_sig;
