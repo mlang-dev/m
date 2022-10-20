@@ -109,25 +109,6 @@ TEST(testAnalyzer, testStringVariable)
     engine_free(engine);
 }
 
-TEST(testAnalyzer, testCallNode)
-{
-    char test_code[] = "printf \"hello\"";
-    struct engine *engine = engine_llvm_new(false);
-    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
-    create_ir_module(cg, "test");
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->base.sema_context, block);
-    emit_code(cg, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
-    ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_EQ(CALL_NODE, node->node_type);
-    ASSERT_EQ(TYPE_INT, node->type->type);
-    string type_str = to_string(node->type);
-    ASSERT_STREQ("int", string_get(&type_str));
-    ast_node_free(block);
-    engine_free(engine);
-}
-
 TEST(testAnalyzer, testDoubleIntLiteralError)
 {
     char test_code[] = "x = 11.0 + 10";

@@ -214,7 +214,7 @@ struct type_expr *create_type_fun(struct array *args)
     symbol type_name = get_type_symbol(TYPE_FUNCTION);
     symbol fun_type_name = _to_fun_type_name(args);
     if(fun_type_name){
-        return _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
+        return _create_type_oper(KIND_OPER, fun_type_name, TYPE_FUNCTION, 0, args);
     } else {
         return _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
     }
@@ -324,7 +324,7 @@ bool unify(struct type_expr *type1, struct type_expr *type2, struct array *nonge
         type1->instance = type2;
     } else {
         /*type1 is known type: KIND_OPER*/
-        if (type1->name != type2->name || !_is_valid_args_size(&type1->args, &type2->args))
+        if (type1->val_type != type2->val_type || type1->type != type2->type || !_is_valid_args_size(&type1->args, &type2->args))
             return false;
         size_t arg_size1 = array_size(&type1->args);
         size_t arg_size2 = array_size(&type2->args);

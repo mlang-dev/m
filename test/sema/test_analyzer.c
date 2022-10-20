@@ -11,6 +11,25 @@
 #include "sema/analyzer.h"
 #include <stdio.h>
 
+TEST(test_analyzer, call_node)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "\n\
+fun printf __format:string ... -> int\n\
+printf \"hello\"\n\
+";
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct ast_node *node = *(struct ast_node **)array_back(&block->block->nodes);
+    ASSERT_EQ(CALL_NODE, node->node_type);
+    ASSERT_EQ(TYPE_INT, node->type->type);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("int", string_get(&type_str));
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
 TEST(test_analyzer, ref_type_variable)
 {
     struct frontend *fe = frontend_init();
@@ -52,6 +71,7 @@ let update z:&AB =\n\
 int test_analyzer()
 {
     UNITY_BEGIN();
+    RUN_TEST(test_analyzer_call_node);
     RUN_TEST(test_analyzer_ref_type_variable);
     //RUN_TEST(test_analyzer_ref_type_func);
     return UNITY_END();
