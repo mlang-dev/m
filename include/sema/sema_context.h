@@ -52,6 +52,14 @@ struct sema_context {
      */
     struct hashtable struct_typename_2_asts;
 
+
+    /* 
+     *  hashtable of <symbol, symbol> 
+     *      map type symbol to its reference type symbol: e.g. int : &int
+     */
+    struct hashtable type_2_ref_symbol;
+
+
     /* 
      *  function ast_node pointer stacks
      */
@@ -120,7 +128,8 @@ size_t enter_scope(struct sema_context *env);
 size_t leave_scope(struct sema_context *env);
 struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name);
 struct field_info sc_get_field_info(struct sema_context *sc, symbol struct_name, symbol field_name);
-struct field_info sc_get_field_info_from_root(struct sema_context *sc, struct ast_node* index);
+void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* index, struct array *field_infos);
+symbol get_ref_type_symbol(struct sema_context *context, symbol type_name);
 
 #ifdef __cplusplus
 }

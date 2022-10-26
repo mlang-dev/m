@@ -73,6 +73,6 @@ int test_analyzer()
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_call_node);
     RUN_TEST(test_analyzer_ref_type_variable);
-    //RUN_TEST(test_analyzer_ref_type_func);
+    RUN_TEST(test_analyzer_ref_type_func);
     return UNITY_END();
 }

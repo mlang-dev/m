@@ -560,7 +560,7 @@ LLVMValueRef _emit_binary_node(struct cg_llvm *cg, struct ast_node *node)
             return ops->add(cg->builder, lv, rv, "");
         case OP_MINUS:
             return ops->sub(cg->builder, lv, rv, "");
-        case OP_TIMES:
+        case OP_STAR:
             return ops->mul(cg->builder, lv, rv, "");
         case OP_DIVISION:
             return ops->div(cg->builder, lv, rv, "");

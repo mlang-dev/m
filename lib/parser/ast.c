@@ -86,6 +86,7 @@ struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type
     node->is_ret = false;
     node->is_write = false;
     node->data = 0;
+    node->is_addressable = false;
    
     return node;
 }

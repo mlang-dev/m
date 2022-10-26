@@ -87,7 +87,8 @@ u8 type_size(enum type type);
 bool is_empty_struct(struct type_expr *type);
 struct type_expr *is_single_element_struct(struct type_expr *type);
 symbol get_type_symbol(enum type type_enum);
-symbol get_ref_type_symbol(enum type type_enum);
+
+symbol to_ref_symbol(symbol type_symbol);
 
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
 #define is_aggregate_type(type) (type>=TYPE_STRUCT)

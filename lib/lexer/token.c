@@ -94,7 +94,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
 
     // KEYWORD_PATTERN("^", OP, EXPO),
     NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, POW), // 40
-    NAME_KEYWORD_PATTERN("*", "\\*", OP, TIMES), // 40
+    NAME_KEYWORD_PATTERN("*", "\\*", OP, STAR), // 40
     KEYWORD_PATTERN("/", OP, DIVISION),
     KEYWORD_PATTERN("%", OP, MODULUS),
     NAME_KEYWORD_PATTERN("+", "\\+", OP, PLUS),
