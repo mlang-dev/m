@@ -90,6 +90,12 @@ symbol get_type_symbol(enum type type_enum);
 
 symbol to_ref_symbol(symbol type_symbol);
 
+//anonymous function
+void struct_type_init(struct type_expr *struct_type);
+void struct_type_deinit(struct type_expr *struct_type);
+void struct_type_add_member(struct type_expr *struct_type, struct type_expr *type);
+
+
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
 #define is_aggregate_type(type) (type>=TYPE_STRUCT)
 

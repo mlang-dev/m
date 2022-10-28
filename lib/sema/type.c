@@ -132,6 +132,28 @@ void types_deinit()
     hashtable_deinit(&_symbol_2_type_exprs);
 }
 
+void struct_type_init(struct type_expr *struct_type)
+{
+    struct_type->kind = KIND_OPER;
+    struct_type->name = 0;
+    struct_type->type = TYPE_STRUCT;
+    array_init(&struct_type->args, sizeof(struct type_expr *));
+}
+
+void struct_type_deinit(struct type_expr *struct_type)
+{
+    struct_type->kind = KIND_OPER;
+    struct_type->name = 0;
+    struct_type->type = TYPE_STRUCT;
+    array_init(&struct_type->args, sizeof(struct type_expr *));
+}
+
+void struct_type_add_member(struct type_expr *struct_type, struct type_expr *type)
+{
+    assert(struct_type->type == TYPE_STRUCT);
+    array_push(&struct_type->args, &type);
+}
+
 struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args)
 {
     struct type_expr *oper;
