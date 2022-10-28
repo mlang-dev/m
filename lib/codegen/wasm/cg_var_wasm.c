@@ -25,7 +25,7 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
     assert(node->node_type == VAR_NODE);
     struct fun_context *fc = cg_get_top_fun_context(cg);
     u32 var_index = fc_get_var_info(fc, node)->var_index;
-    struct mem_alloc *alloc = fc_get_alloc(fc, node);
+    u32 stack_offset = fc_get_stack_offset(fc, node);
     if (node->var->init_value){
         wasm_emit_code(cg, ba, node->var->init_value);
         if(node->type->type == TYPE_STRUCT){
@@ -34,7 +34,7 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
                 //set var index address
                 if(!node->is_ret){
                     //for return value optimization, var_index is parameter
-                    wasm_emit_assign_var(ba, var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
+                    wasm_emit_assign_var(ba, var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
                 }
                 wasm_emit_copy_struct_value(ba, var_index, 0, node->type, init_vi->var_index, 0);
             }
@@ -62,8 +62,8 @@ void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast
         //no return
     } else {
         struct var_info *vi = fc_get_var_info(fc, node);
-        struct mem_alloc *alloc = fc_get_alloc(fc, node);
-        wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
+        u32 stack_offset = fc_get_stack_offset(fc, node);
+        wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
         wasm_emit_store_struct_value(cg, ba, vi->var_index, 0, tsi.sl, node->struct_init->body);
     }
 }

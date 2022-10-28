@@ -51,6 +51,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     array_init(&context->new_specialized_asts, sizeof(struct ast_node *));
     hashtable_init(&context->func_types);
     hashtable_init(&context->calls);
+    hashtable_init(&context->type_2_ref_symbol);
     context->scope_level = 0;
     context->scope_marker = to_symbol("<enter_scope_marker>");
     struct array args;
@@ -60,6 +61,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
         symbol type_name = get_type_symbol(i);
         struct type_expr *exp = create_nullary_type(i, type_name);
         push_symbol_type(&context->typename_2_typexps, type_name, exp);
+        hashtable_set_p(&context->type_2_ref_symbol, type_name, to_ref_symbol(type_name));
     }
 
     struct array builtins;
@@ -92,6 +94,7 @@ void sema_context_free(struct sema_context *context)
     hashtable_deinit(&context->builtin_ast);
     hashtable_deinit(&context->func_types);
     hashtable_deinit(&context->calls);
+    hashtable_deinit(&context->type_2_ref_symbol);
     stack_deinit(&context->func_stack);
     hashtable_deinit(&context->gvar_name_2_ast);
     symboltable_deinit(&context->varname_2_asts);
@@ -101,6 +104,16 @@ void sema_context_free(struct sema_context *context)
     array_deinit(&context->nongens);
     array_deinit(&context->new_specialized_asts);
     FREE(context);
+}
+
+symbol get_ref_type_symbol(struct sema_context *context, symbol type_name)
+{
+    symbol ref_name = hashtable_get_p(&context->type_2_ref_symbol, type_name);
+    if(!ref_name){
+        ref_name = to_ref_symbol(type_name);
+        hashtable_set_p(&context->type_2_ref_symbol, type_name, ref_name);
+    }
+    return ref_name;
 }
 
 struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name)
@@ -123,18 +136,20 @@ struct field_info sc_get_field_info(struct sema_context *sc, symbol struct_name,
     return field;
 }
 
-struct field_info sc_get_field_info_from_root(struct sema_context *sc, struct ast_node* index)
+//each reference of struct type will have a field_info returned
+void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* index, struct array *field_infos)
 {
     assert(index->node_type == MEMBER_INDEX_NODE);
     struct ast_node *root = index;
     struct array fields;
     struct array types;
     array_init(&fields, sizeof(symbol));
-    array_init(&types, sizeof(symbol));
+    array_init(&types, sizeof(struct type_expr*));
+    //x.y.z turned into z.y.x
     while(root->node_type == MEMBER_INDEX_NODE){
         assert(root->index->index->node_type == IDENT_NODE);
         array_push(&fields, &root->index->index->ident->name);
-        array_push(&types, &root->index->object->type->name);
+        array_push(&types, &root->index->object->type);
         root = root->index->object;
     }
     struct field_info rfi;
@@ -142,14 +157,14 @@ struct field_info sc_get_field_info_from_root(struct sema_context *sc, struct as
     rfi.root_struct = root;
     for(int i = array_size(&fields) - 1; i >= 0; i--){
         symbol field_name = *(symbol*)array_get(&fields, i);
-        symbol type_name = *(symbol*)array_get(&types, i);
-        struct field_info fi = sc_get_field_info(sc, type_name, field_name);
+        struct type_expr *type = *(struct type_expr**)array_get(&types, i);
+        struct field_info fi = sc_get_field_info(sc, type->name, field_name);
         rfi.offset += fi.offset;
         rfi.align = fi.align;
         rfi.type = fi.type;
     }
+    array_push(field_infos, &rfi);
     assert(rfi.type->name == index->index->index->type->name);
     array_deinit(&fields);
     array_deinit(&types);
-    return rfi;
 }

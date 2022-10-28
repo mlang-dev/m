@@ -100,7 +100,7 @@ enum op_code {
     OP_BSR, //>> shift right
 
     OP_POW,
-    OP_TIMES,
+    OP_STAR, //used as multiplication operator or dereference operator
     OP_DIVISION,
     OP_MODULUS,
     OP_PLUS,

@@ -11,18 +11,13 @@ void fc_init(struct fun_context *fc)
     fc->local_sp = 0;
     symboltable_init(&fc->varname_2_index);
     hashtable_init(&fc->ast_2_index);
-    array_init(&fc->allocs, sizeof(struct mem_alloc));
+    struct_type_init(&fc->stack_type);
+    fc->stack_size_info = (struct type_size_info){ 0, 0, 0, 0 };
 }
 
 void fc_deinit(struct fun_context *fc)
 {
-    for(size_t i = 0; i < array_size(&fc->allocs); i++){
-        struct mem_alloc *alloc = array_get(&fc->allocs, i);
-        if(alloc->sl && !alloc->sl->type_name){
-            sl_free(alloc->sl);
-        }
-    }
-    array_deinit(&fc->allocs);
+    struct_type_deinit(&fc->stack_type);
     hashtable_deinit(&fc->ast_2_index);
     symboltable_deinit(&fc->varname_2_index);
 }
@@ -54,37 +49,35 @@ struct var_info *fc_get_var_info(struct fun_context *fc, struct ast_node *node)
     return vi;
 }
 
-struct mem_alloc *fc_get_alloc(struct fun_context *fc, struct ast_node *node)
+u32 fc_get_stack_offset(struct fun_context *fc, struct ast_node *node)
 {
     struct var_info *vi = fc_get_var_info(fc, node);
     if(vi->alloc_index<0) return 0;
-    return array_get(&fc->allocs, vi->alloc_index);
+    return *(u64*)array_get(&fc->stack_size_info.sl->field_offsets, vi->alloc_index) / 8;
 }
 
-int fc_register_alloc(struct fun_context *fc, struct type_expr *struct_type)
+struct struct_layout *fc_get_stack_sl(struct fun_context *fc, struct ast_node *node)
 {
-    assert(struct_type->kind == KIND_OPER);
-    struct type_size_info tsi = get_type_size_info(struct_type);
-    struct mem_alloc alloc;
-    alloc.size = tsi.width_bits / 8;
-    alloc.mem_type = Stack;
-    alloc.address = 0;
-    alloc.align = tsi.align_bits / 8;
-    alloc.sl = tsi.sl;
-    array_push(&fc->allocs, &alloc);
-    return array_size(&fc->allocs) - 1;
+    struct var_info *vi = fc_get_var_info(fc, node);
+    if(vi->alloc_index<0) return 0;
+    return *(struct struct_layout**)array_get(&fc->stack_size_info.sl->field_layouts, vi->alloc_index);
+}
+
+int fc_register_alloc(struct fun_context *fc, struct type_expr *type)
+{
+    assert(type->kind == KIND_OPER);
+    struct_type_add_member(&fc->stack_type, type);
+    return array_size(&fc->stack_type.args) - 1;
 }
 
 u32 fc_get_stack_size(struct fun_context *fc)
 {
-    size_t num_allocs = array_size(&fc->allocs);
-    u32 stack_size = 0;
-    for(size_t i = 0; i < num_allocs; i++){
-        struct mem_alloc *alloc = array_get(&fc->allocs, num_allocs - 1 - i);
-        alloc->address = stack_size;
-        stack_size += alloc->size;
-    }
+    
+    fc->stack_size_info = get_type_size_info(&fc->stack_type);
+    u32 stack_size = fc->stack_size_info.width_bits / 8;
     //clang-wasm ABI always uses 16 bytes alignment
     stack_size = align_to(stack_size, 16);
     return stack_size;
+   
+   
 }

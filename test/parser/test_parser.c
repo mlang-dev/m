@@ -733,6 +733,22 @@ TEST(test_parser, create_ref_variable)
     frontend_deinit(fe);
 }
 
+TEST(test_parser, create_deref_variable)
+{
+    char test_code[] = "ri = *i";
+    struct frontend *fe = frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    ASSERT_EQ(UNARY_NODE, node->var->init_value->node_type);
+    ASSERT_EQ(OP_STAR, node->var->init_value->unop->opcode);
+    ast_node_free(block);
+    parser_free(parser); 
+    frontend_deinit(fe);
+}
+
 int test_parser()
 {
     UNITY_BEGIN();
@@ -772,5 +788,6 @@ int test_parser()
     RUN_TEST(test_parser_import_global);
     RUN_TEST(test_parser_ref_type);
     RUN_TEST(test_parser_create_ref_variable);
+    RUN_TEST(test_parser_create_deref_variable);
     return UNITY_END();
 }

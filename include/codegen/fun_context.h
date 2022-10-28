@@ -19,18 +19,6 @@
 extern "C" {
 #endif
 
-enum MemType{
-    Stack = 0,
-    Heap
-};
-
-struct mem_alloc{
-    u32 address; /*for stack memory, it's the offset value from sp*/
-    u32 size;
-    u32 align;
-    struct struct_layout *sl;
-    enum MemType mem_type;
-};
 
 struct var_info{
     u32 var_index;   //local variable index
@@ -65,9 +53,11 @@ struct fun_context {
     u32 local_params;
 
     /*
-     *  allocs: stack memory allocations array of (struct mem_alloc)
+     *  stack type: an anonymous struct type for stack allocated local variables
      */
-    struct array allocs; 
+    struct type_expr stack_type; //
+    struct type_size_info stack_size_info;
+
 
     /*
      *  function's stack pointer, saved to local variable
@@ -80,7 +70,8 @@ void fc_deinit(struct fun_context *fc);
 int fc_register_alloc(struct fun_context *fc, struct type_expr *struct_type);
 
 struct var_info *fc_get_var_info(struct fun_context *fc, struct ast_node *node);
-struct mem_alloc *fc_get_alloc(struct fun_context *fc, struct ast_node *node);
+u32 fc_get_stack_offset(struct fun_context *fc, struct ast_node *node);
+struct struct_layout *fc_get_stack_sl(struct fun_context *fc, struct ast_node *node);
 
 u32 fc_get_stack_size(struct fun_context *fc);
 

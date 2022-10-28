@@ -437,7 +437,7 @@ TEST(test_lexer, other_symbols)
 
     ASSERT_EQ(OP_PLUS, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_MINUS, get_tok(lexer)->opcode);
-    ASSERT_EQ(OP_TIMES, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_STAR, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_DIVISION, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_BITEXOR, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_POW, get_tok(lexer)->opcode);

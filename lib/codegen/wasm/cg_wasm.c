@@ -101,7 +101,7 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_BSR    */{0, 0, 0, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, 0, 0, 0, 0, 0, 0,},
 
     /*OP_POW    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_TIMES  */{0, 0, 0, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_F32MUL, OPCODE_F64MUL, 0, 0, 0, 0,},
+    /*OP_STAR  */{0, 0, 0, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_F32MUL, OPCODE_F64MUL, 0, 0, 0, 0,},
     /*OP_DIV    */{0, 0, 0, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_F32DIV, OPCODE_F64DIV, 0, 0, 0, 0,},
     /*OP_MOD    */{0, 0, 0, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, 0, 0, 0, 0, 0, 0,},
     /*OP_PLUS   */{0, 0, 0, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_F32ADD, OPCODE_F64ADD, 0, 0, 0, 0,},
@@ -369,23 +369,27 @@ void _emit_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_
 {
     //lhs is struct var, rhs is field var name
     struct fun_context *fc = cg_get_top_fun_context(cg);
-    struct field_info field = sc_get_field_info_from_root(cg->base.sema_context, node);
-    struct var_info*root_vi = fc_get_var_info(fc, field.root_struct);
-    wasm_emit_code(cg, ba, field.root_struct);
-    if(field.type->type == TYPE_STRUCT){
+    struct array field_infos;
+    array_init(&field_infos, sizeof(struct field_info));
+    sc_get_field_infos_from_root(cg->base.sema_context, node, &field_infos);
+    struct field_info *field = array_front(&field_infos);
+    struct var_info*root_vi = fc_get_var_info(fc, field->root_struct);
+    wasm_emit_code(cg, ba, field->root_struct);
+    if(field->type->type == TYPE_STRUCT){
         if(node->is_ret){
             //copy result into variable index 0
             //for sret
-            wasm_emit_copy_struct_value(ba, 0, 0, field.type, root_vi->var_index, field.offset);
+            wasm_emit_copy_struct_value(ba, 0, 0, field->type, root_vi->var_index, field->offset);
         }
         //calculate new address and push it to stack
         //wasm_emit_change_var(ba, OPCODE_I32ADD, field.offset, root_vi->var_index, false);
     }else{ //scalar value
         //read the value: scalar value read
         if(!node->is_write){//return value only for right side
-            wasm_emit_load_mem(ba, root_vi->var_index, false, field.align, field.offset, field.type->type);
+            wasm_emit_load_mem(ba, root_vi->var_index, false, field->align, field->offset, field->type->type);
         }
     }
+    array_deinit(&field_infos);
 }
 
 void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -393,17 +397,21 @@ void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
     wasm_emit_code(cg, ba, node->binop->lhs); 
     assert(node->binop->lhs->node_type == MEMBER_INDEX_NODE);
     struct fun_context *fc = cg_get_top_fun_context(cg);
-    struct field_info field = sc_get_field_info_from_root(cg->base.sema_context, node->binop->lhs);
-    struct var_info*vi = fc_get_var_info(fc, field.root_struct);
-    if(field.type->type == TYPE_STRUCT){
+    struct array field_infos;
+    array_init(&field_infos, sizeof(struct field_info));
+    sc_get_field_infos_from_root(cg->base.sema_context, node->binop->lhs, &field_infos);
+    struct field_info *field = array_front(&field_infos);
+    struct var_info*vi = fc_get_var_info(fc, field->root_struct);
+    if(field->type->type == TYPE_STRUCT){
         //struct assignment/copy
         struct var_info *rhs_vi = fc_get_var_info(fc, node->binop->rhs);
         wasm_emit_code(cg, ba, node->binop->rhs); 
-        wasm_emit_copy_struct_value(ba, vi->var_index, field.offset, node->binop->rhs->type, rhs_vi->var_index, 0);
+        wasm_emit_copy_struct_value(ba, vi->var_index, field->offset, node->binop->rhs->type, rhs_vi->var_index, 0);
     } else {
         //scalar version
-        wasm_emit_store_scalar_value(cg, ba, vi->var_index, field.align, field.offset, node->binop->rhs);
+        wasm_emit_store_scalar_value(cg, ba, vi->var_index, field->align, field->offset, node->binop->rhs);
     }    
+    array_deinit(&field_infos);
 }
 
 void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)

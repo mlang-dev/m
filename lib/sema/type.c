@@ -63,7 +63,7 @@ struct type_expr_pair {
     struct type_expr *ref_type;
 };
 
-symbol _to_ref_symbol(symbol type_symbol)
+symbol to_ref_symbol(symbol type_symbol)
 {
     symbol ref_symbol;
     string str;
@@ -132,6 +132,28 @@ void types_deinit()
     hashtable_deinit(&_symbol_2_type_exprs);
 }
 
+void struct_type_init(struct type_expr *struct_type)
+{
+    struct_type->kind = KIND_OPER;
+    struct_type->name = 0;
+    struct_type->type = TYPE_STRUCT;
+    array_init(&struct_type->args, sizeof(struct type_expr *));
+}
+
+void struct_type_deinit(struct type_expr *struct_type)
+{
+    struct_type->kind = KIND_OPER;
+    struct_type->name = 0;
+    struct_type->type = TYPE_STRUCT;
+    array_init(&struct_type->args, sizeof(struct type_expr *));
+}
+
+void struct_type_add_member(struct type_expr *struct_type, struct type_expr *type)
+{
+    assert(struct_type->type == TYPE_STRUCT);
+    array_push(&struct_type->args, &type);
+}
+
 struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args)
 {
     struct type_expr *oper;
@@ -159,7 +181,7 @@ struct type_expr *create_type_oper(enum kind kind, symbol type_name, enum type t
     if(pair)
         return pair->val_type;
     struct type_expr_pair tep;
-    symbol ref_type_name = _to_ref_symbol(type_name);
+    symbol ref_type_name = to_ref_symbol(type_name);
     tep.val_type = _create_type_oper(kind, type_name, type, 0, args);
     tep.ref_type = _create_type_oper(kind, ref_type_name, TYPE_REF, tep.val_type, 0);
     hashtable_set_p(&_symbol_2_type_exprs, type_name, &tep);
@@ -189,7 +211,7 @@ struct type_expr *copy_type_var(struct type_expr *var)
 /*val_type: referenced value type: e.g. it's int for &int type */
 struct type_expr *create_ref_type(struct type_expr *val_type)
 {
-    symbol ref_type_name = _to_ref_symbol(val_type->name);
+    symbol ref_type_name = to_ref_symbol(val_type->name);
     return _create_type_oper(KIND_OPER, ref_type_name, TYPE_REF, val_type, 0);
 }
 
@@ -399,8 +421,6 @@ struct type_expr *get_symbol_type(symboltable *st, struct array *nongens, symbol
         return 0;
     }
     return fresh(exp, nongens);
-    
-    
 }
 
 void push_symbol_type(symboltable *st, symbol name, void *type)
@@ -557,9 +577,4 @@ struct type_expr *is_single_element_struct(struct type_expr *type)
 symbol get_type_symbol(enum type type_enum)
 {
     return type_symbols[type_enum].type_symbol;
-}
-
-symbol get_ref_type_symbol(enum type type_enum)
-{
-    return type_symbols[type_enum].ref_type_symbol;
 }

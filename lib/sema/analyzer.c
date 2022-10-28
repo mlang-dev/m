@@ -30,6 +30,16 @@ struct type_expr *_analyze_unk(struct sema_context *context, struct ast_node *no
     return 0;
 }
 
+struct ast_node *_get_var_node(struct sema_context *context, struct ast_node *node)
+{
+    struct ast_node *var = 0;
+   if (node->node_type == IDENT_NODE) {
+        symbol var_name = node->ident->name;
+        var = symboltable_get(&context->varname_2_asts, var_name);
+   }
+   return var;
+}
+
 struct type_expr *retrieve_type_with_type_name(struct sema_context *context, symbol name)
 {
     return get_symbol_type(&context->typename_2_typexps, &context->nongens, name);
@@ -61,22 +71,17 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     if (node->var->is_global){
         hashtable_set_p(&context->gvar_name_2_ast, node->var->var_name, node);
     }
-    if (node->annotated_type_name && 
-        hashtable_in_p(&context->struct_typename_2_asts, node->annotated_type_name)
-        ) {
-        assert(node->annotated_type_name);
-        type = retrieve_type_with_type_name(context, node->annotated_type_name);
-        push_symbol_type(&context->decl_2_typexps, node->var->var_name, type);
-        push_symbol_type(&context->varname_2_asts, node->var->var_name, node);
-        if (node->var->init_value)
-            analyze(context, node->var->init_value);
-        return type;
-    } else if (node->annotated_type_name && !node->var->init_value) {
-        type = retrieve_type_with_type_name(context, node->annotated_type_name);
-        assert(type);
-        push_symbol_type(&context->decl_2_typexps, node->var->var_name, type);
-        push_symbol_type(&context->varname_2_asts, node->var->var_name, node);
-        return type;
+    if (node->annotated_type_name){
+        if(hashtable_in_p(&context->struct_typename_2_asts, node->annotated_type_name)||
+            !node->var->init_value){
+            symbol type_name = node->is_ref_annotated ? get_ref_type_symbol(context, node->annotated_type_name) : node->annotated_type_name;
+            type = retrieve_type_with_type_name(context, type_name);
+            push_symbol_type(&context->decl_2_typexps, node->var->var_name, type);
+            push_symbol_type(&context->varname_2_asts, node->var->var_name, node);
+            if (node->var->init_value)
+                analyze(context, node->var->init_value);
+            return type;
+        }
     }
     type = analyze(context, node->var->init_value);
     if (!type)
@@ -113,7 +118,9 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
     }
     struct type_expr *result_type = create_type_oper_struct(node->struct_def->name, &args);
     assert(node->struct_def->name == result_type->name);
+    struct type_expr *ref_type = create_ref_type(result_type);
     push_symbol_type(&context->typename_2_typexps, node->struct_def->name, result_type);
+    push_symbol_type(&context->typename_2_typexps, ref_type->name, ref_type);
     hashtable_set_p(&context->struct_typename_2_asts, node->struct_def->name, node);
     return result_type;
 }
@@ -266,8 +273,13 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
         node->unop->operand->type = op_type;
     }
     else if(node->unop->opcode == OP_BITAND_REF){
-        //reference 
+        //reference-of or address-of operator
+        node->unop->operand->is_addressable = true;
         op_type = create_ref_type(op_type);
+        struct ast_node *var = _get_var_node(context, node);
+        if(var){
+            var->is_addressable = true;
+        }
     }
     return op_type;
 }
@@ -275,17 +287,18 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
 struct type_expr *_analyze_field_accessor(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = analyze(context, node->index->object);
-    if(type->type != TYPE_STRUCT){
+    if(type->type != TYPE_STRUCT && !(type->type == TYPE_REF && type->val_type->type == TYPE_STRUCT)){
         report_error(context, EC_EXPECT_STRUCT_TYPE, node->loc);
         return 0;
     }
-    struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, type->name);
+    struct type_expr *struct_type = type->val_type ? type->val_type : type;
+    struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, struct_type->name);
     int index = find_member_index(type_node, node->index->index->ident->name);
     if (index < 0) {
         report_error(context, EC_FIELD_NOT_EXISTS, node->loc);
         return 0;
     }
-    struct type_expr *member_type = *(struct type_expr **)array_get(&type->args, index);
+    struct type_expr *member_type = *(struct type_expr **)array_get(&struct_type->args, index);
     node->index->index->type = member_type;
     return member_type;
 }
@@ -364,13 +377,9 @@ struct type_expr *_analyze_block(struct sema_context *context, struct ast_node *
     //tag variable node as returning variable if exists
     struct ast_node *ret_node = *(struct ast_node **)array_back(&node->block->nodes);
     ret_node->is_ret = true;
-    if (ret_node->node_type == IDENT_NODE) {
-        symbol var_name = ret_node->ident->name;
-        struct ast_node *var = symboltable_get(&context->varname_2_asts, var_name);
-        //struct member reference id node like xy.x is not a variable
-        if (var)
-            var->is_ret = true;
-    }
+    struct ast_node *var = _get_var_node(context, ret_node);
+    if(var)
+        var->is_ret = true;
     leave_scope(context);
     return type;
 }

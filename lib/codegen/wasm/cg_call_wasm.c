@@ -41,12 +41,13 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     u32 func_index = hashtable_get_int(&cg->func_name_2_idx, callee);
     bool has_sret = fi->tai.sret_arg_no != InvalidIndex;
     struct var_info *vi = 0;
-    struct mem_alloc *alloc = 0;
     if(has_sret){
         //emit return value space
         vi = fc_get_var_info(fc, node);
-        alloc = fc_get_alloc(fc, node);
-        wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
+        //alloc = fc_get_alloc(fc, node);
+        u32 stack_offset = fc_get_stack_offset(fc, node);
+
+        wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
         wasm_emit_get_var(ba, vi->var_index, false); 
         //send the sret address to the calling stack
     }
@@ -65,8 +66,8 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
                     wasm_emit_get_var(ba, vi->var_index, false);
                 }else{
                     u32 temp_var_index = vi->var_index + 1; //TODO: we should do it explicity in collect_local_variables
-                    struct mem_alloc *temp_alloc = array_get(&fc->allocs, temp_var_index);
-                    wasm_emit_assign_var(ba, temp_var_index, false, OPCODE_I32ADD, temp_alloc->address, fc->local_sp->var_index, false);
+                    u32 field_offset = *(u64*)array_get(&fc->stack_size_info.sl->field_offsets, temp_var_index) / 8;
+                    wasm_emit_assign_var(ba, temp_var_index, false, OPCODE_I32ADD, field_offset, fc->local_sp->var_index, false);
                     wasm_emit_copy_struct_value(ba, temp_var_index, 0, arg->type, vi->var_index, 0);
                     wasm_emit_get_var(ba, temp_var_index, false);
                 }
@@ -84,10 +85,10 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             //global variable 0 as stack pointer
             //global sp -> stack
             vi = fc_get_var_info(fc, node);
-            alloc = fc_get_alloc(fc, node);
-            wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, alloc->address, fc->local_sp->var_index, false);
-
-            wasm_emit_store_struct_value(cg, ba, vi->var_index, 0, alloc->sl, block);
+            u32 stack_offset = fc_get_stack_offset(fc, node);
+            struct struct_layout *sl = fc_get_stack_sl(fc, node);
+            wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
+            wasm_emit_store_struct_value(cg, ba, vi->var_index, 0, sl, block);
             //lastly, sending start address as optional arguments as the rest call parameter
             wasm_emit_get_var(ba, vi->var_index, false);
         }
