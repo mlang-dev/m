@@ -389,7 +389,7 @@ void _emit_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_
         //wasm_emit_change_var(ba, OPCODE_I32ADD, field.offset, root_vi->var_index, false);
     }else{ //scalar value
         //read the value: scalar value read
-        if(!node->is_write){//return value only for right side
+        if(!node->is_lvalue){//return value only for right side
             wasm_emit_load_mem(ba, root_vi->var_index, false, field->align, field->offset, field->type->type);
         }
     }

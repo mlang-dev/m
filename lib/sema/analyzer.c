@@ -334,11 +334,11 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
 
 struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node *node)
 {
-    if(!node->binop->lhs->is_lvalue){
+    if(!node->binop->lhs->is_addressable){
         report_error(context, EC_NOT_ASSIGNABLE, node->loc);
         return 0;
     }
-    node->binop->lhs->is_write = true;
+    node->binop->lhs->is_lvalue = true;
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
@@ -349,7 +349,6 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
     }
     return result;
 }
-
 
 struct type_expr *_analyze_if(struct sema_context *context, struct ast_node *node)
 {
