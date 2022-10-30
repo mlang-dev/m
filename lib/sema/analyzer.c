@@ -272,14 +272,26 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
         unify(op_type, bool_type, &context->nongens);
         node->unop->operand->type = op_type;
     }
-    else if(node->unop->opcode == OP_BITAND_REF){
+    else if(node->unop->opcode == OP_BAND){ //'&'
+        if(op_type->type == TYPE_REF){
+            report_error(context, EC_NOT_VALUE_TYPE, node->loc);
+            return 0;
+        }
         //reference-of or address-of operator
-        node->unop->operand->is_addressable = true;
+        node->unop->operand->is_addressed = true;
         op_type = create_ref_type(op_type);
         struct ast_node *var = _get_var_node(context, node);
         if(var){
-            var->is_addressable = true;
+            var->is_addressed = true;
         }
+    }
+    else if(node->unop->opcode == OP_STAR){
+        //dereference-of
+        if(op_type->type != TYPE_REF){
+            report_error(context, EC_NOT_REFERENCE_TYPE, node->loc);
+            return 0;
+        }
+        op_type = node->unop->operand->type->val_type;
     }
     return op_type;
 }
@@ -305,21 +317,33 @@ struct type_expr *_analyze_field_accessor(struct sema_context *context, struct a
 
 struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node *node)
 {
-    if(is_assign(node->binop->opcode)){
-        node->binop->lhs->is_write = true;
-    }
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
     if (unify(lhs_type, rhs_type, &context->nongens)) {
-        if(is_assign(node->binop->opcode)){
-            result = create_unit_type();
-        }
-        else if (is_relational_op(node->binop->opcode))
+        if (is_relational_op(node->binop->opcode))
             result = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         else
             result = lhs_type;
         return result;
+    } else {
+        report_error(context, EC_TYPES_DO_NOT_MATCH, node->loc);
+    }
+    return result;
+}
+
+struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node *node)
+{
+    if(!node->binop->lhs->is_addressable){
+        report_error(context, EC_NOT_ASSIGNABLE, node->loc);
+        return 0;
+    }
+    node->binop->lhs->is_lvalue = true;
+    struct type_expr *lhs_type = analyze(context, node->binop->lhs);
+    struct type_expr *rhs_type = analyze(context, node->binop->rhs);
+    struct type_expr *result = 0;
+    if (unify(lhs_type, rhs_type, &context->nongens)) {
+        return create_unit_type();
     } else {
         report_error(context, EC_TYPES_DO_NOT_MATCH, node->loc);
     }
@@ -430,7 +454,11 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_field_accessor(context, node);
             break;
         case BINARY_NODE:
-            type = _analyze_binary(context, node);
+            if(is_assign(node->binop->opcode)){
+                type = _analyze_assign(context, node);
+            }else{
+                type = _analyze_binary(context, node);
+            }
             break;
         case IF_NODE:
             type = _analyze_if(context, node);

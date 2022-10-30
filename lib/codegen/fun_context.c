@@ -43,6 +43,8 @@ struct var_info *fc_get_var_info(struct fun_context *fc, struct ast_node *node)
         vi = _fc_get_var_info_by_varname(fc, node->ident->name);
     else if (node->node_type == VAR_NODE)
         vi = _fc_get_var_info_by_varname(fc, node->var->var_name);
+    else if (node->node_type == UNARY_NODE && node->unop->opcode == OP_STAR) //dereference
+        vi = fc_get_var_info(fc, node->unop->operand);
     else
         vi = _fc_get_var_info_by_node(fc, node);
     assert(vi);

@@ -21,7 +21,8 @@ TEST(test_wasm_codegen, parse_as_module)
     char test_code[] = "\n\
 i = 10\n\
 j = &i\n\
-*j\n\
+*j = 20\n\
+i\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);

@@ -27,7 +27,10 @@ const char *err_messages[ALL_ERROR] = {
     "field does not exist.",
     "variable type not matched with literal constant.",
     "types do not match.",
-    "function is not defined."
+    "function is not defined.",
+    "left side is not assignable.",
+    "reference is not on the value type.",
+    "dereference is not on the reference type."
 };
 
 struct hashtable g_error_reports;
