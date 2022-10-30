@@ -86,8 +86,8 @@ struct ast_node *ast_node_new(enum node_type node_type, enum type annotated_type
     node->is_ret = false;
     node->is_write = false;
     node->data = 0;
-    node->is_addressable = false;
-   
+    node->is_addressed = false;
+    node->is_lvalue = false;
     return node;
 }
 
@@ -289,6 +289,7 @@ struct ast_node *var_node_new(symbol var_name, enum type annotated_type_enum, sy
     node->var->var_name = var_name;
     node->var->init_value = init_value;
     node->var->is_global = is_global;
+    node->is_lvalue = true;
     return node;
 }
 
@@ -300,6 +301,7 @@ struct ast_node *var_node_new2(symbol var_name, symbol type_name, bool is_ref_an
     node->var->var_name = var_name;
     node->var->init_value = init_value;
     node->var->is_global = is_global;
+    node->is_lvalue = true;
     return node;
 }
 
@@ -568,6 +570,9 @@ struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, b
     node->unop->opcode = opcode;
     node->unop->operand = operand;
     node->unop->is_postfix = is_postfix;
+    if(opcode == OP_STAR){//dereference
+        node->is_lvalue = true;
+    }
     return node;
 }
 
@@ -614,6 +619,7 @@ struct ast_node *member_index_node_new(struct ast_node *object, struct ast_node 
     MALLOC(node->index, sizeof(*node->index));
     node->index->object = object;
     node->index->index = index;
+    node->is_lvalue = true;
     return node;
 }
 

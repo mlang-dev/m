@@ -88,7 +88,7 @@ struct token_pattern token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("~", OP, BITNOT),
     NAME_KEYWORD_PATTERN("|", "\\|", OP, BITOR),
     KEYWORD_PATTERN("^", OP, BITEXOR),
-    KEYWORD_PATTERN("&", OP, BITAND_REF), //or reference
+    KEYWORD_PATTERN("&", OP, BAND), //or reference
     KEYWORD_PATTERN("<<", OP, BSL),
     KEYWORD_PATTERN(">>", OP, BSR),
 

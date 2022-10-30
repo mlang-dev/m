@@ -727,7 +727,7 @@ TEST(test_parser, create_ref_variable)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(UNARY_NODE, node->var->init_value->node_type);
-    ASSERT_EQ(OP_BITAND_REF, node->var->init_value->unop->opcode);
+    ASSERT_EQ(OP_BAND, node->var->init_value->unop->opcode);
     ast_node_free(block);
     parser_free(parser);
     frontend_deinit(fe);

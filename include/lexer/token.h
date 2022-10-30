@@ -95,7 +95,7 @@ enum op_code {
     OP_BITNOT, // '~'
     OP_BITOR, //'|'
     OP_BITEXOR, //'^' exclusive or
-    OP_BITAND_REF, //'&' bit and or reference operator
+    OP_BAND, //'&' bit and or reference operator
     OP_BSL, //<< shift left
     OP_BSR, //>> shift right
 

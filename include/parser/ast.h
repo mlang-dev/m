@@ -170,9 +170,10 @@ struct ast_node {
 
     symbol annotated_type_name; //this is expected to be removed
     bool is_ref_annotated;  //is reference '&' annotated in the type
-    bool is_addressable;   //
+    bool is_addressed;   //
     bool is_ret;        //this is expected to be removed from sema analysis
     bool is_write;      //default is zero (read), for left side of assignment node, it will be set as 1
+    bool is_lvalue;     // is left value
     union{
         void *data; //node data represents any of following pointer
         struct _literal_node *liter;

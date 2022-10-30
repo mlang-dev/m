@@ -433,7 +433,7 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(OP_AND, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_NOT, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_BITOR, get_tok(lexer)->opcode);
-    ASSERT_EQ(OP_BITAND_REF, get_tok(lexer)->opcode);
+    ASSERT_EQ(OP_BAND, get_tok(lexer)->opcode);
 
     ASSERT_EQ(OP_PLUS, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_MINUS, get_tok(lexer)->opcode);

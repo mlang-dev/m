@@ -96,7 +96,7 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_BITNOT   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0,},             //xor -1
     /*OP_BITOR    */{0, 0, 0, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, 0, 0, 0, 0, 0, 0,},
     /*OP_BITEXOR   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0,},
-    /*OP_BITAND_REF   */{0, 0, 0, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, 0, 0, 0, 0, 0, 0,},
+    /*OP_BAND   */{0, 0, 0, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, 0, 0, 0, 0, 0, 0,},
     /*OP_BSL    */{0, 0, 0, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, 0, 0, 0, 0, 0, 0,},
     /*OP_BSR    */{0, 0, 0, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, 0, 0, 0, 0, 0, 0,},
 
@@ -333,6 +333,10 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
             s = get_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
             printf("Not implemented unary for : %s\n", string_get(s));
             break;
+        case OP_STAR:
+        case OP_BAND:
+            wasm_emit_code(cg, ba, node->unop->operand);
+            break;
         case OP_MINUS:
             bin_node = int_node_new(0, node->loc);
             bin_node->type = node->type;
@@ -392,26 +396,43 @@ void _emit_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_
     array_deinit(&field_infos);
 }
 
-void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+void _emit_assign_value(struct cg_wasm *cg, struct byte_array *ba, u32 addr_var_index, u32 offset, u32 align, struct type_expr *type, struct ast_node *rhs)
 {
-    wasm_emit_code(cg, ba, node->binop->lhs); 
-    assert(node->binop->lhs->node_type == MEMBER_INDEX_NODE);
+    struct fun_context *fc = cg_get_top_fun_context(cg);
+    if(type->type == TYPE_STRUCT){
+        //struct assignment/copy
+        struct var_info *rhs_vi = fc_get_var_info(fc, rhs);
+        wasm_emit_code(cg, ba, rhs); 
+        wasm_emit_copy_struct_value(ba, addr_var_index, offset, rhs->type, rhs_vi->var_index, 0);
+    } else {
+        //scalar version
+        wasm_emit_store_scalar_value(cg, ba, addr_var_index, align, offset, rhs);
+    }    
+}
+
+void _emit_assign_struct_field(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *lhs, struct ast_node *rhs)
+{
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct array field_infos;
     array_init(&field_infos, sizeof(struct field_info));
-    sc_get_field_infos_from_root(cg->base.sema_context, node->binop->lhs, &field_infos);
+    sc_get_field_infos_from_root(cg->base.sema_context, lhs, &field_infos);
     struct field_info *field = array_front(&field_infos);
     struct var_info*vi = fc_get_var_info(fc, field->root_struct);
-    if(field->type->type == TYPE_STRUCT){
-        //struct assignment/copy
-        struct var_info *rhs_vi = fc_get_var_info(fc, node->binop->rhs);
-        wasm_emit_code(cg, ba, node->binop->rhs); 
-        wasm_emit_copy_struct_value(ba, vi->var_index, field->offset, node->binop->rhs->type, rhs_vi->var_index, 0);
-    } else {
-        //scalar version
-        wasm_emit_store_scalar_value(cg, ba, vi->var_index, field->align, field->offset, node->binop->rhs);
-    }    
+    _emit_assign_value(cg, ba, vi->var_index, field->offset, field->align, field->type, rhs);
     array_deinit(&field_infos);
+}
+
+void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+{
+    wasm_emit_code(cg, ba, node->binop->lhs); 
+    if(node->binop->lhs->node_type == MEMBER_INDEX_NODE)
+        _emit_assign_struct_field(cg, ba, node->binop->lhs, node->binop->rhs);
+    else{
+        struct fun_context *fc = cg_get_top_fun_context(cg);
+        struct var_info*vi = fc_get_var_info(fc, node->binop->lhs);
+        u32 align = get_type_align(node->binop->lhs->type);
+        _emit_assign_value(cg, ba, vi->var_index, 0, align, node->binop->lhs->type, node->binop->rhs);
+    }
 }
 
 void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)

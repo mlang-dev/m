@@ -42,7 +42,7 @@ void _func_leave(struct cg_wasm *cg, struct ast_node *fun)
 }
 
 
-struct var_info *_req_new_local_var(struct cg_wasm *cg, struct type_expr *type, bool is_local_var, bool is_ret)
+struct var_info *_req_new_local_var(struct cg_wasm *cg, struct type_expr *type, bool is_local_var, bool is_ret, bool is_addressed)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
     if (type->type == TYPE_STRUCT && is_local_var && is_ret){
@@ -56,7 +56,7 @@ struct var_info *_req_new_local_var(struct cg_wasm *cg, struct type_expr *type, 
     vi->var_index = index;
     ASSERT_TYPE(type->type);
     vi->target_type = type_2_wtype[type->type];
-    if (type->type == TYPE_STRUCT && is_local_var){
+    if ((type->type == TYPE_STRUCT && is_local_var) || is_addressed){
         vi->alloc_index = fc_register_alloc(fc, type);
     }else{
         vi->alloc_index = -1;
@@ -108,10 +108,11 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
                     struct fun_context *fc = cg_get_top_fun_context(cg);
                     struct var_info *vi = fc_get_var_info(fc, arg_node);
                     if(vi->var_index>=fc->local_params){
+                    //this is local variable
                     //only for lvalue, and local variable (not parameter)
                     //request a temp variable for copy-by-value struct pass style 
                     //to prevent callee from changing the argument
-                        _req_new_local_var(cg, arg_node->type, true, false);
+                        _req_new_local_var(cg, arg_node->type, true, arg_node->is_ret, true);
                     }
                 }
             }
@@ -158,36 +159,36 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
     default:
         break;
     case STRUCT_INIT_NODE:
-        vi = _req_new_local_var(cg, node->type, is_local_var, node->is_ret);
+        vi = _req_new_local_var(cg, node->type, is_local_var, node->is_ret, node->is_addressed);
         hashtable_set_p(&fc->ast_2_index, node, vi);
         break;
     case  VAR_NODE:
         if(symboltable_get(&fc->varname_2_index, node->var->var_name)){
             break;
         }
-        vi = _req_new_local_var(cg, node->type, is_local_var, node->is_ret);
+        vi = _req_new_local_var(cg, node->type, is_local_var, node->is_ret, node->is_addressed);
         hashtable_set_p(&fc->ast_2_index, node, vi);
         symboltable_push(&fc->varname_2_index, node->var->var_name, vi);
         break;
     case BINARY_NODE:
         if(node->binop->lhs->type->type == TYPE_STRUCT){
             if(node->binop->lhs->node_type != IDENT_NODE){
-                vi = _req_new_local_var(cg, node->binop->lhs->type, is_local_var, false);
+                vi = _req_new_local_var(cg, node->binop->lhs->type, is_local_var, node->binop->lhs->is_ret, node->binop->lhs->is_addressed);
                 hashtable_set_p(&fc->ast_2_index, node->binop->lhs, vi);
             }
             if(node->binop->rhs->node_type != IDENT_NODE){
-                vi = _req_new_local_var(cg, node->binop->rhs->type, is_local_var, false);
+                vi = _req_new_local_var(cg, node->binop->rhs->type, is_local_var, node->binop->rhs->is_ret, node->binop->rhs->is_addressed);
                 hashtable_set_p(&fc->ast_2_index, node->binop->rhs, vi);
             }
         }
         break;
     case FOR_NODE:
-        vi = _req_new_local_var(cg, node->forloop->start->type, is_local_var, false);
+        vi = _req_new_local_var(cg, node->forloop->start->type, is_local_var, node->forloop->start->is_ret, node->forloop->start->is_addressed);
         symboltable_push(&fc->varname_2_index, node->forloop->var->var->var_name, vi);
         hashtable_set_p(&fc->ast_2_index, node->forloop->var, vi);
-        vi = _req_new_local_var(cg, node->forloop->step->type, true, false);
+        vi = _req_new_local_var(cg, node->forloop->step->type, true, node->forloop->step->is_ret, node->forloop->step->is_addressed);
         hashtable_set_p(&fc->ast_2_index, node->forloop->step, vi);
-        vi = _req_new_local_var(cg, node->forloop->end->binop->rhs->type, true, false);
+        vi = _req_new_local_var(cg, node->forloop->end->binop->rhs->type, true, node->forloop->end->binop->rhs->is_ret, node->forloop->end->binop->rhs->is_addressed);
         hashtable_set_p(&fc->ast_2_index, node->forloop->end->binop->rhs, vi);
         break;
     case CALL_NODE:
@@ -198,7 +199,7 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         struct type_expr *te = 0;
         if(has_optional_args || fi_has_sret(fi)){
             te = has_optional_args ? _create_type_for_call_with_optional_parameters(cg, node) : fi->ret.type;
-            vi = _req_new_local_var(cg, te, is_local_var, has_optional_args ? false : node->is_ret);
+            vi = _req_new_local_var(cg, te, is_local_var, has_optional_args ? false : node->is_ret, false);
             hashtable_set_p(&fc->ast_2_index, node, vi);
         }
         if(has_optional_args){
@@ -234,7 +235,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     if(stack_size){
         //TODO: make builtin type as constant
         struct type_expr *to_sp = create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
-        fc->local_sp = _req_new_local_var(cg, to_sp, true, false);
+        fc->local_sp = _req_new_local_var(cg, to_sp, true, false, false);
     }
     
     struct byte_array func;

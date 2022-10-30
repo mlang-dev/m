@@ -178,7 +178,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 if(node1->node_type == IDENT_NODE){
                     type_name = node1->ident->name;
                 }else{
-                    assert(node1->unop->opcode == OP_BITAND_REF);
+                    assert(node1->unop->opcode == OP_BAND);
                     assert(node1->unop->operand->node_type == IDENT_NODE);
                     type_name = node1->unop->operand->ident->name;
                     is_ref_annotated = true;
@@ -195,7 +195,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             if(node1->node_type == IDENT_NODE){
                 type_name = node1->ident->name;
             }else{
-                assert(node1->unop->opcode == OP_BITAND_REF);
+                assert(node1->unop->opcode == OP_BAND);
                 assert(node1->unop->operand->node_type == IDENT_NODE);
                 type_name = node1->unop->operand->ident->name;
                 is_ref_annotated = true;
