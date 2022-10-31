@@ -25,11 +25,11 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
     assert(node->node_type == VAR_NODE);
     struct fun_context *fc = cg_get_top_fun_context(cg);
     u32 var_index = fc_get_var_info(fc, node)->var_index;
-    u32 stack_offset = fc_get_stack_offset(fc, node);
+    i32 stack_offset = fc_get_stack_offset(fc, node);
     if (node->var->init_value){
-        wasm_emit_code(cg, ba, node->var->init_value);
-        if(node->type->type == TYPE_STRUCT){
+        if(is_aggregate_type(node->type->type)){
             struct var_info *init_vi = fc_get_var_info(fc, node->var->init_value);
+            wasm_emit_code(cg, ba, node->var->init_value);
             if(init_vi->var_index != var_index){
                 //set var index address
                 if(!node->is_ret){
@@ -38,8 +38,15 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
                 }
                 wasm_emit_copy_struct_value(ba, var_index, 0, node->type, init_vi->var_index, 0);
             }
-        }else{
-            wasm_emit_set_var(ba, var_index, false);
+        }else{//scalar value
+            if(node->is_addressed){
+                //store to stack memory
+                u32 align = get_type_align(node->type);
+                wasm_emit_store_scalar_value(cg, ba, var_index, align, stack_offset, node->var->init_value);
+            }else{
+                wasm_emit_code(cg, ba, node->var->init_value);
+                wasm_emit_set_var(ba, var_index, false);
+            }
         }
     }
 }
@@ -62,7 +69,7 @@ void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast
         //no return
     } else {
         struct var_info *vi = fc_get_var_info(fc, node);
-        u32 stack_offset = fc_get_stack_offset(fc, node);
+        i32 stack_offset = fc_get_stack_offset(fc, node);
         wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
         wasm_emit_store_struct_value(cg, ba, vi->var_index, 0, tsi.sl, node->struct_init->body);
     }

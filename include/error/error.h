@@ -37,6 +37,8 @@ enum error_code {
     EC_NOT_ASSIGNABLE,
     EC_NOT_VALUE_TYPE,
     EC_NOT_REFERENCE_TYPE,
+    
+    EC_IDENT_NOT_DEFINED,
     ALL_ERROR
 };
 

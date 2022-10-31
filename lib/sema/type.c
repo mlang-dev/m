@@ -16,7 +16,7 @@ const char *kind_strings[] = {
     FOREACH_KIND(GENERATE_ENUM_STRING)
 };
 
-const char *const _type_strings[] = {
+const char *const _type_strings[TYPE_TYPES] = {
     "",
     "...",
     "()",
@@ -30,8 +30,7 @@ const char *const _type_strings[] = {
     "struct",
     "union",
     "complex",
-    "enum",
-    "ref"
+    "ref",
 };
 
 struct symbol_ref_pair{

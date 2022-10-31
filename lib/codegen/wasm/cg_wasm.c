@@ -36,6 +36,8 @@ u8 type_2_const[TYPE_TYPES] = {
     /*FUNCTION*/ 0,
     /*STRUCT*/ 0,
     /*UNION*/ 0,
+    /*COMPLEX*/ 0,
+    /*REF*/ 0,
 };
 
 u8 type_2_wtype[TYPE_TYPES] = {
@@ -50,7 +52,9 @@ u8 type_2_wtype[TYPE_TYPES] = {
     /*STRING*/ WASM_TYPE_I32,
     /*FUNCTION*/ 0,
     /*STRUCT*/ WASM_TYPE_I32,
-    /*UNION*/ 0,
+    /*UNION*/ WASM_TYPE_I32,
+    /*COMPLEX*/ WASM_TYPE_I32,
+    /*REF*/ WASM_TYPE_I32,
 };
 
 u8 type_2_store_op[TYPE_TYPES] = {
@@ -214,7 +218,7 @@ void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32
     for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
         field = *(struct ast_node **)array_get(&block->block->nodes, i);
         field_offset = *(u64*)array_get(&sl->field_offsets, i) / 8;
-        u32 align = get_type_align(field->type) / 8;
+        u32 align = get_type_align(field->type);
         if(field->type->type == TYPE_STRUCT){
             assert(field->node_type == STRUCT_INIT_NODE);
             struct struct_layout *field_sl = *(struct struct_layout**)array_get(&sl->field_layouts, i);
@@ -326,7 +330,7 @@ void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
 
 void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
-    struct ast_node *bin_node = 0;
+    struct ast_node *new_node = 0;
     symbol s = 0;
     switch (node->unop->opcode){
         default:
@@ -334,37 +338,56 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
             printf("Not implemented unary for : %s\n", string_get(s));
             break;
         case OP_STAR:
-        case OP_BAND:
-            wasm_emit_code(cg, ba, node->unop->operand);
+            if(!node->is_lvalue){
+                //rvalue, for reading
+                if(!is_aggregate_type(node->type->type)){
+                    //read from memory
+                    assert(node->unop->operand->node_type == IDENT_NODE);
+                    struct fun_context *fc = cg_get_top_fun_context(cg);
+                    struct var_info *vi = fc_get_var_info(fc, node->unop->operand->ident->var);
+                    u32 align = get_type_align(node->type);
+                    wasm_emit_load_mem(ba, vi->var_index, false, align, 0, node->type->type);
+                }
+            }else{
+                //write to the memory
+            }
+            break;
+        case OP_BAND: //reference returning the address of variable
+            if(node->unop->operand->node_type == IDENT_NODE){
+                //emit the location of the var definition
+                struct fun_context *fc = cg_get_top_fun_context(cg);
+                struct var_info *vi = fc_get_var_info(fc, node->unop->operand->ident->var);
+                wasm_emit_addr_offset(ba, vi->var_index, false, 0);
+            }
             break;
         case OP_MINUS:
-            bin_node = int_node_new(0, node->loc);
-            bin_node->type = node->type;
-            wasm_emit_code(cg, ba, bin_node);
+            new_node = int_node_new(0, node->loc);
+            new_node->type = node->type;
+            wasm_emit_code(cg, ba, new_node);
             break;
         case OP_NOT:
-            bin_node = int_node_new(1, node->loc);
-            bin_node->type = node->type;
-            wasm_emit_code(cg, ba, bin_node);
+            new_node = int_node_new(1, node->loc);
+            new_node->type = node->type;
+            wasm_emit_code(cg, ba, new_node);
             break;
         case OP_BITNOT:
-            bin_node = int_node_new(-1, node->loc);
-            bin_node->type = node->type;
-            wasm_emit_code(cg, ba, bin_node);
+            new_node = int_node_new(-1, node->loc);
+            new_node->type = node->type;
+            wasm_emit_code(cg, ba, new_node);
             break;
         }
-    wasm_emit_code(cg, ba, node->unop->operand);
-    enum type type_index = prune(node->unop->operand->type)->type;
-    assert(type_index >= 0 && type_index < TYPE_TYPES);
-    assert(node->unop->opcode >= 0 && node->unop->opcode < OP_TOTAL);
-    if (bin_node) {
+    if (new_node) {
+        wasm_emit_code(cg, ba, node->unop->operand);
+        enum type type_index = prune(node->unop->operand->type)->type;
+        assert(type_index >= 0 && type_index < TYPE_TYPES);
+        assert(node->unop->opcode >= 0 && node->unop->opcode < OP_TOTAL);
         u8 opcode = op_maps[node->unop->opcode][type_index];
         if(!opcode){
             symbol s = get_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
             printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(get_type_symbol(type_index)));
         }else{
             ba_add(ba, opcode);
-            ast_node_free(bin_node);
+            ast_node_free(new_node);
         }
     }
 }
@@ -574,9 +597,16 @@ void _emit_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
 void _emit_ident(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == IDENT_NODE);
-    u32 var_index = fc_get_var_info(cg_get_top_fun_context(cg), node)->var_index;
+    struct fun_context *fc = cg_get_top_fun_context(cg);
+    u32 var_index = fc_get_var_info(fc, node)->var_index;
     if(!is_aggregate_type(node->type->type))
-        wasm_emit_get_var(ba, var_index, false);
+        if(node->ident->var->is_addressed){
+            //read value from memory
+            u32 align = get_type_align(node->type);
+            wasm_emit_load_mem(ba, var_index, false, align, 0, node->type->type);
+        }else{
+            wasm_emit_get_var(ba, var_index, false);
+        }
     else{
         //for aggregate data
         if(node->is_ret){

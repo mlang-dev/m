@@ -97,7 +97,7 @@ void struct_type_add_member(struct type_expr *struct_type, struct type_expr *typ
 
 
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
-#define is_aggregate_type(type) (type>=TYPE_STRUCT)
+#define is_aggregate_type(type) (type==TYPE_STRUCT)
 
 #ifdef __cplusplus
 }

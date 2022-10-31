@@ -30,7 +30,8 @@ const char *err_messages[ALL_ERROR] = {
     "function is not defined.",
     "left side is not assignable.",
     "reference is not on the value type.",
-    "dereference is not on the reference type."
+    "dereference is not on the reference type.",
+    "ident is not defined"
 };
 
 struct hashtable g_error_reports;

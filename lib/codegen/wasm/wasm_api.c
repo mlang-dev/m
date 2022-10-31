@@ -176,6 +176,16 @@ void wasm_emit_call_fun(WasmModule ba, u32 fun_index)
     wasm_emit_uint(ba, fun_index);
 }
 
+/**
+ * @brief load data from memory to stack.
+ * 
+ * @param ba 
+ * @param addr_var_index 
+ * @param is_global 
+ * @param align 
+ * @param offset 
+ * @param type 
+ */
 void wasm_emit_load_mem(WasmModule ba, u32 addr_var_index, bool is_global, u32 align, u32 offset, enum type type)
 {
     assert(align <= 8);
@@ -187,6 +197,7 @@ void wasm_emit_load_mem(WasmModule ba, u32 addr_var_index, bool is_global, u32 a
 
 void wasm_emit_store_mem(WasmModule ba, u32 align, u32 offset, enum type type)
 {
+    assert(align <= 8);
     ba_add(ba, type_2_store_op[type]);
     wasm_emit_uint(ba, aligns[align]);
     wasm_emit_uint(ba, offset);
@@ -208,7 +219,7 @@ void wasm_emit_copy_struct_value(WasmModule ba, u32 to_var_index, u32 to_offset,
     for (u32 i = 0; i < array_size(&type->args); i++) {
         field_type = *(struct type_expr **)array_get(&type->args, i);
         field_offset = *(u64*)array_get(&tsi.sl->field_offsets, i) / 8;
-        u32 align = get_type_align(field_type) / 8;
+        u32 align = get_type_align(field_type);
         if(field_type->type == TYPE_STRUCT){
             wasm_emit_copy_struct_value(ba, to_var_index, to_offset + field_offset, field_type, from_var_index, from_offset + field_offset);
         }else{

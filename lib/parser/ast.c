@@ -173,6 +173,7 @@ struct ast_node *ident_node_new(symbol name, struct source_location loc)
     struct ast_node *node = ast_node_new(IDENT_NODE, 0, 0, false, loc);
     MALLOC(node->ident, sizeof(*node->ident));
     node->ident->name = name;
+    node->ident->var = 0;
     return node;
 }
 

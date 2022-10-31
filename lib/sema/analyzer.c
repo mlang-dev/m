@@ -52,6 +52,11 @@ struct type_expr *retrieve_type_for_var_name(struct sema_context *context, symbo
 
 struct type_expr *_analyze_ident(struct sema_context *context, struct ast_node *node)
 {
+    node->ident->var = _get_var_node(context, node);
+    if(!node->ident->var){
+        report_error(context, EC_IDENT_NOT_DEFINED, node->loc);
+        return 0;
+    }
     return retrieve_type_for_var_name(context, node->ident->name);
 }
 
@@ -266,7 +271,9 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
 
 struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *node)
 {
+    struct ast_node *var = 0;
     struct type_expr *op_type = analyze(context, node->unop->operand);
+    if(!op_type) return 0;
     if (node->unop->opcode == OP_NOT) {
         struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         unify(op_type, bool_type, &context->nongens);
@@ -277,13 +284,12 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
             report_error(context, EC_NOT_VALUE_TYPE, node->loc);
             return 0;
         }
+        assert(node->unop->operand->node_type == IDENT_NODE);
         //reference-of or address-of operator
+        var = _get_var_node(context, node->unop->operand);
+        if(var) var->is_addressed = true;
         node->unop->operand->is_addressed = true;
         op_type = create_ref_type(op_type);
-        struct ast_node *var = _get_var_node(context, node);
-        if(var){
-            var->is_addressed = true;
-        }
     }
     else if(node->unop->opcode == OP_STAR){
         //dereference-of

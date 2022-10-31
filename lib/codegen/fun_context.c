@@ -51,10 +51,10 @@ struct var_info *fc_get_var_info(struct fun_context *fc, struct ast_node *node)
     return vi;
 }
 
-u32 fc_get_stack_offset(struct fun_context *fc, struct ast_node *node)
+i32 fc_get_stack_offset(struct fun_context *fc, struct ast_node *node)
 {
     struct var_info *vi = fc_get_var_info(fc, node);
-    if(vi->alloc_index<0) return 0;
+    if(vi->alloc_index<0) return -1;
     return *(u64*)array_get(&fc->stack_size_info.sl->field_offsets, vi->alloc_index) / 8;
 }
 

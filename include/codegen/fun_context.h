@@ -70,7 +70,7 @@ void fc_deinit(struct fun_context *fc);
 int fc_register_alloc(struct fun_context *fc, struct type_expr *struct_type);
 
 struct var_info *fc_get_var_info(struct fun_context *fc, struct ast_node *node);
-u32 fc_get_stack_offset(struct fun_context *fc, struct ast_node *node);
+i32 fc_get_stack_offset(struct fun_context *fc, struct ast_node *node);
 struct struct_layout *fc_get_stack_sl(struct fun_context *fc, struct ast_node *node);
 
 u32 fc_get_stack_size(struct fun_context *fc);

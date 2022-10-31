@@ -45,7 +45,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         //emit return value space
         vi = fc_get_var_info(fc, node);
         //alloc = fc_get_alloc(fc, node);
-        u32 stack_offset = fc_get_stack_offset(fc, node);
+        i32 stack_offset = fc_get_stack_offset(fc, node);
 
         wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
         wasm_emit_get_var(ba, vi->var_index, false); 
@@ -85,7 +85,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             //global variable 0 as stack pointer
             //global sp -> stack
             vi = fc_get_var_info(fc, node);
-            u32 stack_offset = fc_get_stack_offset(fc, node);
+            i32 stack_offset = fc_get_stack_offset(fc, node);
             struct struct_layout *sl = fc_get_stack_sl(fc, node);
             wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
             wasm_emit_store_struct_value(cg, ba, vi->var_index, 0, sl, block);

@@ -131,7 +131,7 @@ struct field_info sc_get_field_info(struct sema_context *sc, symbol struct_name,
     struct type_expr *field_type = *(struct type_expr **)array_get(&struct_type->args, index);
     struct struct_layout *sl = get_type_size_info(struct_node->type).sl;
     field.offset = *(u64 *)array_get(&sl->field_offsets, index) / 8;
-    field.align = get_type_align(field_type) / 8;
+    field.align = get_type_align(field_type);
     field.type = field_type;
     return field;
 }

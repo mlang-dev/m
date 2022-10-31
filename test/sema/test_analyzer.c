@@ -41,6 +41,7 @@ y = &x";
     analyze(fe->sema_context, block);
     struct ast_node* x = *(struct ast_node **)array_get(&block->block->nodes, 0);
     struct ast_node* y = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    ASSERT_TRUE(x->is_addressed);
     ASSERT_EQ(TYPE_INT, x->type->type);
     ASSERT_EQ(0, x->type->val_type);
     ASSERT_EQ(TYPE_REF, y->type->type);

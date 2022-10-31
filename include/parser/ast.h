@@ -76,6 +76,7 @@ struct _literal_node {
 
 struct _ident_node {
     symbol name;
+    struct ast_node *var;
 };
 
 struct _memory_node {

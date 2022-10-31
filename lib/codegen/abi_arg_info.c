@@ -65,7 +65,7 @@ struct abi_arg_info create_extend(struct target_info *ti, struct type_expr *ret_
 
 struct abi_arg_info create_natural_align_indirect(struct type_expr *ret_type, bool indirect_byval)
 {
-    uint64_t align_bytes = get_type_align(ret_type) / 8;
+    uint64_t align_bytes = get_type_align(ret_type);
     return _create_indirect(ret_type, (unsigned)align_bytes, indirect_byval, false, 0);
 }
 
@@ -88,7 +88,7 @@ struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_e
         else
             return create_direct(type);
     }
-    unsigned align_bytes = (unsigned)get_type_align(type) / 8;
+    unsigned align_bytes = (unsigned)get_type_align(type);
     if (align_bytes < 8)
         align_bytes = 8;
     if (free_int_regs == 0) {
