@@ -172,7 +172,7 @@ u64 get_type_size(struct type_expr *type)
 u64 get_type_align(struct type_expr *type)
 {
     struct type_size_info tsi = get_type_size_info(type);
-    return tsi.align_bits;
+    return tsi.align_bits / 8;
 }
 
 void _free_sl(void *sl)
