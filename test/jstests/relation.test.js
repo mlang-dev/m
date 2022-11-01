@@ -10,7 +10,8 @@ function get_mw(log=null){
 test('10 < 20', ()=>{
     var result = get_mw();
     return result.then((m)=>{
-        expect(m.run_code("10 < 20")).toEqual(1);
+        let code = "10 < 20";
+        expect(m.run_code(code)).toEqual(1);
     });
 });
 

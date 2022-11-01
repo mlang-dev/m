@@ -7,6 +7,7 @@ function get_mw(log=null){
     return mw(wasi(), './mw.wasm', log, false);
 }
 
+
 test('if 1 statement', () => {
     var result = get_mw();
     return result.then((m) => {

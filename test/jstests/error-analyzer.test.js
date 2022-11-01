@@ -18,6 +18,6 @@ test('analyzer type mismatch', () => {
 i:int = "string"
 `;
         expect(m.run_code(code)).toEqual(undefined);
-        expect(output).toEqual("type error: variable type not matched with literal constant. loc (line, col): (2, 1)\n");
+        expect(output).toEqual("variable type not matched with literal constant. loc (line, col): (2, 1)\n");
     });
 });

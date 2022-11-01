@@ -56,3 +56,15 @@ j = &i
         expect(m.run_code(code)).toEqual(20);
     });
 });
+
+// test('int ref change via ref 2', () => {
+//     var result = get_mw();
+//     return result.then((m) => {
+//         let code = `
+// z = cf64(10.0, 20.0)
+// j = &z
+// j.im
+//         `;
+//         expect(m.run_code(code)).toEqual(20);
+//     });
+// });
