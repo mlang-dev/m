@@ -1,10 +1,10 @@
 const mtest = require('./mtest.js');
 
-mtest.mtest('bitwise not 0', 'bitwise not 0', "~0", -1);
+mtest.mtest('bitwise not zero', 'bitwise not 0', "~0", -1);
 
-mtest.mtest('bitwise not -1', 'bitwise not -1', "~-1", 0);
+mtest.mtest('bitwise not neg one', 'bitwise not -1', "~-1", 0);
 
-mtest.mtest('bitwise not 1', 'bitwise not 1', "~1", -2);
+mtest.mtest('bitwise not one', 'bitwise not 1', "~1", -2);
 
 mtest.mtest('bitwise shift left', 'bitwise shift left', "1 << 1", 2);
 
