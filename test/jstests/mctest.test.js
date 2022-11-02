@@ -6,10 +6,8 @@ function get_mtest() {
 }
 
 test('test mtest', () => {
-    /*
-    var result = get_mtest();
-    return result.then((m) => {
-        expect(m.module.instance.exports._start()).toEqual(0);
-    });
-    */
+    // var result = get_mtest();
+    // return result.then((m) => {
+    //     expect(m.module.instance.exports._start()).toEqual(0);
+    // });
 });

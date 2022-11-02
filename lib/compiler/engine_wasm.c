@@ -151,7 +151,7 @@ void compile_to_wasm(struct engine *engine, const char *expr)
     analyze(engine->fe->sema_context, ast);
     struct error_report *er = get_last_error_report(engine->fe->sema_context);
     if(er){
-        printf("type error: %s loc (line, col): (%d, %d)\n", er->error_msg, er->loc.line, er->loc.col);
+        printf("%s loc (line, col): (%d, %d)\n", er->error_msg, er->loc.line, er->loc.col);
         return;
     }
     ast = _decorate_as_module(cg, &engine->fe->parser->symbol_2_int_types, ast);
