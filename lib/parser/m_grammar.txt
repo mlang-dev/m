@@ -1,4 +1,6 @@
 # grammar for mlang
+# This is the actual grammar text consumed by self-developed LALR parser generator pgen 
+# to output a parsing table for mlang parser to parse m source code into ASTs. 
 # The right side of each production rule enclosed by curly parentheses is semantic action in 
 # generating AST tree when the rule is applied to reduce to left symbol of the grammar rule.
 
