@@ -1,5 +1,6 @@
 const wasi = require('../../docs/wasi.js');
 const mw = require('../../docs/mw.js');
+const mtest = require('./mtest.js');
 
 function get_mw(log=null){
     if(log==null)
@@ -7,89 +8,26 @@ function get_mw(log=null){
     return mw(wasi(), './mw.wasm', log, false);
 }
 
-test('10 < 20', ()=>{
-    var result = get_mw();
-    return result.then((m)=>{
-        let code = "10 < 20";
-        expect(m.run_code(code)).toEqual(1);
-    });
-});
+mtest.mtest('less than', '10 < 20 is evaluated as true (1).', "10 < 20", 1);
 
-test('10.0 < 20.0', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("10.0 < 20.0")).toEqual(1);
-    });
-});
+mtest.mtest('less than float', '10.0 < 20.0 is evaluated as true (1).', "10.0 < 20.0", 1);
 
-test('10.0 <= 20.0', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("10.0 <= 20.0")).toEqual(1);
-    });
-});
+mtest.mtest('less and equal than float', '10.0 <= 20.0 is evaluated as true (1).', "10.0 <= 20.0", 1);
 
-test('10 <= 20', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("10 <= 20")).toEqual(1);
-    });
-});
+mtest.mtest('less and equal than int', '10 <= 20 is evaluated as true (1).', "10 <= 20", 1);
 
-test('20 <= 20', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("20 <= 20")).toEqual(1);
-    });
-});
+mtest.mtest('less and equal than int equal', '20 <= 20 is evaluated as true (1).', "20 <= 20", 1);
 
-test('21 <= 20', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("21 <= 20")).toEqual(0);
-    });
-});
+mtest.mtest('less and equal than int false', '21 <= 20 is evaluated as false (0).', "21 <= 20", 0);
 
-test('21 >= 20', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("21 >= 20")).toEqual(1);
-    });
-});
+mtest.mtest('greater and equal than int', '21 >= 20 is evaluated as true (1).', "21 >= 20", 1);
 
-test('21 > 20', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("21 > 20")).toEqual(1);
-    });
-});
+mtest.mtest('greater than int', '21 > 20 is evaluated as true (1).', "21 > 20", 1);
 
-test('21 == 20', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("21 == 20")).toEqual(0);
-    });
-});
+mtest.mtest('equal int false', '21 == 20 is evaluated as false (0).', "21 == 20", 0);
 
+mtest.mtest('equal int', '20 == 20 is evaluated as true (1).', "20 == 20", 1);
 
-test('20 == 20', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("20 == 20")).toEqual(1);
-    });
-});
+mtest.mtest('not equal int', '21 != 20 is evaluated as true (1).', "21 != 20", 1);
 
-test('21 != 20', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("21 != 20")).toEqual(1);
-    });
-});
-
-
-test('20 != 20', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        expect(m.run_code("20 != 20")).toEqual(0);
-    });
-});
+mtest.mtest('not equal int false', '20 != 20 is evaluated as false (0).', "20 != 20", 0);

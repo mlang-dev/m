@@ -1,64 +1,15 @@
-const wasi = require('../../docs/wasi.js');
-const mw = require('../../docs/mw.js');
+const mtest = require('./mtest.js');
 
-function get_mw(log=null){
-    if(log==null)
-        log = t => {};
-    return mw(wasi(), './mw.wasm', log, false);
-}
+mtest.mtest('add expression', 'add opeartor: 10 + 20', "10 + 20", 30);
 
-test('10 + 20', ()=>{
-    var result = get_mw();
-    return result.then((m)=>{
-        let code = `10 + 20`;
-        expect(m.run_code(code)).toEqual(30);
-    });
-});
+mtest.mtest('operator precendence', 'operator precendence: 10 + 20 * 3', "10 + 20 * 3", 70);
 
-test('10 + 20 * 3', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = `10 + 20 * 3`;
-        expect(m.run_code(code)).toEqual(70);
-    });
-});
+mtest.mtest('negative opearator', 'negative number: -10 + 20 * 3', "-10 + 20 * 3", 50);
 
-test('-10 + 20 * 3', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = `-10 + 20 * 3`;
-        expect(m.run_code(code)).toEqual(50);
-    });
-});
+mtest.mtest('float expression', 'float expression: -10.0 + 20.0 * 3.0', "-10.0 + 20.0 * 3.0", 50.0);
 
-test('-10.0 + 20.0 * 3.0', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = "-10.0 + 20.0 * 3.0";
-        expect(m.run_code(code)).toEqual(50.0);
-    });
-});
+mtest.mtest('exponentiation operator', 'exponentiation operator: 2.0 ** 3.0', "2.0 ** 3.0", 8.0);
 
-test('2.0 ** 3.0', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = "2.0 ** 3.0";
-        expect(m.run_code(code)).toEqual(8.0);
-    });
-});
+mtest.mtest('modulo operator zero', 'modulo operator: 8 % 2', "8 % 2", 0);
+mtest.mtest('modulo operator', 'modulo operator: 8 % 5', "8 % 5", 3);
 
-test('8 % 2', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = "8 % 2";
-        expect(m.run_code(code)).toEqual(0);
-    });
-});
-
-test('8 % 5 == 3', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = "8 % 5"
-        expect(m.run_code("8 % 5")).toEqual(3);
-    });
-});

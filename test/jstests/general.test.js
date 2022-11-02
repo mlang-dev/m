@@ -6,35 +6,35 @@ print "hello world"
 `, "hello world");
 
 
-mtest.mtest_string('print utc-8 string', 'you can print out the unicode string.', 
+mtest.mtest_string('print utc-8 string', 'We can print the unicode string.', 
 `
 print "你好"
 `, "你好");
 
-mtest.mtest_string('integer format', 'print out string with integer format',
+mtest.mtest_string('integer format', 'Print string with integer format.',
 `
 print "hello %d" 10
 `, "hello 10");
 
-mtest.mtest_string('print var', 'print out variable value',
+mtest.mtest_string('print var', `Print a variable's value.`,
 `
 v = 10
 print "hello %d" v
 `, "hello 10");
 
-mtest.mtest_string('print char', 'print one character', 
+mtest.mtest_string('print char', 'Print one character.', 
 `
 putchar '#'
 `, '#');
 
-mtest.mtest_string('print two int vars', 'print out the string with multiple integers',
+mtest.mtest_string('print two int vars', 'Print the string with multiple integer variables.',
 `
 v1 = 10
 v2 = 20
 print "hello %d %d" v1 v2
 `, "hello 10 20");
 
-mtest.mtest_string('print float', 'print float variable', 
+mtest.mtest_string('print float', 'Print a float variable.', 
 `
 v = 10.0
 print "hello %.2f" v
@@ -89,3 +89,21 @@ let sq x = x * x  # generic function
 sq 10.0
 `, 100.0);
 
+
+mtest.mtest_string('struct type', `You can define struct aggregate type like in C. They behavior the same except more succinct in m.`,
+`
+struct Point2D = x:double, y:double
+p = Point2D(10.0, 20.0)
+print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)
+`, "p.x: 10.0, p.y: 20.0");
+
+mtest.mtest_string('pass by value', `mlang uses pass-by value calling convention to pass arguments to functions. This means the argument value is copied to function's parameter.`,
+`
+struct Point2D = x:double, y:double
+let change z:Point2D = 
+    z.x = z.x * 10.0
+    z
+old_z = Point2D(10.0, 20.0)
+new_z = change old_z
+print "old_z.x: %.2f, new_z.x: %.2f" (old_z.x) (new_z.x)
+`, "old_z.x: 10.00, new_z.x: 100.00");

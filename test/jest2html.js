@@ -10,6 +10,10 @@ var to_dir = "../docs/";
 const include_list = new Map();
 include_list.set("general.test.js", 1); 
 include_list.set("bitwise.test.js", 2);
+include_list.set("logic.test.js", 3);
+include_list.set("relation.test.js", 4);
+include_list.set("numeric.test.js", 5);
+
 
 const exclude_list = []
 
