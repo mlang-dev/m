@@ -17,8 +17,8 @@
 	<body>
 		<header>
 		<nav>
-			<a href="/" class="current">M</a>
-			<a href="/general-tut.html">Tutorials</a>
+			<a href="/">M</a>
+			<a href="/tutorials.html" class="current">Tutorials</a>
 			<a href="/grammar.html">Grammar</a>
 			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
 					<path
@@ -27,68 +27,19 @@
 				</svg>Github</a>
 		</nav>
 		</header>
-		<textarea style="min-height: 300px;" autocomplete="off" id="code" wrap="logical" spellcheck="false"></textarea>
-		<div style="width: 100%;">
-			<button type="button" id="run" style="min-width: 70px;">run</button>
-		</div>
-		<textarea style="min-height: 300px;font-size:small;" id='console' readonly></textarea>
 		<script>
-	var codeInput = document.getElementById("code");
-	if (codeInput.addEventListener) {
-		codeInput.addEventListener('keydown', this.keyHandler, false);
-	} else if (codeInput.attachEvent) {
-		codeInput.attachEvent('onkeydown', this.keyHandler); /* damn IE hack */
-	}
-	var code_text = 
-`# print mandelbrot set
-print "print a mandelbrot set\\n"
-
-let print_density d =
-  if d > 8 then
-    putchar ' '
-  else if d > 4 then
-    putchar '.'
-  else if d > 2 then
-    putchar '+'
-  else		
-    putchar '*'
-let sum_sq z:cf64 = z.re ** 2.0 + z.im ** 2.0
-let ms z:cf64 c:cf64 = cf64(z.re ** 2.0 - z.im ** 2.0 + c.re, 2.0 * z.re * z.im + c.im)
-let converger z:cf64 iters:int c:cf64 = 
-  if iters > 255 || (sum_sq z) > 4.0 then
-    iters
-  else
-    converger (ms z c) (iters + 1) c
-let converge z:cf64 = converger z 0 z
-let print_ms start:cf64 step:cf64 =
-  for y in start.im..step.im..start.im + step.im * 40.0
-    for x in start.re..step.re..start.re + step.re * 70.0
-       print_density (converge (cf64(x, y)))
-    putchar '\n'
-print_ms (cf64(-2.3, -1.3)) (cf64(0.05, 0.07))
-`;
-	codeInput.value = code_text;
-	function keyHandler(e) {
-		var TABKEY = 9;
-		if (e.keyCode == TABKEY) {
-			this.value += "\t";
-			if (e.preventDefault) {
-				e.preventDefault();
-			}
-			return false;
-		}
-	}						
 			var instance = null;
+			var result_control = null;
 			mw(new wasi(), 'mw.wasm', print, true).then(
 				result=>{
 					instance = result;
 					print_version(instance.version);
 				}
 			);
-			document.getElementById("run").addEventListener("click", run);
-			function run(event) {
+			function run(code_control) {
+				result_control = code_control + "_result";
 				clear();
-				let code = document.getElementById("code").value;
+				let code = document.getElementById(code_control).value;
 				print(instance.run_code(code));
 			}
 			
@@ -96,19 +47,13 @@ print_ms (cf64(-2.3, -1.3)) (cf64(0.05, 0.07))
 				if(text == null || text == undefined){
 					return;
 				}
-				document.getElementById("console").textContent += text;
+				document.getElementById(result_control).textContent = text;
 			}
 
 			function clear(){
-				document.getElementById("console").textContent = '';
+				document.getElementById(result_control).textContent = '';
 			}
 			function print_version(version) {
 				document.getElementById("version").textContent = version;
 			}
 		</script>
-<footer>
-	<label id="version"></label>
-	<p>mlang is created by <a href="https://wangs.dev">Ligang Wang</a> and is licensed under the MIT license.</p>
-</footer>
-	</body>
-</html>

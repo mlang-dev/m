@@ -8,7 +8,7 @@ function get_mw(log=null){
 }
 
 
-function mtest(name, description, code, expect_value)
+function mtest(name, description, code, expect_value, is_tutorial=true)
 {
     test(name, () => {
         var result = get_mw();
