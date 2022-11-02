@@ -13,6 +13,8 @@ include_list.set("bitwise.test.js", 2);
 include_list.set("logic.test.js", 3);
 include_list.set("relation.test.js", 4);
 include_list.set("numeric.test.js", 5);
+include_list.set("control.test.js", 6);
+include_list.set("struct.test.js", 7);
 
 
 const exclude_list = []
@@ -22,11 +24,14 @@ const html_footer_file = "./tutorial.html_footer_template";
 
 function generate_file(from_path, test_navigations, to_path)
 {
-    let program = ts.createProgram([from_path], {allowJs: true});
+    let program = ts.createProgram([from_path], {allowJs: true, removeComments: false});
     const sourceFile = program.getSourceFile(from_path);
     var test_cases = '';
     ts.forEachChild(sourceFile, node => {
-        if(ts.isExpressionStatement(node)){
+        if(ts.isJSDoc(node)){
+            console.log(node);
+        }
+        else if(ts.isExpressionStatement(node)){
             if(ts.isCallExpression(node.expression) && node.expression.expression.expression.escapedText == 'mtest'){
                 tutorial = node.expression.arguments[4];
                 if(tutorial!=undefined && tutorial.kind == ts.SyntaxKind.FalseKeyword) 

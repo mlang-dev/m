@@ -34,5 +34,21 @@ function mtest_string(name, description, code, expect_value)
     });
 }
 
+function mtest_strings(name, description, code, expect_value)
+{
+    test(name, () => {
+        let outputs = [];
+        function log_fun (text) {
+            outputs.push(text);
+        }
+        var result = get_mw(log_fun);
+        return result.then((m) => {
+            expect(m.run_code(code)).toEqual(undefined);
+            expect(outputs).toEqual(expect_value);
+        });
+    });
+}
+
 exports.mtest = mtest;
 exports.mtest_string = mtest_string;
+exports.mtest_strings = mtest_strings;

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>m | succinct, expressive and efficient programming</title>
+		<script src="wasi.js"></script>
+		<script src="mw.js"></script>
+		<link rel="stylesheet" href="simple.css">
+		<link rel="stylesheet" href="style.css">
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+	</head>
+	<body>
+		<header>
+		<nav>
+			<a href="/">M</a>
+			<a href="/tutorials.html" class="current">Tutorials</a>
+			<a href="/grammar.html">Grammar</a>
+			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
+					<path
+						d="M16 0.395c-8.836 0-16 7.163-16 16 0 7.069 4.585 13.067 10.942 15.182 0.8 0.148 1.094-0.347 1.094-0.77 0-0.381-0.015-1.642-0.022-2.979-4.452 0.968-5.391-1.888-5.391-1.888-0.728-1.849-1.776-2.341-1.776-2.341-1.452-0.993 0.11-0.973 0.11-0.973 1.606 0.113 2.452 1.649 2.452 1.649 1.427 2.446 3.743 1.739 4.656 1.33 0.143-1.034 0.558-1.74 1.016-2.14-3.554-0.404-7.29-1.777-7.29-7.907 0-1.747 0.625-3.174 1.649-4.295-0.166-0.403-0.714-2.030 0.155-4.234 0 0 1.344-0.43 4.401 1.64 1.276-0.355 2.645-0.532 4.005-0.539 1.359 0.006 2.729 0.184 4.008 0.539 3.054-2.070 4.395-1.64 4.395-1.64 0.871 2.204 0.323 3.831 0.157 4.234 1.026 1.12 1.647 2.548 1.647 4.295 0 6.145-3.743 7.498-7.306 7.895 0.574 0.497 1.085 1.47 1.085 2.963 0 2.141-0.019 3.864-0.019 4.391 0 0.426 0.288 0.925 1.099 0.768 6.354-2.118 10.933-8.113 10.933-15.18 0-8.837-7.164-16-16-16z">
+					</path>
+				</svg>Github</a>
+		</nav>
+		</header>
+		<script>
+			var instance = null;
+			var result_control = null;
+			mw(new wasi(), 'mw.wasm', print, true).then(
+				result=>{
+					instance = result;
+					print_version(instance.version);
+				}
+			);
+			function run(code_control) {
+				result_control = code_control + "_result";
+				clear();
+				let code = document.getElementById(code_control).value;
+				print(instance.run_code(code));
+			}
+			
+			function print(text){
+				if(text == null || text == undefined){
+					return;
+				}
+				document.getElementById(result_control).textContent = text;
+			}
+
+			function clear(){
+				document.getElementById(result_control).textContent = '';
+			}
+			function print_version(version) {
+				document.getElementById("version").textContent = version;
+			}
+		</script>
+
+        <nav>
+            
+<a href="/general-tut.html">general</a>
+<a href="/bitwise-tut.html">bitwise</a>
+<a href="/logic-tut.html">logic</a>
+<a href="/relation-tut.html">relation</a>
+<a href="/numeric-tut.html">numeric</a>
+<a href="/control-tut.html">control</a>
+<a>struct</a>
+        </nav>
+    </p>
+                <!--<div>cf64 re</div>-->
+                <div>
+complex cf64 is a builtin struct type defined as "struct cf64 = re:double, im:double", the example below shows
+how to initialize a struct type variable and how to access field of the struct type variable.
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="cf64_re"  rows = "2" style="resize: none;">z = cf64(10.0, 20.0)
+z.re</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('cf64_re')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "cf64_re_result"></div>
+                </div>
+                
+                <!--<div>struct with different types</div>-->
+                <div>
+use keyword "struct" to define a struct type</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="struct_with_different_types"  rows = "3" style="resize: none;">struct A = x:int, y:double
+a = A(10, 20.0)
+a.y</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_with_different_types')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "struct_with_different_types_result"></div>
+                </div>
+                
+                <!--<div>access field no var</div>-->
+                <div>access struct initializer's field without using a variable</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="access_field_no_var"  rows = "2" style="resize: none;">struct A = x:int, y:double
+A(10, 20.0).y</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('access_field_no_var')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "access_field_no_var_result"></div>
+                </div>
+                
+                <!--<div>struct in struct</div>-->
+                <div>
+Struct could be nested. Here we embed struct cf64 inside struct AB.
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="struct_in_struct"  rows = "3" style="resize: none;">struct AB = a:cf64, b:cf64
+ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))
+ab.b.im</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_in_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "struct_in_struct_result"></div>
+                </div>
+                
+                <!--<div>return struct in struct</div>-->
+                <div>
+return a nesting struct from a function
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="return_struct_in_struct"  rows = "3" style="resize: none;">struct AB = a:cf64, b:cf64
+let get () = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))
+get().b.im</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_struct_in_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "return_struct_in_struct_result"></div>
+                </div>
+                
+                <!--<div>return field from struct</div>-->
+                <div>
+We define struct AB as two fields, each of which is also a cf64 struct. The following code is 
+initializing a struct AB object and return one of field a to the caller.
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="return_field_from_struct"  rows = "5" style="resize: none;">struct AB = a:cf64, b:cf64
+let get () = 
+    ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))
+    ab.a
+get().im</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_field_from_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "return_field_from_struct_result"></div>
+                </div>
+                
+                <!--<div>return field struct</div>-->
+                <div>
+One more time, but this time we eliminate a variable in the function.
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="return_field_struct"  rows = "3" style="resize: none;">struct AB = a:cf64, b:cf64
+let get () = AB(cf64(10.0, 20.0), cf64(30.0, 40.0)).a
+get().re</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_field_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "return_field_struct_result"></div>
+                </div>
+                
+                <!--<div>pass return struct</div>-->
+                <div>pass a struct and return a new struct to the caller then print the field of returned struct</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="pass_return_struct"  rows = "3" style="resize: none;">let add z:cf64 op:double = cf64(z.re + op, z.im + op)
+x = cf64(10.0, 20.0)
+(add x 10.0).im</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_return_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "pass_return_struct_result"></div>
+                </div>
+                
+                <!--<div>pass return struct no variable</div>-->
+                <div>pass a struct and return a new struct the caller without any temp variable</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="pass_return_struct_no_variable"  rows = "2" style="resize: none;">let add z:cf64 op:double = cf64(z.re + op, z.im + op)
+(add (cf64(10.0, 20.0)) 10.0).re</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_return_struct_no_variable')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "pass_return_struct_no_variable_result"></div>
+                </div>
+                
+                <!--<div>struct member assign struct</div>-->
+                <div>struct member assign struct</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="struct_member_assign_struct"  rows = "5" style="resize: none;">struct xy = x:double, y:double
+struct wz = w:double, z:xy
+ab = wz(10.0, xy(20.0, 30.0))
+ab.z = xy(200.0, 300.0)
+ab.z.y</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_member_assign_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "struct_member_assign_struct_result"></div>
+                </div>
+                
+                <!--<div>variable scope</div>-->
+                <div>variable scope</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="variable_scope"  rows = "3" style="resize: none;">struct wz = w:double, z:double
+z = wz(10.0, 20.0)
+z.z</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('variable_scope')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "variable_scope_result"></div>
+                </div>
+                
+                <!--<div>cf64 expr</div>-->
+                <div>
+use field of struct in expression.
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="cf64_expr"  rows = "2" style="resize: none;">z = cf64(10.0, 20.0)
+z.re + z.im</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('cf64_expr')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "cf64_expr_result"></div>
+                </div>
+                
+                <!--<div>return struct</div>-->
+                <div>
+Here we define a function returning a struct type cf64 and assign it to variable x.
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="return_struct"  rows = "3" style="resize: none;">let z() = cf64(10.0, 20.0)
+x = z()
+x.re + x.im</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "return_struct_result"></div>
+                </div>
+                
+                <!--<div>return struct no var</div>-->
+                <div>
+We can directly access return of function call without assigning a variable.
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="return_struct_no_var"  rows = "2" style="resize: none;">let z() = cf64(10.0, 20.0)
+z().im</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_struct_no_var')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "return_struct_no_var_result"></div>
+                </div>
+                
+                <!--<div>pass struct</div>-->
+                <div>
+We can pass struct argument to a function.
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="pass_struct"  rows = "3" style="resize: none;">let im z:cf64 = z.im
+x = cf64(10.0, 20.0)
+im x</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "pass_struct_result"></div>
+                </div>
+                
+                <!--<div>pass struct no var</div>-->
+                <div>
+We can pass struct argument directly without a variable to a function.
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="pass_struct_no_var"  rows = "2" style="resize: none;">let im z:cf64 = z.im
+im (cf64(10.0, 20.0))</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_no_var')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "pass_struct_no_var_result"></div>
+                </div>
+                
+                <!--<div>pass struct add value</div>-->
+                <div>
+Pass the struct data, and return with expression using one field
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="pass_struct_add_value"  rows = "3" style="resize: none;">let im z:cf64 = 
+    z.im + 200.0
+im (cf64(10.0, 20.0))</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_add_value')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_value_result"></div>
+                </div>
+                
+                <!--<div>pass struct add value</div>-->
+                <div>
+Pass the struct data, and return with a struct with new value
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="pass_struct_add_value"  rows = "4" style="resize: none;">let shift z:cf64 = 
+    cf64(z.re + 100.0, z.im + 200.0)
+result = shift (cf64(10.0, 20.0))
+result.re + result.im</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_add_value')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_value_result"></div>
+                </div>
+                
+                <!--<div>pass struct add value</div>-->
+                <div>
+Pass the struct data, and return with a struct with new value
+</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="pass_struct_add_value"  rows = "4" style="resize: none;">let shift z:cf64 = 
+    cf64(z.re + 100.0, z.im + 200.0)
+result = shift (cf64(10.0, 20.0))
+result.re + result.im</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_add_value')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_value_result"></div>
+                </div>
+                
+                <!--<div>struct member assign</div>-->
+                <div>struct member assign</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="struct_member_assign"  rows = "3" style="resize: none;">z = cf64(10.0, 20.0)
+z.re = 30.0
+z.re</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_member_assign')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "struct_member_assign_result"></div>
+                </div>
+                	<!-----------------footer----------------->
+	<footer>
+		<label id="version"></label>
+		<p>mlang is created by <a href="https://wangs.dev">Ligang Wang</a> and is licensed under the MIT license.</p>
+	</footer>
+	</body>
+</html>

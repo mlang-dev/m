@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>m | succinct, expressive and efficient programming</title>
+		<script src="wasi.js"></script>
+		<script src="mw.js"></script>
+		<link rel="stylesheet" href="simple.css">
+		<link rel="stylesheet" href="style.css">
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+	</head>
+	<body>
+		<header>
+		<nav>
+			<a href="/">M</a>
+			<a href="/tutorials.html" class="current">Tutorials</a>
+			<a href="/grammar.html">Grammar</a>
+			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
+					<path
+						d="M16 0.395c-8.836 0-16 7.163-16 16 0 7.069 4.585 13.067 10.942 15.182 0.8 0.148 1.094-0.347 1.094-0.77 0-0.381-0.015-1.642-0.022-2.979-4.452 0.968-5.391-1.888-5.391-1.888-0.728-1.849-1.776-2.341-1.776-2.341-1.452-0.993 0.11-0.973 0.11-0.973 1.606 0.113 2.452 1.649 2.452 1.649 1.427 2.446 3.743 1.739 4.656 1.33 0.143-1.034 0.558-1.74 1.016-2.14-3.554-0.404-7.29-1.777-7.29-7.907 0-1.747 0.625-3.174 1.649-4.295-0.166-0.403-0.714-2.030 0.155-4.234 0 0 1.344-0.43 4.401 1.64 1.276-0.355 2.645-0.532 4.005-0.539 1.359 0.006 2.729 0.184 4.008 0.539 3.054-2.070 4.395-1.64 4.395-1.64 0.871 2.204 0.323 3.831 0.157 4.234 1.026 1.12 1.647 2.548 1.647 4.295 0 6.145-3.743 7.498-7.306 7.895 0.574 0.497 1.085 1.47 1.085 2.963 0 2.141-0.019 3.864-0.019 4.391 0 0.426 0.288 0.925 1.099 0.768 6.354-2.118 10.933-8.113 10.933-15.18 0-8.837-7.164-16-16-16z">
+					</path>
+				</svg>Github</a>
+		</nav>
+		</header>
+		<script>
+			var instance = null;
+			var result_control = null;
+			mw(new wasi(), 'mw.wasm', print, true).then(
+				result=>{
+					instance = result;
+					print_version(instance.version);
+				}
+			);
+			function run(code_control) {
+				result_control = code_control + "_result";
+				clear();
+				let code = document.getElementById(code_control).value;
+				print(instance.run_code(code));
+			}
+			
+			function print(text){
+				if(text == null || text == undefined){
+					return;
+				}
+				document.getElementById(result_control).textContent = text;
+			}
+
+			function clear(){
+				document.getElementById(result_control).textContent = '';
+			}
+			function print_version(version) {
+				document.getElementById("version").textContent = version;
+			}
+		</script>
+
+        <nav>
+            
+<a href="/general-tut.html">general</a>
+<a href="/bitwise-tut.html">bitwise</a>
+<a href="/logic-tut.html">logic</a>
+<a href="/relation-tut.html">relation</a>
+<a href="/numeric-tut.html">numeric</a>
+<a>control</a>
+<a href="/struct-tut.html">struct</a>
+        </nav>
+    </p>
+                <!--<div>if 1 statement</div>-->
+                <div>if 1 statement</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="if_1_statement"  rows = "1" style="resize: none;">if 1 then 100 else 10</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_1_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "if_1_statement_result"></div>
+                </div>
+                
+                <!--<div>if 3 statement</div>-->
+                <div>if any non-zero statement is true</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="if_3_statement"  rows = "1" style="resize: none;">if 3 then 100 else 10</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_3_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "if_3_statement_result"></div>
+                </div>
+                
+                <!--<div>if true statement</div>-->
+                <div>use true literal</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="if_true_statement"  rows = "1" style="resize: none;">if true then 100 else 10</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_true_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "if_true_statement_result"></div>
+                </div>
+                
+                <!--<div>use bool variable</div>-->
+                <div>use bool variable</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="use_bool_variable"  rows = "2" style="resize: none;">x = 10
+if x then 100 else 10</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('use_bool_variable')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "use_bool_variable_result"></div>
+                </div>
+                
+                <!--<div>if 0 statement</div>-->
+                <div>if 0 statement</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="if_0_statement"  rows = "1" style="resize: none;">if 0 then 100 else 10</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_0_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "if_0_statement_result"></div>
+                </div>
+                
+                <!--<div>if false statement</div>-->
+                <div>use false literal</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="if_false_statement"  rows = "1" style="resize: none;">if false then 100 else 10</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_false_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "if_false_statement_result"></div>
+                </div>
+                
+                <!--<div>else if statement first</div>-->
+                <div>else if statement - choose first branch</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="else_if_statement_first"  rows = "6" style="resize: none;">let choice n = 
+    if n <= 10 then 100 
+    else if n <= 20 then 200
+    else if n <= 30 then 300
+    else 400
+choice 10</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_first')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_first_result"></div>
+                </div>
+                
+                <!--<div>else if statement second</div>-->
+                <div>else if statement - choose second branch</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="else_if_statement_second"  rows = "6" style="resize: none;">let choice n = 
+    if n <= 10 then 100 
+    else if n <= 20 then 200
+    else if n <= 30 then 300
+    else 400
+choice 20</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_second')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_second_result"></div>
+                </div>
+                
+                <!--<div>else if statement third</div>-->
+                <div>else if statement - choose third branch</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="else_if_statement_third"  rows = "6" style="resize: none;">let choice n = 
+    if n <= 10 then 100 
+    else if n <= 20 then 200
+    else if n <= 30 then 300
+    else 400
+choice 30</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_third')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_third_result"></div>
+                </div>
+                
+                <!--<div>else if statement else</div>-->
+                <div>else if statement - choose else branch</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="else_if_statement_else"  rows = "6" style="resize: none;">let choice n = 
+    if n <= 10 then 100 
+    else if n <= 20 then 200
+    else if n <= 30 then 300
+    else 400
+choice 40</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_else')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_else_result"></div>
+                </div>
+                
+                <!--<div>if - else if print statement</div>-->
+                <div>if - else if print statement</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="if_-_else_if_print_statement"  rows = "10" style="resize: none;">let choice n = 
+    if n <= 10 then 
+        putchar '#' 
+    else if n <= 20 then
+        putchar '?'
+    else
+        putchar '*' 
+choice 4
+choice 14
+choice 24</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_-_else_if_print_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "if_-_else_if_print_statement_result"></div>
+                </div>
+                
+                <!--<div>for loop statement</div>-->
+                <div>for loop statement</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="for_loop_statement"  rows = "4" style="resize: none;">sum = 0
+for i in 0..5
+    sum = sum + i
+sum</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "for_loop_statement_result"></div>
+                </div>
+                
+                <!--<div>for loop statement</div>-->
+                <div>for loop statement using float type</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="for_loop_statement"  rows = "4" style="resize: none;">sum = 0.0
+for i in 0.0..5.0
+    sum = sum + i
+sum</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "for_loop_statement_result"></div>
+                </div>
+                
+                <!--<div>for loop with step</div>-->
+                <div>for loop statement with step variable</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="for_loop_with_step"  rows = "5" style="resize: none;">step = 2
+sum = 0
+for i in 2..step..10
+    sum = sum + i
+sum</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_with_step')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "for_loop_with_step_result"></div>
+                </div>
+                
+                <!--<div>nest for loop</div>-->
+                <div>nest for loop statement</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="nest_for_loop"  rows = "5" style="resize: none;">sum = 0
+for i in 1..3
+    for j in 1..3
+        sum = sum + i * j
+sum</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('nest_for_loop')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "nest_for_loop_result"></div>
+                </div>
+                
+                <!--<div>recursive factorial</div>-->
+                <div>implement factorial using recursive</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="recursive_factorial"  rows = "2" style="resize: none;">let factorial n = if n == 1 then n else n * factorial (n-1)
+factorial 5</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('recursive_factorial')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "recursive_factorial_result"></div>
+                </div>
+                
+                <!--<div>for loop factorial</div>-->
+                <div>implement factorial using for loop</div>
+                <div style="margin-top: 10px;">
+                    <textarea id="for_loop_factorial"  rows = "6" style="resize: none;">let factorial n = 
+    p = 1
+    for i in 2..n+1
+        p = p * i
+    p
+factorial 5</textarea>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_factorial')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "for_loop_factorial_result"></div>
+                </div>
+                	<!-----------------footer----------------->
+	<footer>
+		<label id="version"></label>
+		<p>mlang is created by <a href="https://wangs.dev">Ligang Wang</a> and is licensed under the MIT license.</p>
+	</footer>
+	</body>
+</html>
