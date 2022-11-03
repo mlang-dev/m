@@ -308,6 +308,49 @@ header>nav a:hover {
   cursor: pointer;
 }
 
+/* copy header navigation to body navigation*/
+nav {
+  font-size: 1rem;
+  line-height: 2;
+  padding: 1rem 0 0 0;
+}
+
+/* Use flexbox to allow items to wrap, as needed */
+nav ul,
+nav ol {
+  align-content: space-around;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* List items are inline elements, make them behave more like blocks */
+nav ul li,
+nav ol li {
+  display: inline-block;
+}
+
+nav a,
+nav a:visited {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  display: inline-block;
+  padding: 0.1rem 1rem;
+  text-decoration: none;
+}
+
+nav a:hover {
+  filter: brightness(1.4);
+  cursor: pointer;
+}
+
 /* Reduce nav side on mobile */
 @media only screen and (max-width: 720px) {
   header>nav a {
@@ -316,6 +359,14 @@ header>nav a:hover {
     text-decoration: underline;
     line-height: 1;
   }
+
+  nav a {
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    line-height: 1;
+  }
+
 }
 
 /* Consolidate box styling */
