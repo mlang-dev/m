@@ -71,7 +71,7 @@ let choice n =
 choice 4
 choice 14
 choice 24
-`, ['#', '?', '*']);
+`, ['#', '?', '*'], false);
 
 mtest.mtest('for loop statement', 'for loop statement', 
 `
@@ -81,7 +81,7 @@ for i in 0..5
 sum
 `, 10); 
 
-mtest.mtest('for loop statement', 'for loop statement using float type', 
+mtest.mtest('for loop statement float', 'for loop statement using float type', 
 `
 sum = 0.0
 for i in 0.0..5.0
