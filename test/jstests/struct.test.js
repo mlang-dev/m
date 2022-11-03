@@ -144,7 +144,7 @@ let im z:cf64 = z.im
 im (cf64(10.0, 20.0))
 `, 20.0);
 
-mtest.mtest('pass struct add value', `
+mtest.mtest('pass struct add one value', `
 Pass the struct data, and return with expression using one field
 `, 
 `
@@ -163,15 +163,6 @@ result = shift (cf64(10.0, 20.0))
 result.re + result.im
 `, 110.0 + 220.0);
 
-mtest.mtest('pass struct add value', `
-Pass the struct data, and return with a struct with new value
-`, 
-`
-let shift z:cf64 = 
-    cf64(z.re + 100.0, z.im + 200.0)
-result = shift (cf64(10.0, 20.0))
-result.re + result.im
-`, 110.0 + 220.0);
 
 mtest.mtest('complex addition', 'complex addition', 
 `
