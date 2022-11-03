@@ -34,7 +34,7 @@ function mtest_string(name, description, code, expect_value)
     });
 }
 
-function mtest_strings(name, description, code, expect_value)
+function mtest_strings(name, description, code, expect_value, is_tutorial=true)
 {
     test(name, () => {
         let outputs = [];

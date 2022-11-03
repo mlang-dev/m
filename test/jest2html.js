@@ -25,13 +25,18 @@ const html_footer_file = "./tutorial.html_footer_template";
 function generate_file(from_path, test_navigations, to_path)
 {
     let program = ts.createProgram([from_path], {allowJs: true, removeComments: false});
+    const checker = program.getTypeChecker();
     const sourceFile = program.getSourceFile(from_path);
+    const commentRanges = ts.getLeadingCommentRanges(
+        sourceFile.getFullText(), 
+        sourceFile.getFullStart());
+    if (commentRanges && commentRanges.length){
+        const commentStrings = commentRanges.map(r=>sourceFile.getFullText().slice(r.pos,r.end));
+        console.log(commentStrings);
+    }
     var test_cases = '';
     ts.forEachChild(sourceFile, node => {
-        if(ts.isJSDoc(node)){
-            console.log(node);
-        }
-        else if(ts.isExpressionStatement(node)){
+        if(ts.isExpressionStatement(node)){
             if(ts.isCallExpression(node.expression) && node.expression.expression.expression.escapedText == 'mtest'){
                 tutorial = node.expression.arguments[4];
                 if(tutorial!=undefined && tutorial.kind == ts.SyntaxKind.FalseKeyword) 

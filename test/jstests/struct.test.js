@@ -1,3 +1,5 @@
+/** hello world struct type */
+
 const mtest = require('./mtest.js');
 
 mtest.mtest('cf64 re', `
