@@ -282,33 +282,18 @@ im (cf64(10.0, 20.0))</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_struct_no_var_result"></div>
                 </div>
                 
-                <!--<div>pass struct add value</div>-->
+                <!--<div>pass struct add one value</div>-->
                 <div>
 Pass the struct data, and return with expression using one field
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_struct_add_value"  rows = "3" style="resize: none;">let im z:cf64 = 
+                    <textarea id="pass_struct_add_one_value"  rows = "3" style="resize: none;">let im z:cf64 = 
     z.im + 200.0
 im (cf64(10.0, 20.0))</textarea>
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_add_value')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_value_result"></div>
-                </div>
-                
-                <!--<div>pass struct add value</div>-->
-                <div>
-Pass the struct data, and return with a struct with new value
-</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="pass_struct_add_value"  rows = "4" style="resize: none;">let shift z:cf64 = 
-    cf64(z.re + 100.0, z.im + 200.0)
-result = shift (cf64(10.0, 20.0))
-result.re + result.im</textarea>
-                </div>
-                <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_add_value')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_value_result"></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_add_one_value')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_one_value_result"></div>
                 </div>
                 
                 <!--<div>pass struct add value</div>-->
