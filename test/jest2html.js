@@ -6,7 +6,7 @@ const ts = require("typescript");
 const doctrine = require("doctrine");
 
 var from_dir = "./jstests/";
-var to_dir = "../docs/";
+var to_dir = "../docs/tutorial/";
 
 const include_list = new Map();
 include_list.set("general.test.js", 1); 
@@ -94,7 +94,7 @@ function build_test_navigations(interested_files, current_test_name)
     interested_files.forEach(file_info=>{
         let test_name = file_info[1];
         let test_html = file_info[2];
-        const test_case = test_name == current_test_name? `<a class="current">${test_name}</a>` : `<a href="/${test_html}">${test_name}</a>`;
+        const test_case = test_name == current_test_name? `<a class="current">${test_name}</a>` : `<a href="/tutorial/${test_html}">${test_name}</a>`;
         test_cases += '\n' + test_case;
     });
     var test_navigations = `
@@ -117,7 +117,7 @@ function main()
                 return;
             }
             let test_name = file.replace('.test.js', '');
-            let test_html = file.replace('.test.js', '-tut.html');
+            let test_html = file.replace('.test.js', '.html');
             interested_files.push([include_list.get(file), test_name, test_html, file]);
         });
         interested_files.sort();
