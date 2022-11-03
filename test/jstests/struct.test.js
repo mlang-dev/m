@@ -1,4 +1,7 @@
-/** hello world struct type */
+/* struct type in m is a value type. By default it stores the data on the stack. M uses call-by-value convention to pass value
+ * to pass argument to the called function. When the passed argument is struct type, the struct data will be copied and its address
+ * will be passed to the function.
+ */
 
 const mtest = require('./mtest.js');
 

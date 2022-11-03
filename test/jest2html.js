@@ -3,6 +3,7 @@ var fs = require('fs');
 var path = require('path');
 var process = require("process");
 const ts = require("typescript");
+const doctrine = require("doctrine");
 
 var from_dir = "./jstests/";
 var to_dir = "../docs/";
@@ -25,14 +26,15 @@ const html_footer_file = "./tutorial.html_footer_template";
 function generate_file(from_path, test_navigations, to_path)
 {
     let program = ts.createProgram([from_path], {allowJs: true, removeComments: false});
-    const checker = program.getTypeChecker();
     const sourceFile = program.getSourceFile(from_path);
     const commentRanges = ts.getLeadingCommentRanges(
         sourceFile.getFullText(), 
         sourceFile.getFullStart());
+    var file_description = '';
     if (commentRanges && commentRanges.length){
         const commentStrings = commentRanges.map(r=>sourceFile.getFullText().slice(r.pos,r.end));
-        console.log(commentStrings);
+        var ast = doctrine.parse(commentStrings[0], { unwrap: true });
+        file_description = ast.description;
     }
     var test_cases = '';
     ts.forEachChild(sourceFile, node => {
@@ -75,6 +77,8 @@ function generate_file(from_path, test_navigations, to_path)
     html_header = fs.readFileSync(html_header_file, 'utf8');
     html_footer = fs.readFileSync(html_footer_file, 'utf8');
     html_file = `${html_header}${test_navigations}
+    </p>
+    <div>${file_description}</div>
     </p>${test_cases}${html_footer}`;
     fs.writeFile(to_path, html_file, err => {
         if (err) {
@@ -90,7 +94,7 @@ function build_test_navigations(interested_files, current_test_name)
     interested_files.forEach(file_info=>{
         let test_name = file_info[1];
         let test_html = file_info[2];
-        const test_case = test_name == current_test_name? `<a>${test_name}</a>` : `<a href="/${test_html}">${test_name}</a>`;
+        const test_case = test_name == current_test_name? `<a class="current">${test_name}</a>` : `<a href="/${test_html}">${test_name}</a>`;
         test_cases += '\n' + test_case;
     });
     var test_navigations = `
