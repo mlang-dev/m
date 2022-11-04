@@ -16,6 +16,7 @@ include_list.set("relation.test.js", 4);
 include_list.set("numeric.test.js", 5);
 include_list.set("control.test.js", 6);
 include_list.set("struct.test.js", 7);
+include_list.set("reference.test.js", 8);
 
 
 const exclude_list = []

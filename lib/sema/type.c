@@ -534,7 +534,7 @@ u8 type_size(enum type type)
 
 bool is_empty_struct(struct type_expr *type)
 {
-    if(!is_aggregate_type(type->type)) 
+    if(!is_aggregate_type(type)) 
         return false;
     if(array_size(&type->args) == 0){
         return true;

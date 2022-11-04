@@ -1,44 +1,26 @@
-const wasi = require('../../docs/wasi.js');
-const mw = require('../../docs/mw.js');
+const mtest = require('./mtest.js');
 
-function get_mw(log=null){
-    if(log==null)
-        log = t => {};
-    return mw(wasi(), './mw.wasm', log, false);
-}
 
-test('generic function', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = `
+mtest.mtest('generic function', 'generic function', 
+`
 let sq x = x * x # generic function
 sq 10.0
-        `;
-        expect(m.run_code(code)).toEqual(100.0);
-    });
-});
+`, 100.0);
 
 
-test('cf64 return complex using identifier', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = `
+mtest.mtest('return struct with var', 'return struct with var', 
+`
 let change z:cf64 = 
     z.re = z.re * 2.0
     z
 old_z = cf64(10.0, 20.0)
 new_z = change old_z
 new_z.re
-        `;
-        expect(m.run_code(code)).toEqual(20.0);
-    });
-});
+`, 20.0);
 
 
-test('mandelbrot set function', () => {
-    var result = get_mw();
-    return result.then((m) => {
-        let code = `
+mtest.mtest('mandelbrot set function', 'mandelbrot set function',
+`
 let print_density:() d:int =
   if d > 8 then
     putchar ' '
@@ -64,7 +46,4 @@ let print_ms start:cf64 step:cf64 =
     putchar '\n'
 print_ms (cf64(-2.3, -1.3)) (cf64(0.05, 0.07))
 (ms (cf64(10.0, 20.0)) (cf64(10.0, 20.0))).im
-`;
-        expect(m.run_code(code)).toEqual(400.0 + 20.0);
-    });
-});
+`, 400.0 + 20.0, false);

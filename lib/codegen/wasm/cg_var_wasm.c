@@ -27,7 +27,7 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
     u32 var_index = fc_get_var_info(fc, node)->var_index;
     i32 stack_offset = fc_get_stack_offset(fc, node);
     if (node->var->init_value){
-        if(is_aggregate_type(node->type->type)){
+        if(is_aggregate_type(node->type)){
             struct var_info *init_vi = fc_get_var_info(fc, node->var->init_value);
             wasm_emit_code(cg, ba, node->var->init_value);
             if(init_vi->var_index != var_index){

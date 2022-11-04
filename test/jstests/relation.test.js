@@ -1,12 +1,4 @@
-const wasi = require('../../docs/wasi.js');
-const mw = require('../../docs/mw.js');
 const mtest = require('./mtest.js');
-
-function get_mw(log=null){
-    if(log==null)
-        log = t => {};
-    return mw(wasi(), './mw.wasm', log, false);
-}
 
 mtest.mtest('less than', '10 < 20 is evaluated as true (1).', "10 < 20", 1);
 

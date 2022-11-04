@@ -26,7 +26,7 @@
 
 bool _is_indirect(struct type_expr *type)
 {
-    return is_aggregate_type(type->type) && !is_empty_struct(type) && !is_single_element_struct(type);
+    return is_aggregate_type(type) && !is_empty_struct(type) && !is_single_element_struct(type);
 }
 
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -59,7 +59,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             wasm_emit_code(cg, ba, arg);
             //for value type, the value is on the stack
             //for aggregate type, put the reference(address) on the stack
-            if(is_aggregate_type(arg->type->type)){                
+            if(is_aggregate_type(arg->type)){                
                 vi = fc_get_var_info(fc, arg);
                 if(!is_refered_later(arg) || vi->var_index < fc->local_params){
                     /*rvalue or is parameter, we don't need to make a copy*/

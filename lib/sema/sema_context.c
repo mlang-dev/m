@@ -142,29 +142,38 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
     assert(index->node_type == MEMBER_INDEX_NODE);
     struct ast_node *root = index;
     struct array fields;
-    struct array types;
+    struct array struct_nodes;
     array_init(&fields, sizeof(symbol));
-    array_init(&types, sizeof(struct type_expr*));
+    array_init(&struct_nodes, sizeof(struct type_expr*));
     //x.y.z turned into z.y.x
     while(root->node_type == MEMBER_INDEX_NODE){
         assert(root->index->index->node_type == IDENT_NODE);
         array_push(&fields, &root->index->index->ident->name);
-        array_push(&types, &root->index->object->type);
+        array_push(&struct_nodes, &root->index->object);
         root = root->index->object;
     }
-    struct field_info rfi;
-    rfi.offset = 0;
-    rfi.root_struct = root;
-    for(int i = array_size(&fields) - 1; i >= 0; i--){
+    struct field_info *rfi;
+    int end = array_size(&fields) - 1;
+    for(int i = end; i >= 0; i--){
         symbol field_name = *(symbol*)array_get(&fields, i);
-        struct type_expr *type = *(struct type_expr**)array_get(&types, i);
-        struct field_info fi = sc_get_field_info(sc, type->name, field_name);
-        rfi.offset += fi.offset;
-        rfi.align = fi.align;
-        rfi.type = fi.type;
+        struct ast_node *struct_node = *(struct ast_node**)array_get(&struct_nodes, i);
+        struct type_expr *struct_type = struct_node->type;
+        if(i == end || struct_type->type == TYPE_REF){
+            struct field_info root_fi;
+            array_push(field_infos, &root_fi);
+            rfi = (struct field_info *)array_back(field_infos);
+            rfi->offset = 0;
+            rfi->root_struct = struct_node;
+        }
+        if(struct_type->type == TYPE_REF){
+            struct_type = struct_type->val_type;
+        }
+        struct field_info fi = sc_get_field_info(sc, struct_type->name, field_name);
+        rfi->offset += fi.offset;
+        rfi->align = fi.align;
+        rfi->type = fi.type;
     }
-    array_push(field_infos, &rfi);
-    assert(rfi.type->name == index->index->index->type->name);
+    assert(rfi->type->name == index->index->index->type->name);
     array_deinit(&fields);
-    array_deinit(&types);
+    array_deinit(&struct_nodes);
 }

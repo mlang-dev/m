@@ -77,6 +77,7 @@ struct _literal_node {
 struct _ident_node {
     symbol name;
     struct ast_node *var;
+    bool is_member_index_object;
 };
 
 struct _memory_node {
@@ -274,6 +275,7 @@ struct ast_node *wrap_expr_as_function(struct hashtable *symbol_2_int_types, str
 struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, symbol func_name, struct ast_node *block);
 struct ast_node *get_root_object(struct ast_node *node);
 bool is_refered_later(struct ast_node *node);
+void set_lvalue(struct ast_node *node);
 
 #ifdef __cplusplus
 }

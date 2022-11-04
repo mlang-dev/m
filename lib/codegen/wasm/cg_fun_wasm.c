@@ -81,6 +81,9 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
             //only the parent node is needed
             func_register_local_variable(cg, node, true);
             break;
+        case UNARY_NODE:
+            collect_local_variables(cg, node->unop->operand);
+            break;
         case BINARY_NODE:
             func_register_local_variable(cg, node, true);
             break;
@@ -104,7 +107,7 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
             for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
                 arg_node = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
                 collect_local_variables(cg, arg_node);
-                if(is_aggregate_type(arg_node->type->type) && is_refered_later(arg_node)){
+                if(is_aggregate_type(arg_node->type) && is_refered_later(arg_node)){
                     struct fun_context *fc = cg_get_top_fun_context(cg);
                     struct var_info *vi = fc_get_var_info(fc, arg_node);
                     if(vi->var_index>=fc->local_params){

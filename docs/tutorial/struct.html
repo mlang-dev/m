@@ -30,7 +30,7 @@
 		<script>
 			var instance = null;
 			var result_control = null;
-			mw(new wasi(), 'mw.wasm', print, true).then(
+			mw(new wasi(), '/mw.wasm', print, true).then(
 				result=>{
 					instance = result;
 					print_version(instance.version);
@@ -67,6 +67,7 @@
 <a href="/tutorial/numeric.html">numeric</a>
 <a href="/tutorial/control.html">control</a>
 <a class="current">struct</a>
+<a href="/tutorial/reference.html">reference</a>
         </nav>
     </p>
     <div>struct type in m is a value type. By default it stores the data on the stack. M uses call-by-value convention to pass value
