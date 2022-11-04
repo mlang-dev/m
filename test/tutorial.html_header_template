@@ -30,7 +30,7 @@
 		<script>
 			var instance = null;
 			var result_control = null;
-			mw(new wasi(), 'mw.wasm', print, true).then(
+			mw(new wasi(), '/mw.wasm', print, true).then(
 				result=>{
 					instance = result;
 					print_version(instance.version);

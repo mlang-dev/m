@@ -16,7 +16,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_ex
     if (ret_type->type == TYPE_UNIT){
         return create_ignore(ret_type);
     }
-    else if (is_aggregate_type(ret_type->type)){ //aggregate type or is member function pointer
+    else if (is_aggregate_type(ret_type)){ //aggregate type or is member function pointer
         return create_natural_align_indirect(ret_type, false);
     }
     //TODO: enum types as underlying int type
@@ -31,7 +31,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_ex
 struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_expr *type)
 {
     //TODO: use first field if transparent union
-    if(is_aggregate_type(type->type)){
+    if(is_aggregate_type(type)){
         return create_natural_align_indirect(type, false);
     }
     //TODO: enum

@@ -284,10 +284,11 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
             report_error(context, EC_NOT_VALUE_TYPE, node->loc);
             return 0;
         }
-        assert(node->unop->operand->node_type == IDENT_NODE);
         //reference-of or address-of operator
-        var = _get_var_node(context, node->unop->operand);
-        if(var) var->is_addressed = true;
+        if(node->unop->operand->node_type == IDENT_NODE){
+            var = _get_var_node(context, node->unop->operand);
+            if(var) var->is_addressed = true;
+        }
         node->unop->operand->is_addressed = true;
         op_type = create_ref_type(op_type);
     }
@@ -344,7 +345,7 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
         report_error(context, EC_NOT_ASSIGNABLE, node->loc);
         return 0;
     }
-    node->binop->lhs->is_lvalue = true;
+    set_lvalue(node->binop->lhs);
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;

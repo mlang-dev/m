@@ -8,11 +8,14 @@ function get_mw(log=null){
 }
 
 
-function mtest(name, description, code, expect_value, is_tutorial=true)
+function mtest(name, description, code, expect_value, is_tutorial=true, save_wasm=false)
 {
     test(name, () => {
         var result = get_mw();
         return result.then((m) => {
+            if(save_wasm){
+                m.compile(code, "test.wasm");
+            }
             expect(m.run_code(code)).toEqual(expect_value);
         });
     });  

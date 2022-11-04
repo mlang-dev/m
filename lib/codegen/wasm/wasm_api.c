@@ -176,16 +176,6 @@ void wasm_emit_call_fun(WasmModule ba, u32 fun_index)
     wasm_emit_uint(ba, fun_index);
 }
 
-/**
- * @brief load data from memory to stack.
- * 
- * @param ba 
- * @param addr_var_index 
- * @param is_global 
- * @param align 
- * @param offset 
- * @param type 
- */
 void wasm_emit_load_mem(WasmModule ba, u32 addr_var_index, bool is_global, u32 align, u32 offset, enum type type)
 {
     assert(align <= 8);

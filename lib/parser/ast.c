@@ -174,6 +174,7 @@ struct ast_node *ident_node_new(symbol name, struct source_location loc)
     MALLOC(node->ident, sizeof(*node->ident));
     node->ident->name = name;
     node->ident->var = 0;
+    node->ident->is_member_index_object = false;
     return node;
 }
 
@@ -618,6 +619,9 @@ struct ast_node *member_index_node_new(struct ast_node *object, struct ast_node 
 {
     struct ast_node *node = ast_node_new(MEMBER_INDEX_NODE, 0, 0, false, loc);
     MALLOC(node->index, sizeof(*node->index));
+    if(object->node_type == IDENT_NODE){
+        object->ident->is_member_index_object = true;
+    }
     node->index->object = object;
     node->index->index = index;
     node->is_addressable = true;
@@ -869,4 +873,13 @@ struct ast_node *get_root_object(struct ast_node *node)
 bool is_refered_later(struct ast_node *node)
 {
     return node->node_type == IDENT_NODE;
+}
+
+void set_lvalue(struct ast_node *node)
+{
+    node->is_lvalue = true;
+    while(node->node_type == MEMBER_INDEX_NODE){
+        node = node->index->object;
+        node->is_lvalue = true;
+    }
 }
