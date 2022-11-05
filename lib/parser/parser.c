@@ -319,6 +319,10 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(node1->node_type == BLOCK_NODE);
         ast = struct_init_node_new(node1, node->ident->name, node->loc);
         break;
+    case LIST_COMP_NODE:
+        node = items[rule->action.item_index[0]].ast;
+        ast = list_comp_node_new(node, node->loc);
+        break;
     case BLOCK_NODE:
         if (rule->action.item_index_count == 0){
             struct array nodes;

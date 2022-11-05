@@ -430,6 +430,7 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             assert(false);
             break;
         case RANGE_NODE:
+        case LIST_COMP_NODE:
             break;
         case UNIT_NODE:
             type = create_unit_type();

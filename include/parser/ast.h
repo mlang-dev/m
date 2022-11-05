@@ -36,6 +36,7 @@ extern "C" {
     ENUM_ITEM(STRUCT_NODE)          \
     ENUM_ITEM(UNION_NODE)           \
     ENUM_ITEM(STRUCT_INIT_NODE)     \
+    ENUM_ITEM(LIST_COMP_NODE)       \
     ENUM_ITEM(RANGE_NODE)           \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \
@@ -198,6 +199,7 @@ struct ast_node {
         
         struct _struct_node *struct_def; 
         struct _struct_init_node *struct_init;
+        struct ast_node *list_comp;
         struct _range_node *range;
         struct _import_node *import;
         struct _if_node *cond;
@@ -246,6 +248,7 @@ struct ast_node *func_type_node_new(
     bool is_variadic, bool is_external, struct source_location loc);
 struct ast_node *struct_node_new(symbol name, struct ast_node *body, struct source_location loc);
 struct ast_node *struct_init_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
+struct ast_node *list_comp_node_new(struct ast_node *comp, struct source_location loc);
 struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc);
 struct ast_node *func_type_node_default_new(
     symbol name,
