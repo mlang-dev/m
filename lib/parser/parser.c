@@ -211,19 +211,19 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         if(rule->action.item_index_count == 3){
             node2 = items[rule->action.item_index[1]].ast; //step
             node3 = items[rule->action.item_index[2]].ast; // end
-        } else if (rule->action.item_index_count == 4){
+        } else {
             node2 = 0;
-            node3 = items[rule->action.item_index[2]].ast; // end
+            node3 = items[rule->action.item_index[1]].ast; // end
         }
-        node3 = binary_node_new(OP_LT, ident_node_new(node->var->var_name, node->loc), node3, node->loc);
-        node = range_node_new(node1, node3, node2, node1->loc);
+        ast = range_node_new(node1, node3, node2, node1->loc);
         break;
     case FOR_NODE:
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == VAR_NODE);
         node1 = items[rule->action.item_index[1]].ast; //range
         node2 = items[rule->action.item_index[2]].ast; //body
-        ast = for_node_new(node, node1, node3, node->loc);
+        node1->range->end = binary_node_new(OP_LT, ident_node_new(node->var->var_name, node->loc), node1->range->end, node1->range->end->loc);
+        ast = for_node_new(node, node1, node2, node->loc);
         break;
     case IF_NODE:
         node = items[rule->action.item_index[0]].ast;
