@@ -43,5 +43,5 @@ let update x:&cf64 =
 z = &cf64(100.0, 200.0)
 update z
 z.re
-`, 10.0, true, true);
+`, 10.0, true);
 

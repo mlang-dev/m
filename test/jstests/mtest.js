@@ -22,7 +22,7 @@ function mtest(name, description, code, expect_value, is_tutorial=true, save_was
 }
 
 
-function mtest_string(name, description, code, expect_value)
+function mtest_string(name, description, code, expect_value, is_tutorial=true)
 {
     test(name, () => {
         let output = null;
