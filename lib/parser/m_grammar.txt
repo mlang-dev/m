@@ -95,8 +95,14 @@ assign_op       = '='
 expr            = assign_expr
                 | list_comp
 
-list_comp       = '[' range_expr ']'                                                        { list_comp 1 }
-                | '[' for_stmt ']'                                                          { list_comp 1 }
+list_comp       = '[' list_comp_decl ']'                                                    { list_comp 1 }
+
+list_comp_decl  = range_expr
+                | for_stmt
+                | expr_list
+
+expr_list       = expr                                                                      { block 0 }
+                | expr_list ',' expr                                                        { block 0 2 }
 
 stmt            = func_type
                 | func_def                                                            

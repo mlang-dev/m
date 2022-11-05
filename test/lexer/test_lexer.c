@@ -507,6 +507,23 @@ TEST(test_lexer, complex_number)
     frontend_deinit(fe);
 }
 
+TEST(test_lexer, group_with_multiple_lines)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "[\n\
+    ]";
+
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+
+    ASSERT_EQ(TOKEN_LBRACKET, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_RBRACKET, get_tok(lexer)->token_type);
+
+
+    lexer_free(lexer);
+    frontend_deinit(fe);
+}
+
 int test_lexer()
 {
     UNITY_BEGIN();
@@ -534,5 +551,6 @@ int test_lexer()
     RUN_TEST(test_lexer_token_indent_dedent);
     RUN_TEST(test_lexer_token_import_memory);
     RUN_TEST(test_lexer_complex_number);
+    RUN_TEST(test_lexer_group_with_multiple_lines);
     return UNITY_END();
 }

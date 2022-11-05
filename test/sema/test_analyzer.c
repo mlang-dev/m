@@ -69,11 +69,28 @@ let update z:&AB =\n\
     frontend_deinit(fe);
 }
 
+TEST(test_analyzer, array_variable)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "\n\
+a = [10, 20, 30]\n\
+";
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct ast_node* array = *(struct ast_node **)array_get(&block->block->nodes, 0);
+    ASSERT_EQ(TYPE_ARRAY, array->type->type);
+    ASSERT_EQ(to_symbol("int[3]"), array->type->name);
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
 int test_analyzer()
 {
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_call_node);
     RUN_TEST(test_analyzer_ref_type_variable);
     RUN_TEST(test_analyzer_ref_type_func);
+    RUN_TEST(test_analyzer_array_variable);
     return UNITY_END();
 }

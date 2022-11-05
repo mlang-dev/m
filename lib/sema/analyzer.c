@@ -141,6 +141,25 @@ struct type_expr *_analyze_struct_init(struct sema_context *context, struct ast_
     return node->type;
 }
 
+struct type_expr *_analyze_list_comp(struct sema_context *context, struct ast_node *node)
+{
+    struct type_expr *type = 0;
+    if(node->list_comp->node_type == BLOCK_NODE){
+        struct array dims;
+        array_init(&dims, sizeof(u32));
+        u32 size = array_size(&node->list_comp->block->nodes);
+        array_push(&dims, &size);
+        struct type_expr *element_type = 0;
+        if(size){
+            struct ast_node *element = *(struct ast_node **)array_front(&node->list_comp->block->nodes);
+            element_type = analyze(context, element);
+        }
+        type = create_array_type(element_type, &dims);
+        array_deinit(&dims);
+    }
+    return type;
+}
+
 struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_node *node)
 {
     struct array fun_sig;
@@ -430,7 +449,9 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             assert(false);
             break;
         case RANGE_NODE:
+            break;
         case LIST_COMP_NODE:
+            type = _analyze_list_comp(context, node);
             break;
         case UNIT_NODE:
             type = create_unit_type();
