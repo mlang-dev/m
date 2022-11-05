@@ -110,6 +110,7 @@ struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size
             }
         }
     }
+    array_init(&lexer->open_closes, sizeof(enum token_type));
     return lexer;
 }
 
@@ -127,6 +128,7 @@ struct lexer *lexer_new_with_string(const char *text)
 
 void lexer_free(struct lexer *lexer)
 {
+    array_deinit(&lexer->open_closes);
     FREE(lexer);
 }
 
@@ -180,10 +182,15 @@ bool _scan_until_no_digit(struct lexer *lexer)
     return has_dot;
 }
 
+bool _is_in_group(struct lexer *lexer)
+{
+    return array_size(&lexer->open_closes);
+}
+
 u32 _scan_until_no_space(struct lexer *lexer)
 {
     u32 spaces = 0;
-    while (isspace(lexer->buff[lexer->pos]) && lexer->buff[lexer->pos] != '\n') {
+    while (isspace(lexer->buff[lexer->pos]) && (lexer->buff[lexer->pos] != '\n' || _is_in_group(lexer))) {
         _move_ahead(lexer);
         spaces++;
     }
@@ -376,5 +383,24 @@ struct token *get_tok(struct lexer *lexer)
     }
 mark_end:
     tok->loc.end = lexer->buff_base + lexer->pos;
+    if(is_open_group(tok->token_type)){
+        array_push(&lexer->open_closes, &tok->token_type);
+    }
+    else if(is_close_group(tok->token_type)){
+        if(!array_size(&lexer->open_closes)){
+            //TODO: print not matched open symbol error
+            assert(false);
+        }
+        enum token_type open = *(enum token_type*)array_back(&lexer->open_closes);
+        if(!is_open_group(open)){
+            //TODO: print error message
+            assert(false);
+        }
+        else if(!is_match_open(open, tok->token_type)){
+            //TODO print error message 2
+            assert(false);
+        }
+        array_pop(&lexer->open_closes);
+    }
     return tok;
 }

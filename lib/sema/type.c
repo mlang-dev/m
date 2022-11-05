@@ -28,6 +28,7 @@ const char *const _type_strings[TYPE_TYPES] = {
     "string",
     "->",
     "struct",
+    "array",
     "union",
     "complex",
     "ref",
@@ -51,6 +52,7 @@ struct symbol_ref_pair type_symbols[TYPE_TYPES] = {
     {0, 0},
     {0, 0},
 
+    {0, 0},
     {0, 0},
     {0, 0},
     {0, 0},
@@ -102,6 +104,25 @@ symbol _to_fun_type_name(struct array *types)
     symbol fun_type_symbol = to_symbol(string_get(&str));
     string_deinit(&str);
     return fun_type_symbol;
+}
+
+symbol _to_array_type_name(symbol element_type_name, struct array *dims)
+{
+    string str;
+    string_init(&str);
+    string_add(&str, element_type_name);
+    char buffer [sizeof(u32)*8+1];
+    for(size_t i = 0; i < array_size(dims); i++){
+        string_add_chars(&str, "[");
+        u32 dim_size = *(u32*)array_get(dims, i);
+        sprintf(buffer, "%d", dim_size);
+        string_add_chars(&str, buffer);
+        string_add_chars(&str, "]");
+    }
+
+    symbol array_type_symbol = to_symbol(string_get(&str));
+    string_deinit(&str);
+    return array_type_symbol;
 }
 /*symbol 2 type expr pairs*/
 struct hashtable _symbol_2_type_exprs; 
@@ -239,6 +260,14 @@ struct type_expr *create_type_fun(struct array *args)
     } else {
         return _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
     }
+}
+
+struct type_expr *create_array_type(struct type_expr *element_type, struct array *dims)
+{
+    symbol array_type_name = _to_array_type_name(element_type->name, dims);
+    struct type_expr *type = create_type_oper(KIND_OPER, array_type_name, TYPE_ARRAY, 0);
+    type->dims = *dims;
+    return type;
 }
 
 //wrap as function type with signature: () -> oper

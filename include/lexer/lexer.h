@@ -10,6 +10,7 @@
 
 #include "clib/string.h"
 #include "clib/symbol.h"
+#include "clib/array.h"
 #include "clib/util.h"
 #include "lexer/token.h"
 #include "lexer/source_location.h"
@@ -46,6 +47,7 @@ struct lexer {
     int col;
     struct pattern_matches char_matches[128];
     int pending_dedents;
+    struct array open_closes; //group match 
 };
 
 struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size_t code_size);

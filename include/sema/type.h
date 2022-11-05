@@ -32,6 +32,7 @@ extern "C" {
     ENUM_ITEM(TYPE_STRING)      \
     ENUM_ITEM(TYPE_FUNCTION)    \
     ENUM_ITEM(TYPE_STRUCT)      \
+    ENUM_ITEM(TYPE_ARRAY)       \
     ENUM_ITEM(TYPE_UNION)       \
     ENUM_ITEM(TYPE_COMPLEX)     \
     ENUM_ITEM(TYPE_REF)         \
@@ -57,8 +58,10 @@ struct type_expr {
 
     union {
         struct type_expr *instance; //used for KIND_VAR
-        struct array args; //used for KIND_OPER struct array of struct type_expr*
+        //used for KIND_OPER struct array of struct type_expr*
+        struct array args; 
     }; 
+    struct array dims;  //dimensions for array type
 };
 
 void types_init();
@@ -71,6 +74,7 @@ struct type_expr *create_type_fun(struct array *args);
 struct type_expr *create_unit_type();
 struct type_expr *wrap_as_fun_type(struct type_expr *oper);
 struct type_expr *create_ref_type(struct type_expr *val_type);
+struct type_expr *create_array_type(struct type_expr *element_type, struct array *dims);
 void type_exp_free(struct type_expr *type);
 bool occurs_in_type(struct type_expr *var, struct type_expr *type2);
 struct type_expr *get_symbol_type(symboltable *st, struct array *nongens, symbol name);

@@ -35,6 +35,7 @@ u8 type_2_const[TYPE_TYPES] = {
     /*STRING*/ OPCODE_I32CONST,
     /*FUNCTION*/ 0,
     /*STRUCT*/ 0,
+    /*ARRAY*/0,
     /*UNION*/ 0,
     /*COMPLEX*/ 0,
     /*REF*/ 0,
@@ -52,6 +53,7 @@ u8 type_2_wtype[TYPE_TYPES] = {
     /*STRING*/ WASM_TYPE_I32,
     /*FUNCTION*/ 0,
     /*STRUCT*/ WASM_TYPE_I32,
+    /*ARRAY*/ WASM_TYPE_I32,
     /*UNION*/ WASM_TYPE_I32,
     /*COMPLEX*/ WASM_TYPE_I32,
     /*REF*/ WASM_TYPE_I32,
@@ -69,7 +71,10 @@ u8 type_2_store_op[TYPE_TYPES] = {
     /*STRING*/ OPCODE_I32STORE,
     /*FUNCTION*/ 0,
     /*STRUCT*/ 0,
+    /*ARRAY*/ 0,
     /*UNION*/ 0,
+    /*COMPLEX*/ 0,
+    /*REF*/OPCODE_I32STORE
 };
 
 u8 type_2_load_op[TYPE_TYPES] = {
@@ -84,7 +89,10 @@ u8 type_2_load_op[TYPE_TYPES] = {
     /*STRING*/ OPCODE_I32LOAD,
     /*FUNCTION*/ 0,
     /*STRUCT*/ 0,
+    /*ARRAY*/ 0,
     /*UNION*/ 0,
+    /*COMPLEX*/ 0,
+    /*REF*/OPCODE_I32LOAD
 };
 
 u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
