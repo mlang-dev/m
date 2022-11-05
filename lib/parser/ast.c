@@ -26,6 +26,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(struct_def, STRUCT),
     NODE_TYPE_NAME(union_def, UNION),
     NODE_TYPE_NAME(struct_init, STRUCT_INIT),
+    NODE_TYPE_NAME(list_comp, LIST_COMP),
     NODE_TYPE_NAME(range, RANGE),
     NODE_TYPE_NAME(unop, UNARY),
     NODE_TYPE_NAME(binop, BINARY),
@@ -365,8 +366,6 @@ void _free_struct_init_node(struct ast_node *node)
 }
 
 
-/********/
-
 struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(RANGE_NODE, 0, 0, false, loc);
@@ -392,6 +391,25 @@ void _free_range_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *list_comp_node_new(struct ast_node *comp, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(LIST_COMP_NODE, 0, 0, false, loc);
+    MALLOC(node->list_comp, sizeof(*node->list_comp));
+    node->list_comp = comp;
+    return node;
+}
+
+struct ast_node *_copy_list_comp_node(struct ast_node *orig_node)
+{
+    return list_comp_node_new(
+        node_copy(orig_node->list_comp), orig_node->loc);
+}
+
+void _free_list_comp_node(struct ast_node *node)
+{
+    ast_node_free(node->list_comp);
+    ast_node_free(node);
+}
 /********/
 
 struct ast_node *import_node_new(symbol from_module, struct ast_node *imported, struct source_location loc)
@@ -763,6 +781,8 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_binary_node(node);
     case RANGE_NODE:
         return _copy_range_node(node);
+    case LIST_COMP_NODE:
+        return _copy_list_comp_node(node);
     case NULL_NODE:
     case UNIT_NODE:
     case MEMORY_NODE:
@@ -825,6 +845,9 @@ void node_free(struct ast_node *node)
         break;
     case RANGE_NODE:
         _free_range_node(node);
+        break;
+    case LIST_COMP_NODE:
+        _free_list_comp_node(node);
         break;
     case UNIT_NODE:
     case MEMORY_NODE:
