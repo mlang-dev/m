@@ -2,43 +2,38 @@ const mtest = require('./mtest.js');
 
 mtest.mtest_string('hello world', 'The following is the simple statement to print out string "Hello World !" to the console.', 
 `
-print "hello world"
-`, "hello world");
+print "hello world, 您好 !"
+`, "hello world, 您好 !");
 
-
-mtest.mtest_string('print utc-8 string', 'We can print the unicode string.', 
-`
-print "你好"
-`, "你好");
 
 mtest.mtest_string('integer format', 'Print string with integer format.',
 `
 print "hello %d" 10
-`, "hello 10");
+`, "hello 10", false);
 
 mtest.mtest_string('print var', `Print a variable's value.`,
 `
 v = 10
 print "hello %d" v
-`, "hello 10");
+`, "hello 10", false);
 
 mtest.mtest_string('print char', 'Print one character.', 
 `
 putchar '#'
-`, '#');
+`, '#', false);
 
 mtest.mtest_string('print two int vars', 'Print the string with multiple integer variables.',
 `
 v1 = 10
 v2 = 20
 print "hello %d %d" v1 v2
-`, "hello 10 20");
+`, "hello 10 20", false);
 
 mtest.mtest_string('print float', 'Print a float variable.', 
 `
 v = 10.0
 print "hello %.2f" v
-`, "hello 10.00");
+`, "hello 10.00", false);
 
 mtest.mtest_string('print string, float and int', `Print string and int type value using variable. Variable's type is inferred from assignment statements.`,
 `

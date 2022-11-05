@@ -371,28 +371,28 @@ struct type_expr *_analyze_if(struct sema_context *context, struct ast_node *nod
 struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
-    node->forloop->var->var->init_value = node->forloop->start;
+    node->forloop->var->var->init_value = node->forloop->range->range->start;
     struct type_expr *var_type = analyze(context, node->forloop->var);
-    struct type_expr *start_type = analyze(context, node->forloop->start);
+    struct type_expr *start_type = analyze(context, node->forloop->range->range->start);
     struct type_expr *step_type = 0;
-    if(node->forloop->step)
-        step_type = analyze(context, node->forloop->step);
-    struct type_expr *end_type = analyze(context, node->forloop->end);
+    if(node->forloop->range->range->step)
+        step_type = analyze(context, node->forloop->range->range->step);
+    struct type_expr *end_type = analyze(context, node->forloop->range->range->end);
     struct type_expr *body_type = analyze(context, node->forloop->body);
     if (!unify(start_type, var_type, &context->nongens)) {
-        printf("failed to unify start type as int: %s, %s\n", kind_strings[start_type->kind], node_type_strings[node->forloop->start->node_type]);
+        printf("failed to unify start type as int: %s, %s\n", kind_strings[start_type->kind], node_type_strings[node->forloop->range->range->start->node_type]);
     }
     if(step_type){
         unify(step_type, var_type, &context->nongens);
     }
     unify(end_type, bool_type, &context->nongens);
-    if(!node->forloop->step){
-        node->forloop->step = const_one_node_new(var_type->type, node->loc);
-        step_type = analyze(context, node->forloop->step);
+    if(!node->forloop->range->range->step){
+        node->forloop->range->range->step = const_one_node_new(var_type->type, node->loc);
+        step_type = analyze(context, node->forloop->range->range->step);
     }
-    node->forloop->start->type = start_type;
-    node->forloop->step->type = step_type;
-    node->forloop->end->type = end_type;
+    node->forloop->range->range->start->type = start_type;
+    node->forloop->range->range->step->type = step_type;
+    node->forloop->range->range->end->type = end_type;
     node->forloop->body->type = body_type;
     return create_nullary_type(TYPE_UNIT, get_type_symbol(TYPE_UNIT));
 }
@@ -422,10 +422,14 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
         return node->type;
     _fill_type_enum(context, node);
     switch(node->node_type){
+        case ENUM_NODE:
+        case UNION_NODE:
         case TOTAL_NODE:
         case NULL_NODE:
             //type = _analyze_unk(context, node);
             assert(false);
+            break;
+        case RANGE_NODE:
             break;
         case UNIT_NODE:
             type = create_unit_type();
@@ -484,10 +488,6 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             break;
         case BLOCK_NODE:
             type = _analyze_block(context, node);
-            break;
-        case ENUM_NODE:
-        case UNION_NODE:
-            assert(false);
             break;
     }
     type = prune(type);

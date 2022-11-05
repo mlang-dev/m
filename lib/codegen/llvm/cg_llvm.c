@@ -665,7 +665,7 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef alloca = create_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), 4, fun, string_get(var_name));
 
     // KSDbgInfo.emitLocation(this);
-    LLVMValueRef start_v = emit_ir_code(cg, node->forloop->start);
+    LLVMValueRef start_v = emit_ir_code(cg, node->forloop->range->range->start);
     assert(start_v);
 
     LLVMBuildStore(cg->builder, start_v, alloca);
@@ -677,13 +677,13 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     emit_ir_code(cg, node->forloop->body);
     LLVMValueRef step_v;
-    if (node->forloop->step) {
-        step_v = emit_ir_code(cg, node->forloop->step);
+    if (node->forloop->range->range->step) {
+        step_v = emit_ir_code(cg, node->forloop->range->range->step);
         assert(step_v);
     } else {
         step_v = get_int_one(cg->context);
     }
-    LLVMValueRef end_cond = emit_ir_code(cg, node->forloop->end);
+    LLVMValueRef end_cond = emit_ir_code(cg, node->forloop->range->range->end);
     assert(end_cond);
 
     LLVMValueRef cur_var = LLVMBuildLoad(cg->builder, alloca, string_get(var_name));
@@ -733,6 +733,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case UNIT_NODE:
         case IMPORT_NODE:
         case MEMORY_NODE:
+        case RANGE_NODE:
             break;
         case LITERAL_NODE:
             value = _emit_literal_node(cg, node);

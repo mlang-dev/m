@@ -142,8 +142,10 @@ arg_exprs       = arg_exprs primary_expr                                        
 exprs           = exprs ',' expr                                                            { block 0 2 }
                 | expr                                                                      { block 0 }
 
-iterate_stmt    = "for" param_decl "in" expr ".." expr ".." expr block                      { for_loop 1 3 5 7 8 }
-                | "for" param_decl "in" expr ".." expr block                                { for_loop 1 3 5 6 }
+iterate_stmt    = "for" param_decl "in" range_expr block                                    { for_loop 1 3 4 }
+
+range_expr      =  expr ".." expr ".." expr                                                 { range 0 2 4}
+                |  expr ".." expr                                                           { range 0 2 }
 
 param_decls     = param_decls param_decl                                                    { block 0 1 }
                 | param_decl                                                                { block 0 }
@@ -159,4 +161,3 @@ param_decl      = IDENT ':' type_expr                                           
 var_decl        = IDENT ':' type_expr                                                       { var 0 0 2 }   # var name:type, no initial value
                 | IDENT ':' type_expr '=' expr                                              { var 1 0 2 4 } # var name:type with init value
                 | IDENT '=' expr                                                            { var 1 0 2 }   # var name with initial value
-            

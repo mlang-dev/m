@@ -307,9 +307,9 @@ let loopprint n =
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> ()", string_get(&type_str));
     ast_node *forn = *(ast_node **)array_front(&node->func->body->block->nodes);
-    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->step->type));
-    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->start->type));
-    ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->end->type));
+    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->step->type));
+    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->start->type));
+    ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->range->range->end->type));
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->body->type));
     ast_node_free(block);
     engine_free(engine);
@@ -339,9 +339,9 @@ let loopprint n:double =
     string type_str = to_string(node->type);
     ASSERT_STREQ("double -> ()", string_get(&type_str));
     ast_node *forn = *(ast_node **)array_front(&node->func->body->block->nodes);
-    ASSERT_EQ(TYPE_DOUBLE, get_type(forn->forloop->step->type));
-    ASSERT_EQ(TYPE_DOUBLE, get_type(forn->forloop->start->type));
-    ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->end->type));
+    ASSERT_EQ(TYPE_DOUBLE, get_type(forn->forloop->range->range->step->type));
+    ASSERT_EQ(TYPE_DOUBLE, get_type(forn->forloop->range->range->start->type));
+    ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->range->range->end->type));
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->body->type));
     ast_node_free(block);
     engine_free(engine);

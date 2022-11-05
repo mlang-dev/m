@@ -206,23 +206,24 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             ast = var_node_new2(node->ident->name, 0, false, 0, false, node->loc);
         }
         break;
+    case RANGE_NODE:
+        node1 = items[rule->action.item_index[0]].ast; //start
+        if(rule->action.item_index_count == 3){
+            node2 = items[rule->action.item_index[1]].ast; //step
+            node3 = items[rule->action.item_index[2]].ast; // end
+        } else {
+            node2 = 0;
+            node3 = items[rule->action.item_index[1]].ast; // end
+        }
+        ast = range_node_new(node1, node3, node2, node1->loc);
+        break;
     case FOR_NODE:
         node = items[rule->action.item_index[0]].ast;
         assert(node->node_type == VAR_NODE);
-        node1 = items[rule->action.item_index[1]].ast; //start
-        if(rule->action.item_index_count == 5){ //var, start, step, end, block
-            node2 = items[rule->action.item_index[2]].ast; //step
-            node3 = items[rule->action.item_index[3]].ast; //end
-            node4 = items[rule->action.item_index[4]].ast; // body
-        } else if (rule->action.item_index_count == 4){
-            node2 = 0;
-            node3 = items[rule->action.item_index[2]].ast; // end
-            node4 = items[rule->action.item_index[3]].ast; // body
-        }else{
-            assert(false);
-        }
-        node3 = binary_node_new(OP_LT, ident_node_new(node->var->var_name, node->loc), node3, node->loc);
-        ast = for_node_new(node, node1, node3, node2, node4, node->loc);
+        node1 = items[rule->action.item_index[1]].ast; //range
+        node2 = items[rule->action.item_index[2]].ast; //body
+        node1->range->end = binary_node_new(OP_LT, ident_node_new(node->var->var_name, node->loc), node1->range->end, node1->range->end->loc);
+        ast = for_node_new(node, node1, node2, node->loc);
         break;
     case IF_NODE:
         node = items[rule->action.item_index[0]].ast;

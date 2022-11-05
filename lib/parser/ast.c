@@ -26,6 +26,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(struct_def, STRUCT),
     NODE_TYPE_NAME(union_def, UNION),
     NODE_TYPE_NAME(struct_init, STRUCT_INIT),
+    NODE_TYPE_NAME(range, RANGE),
     NODE_TYPE_NAME(unop, UNARY),
     NODE_TYPE_NAME(binop, BINARY),
     NODE_TYPE_NAME(indexing, MEMBER_INDEX),
@@ -363,6 +364,36 @@ void _free_struct_init_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+
+/********/
+
+struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(RANGE_NODE, 0, 0, false, loc);
+    MALLOC(node->range, sizeof(*node->range));
+    node->range->start = start;
+    node->range->end = end;
+    node->range->step = step;
+    return node;
+}
+
+struct ast_node *_copy_range_node(struct ast_node *orig_node)
+{
+    return range_node_new(
+        node_copy(orig_node->range->start), node_copy(orig_node->range->end), 
+        node_copy(orig_node->range->step), orig_node->loc);
+}
+
+void _free_range_node(struct ast_node *node)
+{
+    ast_node_free(node->range->start);
+    ast_node_free(node->range->end);
+    ast_node_free(node->range->step);
+    ast_node_free(node);
+}
+
+/********/
+
 struct ast_node *import_node_new(symbol from_module, struct ast_node *imported, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(IMPORT_NODE, imported->annotated_type_enum, imported->annotated_type_name, false, loc);
@@ -643,15 +674,13 @@ void _free_member_index_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *for_node_new(struct ast_node *var, struct ast_node *start,
-    struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc)
+struct ast_node *for_node_new(struct ast_node *var, struct ast_node *range,
+    struct ast_node *body, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(FOR_NODE, 0, 0, false, loc);
     MALLOC(node->forloop, sizeof(*node->forloop));
     node->forloop->var = var;
-    node->forloop->start = start;
-    node->forloop->end = end;
-    node->forloop->step = step;
+    node->forloop->range = range;
     node->forloop->body = body;
     return node;
 }
@@ -659,7 +688,7 @@ struct ast_node *for_node_new(struct ast_node *var, struct ast_node *start,
 struct ast_node *_copy_for_node(struct ast_node *orig_node)
 {
     return for_node_new(
-        orig_node->forloop->var, orig_node->forloop->start, orig_node->forloop->end, orig_node->forloop->step, 
+        orig_node->forloop->var, orig_node->forloop->range, 
         orig_node->forloop->body, orig_node->loc);
 }
 
@@ -667,12 +696,8 @@ void _free_for_node(struct ast_node *node)
 {
     if (node->forloop->var)
         node_free(node->forloop->var);
-    if (node->forloop->start)
-        node_free(node->forloop->start);
-    if (node->forloop->end)
-        node_free(node->forloop->end);
-    if (node->forloop->step)
-        node_free(node->forloop->step);
+    if (node->forloop->range)
+        node_free(node->forloop->range);
     if (node->forloop->body)
         node_free(node->forloop->body);
     ast_node_free(node);
@@ -736,8 +761,16 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_unary_node(node);
     case BINARY_NODE:
         return _copy_binary_node(node);
-    default:
-        assert(false);
+    case RANGE_NODE:
+        return _copy_range_node(node);
+    case NULL_NODE:
+    case UNIT_NODE:
+    case MEMORY_NODE:
+    case ENUM_NODE:
+    case UNION_NODE:
+    case MEMBER_INDEX_NODE:
+    case TOTAL_NODE:
+        break;
     }
     return 0;
 }
@@ -790,8 +823,16 @@ void node_free(struct ast_node *node)
     case BINARY_NODE:
         _free_binary_node(node);
         break;
-    default:
-        printf("not supported node type: %d\n", node->node_type);
+    case RANGE_NODE:
+        _free_range_node(node);
+        break;
+    case UNIT_NODE:
+    case MEMORY_NODE:
+    case ENUM_NODE:
+    case UNION_NODE:
+    case MEMBER_INDEX_NODE:
+    case TOTAL_NODE:
+        break;
     }
 }
 
