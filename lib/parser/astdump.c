@@ -139,8 +139,8 @@ string _dump_for(struct ast_node *fornode)
     string_init_chars(&result, "for ");
     string_add(&result, fornode->forloop->var->var->var_name);
     string_add_chars(&result, " in ");
-    string str_start = dump(fornode->forloop->start);
-    string str_end = dump(fornode->forloop->end);
+    string str_start = dump(fornode->forloop->range->range->start);
+    string str_end = dump(fornode->forloop->range->range->end);
     string_add(&result, &str_start);
     string_add_chars(&result, "..");
     string_add(&result, &str_end);

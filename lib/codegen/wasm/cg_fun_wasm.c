@@ -186,13 +186,13 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         }
         break;
     case FOR_NODE:
-        vi = _req_new_local_var(cg, node->forloop->start->type, is_local_var, node->forloop->start->is_ret, node->forloop->start->is_addressed);
+        vi = _req_new_local_var(cg, node->forloop->range->range->start->type, is_local_var, node->forloop->range->range->start->is_ret, node->forloop->range->range->start->is_addressed);
         symboltable_push(&fc->varname_2_index, node->forloop->var->var->var_name, vi);
         hashtable_set_p(&fc->ast_2_index, node->forloop->var, vi);
-        vi = _req_new_local_var(cg, node->forloop->step->type, true, node->forloop->step->is_ret, node->forloop->step->is_addressed);
-        hashtable_set_p(&fc->ast_2_index, node->forloop->step, vi);
-        vi = _req_new_local_var(cg, node->forloop->end->binop->rhs->type, true, node->forloop->end->binop->rhs->is_ret, node->forloop->end->binop->rhs->is_addressed);
-        hashtable_set_p(&fc->ast_2_index, node->forloop->end->binop->rhs, vi);
+        vi = _req_new_local_var(cg, node->forloop->range->range->step->type, true, node->forloop->range->range->step->is_ret, node->forloop->range->range->step->is_addressed);
+        hashtable_set_p(&fc->ast_2_index, node->forloop->range->range->step, vi);
+        vi = _req_new_local_var(cg, node->forloop->range->range->end->binop->rhs->type, true, node->forloop->range->range->end->binop->rhs->is_ret, node->forloop->range->range->end->binop->rhs->is_addressed);
+        hashtable_set_p(&fc->ast_2_index, node->forloop->range->range->end->binop->rhs, vi);
         break;
     case CALL_NODE:
         /*TODO: call node doesn't support both sret and varidic parameter*/

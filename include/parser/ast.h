@@ -36,6 +36,7 @@ extern "C" {
     ENUM_ITEM(STRUCT_NODE)          \
     ENUM_ITEM(UNION_NODE)           \
     ENUM_ITEM(STRUCT_INIT_NODE)     \
+    ENUM_ITEM(RANGE_NODE)           \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \
     ENUM_ITEM(MEMBER_INDEX_NODE)    \
@@ -112,7 +113,8 @@ struct _if_node {
 
 struct _for_node {
     struct ast_node *var;
-    struct ast_node *start, *end, *step, *body;
+    struct ast_node *range;
+    struct ast_node *body;
 };
 
 struct _struct_node {
@@ -123,6 +125,10 @@ struct _struct_node {
 /*struct initializer node*/
 struct _struct_init_node { 
     struct ast_node *body; /*body block*/
+};
+
+struct _range_node{
+    struct ast_node *start, *end, *step;
 };
 
 #define ARRAY_FUN_PARAM(var) ARRAY(var, struct ast_node*, 0)
@@ -192,6 +198,7 @@ struct ast_node {
         
         struct _struct_node *struct_def; 
         struct _struct_init_node *struct_init;
+        struct _range_node *range;
         struct _import_node *import;
         struct _if_node *cond;
         struct _for_node *forloop;
@@ -239,6 +246,7 @@ struct ast_node *func_type_node_new(
     bool is_variadic, bool is_external, struct source_location loc);
 struct ast_node *struct_node_new(symbol name, struct ast_node *body, struct source_location loc);
 struct ast_node *struct_init_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
+struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc);
 struct ast_node *func_type_node_default_new(
     symbol name,
     struct ast_node *arg_block, symbol ret_type, bool is_variadic, bool is_external, struct source_location loc);
@@ -248,8 +256,7 @@ struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_n
 struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *member_index_node_new(struct ast_node *object, struct ast_node *index, struct source_location loc);
-struct ast_node *for_node_new(struct ast_node *var, struct ast_node *start,
-    struct ast_node *end, struct ast_node *step, struct ast_node *body, struct source_location loc);
+struct ast_node *for_node_new(struct ast_node *var, struct ast_node *range, struct ast_node *body, struct source_location loc);
 struct ast_node *block_node_new_empty();
 struct ast_node *block_node_new(struct array *nodes);
 struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node);
