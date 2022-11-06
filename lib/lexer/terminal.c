@@ -134,6 +134,33 @@ const char *token_type_strings[] = {
     FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
 };
 
+
+void terminal_init()
+{
+    for (int i = 0; i < TERMINAL_COUNT; i++) {
+        struct token_pattern *tp = &g_token_patterns[i];
+        if(tp->name&&tp->pattern&&!tp->re){
+            tp->re = regex_new(tp->pattern);
+            assert(tp->re);
+        }
+        if(tp->name){
+            tp->symbol_name = to_symbol(tp->name);
+        }
+    }
+}
+
+void terminal_deinit()
+{
+    for (int i = 0; i < TERMINAL_COUNT; i++) {
+        struct token_pattern *tp = &g_token_patterns[i];
+        if(tp->re){
+            regex_free(tp->re);
+            tp->re = 0;
+        }
+    }
+}
+
+
 struct token_patterns get_token_patterns()
 {
     struct token_patterns tps = { g_token_patterns, TERMINAL_COUNT };

@@ -21,21 +21,6 @@
 extern "C" {
 #endif
 
-extern const char *token_type_strings[];
-
-
-struct token {
-    enum token_type token_type;
-    struct source_location loc;
-    union {
-        string *str_val; //string literal
-        double double_val; //double literal
-        int int_val; //int literal
-        symbol symbol_val;
-        enum op_code opcode;
-    };
-};
-
 void pgen_token_init();
 
 void pgen_token_deinit();

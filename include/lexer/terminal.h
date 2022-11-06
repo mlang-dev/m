@@ -153,6 +153,10 @@ struct token_patterns{
     size_t pattern_count;
 };
 
+void terminal_init();
+
+void terminal_deinit();
+
 struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode);
 
 struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type);

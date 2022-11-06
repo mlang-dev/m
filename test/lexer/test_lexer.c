@@ -519,7 +519,6 @@ TEST(test_lexer, group_with_multiple_lines)
     ASSERT_EQ(TOKEN_LBRACKET, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_RBRACKET, get_tok(lexer)->token_type);
 
-
     lexer_free(lexer);
     frontend_deinit(fe);
 }

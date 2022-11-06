@@ -14,7 +14,6 @@ u16 g_nonterm_count;
 
 struct hashtable token_patterns_by_symbol;
 
-
 void pgen_token_init()
 {
     hashtable_init(&token_patterns_by_symbol);
