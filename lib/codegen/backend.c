@@ -4,7 +4,6 @@
  * backend-end initializer/deinitializer for create/destroy backend codegen configurations
  */
 #include "clib/symbol.h"
-#include "lexer/token.h"
 #include "parser/ast.h"
 #include "sema/type.h"
 #include "sema/sema_context.h"

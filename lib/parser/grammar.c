@@ -9,7 +9,6 @@
 #include "lexer/lexer.h"
 #include "clib/util.h"
 #include <assert.h>
-#include "lexer/token.h"
 
 void expr_item_init(struct expr_item *ei, symbol sym, enum expr_item_type type)
 {

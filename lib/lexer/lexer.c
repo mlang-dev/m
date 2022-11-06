@@ -7,7 +7,6 @@
 #include <ctype.h>
 #include "lexer/lexer.h"
 #include <assert.h>
-#include "lexer/token.h"
 #include "clib/regex.h"
 #include "clib/win/libfmemopen.h"
 #include "error/error.h"

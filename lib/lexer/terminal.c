@@ -173,7 +173,7 @@ const char *get_opcode(enum op_code opcode)
     return get_token_pattern_by_opcode(opcode)->name;
 }
 
-symbol get_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode)
+symbol get_terminal_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode)
 {
     if (token_type == TOKEN_OP){
         assert(opcode >= 0 && opcode < OP_TOTAL);
@@ -193,6 +193,14 @@ struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type
 {
     assert(token_type >= 0 && token_type <= TOKEN_OP);
     return &g_token_patterns[(int)token_type];
+}
+
+u16 get_terminal_token_index(enum token_type token_type, enum op_code opcode)
+{
+    if(token_type == TOKEN_OP)
+        return (u16)TOKEN_OP + (u16)opcode;
+    else 
+        return (u16)token_type;
 }
 
 bool is_terminal(u16 symbol_index)

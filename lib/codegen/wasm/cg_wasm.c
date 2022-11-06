@@ -344,7 +344,7 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     struct var_info *vi;
     switch (node->unop->opcode){
         default:
-            s = get_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
+            s = get_terminal_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
             printf("Not implemented unary for : %s\n", string_get(s));
             break;
         case OP_STAR:
@@ -395,7 +395,7 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
         assert(node->unop->opcode >= 0 && node->unop->opcode < OP_TOTAL);
         u8 opcode = op_maps[node->unop->opcode][type_index];
         if(!opcode){
-            symbol s = get_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
+            symbol s = get_terminal_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
             printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(get_type_symbol(type_index)));
         }else{
             ba_add(ba, opcode);
@@ -481,7 +481,7 @@ void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *no
     if (node->binop->opcode != OP_POW){
         u8 opcode = op_maps[node->binop->opcode][type_index];
         if(!opcode){
-            symbol s = get_symbol_by_token_opcode(TOKEN_OP, node->binop->opcode);
+            symbol s = get_terminal_symbol_by_token_opcode(TOKEN_OP, node->binop->opcode);
             printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(get_type_symbol(type_index)));
         }else{
             ba_add(ba, opcode);

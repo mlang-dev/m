@@ -153,6 +153,18 @@ struct token_patterns{
     size_t pattern_count;
 };
 
+struct token {
+    enum token_type token_type;
+    struct source_location loc;
+    union {
+        string *str_val; //string literal
+        double double_val; //double literal
+        int int_val; //int literal
+        symbol symbol_val;
+        enum op_code opcode;
+    };
+};
+
 void terminal_init();
 
 void terminal_deinit();
@@ -165,8 +177,10 @@ extern struct token_pattern g_token_patterns[TERMINAL_COUNT];
 
 struct token_patterns get_token_patterns();
 
-symbol get_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode);
+symbol get_terminal_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode);
 
+/*get index by token*/
+u16 get_terminal_token_index(enum token_type token_type, enum op_code opcode);
 
 const char *get_opcode(enum op_code opcode);
 

@@ -43,7 +43,7 @@ void pgen_token_deinit()
     hashtable_deinit(&token_patterns_by_symbol);
 }
 
-struct token_pattern *get_token_pattern_by_symbol(symbol symbol)
+struct token_pattern *_get_token_pattern_by_symbol(symbol symbol)
 {
     return (struct token_pattern *)hashtable_get_p(&token_patterns_by_symbol, symbol);
 }
@@ -51,7 +51,7 @@ struct token_pattern *get_token_pattern_by_symbol(symbol symbol)
 //the symbol could be terminal or non-terminal symbol in grammar
 u16 get_symbol_index(symbol symbol)
 {
-    struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
+    struct token_pattern *tp = _get_token_pattern_by_symbol(symbol);
     if(tp == 0){
         printf("unknown symbol: %s\n", string_get(symbol));
         assert(false);
@@ -65,7 +65,7 @@ u16 get_symbol_index(symbol symbol)
 
 u16 register_grammar_nonterm(symbol symbol)
 {
-    struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
+    struct token_pattern *tp = _get_token_pattern_by_symbol(symbol);
     if(tp){
         printf("already found the grammar nonterm symbol: %s\n", string_get(symbol));
         assert(false);
