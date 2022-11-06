@@ -9,7 +9,7 @@
 
 #include "clib/typedef.h"
 #include "parser/grammar.h"
-#include "parser/ast.h"
+#include "parser/node_type.h"
 
 #ifdef __cplusplus
 extern "C" {

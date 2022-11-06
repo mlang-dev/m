@@ -27,6 +27,7 @@ if (WASM)
 
   add_library(mlr 
     error/error.c
+    lexer/terminal.c
     lexer/token.c
     lexer/lexer.c
     parser/node_type.c
@@ -87,8 +88,9 @@ else()
 
   add_executable(pgen
     error/error.c
-    lexer/token.c
     lexer/lexer.c
+    lexer/terminal.c
+    lexer/pgen_token.c
     parser/node_type.c
     parser/grammar.c
     parser/m_parsing_table.c
@@ -112,6 +114,7 @@ else()
   add_library(mlr
     tool/cmodule.c
     error/error.c
+    lexer/terminal.c
     lexer/token.c
     lexer/lexer.c
     parser/node_type.c

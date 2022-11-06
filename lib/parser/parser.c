@@ -6,12 +6,14 @@
  * This is to implement a parser's main driver, taking a parsing table & rule and parse text 
  * into ast according to the parsing table and rule set
  */
+#include "lexer/lexer.h"
 #include "parser/parser.h"
 #include "parser/m_parsing_table.h"
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
 #include "error/error.h"
+#include "parser/ast.h"
 #include <assert.h>
 
 struct parser *_parser_new(parsing_table *pt, parsing_rules *pr, parsing_symbols *psd, parsing_states *pstd)

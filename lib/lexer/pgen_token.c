@@ -1,11 +1,13 @@
+/*
+ * Copyright (C) 2022 Ligang Wang <ligangwangs@gmail.com>
+ *
+ * defines token functions used in pgen.
+ *
+ */
 #include "lexer/pgen_token.h"
 #include "clib/hashtable.h"
+#include "lexer/terminal.h"
 #include <assert.h>
-
-#define NULL_PATTERN(pattern, tok_name, op_name) {0, 0, pattern, 0, TOKEN_##tok_name, OP_##op_name}
-#define TOKEN_PATTERN(pattern, tok_name, op_name) {#tok_name, 0, pattern, 0, TOKEN_##tok_name, OP_##op_name}
-#define KEYWORD_PATTERN(keyword, tok_name, op_name) {keyword, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
-#define NAME_KEYWORD_PATTERN(name, keyword, tok_name, op_name) {name, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
 
 struct token_pattern g_nonterms[MAX_NONTERMS];
 u16 g_nonterm_count;
@@ -15,11 +17,29 @@ struct hashtable token_patterns_by_symbol;
 void pgen_token_init()
 {
     hashtable_init(&token_patterns_by_symbol);
+    for (int i = 0; i < TERMINAL_COUNT; i++) {
+        struct token_pattern *tp = &g_token_patterns[i];
+        if(tp->name&&tp->pattern&&!tp->re){
+            tp->re = regex_new(tp->pattern);
+            assert(tp->re);
+        }
+        if(tp->name){
+            tp->symbol_name = to_symbol(tp->name);
+            hashtable_set_p(&token_patterns_by_symbol, tp->symbol_name, tp);
+        }
+    }
     g_nonterm_count = 0;
 }
 
 void pgen_token_deinit()
 {
+    for (int i = 0; i < TERMINAL_COUNT; i++) {
+        struct token_pattern *tp = &g_token_patterns[i];
+        if(tp->re){
+            regex_free(tp->re);
+            tp->re = 0;
+        }
+    }
     hashtable_deinit(&token_patterns_by_symbol);
 }
 
@@ -28,7 +48,8 @@ struct token_pattern *get_token_pattern_by_symbol(symbol symbol)
     return (struct token_pattern *)hashtable_get_p(&token_patterns_by_symbol, symbol);
 }
 
-u16 pgen_get_symbol_index(symbol symbol)
+//the symbol could be terminal or non-terminal symbol in grammar
+u16 get_symbol_index(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
     if(tp == 0){
@@ -41,7 +62,8 @@ u16 pgen_get_symbol_index(symbol symbol)
     return (u16)tp->token_type;
 }
 
-u16 pgen_register_grammar_nonterm(symbol symbol)
+
+u16 register_grammar_nonterm(symbol symbol)
 {
     struct token_pattern *tp = get_token_pattern_by_symbol(symbol);
     if(tp){
@@ -63,7 +85,12 @@ u16 pgen_register_grammar_nonterm(symbol symbol)
     return nonterm;
 }
 
-symbol pgen_get_symbol_by_index(u16 symbol_index)
+u16 get_symbol_count()
+{
+    return g_nonterm_count + (u16)TERMINAL_COUNT;
+}
+
+symbol get_symbol_by_index(u16 symbol_index)
 {
     struct token_pattern *tp;
     if (symbol_index < TERMINAL_COUNT){
@@ -73,9 +100,4 @@ symbol pgen_get_symbol_by_index(u16 symbol_index)
         tp = &g_nonterms[symbol_index];
     }
     return tp->symbol_name;
-}
-
-u16 pgen_get_symbol_count()
-{
-    return g_nonterm_count + (u16)TERMINAL_COUNT;
 }
