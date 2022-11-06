@@ -85,6 +85,22 @@ a = [10, 20, 30]\n\
     frontend_deinit(fe);
 }
 
+TEST(test_analyzer, empty_array)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "\n\
+a = []\n\
+";
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct ast_node* array = *(struct ast_node **)array_get(&block->block->nodes, 0);
+    ASSERT_EQ(TYPE_ARRAY, array->type->type);
+    ASSERT_EQ(to_symbol("()[]"), array->type->name);
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
 int test_analyzer()
 {
     UNITY_BEGIN();
@@ -92,5 +108,6 @@ int test_analyzer()
     RUN_TEST(test_analyzer_ref_type_variable);
     RUN_TEST(test_analyzer_ref_type_func);
     RUN_TEST(test_analyzer_array_variable);
+    RUN_TEST(test_analyzer_empty_array);
     return UNITY_END();
 }

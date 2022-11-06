@@ -112,6 +112,9 @@ symbol _to_array_type_name(symbol element_type_name, struct array *dims)
     string_init(&str);
     string_add(&str, element_type_name);
     char buffer [sizeof(u32)*8+1];
+    if(!array_size(dims)){
+        string_add_chars(&str, "[]");
+    }
     for(size_t i = 0; i < array_size(dims); i++){
         string_add_chars(&str, "[");
         u32 dim_size = *(u32*)array_get(dims, i);
