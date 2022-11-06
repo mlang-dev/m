@@ -24,6 +24,8 @@ const char *err_messages[ALL_ERROR] = {
     "inconsistent indent level found.",
 
     "The left side of the dot is expected to be a struct type.",
+    "The left side of the bracket is expected to be an array type.",
+
     "field does not exist.",
     "variable type not matched with literal constant.",
     "types do not match.",

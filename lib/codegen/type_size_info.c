@@ -94,6 +94,20 @@ struct type_size_info _create_struct_type_size_info(struct type_expr *to)
     return ti;
 }
 
+struct type_size_info _create_array_type_size_info(struct type_expr *at)
+{
+    struct type_size_info ti;
+    struct type_size_info elm_ti = get_type_size_info(at->val_type);
+    u32 num_elms = array_size(&at->dims) ? 1 : 0;
+    for(u32 i = 0; i < array_size(&at->dims); i++){
+        num_elms *= *(u32*)array_get(&at->dims, i);
+    }
+    ti.align_bits = elm_ti.align_bits;
+    ti.width_bits = elm_ti.width_bits * num_elms;
+    ti.sl = 0;
+    return ti;
+}
+
 struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
 {
     struct type_size_info ti;
@@ -153,7 +167,9 @@ struct type_size_info get_type_size_info(struct type_expr *type)
         return *(struct type_size_info *)hashtable_get_p(&g_type_infos, type->name);
     }
     struct type_size_info ti;
-    if (type->type == TYPE_STRUCT) {
+    if (type->type == TYPE_ARRAY) {
+        ti = _create_array_type_size_info(type);
+    } else if (type->type == TYPE_STRUCT) {
         ti = _create_struct_type_size_info(type);
     } else {
         ti = _create_scalar_type_size_info(type);

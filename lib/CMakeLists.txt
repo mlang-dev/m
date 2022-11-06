@@ -50,6 +50,7 @@ if (WASM)
     codegen/wasm/cg_var_wasm.c
     codegen/wasm/cg_call_wasm.c
     codegen/wasm/cg_fun_wasm.c
+    codegen/wasm/cg_aggregate_wasm.c
     codegen/wasm/wasm_abi.c
     codegen/wasm/wasm_api.c
     compiler/engine.c
@@ -144,6 +145,7 @@ else()
     codegen/wasm/cg_var_wasm.c
     codegen/wasm/cg_fun_wasm.c
     codegen/wasm/cg_call_wasm.c
+    codegen/wasm/cg_aggregate_wasm.c    
     codegen/wasm/wasm_abi.c
     codegen/wasm/wasm_api.c
     compiler/repl.c

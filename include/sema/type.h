@@ -53,9 +53,8 @@ extern const char *kind_strings[];
 struct type_expr {
     enum kind kind; //type variable or type operator
     enum type type;
-    struct type_expr* val_type;// val_type the reference type is referred to
+    struct type_expr* val_type;// val_type the reference type is referred to or element type of the array
     symbol name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
-
     union {
         struct type_expr *instance; //used for KIND_VAR
         //used for KIND_OPER struct array of struct type_expr*
@@ -101,7 +100,7 @@ void struct_type_add_member(struct type_expr *struct_type, struct type_expr *typ
 
 
 #define is_int_type(type) (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_CHAR)
-#define is_aggregate_type(node_type) (node_type->type==TYPE_STRUCT)
+#define is_aggregate_type(node_type) (node_type->type==TYPE_STRUCT || node_type->type == TYPE_ARRAY)
 #define is_ref_type(node_type) (node_type->type == TYPE_REF)
 
 #ifdef __cplusplus

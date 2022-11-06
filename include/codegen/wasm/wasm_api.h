@@ -37,7 +37,8 @@ void wasm_emit_string(WasmModule module, string *str);
 void wasm_emit_assign_var(WasmModule ba, u32 to_var_index, bool is_to_global, u8 op, u32 operand,  u32 from_var_index, bool is_from_global);
 void wasm_emit_addr_offset(WasmModule ba, u32 var_index, bool is_global, u32 offset);
 void wasm_emit_change_var(WasmModule ba, u8 op, u32 operand, u32 var_index, bool is_global);
-void wasm_emit_load_mem(WasmModule ba, u32 addr_var_index, bool is_global, u32 align, u32 offset, enum type type);
+void wasm_emit_load_mem_from(WasmModule ba, u32 addr_var_index, bool is_global, u32 align, u32 offset, enum type type);
+void wasm_emit_load_mem(WasmModule ba, u32 align, u32 offset, enum type type);
 void wasm_emit_store_mem(WasmModule ba, u32 align, u32 offset, enum type type);
 
 void wasm_emit_copy_struct_value(WasmModule ba, u32 to_var_index, u32 to_offset, struct type_expr *type, u32 from_var_index, u32 from_offset);

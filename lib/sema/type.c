@@ -173,7 +173,7 @@ void struct_type_deinit(struct type_expr *struct_type)
 
 void struct_type_add_member(struct type_expr *struct_type, struct type_expr *type)
 {
-    assert(struct_type->type == TYPE_STRUCT);
+    assert(is_aggregate_type(struct_type));
     array_push(&struct_type->args, &type);
 }
 
@@ -270,6 +270,7 @@ struct type_expr *create_array_type(struct type_expr *element_type, struct array
     symbol array_type_name = _to_array_type_name(element_type->name, dims);
     struct type_expr *type = create_type_oper(KIND_OPER, array_type_name, TYPE_ARRAY, 0);
     type->dims = *dims;
+    type->val_type = element_type;
     return type;
 }
 

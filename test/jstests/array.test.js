@@ -8,6 +8,16 @@ mtest.mtest('array init',
 initialize a 1 length of int array
 `, 
 `
-a = 10
-a
+a = [10]
+a[0]
 `, 10);
+
+mtest.mtest('update array element', 
+`
+initialize a 1 length of int array
+`, 
+`
+a = [10]
+a[0] = 20
+a[0]
+`, 20);
