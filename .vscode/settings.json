@@ -165,7 +165,8 @@
         "wasm_abi.h": "c",
         "cg_wasm.h": "c",
         "cassert": "c",
-        "error.h": "c"
+        "error.h": "c",
+        "token.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

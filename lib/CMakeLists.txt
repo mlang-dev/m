@@ -29,6 +29,7 @@ if (WASM)
     error/error.c
     lexer/token.c
     lexer/lexer.c
+    parser/node_type.c
     parser/ast.c
     parser/astdump.c
     parser/m_parsing_table.c
@@ -88,13 +89,8 @@ else()
     error/error.c
     lexer/token.c
     lexer/lexer.c
-    sema/type.c
-    sema/frontend.c
-    sema/sema_context.c
-    sema/analyzer.c
-    parser/ast.c
+    parser/node_type.c
     parser/grammar.c
-    parser/parser.c
     parser/m_parsing_table.c
     parser/lalr_parser_generator.c
     codegen/type_size_info.c
@@ -118,6 +114,7 @@ else()
     error/error.c
     lexer/token.c
     lexer/lexer.c
+    parser/node_type.c
     parser/ast.c
     parser/astdump.c
     parser/grammar.c
