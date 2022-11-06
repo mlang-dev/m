@@ -1,7 +1,13 @@
 #include <stdio.h>
 #include "parser/lalr_parser_generator.h"
-#include "sema/frontend.h"
 #include <assert.h>
+#include "clib/symbol.h"
+#include "lexer/token.h"
+#include "parser/node_type.h"
+#include "sema/type.h"
+#include "clib/util.h"
+#include "error/error.h"
+
 
 #define header_comment_template  "/*\n"\
                               " * parsing table for parser\n"\
@@ -182,9 +188,25 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
     return 0;
 }
 
+void pgen_init()
+{
+    error_init();
+    symbols_init();
+    token_init();
+    node_type_init();
+}
+
+void pgen_deinit()
+{
+    node_type_deinit();
+    token_deinit();
+    symbols_deinit();
+    error_deinit();
+}
+
 int generate_files(const char *grammar_path, const char *header_path, const char *source_path)
 {
-    struct frontend *fe = frontend_init();
+    pgen_init();
     printf("parsing grammar file %s ...\n", grammar_path);
     const char *grammar = read_text_file(grammar_path);
     struct lalr_parser_generator *pg = lalr_parser_generator_new(grammar);
@@ -194,7 +216,7 @@ int generate_files(const char *grammar_path, const char *header_path, const char
     write_to_source_file(pg, source_path);
     lalr_parser_generator_free(pg);
     free((void *)grammar);
-    frontend_deinit(fe);
+    pgen_deinit();
     return 0;
 }
 

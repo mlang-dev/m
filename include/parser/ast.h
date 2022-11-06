@@ -15,49 +15,12 @@
 #include "sema/type.h"
 #include "lexer/source_location.h"
 #include "lexer/token.h"
+#include "parser/node_type.h"
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/*
- * if node type order is changed here, the corresponding order of function pointer
- * in codegen.c & analyzer.c shall be changed accordingly.
- */
-#define FOREACH_NODETYPE(ENUM_ITEM) \
-    ENUM_ITEM(NULL_NODE)            \
-    ENUM_ITEM(UNIT_NODE)            \
-    ENUM_ITEM(IMPORT_NODE)          \
-    ENUM_ITEM(MEMORY_NODE)          \
-    ENUM_ITEM(LITERAL_NODE)         \
-    ENUM_ITEM(IDENT_NODE)           \
-    ENUM_ITEM(VAR_NODE)             \
-    ENUM_ITEM(ENUM_NODE)            \
-    ENUM_ITEM(STRUCT_NODE)          \
-    ENUM_ITEM(UNION_NODE)           \
-    ENUM_ITEM(STRUCT_INIT_NODE)     \
-    ENUM_ITEM(LIST_COMP_NODE)       \
-    ENUM_ITEM(RANGE_NODE)           \
-    ENUM_ITEM(UNARY_NODE)           \
-    ENUM_ITEM(BINARY_NODE)          \
-    ENUM_ITEM(MEMBER_INDEX_NODE)    \
-    ENUM_ITEM(IF_NODE)              \
-    ENUM_ITEM(FOR_NODE)             \
-    ENUM_ITEM(CALL_NODE)            \
-    ENUM_ITEM(FUNC_TYPE_NODE)       \
-    ENUM_ITEM(FUNC_NODE)            \
-    ENUM_ITEM(BLOCK_NODE)           \
-    ENUM_ITEM(TOTAL_NODE)
-
-enum node_type { FOREACH_NODETYPE(GENERATE_ENUM) };
-
-struct node_type_name{
-    const char *name;       //c string name
-    symbol symbol_name;     //symbol name
-    enum node_type node_type; //node type enum
-};
-
-extern const char *node_type_strings[];
 
 struct _block_node {
     struct array nodes; // struct array of ast_node*
@@ -277,7 +240,7 @@ int find_member_index(struct ast_node *type_node, symbol member);
 
 struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name);
 
-enum node_type symbol_to_node_type(symbol node_type_name);
+enum node_type symbol_to_node_type(symbol action_name);
 
 struct node_type_name *get_node_type_names();
 
