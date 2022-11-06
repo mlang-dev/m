@@ -4,7 +4,7 @@
  * Unit tests for grammar parser
  */
 #include "parser/grammar.h"
-#include "lexer/token.h"
+#include "lexer/terminal.h"
 #include "test.h"
 #include <stdio.h>
 

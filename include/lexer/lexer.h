@@ -12,7 +12,7 @@
 #include "clib/symbol.h"
 #include "clib/array.h"
 #include "clib/util.h"
-#include "lexer/token.h"
+#include "lexer/terminal.h"
 #include "lexer/source_location.h"
 #include <stdio.h>
 

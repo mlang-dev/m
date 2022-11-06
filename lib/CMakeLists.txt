@@ -28,7 +28,6 @@ if (WASM)
   add_library(mlr 
     error/error.c
     lexer/terminal.c
-    lexer/token.c
     lexer/lexer.c
     parser/node_type.c
     parser/ast.c
@@ -115,7 +114,6 @@ else()
     tool/cmodule.c
     error/error.c
     lexer/terminal.c
-    lexer/token.c
     lexer/lexer.c
     parser/node_type.c
     parser/ast.c

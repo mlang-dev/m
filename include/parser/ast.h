@@ -14,7 +14,7 @@
 #include "clib/util.h"
 #include "sema/type.h"
 #include "lexer/source_location.h"
-#include "lexer/token.h"
+#include "lexer/terminal.h"
 #include "parser/node_type.h"
 
 

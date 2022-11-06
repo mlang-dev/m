@@ -16,6 +16,7 @@
 #include "parser/ast.h"
 #include <assert.h>
 
+
 struct parser *_parser_new(parsing_table *pt, parsing_rules *pr, parsing_symbols *psd, parsing_states *pstd)
 {
     struct parser *parser;
@@ -356,7 +357,7 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
     struct lexer *lexer = lexer_new_with_string(code);
     if(!lexer) return 0;
     struct token *tok = get_tok(lexer);
-    u8 ti = get_token_index(tok->token_type, tok->opcode);
+    u8 ti = get_terminal_token_index(tok->token_type, tok->opcode);
     u16 si, tsi;
     struct parse_rule *rule;
     struct stack_item *s_item;
@@ -369,7 +370,7 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
             ast = _build_terminal_ast(tok);
             _push_state(parser, pa->state_index, ast);
             tok = get_tok(lexer);
-            ti = get_token_index(tok->token_type, tok->opcode);
+            ti = get_terminal_token_index(tok->token_type, tok->opcode);
         }else if(pa->code == R){
             //do reduce action and build ast node
             rule = &(*parser->pr)[pa->rule_index];
@@ -391,7 +392,7 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
             break;
         }else{
             //error recovery
-            char *got_symbol = string_get(get_symbol_by_index(ti));
+            const char *got_symbol = (*parser->psd)[ti];
             struct parse_state_items *psi = &(*parser->pstd)[si];
             for(u32 i = 0; i < psi->item_count; i++){
                 rule = &(*parser->pr)[psi->items[i].rule];
@@ -400,7 +401,7 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
                     //rule is complete, but 
                     printf("symbol [%s] is not expected after grammar [%s].\n", got_symbol, rule->rule_string);
                 }else{
-                    char *next_symbol = string_get(get_symbol_by_index(rule->rhs[parsed]));
+                    const char *next_symbol = (*parser->psd)[rule->rhs[parsed]];
                     if(!is_terminal(rule->rhs[parsed])){
                         //printf("skip next symbol: %s\n", next_symbol);
                         continue;

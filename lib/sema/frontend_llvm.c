@@ -4,7 +4,6 @@
  * front-end initializer/deinitializer for create/destroy front-end configurations
  */
 #include "clib/symbol.h"
-#include "lexer/token.h"
 #include "parser/ast.h"
 #include "sema/type.h"
 #include "sema/frontend.h"
@@ -16,7 +15,7 @@ struct frontend *frontend_llvm_init(const char *stdio_filepath, const char *math
     error_init();
     symbols_init();
     types_init();
-    token_init();
+    terminal_init();
     ast_init();
     struct frontend*fe;
     MALLOC(fe, sizeof(*fe));
