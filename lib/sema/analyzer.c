@@ -159,7 +159,7 @@ struct type_expr *_analyze_list_comp(struct sema_context *context, struct ast_no
         }
         type = create_array_type(element_type, &dims);
     }
-    array_deinit(&dims);
+    //we can't deinit dims, the memory is owned by type->dims
     return type;
 }
 
@@ -325,7 +325,7 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
     return op_type;
 }
 
-struct type_expr *_analyze_field_accessor(struct sema_context *context, struct ast_node *node)
+struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = analyze(context, node->index->object);
     if(type->type != TYPE_STRUCT && !(type->type == TYPE_REF && type->val_type->type == TYPE_STRUCT)){
@@ -342,6 +342,17 @@ struct type_expr *_analyze_field_accessor(struct sema_context *context, struct a
     struct type_expr *member_type = *(struct type_expr **)array_get(&struct_type->args, index);
     node->index->index->type = member_type;
     return member_type;
+}
+
+struct type_expr *_analyze_array_member_accessor(struct sema_context *context, struct ast_node *node)
+{
+    struct type_expr *type = analyze(context, node->index->object);
+    analyze(context, node->index->index);
+    if(type->type != TYPE_ARRAY && !(type->type == TYPE_REF && type->val_type->type == TYPE_ARRAY)){
+        report_error(context, EC_EXPECT_ARRAY_TYPE, node->loc);
+        return 0;
+    }
+    return type->val_type;
 }
 
 struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node *node)
@@ -487,7 +498,10 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_unary(context, node);
             break;
         case MEMBER_INDEX_NODE:
-            type = _analyze_field_accessor(context, node);
+            if(node->index->aggregate_type == AGGREGATE_TYPE_ARRAY)
+                type = _analyze_array_member_accessor(context, node);
+            else if(node->index->aggregate_type == AGGREGATE_TYPE_STRUCT)
+                type = _analyze_struct_field_accessor(context, node);
             break;
         case BINARY_NODE:
             if(is_assign(node->binop->opcode)){

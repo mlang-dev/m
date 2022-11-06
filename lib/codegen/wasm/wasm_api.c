@@ -176,10 +176,18 @@ void wasm_emit_call_fun(WasmModule ba, u32 fun_index)
     wasm_emit_uint(ba, fun_index);
 }
 
-void wasm_emit_load_mem(WasmModule ba, u32 addr_var_index, bool is_global, u32 align, u32 offset, enum type type)
+void wasm_emit_load_mem_from(WasmModule ba, u32 addr_var_index, bool is_global, u32 align, u32 offset, enum type type)
 {
     assert(align <= 8);
     wasm_emit_get_var(ba, addr_var_index, is_global);
+    ba_add(ba, type_2_load_op[type]);
+    wasm_emit_uint(ba, aligns[align]);
+    wasm_emit_uint(ba, offset);
+}
+
+void wasm_emit_load_mem(WasmModule ba, u32 align, u32 offset, enum type type)
+{
+    assert(align <= 8);
     ba_add(ba, type_2_load_op[type]);
     wasm_emit_uint(ba, aligns[align]);
     wasm_emit_uint(ba, offset);
@@ -196,7 +204,7 @@ void wasm_emit_store_mem(WasmModule ba, u32 align, u32 offset, enum type type)
 void wasm_emit_copy_scalar_value(WasmModule ba, u32 to_var_index, u32 to_offset, u32 from_var_index, u32 from_offset, u32 align, enum type type)
 {
     wasm_emit_get_var(ba, to_var_index, false); 
-    wasm_emit_load_mem(ba, from_var_index, false, align, from_offset, type);
+    wasm_emit_load_mem_from(ba, from_var_index, false, align, from_offset, type);
     wasm_emit_store_mem(ba, align,  to_offset, type);
 }
 

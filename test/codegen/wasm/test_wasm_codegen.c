@@ -19,11 +19,9 @@ TEST(test_wasm_codegen, parse_as_module)
     struct engine* engine = engine_wasm_new();
     struct cg_wasm *cg = engine->be->cg;
     char test_code[] = "\n\
-let update x:&cf64 =\n\
-    x.re = 10.0\n\
-z = &cf64(100.0, 200.0)\n\
-update z\n\
-z.re\n\
+a = [10]\n\
+a[0] = 20\n\
+a[0]\n\
 ";
 //     char test_code[] = "\n\
 // z = cf64(10.0, 20.0)\n\

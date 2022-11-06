@@ -616,7 +616,7 @@ void _free_binary_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *member_index_node_new(struct ast_node *object, struct ast_node *index, struct source_location loc)
+struct ast_node *member_index_node_new(enum aggregate_type aggregate_type, struct ast_node *object, struct ast_node *index, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(MEMBER_INDEX_NODE, 0, 0, false, loc);
     MALLOC(node->index, sizeof(*node->index));
@@ -625,13 +625,14 @@ struct ast_node *member_index_node_new(struct ast_node *object, struct ast_node 
     }
     node->index->object = object;
     node->index->index = index;
+    node->index->aggregate_type = aggregate_type;
     node->is_addressable = true;
     return node;
 }
 
 struct ast_node *_copy_member_index_node(struct ast_node *orig_node)
 {
-    return member_index_node_new(
+    return member_index_node_new(orig_node->index->aggregate_type,
         orig_node->index->object, orig_node->index->index, orig_node->loc);
 }
 

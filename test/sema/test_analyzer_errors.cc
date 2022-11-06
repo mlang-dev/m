@@ -67,7 +67,6 @@ x:int = true
     engine_free(engine);
 }
 
-
 TEST(testAnalyzerError, testNonStructTypeFieldAccess)
 {
     char test_code[] = R"(
@@ -82,6 +81,24 @@ x.y
     struct error_report* er = get_last_error_report(cg->base.sema_context);
     ASSERT_EQ(EC_EXPECT_STRUCT_TYPE, er->error_code);
     ASSERT_STREQ("The left side of the dot is expected to be a struct type.", er->error_msg);
+    ast_node_free(block);
+    engine_free(engine);
+}
+
+TEST(testAnalyzerError, testNonArrayTypeFieldAccess)
+{
+    char test_code[] = R"(
+x = 3
+x[3]
+)";
+    struct engine *engine = engine_llvm_new(false);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    analyze(cg->base.sema_context, block);
+    struct error_report* er = get_last_error_report(cg->base.sema_context);
+    ASSERT_EQ(EC_EXPECT_ARRAY_TYPE, er->error_code);
+    ASSERT_STREQ("The left side of the bracket is expected to be an array type.", er->error_msg);
     ast_node_free(block);
     engine_free(engine);
 }

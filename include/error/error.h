@@ -29,6 +29,7 @@ enum error_code {
 
     //analyzer
     EC_EXPECT_STRUCT_TYPE,
+    EC_EXPECT_ARRAY_TYPE,
     EC_FIELD_NOT_EXISTS,
     EC_VAR_TYPE_NO_MATCH_LITERAL,
     EC_TYPES_DO_NOT_MATCH,
