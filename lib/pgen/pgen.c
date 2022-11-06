@@ -2,7 +2,7 @@
 #include "parser/lalr_parser_generator.h"
 #include <assert.h>
 #include "clib/symbol.h"
-#include "lexer/token.h"
+#include "lexer/pgen_token.h"
 #include "parser/node_type.h"
 #include "sema/type.h"
 #include "clib/util.h"
@@ -192,14 +192,14 @@ void pgen_init()
 {
     error_init();
     symbols_init();
-    token_init();
+    pgen_token_init();
     node_type_init();
 }
 
 void pgen_deinit()
 {
     node_type_deinit();
-    token_deinit();
+    pgen_token_deinit();
     symbols_deinit();
     error_deinit();
 }

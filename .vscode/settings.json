@@ -166,7 +166,10 @@
         "cg_wasm.h": "c",
         "cassert": "c",
         "error.h": "c",
-        "token.h": "c"
+        "token.h": "c",
+        "node_type.h": "c",
+        "pgen_token.h": "c",
+        "terminal.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

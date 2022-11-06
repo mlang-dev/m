@@ -11,23 +11,16 @@
 
 #include "parser/grammar.h"
 #include "parser/m_parsing_table.h"
-#include "lexer/lexer.h"
+#include "parser/parser_def.h"
+#include "lexer/pgen_token.h"
 #include "clib/symbol.h"
 #include "clib/hashtable.h"
-#include "parser/ast.h"
 #include "clib/stack.h"
-#include "lexer/token.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
-#define MAX_STATES 512
-#define MAX_RULES 256
-#define MAX_AUGMENTED_RULES 8192
-
 
 link_list2(index_list, index_list_entry, u16)
 

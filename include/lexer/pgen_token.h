@@ -5,42 +5,50 @@
  *
  * header file for token definition used in parser generator
  */
+
 #ifndef __MLANG_PGEN_TOKEN_H__
 #define __MLANG_PGEN_TOKEN_H__
 
 #include "lexer/source_location.h"
+#include "lexer/terminal.h"
 #include "clib/string.h"
 #include "clib/symbol.h"
 #include "clib/util.h"
 #include "clib/regex.h"
 #include "clib/typedef.h"
-#include "lexer/terminal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+extern const char *token_type_strings[];
+
+
+struct token {
+    enum token_type token_type;
+    struct source_location loc;
+    union {
+        string *str_val; //string literal
+        double double_val; //double literal
+        int int_val; //int literal
+        symbol symbol_val;
+        enum op_code opcode;
+    };
+};
+
 void pgen_token_init();
 
 void pgen_token_deinit();
 
-
-struct token_pattern *get_token_pattern_by_symbol(symbol symbol);
-
+/*get symbol index, token or nonterm*/
+u16 get_symbol_index(symbol symbol);
+symbol get_symbol_by_index(u16 symbol_index);
 
 /*get total symbol count including terminal tokens and nonterm symbols*/
-u16 pgen_get_symbol_count();
+u16 get_symbol_count();
 
-/*get symbol index, token or nonterm*/
-u16 pgen_get_symbol_index(symbol symbol);
-
-
-/*register nonterm symbol for grammar in parser generator pgen*/
-u16 pgen_register_grammar_nonterm(symbol symbol);
-
-symbol pgen_get_symbol_by_index(u16 symbol_index);
-
-symbol get_symbol_by_index(u16 symbol_index);
+/*register nonterm symbol for grammar*/
+u16 register_grammar_nonterm(symbol symbol);
 
 
 #ifdef __cplusplus

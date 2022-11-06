@@ -6,6 +6,7 @@
  * This is to implement an LALR parser generator, taking a EBNF grammar text and generate a parsing table
  * for parser to consume
  */
+#include "lexer/pgen_token.h"
 #include "parser/lalr_parser_generator.h"
 #include "clib/stack.h"
 #include "clib/util.h"

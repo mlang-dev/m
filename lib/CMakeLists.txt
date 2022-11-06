@@ -87,8 +87,9 @@ else()
 
   add_executable(pgen
     error/error.c
-    lexer/token.c
     lexer/lexer.c
+    lexer/terminal.c
+    lexer/pgen_token.c
     parser/node_type.c
     parser/grammar.c
     parser/m_parsing_table.c
