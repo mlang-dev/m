@@ -96,6 +96,7 @@ expr            = assign_expr
                 | list_comp
 
 list_comp       = '[' list_comp_decl ']'                                                    { list_comp 1 }
+                | '[' ']'                                                                   { list_comp }
 
 list_comp_decl  = range_expr
                 | for_stmt

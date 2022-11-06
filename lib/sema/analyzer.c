@@ -144,19 +144,22 @@ struct type_expr *_analyze_struct_init(struct sema_context *context, struct ast_
 struct type_expr *_analyze_list_comp(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = 0;
-    if(node->list_comp->node_type == BLOCK_NODE){
-        struct array dims;
-        array_init(&dims, sizeof(u32));
+    struct type_expr *element_type = 0;
+    struct array dims;
+    array_init(&dims, sizeof(u32));
+    if (!node->list_comp){
+        element_type = create_unit_type();
+        type = create_array_type(element_type, &dims);
+    }else if(node->list_comp->node_type == BLOCK_NODE){
         u32 size = array_size(&node->list_comp->block->nodes);
         array_push(&dims, &size);
-        struct type_expr *element_type = 0;
         if(size){
             struct ast_node *element = *(struct ast_node **)array_front(&node->list_comp->block->nodes);
             element_type = analyze(context, element);
         }
         type = create_array_type(element_type, &dims);
-        array_deinit(&dims);
     }
+    array_deinit(&dims);
     return type;
 }
 
