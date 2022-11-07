@@ -224,10 +224,14 @@ void wasm_emit_store_scalar_value(struct cg_wasm *cg, struct byte_array *ba, u32
     wasm_emit_store_mem(ba, align, offset, node->type->type);
 }
 
-void wasm_emit_var_change(struct cg_wasm *cg, WasmModule ba, u32 var_index, bool is_global, u8 op, struct ast_node* operand)
+void wasm_emit_var_change(struct cg_wasm *cg, WasmModule ba, u32 var_index, bool is_global, u8 op, u32 elm_size, struct ast_node* offset_index)
 {
     wasm_emit_get_var(ba, var_index, is_global);
-    wasm_emit_code(cg, ba, operand);
+    //
+    wasm_emit_code(cg, ba, offset_index);
+    wasm_emit_const_i32(ba, elm_size);
+    ba_add(ba, OPCODE_I32MUL);
+
     ba_add(ba, op); 
 }
 
@@ -445,7 +449,7 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
     }else{ //scalar value
         //read the value: scalar value read
         if(!node->is_lvalue){//read for right value
-            wasm_emit_var_change(cg, ba, vi->var_index, false, OPCODE_I32ADD, node->index->index);
+            wasm_emit_var_change(cg, ba, vi->var_index, false, OPCODE_I32ADD, field_tsi.width_bits/8, node->index->index);
             wasm_emit_load_mem(ba, field_tsi.align_bits/8, 0, field_type->type);
         }
     }
@@ -483,7 +487,7 @@ void _emit_assign_array_field(struct cg_wasm *cg, struct byte_array *ba, struct 
     struct var_info*vi = fc_get_var_info(fc, lhs->index->object);
     struct type_expr *field_type = lhs->type;
     struct type_size_info field_tsi = get_type_size_info(field_type);
-    wasm_emit_var_change(cg, ba, vi->var_index, false, OPCODE_I32ADD, lhs->index->index);
+    wasm_emit_var_change(cg, ba, vi->var_index, false, OPCODE_I32ADD, field_tsi.width_bits/8, lhs->index->index);
     wasm_emit_store_scalar_value(cg, ba, field_tsi.align_bits/8, 0, rhs);
 }
 
