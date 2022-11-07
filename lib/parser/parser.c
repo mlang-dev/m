@@ -208,9 +208,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                     is_ref_annotated = true;
                 }
                 node2 = items[rule->action.item_index[3]].ast;
-                ast = var_node_new2(node->ident->name, type_name, is_ref_annotated, node2, false, node->loc);
+                ast = var_node_new(node->ident->name, type_name, is_ref_annotated, node2, false, node->loc);
             } else { // has no type info, has init value
-                ast = var_node_new2(node->ident->name, 0, false, node1, false, node->loc);
+                ast = var_node_new(node->ident->name, 0, false, node1, false, node->loc);
             }
         } else if (rule->action.item_index_count > 2) {
             //just has ID and type
@@ -224,10 +224,10 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 type_name = node1->unop->operand->ident->name;
                 is_ref_annotated = true;
             }
-            ast = var_node_new2(node->ident->name, type_name, is_ref_annotated, 0, false, node->loc);
+            ast = var_node_new(node->ident->name, type_name, is_ref_annotated, 0, false, node->loc);
         } else {
             //just ID
-            ast = var_node_new2(node->ident->name, 0, false, 0, false, node->loc);
+            ast = var_node_new(node->ident->name, 0, false, 0, false, node->loc);
         }
         break;
     case RANGE_NODE:

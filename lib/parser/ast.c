@@ -233,26 +233,11 @@ struct ast_node *_copy_literal_node(struct ast_node *orig_node)
         orig_node->annotated_type_enum, orig_node->loc);
 }
 
-struct ast_node *var_node_new(symbol var_name, enum type annotated_type_enum, symbol annotated_type_name,
-    bool is_ref_annotated,
+struct ast_node *var_node_new(symbol var_name, symbol type_name, bool is_ref_annotated,
     struct ast_node *init_value, bool is_global, struct source_location loc)
-{
-    symbol type_name = annotated_type_enum ? get_type_symbol(annotated_type_enum) : 0;
-    struct ast_node *node = ast_node_new(VAR_NODE, annotated_type_enum, type_name, is_ref_annotated, loc);
-    MALLOC(node->var, sizeof(*node->var));
-    if (annotated_type_name)
-        node->annotated_type_name = annotated_type_name;
-    node->var->var_name = var_name;
-    node->var->init_value = init_value;
-    node->var->is_global = is_global;
-    node->is_addressable = true;
-    return node;
-}
-
-struct ast_node *var_node_new2(symbol var_name, symbol type_name, bool is_ref_annotated,
-    struct ast_node *init_value, bool is_global, struct source_location loc)
-{
-    struct ast_node *node = ast_node_new(VAR_NODE, 0, type_name, is_ref_annotated, loc);
+{   
+    enum type type_enum = type_name ? get_type_enum_from_symbol(type_name) : 0;
+    struct ast_node *node = ast_node_new(VAR_NODE, type_enum, type_name, is_ref_annotated, loc);
     MALLOC(node->var, sizeof(*node->var));
     node->var->var_name = var_name;
     node->var->init_value = init_value;
@@ -264,7 +249,7 @@ struct ast_node *var_node_new2(symbol var_name, symbol type_name, bool is_ref_an
 struct ast_node *_copy_var_node(struct ast_node *orig_node)
 {
     return var_node_new(
-        orig_node->var->var_name, orig_node->type ? orig_node->type->type : TYPE_NULL, orig_node->annotated_type_name,
+        orig_node->var->var_name, orig_node->annotated_type_name,
         orig_node->is_ref_annotated,
         node_copy(orig_node->var->init_value), orig_node->var->is_global, orig_node->loc);
 }
@@ -487,7 +472,7 @@ struct ast_node *func_type_node_new(symbol name,
     node->ft->is_extern = is_external;
     node->ft->op = op;
     if (is_variadic) {
-        struct ast_node *fun_param = var_node_new(get_type_symbol(TYPE_GENERIC), TYPE_GENERIC, 0, false, 0, false, loc);
+        struct ast_node *fun_param = var_node_new(get_type_symbol(TYPE_GENERIC), get_type_symbol(TYPE_GENERIC), false, 0, false, loc);
         fun_param->type = create_nullary_type(TYPE_GENERIC, fun_param->annotated_type_name);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }
@@ -508,7 +493,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
     node->ft->op = func_type->ft->op;
     if (func_type->ft->is_variadic) {
         symbol var_name = get_type_symbol(TYPE_GENERIC);
-        struct ast_node *fun_param = var_node_new(var_name, TYPE_GENERIC, 0, 0, false, false, node->loc);
+        struct ast_node *fun_param = var_node_new(var_name, var_name, false, 0, false, node->loc);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }
     return node;
