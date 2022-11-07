@@ -21,14 +21,22 @@ extern "C" {
 #endif
 
 #define FOREACH_TYPE(ENUM_ITEM) \
-    ENUM_ITEM(TYPE_NULL)         \
+    ENUM_ITEM(TYPE_NULL)        \
     ENUM_ITEM(TYPE_GENERIC)     \
     ENUM_ITEM(TYPE_UNIT)        \
     ENUM_ITEM(TYPE_BOOL)        \
     ENUM_ITEM(TYPE_CHAR)        \
+    ENUM_ITEM(TYPE_I8)          \
+    ENUM_ITEM(TYPE_U8)          \
+    ENUM_ITEM(TYPE_I16)         \
+    ENUM_ITEM(TYPE_U16)         \
+    ENUM_ITEM(TYPE_I32)         \
+    ENUM_ITEM(TYPE_U32)         \
+    ENUM_ITEM(TYPE_I64)         \
+    ENUM_ITEM(TYPE_U64)         \
     ENUM_ITEM(TYPE_INT)         \
-    ENUM_ITEM(TYPE_F32)       \
-    ENUM_ITEM(TYPE_F64)      \
+    ENUM_ITEM(TYPE_F32)         \
+    ENUM_ITEM(TYPE_F64)         \
     ENUM_ITEM(TYPE_STRING)      \
     ENUM_ITEM(TYPE_FUNCTION)    \
     ENUM_ITEM(TYPE_STRUCT)      \
