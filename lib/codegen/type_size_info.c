@@ -120,26 +120,33 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
         ti.width_bits = 0;
         ti.align_bits = 8;
         break;
+    case TYPE_I8:
+    case TYPE_U8:
     case TYPE_CHAR:
-        ti.width_bits = 8;
-        ti.align_bits = 8;
-        break;
     case TYPE_BOOL:
         ti.width_bits = 8;
         ti.align_bits = 8;
         break;
-    case TYPE_INT:
-        ti.width_bits = 32;
-        ti.align_bits = 32;
+    case TYPE_I16:
+    case TYPE_U16:
+        ti.width_bits = 16;
+        ti.align_bits = 16;
         break;
+    case TYPE_I32:
+    case TYPE_U32:
+    case TYPE_INT:
     case TYPE_F32:
         ti.width_bits = 32;
         ti.align_bits = 32;
         break;
+    case TYPE_I64:
+    case TYPE_U64:
     case TYPE_F64:
         ti.width_bits = 64;
         ti.align_bits = 64;
         break;
+    case TYPE_STRUCT:
+    case TYPE_ARRAY:
     case TYPE_REF:
     case TYPE_STRING:
         ti.width_bits = 32; // FIXME: or 64 depending on pointer size (32arch or 64arch)
@@ -147,8 +154,6 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
         break;
     case TYPE_GENERIC:
     case TYPE_FUNCTION:
-    case TYPE_STRUCT:
-    case TYPE_ARRAY:
     case TYPE_UNION:
     case TYPE_COMPLEX:
     case TYPE_TYPES:
