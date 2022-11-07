@@ -362,7 +362,30 @@ void _free_list_comp_node(struct ast_node *node)
     ast_node_free(node->list_comp);
     ast_node_free(node);
 }
+
 /********/
+struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(ARRAY_TYPE_NODE, 0, 0, false, loc);
+    MALLOC(node->array_type, sizeof(*node->array_type));
+    node->array_type->elm_type = elm_type;
+    node->array_type->dims = dims;
+    return node;
+}
+
+struct ast_node *_copy_array_type_node(struct ast_node *orig_node)
+{
+    return array_type_node_new(
+        node_copy(orig_node->array_type->elm_type), node_copy(orig_node->array_type->dims), orig_node->loc);
+}
+
+void _free_array_type_node(struct ast_node *node)
+{
+    ast_node_free(node->array_type->elm_type);
+    ast_node_free(node->array_type->dims);
+    ast_node_free(node);
+}
+/*******/
 
 struct ast_node *import_node_new(symbol from_module, struct ast_node *imported, struct source_location loc)
 {
@@ -736,6 +759,8 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_range_node(node);
     case LIST_COMP_NODE:
         return _copy_list_comp_node(node);
+    case ARRAY_TYPE_NODE:
+        return _copy_array_type_node(node);
     case NULL_NODE:
     case UNIT_NODE:
     case MEMORY_NODE:
@@ -801,6 +826,9 @@ void node_free(struct ast_node *node)
         break;
     case LIST_COMP_NODE:
         _free_list_comp_node(node);
+        break;
+    case ARRAY_TYPE_NODE:
+        _free_array_type_node(node);
         break;
     case UNIT_NODE:
     case MEMORY_NODE:

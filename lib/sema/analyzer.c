@@ -165,6 +165,21 @@ struct type_expr *_analyze_list_comp(struct sema_context *context, struct ast_no
     return type;
 }
 
+struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_node *node)
+{
+    symbol elm_type_name = node->array_type->elm_type->ident->name;
+    enum type elm_type_enum = get_type_enum_from_symbol(elm_type_name);
+    struct type_expr *elm_type = create_nullary_type(elm_type_enum, elm_type_name);
+    struct array dims;
+    array_init(&dims, sizeof(u32));
+    for(u32 i = 0; i < array_size(&node->list_comp->block->nodes); i++){
+        struct ast_node *dim_node = *(struct ast_node **)array_get(&node->list_comp->block->nodes, i);
+        u32 dim = dim_node->liter->int_val;
+        array_push(&dims, &dim);
+    }
+    return create_array_type(elm_type, &dims);
+}
+
 struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_node *node)
 {
     struct array fun_sig;
@@ -468,6 +483,9 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             break;
         case LIST_COMP_NODE:
             type = _analyze_list_comp(context, node);
+            break;
+        case ARRAY_TYPE_NODE:
+            type = _analyze_array_type(context, node);
             break;
         case UNIT_NODE:
             type = create_unit_type();

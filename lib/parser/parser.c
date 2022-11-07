@@ -14,6 +14,7 @@
 #include "parser/grammar.h"
 #include "error/error.h"
 #include "parser/ast.h"
+#include "sema/type.h"
 #include <assert.h>
 
 
@@ -124,6 +125,25 @@ struct ast_node *_wrap_as_block_node(struct ast_node *node)
     return block_node_new(&nodes);
 }
 
+// symbol _get_type_name(struct ast_node *type_node)
+// {
+//     symbol type_name = 0;
+//     assert(type_node->node_type == IDENT_NODE||type_node->node_type == UNARY_NODE||type_node->node_type == ARRAY_TYPE_NODE);
+//     if(type_node->node_type == IDENT_NODE){
+//         type_name = type_node->ident->name;
+//     } else if (type_node->node_type == ARRAY_TYPE_NODE){
+//         struct array dims;
+//         array_init(&dims, sizeof(u32));
+//         for(u32 i=0; i<array_size(&type_node->block->nodes);i++){
+            
+//         }
+//         type_name = to_array_type_name(type_node->array_type->elm_type->ident->name, &dims);
+//     } else {
+//         type_name = type_node->unop->operand->ident->name;
+//     }
+//     return type_name;
+// }
+
 struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct parse_rule *rule, struct stack_item *items)
 {
     enum op_code opcode;
@@ -178,7 +198,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node1 = items[rule->action.item_index[2]].ast;
             if (rule->action.item_index_count == 4) {
                 //has type and has init value
-                assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE);
+                assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE||node1->node_type == ARRAY_TYPE_NODE);
                 if(node1->node_type == IDENT_NODE){
                     type_name = node1->ident->name;
                 }else{
@@ -195,7 +215,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         } else if (rule->action.item_index_count > 2) {
             //just has ID and type
             node1 = items[rule->action.item_index[2]].ast;
-            assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE);
+            assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE||node1->node_type == ARRAY_TYPE_NODE);
             if(node1->node_type == IDENT_NODE){
                 type_name = node1->ident->name;
             }else{
@@ -329,6 +349,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node = items[rule->action.item_index[0]].ast;
         }
         ast = list_comp_node_new(node, items[0].ast->loc);
+        break;
+    case ARRAY_TYPE_NODE:
+        node = items[rule->action.item_index[0]].ast;
+        node1 = items[rule->action.item_index[1]].ast;
+        ast = array_type_node_new(node, node1, node->loc);
         break;
     case BLOCK_NODE:
         if (rule->action.item_index_count == 0){

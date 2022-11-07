@@ -134,6 +134,11 @@ struct _call_node {
     struct ast_node *callee_func_type;
 };
 
+struct _array_type_node {
+    struct ast_node *elm_type;
+    struct ast_node *dims; 
+};
+
 struct _import_node {
     symbol from_module;
     struct ast_node *import;
@@ -169,6 +174,7 @@ struct ast_node {
         struct _struct_node *struct_def; 
         struct _struct_init_node *struct_init;
         struct ast_node *list_comp;
+        struct _array_type_node *array_type;
         struct _range_node *range;
         struct _import_node *import;
         struct _if_node *cond;
@@ -218,6 +224,7 @@ struct ast_node *func_type_node_new(
 struct ast_node *struct_node_new(symbol name, struct ast_node *body, struct source_location loc);
 struct ast_node *struct_init_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
 struct ast_node *list_comp_node_new(struct ast_node *comp, struct source_location loc);
+struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc);
 struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc);
 struct ast_node *func_type_node_default_new(
     symbol name,

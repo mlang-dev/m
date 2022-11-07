@@ -59,6 +59,15 @@ struct symbol_ref_pair type_symbols[TYPE_TYPES] = {
     {0, 0},
     {0, 0},
     {0, 0},
+    {0, 0},
+    {0, 0},
+    {0, 0},
+
+    {0, 0},
+    {0, 0},
+    {0, 0},
+    {0, 0},
+    {0, 0},
 
     {0, 0},
     {0, 0},
@@ -114,7 +123,7 @@ symbol _to_fun_type_name(struct array *types)
     return fun_type_symbol;
 }
 
-symbol _to_array_type_name(symbol element_type_name, struct array *dims)
+symbol to_array_type_name(symbol element_type_name, struct array *dims)
 {
     string str;
     string_init(&str);
@@ -275,7 +284,7 @@ struct type_expr *create_type_fun(struct array *args)
 
 struct type_expr *create_array_type(struct type_expr *element_type, struct array *dims)
 {
-    symbol array_type_name = _to_array_type_name(element_type->name, dims);
+    symbol array_type_name = to_array_type_name(element_type->name, dims);
     struct type_expr *type = create_type_oper(KIND_OPER, array_type_name, TYPE_ARRAY, 0);
     type->dims = *dims;
     type->val_type = element_type;
@@ -617,4 +626,12 @@ struct type_expr *is_single_element_struct(struct type_expr *type)
 symbol get_type_symbol(enum type type_enum)
 {
     return type_symbols[type_enum].type_symbol;
+}
+
+enum type get_type_enum_from_symbol(symbol type_name)
+{
+     struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, type_name);
+    if(pair)
+        return pair->val_type->type;
+    return TYPE_NULL;
 }

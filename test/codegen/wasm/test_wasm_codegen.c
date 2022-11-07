@@ -19,8 +19,7 @@ TEST(test_wasm_codegen, parse_as_module)
     struct engine* engine = engine_wasm_new();
     struct cg_wasm *cg = engine->be->cg;
     char test_code[] = "\n\
-a = [10]\n\
-a[0] = 20\n\
+a:u8[2] = [10, 10]\n\
 a[0]\n\
 ";
 //     char test_code[] = "\n\
