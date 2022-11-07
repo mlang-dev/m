@@ -63,7 +63,7 @@ TEST_F(testCGVar, testGlobalVarString)
 TEST_F(testCGVar, testGlobalVarStruct)
 {
     const char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 point:Point2D
 )";
     const char *expected_ir = R"(

@@ -28,14 +28,14 @@ struct fun_pointer
         void* address;
         int (*i_fp)();
         char* (*s_fp)();
-        double (*d_fp)();
+        f64 (*d_fp)();
     } fp;
 };
 
 struct JIT *jit_new(struct engine *engine);
 void jit_free(struct JIT *jit);
 void add_module(struct JIT *jit, void *module);
-typedef double (*target_address_double)();
+typedef f64 (*target_address_double)();
 typedef int (*target_address_int)();
 struct fun_pointer find_target_address(struct JIT *jit, const char *symbol);
 

@@ -100,7 +100,7 @@ void wasm_emit_const_i32(WasmModule module, i32 const_value)
     wasm_emit_int(module, const_value);
 }
 
-void wasm_emit_const_f64(WasmModule module, double const_value)
+void wasm_emit_const_f64(WasmModule module, f64 const_value)
 {
     ba_add(module, OPCODE_F64CONST);
     wasm_emit_f64(module, const_value);

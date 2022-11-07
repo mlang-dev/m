@@ -69,9 +69,9 @@ mtest.mtest('math.sqrt', `This expression is to call C's sqrt function`, "sqrt 4
 mtest.mtest('function definition', 
 `Use keyword "let" to define a function. 
 The grammar is: "let" IDENT param_decls '=' statement. The following code is to define a square function takes
-a double value and outputs its squared double value.`, 
+a f64 value and outputs its squared f64 value.`, 
 `
-let sq x:double = x ** 2.0
+let sq x:f64 = x ** 2.0
 sq 10.0
 `, 100.0);
 
@@ -87,14 +87,14 @@ sq 10.0
 
 mtest.mtest_string('struct type', `You can define struct aggregate type like in C. They behavior the same except more succinct in m.`,
 `
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 p = Point2D(10.0, 20.0)
 print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)
 `, "p.x: 10.0, p.y: 20.0");
 
 mtest.mtest_string('pass by value', `mlang uses pass-by value calling convention to pass arguments to functions. This means the argument value is copied to function's parameter.`,
 `
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 let change z:Point2D = 
     z.x = z.x * 10.0
     z

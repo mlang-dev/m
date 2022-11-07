@@ -1,5 +1,5 @@
 #include <stdio.h>
-struct Point2D {double a; double b; double c; double x; double y; double z;};
+struct Point2D {f64 a; f64 b; f64 c; f64 x; f64 y; f64 z;};
 extern struct Point2D test();
 
 int main() {

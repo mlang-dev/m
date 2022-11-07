@@ -53,7 +53,7 @@ void _classify(struct type_expr *te, uint64_t offset_base, enum Class *low, enum
             *current = NO_CLASS;
         } else if (is_int_type(te->type) || te->type == TYPE_STRING) {
             *current = INTEGER;
-        } else if (te->type == TYPE_DOUBLE) {
+        } else if (te->type == TYPE_F64) {
             *current = SSE;
         } //TODO: LONG_DOUBLE
         return;

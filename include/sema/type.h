@@ -28,7 +28,7 @@ extern "C" {
     ENUM_ITEM(TYPE_CHAR)        \
     ENUM_ITEM(TYPE_INT)         \
     ENUM_ITEM(TYPE_FLOAT)       \
-    ENUM_ITEM(TYPE_DOUBLE)      \
+    ENUM_ITEM(TYPE_F64)      \
     ENUM_ITEM(TYPE_STRING)      \
     ENUM_ITEM(TYPE_FUNCTION)    \
     ENUM_ITEM(TYPE_STRUCT)      \
@@ -54,7 +54,7 @@ struct type_expr {
     enum kind kind; //type variable or type operator
     enum type type;
     struct type_expr* val_type;// val_type the reference type is referred to or element type of the array
-    symbol name; //name of type exp: like "->" for function, "bool", "int", "double" for type variable
+    symbol name; //name of type exp: like "->" for function, "bool", "int", "f64" for type variable
     union {
         struct type_expr *instance; //used for KIND_VAR
         //used for KIND_OPER struct array of struct type_expr*

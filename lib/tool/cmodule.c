@@ -18,7 +18,7 @@ enum type _get_type(CXType cxtype)
 {
     enum type type = TYPE_NULL;
     if (cxtype.kind == CXType_Double) {
-        type = TYPE_DOUBLE;
+        type = TYPE_F64;
     } else if (cxtype.kind == CXType_Bool) {
         type = TYPE_BOOL;
     } else if (cxtype.kind == CXType_Int || cxtype.kind == CXType_UInt) {

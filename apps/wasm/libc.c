@@ -33,67 +33,67 @@ void _putchar(int ch)
     putchar(ch);
 }
 
-double _acos(double x)
+f64 _acos(f64 x)
 {
     return acos(x);
 }
 
-double _asin(double x)
+f64 _asin(f64 x)
 {
     return asin(x);
 }
 
-double _atan(double x)
+f64 _atan(f64 x)
 {
     return atan(x);
 }
 
-double _atan2(double y, double x)
+f64 _atan2(f64 y, f64 x)
 {
     return atan2(y, x);
 }
 
-double _cos(double x)
+f64 _cos(f64 x)
 {
     return cos(x);
 }
 
-double _sin(double x)
+f64 _sin(f64 x)
 {
     return sin(x);
 }
 
-double _sinh(double x)
+f64 _sinh(f64 x)
 {
     return sinh(x);
 }
 
-double _tanh(double x)
+f64 _tanh(f64 x)
 {
     return tanh(x);
 }
 
-double _exp(double x)
+f64 _exp(f64 x)
 {
     return exp(x);
 }
 
-double _log(double x)
+f64 _log(f64 x)
 {
     return log(x);
 }
 
-double _log10(double x)
+f64 _log10(f64 x)
 {
     return log10(x);
 }
 
-double _pow(double x, double y)
+f64 _pow(f64 x, f64 y)
 {
     return pow(x, y); //x ^ y
 }
 
-double _sqrt(double x)
+f64 _sqrt(f64 x)
 {
     return sqrt(x);
 }

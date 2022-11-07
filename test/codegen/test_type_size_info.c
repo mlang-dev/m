@@ -14,7 +14,7 @@
 
 TEST(test_type_size_info, struct_double_double)
 {
-    char test_code[] = "struct Point2D = x:double, y:double";
+    char test_code[] = "struct Point2D = x:f64, y:f64";
     struct engine *engine = engine_wasm_new();
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
@@ -29,7 +29,7 @@ TEST(test_type_size_info, struct_double_double)
 TEST(test_type_size_info, struct_contains_struct)
 {
     char test_code[] = "\n\
-struct Point2D = x:double, y:double\n\
+struct Point2D = x:f64, y:f64\n\
 struct Contains = xy:Point2D\n\
 ";
     struct engine *engine = engine_wasm_new();
@@ -51,7 +51,7 @@ struct Contains = xy:Point2D\n\
 TEST(test_type_size_info, struct_refs_struct)
 {
     char test_code[] = "\n\
-struct Point2D = x:double, y:double\n\
+struct Point2D = x:f64, y:f64\n\
 struct Contains = xy:&Point2D\n\
 ";
     struct engine *engine = engine_wasm_new();
@@ -72,7 +72,7 @@ struct Contains = xy:&Point2D\n\
 
 TEST(test_type_size_info, struct_char_double)
 {
-    char test_code[] = "struct Point2D = x:char, y:double";
+    char test_code[] = "struct Point2D = x:char, y:f64";
     struct engine *engine = engine_wasm_new();
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);

@@ -6,7 +6,7 @@
 const mtest = require('./mtest.js');
 
 mtest.mtest('cf64 re', `
-complex cf64 is a builtin struct type defined as "struct cf64 = re:double, im:double", the example below shows
+complex cf64 is a builtin struct type defined as "struct cf64 = re:f64, im:f64", the example below shows
 how to initialize a struct type variable and how to access field of the struct type variable.
 `, 
 `
@@ -17,14 +17,14 @@ z.re
 mtest.mtest('struct with different types', `
 use keyword "struct" to define a struct type`,
 `
-struct A = x:int, y:double
+struct A = x:int, y:f64
 a = A(10, 20.0)
 a.y`, 20.0);
 
 mtest.mtest('access field no var', 
 `access struct initializer's field without using a variable`,
 `
-struct A = x:int, y:double
+struct A = x:int, y:f64
 A(10, 20.0).y
 `, 20.0);
 
@@ -75,7 +75,7 @@ get().re
 mtest.mtest('pass return struct', 
 `pass a struct and return a new struct to the caller then print the field of returned struct`,
 `
-let add z:cf64 op:double = cf64(z.re + op, z.im + op)
+let add z:cf64 op:f64 = cf64(z.re + op, z.im + op)
 x = cf64(10.0, 20.0)
 (add x 10.0).im
 `, 30.0);
@@ -83,14 +83,14 @@ x = cf64(10.0, 20.0)
 mtest.mtest('pass return struct no variable',
 `pass a struct and return a new struct the caller without any temp variable`,
 `
-let add z:cf64 op:double = cf64(z.re + op, z.im + op)
+let add z:cf64 op:f64 = cf64(z.re + op, z.im + op)
 (add (cf64(10.0, 20.0)) 10.0).re
 `, 20.0);
 
 mtest.mtest('struct member assign struct', 'struct member assign struct',
 `
-struct xy = x:double, y:double
-struct wz = w:double, z:xy
+struct xy = x:f64, y:f64
+struct wz = w:f64, z:xy
 ab = wz(10.0, xy(20.0, 30.0))
 ab.z = xy(200.0, 300.0)
 ab.z.y
@@ -98,7 +98,7 @@ ab.z.y
 
 mtest.mtest('variable scope', 'variable scope', 
 `
-struct wz = w:double, z:double
+struct wz = w:f64, z:f64
 z = wz(10.0, 20.0)
 z.z
 `, 20.0);

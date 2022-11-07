@@ -167,8 +167,8 @@ struct ast_node *_create_literal_node(void *val, enum type type, struct source_l
     struct ast_node *node = ast_node_new(LITERAL_NODE, type, type_name, false, loc);
     MALLOC(node->liter, sizeof(*node->liter));
     switch (type){ 
-        case TYPE_DOUBLE:
-            node->liter->double_val = *(double *)val;
+        case TYPE_F64:
+            node->liter->double_val = *(f64 *)val;
             break;
         case TYPE_STRING:
             node->liter->str_val = str_clone((const char *)val);
@@ -189,9 +189,9 @@ void _free_literal_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *double_node_new(double val, struct source_location loc)
+struct ast_node *double_node_new(f64 val, struct source_location loc)
 {
-    return _create_literal_node(&val, TYPE_DOUBLE, loc);
+    return _create_literal_node(&val, TYPE_F64, loc);
 }
 
 struct ast_node *int_node_new(int val, struct source_location loc)
@@ -206,7 +206,7 @@ struct ast_node *bool_node_new(bool val, struct source_location loc)
 
 struct ast_node *const_one_node_new(enum type type, struct source_location loc)
 {
-    if(type == TYPE_DOUBLE){
+    if(type == TYPE_F64){
         return double_node_new(1.0, loc);
     }
     return int_node_new(1, loc);

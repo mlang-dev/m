@@ -28,7 +28,7 @@ u8 wasm_emit_int(WasmModule module, i64 value);
 u8 wasm_emit_f32(WasmModule module, f32 value);
 u8 wasm_emit_f64(WasmModule module, f64 value);
 void wasm_emit_const_i32(WasmModule module, i32 const_value);
-void wasm_emit_const_f64(WasmModule module, double const_value);
+void wasm_emit_const_f64(WasmModule module, f64 const_value);
 void wasm_emit_const_f32(WasmModule module, float const_value);
 
 void wasm_emit_chars(WasmModule module, const char *str, u32 len);

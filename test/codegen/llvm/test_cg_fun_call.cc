@@ -173,31 +173,31 @@ entry:
 TEST(testCGFunCall, testPassStructIndirect)
 {
     const char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 let f xy:Point2D = xy.y
 let main() = 
   xy:Point2D = Point2D(10.0, 20.0)
   f xy
 )";
     const char *expected_ir = R"(
-%Point2D = type { double, double }
+%Point2D = type { f64, f64 }
 
-define double @f(%Point2D* %xy) {
+define f64 @f(%Point2D* %xy) {
 entry:
   %y = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 1
-  %xy.y = load double, double* %y, align 8
-  ret double %xy.y
+  %xy.y = load f64, f64* %y, align 8
+  ret f64 %xy.y
 }
 
-define double @main() {
+define f64 @main() {
 entry:
   %xy = alloca %Point2D, align 8
   %0 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-  store double 1.000000e+01, double* %0, align 8
+  store f64 1.000000e+01, f64* %0, align 8
   %1 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 1
-  store double 2.000000e+01, double* %1, align 8
-  %2 = call double @f(%Point2D* %xy)
-  ret double %2
+  store f64 2.000000e+01, f64* %1, align 8
+  %2 = call f64 @f(%Point2D* %xy)
+  ret f64 %2
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
@@ -244,7 +244,7 @@ entry:
 TEST(testCGFunCall, testReturnStructInDirect)
 { 
     const char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 let f () = 
    xy:Point2D = Point2D(10.0, 20.0)
    xy
@@ -253,24 +253,24 @@ let main() =
    xy.x
 )";
     const char *expected_ir = R"(
-%Point2D = type { double, double }
+%Point2D = type { f64, f64 }
 
 define void @f(%Point2D* noalias sret(%Point2D) %agg.result) {
 entry:
   %0 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 0
-  store double 1.000000e+01, double* %0, align 8
+  store f64 1.000000e+01, f64* %0, align 8
   %1 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 1
-  store double 2.000000e+01, double* %1, align 8
+  store f64 2.000000e+01, f64* %1, align 8
   ret void
 }
 
-define double @main() {
+define f64 @main() {
 entry:
   %xy = alloca %Point2D, align 8
   call void @f(%Point2D* sret(%Point2D) align 8 %xy)
   %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-  %xy.x = load double, double* %x, align 8
-  ret double %xy.x
+  %xy.x = load f64, f64* %x, align 8
+  ret f64 %xy.x
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
@@ -279,31 +279,31 @@ entry:
 TEST(testCGFunCall, testReturnStructInDirectWithoutName)
 {
     const char test_code[] = R"(
- struct Point2D = x:double y:double
+ struct Point2D = x:f64 y:f64
  f () = Point2D 10.0 20.0
  main() = 
    xy = f()
    xy.x
 )";
     const char *expected_ir = R"(
-%Point2D = type { double, double }
+%Point2D = type { f64, f64 }
 
 define void @f(%Point2D* noalias sret(%Point2D) %agg.result) {
 entry:
   %0 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 0
-  store double 1.000000e+01, double* %0, align 8
+  store f64 1.000000e+01, f64* %0, align 8
   %1 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 1
-  store double 2.000000e+01, double* %1, align 8
+  store f64 2.000000e+01, f64* %1, align 8
   ret void
 }
 
-define double @main() {
+define f64 @main() {
 entry:
   %xy = alloca %Point2D, align 8
   call void @f(%Point2D* sret(%Point2D) align 8 %xy)
   %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-  %xy.x = load double, double* %x, align 8
-  ret double %xy.x
+  %xy.x = load f64, f64* %x, align 8
+  ret f64 %xy.x
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir, false);
@@ -312,19 +312,19 @@ entry:
 TEST(testCGFunCall, testReturnStructInDirectWithoutNameCalling)
 {
     const char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 let f() = Point2D(10.0, 20.0)
 let main() = f()
 )";
     const char *expected_ir = R"(
-%Point2D = type { double, double }
+%Point2D = type { f64, f64 }
 
 define void @f(%Point2D* noalias sret(%Point2D) %agg.result) {
 entry:
   %0 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 0
-  store double 1.000000e+01, double* %0, align 8
+  store f64 1.000000e+01, f64* %0, align 8
   %1 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 1
-  store double 2.000000e+01, double* %1, align 8
+  store f64 2.000000e+01, f64* %1, align 8
   ret void
 }
 
@@ -340,29 +340,29 @@ entry:
 // TEST(testCGFunCall, testReturnStructInDirectWithoutNameElementAccess)
 // {
 //     const char test_code[] = R"(
-//  type Point2D = x:double y:double
+//  type Point2D = x:f64 y:f64
 //  f () = Point2D 10.0 20.0
 //  main() = f().x
 // )";
 //     const char *expected_ir = R"(
-// %Point2D = type { double, double }
+// %Point2D = type { f64, f64 }
 
 // define void @f(%Point2D* noalias sret(%Point2D) %agg.result) {
 // entry:
 //   %0 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 0
-//   store double 1.000000e+01, double* %0, align 8
+//   store f64 1.000000e+01, f64* %0, align 8
 //   %1 = getelementptr inbounds %Point2D, %Point2D* %agg.result, i32 0, i32 1
-//   store double 2.000000e+01, double* %1, align 8
+//   store f64 2.000000e+01, f64* %1, align 8
 //   ret void
 // }
 
-// define double @main() {
+// define f64 @main() {
 // entry:
 //   %xy = alloca %Point2D, align 8
 //   call void @f(%Point2D* sret(%Point2D) align 8 %xy)
 //   %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-//   %xy.x = load double, double* %x, align 8
-//   ret double %xy.x
+//   %xy.x = load f64, f64* %x, align 8
+//   ret f64 %xy.x
 // }
 // )";
 //     validate_m_code_with_ir_code(test_code, expected_ir, false);

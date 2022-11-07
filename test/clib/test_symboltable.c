@@ -24,7 +24,7 @@ TEST(test_symboltable, same_key_multiple_values)
     struct type_oper *op1 = create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
     symboltable_push(&st, s, op1);
     ASSERT_EQ(op1, symboltable_get(&st, s));
-    struct type_oper *op2 = create_nullary_type(TYPE_DOUBLE, get_type_symbol(TYPE_DOUBLE));
+    struct type_oper *op2 = create_nullary_type(TYPE_F64, get_type_symbol(TYPE_F64));
     symboltable_push(&st, s, op2);
     ASSERT_EQ(op2, symboltable_get(&st, s));
     symbol s1 = symboltable_pop(&st);
@@ -53,7 +53,7 @@ TEST(test_symboltable, multiple_keys)
     symboltable_push(&st, s1, op1);
     ASSERT_EQ(op1, symboltable_get(&st, s1));
     symbol s2 = to_symbol("world");
-    struct type_oper *op2 = create_nullary_type(TYPE_DOUBLE, get_type_symbol(TYPE_DOUBLE));
+    struct type_oper *op2 = create_nullary_type(TYPE_F64, get_type_symbol(TYPE_F64));
     symboltable_push(&st, s2, op2);
     ASSERT_EQ(op1, symboltable_get(&st, s1));
     ASSERT_EQ(op2, symboltable_get(&st, s2));

@@ -110,7 +110,7 @@ LLVMValueRef get_char_const(LLVMContextRef context, LLVMBuilderRef builder, void
 LLVMValueRef get_double_const(LLVMContextRef context, LLVMBuilderRef builder, void *value)
 {
     (void)builder;
-    return LLVMConstReal(get_double_type(context, 0), *(double *)value);
+    return LLVMConstReal(get_double_type(context, 0), *(f64 *)value);
 }
 
 LLVMValueRef f_cmp(LLVMBuilderRef builder, int op,
@@ -345,7 +345,7 @@ void _set_bin_ops(struct cg_llvm *cg)
     cg->ops[TYPE_BOOL] = bool_ops;
     cg->ops[TYPE_CHAR] = char_ops;
     cg->ops[TYPE_INT] = int_ops;
-    cg->ops[TYPE_DOUBLE] = double_ops;
+    cg->ops[TYPE_F64] = double_ops;
     cg->ops[TYPE_STRING] = str_ops;
     cg->ops[TYPE_FUNCTION] = double_ops;
     cg->ops[TYPE_STRUCT] = ext_ops;
@@ -467,7 +467,7 @@ LLVMValueRef _emit_literal_node(struct cg_llvm *cg, struct ast_node *node)
         value = &node->liter->int_val;
     else if (is_int_type(type))
         value = &node->liter->int_val;
-    else if (type == TYPE_DOUBLE)
+    else if (type == TYPE_F64)
         value = &node->liter->double_val;
     else if (type == TYPE_STRING) {
         value = (void *)node->liter->str_val;

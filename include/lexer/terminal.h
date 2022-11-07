@@ -158,7 +158,7 @@ struct token {
     struct source_location loc;
     union {
         string *str_val; //string literal
-        double double_val; //double literal
+        f64 double_val; //f64 literal
         int int_val; //int literal
         symbol symbol_val;
         enum op_code opcode;

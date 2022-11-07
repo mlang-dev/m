@@ -43,9 +43,9 @@ TEST(testAnalyzer, testDoubleVariable)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var_name));
     ASSERT_EQ(VAR_NODE, node->node_type);
-    ASSERT_EQ(TYPE_DOUBLE, node->var->init_value->type->type);
+    ASSERT_EQ(TYPE_F64, node->var->init_value->type->type);
     string type_str = to_string(node->type);
-    ASSERT_STREQ("double", string_get(&type_str));
+    ASSERT_STREQ("f64", string_get(&type_str));
     ast_node_free(block);
     engine_free(engine);
 }
@@ -208,7 +208,7 @@ TEST(testAnalyzer, testDoubleDoubleFunc)
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
-    ASSERT_STREQ("double -> double", string_get(&type_str));
+    ASSERT_STREQ("f64 -> f64", string_get(&type_str));
     ast_node_free(block);
     engine_free(engine);
 }
@@ -252,7 +252,7 @@ TEST(testAnalyzer, testMultiParamFunc)
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(3, array_size(&var->args));
     string type_str = to_string(node->type);
-    ASSERT_STREQ("double * double -> double", string_get(&type_str));
+    ASSERT_STREQ("f64 * f64 -> f64", string_get(&type_str));
     ast_node_free(block);
     engine_free(engine);
 }
@@ -319,7 +319,7 @@ TEST(testAnalyzer, testForDoubleTypeLoopFunc)
 {
     char test_code[] = R"(
 # using for loop
-let loopprint n:double = 
+let loopprint n:f64 = 
   for i in 0.0..1.0..n
     printf "%d" i
 )";
@@ -337,10 +337,10 @@ let loopprint n:double =
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
-    ASSERT_STREQ("double -> ()", string_get(&type_str));
+    ASSERT_STREQ("f64 -> ()", string_get(&type_str));
     ast_node *forn = *(ast_node **)array_front(&node->func->body->block->nodes);
-    ASSERT_EQ(TYPE_DOUBLE, get_type(forn->forloop->range->range->step->type));
-    ASSERT_EQ(TYPE_DOUBLE, get_type(forn->forloop->range->range->start->type));
+    ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->step->type));
+    ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->start->type));
     ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->range->range->end->type));
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->body->type));
     ast_node_free(block);
@@ -371,7 +371,7 @@ let distance x1 y1 x2 y2 =
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(5, array_size(&var->args));
     string type_str = to_string(node->type);
-    ASSERT_STREQ("double * double * double * double -> double", string_get(&type_str));
+    ASSERT_STREQ("f64 * f64 * f64 * f64 -> f64", string_get(&type_str));
     ast_node_free(block);
     engine_free(engine);
 }
@@ -451,7 +451,7 @@ printf "%d" 100
 TEST(testAnalyzer, testStructLikeType)
 {
     char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 )";
     struct engine *engine = engine_llvm_new(false);
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
@@ -563,11 +563,11 @@ x
     /*fun definition*/
     node = *(ast_node **)array_get(&block->block->nodes, 1);
     type_str = to_string(node->type);
-    ASSERT_STREQ("() -> double", string_get(&type_str));
+    ASSERT_STREQ("() -> f64", string_get(&type_str));
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_str = to_string(node->type);
-    ASSERT_STREQ("double", string_get(&type_str));
+    ASSERT_STREQ("f64", string_get(&type_str));
     node = *(ast_node **)array_get(&block->block->nodes, 3);
     ASSERT_EQ(IDENT_NODE, node->node_type);
     type_str = to_string(node->type);
@@ -591,7 +591,7 @@ x = 10
     emit_code(cg, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
-    ASSERT_STREQ("double", string_get(&type_str));
+    ASSERT_STREQ("f64", string_get(&type_str));
     /*fun definition*/
     node = *(ast_node **)array_get(&block->block->nodes, 1);
     type_str = to_string(node->type);
@@ -603,7 +603,7 @@ x = 10
 TEST(testAnalyzer, testStructTypeVariables)
 {
     char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 xy:Point2D = Point2D(0.0, 0.0)
 xy.x
 )";
@@ -623,7 +623,7 @@ xy.x
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
     type_str = to_string(node->type);
-    ASSERT_STREQ("double", string_get(&type_str));
+    ASSERT_STREQ("f64", string_get(&type_str));
     ast_node_free(block);
     engine_free(engine);
 }
@@ -631,7 +631,7 @@ xy.x
 TEST(testAnalyzer, testStructTypeVariablesNewForm)
 {
     char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 xy = Point2D(10.0, 20.0)
 xy.x
 )";
@@ -651,7 +651,7 @@ xy.x
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
     type_str = to_string(node->type);
-    ASSERT_STREQ("double", string_get(&type_str));
+    ASSERT_STREQ("f64", string_get(&type_str));
     ast_node_free(block);
     engine_free(engine);
 }
@@ -659,7 +659,7 @@ xy.x
 TEST(testAnalyzer, testStructTypeLocalVariables)
 {
     char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 let getx()=
     xy:Point2D = Point2D(10.0, 0.0)
     xy.x
@@ -678,11 +678,11 @@ getx()
     /*fun definition*/
     node = *(ast_node **)array_get(&block->block->nodes, 1);
     type_str = to_string(node->type);
-    ASSERT_STREQ("() -> double", string_get(&type_str));
+    ASSERT_STREQ("() -> f64", string_get(&type_str));
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_str = to_string(node->type);
-    ASSERT_STREQ("double", string_get(&type_str));
+    ASSERT_STREQ("f64", string_get(&type_str));
     ast_node_free(block);
     engine_free(engine);
 }
@@ -690,7 +690,7 @@ getx()
 TEST(testAnalyzer, testStructTypeLocalVariablesNewForm)
 {
     char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 let getx()=
     xy = Point2D(10.0, 0.0)
     xy.x
@@ -709,11 +709,11 @@ getx()
     /*fun definition*/
     node = *(ast_node **)array_get(&block->block->nodes, 1);
     type_str = to_string(node->type);
-    ASSERT_STREQ("() -> double", string_get(&type_str));
+    ASSERT_STREQ("() -> f64", string_get(&type_str));
     node = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_str = to_string(node->type);
-    ASSERT_STREQ("double", string_get(&type_str));
+    ASSERT_STREQ("f64", string_get(&type_str));
     ast_node_free(block);
     engine_free(engine);
 }
@@ -721,7 +721,7 @@ getx()
 TEST(testAnalyzer, testStructTypeReturn)
 {
     char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 let getx()=
     xy:Point2D = Point2D(10.0, 0.0)
     xy
@@ -765,7 +765,7 @@ z = getx()
 TEST(testAnalyzer, testStructTypeReturnNewForm)
 {
     char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 let getx()=
     xy = Point2D(10.0, 0.0)
     xy
@@ -808,7 +808,7 @@ z = getx()
 TEST(testAnalyzer, testStructTypeReturnNoNamed)
 {
     char test_code[] = R"(
-struct Point2D = x:double, y:double
+struct Point2D = x:f64, y:f64
 let get_point() = Point2D(10.0, 0.0)
 let z() = get_point()
 )";

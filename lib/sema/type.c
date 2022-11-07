@@ -24,7 +24,7 @@ const char *const _type_strings[TYPE_TYPES] = {
     "char",
     "int",
     "float",
-    "double",
+    "f64",
     "string",
     "->",
     "struct",
@@ -484,7 +484,7 @@ string to_string(struct type_expr *type)
             return typestr;
         }
     } else if (type->kind == KIND_OPER) {
-        if (array_size(&type->args) == 0) { /* nullary operator, e.g. builtin types: int, double*/
+        if (array_size(&type->args) == 0) { /* nullary operator, e.g. builtin types: int, f64*/
             string_add(&typestr, get_type_symbol(type->type));
             return typestr;
         } else if (type->type == TYPE_STRUCT) {
@@ -562,7 +562,7 @@ bool is_promotable_int(struct type_expr *type)
 
 u8 type_size(enum type type)
 {
-    return type == TYPE_DOUBLE ? 8 : 4;
+    return type == TYPE_F64 ? 8 : 4;
 }
 
 bool is_empty_struct(struct type_expr *type)

@@ -22,7 +22,7 @@ void _print(struct eval_result result)
         printf("%d", result.i_value);
     } else if (result.type == TYPE_BOOL) {
         printf("%s", boolean_values[result.b_value]);
-    } else if (result.type == TYPE_DOUBLE) {
+    } else if (result.type == TYPE_F64) {
         printf("%f", result.d_value);
     } else if (result.type == TYPE_CHAR) {
         printf("%c", result.c_value);
@@ -71,9 +71,9 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
             if (is_int_type(ret_type)) {
                 result.i_value = fp.fp.i_fp();
                 result.type = ret_type;
-            } else if (ret_type == TYPE_DOUBLE || ret_type == TYPE_STRUCT) {
+            } else if (ret_type == TYPE_F64 || ret_type == TYPE_STRUCT) {
                 result.d_value = fp.fp.d_fp();
-                result.type = TYPE_DOUBLE;
+                result.type = TYPE_F64;
             } else if (ret_type == TYPE_STRING) {
                 result.s_value = fp.fp.s_fp();
                 result.type = TYPE_STRING;

@@ -180,7 +180,7 @@ TEST(testHashtable, TestHashtablePointerKey)
     hashtable ht;
     hashtable_init(&ht);
     type_oper *op1 = create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
-    type_oper *op2 = create_nullary_type(TYPE_DOUBLE, get_type_symbol(TYPE_DOUBLE));
+    type_oper *op2 = create_nullary_type(TYPE_F64, get_type_symbol(TYPE_F64));
     type_oper *op3 = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
     hashtable_set_p(&ht, op1, op1);
     hashtable_set_p(&ht, op2, op2);
@@ -203,7 +203,7 @@ TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
     struct type_size_info tsi;
     tsi.width_bits = 64;
     tsi.align_bits = 64;
-    symbol type_name = to_symbol("double");
+    symbol type_name = to_symbol("f64");
     hashtable_set_p(&ht, type_name, &tsi);
     struct type_size_info *result = (struct type_size_info *)hashtable_get_p(&ht, type_name);
     ASSERT_EQ(64, result->width_bits);
