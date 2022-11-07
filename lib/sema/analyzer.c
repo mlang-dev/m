@@ -154,8 +154,10 @@ struct type_expr *_analyze_list_comp(struct sema_context *context, struct ast_no
         u32 size = array_size(&node->list_comp->block->nodes);
         array_push(&dims, &size);
         if(size){
-            struct ast_node *element = *(struct ast_node **)array_front(&node->list_comp->block->nodes);
-            element_type = analyze(context, element);
+            for(u32 i = 0; i < array_size(&node->list_comp->block->nodes); i++){
+                struct ast_node *element = *(struct ast_node **)array_get(&node->list_comp->block->nodes, i);
+                element_type = analyze(context, element);
+            }
         }
         type = create_array_type(element_type, &dims);
     }
