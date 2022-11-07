@@ -132,7 +132,7 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
         ti.width_bits = 32;
         ti.align_bits = 32;
         break;
-    case TYPE_FLOAT:
+    case TYPE_F32:
         ti.width_bits = 32;
         ti.align_bits = 32;
         break;

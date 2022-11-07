@@ -27,7 +27,7 @@ extern "C" {
     ENUM_ITEM(TYPE_BOOL)        \
     ENUM_ITEM(TYPE_CHAR)        \
     ENUM_ITEM(TYPE_INT)         \
-    ENUM_ITEM(TYPE_FLOAT)       \
+    ENUM_ITEM(TYPE_F32)       \
     ENUM_ITEM(TYPE_F64)      \
     ENUM_ITEM(TYPE_STRING)      \
     ENUM_ITEM(TYPE_FUNCTION)    \
