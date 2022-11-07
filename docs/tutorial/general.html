@@ -172,9 +172,9 @@ print "hello %s %.2f %d" s f i</textarea>
                 <!--<div>function definition</div>-->
                 <div>Use keyword "let" to define a function. 
 The grammar is: "let" IDENT param_decls '=' statement. The following code is to define a square function takes
-a double value and outputs its squared double value.</div>
+a f64 value and outputs its squared f64 value.</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="function_definition"  rows = "2" style="resize: none;">let sq x:double = x ** 2.0
+                    <textarea id="function_definition"  rows = "2" style="resize: none;">let sq x:f64 = x ** 2.0
 sq 10.0</textarea>
                 </div>
                 <div>
@@ -197,7 +197,7 @@ sq 10.0</textarea>
                 <!--<div>struct type</div>-->
                 <div>You can define struct aggregate type like in C. They behavior the same except more succinct in m.</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="struct_type"  rows = "3" style="resize: none;">struct Point2D = x:double, y:double
+                    <textarea id="struct_type"  rows = "3" style="resize: none;">struct Point2D = x:f64, y:f64
 p = Point2D(10.0, 20.0)
 print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)</textarea>
                 </div>
@@ -209,7 +209,7 @@ print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)</textarea>
                 <!--<div>pass by value</div>-->
                 <div>mlang uses pass-by value calling convention to pass arguments to functions. This means the argument value is copied to function's parameter.</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_by_value"  rows = "7" style="resize: none;">struct Point2D = x:double, y:double
+                    <textarea id="pass_by_value"  rows = "7" style="resize: none;">struct Point2D = x:f64, y:f64
 let change z:Point2D = 
     z.x = z.x * 10.0
     z

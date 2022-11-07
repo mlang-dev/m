@@ -33,7 +33,7 @@ struct module {
 
 struct _literal_node {
     union {
-        double double_val;
+        f64 double_val;
         int int_val;
         const char *str_val;
     };
@@ -194,7 +194,7 @@ struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc);
 struct ast_node *ident_node_new(symbol name, struct source_location loc);
 
-struct ast_node *double_node_new(double val, struct source_location loc);
+struct ast_node *double_node_new(f64 val, struct source_location loc);
 struct ast_node *int_node_new(int val, struct source_location loc);
 struct ast_node *bool_node_new(bool val, struct source_location loc);
 struct ast_node *char_node_new(char val, struct source_location loc);

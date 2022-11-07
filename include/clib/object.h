@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "clib/typedef.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +38,7 @@ typedef struct _object {
         char c_data;
         int i_data;
         float f_data;
-        double d_data;
+        f64 d_data;
         void *p_data;
     } data;
 } object;

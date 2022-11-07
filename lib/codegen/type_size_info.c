@@ -136,7 +136,7 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
         ti.width_bits = 32;
         ti.align_bits = 32;
         break;
-    case TYPE_DOUBLE:
+    case TYPE_F64:
         ti.width_bits = 64;
         ti.align_bits = 64;
         break;

@@ -19,7 +19,7 @@ extern "C" {
 struct eval_result {
     enum type type;
     union {
-        double d_value;
+        f64 d_value;
         int i_value;
         bool b_value;
         char c_value;

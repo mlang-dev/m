@@ -1,5 +1,5 @@
 _fltused:int = 0
-type Point2DD = x:double, y:double
+type Point2DD = x:f64, y:f64
 type Point2DI = x:int, y:int
 
 let passByRef xy:Point2DD = xy.y
