@@ -308,7 +308,7 @@ void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
         case TYPE_INT:
             wasm_emit_const_i32(ba, node->liter->int_val);
             break;
-        case TYPE_FLOAT:
+        case TYPE_F32:
             wasm_emit_const_f32(ba, node->liter->double_val);
             break;
         case TYPE_F64:

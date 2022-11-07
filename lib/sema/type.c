@@ -23,7 +23,7 @@ const char *const _type_strings[TYPE_TYPES] = {
     "bool",
     "char",
     "int",
-    "float",
+    "f32",
     "f64",
     "string",
     "->",

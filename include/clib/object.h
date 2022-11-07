@@ -37,7 +37,7 @@ typedef struct _object {
     union {
         char c_data;
         int i_data;
-        float f_data;
+        f32 f_data;
         f64 d_data;
         void *p_data;
     } data;
