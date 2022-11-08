@@ -98,9 +98,10 @@ u8 type_size(enum type type);
 bool is_empty_struct(struct type_expr *type);
 struct type_expr *is_single_element_struct(struct type_expr *type);
 symbol get_type_symbol(enum type type_enum);
-
+enum type get_type_enum_from_symbol(symbol type_name);
 symbol to_ref_symbol(symbol type_symbol);
-
+symbol get_ref_symbol(symbol type_name);
+symbol to_array_type_name(symbol element_type_name, struct array *dims);
 //anonymous function
 void struct_type_init(struct type_expr *struct_type);
 void struct_type_deinit(struct type_expr *struct_type);

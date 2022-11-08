@@ -65,13 +65,16 @@ struct ast_node *create_function_func_type(CXCursor cursor)
         }
         symbol annotated_type_name = get_type_symbol(arg_type);
         struct source_location param_loc = {0, 0, 0, 0};
-        struct ast_node *fun_param = var_node_new2(var_name, annotated_type_name, false, 0, true, param_loc);
+        struct ast_node *is_of_type = ident_node_new(annotated_type_name, param_loc);
+        struct ast_node *fun_param = var_node_new(var_name, annotated_type_name, false, is_of_type, 0, true, param_loc);
         fun_param->type = create_nullary_type(arg_type, annotated_type_name);
         array_push(&fun_params, &fun_param);
     }
     struct source_location loc = { 0, 1, 0, 0 };
     struct ast_node *params = block_node_new(&fun_params);
-    return func_type_node_default_new(string_2_symbol(&fun_name), params, ret_type && ret_type->type ? get_type_symbol(ret_type->type) : 0, is_variadic, true, loc);
+    symbol ret_type_symbol = ret_type && ret_type->type ? get_type_symbol(ret_type->type) : 0;
+    struct ast_node *ret_type_node = ret_type_symbol ? ident_node_new(ret_type_symbol, loc) : 0;
+    return func_type_node_default_new(string_2_symbol(&fun_name), params, ret_type_symbol, ret_type_node, is_variadic, true, loc);
 }
 
 enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClientData client_data)

@@ -14,12 +14,36 @@
 #include <assert.h>
 #include <limits.h>
 
-
-void _fill_type_enum(struct sema_context *context, struct ast_node *node)
+enum type _get_type_enum(struct sema_context *context, symbol type_name)
 {
-    if (!node->annotated_type_enum && node->annotated_type_name) {
-        node->annotated_type_enum = hashtable_get_int(context->symbol_2_int_types, node->annotated_type_name);
+    return hashtable_get_int(context->symbol_2_int_types, type_name);
+}
+
+struct type_expr *retrieve_type_with_type_name(struct sema_context *context, symbol name)
+{
+    return get_symbol_type(&context->typename_2_typexps, &context->nongens, name);
+}
+
+struct type_expr *_create_type_from_type_node(struct sema_context *context, struct ast_node *type_node)
+{
+    struct type_expr *value_type;
+    if(type_node->node_type == IDENT_NODE){
+        return retrieve_type_with_type_name(context, type_node->ident->name); // example like int
+    } else if (type_node->node_type == ARRAY_TYPE_NODE){
+        value_type = retrieve_type_with_type_name(context, type_node->array_type->elm_type->ident->name);
+        struct array dims;
+        array_init(&dims, sizeof(u32));
+        for(u32 i=0; i<array_size(&type_node->array_type->dims->block->nodes); i++){
+            struct ast_node *elm_size_node = *(struct ast_node **)array_get(&type_node->array_type->dims->block->nodes, i);
+            u32 dim_size = elm_size_node->liter->int_val;
+            array_push(&dims, &dim_size);
+        }
+        return create_array_type(value_type, &dims);
+    } else if (type_node->node_type == UNARY_NODE){
+        value_type = _create_type_from_type_node(context, type_node->unop->operand);
+        return create_ref_type(value_type);
     }
+    return 0;
 }
 
 struct type_expr *_analyze_unk(struct sema_context *context, struct ast_node *node)
@@ -38,11 +62,6 @@ struct ast_node *_get_var_node(struct sema_context *context, struct ast_node *no
         var = symboltable_get(&context->varname_2_asts, var_name);
    }
    return var;
-}
-
-struct type_expr *retrieve_type_with_type_name(struct sema_context *context, symbol name)
-{
-    return get_symbol_type(&context->typename_2_typexps, &context->nongens, name);
 }
 
 struct type_expr *retrieve_type_for_var_name(struct sema_context *context, symbol name)
@@ -165,21 +184,36 @@ struct type_expr *_analyze_list_comp(struct sema_context *context, struct ast_no
     return type;
 }
 
+struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_node *node)
+{
+    symbol elm_type_name = node->array_type->elm_type->ident->name;
+    enum type elm_type_enum = get_type_enum_from_symbol(elm_type_name);
+    struct type_expr *elm_type = create_nullary_type(elm_type_enum, elm_type_name);
+    struct array dims;
+    array_init(&dims, sizeof(u32));
+    for(u32 i = 0; i < array_size(&node->list_comp->block->nodes); i++){
+        struct ast_node *dim_node = *(struct ast_node **)array_get(&node->list_comp->block->nodes, i);
+        u32 dim = dim_node->liter->int_val;
+        array_push(&dims, &dim);
+    }
+    return create_array_type(elm_type, &dims);
+}
+
 struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_node *node)
 {
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_expr *));
     for (size_t i = 0; i < array_size(&node->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
-        _fill_type_enum(context, param);
         assert(param->annotated_type_name);
-        //assert(param->annotated_type_enum == get_type_enum(param->annotated_type_name));
-        struct type_expr* to = create_nullary_type(param->annotated_type_enum, param->annotated_type_name);
+        enum type type_enum = _get_type_enum(context, param->annotated_type_name);
+        struct type_expr* to = create_nullary_type(type_enum, param->annotated_type_name);
         param->type = to;
         array_push(&fun_sig, &param->type);
     }
     assert(node->annotated_type_name);
-    struct type_expr *to = create_nullary_type(node->annotated_type_enum, node->annotated_type_name);
+    enum type type_enum = _get_type_enum(context, node->annotated_type_name);
+    struct type_expr *to = create_nullary_type(type_enum, node->annotated_type_name);
     array_push(&fun_sig, &to);
     node->type = create_type_fun(&fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
@@ -196,13 +230,13 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
     array_init(&fun_sig, sizeof(struct type_expr *));
     for (size_t i = 0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
-        _fill_type_enum(context, param);
         struct type_expr *exp;
-        if (param->annotated_type_name) {
-            if (param->annotated_type_enum == TYPE_STRUCT)
+        if (param->var->is_of_type && param->var->is_of_type->ident->name) {
+            enum type type_enum = _get_type_enum(context, param->annotated_type_name);
+            if (type_enum == TYPE_STRUCT)
                 exp = retrieve_type_with_type_name(context, param->annotated_type_name);
             else{
-                exp = create_nullary_type(param->annotated_type_enum, param->annotated_type_name);
+                exp = create_nullary_type(type_enum, param->annotated_type_name);
             }
             if(param->is_ref_annotated){
                 exp = create_ref_type(exp);
@@ -455,7 +489,6 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
     struct type_expr *type = 0;
     if (node->type && node->type->kind == KIND_OPER)
         return node->type;
-    _fill_type_enum(context, node);
     switch(node->node_type){
         case ENUM_NODE:
         case UNION_NODE:
@@ -468,6 +501,9 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             break;
         case LIST_COMP_NODE:
             type = _analyze_list_comp(context, node);
+            break;
+        case ARRAY_TYPE_NODE:
+            type = _analyze_array_type(context, node);
             break;
         case UNIT_NODE:
             type = create_unit_type();
