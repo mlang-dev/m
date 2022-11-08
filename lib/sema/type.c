@@ -642,3 +642,15 @@ symbol get_ref_symbol(symbol type_name)
      struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, type_name);
     return pair ? pair->ref_type->name : 0;
 }
+
+bool is_array_size_same(struct type_expr *type1, struct type_expr *type2)
+{
+    if(type1->type == type2->type && type2->type == TYPE_ARRAY && array_size(&type1->dims) == array_size(&type2->dims)){
+        for(u32 i=0; i<array_size(&type1->dims); i++){
+            if(*(u32*)array_get(&type1->dims, i) != *(u32*)array_get(&type2->dims, i))
+                return false;
+        }
+        return true;
+    }
+    return false;
+}

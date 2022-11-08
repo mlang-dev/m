@@ -197,11 +197,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             if (rule->action.item_index_count == 4) {
                 //has type and has init value
                 assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE||node1->node_type == ARRAY_TYPE_NODE);
-                if(node1->node_type == IDENT_NODE){
-                }else{
-                    assert(node1->unop->opcode == OP_BAND);
-                    assert(node1->unop->operand->node_type == IDENT_NODE);
-                }
                 node2 = items[rule->action.item_index[3]].ast;
                 ast = var_node_new(node->ident->name, node1, node2, false, node->loc);
             } else { // has no type info, has init value

@@ -50,12 +50,22 @@ a[1] = 200
 a[0] + a[1]
 `, 210);
 
-// mtest.mtest('u8 array', 
-// `
-// declare a u8 array
-// `, 
-// `
-// a:u8[2] = [10,20]
-// a[1] = 200
-// a[0] + a[1]
-// `, 210);
+mtest.mtest('u8 array', 
+`
+declare a u8 array
+`, 
+`
+a:u8[2] = [10, 20]
+a[0] + a[1]
+`, 30);
+
+mtest.mtest('u8 array update', 
+`
+declare a u8 array
+`, 
+`
+a:u8[2] = [10, 20]
+a[0] = 30
+a[1] = 40
+a[0] + a[1]
+`, 70);

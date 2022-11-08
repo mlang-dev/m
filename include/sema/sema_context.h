@@ -111,7 +111,6 @@ struct sema_context {
      */
     size_t scope_level;
 
-
     bool is_repl;
 };
 
