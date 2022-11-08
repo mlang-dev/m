@@ -335,8 +335,14 @@ void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
         default:
             printf("unknown type: %s\n", string_get(get_type_symbol(node->type->type)));
             break;
-        case TYPE_CHAR:
         case TYPE_BOOL:
+        case TYPE_CHAR:
+        case TYPE_I8:
+        case TYPE_U8:
+        case TYPE_I16:
+        case TYPE_U16:
+        case TYPE_I32:
+        case TYPE_U32:
         case TYPE_INT:
             wasm_emit_const_i32(ba, node->liter->int_val);
             break;

@@ -112,11 +112,15 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     }
     if (!var_type && has_symbol_in_scope(&context->decl_2_typexps, node->var->var_name, context->scope_marker))
         var_type = retrieve_type_for_var_name(context, node->var->var_name);
-    if(!var_type)
-        var_type = create_type_var();
     struct type_expr *type = analyze(context, node->var->init_value);
+    if (type && var_type && is_array_size_same(var_type, type)){
+        type = var_type;
+        node->var->init_value->type = type;
+    }
     if (!type)
         return 0;
+    if(!var_type)
+        var_type = create_type_var();
     bool unified = unify(var_type, type, &context->nongens);
     if (!unified) {
         report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
@@ -408,7 +412,11 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
     if (unify(lhs_type, rhs_type, &context->nongens)) {
         return create_unit_type();
     } else {
-        report_error(context, EC_TYPES_DO_NOT_MATCH, node->loc);
+        if(is_int_type(lhs_type->type) && is_int_type(rhs_type->type)){
+            node->binop->rhs->type = lhs_type;
+        }else{
+            report_error(context, EC_TYPES_DO_NOT_MATCH, node->loc);
+        }
     }
     return result;
 }
