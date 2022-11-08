@@ -154,7 +154,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
     bool is_variadic = false;
-    bool is_ref_annotated = false;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
             return items[0].ast;
@@ -202,12 +201,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 }else{
                     assert(node1->unop->opcode == OP_BAND);
                     assert(node1->unop->operand->node_type == IDENT_NODE);
-                    is_ref_annotated = true;
                 }
                 node2 = items[rule->action.item_index[3]].ast;
-                ast = var_node_new(node->ident->name, is_ref_annotated, node1, node2, false, node->loc);
+                ast = var_node_new(node->ident->name, node1, node2, false, node->loc);
             } else { // has no type info, has init value
-                ast = var_node_new(node->ident->name, false, 0, node1, false, node->loc);
+                ast = var_node_new(node->ident->name, 0, node1, false, node->loc);
             }
         } else if (rule->action.item_index_count > 2) {
             //just has ID and type
@@ -217,12 +215,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             }else{
                 assert(node1->unop->opcode == OP_BAND);
                 assert(node1->unop->operand->node_type == IDENT_NODE);
-                is_ref_annotated = true;
             }
-            ast = var_node_new(node->ident->name, is_ref_annotated, node1, 0, false, node->loc);
+            ast = var_node_new(node->ident->name, node1, 0, false, node->loc);
         } else {
             //just ID
-            ast = var_node_new(node->ident->name, false, 0, 0, false, node->loc);
+            ast = var_node_new(node->ident->name, 0, 0, false, node->loc);
         }
         break;
     case RANGE_NODE:

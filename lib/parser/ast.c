@@ -27,12 +27,11 @@ void ast_deinit()
 void nodes_free(struct array *nodes);
 
 
-struct ast_node *ast_node_new(enum node_type node_type, bool is_ref_annotated, struct source_location loc)
+struct ast_node *ast_node_new(enum node_type node_type, struct source_location loc)
 {
     struct ast_node *node;
     MALLOC(node, sizeof(*node)); 
     node->node_type = node_type;
-    node->is_ref_annotated = is_ref_annotated;
     node->type = 0;
     node->loc = loc;
     node->is_ret = false;
@@ -231,10 +230,10 @@ struct ast_node *_copy_literal_node(struct ast_node *orig_node)
         orig_node->liter->type, orig_node->loc);
 }
 
-struct ast_node *var_node_new(symbol var_name, bool is_ref_annotated, struct ast_node *is_of_type,
+struct ast_node *var_node_new(symbol var_name, struct ast_node *is_of_type,
     struct ast_node *init_value, bool is_global, struct source_location loc)
 {   
-    struct ast_node *node = ast_node_new(VAR_NODE, is_ref_annotated, loc);
+    struct ast_node *node = ast_node_new(VAR_NODE, loc);
     MALLOC(node->var, sizeof(*node->var));
     node->var->var_name = var_name;
     node->var->init_value = init_value;
@@ -247,8 +246,7 @@ struct ast_node *var_node_new(symbol var_name, bool is_ref_annotated, struct ast
 struct ast_node *_copy_var_node(struct ast_node *orig_node)
 {
     return var_node_new(
-        orig_node->var->var_name, 
-        orig_node->is_ref_annotated, node_copy(orig_node->var->is_of_type),
+        orig_node->var->var_name, node_copy(orig_node->var->is_of_type),
         node_copy(orig_node->var->init_value), orig_node->var->is_global, orig_node->loc);
 }
 
@@ -263,7 +261,7 @@ void _free_var_node(struct ast_node *node)
 
 struct ast_node *struct_node_new(symbol name, struct ast_node *body, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(STRUCT_NODE, false, loc);
+    struct ast_node *node = ast_node_new(STRUCT_NODE, loc);
     MALLOC(node->struct_def, sizeof(*node->struct_def));
     node->struct_def->name = name;
     node->struct_def->body = body;
@@ -485,7 +483,7 @@ struct ast_node *func_type_node_new(symbol name,
 
 struct ast_node *_copy_func_type_node(struct ast_node *func_type)
 {
-    struct ast_node *node = ast_node_new(func_type->node_type, func_type->is_ref_annotated, func_type->loc);
+    struct ast_node *node = ast_node_new(func_type->node_type, func_type->loc);
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = func_type->ft->name;
     node->ft->params = _copy_block_node(func_type->ft->params);
