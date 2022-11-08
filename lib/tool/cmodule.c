@@ -66,7 +66,7 @@ struct ast_node *create_function_func_type(CXCursor cursor)
         symbol arg_type_name = get_type_symbol(arg_type);
         struct source_location param_loc = {0, 0, 0, 0};
         struct ast_node *is_of_type = ident_node_new(arg_type_name, param_loc);
-        struct ast_node *fun_param = var_node_new(var_name, false, is_of_type, 0, true, param_loc);
+        struct ast_node *fun_param = var_node_new(var_name, is_of_type, 0, true, param_loc);
         fun_param->type = create_nullary_type(arg_type, arg_type_name);
         array_push(&fun_params, &fun_param);
     }

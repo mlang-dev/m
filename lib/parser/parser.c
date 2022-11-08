@@ -80,18 +80,18 @@ struct ast_node *_build_terminal_ast(struct token *tok)
     switch(tok->token_type){
         default:
             node_type = tok->token_type << 16;
-            ast = ast_node_new(node_type, false, tok->loc);
+            ast = ast_node_new(node_type, tok->loc);
             break;
         case TOKEN_EOF:
-            ast = ast_node_new(NULL_NODE, false, tok->loc);
+            ast = ast_node_new(NULL_NODE, tok->loc);
             break;
         case TOKEN_UNIT:
-            ast = ast_node_new(UNIT_NODE, false, tok->loc);
+            ast = ast_node_new(UNIT_NODE, tok->loc);
             break;
         case TOKEN_OP:
             //*hacky way to transfer opcode
             node_type = (tok->token_type << 16) | tok->opcode;
-            ast = ast_node_new(node_type, false, tok->loc);
+            ast = ast_node_new(node_type, tok->loc);
             break;
         case TOKEN_IDENT:
             ast = ident_node_new(tok->symbol_val, tok->loc);
