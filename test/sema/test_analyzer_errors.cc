@@ -52,7 +52,7 @@ TEST(testAnalyzerError, testRemError)
 TEST(testAnalyzerError, tesTypeMismatch)
 {
     char test_code[] = R"(
-x:int = true
+x:int = "string"
 )";
     struct engine *engine = engine_llvm_new(false);
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;

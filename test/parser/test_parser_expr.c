@@ -7,6 +7,7 @@
 #include "parser/parser.h"
 #include "parser/astdump.h"
 #include "sema/frontend.h"
+#include "sema/analyzer.h"
 #include "test.h"
 #include <stdio.h>
 
@@ -16,7 +17,8 @@ TEST(test_parser_expr, arithmetic_simple_add)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
-    string dump_str = dump(ast);
+    analyze(fe->sema_context, ast);
+    string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(1+2)", string_get(&dump_str));
     ast_node_free(ast);
     parser_free(parser);
@@ -29,7 +31,8 @@ TEST(test_parser_expr, arithmetic_simple_mult)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
-    string dump_str = dump(ast);
+    analyze(fe->sema_context, ast);
+    string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(1*2)", string_get(&dump_str));
     ast_node_free(ast);
     parser_free(parser);
@@ -42,7 +45,8 @@ TEST(test_parser_expr, arithmetic_exp_neg)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
-    string dump_str = dump(ast);
+    analyze(fe->sema_context, ast);
+    string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(-1+2)", string_get(&dump_str));
     ast_node_free(ast);
     parser_free(parser);
@@ -55,7 +59,8 @@ TEST(test_parser_expr, arithmetic_exp)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
-    string dump_str = dump(ast);
+    analyze(fe->sema_context, ast);
+    string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(1+(2*3))", string_get(&dump_str));
     ast_node_free(ast);
     parser_free(parser);
@@ -68,7 +73,8 @@ TEST(test_parser_expr, arithmetic_exp2)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
-    string dump_str = dump(ast);
+    analyze(fe->sema_context, ast);
+    string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(1+(2*(3**4)))", string_get(&dump_str));
     ast_node_free(ast);
     parser_free(parser);
@@ -81,7 +87,8 @@ TEST(test_parser_expr, arithmetic_exp_parentheses)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *ast = parse_code(parser, test_code);
-    string dump_str = dump(ast);
+    analyze(fe->sema_context, ast);
+    string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("((1+2)*3)", string_get(&dump_str));
 
     ast_node_free(ast);
