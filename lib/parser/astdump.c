@@ -33,11 +33,14 @@ string _dump_func_type(struct ast_node *func_type)
     for (size_t i = 0; i < array_size(&func_type->ft->params->block->nodes); i++) {
         struct ast_node *var = *(struct ast_node **)array_get(&func_type->ft->params->block->nodes, i);
         string_copy(&var_str, var->var->var_name);
-        if (var->annotated_type_enum && var->annotated_type_enum != TYPE_GENERIC) {
-            string var_type;
-            string_init_chars(&var_type, string_get(var->annotated_type_name));
-            string_add_chars(&var_str, ":");
-            string_add(&var_str, &var_type);
+        if (var->var->is_of_type && var->var->is_of_type->node_type == IDENT_NODE &&var->var->is_of_type->ident->name) {
+            enum type type_enum = get_type_enum_from_symbol(var->var->is_of_type->ident->name);
+            if(type_enum != TYPE_GENERIC){
+                string var_type;
+                string_init_chars(&var_type, string_get(var->var->is_of_type->ident->name));
+                string_add_chars(&var_str, ":");
+                string_add(&var_str, &var_type);
+            }
         }
         array_push(&args, &var_str);
     }
@@ -49,7 +52,7 @@ string _dump_func_type(struct ast_node *func_type)
     }
 
     // function type
-    if (func_type->annotated_type_name) {
+    if (func_type->ft->is_of_ret_type_node) {
         string_copy_chars(&var_str, string_get(func_type->annotated_type_name));
         string_add_chars(&result, " -> ");
         string_add(&result, &var_str);

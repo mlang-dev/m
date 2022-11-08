@@ -291,6 +291,7 @@ struct type_expr *create_array_type(struct type_expr *element_type, struct array
     return type;
 }
 
+
 //wrap as function type with signature: () -> oper
 struct type_expr *wrap_as_fun_type(struct type_expr *oper)
 {
@@ -634,4 +635,10 @@ enum type get_type_enum_from_symbol(symbol type_name)
     if(pair)
         return pair->val_type->type;
     return TYPE_NULL;
+}
+
+symbol get_ref_symbol(symbol type_name)
+{
+     struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, type_name);
+    return pair ? pair->ref_type->name : 0;
 }
