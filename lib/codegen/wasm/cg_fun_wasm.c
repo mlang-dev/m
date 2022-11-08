@@ -227,7 +227,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     struct ast_node *p0 = 0;
     if(has_sret){
         struct ast_node *is_of_type = ident_node_new(fi->ret.type->name, node->loc);
-        p0 = var_node_new(to_symbol("__p0"), fi->ret.type->name, fi->ret.type->val_type, is_of_type, 0, false, node->loc);
+        p0 = var_node_new(to_symbol("__p0"), is_of_type, 0, false, node->loc);
         p0->type = fi->ret.type;
         func_register_local_variable(cg, p0, false); //register one parameter
     }

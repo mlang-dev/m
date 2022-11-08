@@ -30,7 +30,7 @@ TEST_F(testAstDump, testPrototypeNodeDump)
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     auto func_type = (ast_node *)node;
     ASSERT_STREQ("printf", string_get((string *)func_type->ft->name));
-    string dump_str = dump(node);
+    string dump_str = dump(context, node);
     ASSERT_STREQ(test_code, string_get(&dump_str));
     sema_context_free(context);
     parser_free(parser);
@@ -49,7 +49,7 @@ TEST_F(testAstDump, testFuncTypeWithNoParam)
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     auto func_type = (ast_node *)node;
     ASSERT_STREQ("printf", string_get((string *)func_type->ft->name));
-    string dump_str = dump(node);
+    string dump_str = dump(context, node);
     ASSERT_STREQ(test_code, string_get(&dump_str));
     sema_context_free(context);
     parser_free(parser);

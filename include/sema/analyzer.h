@@ -18,6 +18,7 @@ extern "C" {
 
 struct type_expr *retrieve_type_for_var_name(struct sema_context *env, symbol name);
 struct type_expr *analyze(struct sema_context *env, struct ast_node *node);
+struct type_expr *create_type_from_type_node(struct sema_context *context, struct ast_node *type_node);
 
 #ifdef __cplusplus
 }

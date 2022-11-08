@@ -96,6 +96,7 @@ struct _struct_node {
 
 /*struct initializer node*/
 struct _struct_init_node { 
+    struct ast_node *is_of_type;
     struct ast_node *body; /*body block*/
 };
 
@@ -153,8 +154,6 @@ struct ast_node {
     struct type_expr *type; // type inferred
     struct source_location loc;
 
-    symbol annotated_type_name; //this is expected to be removed
-    bool is_ref_annotated;  //is reference '&' annotated in the type
     bool is_addressed;   //
     bool is_ret;        //this is expected to be removed from sema analysis
     bool is_lvalue;      //default is zero (read), for left side of assignment node, it will be set as 1
@@ -194,7 +193,7 @@ struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
  * in codegen.c & analyzer.c shall be changed accordingly.
  */
 /*construct ast node with type enum directly*/
-struct ast_node *ast_node_new(enum node_type node_type, symbol type_name, bool is_ref_annotated, struct source_location loc);
+struct ast_node *ast_node_new(enum node_type node_type, struct source_location loc);
 void ast_node_free(struct ast_node *node);
 struct type_expr *get_ret_type(struct ast_node *fun_node);
 
@@ -209,7 +208,7 @@ struct ast_node *char_node_new(char val, struct source_location loc);
 struct ast_node *unit_node_new(struct source_location loc);
 struct ast_node *string_node_new(const char *val, struct source_location loc);
 struct ast_node *const_one_node_new(enum type type, struct source_location loc);
-struct ast_node *var_node_new(symbol var_name, symbol type_name, bool is_ref_annotated, struct ast_node *is_of_type, struct ast_node *init_value, bool is_global, struct source_location loc);
+struct ast_node *var_node_new(symbol var_name, struct ast_node *is_of_type, struct ast_node *init_value, bool is_global, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
 struct ast_node *import_node_new(symbol from_module, struct ast_node *node, struct source_location loc);
@@ -221,7 +220,7 @@ struct ast_node *func_type_node_new(
     struct ast_node *ret_type_node, 
     bool is_variadic, bool is_external, struct source_location loc);
 struct ast_node *struct_node_new(symbol name, struct ast_node *body, struct source_location loc);
-struct ast_node *struct_init_node_new(struct ast_node *body, symbol type_name, struct source_location loc);
+struct ast_node *struct_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc);
 struct ast_node *list_comp_node_new(struct ast_node *comp, struct source_location loc);
 struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc);
 struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc);

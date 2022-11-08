@@ -9,6 +9,7 @@
 #define __MLANG_ASTDUMP_H__
 
 #include "parser/ast.h"
+#include "sema/sema_context.h"
 #include "clib/string.h"
 #include <stdio.h>
 
@@ -16,7 +17,7 @@
 extern "C" {
 #endif
 
-string dump(struct ast_node* node);
+string dump(struct sema_context *context, struct ast_node* node);
 
 #ifdef __cplusplus
 }

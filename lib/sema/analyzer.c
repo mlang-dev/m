@@ -24,7 +24,7 @@ struct type_expr *retrieve_type_with_type_name(struct sema_context *context, sym
     return get_symbol_type(&context->typename_2_typexps, &context->nongens, name);
 }
 
-struct type_expr *_create_type_from_type_node(struct sema_context *context, struct ast_node *type_node)
+struct type_expr *create_type_from_type_node(struct sema_context *context, struct ast_node *type_node)
 {
     struct type_expr *value_type;
     if(type_node->node_type == IDENT_NODE){
@@ -40,8 +40,10 @@ struct type_expr *_create_type_from_type_node(struct sema_context *context, stru
         }
         return create_array_type(value_type, &dims);
     } else if (type_node->node_type == UNARY_NODE){
-        value_type = _create_type_from_type_node(context, type_node->unop->operand);
+        value_type = create_type_from_type_node(context, type_node->unop->operand);
         return create_ref_type(value_type);
+    } else if (type_node->node_type == UNIT_NODE){
+        return create_unit_type();
     }
     return 0;
 }
@@ -81,45 +83,40 @@ struct type_expr *_analyze_ident(struct sema_context *context, struct ast_node *
 
 struct type_expr *_analyze_liter(struct sema_context *context, struct ast_node *node)
 {
-    return retrieve_type_with_type_name(context, node->annotated_type_name);
+    symbol type_name = get_type_symbol(node->liter->type);
+    return retrieve_type_with_type_name(context, type_name);
 }
 
 struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type;
+    struct type_expr *var_type = 0;
     if(context->scope_level == 1){
         //global variable, test JIT directly evaluates global variable
         node->var->is_global = true;
     }
-    assert(node->annotated_type_name || node->var->init_value);
+    assert(node->var->is_of_type || node->var->init_value);
     if (node->var->is_global){
         hashtable_set_p(&context->gvar_name_2_ast, node->var->var_name, node);
     }
-    if (node->annotated_type_name){
-        if(hashtable_in_p(&context->struct_typename_2_asts, node->annotated_type_name)||
+    if (node->var->is_of_type){
+        var_type = create_type_from_type_node(context, node->var->is_of_type);
+        assert(var_type);
+        if(hashtable_in_p(&context->struct_typename_2_asts, var_type->name)||
             !node->var->init_value){
-            symbol type_name = node->is_ref_annotated ? get_ref_type_symbol(context, node->annotated_type_name) : node->annotated_type_name;
-            type = retrieve_type_with_type_name(context, type_name);
-            push_symbol_type(&context->decl_2_typexps, node->var->var_name, type);
+            push_symbol_type(&context->decl_2_typexps, node->var->var_name, var_type);
             push_symbol_type(&context->varname_2_asts, node->var->var_name, node);
             if (node->var->init_value)
                 analyze(context, node->var->init_value);
-            return type;
+            return var_type;
         }
     }
-    type = analyze(context, node->var->init_value);
+    if (!var_type && has_symbol_in_scope(&context->decl_2_typexps, node->var->var_name, context->scope_marker))
+        var_type = retrieve_type_for_var_name(context, node->var->var_name);
+    if(!var_type)
+        var_type = create_type_var();
+    struct type_expr *type = analyze(context, node->var->init_value);
     if (!type)
         return 0;
-    if (node->annotated_type_name && node->var->init_value->annotated_type_name
-        && node->annotated_type_name != node->var->init_value->annotated_type_name) {
-        report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
-        return 0;
-    }
-    struct type_expr *var_type;
-    if (has_symbol_in_scope(&context->decl_2_typexps, node->var->var_name, context->scope_marker))
-        var_type = retrieve_type_for_var_name(context, node->var->var_name);
-    else
-        var_type = create_type_var();
     bool unified = unify(var_type, type, &context->nongens);
     if (!unified) {
         report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
@@ -151,8 +148,8 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
 
 struct type_expr *_analyze_struct_init(struct sema_context *context, struct ast_node *node)
 {
-    if (node->annotated_type_name)
-        node->type = retrieve_type_with_type_name(context, node->annotated_type_name);
+    if (node->struct_init->is_of_type)
+        node->type = create_type_from_type_node(context, node->struct_init->is_of_type);
     for (size_t i = 0; i < array_size(&node->struct_init->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
         analyze(context, *(struct ast_node **)array_get(&node->struct_init->body->block->nodes, i));
@@ -205,15 +202,13 @@ struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_no
     array_init(&fun_sig, sizeof(struct type_expr *));
     for (size_t i = 0; i < array_size(&node->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
-        assert(param->annotated_type_name);
-        enum type type_enum = _get_type_enum(context, param->annotated_type_name);
-        struct type_expr* to = create_nullary_type(type_enum, param->annotated_type_name);
+        assert(param->var->is_of_type);
+        struct type_expr* to = create_type_from_type_node(context, param->var->is_of_type);
         param->type = to;
         array_push(&fun_sig, &param->type);
     }
-    assert(node->annotated_type_name);
-    enum type type_enum = _get_type_enum(context, node->annotated_type_name);
-    struct type_expr *to = create_nullary_type(type_enum, node->annotated_type_name);
+    assert(node->ft->is_of_ret_type_node);
+    struct type_expr *to = create_type_from_type_node(context, node->ft->is_of_ret_type_node);
     array_push(&fun_sig, &to);
     node->type = create_type_fun(&fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
@@ -231,16 +226,8 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
     for (size_t i = 0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
         struct type_expr *exp;
-        if (param->var->is_of_type && param->var->is_of_type->ident->name) {
-            enum type type_enum = _get_type_enum(context, param->annotated_type_name);
-            if (type_enum == TYPE_STRUCT)
-                exp = retrieve_type_with_type_name(context, param->annotated_type_name);
-            else{
-                exp = create_nullary_type(type_enum, param->annotated_type_name);
-            }
-            if(param->is_ref_annotated){
-                exp = create_ref_type(exp);
-            }
+        if (param->var->is_of_type) {
+           exp = create_type_from_type_node(context, param->var->is_of_type);
         } else
             exp = create_type_var();
         array_push(&fun_sig, &exp);

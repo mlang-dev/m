@@ -63,11 +63,11 @@ struct ast_node *create_function_func_type(CXCursor cursor)
             string format = str_format("arg%d", i);
             var_name = to_symbol(string_get(&format));
         }
-        symbol annotated_type_name = get_type_symbol(arg_type);
+        symbol arg_type_name = get_type_symbol(arg_type);
         struct source_location param_loc = {0, 0, 0, 0};
-        struct ast_node *is_of_type = ident_node_new(annotated_type_name, param_loc);
-        struct ast_node *fun_param = var_node_new(var_name, annotated_type_name, false, is_of_type, 0, true, param_loc);
-        fun_param->type = create_nullary_type(arg_type, annotated_type_name);
+        struct ast_node *is_of_type = ident_node_new(arg_type_name, param_loc);
+        struct ast_node *fun_param = var_node_new(var_name, is_of_type, 0, true, param_loc);
+        fun_param->type = create_nullary_type(arg_type, arg_type_name);
         array_push(&fun_params, &fun_param);
     }
     struct source_location loc = { 0, 1, 0, 0 };
@@ -136,7 +136,7 @@ bool transpile_2_m(const char *head, const char *mfile)
     for (size_t i = 0; i < array_size(&protos); i++) {
         struct ast_node *node = *(struct ast_node **)array_get(&protos, i);
         analyze(fe->sema_context, node);
-        string code = dump(node);
+        string code = dump(fe->sema_context, node);
         array_push(&codes, &code);
     }
     _write_to_file(&codes, mfile);
