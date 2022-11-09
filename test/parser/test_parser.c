@@ -759,6 +759,69 @@ TEST(test_parser, array_variable)
     frontend_deinit(fe);
 }
 
+TEST(test_parser, onebytwo_array_variable)
+{
+    char test_code[] = "a = [[10,20]]";
+    struct frontend *fe = frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    ASSERT_EQ(LIST_COMP_NODE, node->var->init_value->node_type);
+    ASSERT_EQ(1, array_size(&node->var->init_value->list_comp->block->nodes));
+    struct ast_node *row_node = *(struct ast_node **)array_front(&node->var->init_value->list_comp->block->nodes);
+    ASSERT_EQ(LIST_COMP_NODE, row_node->node_type);
+    ASSERT_EQ(2, array_size(&row_node->list_comp->block->nodes));
+    struct ast_node *cell_node = *(struct ast_node **)array_front(&row_node->list_comp->block->nodes);
+    ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
+    ASSERT_EQ(10, cell_node->liter->int_val);
+    cell_node = *(struct ast_node **)array_back(&row_node->list_comp->block->nodes);
+    ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
+    ASSERT_EQ(20, cell_node->liter->int_val);
+    ast_node_free(block);
+    parser_free(parser); 
+    frontend_deinit(fe);
+}
+
+TEST(test_parser, twobytwo_array_variable)
+{
+    char test_code[] = "a = [[10,20], [30, 40]]";
+    struct frontend *fe = frontend_init();
+    struct parser *parser = parser_new();
+    struct ast_node *block = parse_code(parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    ASSERT_EQ(LIST_COMP_NODE, node->var->init_value->node_type);
+    ASSERT_EQ(2, array_size(&node->var->init_value->list_comp->block->nodes));
+    //first row
+    struct ast_node *row_node = *(struct ast_node **)array_front(&node->var->init_value->list_comp->block->nodes);
+    ASSERT_EQ(LIST_COMP_NODE, row_node->node_type);
+    ASSERT_EQ(2, array_size(&row_node->list_comp->block->nodes));
+    struct ast_node *cell_node = *(struct ast_node **)array_front(&row_node->list_comp->block->nodes);
+    ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
+    ASSERT_EQ(10, cell_node->liter->int_val);
+    cell_node = *(struct ast_node **)array_back(&row_node->list_comp->block->nodes);
+    ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
+    ASSERT_EQ(20, cell_node->liter->int_val);
+
+    //second row
+    row_node = *(struct ast_node **)array_back(&node->var->init_value->list_comp->block->nodes);
+    ASSERT_EQ(LIST_COMP_NODE, row_node->node_type);
+    ASSERT_EQ(2, array_size(&row_node->list_comp->block->nodes));
+    cell_node = *(struct ast_node **)array_front(&row_node->list_comp->block->nodes);
+    ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
+    ASSERT_EQ(30, cell_node->liter->int_val);
+    cell_node = *(struct ast_node **)array_back(&row_node->list_comp->block->nodes);
+    ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
+    ASSERT_EQ(40, cell_node->liter->int_val);
+    ast_node_free(block);
+    parser_free(parser); 
+    frontend_deinit(fe);
+}
+
+
 int test_parser()
 {
     UNITY_BEGIN();
@@ -800,5 +863,7 @@ int test_parser()
     RUN_TEST(test_parser_create_ref_variable);
     RUN_TEST(test_parser_create_deref_variable);
     RUN_TEST(test_parser_array_variable);
+    RUN_TEST(test_parser_onebytwo_array_variable);
+    RUN_TEST(test_parser_twobytwo_array_variable);
     return UNITY_END();
 }

@@ -69,3 +69,22 @@ a[0] = 30
 a[1] = 40
 a[0] + a[1]
 `, 70);
+
+mtest.mtest('u8 two dimension array', 
+`
+declare a u8 two dimensions array
+`, 
+`
+a:u8[2][2] = [10, 20, 30, 40]
+a[1][1]
+`, 20);
+
+// mtest.mtest('u8 two dimension array', 
+// `
+// declare a u8 two dimensions array
+// `, 
+// `
+// a:u8[2][2] = [10, 20, 30, 40]
+// a[1][1] = 400
+// a[1][1]
+// `, 400);

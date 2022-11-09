@@ -87,6 +87,23 @@ struct type_expr *_analyze_liter(struct sema_context *context, struct ast_node *
     return retrieve_type_with_type_name(context, type_name);
 }
 
+u32 _get_array_size(struct type_expr *type)
+{
+    u32 size = 1;
+    if(type->type != TYPE_ARRAY)
+        return size;
+    for(u32 i=0; i<array_size(&type->dims); i++){
+        size *= *(u32*)array_get(&type->dims, i);
+    }
+    return size * _get_array_size(type->val_type);
+}
+
+bool _is_array_size_same(struct type_expr *type1, struct type_expr *type2)
+{
+    return type1->type == type2->type && type2->type == TYPE_ARRAY && _get_array_size(type1) == _get_array_size(type2);
+}
+
+
 struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *var_type = 0;
@@ -113,7 +130,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     if (!var_type && has_symbol_in_scope(&context->decl_2_typexps, node->var->var_name, context->scope_marker))
         var_type = retrieve_type_for_var_name(context, node->var->var_name);
     struct type_expr *type = analyze(context, node->var->init_value);
-    if (type && var_type && is_array_size_same(var_type, type)){
+    if (type && var_type && _is_array_size_same(var_type, type)){
         type = var_type;
         node->var->init_value->type = type;
     }
@@ -374,12 +391,24 @@ struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, s
 struct type_expr *_analyze_array_member_accessor(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = analyze(context, node->index->object);
+    if(!type) return 0;
     analyze(context, node->index->index);
     if(type->type != TYPE_ARRAY && !(type->type == TYPE_REF && type->val_type->type == TYPE_ARRAY)){
         report_error(context, EC_EXPECT_ARRAY_TYPE, node->loc);
         return 0;
     }
-    return type->val_type;
+    if(array_size(&type->dims) == 1)
+        return type->val_type;
+    else{
+        //remove one dimension
+        struct array dims;
+        array_init(&dims, sizeof(u32));
+        for(u32 i = 1; i < array_size(&type->dims); i++){
+            u32 size = *(u32*)array_get(&type->dims, i);
+            array_push(&dims, &size);
+        }
+        return create_array_type(type->val_type, &dims);
+    }
 }
 
 struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node *node)

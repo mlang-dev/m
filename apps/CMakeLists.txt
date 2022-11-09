@@ -12,7 +12,7 @@ if(WASM)
 
   set_target_properties(mw PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
-  target_link_libraries(mw PRIVATE mlr clib
+  target_link_libraries(mw PRIVATE mlrw clib
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
     --target=wasm32
@@ -77,7 +77,7 @@ else()
   set_target_properties(m PROPERTIES LINKER_LANGUAGE CXX)
 
   target_link_libraries(m PRIVATE 
-    mlr
+    mlrl
     clib
     lldDriver
     lldCOFF
@@ -127,7 +127,7 @@ else()
 
 
   target_link_libraries(c2m PRIVATE 
-    mlr 
+    mlrl 
     clib
     ${clang_lib}
     ${sys_libraries}

@@ -25,7 +25,7 @@ if (WASM)
  #   clib/getpath.c
   )
 
-  add_library(mlr 
+  add_library(mlrw
     error/error.c
     lexer/terminal.c
     lexer/lexer.c
@@ -38,6 +38,7 @@ if (WASM)
     sema/type.c
     sema/sema_context.c
     sema/analyzer.c
+    sema/eval.c
     sema/frontend.c
     codegen/backend.c
     codegen/type_size_info.c
@@ -111,7 +112,7 @@ else()
     )
   endif()
 
-  add_library(mlr
+  add_library(mlrw
     tool/cmodule.c
     error/error.c
     lexer/terminal.c
@@ -124,6 +125,42 @@ else()
     parser/parser.c
     sema/type.c
     sema/analyzer.c
+    sema/eval.c
+    sema/sema_context.c
+    sema/frontend.c
+    sema/frontend_llvm.c
+    codegen/backend.c
+    codegen/type_size_info.c
+    codegen/abi_arg_info.c
+    codegen/fun_info.c
+    codegen/fun_context.c
+    codegen/target_info.c
+    codegen/target_arg_info.c
+    codegen/wasm/cg_wasm.c
+    codegen/wasm/cg_var_wasm.c
+    codegen/wasm/cg_fun_wasm.c
+    codegen/wasm/cg_call_wasm.c
+    codegen/wasm/cg_aggregate_wasm.c    
+    codegen/wasm/wasm_abi.c
+    codegen/wasm/wasm_api.c
+    compiler/engine.c
+    compiler/engine_wasm.c
+  )
+
+  add_library(mlrl
+    tool/cmodule.c
+    error/error.c
+    lexer/terminal.c
+    lexer/lexer.c
+    parser/node_type.c
+    parser/ast.c
+    parser/astdump.c
+    parser/grammar.c
+    parser/m_parsing_table.c
+    parser/parser.c
+    sema/type.c
+    sema/analyzer.c
+    sema/eval.c
     sema/sema_context.c
     sema/frontend.c
     sema/frontend_llvm.c
@@ -155,4 +192,5 @@ else()
     compiler/engine_llvm.c
     compiler/engine_wasm.c
   )
+
 endif()
