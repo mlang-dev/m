@@ -79,12 +79,12 @@ a:u8[2][2] = [10, 20, 30, 40]
 a[1][1]
 `, 40);
 
-// mtest.mtest('u8 two dime update', 
-// `
-// update two dimensions array
-// `, 
-// `
-// a:u8[2][2] = [10, 20, 30, 40]
-// a[1][1] = 400
-// a[1][1]
-// `, 400);
+mtest.mtest('u8 two dimen update', 
+`
+update two dimensions array
+`, 
+`
+a:u8[2][2] = [10, 20, 30, 40]
+a[1][1] = 100
+a[1][1]
+`, 100);
