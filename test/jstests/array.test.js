@@ -88,3 +88,27 @@ a:u8[2][2] = [10, 20, 30, 40]
 a[1][1] = 100
 a[1][1]
 `, 100);
+
+mtest.mtest('u8 access via var', 
+`
+update two dimensions array using variable
+`, 
+`
+a:u8[10][10]
+for i in 0..10
+    for j in 0..10
+        a[i][j] = i + j
+a[7][8]
+`, 15);
+
+mtest.mtest('u32 access via var', 
+`
+update two dimensions int array using variable
+`, 
+`
+a:u32[10][10]
+for i in 0..10
+    for j in 0..10
+        a[i][j] = i + j
+a[7][8]
+`, 15);
