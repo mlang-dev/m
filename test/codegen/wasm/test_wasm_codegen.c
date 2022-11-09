@@ -23,8 +23,8 @@ TEST(test_wasm_codegen, parse_as_module)
 // a[1][1]\n\
 // ";
     char test_code[] = "\n\
-a = [10, 20]\n\
-a[1]\n\
+a:u8[2][2] = [10, 20, 30, 40]\n\
+a[1][1]\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);

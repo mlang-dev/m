@@ -133,6 +133,12 @@ struct ast_node *_sc_struct_get_offset_expr(struct sema_context *sc, struct type
     return int_node_new(offset, zero_loc);
 }
 
+struct ast_node *_binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct type_expr *type, struct source_location loc)
+{
+    struct ast_node *node = binary_node_new(opcode, lhs, rhs, loc);
+    node->type = type;
+    return node;
+}
 
 struct ast_node *_sc_array_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_expr)
 {
@@ -140,7 +146,7 @@ struct ast_node *_sc_array_get_offset_expr(struct sema_context *sc, struct type_
     for(u32 i = 1; i < array_size(&aggr_type->dims); i++){
         subarray_size *= *(u32*)array_get(&aggr_type->dims, i);
     }
-    return binary_node_new(OP_STAR, int_node_new(subarray_size, zero_loc), field_expr, zero_loc);
+    return _binary_node_new(OP_STAR, int_node_new(subarray_size, zero_loc), field_expr, field_expr->type, zero_loc);
 }
 
 struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node)
@@ -191,7 +197,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
             offset_expr = sc_aggr_get_offset_expr(sc, aggr_type, field_node);
             break;
         }
-        rfi->offset_expr = binary_node_new(OP_PLUS, rfi->offset_expr, offset_expr, zero_loc);
+        rfi->offset_expr = _binary_node_new(OP_PLUS, rfi->offset_expr, offset_expr, offset_expr->type, zero_loc);
         rfi->align = get_type_align(field_accessor->type);//fi.align;
         rfi->type = field_accessor->type;// fi.type;
     }

@@ -144,11 +144,16 @@ struct ast_node *_create_literal_int_node(int val, enum type type, struct source
 {
     struct ast_node *node = ast_node_new(LITERAL_NODE, loc);
     MALLOC(node->liter, sizeof(*node->liter));
+    node->type = create_nullary_type(type, get_type_symbol(type));
     node->liter->type = type;
     switch (type){ 
         case TYPE_INT:
         case TYPE_CHAR:
         case TYPE_BOOL:
+        case TYPE_I8:
+        case TYPE_I16:
+        case TYPE_I32:
+        case TYPE_I64:
             node->liter->int_val = val;
             break;
         default:
@@ -162,8 +167,10 @@ struct ast_node *_create_literal_node(void *val, enum type type, struct source_l
 {
     struct ast_node *node = ast_node_new(LITERAL_NODE, loc);
     MALLOC(node->liter, sizeof(*node->liter));
+    node->type = create_nullary_type(type, get_type_symbol(type));
     node->liter->type = type;
     switch (type){ 
+        case TYPE_F32:
         case TYPE_F64:
             node->liter->double_val = *(f64 *)val;
             break;

@@ -499,7 +499,6 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
     sc_get_field_infos_from_root(cg->base.sema_context, node, &field_infos);
     struct field_info *field = array_front(&field_infos); //assuming only one element in the field info
     struct var_info*root_vi = fc_get_var_info(fc, field->aggr_root);
-    u32 offset = eval(field->offset_expr);
     wasm_emit_code(cg, ba, field->aggr_root);
     if (is_aggregate_type(field->type)){
         if(node->is_ret){
@@ -512,7 +511,7 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
     }else{ //scalar value
         //read the value: scalar value read
         if(!node->is_lvalue){//read for right value
-            wasm_emit_var_change(cg, ba, root_vi->var_index, false, OPCODE_I32ADD, offset, node->index->index);
+            wasm_emit_addr_offset_by_expr(cg, ba, root_vi->var_index, false, field->offset_expr);
             wasm_emit_load_mem(ba, field->align, 0, field->type->type);
         }
     }
@@ -553,8 +552,7 @@ void _emit_assign_array_field(struct cg_wasm *cg, struct byte_array *ba, struct 
     sc_get_field_infos_from_root(cg->base.sema_context, lhs, &field_infos);
     struct field_info *field = array_front(&field_infos);
     struct var_info*vi = fc_get_var_info(fc, field->aggr_root);
-    u32 offset = eval(field->offset_expr);
-    wasm_emit_var_change(cg, ba, vi->var_index, false, OPCODE_I32ADD, offset, lhs->index->index);
+    wasm_emit_addr_offset_by_expr(cg, ba, vi->var_index, false, field->offset_expr);
     wasm_emit_store_scalar_value(cg, ba, field->align, 0, rhs);
 }
 
