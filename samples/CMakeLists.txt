@@ -27,12 +27,11 @@ link_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-TARGET_LINK_LIBRARIES(msample PRIVATE mlr)
+TARGET_LINK_LIBRARIES(msample PRIVATE mlrl)
 
 add_custom_command(
   TARGET msample
   POST_BUILD
   COMMAND msample
 )
-
 

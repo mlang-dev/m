@@ -17,6 +17,7 @@
 #include "sema/analyzer.h"
 #include "sema/type.h"
 #include "sema/frontend.h"
+#include "sema/eval.h"
 #include <assert.h>
 #include <stdint.h>
 #include <float.h>
@@ -441,38 +442,54 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     }
 }
 
+void _free_field_info(void *fi)
+{
+    struct field_info *field = fi;
+    ast_node_free(field->offset_expr);
+}
+
 void _emit_struct_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     //lhs is struct var, rhs is field var name
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct array field_infos;
-    array_init(&field_infos, sizeof(struct field_info));
+    array_init_free(&field_infos, sizeof(struct field_info), _free_field_info);
     sc_get_field_infos_from_root(cg->base.sema_context, node, &field_infos);
     struct field_info *field = array_front(&field_infos);
-    struct var_info*root_vi = fc_get_var_info(fc, field->root_struct);
-    wasm_emit_code(cg, ba, field->root_struct);
+    struct var_info*root_vi = fc_get_var_info(fc, field->aggr_root);
+    u32 offset = eval(field->offset_expr);
+    wasm_emit_code(cg, ba, field->aggr_root);
     if (is_aggregate_type(field->type)){
         if(node->is_ret){
             //copy result into variable index 0
             //for sret
-            wasm_emit_copy_struct_value(ba, 0, 0, field->type, root_vi->var_index, field->offset);
+            wasm_emit_copy_struct_value(ba, 0, 0, field->type, root_vi->var_index, offset);
         }
         //calculate new address and push it to stack
         //wasm_emit_change_var(ba, OPCODE_I32ADD, field.offset, root_vi->var_index, false);
     }else{ //scalar value
         //read the value: scalar value read
         if(!node->is_lvalue){//read for right value
-            wasm_emit_load_mem_from(ba, root_vi->var_index, false, field->align, field->offset, field->type->type);
+            wasm_emit_load_mem_from(ba, root_vi->var_index, false, field->align, offset, field->type->type);
         }
     }
     array_deinit(&field_infos);
+}
+
+struct ast_node *_get_root_array(struct ast_node *node)
+{
+    while(node->node_type == MEMBER_INDEX_NODE && node->index->aggregate_type == AGGREGATE_TYPE_ARRAY){
+        node = node->index->object;
+    }
+    return node;
 }
 
 void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     //lhs is array, rhs is int expression
     struct fun_context *fc = cg_get_top_fun_context(cg);
-    struct var_info*vi = fc_get_var_info(fc, node->index->object);
+    struct ast_node *array = _get_root_array(node);
+    struct var_info*vi = fc_get_var_info(fc, array);
     struct type_expr *field_type = node->type;
     struct type_size_info field_tsi = get_type_size_info(field_type);
     wasm_emit_code(cg, ba, node->index->object);
@@ -511,11 +528,12 @@ void _emit_assign_struct_field(struct cg_wasm *cg, struct byte_array *ba, struct
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct array field_infos;
-    array_init(&field_infos, sizeof(struct field_info));
+    array_init_free(&field_infos, sizeof(struct field_info), _free_field_info);
     sc_get_field_infos_from_root(cg->base.sema_context, lhs, &field_infos);
     struct field_info *field = array_front(&field_infos);
-    struct var_info*vi = fc_get_var_info(fc, field->root_struct);
-    _emit_assign_value(cg, ba, vi->var_index, field->offset, field->align, field->type, rhs);
+    struct var_info*vi = fc_get_var_info(fc, field->aggr_root);
+    u32 offset = eval(field->offset_expr);
+    _emit_assign_value(cg, ba, vi->var_index, offset, field->align, field->type, rhs);
     array_deinit(&field_infos);
 }
 

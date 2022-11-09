@@ -40,7 +40,7 @@ if (WASM)
 
   set_target_properties(mtest PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
-  target_link_libraries(mtest PRIVATE mlr clib unity
+  target_link_libraries(mtest PRIVATE mlrw clib unity
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
     --target=wasm32
@@ -105,7 +105,7 @@ else()
       set_property(TARGET mtest APPEND PROPERTY LINK_FLAGS /DEBUG)
   endif()
 
-  TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlr clib
+  TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlrl clib
     ${llvm_libraries}
     ${sys_libraries}
     ${clang_lib}
@@ -158,7 +158,7 @@ else()
   codegen/wasm/test_wasm_codegen.c
   )
 
-  TARGET_LINK_LIBRARIES(mctest mlr clib unity
+  TARGET_LINK_LIBRARIES(mctest mlrw clib unity
   )
 
   add_custom_command(
@@ -173,4 +173,3 @@ else()
     COMMAND mtest
   )
 endif()
-

@@ -106,7 +106,6 @@ symbol to_array_type_name(symbol element_type_name, struct array *dims);
 void struct_type_init(struct type_expr *struct_type);
 void struct_type_deinit(struct type_expr *struct_type);
 void struct_type_add_member(struct type_expr *struct_type, struct type_expr *type);
-bool is_array_size_same(struct type_expr *type1, struct type_expr *type2);
 
 #define is_int_type(type) (type >= TYPE_BOOL && type <= TYPE_INT)
 #define is_aggregate_type(node_type) (node_type->type==TYPE_STRUCT || node_type->type == TYPE_ARRAY)

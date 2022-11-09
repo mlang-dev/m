@@ -111,8 +111,8 @@ list_comp_decl  = range_expr
                 | for_stmt
                 | expr_list
 
-expr_list       = expr                                                                      { block 0 }
-                | expr_list ',' expr                                                        { block 0 2 }
+expr_list       = expr_list ',' expr                                                        { block 0 2 }
+                | expr                                                                      { block 0 }
 
 stmt            = func_type
                 | func_def                                                            

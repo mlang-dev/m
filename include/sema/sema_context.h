@@ -115,10 +115,10 @@ struct sema_context {
 };
 
 struct field_info{
-    u32 offset; //offset to the root struct.
+    struct ast_node *offset_expr;  //offset expr
     u32 align;  //alignment of the field.
-    struct type_expr *type;
-    struct ast_node *root_struct;
+    struct type_expr *type; //field type
+    struct ast_node *aggr_root; //root 
 };
 
 struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, struct ast_node *stdio, struct ast_node *math, bool is_repl);

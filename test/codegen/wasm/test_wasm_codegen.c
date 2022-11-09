@@ -18,10 +18,13 @@ TEST(test_wasm_codegen, parse_as_module)
      */
     struct engine* engine = engine_wasm_new();
     struct cg_wasm *cg = engine->be->cg;
+//     char test_code[] = "\n\
+// a:u8[2][2] = [[10, 20], [30, 40]]\n\
+// a[1][1]\n\
+// ";
     char test_code[] = "\n\
-a:u8[2] = [10, 10]\n\
-a[0] = 30\n\
-a[0]\n\
+a:u8[2][2] = [10,20, 30, 40]\n\
+a[0][1]\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);
