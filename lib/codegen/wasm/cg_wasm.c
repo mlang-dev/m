@@ -542,11 +542,14 @@ void _emit_assign_struct_field(struct cg_wasm *cg, struct byte_array *ba, struct
 void _emit_assign_array_field(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *lhs, struct ast_node *rhs)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
-    struct var_info*vi = fc_get_var_info(fc, lhs->index->object);
-    struct type_expr *field_type = lhs->type;
-    struct type_size_info field_tsi = get_type_size_info(field_type);
-    wasm_emit_var_change(cg, ba, vi->var_index, false, OPCODE_I32ADD, field_tsi.width_bits/8, lhs->index->index);
-    wasm_emit_store_scalar_value(cg, ba, field_tsi.align_bits/8, 0, rhs);
+    struct array field_infos;
+    array_init_free(&field_infos, sizeof(struct field_info), _free_field_info);
+    sc_get_field_infos_from_root(cg->base.sema_context, lhs, &field_infos);
+    struct field_info *field = array_front(&field_infos);
+    struct var_info*vi = fc_get_var_info(fc, field->aggr_root);
+    u32 offset = eval(field->offset_expr);
+    wasm_emit_var_change(cg, ba, vi->var_index, false, OPCODE_I32ADD, offset, lhs->index->index);
+    wasm_emit_store_scalar_value(cg, ba, field->align, 0, rhs);
 }
 
 void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
