@@ -126,7 +126,7 @@ void sema_context_free(struct sema_context *env);
 size_t enter_scope(struct sema_context *env);
 size_t leave_scope(struct sema_context *env);
 struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name);
-struct field_info sc_get_field_info(struct sema_context *sc, symbol struct_name, symbol field_name);
+struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node);
 void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* index, struct array *field_infos);
 symbol get_ref_type_symbol(struct sema_context *context, symbol type_name);
 

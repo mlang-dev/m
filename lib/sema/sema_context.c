@@ -123,22 +123,34 @@ struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name)
 
 struct source_location zero_loc = {0, 0, 0, 0};
 
-struct field_info sc_get_field_info(struct sema_context *sc, symbol struct_name, symbol field_name)
+struct ast_node *_sc_struct_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node)
 {
-    struct ast_node *struct_node = hashtable_get_p(&sc->struct_typename_2_asts, struct_name);
+    struct ast_node *struct_node = hashtable_get_p(&sc->struct_typename_2_asts, aggr_type->name);
     assert(struct_node->type->kind == KIND_OPER);
-    struct type_expr *struct_type = struct_node->type;
-    struct field_info field;
-    int index = find_member_index(struct_node, field_name);
-    struct type_expr *field_type = *(struct type_expr **)array_get(&struct_type->args, index);
+    int index = find_member_index(struct_node, field_node->ident->name);
     struct struct_layout *sl = get_type_size_info(struct_node->type).sl;
     u32 offset = *(u64 *)array_get(&sl->field_offsets, index) / 8;
-    field.offset_expr = int_node_new(offset, zero_loc);
-    field.align = get_type_align(field_type);
-    field.type = field_type;
-    return field;
+    return int_node_new(offset, zero_loc);
 }
 
+
+struct ast_node *_sc_array_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_expr)
+{
+    u32 subarray_size = get_type_size(aggr_type->val_type) / 8;
+    for(u32 i = 1; i < array_size(&aggr_type->dims); i++){
+        subarray_size *= *(u32*)array_get(&aggr_type->dims, i);
+    }
+    return binary_node_new(OP_STAR, int_node_new(subarray_size, zero_loc), field_expr, zero_loc);
+}
+
+struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node)
+{
+    if(aggr_type->type == TYPE_ARRAY)
+        return _sc_array_get_offset_expr(sc, aggr_type, field_node);
+    else if(aggr_type->type == TYPE_STRUCT)
+        return _sc_struct_get_offset_expr(sc, aggr_type, field_node);
+    assert(false);
+}
 
 //each reference of aggr type will have a field_info returned
 void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* index, struct array *field_infos)
@@ -149,7 +161,6 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
     array_init(&field_accessors, sizeof(struct type_expr*));
     //x.y.z turned into z.y.x
     while(root->node_type == MEMBER_INDEX_NODE){
-        assert(root->index->index->node_type == IDENT_NODE);
         array_push(&field_accessors, &root);
         root = root->index->object;
     }
@@ -170,24 +181,20 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
                 aggr_type = aggr_type->val_type;
             }
         }
-        struct field_info fi;
+        struct ast_node *offset_expr;
         switch(aggr_type->type){
         default:
             assert(false);
             break;
         case TYPE_STRUCT:
-            fi = sc_get_field_info(sc, aggr_type->name, field_node->ident->name);
-            break;
         case TYPE_ARRAY:
-            //fi = sc_get_field_info(sc, aggr_type->name, field_node->ident->name);
-
+            offset_expr = sc_aggr_get_offset_expr(sc, aggr_type, field_node);
             break;
         }
-        //assert(field_accessor->type->type == fi.type->type);
-        rfi->offset_expr = binary_node_new(OP_PLUS, rfi->offset_expr, fi.offset_expr, zero_loc);
-        rfi->align = fi.align;
+        rfi->offset_expr = binary_node_new(OP_PLUS, rfi->offset_expr, offset_expr, zero_loc);
+        rfi->align = get_type_align(field_accessor->type);//fi.align;
         rfi->type = field_accessor->type;// fi.type;
     }
-    assert(rfi->type->name == index->index->index->type->name);
+    //assert(rfi->type->name == index->index->index->type->name);
     array_deinit(&field_accessors);
 }
