@@ -77,11 +77,11 @@ declare a u8 two dimensions array
 `
 a:u8[2][2] = [10, 20, 30, 40]
 a[1][1]
-`, 20);
+`, 40);
 
-// mtest.mtest('u8 two dimension array', 
+// mtest.mtest('u8 two dime update', 
 // `
-// declare a u8 two dimensions array
+// update two dimensions array
 // `, 
 // `
 // a:u8[2][2] = [10, 20, 30, 40]

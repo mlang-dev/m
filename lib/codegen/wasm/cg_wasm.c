@@ -488,12 +488,14 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
 {
     //lhs is array, rhs is int expression
     struct fun_context *fc = cg_get_top_fun_context(cg);
-    struct ast_node *array = _get_root_array(node);
-    struct var_info*vi = fc_get_var_info(fc, array);
-    struct type_expr *field_type = node->type;
-    struct type_size_info field_tsi = get_type_size_info(field_type);
-    wasm_emit_code(cg, ba, node->index->object);
-    if (is_aggregate_type(field_type)){
+    struct array field_infos;
+    array_init_free(&field_infos, sizeof(struct field_info), _free_field_info);
+    sc_get_field_infos_from_root(cg->base.sema_context, node, &field_infos);
+    struct field_info *field = array_front(&field_infos); //assuming only one element in the field info
+    struct var_info*root_vi = fc_get_var_info(fc, field->aggr_root);
+    u32 offset = eval(field->offset_expr);
+    wasm_emit_code(cg, ba, field->aggr_root);
+    if (is_aggregate_type(field->type)){
         if(node->is_ret){
             //copy result into variable index 0
             //for sret
@@ -504,8 +506,8 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
     }else{ //scalar value
         //read the value: scalar value read
         if(!node->is_lvalue){//read for right value
-            wasm_emit_var_change(cg, ba, vi->var_index, false, OPCODE_I32ADD, field_tsi.width_bits/8, node->index->index);
-            wasm_emit_load_mem(ba, field_tsi.align_bits/8, 0, field_type->type);
+            wasm_emit_var_change(cg, ba, root_vi->var_index, false, OPCODE_I32ADD, offset, node->index->index);
+            wasm_emit_load_mem(ba, field->align, 0, field->type->type);
         }
     }
 }
