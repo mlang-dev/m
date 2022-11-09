@@ -206,11 +206,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             //just has ID and type
             node1 = items[rule->action.item_index[2]].ast;
             assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE||node1->node_type == ARRAY_TYPE_NODE);
-            if(node1->node_type == IDENT_NODE){
-            }else{
-                assert(node1->unop->opcode == OP_BAND);
-                assert(node1->unop->operand->node_type == IDENT_NODE);
-            }
             ast = var_node_new(node->ident->name, node1, 0, false, node->loc);
         } else {
             //just ID

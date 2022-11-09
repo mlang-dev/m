@@ -268,6 +268,12 @@ void wasm_emit_var_change(struct cg_wasm *cg, WasmModule ba, u32 var_index, bool
     ba_add(ba, op); 
 }
 
+void wasm_emit_addr_offset_by_expr(struct cg_wasm *cg, WasmModule ba, u32 var_index, bool is_global, struct ast_node *offset_expr)
+{
+    wasm_emit_get_var(ba, var_index, is_global);
+    wasm_emit_code(cg, ba, offset_expr);
+    ba_add(ba, OPCODE_I32ADD);
+}
 
 TargetType _get_function_type(TargetType ret_type, TargetType *param_types, unsigned param_count, bool is_variadic)
 {
@@ -641,9 +647,9 @@ void _emit_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
     u32 step_index = fc_get_var_info(fc, node->forloop->range->range->step)->var_index;
     u32 end_index = fc_get_var_info(fc, node->forloop->range->range->end->binop->rhs)->var_index;
     enum type type = node->forloop->var->type->type;
-    enum type body_type = node->forloop->body->type->type;
+    //enum type body_type = node->forloop->body->type->type;
     ASSERT_TYPE(type);
-    ASSERT_TYPE(body_type);
+    //ASSERT_TYPE(body_type);
     // initializing start value
     wasm_emit_code(cg, ba, node->forloop->range->range->start);
     ba_add(ba, OPCODE_LOCALSET);
