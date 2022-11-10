@@ -9,6 +9,7 @@
 #include "clib/hashtable.h"
 #include "clib/symboltable.h"
 #include "clib/util.h"
+#include "sema/eval.h"
 #include "tool/cmodule.h"
 #include "error/error.h"
 #include <assert.h>
@@ -35,7 +36,7 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
         array_init(&dims, sizeof(u32));
         for(u32 i=0; i<array_size(&type_node->array_type->dims->block->nodes); i++){
             struct ast_node *elm_size_node = *(struct ast_node **)array_get(&type_node->array_type->dims->block->nodes, i);
-            u32 dim_size = elm_size_node->liter->int_val;
+            u32 dim_size = eval(elm_size_node);
             array_push(&dims, &dim_size);
         }
         return create_array_type(value_type, &dims);
@@ -211,7 +212,7 @@ struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_n
     array_init(&dims, sizeof(u32));
     for(u32 i = 0; i < array_size(&node->list_comp->block->nodes); i++){
         struct ast_node *dim_node = *(struct ast_node **)array_get(&node->list_comp->block->nodes, i);
-        u32 dim = dim_node->liter->int_val;
+        u32 dim = eval(dim_node);
         array_push(&dims, &dim);
     }
     return create_array_type(elm_type, &dims);

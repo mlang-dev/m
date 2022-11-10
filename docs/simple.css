@@ -500,6 +500,14 @@ input {
   display: inline-block;
 }
 
+canvas {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+
+}
+
 label {
   display: block;
 }

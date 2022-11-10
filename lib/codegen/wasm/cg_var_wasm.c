@@ -52,5 +52,8 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
                 wasm_emit_set_var(ba, var_index, false);
             }
         }
+    }else if(node->type->type==TYPE_ARRAY){
+        //assign varable index to the right address of stack
+        wasm_emit_assign_var(ba, var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
     }
 }

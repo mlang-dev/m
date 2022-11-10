@@ -88,7 +88,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
     return result;
 }
 
-void eval(void *p_jit, struct ast_node *node)
+void eval_node(void *p_jit, struct ast_node *node)
 {
     if(!node) return;
     struct JIT *jit = (struct JIT *)p_jit;
@@ -145,7 +145,7 @@ int run_repl()
     struct engine *engine = engine_llvm_new(true);
     struct JIT *jit = build_jit(engine);
     printf("m> ");
-    parse_repl_code(engine->fe->parser, &eval, jit);
+    parse_repl_code(engine->fe->parser, &eval_node, jit);
     printf("bye !\n");
     jit_free(jit);
     engine_free(engine);

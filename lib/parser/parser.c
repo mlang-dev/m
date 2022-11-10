@@ -125,25 +125,6 @@ struct ast_node *_wrap_as_block_node(struct ast_node *node)
     return block_node_new(&nodes);
 }
 
-// symbol _get_type_name(struct ast_node *type_node)
-// {
-//     symbol type_name = 0;
-//     assert(type_node->node_type == IDENT_NODE||type_node->node_type == UNARY_NODE||type_node->node_type == ARRAY_TYPE_NODE);
-//     if(type_node->node_type == IDENT_NODE){
-//         type_name = type_node->ident->name;
-//     } else if (type_node->node_type == ARRAY_TYPE_NODE){
-//         struct array dims;
-//         array_init(&dims, sizeof(u32));
-//         for(u32 i=0; i<array_size(&type_node->block->nodes);i++){
-            
-//         }
-//         type_name = to_array_type_name(type_node->array_type->elm_type->ident->name, &dims);
-//     } else {
-//         type_name = type_node->unop->operand->ident->name;
-//     }
-//     return type_name;
-// }
-
 struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct parse_rule *rule, struct stack_item *items)
 {
     enum op_code opcode;
