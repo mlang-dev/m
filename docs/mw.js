@@ -1,13 +1,16 @@
-function mw(wasi_env, module_name, print_func, remote_file) {
+function mw(wasi_env, module_name, print_func, remote_file, set_image_data) {
 	var mw_instance = null;  //m compiler instance
 	var code_instance = null;
 	var code_memory_as_array = null;
 	var print_func = print_func;
 	var version = null;
-
+	var set_image_data = set_image_data
 	var module;
 	if (remote_file){
-		module = WebAssembly.instantiateStreaming(fetch(module_name), { "wasi_snapshot_preview1": wasi_env });
+		module = WebAssembly.instantiateStreaming(fetch(module_name), 
+		{ 
+			"wasi_snapshot_preview1": wasi_env
+		});
 	}else{
 		/* for nodejs use */
 		const fs = require('fs');
@@ -59,6 +62,14 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 		dst[ta.length] = 0;
 	}
 
+	function setImageData(data, width, height)
+	{
+		if(set_image_data != null && set_image_data != undefined){
+			u8_array = new Uint8ClampedArray(mw_instance.exports.memory.buffer, data, width * height * 4);
+			set_image_data(u8_array, width, height);
+		}
+	}
+
 	function run_wasm_code(instance, wasm, wasm_size)
 	{
 		let ta = new Uint8Array(instance.exports.memory.buffer, wasm, wasm_size);
@@ -74,6 +85,7 @@ function mw(wasi_env, module_name, print_func, remote_file) {
 					memory: instance.exports.memory,
 					__memory_base: __memory_base,
 					__stack_pointer: instance.exports.__stack_pointer,
+					setImageData: setImageData
 				},
 				math:{
 					acos: instance.exports.acos,

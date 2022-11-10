@@ -31,7 +31,10 @@
 		<div style="width: 100%;">
 			<button type="button" id="run" style="min-width: 70px;">run</button>
 		</div>
-		<textarea style="min-height: 300px;font-size:small;" id='console' readonly></textarea>
+		<div style="width: 100%;">
+		<div style="display: inline-block; width: 350px;"><textarea style="min-height: 200px; min-width: 300px; font-size:small;" id='console' readonly></textarea></div>
+		<div style="display: inline-block;"><canvas id="canvas" style="height: 200px; width: 350px;"></canvas></div>
+		</div>
 		<script>
 	var codeInput = document.getElementById("code");
 	if (codeInput.addEventListener) {
@@ -77,9 +80,20 @@ print_ms (cf64(-2.3, -1.3)) (cf64(0.05, 0.07))
 			}
 			return false;
 		}
-	}						
+	}					
+	function set_image_data(data, width, height)
+	{
+		let canvas = document.getElementById('canvas');
+		let ctx = canvas.getContext('2d');
+		canvas.width = width;
+		canvas.height = height;
+		let imageData = ctx.createImageData(width, height);
+		imageData.data.set(data);
+		ctx.putImageData(imageData, 0, 0);
+	}
+
 			var instance = null;
-			mw(new wasi(), '/mw.wasm', print, true).then(
+			mw(new wasi(), '/mw.wasm', print, true, set_image_data).then(
 				result=>{
 					instance = result;
 					print_version(instance.version);
@@ -97,10 +111,16 @@ print_ms (cf64(-2.3, -1.3)) (cf64(0.05, 0.07))
 					return;
 				}
 				document.getElementById("console").textContent += text;
+				// const ctx = document.getElementById('canvas').getContext('2d');
+  				// ctx.font = '12px serif';
+				// ctx.fillStyle = 'orange';
+  				// ctx.fillText(text, 0, 30);
 			}
 
 			function clear(){
 				document.getElementById("console").textContent = '';
+				// const ctx = document.getElementById('canvas').getContext('2d');
+				// ctx.clearRect(0, 0, canvas.width, canvas.height);
 			}
 			function print_version(version) {
 				document.getElementById("version").textContent = version;

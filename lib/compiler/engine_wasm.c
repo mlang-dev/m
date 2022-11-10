@@ -15,6 +15,7 @@ from sys import __stack_pointer:int\n\
 from sys import __memory_base:int\n\
 from sys import fun print fmt:string ... -> ()\n\
 from sys import fun putchar ch:int -> ()\n\
+from sys import fun setImageData data:u32 width:u32 height:u32 -> ()\n\
 from math import fun acos x:f64 -> f64\n\
 from math import fun asin x:f64 -> f64\n\
 from math import fun atan x:f64 -> f64\n\

@@ -108,7 +108,11 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
             for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
                 arg_node = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
                 collect_local_variables(cg, arg_node);
-                if(is_aggregate_type(arg_node->type) && is_refered_later(arg_node)){
+                if(arg_node->type->type == TYPE_STRUCT && is_refered_later(arg_node)){
+                    /*not for array type, array type is always reference type*/
+                    /*struct type is value type, we need to make copy of it to prevent being changed by 
+                     *callee
+                    */
                     struct fun_context *fc = cg_get_top_fun_context(cg);
                     struct var_info *vi = fc_get_var_info(fc, arg_node);
                     if(vi->var_index>=fc->local_params){

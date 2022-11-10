@@ -112,3 +112,17 @@ for i in 0..10
         a[i][j] = i + j
 a[7][8]
 `, 15);
+
+mtest.mtest('pass array to a function', 
+`
+pass array variable to a function.
+`, 
+`
+a:u8[10][10]
+for i in 0..10
+    for j in 0..10
+        a[i][j] = i + j
+let pick arr:u8[10][10] x:int y:int = arr[x][y]
+pick a 9 8
+`, 17, true, true);
+
