@@ -372,6 +372,12 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
     return op_type;
 }
 
+struct type_expr *_analyze_cast(struct sema_context *context, struct ast_node *node)
+{
+    analyze(context, node->cast->expr);
+    return create_type_from_type_node(context, node->cast->to_type_node);
+}
+
 struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = analyze(context, node->index->object);
@@ -600,6 +606,9 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             break;
         case UNARY_NODE:
             type = _analyze_unary(context, node);
+            break;
+        case CAST_NODE:
+            type = _analyze_cast(context, node);
             break;
         case MEMBER_INDEX_NODE:
             if(node->index->aggregate_type == AGGREGATE_TYPE_ARRAY)

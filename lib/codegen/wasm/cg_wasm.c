@@ -128,6 +128,33 @@ u8 type_2_load_op[TYPE_TYPES] = {
     /*REF*/OPCODE_I32LOAD
 };
 
+u8 type_conversion_op[TYPE_TYPES][TYPE_TYPES] = {
+    //UNK, GENERIC, UNIT, BOOL, CHAR, i8, u8, i16, u16, i32, u32, i64, u64, INT, F32, F64, STRING, FUNCTION, STRUCT, UNION     
+    /*UNK*/ {0},
+    /*GENERIC*/ {0},
+    /*UNIT*/ {0},
+    /*BOOL*/ {0, 0, 0, 0},
+    /*CHAR*/ {0, 0, 0, 0},
+    /*i8*/ {0, 0, 0, 0},
+    /*u8*/ {0, 0, 0, 0},
+    /*i16*/ {0, 0, 0, 0},
+    /*u16*/ {0, 0, 0, 0},
+    /*i32*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
+    /*u32*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32U, /*f64*/OPCODE_F64CONVERT_I32U},
+    /*i64*/ {0, 0, 0, 0},
+    /*u64*/ {0, 0, 0, 0},
+    /*INT*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32U, /*f64*/OPCODE_F64CONVERT_I32U},
+    /*F32*/ {0, 0, 0, 0},
+    /*F64*/ {0, 0, 0, 0},
+    /*STRING*/ {0, 0, 0, 0},
+    /*FUNCTION*/ {0},
+    /*STRUCT*/ {0},
+    /*ARRAY*/ {0},
+    /*UNION*/ {0},
+    /*COMPLEX*/ {0},
+    /*REF*/{0}
+};
+
 u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*
     UNK, GENERIC, UNIT, BOOL, CHAR, i8, u8, i16, u16, i32, u32, i64, u64, INT, F32, F64, STRING, FUNCTION, STRUCT, UNION     
@@ -445,6 +472,16 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
             ba_add(ba, opcode);
             ast_node_free(new_node);
         }
+    }
+}
+
+void _emit_cast(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+{
+    wasm_emit_code(cg, ba, node->cast->expr);
+    if(node->type->type != node->cast->expr->type->type){
+        u8 op = type_conversion_op[node->cast->expr->type->type][node->type->type];
+        assert(op);
+        ba_add(ba, op);
     }
 }
 
@@ -819,6 +856,9 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             break;
         case UNARY_NODE:
             _emit_unary(cg, ba, node);
+            break;
+        case CAST_NODE:
+            _emit_cast(cg, ba, node);
             break;
         case LITERAL_NODE:
             _emit_literal(cg, ba, node);

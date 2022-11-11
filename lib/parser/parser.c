@@ -173,6 +173,14 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         node = items[rule->action.item_index[1]].ast;
         ast = unary_node_new(opcode, node, rule->action.item_index[0] > rule->action.item_index[1], node->loc);
         break;
+    case CAST_NODE:
+    {
+        assert(rule->action.item_index_count==2);
+        struct ast_node *to_type_node = items[rule->action.item_index[0]].ast;
+        struct ast_node *expr = items[rule->action.item_index[1]].ast;
+        ast = cast_node_new(to_type_node, expr, to_type_node->loc);
+        break;
+    }
     case VAR_NODE:
         node = items[rule->action.item_index[1]].ast;
         assert(node->node_type == IDENT_NODE);

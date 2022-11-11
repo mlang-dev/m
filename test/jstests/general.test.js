@@ -102,3 +102,8 @@ old_z = Point2D(10.0, 20.0)
 new_z = change old_z
 print "old_z.x: %.2f, new_z.x: %.2f" (old_z.x) (new_z.x)
 `, "old_z.x: 10.00, new_z.x: 100.00");
+
+mtest.mtest('cast variable', 'cast value', 
+`
+x = 1000
+(f64)x * 2.0`, 2000.0, false);
