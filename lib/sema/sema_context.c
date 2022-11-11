@@ -206,3 +206,11 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
     //assert(rfi->type->name == index->index->index->type->name);
     array_deinit(&field_accessors);
 }
+
+struct block_nested_level *get_current_block_level(struct sema_context *context)
+{
+    if(array_size(&context->nested_levels) == 0){
+        return 0;
+    }
+    return array_back(&context->nested_levels);
+}

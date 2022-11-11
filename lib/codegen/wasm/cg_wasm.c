@@ -734,7 +734,6 @@ void _emit_while_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
 
 void _emit_jump(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
-    node->jump->nested_if_levels = 1;
     if(node->jump->expr){
         wasm_emit_code(cg, ba, node->jump->expr);
     }

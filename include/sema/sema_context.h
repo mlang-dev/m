@@ -143,7 +143,7 @@ struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name)
 struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node);
 void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* index, struct array *field_infos);
 symbol get_ref_type_symbol(struct sema_context *context, symbol type_name);
-
+struct block_nested_level *get_current_block_level(struct sema_context *context);
 #ifdef __cplusplus
 }
 #endif
