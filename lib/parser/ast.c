@@ -721,7 +721,7 @@ struct ast_node *jump_node_new(enum token_type token_type, struct ast_node *expr
     MALLOC(node->jump, sizeof(*node->jump));
     node->jump->token_type = token_type;
     node->jump->expr = expr;
-    node->jump->nested_if_levels = 0;
+    node->jump->nested_block_levels = 0;
     return node;
 }
 

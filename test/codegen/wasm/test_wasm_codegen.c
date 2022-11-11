@@ -27,7 +27,10 @@ TEST(test_wasm_codegen, parse_as_module)
 // pick a\n\
 // ";
     char test_code[] = "\n\
-10\n\
+i = 0\n\
+while i < 10\n\
+    i = i + 1\n\
+i\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);

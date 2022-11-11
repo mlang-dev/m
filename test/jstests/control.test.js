@@ -122,11 +122,64 @@ let factorial n =
 factorial 5
 `, 120); 
 
-mtest.mtest('for loop break', 'use break statement in for loop', 
+mtest.mtest('for loop break if', 'use break statement in for loop', 
 `
 for i in 0..10
     if i == 5 then 
         break
 i
-`, 5, true, true); 
+`, 5); 
 
+mtest.mtest('for loop break', 'use break statement in for-loop without using if-statement', 
+`
+for i in 0..10
+    break
+i
+`, 0); 
+
+mtest.mtest('for loop break', 'use break statement in for-loop without using if-statement', 
+`
+for i in 0..10
+    break
+i
+`, 0); 
+
+mtest.mtest('while loop', 'use while loop', 
+`
+i = 0
+while i < 10
+    i = i + 1
+i
+`, 10); 
+
+mtest.mtest('while loop break', 'break while loop', 
+`
+i = 0
+while i < 10
+    if i == 5 then
+        break
+    i = i + 1
+i
+`, 5); 
+
+mtest.mtest('while loop continue', 'use continue in while loop', 
+`
+i = 0
+n = 0
+while i < 5
+    i = i + 1
+    if i == 3 then
+        continue
+    n = n + i
+n
+`, 12); 
+
+mtest.mtest('for loop continue', 'use continue in for loop', 
+`
+n = 0
+for i in 0..5
+    if i == 3 then
+        continue
+    n = n + i
+n
+`, 7, true, true); 

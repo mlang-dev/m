@@ -22,9 +22,8 @@ extern "C" {
  * define nested if block and loop block levels inside a function
  * 
  */
-struct block_nested_level{
-    u32 nested_if_levels;
-    u32 nested_loop_levels;
+struct loop_nested_level{
+    u32 block_levels;
 };
 
 struct sema_context {
@@ -121,9 +120,9 @@ struct sema_context {
     size_t scope_level;
 
     /*
-     * indicates nested if/loop block levels inside a function, used for WebAssembly codegen.
+     * indicates nested if/loop block levels inside a loop of a function, used for WebAssembly codegen.
      */
-    struct array nested_levels;
+    struct array nested_levels; //array of array<struct loop_nested_level>
 
     bool is_repl;
 };
@@ -143,7 +142,12 @@ struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name)
 struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node);
 void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* index, struct array *field_infos);
 symbol get_ref_type_symbol(struct sema_context *context, symbol type_name);
-struct block_nested_level *get_current_block_level(struct sema_context *context);
+struct loop_nested_level *get_current_block_level(struct sema_context *context);
+void enter_function(struct sema_context *context);
+void leave_function(struct sema_context *context);
+struct loop_nested_level *enter_loop(struct sema_context *context);
+void leave_loop(struct sema_context *context);
+
 #ifdef __cplusplus
 }
 #endif
