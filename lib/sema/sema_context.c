@@ -83,11 +83,13 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
         hashtable_set_p(&context->builtin_ast, node->ft->name, node);
         //string type = to_string(func_type->base.type);
     }
+    array_init(&context->nested_levels, sizeof(struct block_nested_level));
     return context;
 }
 
 void sema_context_free(struct sema_context *context)
 {
+    array_deinit(&context->nested_levels);
     hashtable_deinit(&context->struct_typename_2_asts);
     hashtable_deinit(&context->specialized_ast);
     hashtable_deinit(&context->generic_ast);

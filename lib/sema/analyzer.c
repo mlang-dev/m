@@ -179,21 +179,21 @@ struct type_expr *_analyze_struct_init(struct sema_context *context, struct ast_
     return node->type;
 }
 
-struct type_expr *_analyze_list_comp(struct sema_context *context, struct ast_node *node)
+struct type_expr *_analyze_array_init(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = 0;
     struct type_expr *element_type = 0;
     struct array dims;
     array_init(&dims, sizeof(u32));
-    if (!node->list_comp){
+    if (!node->array_init){
         element_type = create_unit_type();
         type = create_array_type(element_type, &dims);
-    }else if(node->list_comp->node_type == BLOCK_NODE){
-        u32 size = array_size(&node->list_comp->block->nodes);
+    }else if(node->array_init->node_type == BLOCK_NODE){
+        u32 size = array_size(&node->array_init->block->nodes);
         array_push(&dims, &size);
         if(size){
-            for(u32 i = 0; i < array_size(&node->list_comp->block->nodes); i++){
-                struct ast_node *element = *(struct ast_node **)array_get(&node->list_comp->block->nodes, i);
+            for(u32 i = 0; i < array_size(&node->array_init->block->nodes); i++){
+                struct ast_node *element = *(struct ast_node **)array_get(&node->array_init->block->nodes, i);
                 element_type = analyze(context, element);
             }
         }
@@ -210,8 +210,8 @@ struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_n
     struct type_expr *elm_type = create_nullary_type(elm_type_enum, elm_type_name);
     struct array dims;
     array_init(&dims, sizeof(u32));
-    for(u32 i = 0; i < array_size(&node->list_comp->block->nodes); i++){
-        struct ast_node *dim_node = *(struct ast_node **)array_get(&node->list_comp->block->nodes, i);
+    for(u32 i = 0; i < array_size(&node->array_init->block->nodes); i++){
+        struct ast_node *dim_node = *(struct ast_node **)array_get(&node->array_init->block->nodes, i);
         u32 dim = eval(dim_node);
         array_push(&dims, &dim);
     }
@@ -240,6 +240,8 @@ struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_no
 
 struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *node)
 {
+    struct block_nested_level bnl = {0, 0};
+    array_push(&context->nested_levels, &bnl);
     hashtable_set_p(&context->func_types, node->func->func_type->ft->name, node->func->func_type);
     stack_push(&context->func_stack, &node);
     //# create a new non-generic variable for the binder
@@ -272,6 +274,7 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
     struct ast_node *saved_node = *(struct ast_node **)stack_pop(&context->func_stack);
     (void)saved_node;
     assert(node == saved_node);
+    array_pop(&context->nested_levels);
     return result;
 }
 
@@ -457,8 +460,10 @@ struct type_expr *_analyze_if(struct sema_context *context, struct ast_node *nod
     struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
     unify(cond_type, bool_type, &context->nongens);
     struct type_expr *then_type = analyze(context, node->cond->then_node);
-    struct type_expr *else_type = analyze(context, node->cond->else_node);
-    unify(then_type, else_type, &context->nongens);
+    if(node->cond->else_node){
+        struct type_expr *else_type = analyze(context, node->cond->else_node);
+        unify(then_type, else_type, &context->nongens);
+    }
     return then_type;
 }
 
@@ -489,6 +494,31 @@ struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *no
     node->forloop->range->range->end->type = end_type;
     node->forloop->body->type = body_type;
     return create_nullary_type(TYPE_UNIT, get_type_symbol(TYPE_UNIT));
+}
+
+
+struct type_expr *_analyze_while(struct sema_context *context, struct ast_node *node)
+{
+    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
+    struct type_expr *expr_type = analyze(context, node->whileloop->expr);
+    struct type_expr *body_type = analyze(context, node->whileloop->body);
+    if (!unify(bool_type, expr_type, &context->nongens)) {
+        printf("failed to unify expr type as bool.\n");
+        return 0;
+    }
+    node->whileloop->body->type = body_type;
+    return create_nullary_type(TYPE_UNIT, get_type_symbol(TYPE_UNIT));
+}
+
+struct type_expr *_analyze_jump(struct sema_context *context, struct ast_node *node)
+{
+    struct type_expr *type = 0;
+    if (node->jump->expr){
+        type = analyze(context, node->jump->expr);
+    }else{
+        type = create_unit_type();
+    }
+    return type;
 }
 
 struct type_expr *_analyze_block(struct sema_context *context, struct ast_node *node)
@@ -524,8 +554,8 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             break;
         case RANGE_NODE:
             break;
-        case LIST_COMP_NODE:
-            type = _analyze_list_comp(context, node);
+        case ARRAY_INIT_NODE:
+            type = _analyze_array_init(context, node);
             break;
         case ARRAY_TYPE_NODE:
             type = _analyze_array_type(context, node);
@@ -578,6 +608,12 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             break;
         case FOR_NODE:
             type = _analyze_for(context, node);
+            break;
+        case WHILE_NODE:
+            type = _analyze_while(context, node);
+            break;
+        case JUMP_NODE:
+            type = _analyze_jump(context, node);
             break;
         case CALL_NODE:
             type = _analyze_call(context, node);

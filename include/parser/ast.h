@@ -89,6 +89,21 @@ struct _for_node {
     struct ast_node *body;
 };
 
+struct _while_node {
+    struct ast_node *expr;
+    struct ast_node *body;
+};
+
+struct _jump_node {
+    enum token_type token_type;
+    /* 
+     * nested_if_levels: generated in Analyzer and used in WebAssembly codegen for break/continue statement,
+     * It indicates the innermost loop levels from the break/continue statement
+     */
+    u32 nested_if_levels; 
+    struct ast_node *expr;
+};
+
 struct _struct_node {
     struct ast_node *body; //body block
     symbol name; /*type name*/
@@ -174,12 +189,14 @@ struct ast_node {
         
         struct _struct_node *struct_def; 
         struct _struct_init_node *struct_init;
-        struct ast_node *list_comp;
+        struct ast_node *array_init;
         struct _array_type_node *array_type;
         struct _range_node *range;
         struct _import_node *import;
         struct _if_node *cond;
         struct _for_node *forloop;
+        struct _while_node *whileloop;
+        struct _jump_node *jump;
         struct _block_node *block;
         struct _memory_node *memory;
     };
@@ -221,7 +238,7 @@ struct ast_node *func_type_node_new(
     bool is_variadic, bool is_external, struct source_location loc);
 struct ast_node *struct_node_new(symbol name, struct ast_node *body, struct source_location loc);
 struct ast_node *struct_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc);
-struct ast_node *list_comp_node_new(struct ast_node *comp, struct source_location loc);
+struct ast_node *array_init_node_new(struct ast_node *comp, struct source_location loc);
 struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc);
 struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc);
 struct ast_node *func_type_node_default_new(
@@ -234,6 +251,8 @@ struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, b
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *member_index_node_new(enum aggregate_type aggregate_type, struct ast_node *object, struct ast_node *index, struct source_location loc);
 struct ast_node *for_node_new(struct ast_node *var, struct ast_node *range, struct ast_node *body, struct source_location loc);
+struct ast_node *while_node_new(struct ast_node *expr, struct ast_node *body, struct source_location loc);
+struct ast_node *jump_node_new(enum token_type token_type, struct ast_node *expr, struct source_location loc);
 struct ast_node *block_node_new_empty();
 struct ast_node *block_node_new(struct array *nodes);
 struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node);

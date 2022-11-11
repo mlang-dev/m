@@ -121,3 +121,12 @@ let factorial n =
     p
 factorial 5
 `, 120); 
+
+mtest.mtest('for loop break', 'use break statement in for loop', 
+`
+for i in 0..10
+    if i == 5 then 
+        break
+i
+`, 5, true, true); 
+

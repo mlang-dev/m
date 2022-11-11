@@ -38,13 +38,13 @@ void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32
     }
 }
 
-void wasm_emit_store_array_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, u32 elm_align, u32 elm_type_size, struct ast_node *list_comp)
+void wasm_emit_store_array_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, u32 elm_align, u32 elm_type_size, struct ast_node *array_init)
 {
     struct ast_node *field;
     u32 field_offset = 0;
-    if(list_comp->node_type == BLOCK_NODE){
-        for (u32 i = 0; i < array_size(&list_comp->block->nodes); i++) {
-            field = *(struct ast_node **)array_get(&list_comp->block->nodes, i);
+    if(array_init->node_type == BLOCK_NODE){
+        for (u32 i = 0; i < array_size(&array_init->block->nodes); i++) {
+            field = *(struct ast_node **)array_get(&array_init->block->nodes, i);
             wasm_emit_store_scalar_value_at(cg, ba, local_address_var_index, elm_align, offset + field_offset, field);
             field_offset += elm_type_size;
         }
@@ -73,7 +73,7 @@ void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast
 
 void wasm_emit_array_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
-    if (!node->list_comp) return; //empty list does nothing
+    if (!node->array_init) return; //empty list does nothing
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *ft_node = fc->fun->func->func_type;
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node);
@@ -92,5 +92,5 @@ void wasm_emit_array_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_
         addr_var_index = vi->var_index;
     }
     struct type_size_info tsi = get_type_size_info(node->type->val_type);
-    wasm_emit_store_array_value(cg, ba, addr_var_index, 0, tsi.align_bits/8, tsi.width_bits / 8, node->list_comp);
+    wasm_emit_store_array_value(cg, ba, addr_var_index, 0, tsi.align_bits/8, tsi.width_bits / 8, node->array_init);
 }

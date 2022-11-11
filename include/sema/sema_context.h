@@ -18,6 +18,15 @@
 extern "C" {
 #endif
 
+/**
+ * define nested if block and loop block levels inside a function
+ * 
+ */
+struct block_nested_level{
+    u32 nested_if_levels;
+    u32 nested_loop_levels;
+};
+
 struct sema_context {
     /* mapping type string into type enum: hashtable of (symbol, int) */
     struct hashtable *symbol_2_int_types;
@@ -110,6 +119,11 @@ struct sema_context {
      * indicates block levels
      */
     size_t scope_level;
+
+    /*
+     * indicates nested if/loop block levels inside a function, used for WebAssembly codegen.
+     */
+    struct array nested_levels;
 
     bool is_repl;
 };

@@ -102,12 +102,12 @@ assign_op       = '='
                 | "|="
 
 expr            = assign_expr
-                | list_comp
+                | array_init
 
-list_comp       = '[' list_comp_decl ']'                                                    { list_comp 1 }
-                | '[' ']'                                                                   { list_comp }
+array_init      = '[' array_init_decl ']'                                                   { array_init 1 }
+                | '[' ']'                                                                   { array_init }
 
-list_comp_decl  = range_expr
+array_init_decl = range_expr
                 | for_stmt
                 | expr_list
 
@@ -120,9 +120,16 @@ stmt            = func_type
                 | expr                                                                
                 | var_decls                                                           
                 | for_stmt                   
+                | while_stmt
                 | cond_stmt    
                 | block
                 | import_decl
+                | jump_stmt
+
+jump_stmt       = "continue"                                                                { jump 0 }
+                | "break"                                                                   { jump 0 }
+                | "return"                                                                  { jump 0 }
+                | "return" expr                                                             { jump 0 1 }
 
 cond_stmt       = "if" expr "then" statement                                                { if_cond 1 3 }              
                 | "if" expr "then" statement "else" statement                               { if_cond 1 3 5 }
@@ -163,6 +170,8 @@ exprs           = exprs ',' expr                                                
                 | expr                                                                      { block 0 }
 
 for_stmt        = "for" param_decl "in" range_expr block                                    { for_loop 1 3 4 }
+
+while_stmt      = "while" expr block                                                        { while_loop 1 2 }
 
 range_expr      =  expr ".." expr ".." expr                                                 { range 0 2 4}
                 |  expr ".." expr                                                           { range 0 2 }

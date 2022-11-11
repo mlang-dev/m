@@ -637,7 +637,7 @@ void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type 
     ba_add(ba, WASM_TYPE_I32);
 }
 
-void _emit_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+void _emit_for_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
     assert(node->node_type == FOR_NODE);
@@ -707,6 +707,46 @@ void _emit_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
     wasm_emit_uint(ba, 0); 
     ba_add(ba, OPCODE_END); //end of loop branch
     ba_add(ba, OPCODE_END); //end of outside branch
+}
+
+void _emit_while_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+{
+    ba_add(ba, OPCODE_BLOCK); // outside block branch labelidx 1
+    ba_add(ba, WASM_TYPE_VOID); // type_2_wtype[body_type]); // branch type
+
+    ba_add(ba, OPCODE_LOOP);  // loop branch, branch labelidx 0
+    ba_add(ba, WASM_TYPE_VOID); //type_2_wtype[body_type]); // branch type
+
+    //if not true of node->whileloop->expr, then break the loop branch (goto outside block branch)
+    struct ast_node *not_expr = unary_node_new(OP_NOT, node->whileloop->expr, false, node->whileloop->expr->loc);
+    wasm_emit_code(cg, ba, not_expr);
+    ba_add(ba, OPCODE_BR_IF);
+    wasm_emit_uint(ba, 1); //if true, jump out of loop branch, got to the outside block branch
+
+    //body
+    wasm_emit_code(cg, ba, node->whileloop->body);
+    ba_add(ba, OPCODE_BR); //goto loop branch again
+    wasm_emit_uint(ba, 0); 
+    ba_add(ba, OPCODE_END); //end of loop branch
+    ba_add(ba, OPCODE_END); //end of outside branch
+    ast_node_free(not_expr);
+}
+
+void _emit_jump(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+{
+    node->jump->nested_if_levels = 1;
+    if(node->jump->expr){
+        wasm_emit_code(cg, ba, node->jump->expr);
+    }
+    if(node->jump->token_type == TOKEN_RETURN){
+        ba_add(ba, OPCODE_RETURN);
+    } else if(node->jump->token_type == TOKEN_CONTINUE){
+        ba_add(ba, OPCODE_BR);
+        wasm_emit_uint(ba, node->jump->nested_if_levels); //jump to innermost loop
+    } else if(node->jump->token_type == TOKEN_BREAK){
+        ba_add(ba, OPCODE_BR);
+        wasm_emit_uint(ba, node->jump->nested_if_levels + 1); //jump to out side of innermost loop
+    }
 }
 
 void _emit_ident(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -786,12 +826,18 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             _emit_if(cg, ba, node);
             break;
         case FOR_NODE:
-            _emit_loop(cg, ba, node);
+            _emit_for_loop(cg, ba, node);
+            break;
+        case WHILE_NODE:
+            _emit_while_loop(cg, ba, node);
+            break;
+        case JUMP_NODE:
+            _emit_jump(cg, ba, node);
             break;
         case STRUCT_INIT_NODE:
             wasm_emit_struct_init(cg, ba, node);
             break;
-        case LIST_COMP_NODE:
+        case ARRAY_INIT_NODE:
             wasm_emit_array_init(cg, ba, node);
             break;
         case ARRAY_TYPE_NODE:
