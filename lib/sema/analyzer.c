@@ -240,8 +240,7 @@ struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_no
 
 struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *node)
 {
-    struct block_nested_level bnl = {0, 0};
-    array_push(&context->nested_levels, &bnl);
+    enter_function(context);
     hashtable_set_p(&context->func_types, node->func->func_type->ft->name, node->func->func_type);
     stack_push(&context->func_stack, &node);
     //# create a new non-generic variable for the binder
@@ -274,7 +273,7 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
     struct ast_node *saved_node = *(struct ast_node **)stack_pop(&context->func_stack);
     (void)saved_node;
     assert(node == saved_node);
-    array_pop(&context->nested_levels);
+    leave_function(context);
     return result;
 }
 
@@ -456,6 +455,8 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
 
 struct type_expr *_analyze_if(struct sema_context *context, struct ast_node *node)
 {
+    struct loop_nested_level *lnl = get_current_block_level(context);
+    if(lnl) lnl->block_levels++;
     struct type_expr *cond_type = analyze(context, node->cond->if_node);
     struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
     unify(cond_type, bool_type, &context->nongens);
@@ -464,11 +465,14 @@ struct type_expr *_analyze_if(struct sema_context *context, struct ast_node *nod
         struct type_expr *else_type = analyze(context, node->cond->else_node);
         unify(then_type, else_type, &context->nongens);
     }
+    if(lnl) lnl->block_levels--;
     return then_type;
 }
 
 struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *node)
 {
+    struct loop_nested_level *bnl = enter_loop(context);
+    bnl->block_levels = 1; //body is itself a block
     struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
     node->forloop->var->var->init_value = node->forloop->range->range->start;
     struct type_expr *var_type = analyze(context, node->forloop->var);
@@ -493,15 +497,19 @@ struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *no
     node->forloop->range->range->step->type = step_type;
     node->forloop->range->range->end->type = end_type;
     node->forloop->body->type = body_type;
+    leave_loop(context);
     return create_nullary_type(TYPE_UNIT, get_type_symbol(TYPE_UNIT));
 }
 
 
 struct type_expr *_analyze_while(struct sema_context *context, struct ast_node *node)
 {
+    struct loop_nested_level *bnl = enter_loop(context);
+    bnl->block_levels = 1; 
     struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
     struct type_expr *expr_type = analyze(context, node->whileloop->expr);
     struct type_expr *body_type = analyze(context, node->whileloop->body);
+    leave_loop(context);
     if (!unify(bool_type, expr_type, &context->nongens)) {
         printf("failed to unify expr type as bool.\n");
         return 0;
@@ -516,6 +524,9 @@ struct type_expr *_analyze_jump(struct sema_context *context, struct ast_node *n
     if (node->jump->expr){
         type = analyze(context, node->jump->expr);
     }else{
+        struct loop_nested_level *bnl = get_current_block_level(context);
+        assert(bnl);
+        node->jump->nested_block_levels = bnl->block_levels;
         type = create_unit_type();
     }
     return type;

@@ -97,10 +97,10 @@ struct _while_node {
 struct _jump_node {
     enum token_type token_type;
     /* 
-     * nested_if_levels: generated in Analyzer and used in WebAssembly codegen for break/continue statement,
+     * nested_block_levels: generated in Analyzer and used in WebAssembly codegen for break/continue statement,
      * It indicates the innermost loop levels from the break/continue statement
      */
-    u32 nested_if_levels; 
+    u32 nested_block_levels; 
     struct ast_node *expr;
 };
 

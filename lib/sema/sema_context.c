@@ -31,6 +31,12 @@ size_t leave_scope(struct sema_context *context)
     return --context->scope_level;
 }
 
+void _free_nested_levels(void *arr)
+{
+    struct array *array = arr;
+    array_deinit(array);
+}
+
 struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, struct ast_node *stdio, struct ast_node *math, bool is_repl)
 {
     struct sema_context *context;
@@ -83,7 +89,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
         hashtable_set_p(&context->builtin_ast, node->ft->name, node);
         //string type = to_string(func_type->base.type);
     }
-    array_init(&context->nested_levels, sizeof(struct block_nested_level));
+    array_init_free(&context->nested_levels, sizeof(struct array), _free_nested_levels);
     return context;
 }
 
@@ -205,4 +211,48 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
     }
     //assert(rfi->type->name == index->index->index->type->name);
     array_deinit(&field_accessors);
+}
+
+struct array *_get_func_block(struct sema_context *context)
+{
+    if(array_size(&context->nested_levels) == 0){
+        return 0;
+    }
+    return array_back(&context->nested_levels);
+}
+
+struct loop_nested_level *get_current_block_level(struct sema_context *context)
+{
+    struct array *loop = _get_func_block(context);
+    if(!loop) return 0;
+    if(!array_size(loop)) return 0;
+    return array_back(loop);
+}
+
+void enter_function(struct sema_context *context)
+{
+    struct array bnls;
+    array_init(&bnls, sizeof(struct loop_nested_level));
+    array_push(&context->nested_levels, &bnls);
+}
+
+void leave_function(struct sema_context *context)
+{
+    struct array *bnls = array_pop(&context->nested_levels);
+    array_deinit(bnls);
+}
+
+struct loop_nested_level *enter_loop(struct sema_context *context)
+{
+    struct array *loops = _get_func_block(context);
+    if(!loops) return 0;
+    struct loop_nested_level bnl = { 0 };
+    array_push(loops, &bnl);
+    return array_back(loops);
+}
+
+void leave_loop(struct sema_context *context)
+{
+    struct array *loops = _get_func_block(context);
+    if(loops) array_pop(loops);
 }
