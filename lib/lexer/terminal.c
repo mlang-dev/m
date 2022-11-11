@@ -44,6 +44,9 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("false", FALSE, NULL),
     KEYWORD_PATTERN("in", IN, NULL),
     KEYWORD_PATTERN("for", FOR, NULL),
+    KEYWORD_PATTERN("while", WHILE, NULL),
+    KEYWORD_PATTERN("break", BREAK, NULL),
+    KEYWORD_PATTERN("continue", CONTINUE, NULL),
 
     TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL), //
 
@@ -56,6 +59,8 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("}", RCBRACKET, NULL),
 
     KEYWORD_PATTERN(",", COMMA, NULL),
+    KEYWORD_PATTERN(";", SEMICOLON, NULL),
+
 
     NAME_KEYWORD_PATTERN("..", "\\.\\.", RANGE, NULL),
     NAME_KEYWORD_PATTERN("...", "\\.\\.\\.", VARIADIC, NULL), // 30
@@ -63,25 +68,15 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
 
     /*reserved keywords*/
     KEYWORD_PATTERN("do", DO, NULL),
-    KEYWORD_PATTERN("while", WHILE, NULL),
     KEYWORD_PATTERN("switch", SWITCH, NULL),
     KEYWORD_PATTERN("case", CASE, NULL),
     KEYWORD_PATTERN("default", DEFAULT, NULL),
-    KEYWORD_PATTERN("break", BREAK, NULL),
-    KEYWORD_PATTERN("continue", CONTINUE, NULL),
+    KEYWORD_PATTERN("return", RETURN, NULL),
     KEYWORD_PATTERN("yield", YIELD, NULL),
     KEYWORD_PATTERN("async", ASYNC, NULL),
     KEYWORD_PATTERN("await", AWAIT, NULL),
     KEYWORD_PATTERN("match", MATCH, NULL),
     KEYWORD_PATTERN("with", WITH, NULL),
-    KEYWORD_PATTERN("select", SELECT, NULL),
-    KEYWORD_PATTERN("join", JOIN, NULL),
-    KEYWORD_PATTERN("when", WHEN, NULL),
-    KEYWORD_PATTERN("end", END, NULL),
-    KEYWORD_PATTERN("where", WHERE, NULL),
-    KEYWORD_PATTERN("and", AND, NULL),
-    KEYWORD_PATTERN("or", OR, NULL),
-    KEYWORD_PATTERN("order by", ORDERBY, NULL),
 
     /*operators*/
     TOKEN_PATTERN(0, OP, NULL),

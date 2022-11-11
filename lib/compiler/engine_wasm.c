@@ -77,14 +77,30 @@ struct engine *engine_wasm_new()
 }
 
 
+#define IS_OUT_OF_FUNC(node_type)  (node_type == FUNC_NODE || node_type == IMPORT_FUNC || node_type == STRUCT_NODE)
 /*
  * collect global statements into _start function
  */
+struct ast_node *_start_func_node(struct cg_wasm *cg, struct hashtable *symbol_2_int_types, struct ast_node *expr_ast, struct ast_node *others)
+{
+    u32 nodes = array_size(&expr_ast->block->nodes);
+    struct ast_node *node;
+    struct ast_node *_start_block = block_node_new_empty();
+    for (u32 i = 0; i < nodes; i++) {
+        node = *(struct ast_node **)array_get(&expr_ast->block->nodes, i);
+        if (IS_OUT_OF_FUNC(node->node_type)){
+            block_node_add(others, node);
+        } else {
+            block_node_add(_start_block, node);
+        }
+    } 
+    return wrap_nodes_as_function(symbol_2_int_types, to_symbol("_start"), _start_block);
+}
+
 struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbol_2_int_types, struct ast_node *block)
 {
     struct ast_node *node, *sp_func;
     assert(block->node_type == BLOCK_NODE);
-    struct ast_node *_start_block = block_node_new_empty();
     u32 nodes = array_size(&block->block->nodes);
     struct ast_node *wmodule = block_node_new_empty();
     for (u32 i = 0; i < nodes; i++) {
@@ -115,25 +131,8 @@ struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbo
             }
         } else if(node->node_type == STRUCT_NODE){
             block_node_add(wmodule, node);
-        } else {
-            block_node_add(_start_block, node);
         }
     }
-    struct ast_node *_start_func = wrap_nodes_as_function(symbol_2_int_types, to_symbol("_start"), _start_block);
-    if(array_size(&_start_block->block->nodes)){
-        struct ast_node *ret = *(struct ast_node **)array_back(&_start_block->block->nodes);
-        struct type_expr *ret_type = prune(ret->type);
-        assert(ret_type->kind == KIND_OPER);
-        _start_func->type = wrap_as_fun_type(ret_type);
-    }else{
-        _start_func->type = wrap_as_fun_type(create_unit_type());
-    }
-    _start_func->func->func_type->type = _start_func->type;
-    block_node_add(wmodule, _start_func);
-    block_node_add(cg->fun_types, _start_func->func->func_type);
-    block_node_add(cg->funs, _start_func);
-    hashtable_set_int(&cg->func_name_2_idx, _start_func->func->func_type->ft->name, cg->func_idx++);
-    hashtable_set_p(&cg->func_name_2_ast, _start_func->func->func_type->ft->name, _start_func->func->func_type);
     free_block_node(block, false);
     return wmodule;
 }
@@ -145,10 +144,14 @@ void compile_to_wasm(struct engine *engine, const char *expr)
     if (!expr_ast){
         return;
     }
-    struct ast_node *ast = node_copy(cg->sys_block);
-    block_node_add_block(ast, cg->imports.import_block);
-    block_node_add_block(ast, expr_ast);
+    struct ast_node *global_block = block_node_new_empty();
+    struct ast_node *start_func = _start_func_node(cg, &engine->fe->parser->symbol_2_int_types, expr_ast, global_block);
     free_block_node(expr_ast, false);
+    struct ast_node *ast = block_node_new_empty();
+    block_node_add_block(ast, cg->sys_block);
+    block_node_add_block(ast, cg->imports.import_block);
+    block_node_add_block(ast, global_block);
+    block_node_add(ast, start_func);
     analyze(engine->fe->sema_context, ast);
     struct error_report *er = get_last_error_report(engine->fe->sema_context);
     if(er){
@@ -158,4 +161,5 @@ void compile_to_wasm(struct engine *engine, const char *expr)
     ast = _decorate_as_module(cg, &engine->fe->parser->symbol_2_int_types, ast);
     wasm_emit_module(cg, ast);
     ast_node_free(ast);
+    free_block_node(global_block, false);
 }

@@ -75,9 +75,11 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
         case IF_NODE:
             collect_local_variables(cg, node->cond->if_node);
             collect_local_variables(cg, node->cond->then_node);
-            collect_local_variables(cg, node->cond->else_node);
+            if(node->cond->else_node){
+                collect_local_variables(cg, node->cond->else_node);
+            }
             break;
-        case LIST_COMP_NODE:
+        case ARRAY_INIT_NODE:
         case STRUCT_INIT_NODE:
             //only the parent node is needed
             func_register_local_variable(cg, node, true);
@@ -166,7 +168,7 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
     switch (node->node_type){
     default:
         break;
-    case LIST_COMP_NODE:
+    case ARRAY_INIT_NODE:
     case STRUCT_INIT_NODE:
         vi = _req_new_local_var(cg, node->type, is_local_var, node->is_ret, node->is_addressed);
         hashtable_set_p(&fc->ast_2_index, node, vi);

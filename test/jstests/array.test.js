@@ -124,5 +124,5 @@ for i in 0..10
         a[i][j] = i + j
 let pick arr:u8[10][10] x:int y:int = arr[x][y]
 pick a 9 8
-`, 17, true, true);
+`, 17);
 

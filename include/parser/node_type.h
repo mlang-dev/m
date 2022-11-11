@@ -33,7 +33,7 @@ extern "C" {
     ENUM_ITEM(STRUCT_NODE)          \
     ENUM_ITEM(UNION_NODE)           \
     ENUM_ITEM(STRUCT_INIT_NODE)     \
-    ENUM_ITEM(LIST_COMP_NODE)       \
+    ENUM_ITEM(ARRAY_INIT_NODE)       \
     ENUM_ITEM(ARRAY_TYPE_NODE)      \
     ENUM_ITEM(RANGE_NODE)           \
     ENUM_ITEM(UNARY_NODE)           \
@@ -41,6 +41,8 @@ extern "C" {
     ENUM_ITEM(MEMBER_INDEX_NODE)    \
     ENUM_ITEM(IF_NODE)              \
     ENUM_ITEM(FOR_NODE)             \
+    ENUM_ITEM(WHILE_NODE)           \
+    ENUM_ITEM(JUMP_NODE)            \
     ENUM_ITEM(CALL_NODE)            \
     ENUM_ITEM(FUNC_TYPE_NODE)       \
     ENUM_ITEM(FUNC_NODE)            \

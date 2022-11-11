@@ -73,6 +73,9 @@ void _pop_states(struct parser *parser, u8 symbol_count)
     parser->stack_top -= symbol_count;
 }
 
+#define TOKEN_TO_NODE_TYPE(token_type)  (token_type << 16)
+#define NODE_TO_TOKEN_TYPE(node_type)   (node_type >> 16)
+
 struct ast_node *_build_terminal_ast(struct token *tok)
 {
     enum node_type node_type;
@@ -212,6 +215,23 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         node1->range->end = binary_node_new(OP_LT, ident_node_new(node->var->var_name, node->loc), node1->range->end, node1->range->end->loc);
         ast = for_node_new(node, node1, node2, node->loc);
         break;
+    case WHILE_NODE:
+    {
+        struct ast_node *expr = items[rule->action.item_index[0]].ast; //expr
+        struct ast_node * body = items[rule->action.item_index[1]].ast; //body
+        ast = while_node_new(expr, body, expr->loc);
+        break;
+    }
+    case JUMP_NODE:
+    {
+        struct ast_node *token_node = items[rule->action.item_index[0]].ast; //token node
+        enum token_type token_type = NODE_TO_TOKEN_TYPE(token_node->node_type);
+        struct ast_node *expr = 0;
+        if (rule->action.item_index_count == 2)
+            expr = items[rule->action.item_index[1]].ast; //expr
+        ast = jump_node_new(token_type, expr, token_node->loc);
+        break;
+    }
     case IF_NODE:
         node = items[rule->action.item_index[0]].ast;
         node1 = items[rule->action.item_index[1]].ast;
@@ -303,11 +323,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(node1->node_type == BLOCK_NODE);
         ast = struct_init_node_new(node1, node, node->loc);
         break;
-    case LIST_COMP_NODE:
+    case ARRAY_INIT_NODE:
         if(rule->action.item_index_count){
             node = items[rule->action.item_index[0]].ast;
         }
-        ast = list_comp_node_new(node, items[0].ast->loc);
+        ast = array_init_node_new(node, items[0].ast->loc);
         break;
     case ARRAY_TYPE_NODE:
         node = items[rule->action.item_index[0]].ast;
@@ -321,7 +341,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             ast = block_node_new(&nodes);
         }
         else if (rule->action.item_index_count == 1){
-            ast = _wrap_as_block_node(items[rule->action.item_index[0]].ast);
+            ast = items[rule->action.item_index[0]].ast;
+            if(ast->node_type != BLOCK_NODE)
+                ast = _wrap_as_block_node(ast);
         }
         else if(rule->action.item_index_count == 2){
             ast = items[rule->action.item_index[0]].ast;

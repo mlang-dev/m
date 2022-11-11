@@ -335,23 +335,23 @@ void _free_range_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *list_comp_node_new(struct ast_node *comp, struct source_location loc)
+struct ast_node *array_init_node_new(struct ast_node *comp, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(LIST_COMP_NODE, loc);
-    MALLOC(node->list_comp, sizeof(*node->list_comp));
-    node->list_comp = comp;
+    struct ast_node *node = ast_node_new(ARRAY_INIT_NODE, loc);
+    MALLOC(node->array_init, sizeof(*node->array_init));
+    node->array_init = comp;
     return node;
 }
 
-struct ast_node *_copy_list_comp_node(struct ast_node *orig_node)
+struct ast_node *_copy_array_init_node(struct ast_node *orig_node)
 {
-    return list_comp_node_new(
-        node_copy(orig_node->list_comp), orig_node->loc);
+    return array_init_node_new(
+        node_copy(orig_node->array_init), orig_node->loc);
 }
 
-void _free_list_comp_node(struct ast_node *node)
+void _free_array_init_node(struct ast_node *node)
 {
-    ast_node_free(node->list_comp);
+    ast_node_free(node->array_init);
     ast_node_free(node);
 }
 
@@ -692,6 +692,52 @@ void _free_for_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *while_node_new(struct ast_node *expr, struct ast_node *body, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(WHILE_NODE, loc);
+    MALLOC(node->whileloop, sizeof(*node->whileloop));
+    node->whileloop->expr = expr;
+    node->whileloop->body = body;
+    return node;
+}
+
+struct ast_node *_copy_while_node(struct ast_node *orig_node)
+{
+    return while_node_new(
+        node_copy(orig_node->whileloop->expr), node_copy(orig_node->whileloop->body), 
+        orig_node->loc);
+}
+
+void _free_while_node(struct ast_node *node)
+{
+    node_free(node->whileloop->expr);
+    node_free(node->whileloop->body);
+    ast_node_free(node);
+}
+
+struct ast_node *jump_node_new(enum token_type token_type, struct ast_node *expr, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(JUMP_NODE, loc);
+    MALLOC(node->jump, sizeof(*node->jump));
+    node->jump->token_type = token_type;
+    node->jump->expr = expr;
+    node->jump->nested_if_levels = 0;
+    return node;
+}
+
+struct ast_node *_copy_jump_node(struct ast_node *orig_node)
+{
+    return jump_node_new(
+        orig_node->jump->token_type, node_copy(orig_node->jump->expr), 
+        orig_node->loc);
+}
+
+void _free_jump_node(struct ast_node *node)
+{
+    node_free(node->jump->expr);
+    ast_node_free(node);
+}
+
 struct ast_node *block_node_new(struct array *nodes)
 {
     struct source_location loc = (nodes && array_size(nodes) > 0) ? (*(struct ast_node **)array_front(nodes))->loc : default_loc;
@@ -705,6 +751,8 @@ struct ast_node *block_node_new(struct array *nodes)
 struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node)
 {
     assert(block && block->node_type == BLOCK_NODE);
+    if(node->node_type == BLOCK_NODE)
+        return block_node_add_block(block, node);
     array_push(&block->block->nodes, &node);
     return block;
 }
@@ -752,10 +800,14 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_binary_node(node);
     case RANGE_NODE:
         return _copy_range_node(node);
-    case LIST_COMP_NODE:
-        return _copy_list_comp_node(node);
+    case ARRAY_INIT_NODE:
+        return _copy_array_init_node(node);
     case ARRAY_TYPE_NODE:
         return _copy_array_type_node(node);
+    case WHILE_NODE:
+        return _copy_while_node(node);
+    case JUMP_NODE:
+        return _copy_jump_node(node);
     case NULL_NODE:
     case UNIT_NODE:
     case MEMORY_NODE:
@@ -770,6 +822,7 @@ struct ast_node *node_copy(struct ast_node *node)
 
 void node_free(struct ast_node *node)
 {
+    if (!node) return;
     switch (node->node_type) {
     case NULL_NODE:
         FREE(node);
@@ -819,11 +872,17 @@ void node_free(struct ast_node *node)
     case RANGE_NODE:
         _free_range_node(node);
         break;
-    case LIST_COMP_NODE:
-        _free_list_comp_node(node);
+    case ARRAY_INIT_NODE:
+        _free_array_init_node(node);
         break;
     case ARRAY_TYPE_NODE:
         _free_array_type_node(node);
+        break;
+    case WHILE_NODE:
+        _free_while_node(node);
+        break;
+    case JUMP_NODE:
+        _free_jump_node(node);
         break;
     case UNIT_NODE:
     case MEMORY_NODE:

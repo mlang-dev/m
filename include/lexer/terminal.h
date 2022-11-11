@@ -49,6 +49,9 @@ extern "C" {
     ENUM_ITEM(TOKEN_FALSE)           \
     ENUM_ITEM(TOKEN_IN)              \
     ENUM_ITEM(TOKEN_FOR)             \
+    ENUM_ITEM(TOKEN_WHILE)           \
+    ENUM_ITEM(TOKEN_BREAK)           \
+    ENUM_ITEM(TOKEN_CONTINUE)        \
     ENUM_ITEM(TOKEN_IDENT)           \
     ENUM_ITEM(TOKEN_LPAREN)          \
     ENUM_ITEM(TOKEN_RPAREN)          \
@@ -58,29 +61,20 @@ extern "C" {
     ENUM_ITEM(TOKEN_LCBRACKET)       \
     ENUM_ITEM(TOKEN_RCBRACKET)       \
     ENUM_ITEM(TOKEN_COMMA)           \
+    ENUM_ITEM(TOKEN_SEMICOLON)       \
     ENUM_ITEM(TOKEN_RANGE)           \
     ENUM_ITEM(TOKEN_VARIADIC)        \
     ENUM_ITEM(TOKEN_ISTYPEOF)        \
     ENUM_ITEM(TOKEN_DO)              \
-    ENUM_ITEM(TOKEN_WHILE)           \
     ENUM_ITEM(TOKEN_SWITCH)          \
     ENUM_ITEM(TOKEN_CASE)            \
     ENUM_ITEM(TOKEN_DEFAULT)         \
-    ENUM_ITEM(TOKEN_BREAK)           \
-    ENUM_ITEM(TOKEN_CONTINUE)        \
+    ENUM_ITEM(TOKEN_RETURN)          \
     ENUM_ITEM(TOKEN_YIELD)           \
     ENUM_ITEM(TOKEN_ASYNC)           \
     ENUM_ITEM(TOKEN_AWAIT)           \
     ENUM_ITEM(TOKEN_MATCH)           \
     ENUM_ITEM(TOKEN_WITH)            \
-    ENUM_ITEM(TOKEN_SELECT)          \
-    ENUM_ITEM(TOKEN_JOIN)            \
-    ENUM_ITEM(TOKEN_WHEN)            \
-    ENUM_ITEM(TOKEN_END)             \
-    ENUM_ITEM(TOKEN_WHERE)           \
-    ENUM_ITEM(TOKEN_AND)             \
-    ENUM_ITEM(TOKEN_OR)              \
-    ENUM_ITEM(TOKEN_ORDERBY)         \
     ENUM_ITEM(TOKEN_OP)
 
 enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
@@ -134,7 +128,7 @@ enum op_code {
 };
 
 #define TERMINAL_COUNT TOKEN_OP + OP_TOTAL
-#define MAX_NONTERMS 1024
+#define MAX_NONTERMS 2048
 #define MAX_GRAMMAR_SYMBOLS TERMINAL_COUNT + MAX_NONTERMS
 
 extern const char *token_type_strings[];
