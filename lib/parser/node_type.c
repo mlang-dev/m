@@ -22,6 +22,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(ident, IDENT),
     NODE_TYPE_NAME(var, VAR),
     NODE_TYPE_NAME(enum_def, ENUM),
+    NODE_TYPE_NAME(cast, CAST),
     NODE_TYPE_NAME(struct_def, STRUCT),
     NODE_TYPE_NAME(union_def, UNION),
     NODE_TYPE_NAME(struct_init, STRUCT_INIT),

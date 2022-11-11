@@ -634,6 +634,30 @@ void _free_binary_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *cast_node_new(struct ast_node *to_type_node, struct ast_node *expr, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(CAST_NODE, loc);
+    MALLOC(node->cast, sizeof(*node->cast));
+    node->cast->to_type_node = to_type_node;
+    node->cast->expr = expr;
+    return node;
+}
+
+struct ast_node *_copy_cast_node(struct ast_node *orig_node)
+{
+    return cast_node_new(orig_node->cast->to_type_node,
+        orig_node->cast->expr, orig_node->loc);
+}
+
+void _free_cast_node(struct ast_node *node)
+{
+    if (node->cast->to_type_node)
+        node_free(node->cast->to_type_node);
+    if (node->cast->expr)
+        node_free(node->cast->expr);
+    ast_node_free(node);
+}
+
 struct ast_node *member_index_node_new(enum aggregate_type aggregate_type, struct ast_node *object, struct ast_node *index, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(MEMBER_INDEX_NODE, loc);
@@ -808,6 +832,8 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_while_node(node);
     case JUMP_NODE:
         return _copy_jump_node(node);
+    case CAST_NODE:
+        return _copy_cast_node(node);
     case NULL_NODE:
     case UNIT_NODE:
     case MEMORY_NODE:
@@ -883,6 +909,9 @@ void node_free(struct ast_node *node)
         break;
     case JUMP_NODE:
         _free_jump_node(node);
+        break;
+    case CAST_NODE:
+        _free_cast_node(node);
         break;
     case UNIT_NODE:
     case MEMORY_NODE:

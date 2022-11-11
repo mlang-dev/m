@@ -163,6 +163,11 @@ struct _import_node {
     struct ast_node *import;
 };
 
+struct _cast_node {
+    struct ast_node *to_type_node;
+    struct ast_node *expr;
+};
+
 struct ast_node {
     enum node_type node_type;
 
@@ -199,6 +204,7 @@ struct ast_node {
         struct _jump_node *jump;
         struct _block_node *block;
         struct _memory_node *memory;
+        struct _cast_node *cast;
     };
 };
 
@@ -248,6 +254,7 @@ struct ast_node *func_type_node_default_new(
 struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_node,
     struct ast_node *else_node, struct source_location loc);
 struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc);
+struct ast_node *cast_node_new(struct ast_node *to_type_node, struct ast_node *expr, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *member_index_node_new(enum aggregate_type aggregate_type, struct ast_node *object, struct ast_node *index, struct source_location loc);
 struct ast_node *for_node_new(struct ast_node *var, struct ast_node *range, struct ast_node *body, struct source_location loc);
