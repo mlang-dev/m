@@ -36,12 +36,22 @@
 			<div style="display: inline-block; width: 350px;"><textarea style="min-height: 240px; min-width: 300px; font-size:small;" id='console' readonly></textarea></div>
 		</div>
 		<script>
-	var codeInput = document.getElementById("code");
-	if (codeInput.addEventListener) {
-		codeInput.addEventListener('keydown', this.keyHandler, false);
-	} else if (codeInput.attachEvent) {
-		codeInput.attachEvent('onkeydown', this.keyHandler); /* damn IE hack */
-	}
+			var codeInput = document.getElementById("code");
+			codeInput.addEventListener('keydown', function(e) {
+			if (e.key == 'Tab') {
+				e.preventDefault();
+				var start = this.selectionStart;
+				var end = this.selectionEnd;
+
+				// set textarea value to: text before caret + tab + text after caret
+				this.value = this.value.substring(0, start) +
+				"\t" + this.value.substring(end);
+
+				// put caret at right position again
+				this.selectionStart =
+				this.selectionEnd = start + 1;
+			}
+			});
 	var code_text = 
 `print "plot a mandelbrot set\\n"
 
@@ -68,27 +78,18 @@ for x in 0..300
 
 setImageData a 300 200
 `;
-	codeInput.value = code_text;
-	function keyHandler(e) {
-		var TABKEY = 9;
-		if (e.keyCode == TABKEY) {
-			this.value += "\t";
-			if (e.preventDefault) {
-				e.preventDefault();
+			codeInput.value = code_text;
+					
+			function set_image_data(data, width, height)
+			{
+				let canvas = document.getElementById('canvas');
+				let ctx = canvas.getContext('2d');
+				canvas.width = width;
+				canvas.height = height;
+				let imageData = ctx.createImageData(width, height);
+				imageData.data.set(data);
+				ctx.putImageData(imageData, 0, 0);
 			}
-			return false;
-		}
-	}					
-	function set_image_data(data, width, height)
-	{
-		let canvas = document.getElementById('canvas');
-		let ctx = canvas.getContext('2d');
-		canvas.width = width;
-		canvas.height = height;
-		let imageData = ctx.createImageData(width, height);
-		imageData.data.set(data);
-		ctx.putImageData(imageData, 0, 0);
-	}
 
 			var instance = null;
 			mw(new wasi(), '/mw.wasm', print, true, set_image_data).then(
