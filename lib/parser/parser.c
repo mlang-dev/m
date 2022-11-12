@@ -132,7 +132,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
 {
     enum op_code opcode;
     struct ast_node *ast = 0;
-    struct ast_node *node2 = 0;
     struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
     bool is_variadic = false;
@@ -212,14 +211,14 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     case RANGE_NODE:
     {
         struct ast_node *start = items[rule->action.item_index[0]].ast; //start
+        struct ast_node *step = 0;
         if(rule->action.item_index_count == 3){
-            node2 = items[rule->action.item_index[1]].ast; //step
+            step = items[rule->action.item_index[1]].ast; //step
             node3 = items[rule->action.item_index[2]].ast; // end
         } else {
-            node2 = 0;
             node3 = items[rule->action.item_index[1]].ast; // end
         }
-        ast = range_node_new(start, node3, node2, start->loc);
+        ast = range_node_new(start, node3, step, start->loc);
         break;
     }
     case FOR_NODE:
@@ -227,9 +226,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *var = items[rule->action.item_index[0]].ast;
         assert(var->node_type == VAR_NODE);
         struct ast_node *range = items[rule->action.item_index[1]].ast;
-        node2 = items[rule->action.item_index[2]].ast; //body
+        struct ast_node *body = items[rule->action.item_index[2]].ast; 
         range->range->end = binary_node_new(OP_LT, ident_node_new(var->var->var_name, var->loc), range->range->end, range->range->end->loc);
-        ast = for_node_new(var, range, node2, var->loc);
+        ast = for_node_new(var, range, body, var->loc);
         break;
     }
     case WHILE_NODE:
@@ -285,8 +284,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *parameters = items[rule->action.item_index[2]].ast; // parameters
         assert(parameters->node_type == BLOCK_NODE);
         if (array_size(&parameters->block->nodes)) {
-            node2 = *(struct ast_node **)array_back(&parameters->block->nodes);
-            if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)) {
+            struct ast_node *last_param = *(struct ast_node **)array_back(&parameters->block->nodes);
+            if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
                 is_variadic = true;
                 array_pop(&parameters->block->nodes);
             }
@@ -302,8 +301,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *parameters = items[rule->action.item_index[1]].ast; //parameters
         assert(parameters->node_type == BLOCK_NODE);
         if (array_size(&parameters->block->nodes)) {
-            node2 = *(struct ast_node **)array_back(&parameters->block->nodes);
-            if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)) {
+            struct ast_node *last_param = *(struct ast_node **)array_back(&parameters->block->nodes);
+            if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
                 is_variadic = true;
                 array_pop(&parameters->block->nodes);
             }
