@@ -137,3 +137,9 @@ mtest.mtest('dec op', 'dec assignment operator',
 x = 1000
 --x
 x`, 999, false);
+
+mtest.mtest('ternary op', 'conditional ternary operator', 
+`
+x = 1000
+x ? 10: 100
+`, 10, false);
