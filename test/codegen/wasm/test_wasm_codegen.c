@@ -28,7 +28,7 @@ TEST(test_wasm_codegen, parse_as_module)
 // ";
     char test_code[] = "\n\
 x = 1000\n\
-(f64)x * 2.0\n\
+x++\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);
