@@ -132,7 +132,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
 {
     enum op_code opcode;
     struct ast_node *ast = 0;
-    struct ast_node *node1 = 0;
     struct ast_node *node2 = 0;
     struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
@@ -156,17 +155,18 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     case IMPORT_NODE:
     {
         struct ast_node *module = items[rule->action.item_index[0]].ast;
-        node1 = items[rule->action.item_index[1]].ast;
-        ast = import_node_new(module->ident->name, node1, module->loc);
+        struct ast_node *object = items[rule->action.item_index[1]].ast;
+        ast = import_node_new(module->ident->name, object, module->loc);
         break;
     }
     case MEMORY_NODE:
     {
         struct ast_node *initial = items[rule->action.item_index[0]].ast;
+        struct ast_node *max = 0;
         if (rule->action.item_index_count==2){
-            node1 = items[rule->action.item_index[1]].ast;
+            max = items[rule->action.item_index[1]].ast;
         }
-        ast = memory_node_new(initial, node1, initial->loc);
+        ast = memory_node_new(initial, max, initial->loc);
         break;
     }
     case UNARY_NODE:
@@ -189,30 +189,29 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     case VAR_NODE:
     {
         struct ast_node *var = items[rule->action.item_index[1]].ast;
+        struct ast_node *type_name = 0;
+        struct ast_node *init_value = 0;
         assert(var->node_type == IDENT_NODE);
         if (rule->action.item_index[0]) {
-            node1 = items[rule->action.item_index[2]].ast;
             if (rule->action.item_index_count == 4) {
                 //has type and has init value
-                assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE||node1->node_type == ARRAY_TYPE_NODE);
-                node2 = items[rule->action.item_index[3]].ast;
-                ast = var_node_new(var->ident->name, node1, node2, false, var->loc);
+                type_name = items[rule->action.item_index[2]].ast;
+                assert(type_name->node_type == IDENT_NODE||type_name->node_type == UNARY_NODE||type_name->node_type == ARRAY_TYPE_NODE);
+                init_value = items[rule->action.item_index[3]].ast;
             } else { // has no type info, has init value
-                ast = var_node_new(var->ident->name, 0, node1, false, var->loc);
+                init_value = items[rule->action.item_index[2]].ast;
             }
         } else if (rule->action.item_index_count > 2) {
             //just has ID and type
-            node1 = items[rule->action.item_index[2]].ast;
-            assert(node1->node_type == IDENT_NODE||node1->node_type == UNARY_NODE||node1->node_type == ARRAY_TYPE_NODE);
-            ast = var_node_new(var->ident->name, node1, 0, false, var->loc);
-        } else {
-            //just ID
-            ast = var_node_new(var->ident->name, 0, 0, false, var->loc);
+            type_name = items[rule->action.item_index[2]].ast;
         }
+        assert(!type_name || type_name->node_type == IDENT_NODE||type_name->node_type == UNARY_NODE||type_name->node_type == ARRAY_TYPE_NODE);
+        ast = var_node_new(var->ident->name, type_name, init_value, false, var->loc);
         break;
     }
     case RANGE_NODE:
-        node1 = items[rule->action.item_index[0]].ast; //start
+    {
+        struct ast_node *start = items[rule->action.item_index[0]].ast; //start
         if(rule->action.item_index_count == 3){
             node2 = items[rule->action.item_index[1]].ast; //step
             node3 = items[rule->action.item_index[2]].ast; // end
@@ -220,16 +219,17 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node2 = 0;
             node3 = items[rule->action.item_index[1]].ast; // end
         }
-        ast = range_node_new(node1, node3, node2, node1->loc);
+        ast = range_node_new(start, node3, node2, start->loc);
         break;
+    }
     case FOR_NODE:
     {
         struct ast_node *var = items[rule->action.item_index[0]].ast;
         assert(var->node_type == VAR_NODE);
-        node1 = items[rule->action.item_index[1]].ast; //range
+        struct ast_node *range = items[rule->action.item_index[1]].ast;
         node2 = items[rule->action.item_index[2]].ast; //body
-        node1->range->end = binary_node_new(OP_LT, ident_node_new(var->var->var_name, var->loc), node1->range->end, node1->range->end->loc);
-        ast = for_node_new(var, node1, node2, var->loc);
+        range->range->end = binary_node_new(OP_LT, ident_node_new(var->var->var_name, var->loc), range->range->end, range->range->end->loc);
+        ast = for_node_new(var, range, node2, var->loc);
         break;
     }
     case WHILE_NODE:
@@ -252,11 +252,12 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     case IF_NODE:
     {
         struct ast_node *cond = items[rule->action.item_index[0]].ast;
-        node1 = items[rule->action.item_index[1]].ast;
+        struct ast_node *then_expr = items[rule->action.item_index[1]].ast;
+        struct ast_node *else_expr = 0;
         if (rule->action.item_index_count == 3){
-            node2 = items[rule->action.item_index[2]].ast;
+            else_expr = items[rule->action.item_index[2]].ast;
         }
-        ast = if_node_new(cond, node1, node2, cond->loc);
+        ast = if_node_new(cond, then_expr, else_expr, cond->loc);
         break;
     }
     case BINARY_NODE:
@@ -264,8 +265,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *op = items[rule->action.item_index[1]].ast;
         opcode = op->node_type & 0xFFFF;
         struct ast_node *lhs = items[rule->action.item_index[0]].ast;
-        node1 = items[rule->action.item_index[2]].ast;
-        ast = binary_node_new(opcode, lhs, node1, lhs->loc);
+        struct ast_node *rhs = items[rule->action.item_index[2]].ast;
+        ast = binary_node_new(opcode, lhs, rhs, lhs->loc);
         break;
     }
     case MEMBER_INDEX_NODE:
@@ -281,30 +282,30 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(rule->action.item_index_count == 3);
         struct ast_node *ft_name = items[rule->action.item_index[0]].ast; //fun name
         assert(ft_name->node_type == IDENT_NODE);
-        node1 = items[rule->action.item_index[2]].ast; // parameters
-        assert(node1->node_type == BLOCK_NODE);
-        if (array_size(&node1->block->nodes)) {
-            node2 = *(struct ast_node **)array_back(&node1->block->nodes);
+        struct ast_node *parameters = items[rule->action.item_index[2]].ast; // parameters
+        assert(parameters->node_type == BLOCK_NODE);
+        if (array_size(&parameters->block->nodes)) {
+            node2 = *(struct ast_node **)array_back(&parameters->block->nodes);
             if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)) {
                 is_variadic = true;
-                array_pop(&node1->block->nodes);
+                array_pop(&parameters->block->nodes);
             }
         }
         node3 = items[rule->action.item_index[1]].ast; //return type name
-        ast = func_type_node_default_new(ft_name->ident->name, node1, 0, node3, is_variadic, true, ft_name->loc);
+        ast = func_type_node_default_new(ft_name->ident->name, parameters, 0, node3, is_variadic, true, ft_name->loc);
         break;
     }
     case FUNC_NODE:
     {
         struct ast_node *func_name = items[rule->action.item_index[0]].ast; //fun name
         assert(func_name->node_type == IDENT_NODE);
-        node1 = items[rule->action.item_index[1]].ast; //parameters
-        assert(node1->node_type == BLOCK_NODE);
-        if (array_size(&node1->block->nodes)) {
-            node2 = *(struct ast_node **)array_back(&node1->block->nodes);
+        struct ast_node *parameters = items[rule->action.item_index[1]].ast; //parameters
+        assert(parameters->node_type == BLOCK_NODE);
+        if (array_size(&parameters->block->nodes)) {
+            node2 = *(struct ast_node **)array_back(&parameters->block->nodes);
             if (node2->node_type > TOTAL_NODE && (node2->node_type >> 16 == TOKEN_VARIADIC)) {
                 is_variadic = true;
-                array_pop(&node1->block->nodes);
+                array_pop(&parameters->block->nodes);
             }
         }
         node3 = items[rule->action.item_index[2]].ast;
@@ -316,7 +317,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             //has return type
             node4 = items[rule->action.item_index[3]].ast;
         }
-        struct ast_node *ft = func_type_node_default_new(func_name->ident->name, node1, 0, node4, is_variadic, false, func_name->loc);
+        struct ast_node *ft = func_type_node_default_new(func_name->ident->name, parameters, 0, node4, is_variadic, false, func_name->loc);
         ast = function_node_new(ft, node3, func_name->loc);
         hashtable_set_int(symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
         break;
@@ -326,9 +327,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(rule->action.item_index_count == 2);
         struct ast_node *callee_name = items[rule->action.item_index[0]].ast;
         assert(callee_name->node_type == IDENT_NODE);
-        node1 = items[rule->action.item_index[1]].ast;
-        assert(node1->node_type == BLOCK_NODE);
-        ast = call_node_new(callee_name->ident->name, node1, callee_name->loc);
+        struct ast_node *arguments = items[rule->action.item_index[1]].ast;
+        assert(arguments->node_type == BLOCK_NODE);
+        ast = call_node_new(callee_name->ident->name, arguments, callee_name->loc);
         break;
     }
     case UNION_NODE:
@@ -338,11 +339,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(rule->action.item_index_count == 2);
         struct ast_node *struct_name = items[rule->action.item_index[0]].ast;
         assert(struct_name->node_type == IDENT_NODE);
-        node1 = items[rule->action.item_index[1]].ast;
-        if(node1->node_type != BLOCK_NODE){
-            node1 = _wrap_as_block_node(node1);
+        struct ast_node *struct_body = items[rule->action.item_index[1]].ast;
+        if(struct_body->node_type != BLOCK_NODE){
+            struct_body = _wrap_as_block_node(struct_body);
         }
-        ast = struct_node_new(struct_name->ident->name, node1, struct_name->loc);
+        ast = struct_node_new(struct_name->ident->name, struct_body, struct_name->loc);
         hashtable_set_int(symbol_2_int_types, struct_name->ident->name, TYPE_STRUCT);
         break;
     }
@@ -351,9 +352,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(rule->action.item_index_count == 2);
         struct ast_node *struct_name = items[rule->action.item_index[0]].ast;
         assert(struct_name->node_type == IDENT_NODE);
-        node1 = items[rule->action.item_index[1]].ast;
-        assert(node1->node_type == BLOCK_NODE);
-        ast = struct_init_node_new(node1, struct_name, struct_name->loc);
+        struct ast_node *init_body = items[rule->action.item_index[1]].ast;
+        assert(init_body->node_type == BLOCK_NODE);
+        ast = struct_init_node_new(init_body, struct_name, struct_name->loc);
         break;
     }
     case ARRAY_INIT_NODE:
@@ -368,8 +369,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     case ARRAY_TYPE_NODE:
     {
         struct ast_node *elm_type_name = items[rule->action.item_index[0]].ast;
-        node1 = items[rule->action.item_index[1]].ast;
-        ast = array_type_node_new(elm_type_name, node1, elm_type_name->loc);
+        struct ast_node *dims = items[rule->action.item_index[1]].ast;
+        ast = array_type_node_new(elm_type_name, dims, elm_type_name->loc);
         break;
     }
     case BLOCK_NODE:
