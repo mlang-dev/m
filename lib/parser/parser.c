@@ -130,9 +130,7 @@ struct ast_node *_wrap_as_block_node(struct ast_node *node)
 
 struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct parse_rule *rule, struct stack_item *items)
 {
-    enum op_code opcode;
     struct ast_node *ast = 0;
-    struct ast_node *node4 = 0;
     bool is_variadic = false;
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
@@ -171,7 +169,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     {        
         assert(rule->action.item_index_count==2);
         struct ast_node *op = items[rule->action.item_index[0]].ast;
-        opcode = op->node_type & 0xFFFF;
+        enum op_code opcode = op->node_type & 0xFFFF;
         struct ast_node *operand = items[rule->action.item_index[1]].ast;
         ast = unary_node_new(opcode, operand, rule->action.item_index[0] > rule->action.item_index[1], op->loc);
         break;
@@ -262,7 +260,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     case BINARY_NODE:
     {
         struct ast_node *op = items[rule->action.item_index[1]].ast;
-        opcode = op->node_type & 0xFFFF;
+        enum op_code opcode = op->node_type & 0xFFFF;
         struct ast_node *lhs = items[rule->action.item_index[0]].ast;
         struct ast_node *rhs = items[rule->action.item_index[2]].ast;
         ast = binary_node_new(opcode, lhs, rhs, lhs->loc);
@@ -312,11 +310,12 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             // convert to block node even it's a one line statement
             func_body = _wrap_as_block_node(func_body);
         }
+        struct ast_node *ret_type_node = 0;
         if (rule->action.item_index_count == 4){
             //has return type
-            node4 = items[rule->action.item_index[3]].ast;
+            ret_type_node = items[rule->action.item_index[3]].ast;
         }
-        struct ast_node *ft = func_type_node_default_new(func_name->ident->name, parameters, 0, node4, is_variadic, false, func_name->loc);
+        struct ast_node *ft = func_type_node_default_new(func_name->ident->name, parameters, 0, ret_type_node, is_variadic, false, func_name->loc);
         ast = function_node_new(ft, func_body, func_name->loc);
         hashtable_set_int(symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
         break;
