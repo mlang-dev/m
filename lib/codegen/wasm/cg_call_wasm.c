@@ -61,7 +61,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             //for aggregate type, put the reference(address) on the stack
             if(is_aggregate_type(arg->type)){                
                 vi = fc_get_var_info(fc, arg);
-                if(!is_refered_later(arg) || vi->var_index < fc->local_params){
+                if(!is_refered_later(arg) || vi->var_index < fc->local_params || arg->type->type == TYPE_ARRAY){
                     /*rvalue or is parameter, we don't need to make a copy*/
                     wasm_emit_get_var(ba, vi->var_index, false);
                 }else{

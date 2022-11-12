@@ -39,6 +39,7 @@ struct ast_node *ast_node_new(enum node_type node_type, struct source_location l
     node->data = 0;
     node->is_addressed = false;
     node->is_addressable = false;
+    node->transformed = 0;
     return node;
 }
 
@@ -47,6 +48,8 @@ void ast_node_free(struct ast_node *node)
     if(!node) return;
     if(node->data)
         FREE(node->data);
+    if(node->transformed)
+        FREE(node->transformed);
     FREE(node);
 }
 
@@ -77,7 +80,6 @@ struct ast_node *_copy_block_node(struct ast_node *orig_node)
     array_init(&nodes, sizeof(struct ast_node *));
     for (size_t i = 0; i < array_size(&orig_node->block->nodes); i++) {
         struct ast_node *node = node_copy(*(struct ast_node **)array_get(&orig_node->block->nodes, i));
-        // printf("block node copy: %s\n", node_type_strings[node->node_type]);
         array_push(&nodes, &node);
     }
     return block_node_new(&nodes);

@@ -439,22 +439,24 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
 
 struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node *node)
 {
-    if(!node->binop->lhs->is_addressable){
-        report_error(context, EC_NOT_ASSIGNABLE, node->loc);
-        return 0;
-    }
     set_lvalue(node->binop->lhs);
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
     if (unify(lhs_type, rhs_type, &context->nongens)) {
-        return create_unit_type();
+        result = create_unit_type();
     } else {
         if(is_int_type(lhs_type->type) && is_int_type(rhs_type->type)){
             node->binop->rhs->type = lhs_type;
         }else{
             report_error(context, EC_TYPES_DO_NOT_MATCH, node->loc);
         }
+    }
+    if(is_assign_op_sugar(node->binop->opcode)){
+        enum op_code binop = get_op_code_from_assign_op(node->binop->opcode);
+        struct ast_node *new_node = binary_node_new(binop, node->binop->lhs, node->binop->rhs, node->loc);
+        node->transformed = binary_node_new(OP_ASSIGN, node->binop->lhs, new_node, node->loc);
+        node->transformed->type = result;
     }
     return result;
 }
