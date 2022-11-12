@@ -174,6 +174,13 @@ struct ast_node {
     struct type_expr *type; // type inferred
     struct source_location loc;
 
+    /**
+     * @brief transformed is set when original ast is transformed into new either more basic (syntactic sugar) one
+     *  or do compile time function evaluation (constant folding) optimization.
+     * 
+     */
+    struct ast_node *transformed; 
+
     bool is_addressed;   //
     bool is_ret;        //this is expected to be removed from sema analysis
     bool is_lvalue;      //default is zero (read), for left side of assignment node, it will be set as 1

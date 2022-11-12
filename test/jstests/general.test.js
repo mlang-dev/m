@@ -107,3 +107,9 @@ mtest.mtest('cast variable', 'cast value',
 `
 x = 1000
 (f64)x * 2.0`, 2000.0, false);
+
+mtest.mtest('more assign op', 'more assignment operators', 
+`
+x = 1000
+x += 1
+x`, 1001, false);

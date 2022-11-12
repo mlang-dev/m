@@ -183,3 +183,53 @@ for i in 0..5
     n = n + i
 n
 `, 7); 
+
+mtest.mtest("mandelbrot set function", "various control block to show program structure",
+`
+a:u8[200][300 * 4]
+scale = 0.01
+for x in 0..300
+    for y in 0..200
+        cx = -2.0 + scale*(f64)x
+        cy = -1.0 + scale*(f64)y
+        zx = 0.0, zy = 0.0
+        zx2 = 0.0, zy2 = 0.0
+        for n in 0..255
+            if (zx2 + zy2) > 4.0 then
+                break
+            zy = 2.0 * zx * zy + cy
+            zx = zx2  - zy2 + cx
+            zx2 = zx * zx
+            zy2 = zy * zy
+        n = 255 - n
+        a[y][4*x] = n
+        a[y][4*x+1] = n
+        a[y][4*x+2] = n
+        a[y][4*x+3] = 255
+setImageData a 300 200
+`, undefined)
+
+mtest.mtest("mandelbrot set function using while loop", "inner loop using while block to show program structure",
+`
+a:u8[200][300 * 4]
+scale = 0.01
+for x in 0..300
+    for y in 0..200
+        cx = -2.0 + scale*(f64)x
+        cy = -1.0 + scale*(f64)y
+        zx = 0.0, zy = 0.0
+        zx2 = 0.0, zy2 = 0.0
+        n = 0
+        while n<255 && (zx2 + zy2) < 4.0
+            zy = 2.0 * zx * zy + cy
+            zx = zx2  - zy2 + cx
+            zx2 = zx * zx
+            zy2 = zy * zy
+            n = n + 1
+        n = 255 - n
+        a[y][4*x] = n
+        a[y][4*x+1] = n
+        a[y][4*x+2] = n
+        a[y][4*x+3] = 255
+setImageData a 300 200
+`, undefined)

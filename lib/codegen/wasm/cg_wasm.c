@@ -595,6 +595,17 @@ void _emit_assign_array_field(struct cg_wasm *cg, struct byte_array *ba, struct 
 
 void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
+    struct ast_node *lhs = node->binop->lhs;
+    struct fun_context *fc = cg_get_top_fun_context(cg);
+    
+    if(lhs->node_type == IDENT_NODE && !lhs->ident->var->is_addressed && !is_aggregate_type(lhs->type)){
+        //simple scalar version, no memory load/store op
+        struct var_info*vi = fc_get_var_info(fc, lhs);
+        wasm_emit_code(cg, ba, node->binop->rhs);
+        wasm_emit_set_var(ba, vi->var_index, false);
+        return;
+    }
+
     wasm_emit_code(cg, ba, node->binop->lhs); 
     if(node->binop->lhs->node_type == MEMBER_INDEX_NODE){
         if(node->binop->lhs->index->aggregate_type == AGGREGATE_TYPE_ARRAY){
@@ -603,10 +614,9 @@ void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
             _emit_assign_struct_field(cg, ba, node->binop->lhs, node->binop->rhs);
         }
     }else{
-        struct fun_context *fc = cg_get_top_fun_context(cg);
-        struct var_info*vi = fc_get_var_info(fc, node->binop->lhs);
-        u32 align = get_type_align(node->binop->lhs->type);
-        _emit_assign_value(cg, ba, vi->var_index, 0, align, node->binop->lhs->type, node->binop->rhs);
+        struct var_info*vi = fc_get_var_info(fc, lhs);
+        u32 align = get_type_align(lhs->type);
+        _emit_assign_value(cg, ba, vi->var_index, 0, align, lhs->type, node->binop->rhs);
     }
 }
 
@@ -833,6 +843,8 @@ void _emit_block(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
 
 void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
+    if (node->transformed)
+        node = node->transformed;
     switch(node->node_type){
         case FUNC_NODE:
             wasm_emit_func(cg, ba, node);

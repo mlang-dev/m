@@ -203,12 +203,37 @@ bool is_terminal(u16 symbol_index)
     return symbol_index < TERMINAL_COUNT;
 }
 
-bool is_assign(enum op_code opcode)
-{
-    return opcode >= OP_ASSIGN && opcode <= OP_OR_ASSN;
-}
-
 bool is_relational_op(enum op_code opcode)
 {
     return opcode >= OP_LT && opcode <= OP_NE;
+}
+
+enum op_code get_op_code_from_assign_op(enum op_code assign_op)
+{
+    switch (assign_op)
+    {
+    case OP_MUL_ASSN:
+        return OP_STAR;
+    case OP_DIV_ASSN:
+        return OP_DIVISION;
+    case OP_MOD_ASSN:
+        return OP_MODULUS;
+    case OP_ADD_ASSN:
+        return OP_PLUS;
+    case OP_SUB_ASSN:
+        return OP_MINUS;
+    case OP_LEFT_ASSN:
+        return OP_BSL;
+    case OP_RIGHT_ASSN:
+        return OP_RIGHT_ASSN;
+    case OP_AND_ASSN:
+        return OP_BAND;
+    case OP_XOR_ASSN:
+        return OP_BITEXOR;
+    case OP_OR_ASSN:
+        return OP_BITOR;
+    default:
+        assert(false);
+        return OP_NULL;
+    }
 }
