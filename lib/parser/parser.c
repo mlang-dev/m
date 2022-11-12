@@ -132,7 +132,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
 {
     enum op_code opcode;
     struct ast_node *ast = 0;
-    struct ast_node *node3 = 0;
     struct ast_node *node4 = 0;
     bool is_variadic = false;
     if (!rule->action.node_type){
@@ -212,13 +211,14 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     {
         struct ast_node *start = items[rule->action.item_index[0]].ast; //start
         struct ast_node *step = 0;
+        struct ast_node *end;
         if(rule->action.item_index_count == 3){
             step = items[rule->action.item_index[1]].ast; //step
-            node3 = items[rule->action.item_index[2]].ast; // end
+            end = items[rule->action.item_index[2]].ast; // end
         } else {
-            node3 = items[rule->action.item_index[1]].ast; // end
+            end = items[rule->action.item_index[1]].ast; // end
         }
-        ast = range_node_new(start, node3, step, start->loc);
+        ast = range_node_new(start, end, step, start->loc);
         break;
     }
     case FOR_NODE:
@@ -290,8 +290,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 array_pop(&parameters->block->nodes);
             }
         }
-        node3 = items[rule->action.item_index[1]].ast; //return type name
-        ast = func_type_node_default_new(ft_name->ident->name, parameters, 0, node3, is_variadic, true, ft_name->loc);
+        struct ast_node *ret_type_name = items[rule->action.item_index[1]].ast; //return type name
+        ast = func_type_node_default_new(ft_name->ident->name, parameters, 0, ret_type_name, is_variadic, true, ft_name->loc);
         break;
     }
     case FUNC_NODE:
@@ -307,17 +307,17 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 array_pop(&parameters->block->nodes);
             }
         }
-        node3 = items[rule->action.item_index[2]].ast;
-        if (node3->node_type != BLOCK_NODE) {
+        struct ast_node *func_body = items[rule->action.item_index[2]].ast;
+        if (func_body->node_type != BLOCK_NODE) {
             // convert to block node even it's a one line statement
-            node3 = _wrap_as_block_node(node3);
+            func_body = _wrap_as_block_node(func_body);
         }
         if (rule->action.item_index_count == 4){
             //has return type
             node4 = items[rule->action.item_index[3]].ast;
         }
         struct ast_node *ft = func_type_node_default_new(func_name->ident->name, parameters, 0, node4, is_variadic, false, func_name->loc);
-        ast = function_node_new(ft, node3, func_name->loc);
+        ast = function_node_new(ft, func_body, func_name->loc);
         hashtable_set_int(symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
         break;
     }
