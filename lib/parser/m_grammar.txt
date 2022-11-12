@@ -82,7 +82,7 @@ logic_or_expr   = logic_and_expr
                 | logic_or_expr "||" logic_and_expr                                         { binop 0 1 2 }
 
 cond_expr       = logic_or_expr
-                | logic_or_expr '?' expr ':' cond_expr
+                | logic_or_expr '?' expr ':' cond_expr                                      { if_cond 0 2 4 }
 
 const_expr      = cond_expr
 
