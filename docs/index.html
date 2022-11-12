@@ -51,7 +51,8 @@ for x in 0..300
     for y in 0..200
         cx = -2.0 + scale*(f64)x
         cy = -1.0 + scale*(f64)y
-        zx = 0.0, zy = 0.0, zx2 = 0.0, zy2 = 0.0
+        zx = 0.0, zy = 0.0
+        zx2 = 0.0, zy2 = 0.0
         n = 0
         while n<255 && (zx2 + zy2) < 4.0
             zy = 2.0 * zx * zy + cy
