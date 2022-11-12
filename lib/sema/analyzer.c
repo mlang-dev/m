@@ -369,6 +369,11 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
         }
         op_type = node->unop->operand->type->val_type;
     }
+    else if(node->unop->opcode == OP_INC || node->unop->opcode == OP_DEC){
+        struct ast_node *new_node = binary_node_new(node->unop->opcode == OP_INC ? OP_PLUS : OP_MINUS, node->unop->operand, int_node_new(1, node->loc), node->loc);
+        node->transformed = binary_node_new(OP_ASSIGN, node->unop->operand, new_node, node->loc);
+        node->transformed->type = op_type;
+    }
     return op_type;
 }
 
