@@ -704,7 +704,8 @@ void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *no
 {
     wasm_emit_code(cg, ba, node->binop->lhs); 
     wasm_emit_code(cg, ba, node->binop->rhs); 
-    enum type type_index = prune(node->binop->lhs->type)->type;
+    struct type_expr *lhs_type = node->binop->lhs->transformed ? node->binop->lhs->transformed->type : node->binop->lhs->type;
+    enum type type_index = prune(lhs_type)->type;
     assert(type_index >= 0 && type_index < TYPE_TYPES);
     assert(node->binop->opcode >= 0 && node->binop->opcode < OP_TOTAL);
     //if left side is aggregate type, then it is to store the right value to the left address
