@@ -4,9 +4,12 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_VERBOSE_MAKEFILE ON)
+set(HAVE_FLAG_SEARCH_PATHS_FIRST 0)
 
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
+
+set(CMAKE_C_LINK_FLAGS "")
 
 if(WASM)
 
@@ -36,7 +39,7 @@ if (MSVC)
     # add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else()
     # lots of warnings and all warnings as errors
-    add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-unused-parameter 
+    add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-unused-parameter # -Wno-error=unused-command-line-argument
     -Wno-missing-braces -Wno-enum-conversion -g)
 endif()
 
