@@ -718,12 +718,13 @@ LLVMValueRef _emit_unk_node(struct cg_llvm *cg, struct ast_node *node)
 {
     if (!cg || !node)
         return 0;
-
     return 0;
 }
 
 LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
 {
+    if(node->transformed) 
+        node = node->transformed;
     LLVMValueRef value = 0;
     switch(node->node_type){
         case TOTAL_NODE:
