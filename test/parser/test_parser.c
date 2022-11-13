@@ -194,7 +194,7 @@ TEST(test_parser, distance_function)
 let distance x1 y1 x2 y2 = \n\
   xx = (x1-x2) * (x1-x2) \n\
   yy = (y1-y2) * (y1-y2) \n\
-  sqrt (xx + yy)";
+  |/ (xx + yy)";
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);

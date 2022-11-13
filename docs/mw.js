@@ -88,19 +88,7 @@ function mw(wasi_env, module_name, print_func, remote_file, set_image_data) {
 					setImageData: setImageData
 				},
 				math:{
-					acos: instance.exports.acos,
-					asin: instance.exports.asin,
-					atan: instance.exports.atan,
-					atan2: instance.exports.atan2,
-					cos: instance.exports.cos,
-					sin: instance.exports.sin,
-					sinh: instance.exports.sinh,
-					tanh: instance.exports.tanh,
-					exp: instance.exports.exp,
-					log: instance.exports.log,
-					log10: instance.exports.log10,
 					pow: instance.exports.pow,
-					sqrt: instance.exports.sqrt
 				}
 			});
 		code_memory_as_array = new Uint8Array(code_instance.exports.memory.buffer);

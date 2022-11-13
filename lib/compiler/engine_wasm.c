@@ -16,19 +16,7 @@ from sys import __memory_base:int\n\
 from sys import fun print fmt:string ... -> ()\n\
 from sys import fun putchar ch:int -> ()\n\
 from sys import fun setImageData data:u32 width:u32 height:u32 -> ()\n\
-from math import fun acos x:f64 -> f64\n\
-from math import fun asin x:f64 -> f64\n\
-from math import fun atan x:f64 -> f64\n\
-from math import fun atan2 y:f64 x:f64 -> f64\n\
-from math import fun cos x:f64 -> f64\n\
-from math import fun sin x:f64 -> f64\n\
-from math import fun sinh x:f64 -> f64\n\
-from math import fun tanh x:f64 -> f64\n\
-from math import fun exp x:f64 -> f64\n\
-from math import fun log x:f64 -> f64\n\
-from math import fun log10 x:f64 -> f64\n\
 from math import fun pow x:f64 y:f64 -> f64\n\
-from math import fun sqrt x:f64 -> f64\n\
 ";
 
 const char *g_sys = "\n\

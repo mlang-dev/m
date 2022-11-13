@@ -335,6 +335,7 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
         hashtable_set_p(&context->calls, node->call->callee, node);
         node->call->callee_func_type = hashtable_get_p(&context->func_types, node->call->callee);
     }
+    
     return result_type;
 }
 

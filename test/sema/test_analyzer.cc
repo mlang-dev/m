@@ -351,10 +351,10 @@ TEST(testAnalyzer, testLocalVariableFunc)
 {
     char test_code[] = R"(
 # using for loop
-let distance x1 y1 x2 y2 = 
+let distance x1:f64 y1:f64 x2 y2 = 
   xx = (x1-x2) * (x1-x2)
   yy = (y1-y2) * (y1-y2)
-  sqrt (xx + yy)
+  |/ (xx + yy)
 )";
     reset_id_name("a");
     struct engine *engine = engine_llvm_new(false);

@@ -27,7 +27,7 @@ if(WASM)
     -Xlinker --initial-memory=8388608  #set initial memory to 8MB
     -v
   )
-  
+
   message(STATUS "copy ${CMAKE_CURRENT_BINARY_DIR}/wm.wasm ${CMAKE_SOURCE_DIR}/docs")
   add_custom_command(TARGET mw POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mw.wasm ${CMAKE_SOURCE_DIR}/docs

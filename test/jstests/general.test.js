@@ -64,7 +64,7 @@ mtest.mtest('use variable', 'use variable',
 x = 1000
 x * 2`, 2000, false);
 
-mtest.mtest('math.sqrt', `This expression is to call C's sqrt function`, "sqrt 4.0", 2.0);
+mtest.mtest('math.sqrt', `sqrt operator`, "|/4.0", 2.0, false);
 
 mtest.mtest('function definition', 
 `Use keyword "let" to define a function. 
@@ -103,11 +103,6 @@ new_z = change old_z
 print "old_z.x: %.2f, new_z.x: %.2f" (old_z.x) (new_z.x)
 `, "old_z.x: 10.00, new_z.x: 100.00");
 
-mtest.mtest('cast variable', 'cast value', 
-`
-x = 1000
-(f64)x * 2.0`, 2000.0, false);
-
 mtest.mtest('more assign op', 'more assignment operators', 
 `
 x = 1000
@@ -143,3 +138,4 @@ mtest.mtest('ternary op', 'conditional ternary operator',
 x = 1000
 x ? 10: 100
 `, 10, false);
+

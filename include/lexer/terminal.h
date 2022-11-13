@@ -84,7 +84,7 @@ enum op_code {
     OP_DOT, 
     OP_OR, //'||'
     OP_AND, //'&&'
-    OP_NOT,
+    OP_NOT, // !
 
     OP_BITNOT, // '~'
     OP_BITOR, //'|'
@@ -93,6 +93,7 @@ enum op_code {
     OP_BSL, //<< shift left
     OP_BSR, //>> shift right
 
+    OP_SQRT, //|/
     OP_POW,
     OP_STAR, //used as multiplication operator or dereference operator
     OP_DIVISION,
