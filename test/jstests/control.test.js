@@ -1,17 +1,28 @@
+/**
+ * M supports the following control flow statements if then/else, for loop and while loop. The ternary operator
+ * ? is also suported for brevity of if-else expression.
+ */
+
 const mtest = require('./mtest.js');
 
-mtest.mtest('if 1 statement', 'if 1 statement', "if 1 then 100 else 10", 100);
+mtest.mtest('if 1 statement', 'if 1 statement', "if 1 then 100 else 10", 100, false);
 
 
-mtest.mtest('if 3 statement', 'if any non-zero statement is true', "if 3 then 100 else 10", 100);
+mtest.mtest('if 3 statement', 'if any non-zero statement is true', "if 3 then 100 else 10", 100, false);
 
-mtest.mtest('if true statement', 'use true literal', "if true then 100 else 10", 100);
+mtest.mtest('if true statement', 'use true literal', "if true then 100 else 10", 100, false);
 
 mtest.mtest('use bool variable', 'use bool variable', 
 `
 x = 10
 if x then 100 else 10
 `, 100);
+
+mtest.mtest('ternary operator', 'use ternary operator', 
+`
+x = 10
+x ? 1 : 0
+`, 1);
 
 
 mtest.mtest('if 0 statement', 'if 0 statement', 'if 0 then 100 else 10', 10); 
@@ -207,7 +218,7 @@ for x in 0..300
         a[y][4*x+2] = n
         a[y][4*x+3] = 255
 setImageData a 300 200
-`, undefined)
+`, undefined, false)
 
 mtest.mtest("mandelbrot set function using while loop", "inner loop using while block to show program structure",
 `
@@ -232,4 +243,4 @@ for x in 0..300
         a[y][4*x+2] = n
         a[y][4*x+3] = 255
 setImageData a 300 200
-`, undefined)
+`, undefined, false)

@@ -1,3 +1,6 @@
+/**
+ * relational operators
+ */
 const mtest = require('./mtest.js');
 
 mtest.mtest('less than', '10 < 20 is evaluated as true (1).', "10 < 20", 1);

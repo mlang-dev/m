@@ -1,5 +1,10 @@
-const mtest = require('./mtest.js');
+/**
+ * Reference type is like pointer in c. The difference is the reference type is not allow to do arithmetic operation. 
+ * You can only use reference type to refer to the other object or pass the reference to functions.
+ */
 
+
+const mtest = require('./mtest.js');
 
 mtest.mtest('int ref use stack memory', 'int ref use stack memory', 
 `

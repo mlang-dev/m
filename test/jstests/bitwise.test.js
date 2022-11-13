@@ -1,3 +1,6 @@
+/**
+ * bitwise operators
+ */
 const mtest = require('./mtest.js');
 
 mtest.mtest('bitwise not zero', 'bitwise not 0', "~0", -1);

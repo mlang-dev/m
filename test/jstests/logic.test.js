@@ -1,3 +1,6 @@
+/**
+ * logic operators
+ */
 const mtest = require('./mtest.js');
 
 mtest.mtest('true', 'true is evaluated as integer 1.', "true", 1);

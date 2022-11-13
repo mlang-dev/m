@@ -1,9 +1,11 @@
 [![CMake m](https://github.com/ligangwang/m/actions/workflows/cmake-app.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-app.yml) [![CMake m WASM](https://github.com/ligangwang/m/actions/workflows/cmake-wasm.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-wasm.yml)
 
 # m (mlang)
-mlang is a succinct & expressive general purpose programming language for WebAssembly development. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction. It's a static-typed language with type inference, which means most of time types of variables are not required to be annotated. 
+mlang is a succinct & expressive general purpose programming language for WebAssembly. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction. It's a static-typed language with type inference, which means most of time types of variables are not required to be annotated. 
 
-The mlang is implemented in C without third party library dependency other than C standard libraries. The mlang can be compiled as a WebAssembly module so that the compiler itself can be run in the browser or other wasm runtime like nodejs and wastime etc. MacOS or Linux or WSL is the recommended development OS environement.
+The mlang is implemented in C without third party library dependency other than C standard libraries. The mlang compiler is compiled as a WebAssembly module so it can be run in the browser or other wasm runtime like nodejs and wastime etc. It can compile m codes into another wasm module and run it in the same environement. 
+
+MacOS or Linux or WSL is the recommended development OS.
 
 You can try [mlang](https://mlang.dev) in the browser.
 
