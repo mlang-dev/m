@@ -42,6 +42,8 @@ const char *const _type_strings[TYPE_TYPES] = {
     "ref",
 };
 
+#define IS_TYPE_CONVERTIBLE(type)  (type > TYPE_UNIT && type < TYPE_STRING)
+
 struct symbol_ref_pair{
     symbol type_symbol; 
     symbol ref_type_symbol;
@@ -371,14 +373,14 @@ bool _is_valid_args_size(struct array *args1, struct array *args2)
     return array_size(args1) == array_size(args2);
 }
 
-bool unify(struct type_expr *type1, struct type_expr *type2, struct array *nongens)
+struct type_expr *unify(struct type_expr *type1, struct type_expr *type2, struct array *nongens)
 {
     type1 = prune(type1);
     type2 = prune(type2);
     assert(type1 && type2);
     /*type1 and type2 are the same one*/
     if (type1 == type2)
-        return true;
+        return type1;
     if (type2->kind == KIND_VAR){
         if (type1->kind != KIND_VAR){
             return unify(type2, type1, nongens);
@@ -396,8 +398,9 @@ bool unify(struct type_expr *type1, struct type_expr *type2, struct array *nonge
         type1->instance = type2;
     } else {
         /*type1 is known type: KIND_OPER*/
-        if (type1->val_type != type2->val_type || type1->type != type2->type || !_is_valid_args_size(&type1->args, &type2->args))
-            return false;
+        if (!_is_valid_args_size(&type1->args, &type2->args)) return 0;
+        if ((type1->val_type != type2->val_type || type1->type != type2->type) && (!IS_TYPE_CONVERTIBLE(type1->type) || !IS_TYPE_CONVERTIBLE(type2->type)))
+            return 0;
         size_t arg_size1 = array_size(&type1->args);
         size_t arg_size2 = array_size(&type2->args);
         size_t arg_size = MIN(arg_size1, arg_size2);
@@ -406,7 +409,7 @@ bool unify(struct type_expr *type1, struct type_expr *type2, struct array *nonge
                 *(struct type_expr **)array_get(&type2->args, i == arg_size - 1 ? arg_size2 - 1 : i), nongens);
         }
     }
-    return true;
+    return type1->type >= type2->type ? type1 : type2;
 }
 
 bool _is_generic(struct type_expr *var, struct array *nongens)

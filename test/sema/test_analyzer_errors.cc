@@ -43,8 +43,6 @@ TEST(testAnalyzerError, testRemError)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     emit_code(cg, (ast_node *)block);
-    struct error_report *er = get_last_error_report(cg->base.sema_context);
-    ASSERT_STREQ("types do not match.", er->error_msg);
     ast_node_free(block);
     engine_free(engine);
 }

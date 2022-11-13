@@ -172,6 +172,19 @@ struct ast_node *_create_literal_node(void *val, enum type type, struct source_l
     node->type = create_nullary_type(type, get_type_symbol(type));
     node->liter->type = type;
     switch (type){ 
+        case TYPE_INT:
+        case TYPE_CHAR:
+        case TYPE_BOOL:
+        case TYPE_I8:
+        case TYPE_I16:
+        case TYPE_I32:
+        case TYPE_I64:
+        case TYPE_U8:
+        case TYPE_U16:
+        case TYPE_U32:
+        case TYPE_U64:
+            node->liter->int_val = *(int*)val;
+            break;
         case TYPE_F32:
         case TYPE_F64:
             node->liter->double_val = *(f64 *)val;

@@ -120,10 +120,10 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
         ti.width_bits = 0;
         ti.align_bits = 8;
         break;
+    case TYPE_BOOL:
+    case TYPE_CHAR:
     case TYPE_I8:
     case TYPE_U8:
-    case TYPE_CHAR:
-    case TYPE_BOOL:
         ti.width_bits = 8;
         ti.align_bits = 8;
         break;

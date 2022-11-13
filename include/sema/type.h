@@ -86,7 +86,7 @@ void type_exp_free(struct type_expr *type);
 bool occurs_in_type(struct type_expr *var, struct type_expr *type2);
 struct type_expr *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
 void push_symbol_type(symboltable *st, symbol name, void *type);
-bool unify(struct type_expr *type1, struct type_expr *type2, struct array *nongens);
+struct type_expr *unify(struct type_expr *type1, struct type_expr *type2, struct array *nongens);
 string to_string(struct type_expr *type);
 enum type get_type(struct type_expr *type);
 struct type_expr *prune(struct type_expr *type);

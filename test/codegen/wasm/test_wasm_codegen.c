@@ -27,8 +27,8 @@ TEST(test_wasm_codegen, parse_as_module)
 // pick a\n\
 // ";
     char test_code[] = "\n\
-x = 1000\n\
-x++\n\
+x:i8 = -1\n\
+(i32)x\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);
