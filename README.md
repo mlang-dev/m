@@ -36,7 +36,7 @@ let loopprint n =
 
 ## prerequisites to build m
 * Source code version control: git
-* Build system generator: cmake
+* Build system generator: cmake (3.16.3 is the verified version that works !, you might need to twist flags for other versions.)
 * Build system: GNU make (Unix-like system)
 * Compiler: c/c++ compilers: clang 13 or later
 
