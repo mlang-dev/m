@@ -1,3 +1,6 @@
+/**
+ * numeric operators
+ */
 const mtest = require('./mtest.js');
 
 mtest.mtest('add expression', 'add opeartor: 10 + 20', "10 + 20", 30);

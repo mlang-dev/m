@@ -61,92 +61,24 @@
         <nav>
             
 <a class="current">general</a>
-<a href="/tutorial/bitwise.html">bitwise</a>
-<a href="/tutorial/logic.html">logic</a>
-<a href="/tutorial/relation.html">relation</a>
-<a href="/tutorial/numeric.html">numeric</a>
+<a href="/tutorial/operators.html">operators</a>
 <a href="/tutorial/control.html">control</a>
-<a href="/tutorial/struct.html">struct</a>
+<a href="/tutorial/aggregate.html">aggregate</a>
 <a href="/tutorial/reference.html">reference</a>
         </nav>
     </p>
+    
     <div></div>
-    </p>
-                <!--<div>hello world</div>-->
+    
                 <div>The following is the simple statement to print out string "Hello World !" to the console.</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="hello_world"  rows = "1" style="resize: none;">print "hello world， 您好 ！ "</textarea>
+                    <textarea id="hello_world"  rows = "1" style="resize: none;">print "hello world, 您好 !"</textarea>
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('hello_world')" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "hello_world_result"></div>
                 </div>
                 
-                <!--<div>print utc-8 string</div>-->
-                <div>We can print the unicode string.</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="print_utc-8_string"  rows = "1" style="resize: none;">print "你好"</textarea>
-                </div>
-                <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('print_utc-8_string')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "print_utc-8_string_result"></div>
-                </div>
-                
-                <!--<div>integer format</div>-->
-                <div>Print string with integer format.</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="integer_format"  rows = "1" style="resize: none;">print "hello %d" 10</textarea>
-                </div>
-                <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('integer_format')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "integer_format_result"></div>
-                </div>
-                
-                <!--<div>print var</div>-->
-                <div>Print a variable's value.</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="print_var"  rows = "2" style="resize: none;">v = 10
-print "hello %d" v</textarea>
-                </div>
-                <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('print_var')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "print_var_result"></div>
-                </div>
-                
-                <!--<div>print char</div>-->
-                <div>Print one character.</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="print_char"  rows = "1" style="resize: none;">putchar '#'</textarea>
-                </div>
-                <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('print_char')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "print_char_result"></div>
-                </div>
-                
-                <!--<div>print two int vars</div>-->
-                <div>Print the string with multiple integer variables.</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="print_two_int_vars"  rows = "3" style="resize: none;">v1 = 10
-v2 = 20
-print "hello %d %d" v1 v2</textarea>
-                </div>
-                <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('print_two_int_vars')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "print_two_int_vars_result"></div>
-                </div>
-                
-                <!--<div>print float</div>-->
-                <div>Print a float variable.</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="print_float"  rows = "2" style="resize: none;">v = 10.0
-print "hello %.2f" v</textarea>
-                </div>
-                <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('print_float')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "print_float_result"></div>
-                </div>
-                
-                <!--<div>print string, float and int</div>-->
                 <div>Print string and int type value using variable. Variable's type is inferred from assignment statements.</div>
                 <div style="margin-top: 10px;">
                     <textarea id="print_string__float_and_int"  rows = "4" style="resize: none;">s = "world"
@@ -159,7 +91,6 @@ print "hello %s %.2f %d" s f i</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "print_string__float_and_int_result"></div>
                 </div>
                 
-                <!--<div>math.sqrt</div>-->
                 <div>This expression is to call C's sqrt function</div>
                 <div style="margin-top: 10px;">
                     <textarea id="math_sqrt"  rows = "1" style="resize: none;">sqrt 4.0</textarea>
@@ -169,7 +100,6 @@ print "hello %s %.2f %d" s f i</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "math_sqrt_result"></div>
                 </div>
                 
-                <!--<div>function definition</div>-->
                 <div>Use keyword "let" to define a function. 
 The grammar is: "let" IDENT param_decls '=' statement. The following code is to define a square function takes
 a f64 value and outputs its squared f64 value.</div>
@@ -182,7 +112,6 @@ sq 10.0</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "function_definition_result"></div>
                 </div>
                 
-                <!--<div>generic function</div>-->
                 <div>If type annotation is omitted from the function, then we are defining a generic function. The type of the function is to be infered 
 by how it is being used. Character '#' starts comments until the end of the line.</div>
                 <div style="margin-top: 10px;">
@@ -194,7 +123,6 @@ sq 10.0</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "generic_function_result"></div>
                 </div>
                 
-                <!--<div>struct type</div>-->
                 <div>You can define struct aggregate type like in C. They behavior the same except more succinct in m.</div>
                 <div style="margin-top: 10px;">
                     <textarea id="struct_type"  rows = "3" style="resize: none;">struct Point2D = x:f64, y:f64
@@ -206,7 +134,6 @@ print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_type_result"></div>
                 </div>
                 
-                <!--<div>pass by value</div>-->
                 <div>mlang uses pass-by value calling convention to pass arguments to functions. This means the argument value is copied to function's parameter.</div>
                 <div style="margin-top: 10px;">
                     <textarea id="pass_by_value"  rows = "7" style="resize: none;">struct Point2D = x:f64, y:f64

@@ -8,23 +8,35 @@ const doctrine = require("doctrine");
 var from_dir = "./jstests/";
 var to_dir = "../docs/tutorial/";
 
-const include_list = new Map();
-include_list.set("general.test.js", 1); 
-include_list.set("bitwise.test.js", 2);
-include_list.set("logic.test.js", 3);
-include_list.set("relation.test.js", 4);
-include_list.set("numeric.test.js", 5);
-include_list.set("control.test.js", 6);
-include_list.set("struct.test.js", 7);
-include_list.set("reference.test.js", 8);
+const include_list = {
+    "general": {
+         "files": ["general.test.js"],
+         "order": 1
+    },
+    "operators": {
+        "files": ["bitwise.test.js", "logic.test.js", "relation.test.js", "numeric.test.js"],
+        "order" : 2,
+    },
+    "control": {
+        "files": ["control.test.js"],
+        "order": 3,
+    },
+    "aggregate": {
+        "files": ["aggregate.test.js"],
+        "order": 4,
+    },
+    "reference": {
+        "files": ["reference.test.js"],
+        "order": 5
+    }
+};
 
-
-const exclude_list = []
 
 const html_header_file = "./tutorial.html_header_template";
 const html_footer_file = "./tutorial.html_footer_template";
 
-function generate_file(from_path, test_navigations, to_path)
+
+function _generate_content_from_path(from_path)
 {
     let program = ts.createProgram([from_path], {allowJs: true, removeComments: false});
     const sourceFile = program.getSourceFile(from_path);
@@ -40,7 +52,9 @@ function generate_file(from_path, test_navigations, to_path)
     var test_cases = '';
     ts.forEachChild(sourceFile, node => {
         if(ts.isExpressionStatement(node)){
-            if(ts.isCallExpression(node.expression) && node.expression.expression.expression.escapedText == 'mtest'){
+            if(ts.isCallExpression(node.expression) && 
+            node.expression.expression.expression != undefined && 
+            node.expression.expression.expression.escapedText == 'mtest'){
                 tutorial = node.expression.arguments[4];
                 if(tutorial!=undefined && tutorial.kind == ts.SyntaxKind.FalseKeyword) 
                     return;
@@ -59,7 +73,6 @@ function generate_file(from_path, test_navigations, to_path)
                 test_code = code_lines.join('\n');
                 let code_rows =  code_lines.length;
                 const one_test_case = `
-                <!--<div>${test_name}</div>-->
                 <div>${test_description}</div>
                 <div style="margin-top: 10px;">
                     <textarea id="${test_control_name}"  rows = "${code_rows}" style="resize: none;">${test_code}</textarea>
@@ -73,14 +86,25 @@ function generate_file(from_path, test_navigations, to_path)
             }
         }
     });
+    return `
+    <div>${file_description}</div>
+    ${test_cases}`;
+}
+
+function generate_file(from_paths, test_navigations, to_path)
+{
+    console.log(from_paths, to_path);
     var html_header = '';
     var html_footer = '';
     html_header = fs.readFileSync(html_header_file, 'utf8');
     html_footer = fs.readFileSync(html_footer_file, 'utf8');
+    html_from_file = '';
+    for(var from_path of from_paths){
+        html_from_file += _generate_content_from_path(from_path);
+    }
     html_file = `${html_header}${test_navigations}
     </p>
-    <div>${file_description}</div>
-    </p>${test_cases}${html_footer}`;
+    ${html_from_file}${html_footer}`;
     fs.writeFile(to_path, html_file, err => {
         if (err) {
           console.error(err);
@@ -107,38 +131,21 @@ function build_test_navigations(interested_files, current_test_name)
 
 function main()
 {
-    fs.readdir(from_dir, function (err, files) {
-        if(err){
-            console.error("could not list the directory.", err);
-            process.exit(1);
-        }
-        interested_files = new Array();
-        files.forEach(function(file, index){
-            if (exclude_list.includes(file) || !include_list.has(file)){
-                return;
-            }
-            let test_name = file.replace('.test.js', '');
-            let test_html = file.replace('.test.js', '.html');
-            interested_files.push([include_list.get(file), test_name, test_html, file]);
-        });
-        interested_files.sort();
-        interested_files.forEach(file_info=>{
-            let test_name = file_info[1];
-            let test_html = file_info[2];
-            let file= file_info[3];
-            var from_path = path.join(from_dir, file);
-            var to_path = path.join(to_dir, test_html);
-            var test_navigations = build_test_navigations(interested_files, test_name);
-            fs.stat(from_path, function(error, stat){
-                if(error){
-                    console.error("Error stating file.", error);
-                    return;
-                }
-                if(stat.isFile()){
-                    generate_file(from_path, test_navigations, to_path);
-                }
-            });
-        });
+    interested_files = new Array();
+    for (const test_name of Object.keys(include_list)){
+        let test_html = `${test_name}.html`;
+        let test_info = include_list[test_name];
+        interested_files.push([test_info["order"], test_name, test_html, test_info["files"]]);
+    }
+    interested_files.sort();
+    interested_files.forEach(file_info=>{
+        let test_name = file_info[1];
+        let test_html = file_info[2];
+        let files= file_info[3];
+        var test_navigations = build_test_navigations(interested_files, test_name);
+        var to_path = path.join(to_dir, test_html);
+        var from_paths = files.map(file=>path.join(from_dir, file));
+        generate_file(from_paths, test_navigations, to_path);
     });
 }
 

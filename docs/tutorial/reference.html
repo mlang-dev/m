@@ -61,18 +61,16 @@
         <nav>
             
 <a href="/tutorial/general.html">general</a>
-<a href="/tutorial/bitwise.html">bitwise</a>
-<a href="/tutorial/logic.html">logic</a>
-<a href="/tutorial/relation.html">relation</a>
-<a href="/tutorial/numeric.html">numeric</a>
+<a href="/tutorial/operators.html">operators</a>
 <a href="/tutorial/control.html">control</a>
-<a href="/tutorial/struct.html">struct</a>
+<a href="/tutorial/aggregate.html">aggregate</a>
 <a class="current">reference</a>
         </nav>
     </p>
-    <div></div>
-    </p>
-                <!--<div>evalute ref content</div>-->
+    
+    <div>Reference type is like pointer in c. The difference is the reference type is not allow to do arithmetic operation. 
+You can only use reference type to refer to the other object or pass the reference to functions.</div>
+    
                 <div>evaluate the content of reference type variable j</div>
                 <div style="margin-top: 10px;">
                     <textarea id="evalute_ref_content"  rows = "3" style="resize: none;">i = 10
@@ -84,7 +82,6 @@ j = &i
                     <div style="display: inline-block; margin-left:5px;" id= "evalute_ref_content_result"></div>
                 </div>
                 
-                <!--<div>change via ref</div>-->
                 <div>change original value by its reference.</div>
                 <div style="margin-top: 10px;">
                     <textarea id="change_via_ref"  rows = "4" style="resize: none;">i = 10
@@ -97,7 +94,6 @@ i</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "change_via_ref_result"></div>
                 </div>
                 
-                <!--<div>change via ref 2</div>-->
                 <div>change original value by its reference. print reference</div>
                 <div style="margin-top: 10px;">
                     <textarea id="change_via_ref_2"  rows = "4" style="resize: none;">i = 10
@@ -110,7 +106,6 @@ j = &i
                     <div style="display: inline-block; margin-left:5px;" id= "change_via_ref_2_result"></div>
                 </div>
                 
-                <!--<div>struct type reference</div>-->
                 <div>struct type reference</div>
                 <div style="margin-top: 10px;">
                     <textarea id="struct_type_reference"  rows = "3" style="resize: none;">z = cf64(10.0, 20.0)
@@ -122,7 +117,6 @@ j.im</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_type_reference_result"></div>
                 </div>
                 
-                <!--<div>pass struct by ref</div>-->
                 <div>pass struct data to function by reference</div>
                 <div style="margin-top: 10px;">
                     <textarea id="pass_struct_by_ref"  rows = "5" style="resize: none;">let update x:&cf64 =
