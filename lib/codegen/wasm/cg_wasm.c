@@ -135,7 +135,7 @@ u8 type_conversion_op[TYPE_TYPES][TYPE_TYPES] = {
     /*UNIT*/ {0},
     /*BOOL*/ {0, 0, 0, 0},
     /*CHAR*/ {0, 0, 0, 0},
-    /*i8*/ {0, 0, 0, 0},
+    /*i8*/ {0, 0, 0, 0},    
     /*u8*/ {0, 0, 0, 0},
     /*i16*/ {0, 0, 0, 0},
     /*u16*/ {0, 0, 0, 0},
@@ -144,8 +144,8 @@ u8 type_conversion_op[TYPE_TYPES][TYPE_TYPES] = {
     /*i64*/ {0, 0, 0, 0},
     /*u64*/ {0, 0, 0, 0},
     /*INT*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32U, /*f64*/OPCODE_F64CONVERT_I32U},
-    /*F32*/ {0, 0, 0, 0},
-    /*F64*/ {0, 0, 0, 0},
+    /*F32*/ {0, 0, 0, /*BOOL*/OPCODE_I32TRUNC_F32S, /*CHAR*/OPCODE_I32TRUNC_F32S, /*i8*/OPCODE_I32TRUNC_F32S, /*u8*/OPCODE_I32TRUNC_F32S, /*i16*/OPCODE_I32TRUNC_F32S, /*u16*/OPCODE_I32TRUNC_F32S, /*i32*/OPCODE_I32TRUNC_F32S, /*u32*/OPCODE_I32TRUNC_F32U, /*i64*/OPCODE_I64TRUNC_F32S, /*u64*/OPCODE_I64TRUNC_F32U, /*int*/OPCODE_I32TRUNC_F32S, /*f32*/0, /*f64*/OPCODE_F64PROMOTE_F32},
+    /*F64*/ {0, 0, 0, /*BOOL*/OPCODE_I32TRUNC_F64S, /*CHAR*/OPCODE_I32TRUNC_F64S, /*i8*/OPCODE_I32TRUNC_F64S, /*u8*/OPCODE_I32TRUNC_F64S, /*i16*/OPCODE_I32TRUNC_F64S, /*u16*/OPCODE_I32TRUNC_F64S, /*i32*/OPCODE_I32TRUNC_F64S, /*u32*/OPCODE_I32TRUNC_F64U, /*i64*/OPCODE_I64TRUNC_F64S, /*u64*/OPCODE_I64TRUNC_F64U, /*int*/OPCODE_I32TRUNC_F64S, /*f32*/OPCODE_F32DEMOTE_F64, /*f64*/0},
     /*STRING*/ {0, 0, 0, 0},
     /*FUNCTION*/ {0},
     /*STRUCT*/ {0},
@@ -172,6 +172,7 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     /*OP_BSL    */{0, 0, 0, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, 0, 0, 0, 0, 0, 0,},
     /*OP_BSR    */{0, 0, 0, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, 0, 0, 0, 0, 0, 0,},
 
+    /*OP_SQRT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, OPCODE_F32SQRT, OPCODE_F64SQRT, 0, 0, 0, 0,},
     /*OP_POW    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_STAR  */{0, 0, 0, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_F32MUL, OPCODE_F64MUL, 0, 0, 0, 0,},
     /*OP_DIV    */{0, 0, 0, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_F32DIV, OPCODE_F64DIV, 0, 0, 0, 0,},
@@ -443,6 +444,13 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
                 wasm_emit_addr_offset(ba, vi->var_index, false, 0);
             }
             break;
+        case OP_SQRT:
+        {
+            enum type type_index = prune(node->unop->operand->type)->type;
+            wasm_emit_code(cg, ba, node->unop->operand);
+            ba_add(ba, op_maps[node->unop->opcode][type_index]);
+            break;
+        }
         case OP_MINUS:
             new_node = int_node_new(0, node->loc);
             new_node->type = node->type;

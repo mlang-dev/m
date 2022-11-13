@@ -21,7 +21,7 @@ let avg x y = (x + y) / 2
 let distance x1 y1 x2 y2 = 
   xx = (x1-x2) ** 2.0
   yy = (y1-y2) ** 2.0
-  sqrt (xx + yy) # call c std sqrt math function
+  |/ (xx + yy) #call sqrt 
 
 # factorial function with recursive call
 let factorial n = 

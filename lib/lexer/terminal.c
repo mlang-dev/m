@@ -93,6 +93,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN(">>", OP, BSR),
 
     // KEYWORD_PATTERN("^", OP, EXPO),
+    NAME_KEYWORD_PATTERN("|/", "\\|/", OP, SQRT),
     NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, POW), // 40
     NAME_KEYWORD_PATTERN("*", "\\*", OP, STAR), // 40
     KEYWORD_PATTERN("/", OP, DIVISION),

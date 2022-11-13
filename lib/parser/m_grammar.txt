@@ -41,6 +41,7 @@ power_expr      = postfix_expr "**" unary_expr                                  
 unary_expr      = power_expr                                                          
                 | "++" unary_expr                                                           { unop 0 1 }
                 | "--" unary_expr                                                           { unop 0 1 }
+                | "|/" unary_expr                                                           { unop 0 1 }
                 | [*&+-~!] unary_expr                                                       { unop 0 1 }
 
 cast_expr       = unary_expr
