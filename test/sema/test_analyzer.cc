@@ -122,7 +122,7 @@ TEST(testAnalyzer, testDoubleIntLiteralError)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var_name));
     ASSERT_EQ(VAR_NODE, node->node_type);
-    ASSERT_EQ(0, node->type);
+    ASSERT_EQ(TYPE_F64, node->type->type);
     ast_node_free(block);
     engine_free(engine);
 }
@@ -576,7 +576,7 @@ x
     engine_free(engine);
 }
 
-TEST(testAnalyzer, testRedefinitionInTheSameScropeIsNotAllowed)
+TEST(testAnalyzer, testConvertIntToFloat)
 {
     char test_code[] = R"(
 x = 10.0
@@ -595,7 +595,7 @@ x = 10
     /*fun definition*/
     node = *(ast_node **)array_get(&block->block->nodes, 1);
     type_str = to_string(node->type);
-    ASSERT_STREQ("type mismatch", string_get(&type_str));
+    ASSERT_STREQ("f64", string_get(&type_str));
     ast_node_free(block);
     engine_free(engine);
 }

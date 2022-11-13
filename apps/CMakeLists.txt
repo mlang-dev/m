@@ -27,7 +27,7 @@ if(WASM)
     -Xlinker --initial-memory=8388608  #set initial memory to 8MB
     -v
   )
-
+  
   message(STATUS "copy ${CMAKE_CURRENT_BINARY_DIR}/wm.wasm ${CMAKE_SOURCE_DIR}/docs")
   add_custom_command(TARGET mw POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mw.wasm ${CMAKE_SOURCE_DIR}/docs
@@ -118,15 +118,15 @@ else()
   file(COPY ${CMAKE_SOURCE_DIR}/mlib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib/)
   endif(WIN32)
 
-  add_custom_command(
-    TARGET m
-    POST_BUILD
-    COMMAND m ${CMAKE_SOURCE_DIR}/samples/sample_lib.m
-    COMMAND m ${CMAKE_SOURCE_DIR}/samples/sample.m
-    # COMMAND m ${CMAKE_SOURCE_DIR}/samples/helloworld.m
-    # MacOS COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/libc.dylib -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
-    # COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/x86_64-linux-gnu/libc.so -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
-  )
+  # add_custom_command(
+  #   TARGET m
+  #   POST_BUILD
+  #   COMMAND m ${CMAKE_SOURCE_DIR}/samples/sample_lib.m
+  #   COMMAND m ${CMAKE_SOURCE_DIR}/samples/sample.m
+  #   # COMMAND m ${CMAKE_SOURCE_DIR}/samples/helloworld.m
+  #   # MacOS COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/libc.dylib -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
+  #   # COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/x86_64-linux-gnu/libc.so -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
+  # )
 
 
   target_link_libraries(c2m PRIVATE 

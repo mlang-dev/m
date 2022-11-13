@@ -133,12 +133,12 @@ u8 type_conversion_op[TYPE_TYPES][TYPE_TYPES] = {
     /*UNK*/ {0},
     /*GENERIC*/ {0},
     /*UNIT*/ {0},
-    /*BOOL*/ {0, 0, 0, 0},
-    /*CHAR*/ {0, 0, 0, 0},
-    /*i8*/ {0, 0, 0, 0},    
-    /*u8*/ {0, 0, 0, 0},
-    /*i16*/ {0, 0, 0, 0},
-    /*u16*/ {0, 0, 0, 0},
+    /*BOOL*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
+    /*CHAR*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
+    /*i8*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
+    /*u8*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
+    /*i16*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
+    /*u16*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
     /*i32*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
     /*u32*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32U, /*f64*/OPCODE_F64CONVERT_I32U},
     /*i64*/ {0, 0, 0, 0},
@@ -153,6 +153,58 @@ u8 type_conversion_op[TYPE_TYPES][TYPE_TYPES] = {
     /*UNION*/ {0},
     /*COMPLEX*/ {0},
     /*REF*/{0}
+};
+
+u64 max_int_bits[TYPE_TYPES] = {
+    /*UNK*/ 0,
+    /*GENERIC*/ 0,
+    /*UNIT*/ 0,
+    /*BOOL*/ 0xFF,
+    /*CHAR*/ 0xFF,
+    /*i8*/ 0xFF,
+    /*u8*/ 0xFF,
+    /*i16*/ 0xFFFF,
+    /*u16*/ 0xFFFF,
+    /*i32*/ 0xFFFFFFFF,
+    /*u32*/ 0xFFFFFFFF,
+    /*i64*/ 0xFFFFFFFFFFFFFFFF,
+    /*u64*/ 0xFFFFFFFFFFFFFFFF,
+    /*INT*/ 0xFFFFFFFF,
+    /*F32*/ 0,
+    /*F64*/ 0,
+    /*STRING*/ 0,
+    /*FUNCTION*/ 0,
+    /*STRUCT*/ 0,
+    /*ARRAY*/ 0,
+    /*UNION*/ 0,
+    /*COMPLEX*/ 0,
+    /*REF*/0
+};
+
+u64 extend_signs[TYPE_TYPES] = {
+    /*UNK*/ 0,
+    /*GENERIC*/ 0,
+    /*UNIT*/ 0,
+    /*BOOL*/ 0,
+    /*CHAR*/ OPCODE_I32EXTEND8_S,
+    /*i8*/ OPCODE_I32EXTEND8_S,
+    /*u8*/ 0,
+    /*i16*/ OPCODE_I32EXTEND16_S,
+    /*u16*/ 0,
+    /*i32*/ 0,
+    /*u32*/ 0,
+    /*i64*/ 0,
+    /*u64*/ 0,
+    /*INT*/ 0,
+    /*F32*/ 0,
+    /*F64*/ 0,
+    /*STRING*/ 0,
+    /*FUNCTION*/ 0,
+    /*STRUCT*/ 0,
+    /*ARRAY*/ 0,
+    /*UNION*/ 0,
+    /*COMPLEX*/ 0,
+    /*REF*/0
 };
 
 u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
@@ -488,8 +540,28 @@ void _emit_cast(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
     wasm_emit_code(cg, ba, node->cast->expr);
     if(node->type->type != node->cast->expr->type->type){
         u8 op = type_conversion_op[node->cast->expr->type->type][node->type->type];
-        assert(op);
-        ba_add(ba, op);
+        if(!op){
+            if(node->type->type < node->cast->expr->type->type){
+                //downcasting for int, cut bits
+                u64 bit_mask = max_int_bits[node->type->type];
+                assert(bit_mask);
+                wasm_emit_const_i32(ba, bit_mask);
+                ba_add(ba, OPCODE_I32AND);
+                //we need to upcasting to i32/i64 since WASM only supports i32/i64 int
+                u8 sign_op = extend_signs[node->type->type];
+                if(sign_op){
+                    ba_add(ba, sign_op);
+                }
+            }else{
+                //up casting from expr type
+                u8 sign_op = extend_signs[node->cast->expr->type->type];
+                if(sign_op){
+                    ba_add(ba, sign_op);
+                }
+            }
+        }else{
+            ba_add(ba, op);
+        }
     }
 }
 

@@ -139,10 +139,18 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         return 0;
     if(!var_type)
         var_type = create_type_var();
-    bool unified = unify(var_type, type, &context->nongens);
-    if (!unified) {
+    struct type_expr *result_type = unify(var_type, type, &context->nongens);
+    if (!result_type) {
         report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
         return 0;
+    }
+    if(node->var->is_of_type && result_type->type != var_type->type && node->var->init_value){
+        struct ast_node *type_name = ident_node_new(get_type_symbol(var_type->type), node->var->init_value->loc);
+        //we have to make a copy of init_value node, otherwise it's endlessly calling cast node
+        struct ast_node *init_value = node_copy(node->var->init_value);
+        init_value->type = node->var->init_value->type;
+        node->var->init_value->transformed = cast_node_new(type_name, init_value, node->var->init_value->loc);
+        node->var->init_value->transformed->type = var_type;
     }
     push_symbol_type(&context->decl_2_typexps, node->var->var_name, var_type);
     push_symbol_type(&context->varname_2_asts, node->var->var_name, node);
@@ -430,17 +438,23 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
 {
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
-    struct type_expr *result = 0;
-    if (unify(lhs_type, rhs_type, &context->nongens)) {
+    struct type_expr *result_type = unify(lhs_type, rhs_type, &context->nongens);
+    if (result_type) {
         if (is_relational_op(node->binop->opcode))
-            result = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
-        else
-            result = lhs_type;
-        return result;
+            result_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
+        else{    
+            if(node->binop->lhs->type != result_type){
+                node->binop->lhs->type = result_type;
+            }
+            if(node->binop->rhs->type != result_type){
+                node->binop->rhs->type = result_type;
+            }
+        }
+        return result_type;
     } else {
         report_error(context, EC_TYPES_DO_NOT_MATCH, node->loc);
     }
-    return result;
+    return result_type;
 }
 
 struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node *node)
