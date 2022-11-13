@@ -27,8 +27,7 @@ TEST(test_wasm_codegen, parse_as_module)
 // pick a\n\
 // ";
     char test_code[] = "\n\
-scale = 0.01\n\
-scale * 10\n\
+10 * 0.01\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);
