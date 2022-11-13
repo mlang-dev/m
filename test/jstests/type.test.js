@@ -58,3 +58,9 @@ mtest.mtest('cast to int', 'cast f64 to int',
 `
 x = 1000
 x * (int)2.0`, 2000, false);
+
+mtest.mtest('int multi float', 'multiple int with float', 
+`
+scale = 0.01
+scale * 10`, 0.1, false);
+

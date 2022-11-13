@@ -49,6 +49,17 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
     return 0;
 }
 
+struct ast_node *cast_to_node(struct type_expr *to_type, struct ast_node *node)
+{
+    struct ast_node *type_name = ident_node_new(get_type_symbol(to_type->type), node->loc);
+    //we have to make a copy of init_value node, otherwise it's endlessly calling cast node
+    struct ast_node *copy_node = node_copy(node);
+    copy_node->type = node->type;
+    struct ast_node *cast = cast_node_new(type_name, copy_node, node->loc);
+    cast->type = to_type;
+    return cast;
+}
+
 struct type_expr *_analyze_unk(struct sema_context *context, struct ast_node *node)
 {
     printf("analyzing unk: %s\n", node_type_strings[node->node_type]);
@@ -145,12 +156,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         return 0;
     }
     if(node->var->is_of_type && result_type->type != var_type->type && node->var->init_value){
-        struct ast_node *type_name = ident_node_new(get_type_symbol(var_type->type), node->var->init_value->loc);
-        //we have to make a copy of init_value node, otherwise it's endlessly calling cast node
-        struct ast_node *init_value = node_copy(node->var->init_value);
-        init_value->type = node->var->init_value->type;
-        node->var->init_value->transformed = cast_node_new(type_name, init_value, node->var->init_value->loc);
-        node->var->init_value->transformed->type = var_type;
+        node->var->init_value->transformed = cast_to_node(var_type, node->var->init_value);
     }
     push_symbol_type(&context->decl_2_typexps, node->var->var_name, var_type);
     push_symbol_type(&context->varname_2_asts, node->var->var_name, node);
@@ -443,11 +449,14 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
         if (is_relational_op(node->binop->opcode))
             result_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
         else{    
-            if(node->binop->lhs->type != result_type){
-                node->binop->lhs->type = result_type;
+            lhs_type = prune(lhs_type);
+            rhs_type = prune(rhs_type);
+            result_type = prune(result_type);
+            if(lhs_type != result_type){
+                node->binop->lhs->transformed = cast_to_node(result_type, node->binop->lhs);
             }
-            if(node->binop->rhs->type != result_type){
-                node->binop->rhs->type = result_type;
+            if(rhs_type != result_type){
+                node->binop->rhs->transformed =  cast_to_node(result_type, node->binop->rhs);
             }
         }
         return result_type;

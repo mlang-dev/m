@@ -136,7 +136,7 @@ TEST(testJIT, testString)
     engine_free(engine);
 }
 
-TEST(testJIT, testTypeError)
+TEST(testJIT, testTypeCast)
 {
     char test_code[] = R"(
 10 + 10.0
@@ -147,7 +147,7 @@ TEST(testJIT, testTypeError)
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
-    eval_statement(jit, node);
+    //eval_statement(jit, node);
     ASSERT_EQ(TYPE_F64, node->type->type);
     ast_node_free(block);
     jit_free(jit);
