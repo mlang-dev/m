@@ -145,8 +145,9 @@ struct grammar *grammar_parse(const char *grammar_text)
                 else if(next_tok.token_type == TOKEN_INT){
                     expr->action.exp_item_index[expr->action.exp_item_index_count++] = next_tok.int_val;
                 }
-                else    
+                else{    
                     assert(false);
+                }
             next_tok = *get_tok(lexer); // skip ']'
             }
             next_tok = *get_tok(lexer); // skip ']'

@@ -252,15 +252,16 @@ struct ast_node *_copy_literal_node(struct ast_node *orig_node)
         orig_node->liter->type, orig_node->loc);
 }
 
-struct ast_node *var_node_new(symbol var_name, struct ast_node *is_of_type,
-    struct ast_node *init_value, bool is_global, struct source_location loc)
+struct ast_node *var_node_new(struct ast_node *var, struct ast_node *is_of_type,
+    struct ast_node *init_value, bool is_global, bool is_mut, struct source_location loc)
 {   
     struct ast_node *node = ast_node_new(VAR_NODE, loc);
     MALLOC(node->var, sizeof(*node->var));
-    node->var->var_name = var_name;
+    node->var->var = var;
     node->var->init_value = init_value;
     node->var->is_of_type = is_of_type;
     node->var->is_global = is_global;
+    node->var->is_mut = is_mut;
     node->is_addressable = true;
     return node;
 }
@@ -268,8 +269,9 @@ struct ast_node *var_node_new(symbol var_name, struct ast_node *is_of_type,
 struct ast_node *_copy_var_node(struct ast_node *orig_node)
 {
     return var_node_new(
-        orig_node->var->var_name, node_copy(orig_node->var->is_of_type),
-        node_copy(orig_node->var->init_value), orig_node->var->is_global, orig_node->loc);
+        orig_node->var->var, node_copy(orig_node->var->is_of_type),
+        node_copy(orig_node->var->init_value), orig_node->var->is_global, orig_node->var->is_mut, 
+        orig_node->loc);
 }
 
 void _free_var_node(struct ast_node *node)
@@ -496,7 +498,7 @@ struct ast_node *func_type_node_new(symbol name,
     if (is_variadic) {
         symbol symbol_name = get_type_symbol(TYPE_GENERIC);
         struct ast_node *is_of_type = ident_node_new(symbol_name, loc);
-        struct ast_node *fun_param = var_node_new(symbol_name, is_of_type, 0, false, loc);
+        struct ast_node *fun_param = var_node_new(ident_node_new(symbol_name, loc), is_of_type, 0, false, true, loc);
         fun_param->type = create_nullary_type(TYPE_GENERIC, symbol_name);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }
@@ -517,7 +519,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
     if (func_type->ft->is_variadic) {
         symbol var_name = get_type_symbol(TYPE_GENERIC);
         struct ast_node *is_of_type = ident_node_new(var_name, node->loc);
-        struct ast_node *fun_param = var_node_new(var_name, is_of_type, 0, false, node->loc);
+        struct ast_node *fun_param = var_node_new(ident_node_new(var_name, node->loc), is_of_type, 0, false, true, node->loc);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }
     return node;
@@ -964,7 +966,7 @@ int find_member_index(struct ast_node *type_node, symbol member)
 {
     for (int i = 0; i < (int)array_size(&type_node->struct_def->body->block->nodes); i++) {
         struct ast_node *var = *(struct ast_node **)array_get(&type_node->struct_def->body->block->nodes, i);
-        if (var->var->var_name == member) {
+        if (var->var->var->ident->name == member) {
             return i;
         }
     }

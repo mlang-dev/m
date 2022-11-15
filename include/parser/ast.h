@@ -52,8 +52,9 @@ struct _memory_node {
 };
 
 struct _var_node {
-    symbol var_name;
     bool is_global;
+    bool is_mut; //is mutable
+    struct ast_node *var;
     struct ast_node *is_of_type;
     struct ast_node *init_value;
 };
@@ -238,7 +239,7 @@ struct ast_node *char_node_new(char val, struct source_location loc);
 struct ast_node *unit_node_new(struct source_location loc);
 struct ast_node *string_node_new(const char *val, struct source_location loc);
 struct ast_node *const_one_node_new(enum type type, struct source_location loc);
-struct ast_node *var_node_new(symbol var_name, struct ast_node *is_of_type, struct ast_node *init_value, bool is_global, struct source_location loc);
+struct ast_node *var_node_new(struct ast_node *var, struct ast_node *is_of_type, struct ast_node *init_value, bool is_global, bool is_mut, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
 struct ast_node *import_node_new(symbol from_module, struct ast_node *node, struct source_location loc);

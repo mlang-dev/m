@@ -547,6 +547,7 @@ LLVMValueRef _emit_accessor_node(struct cg_llvm *cg, struct ast_node *node)
 
 LLVMValueRef _emit_binary_node(struct cg_llvm *cg, struct ast_node *node)
 {
+
     LLVMValueRef lv = emit_ir_code(cg, node->binop->lhs);
     LLVMValueRef rv = emit_ir_code(cg, node->binop->rhs);
     // assert(LLVMGetValueKind(lv) == LLVMGetValueKind(rv));
@@ -657,7 +658,7 @@ LLVMValueRef _emit_struct_node(struct cg_llvm *cg, struct ast_node *node)
 
 LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    symbol var_name = node->forloop->var->var->var_name;
+    symbol var_name = node->forloop->var->var->var->ident->name;
     LLVMBasicBlockRef bb = LLVMGetInsertBlock(cg->builder);
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 

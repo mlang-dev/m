@@ -49,6 +49,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("continue", CONTINUE, NULL),
 
     TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL), //
+    KEYWORD_PATTERN("var", VAR, NULL),
 
     NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL),
     NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL),

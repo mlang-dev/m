@@ -79,6 +79,7 @@ enum node_type symbol_to_node_type(symbol action_name)
     if(!action_name)
         return NULL_NODE;
     struct node_type_name *ntn = get_node_type_name_by_symbol(action_name);
-    assert(ntn);
+    if(!ntn) return 0;
     return ntn->node_type;
 }
+

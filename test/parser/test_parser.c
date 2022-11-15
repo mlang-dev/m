@@ -20,7 +20,7 @@ TEST(test_parser, int_type)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
-    ASSERT_STREQ("x", string_get(node->var->var_name));
+    ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(0, node->var->init_value);
     ast_node_free(block);
     parser_free(parser);
@@ -35,7 +35,7 @@ TEST(test_parser, var_init)
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("x", string_get(node->var->var_name));
+    ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
     struct ast_node *literal = node->var->init_value;
@@ -53,7 +53,7 @@ TEST(test_parser, var_init_name_with_underlying)
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("m_x", string_get(node->var->var_name));
+    ASSERT_STREQ("m_x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
     ast_node_free(block);
@@ -70,7 +70,7 @@ TEST(test_parser, var_struct_init)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("int", string_get(node->var->is_of_type->ident->name));
-    ASSERT_STREQ("x", string_get(node->var->var_name));
+    ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
     struct ast_node *literal = node->var->init_value;
@@ -88,7 +88,7 @@ TEST(test_parser, bool_init)
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("x", string_get(node->var->var_name));
+    ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
     struct ast_node *literal = node->var->init_value;
@@ -106,7 +106,7 @@ TEST(test_parser, char_init)
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("x", string_get(node->var->var_name));
+    ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
     struct ast_node *literal = node->var->init_value;
@@ -124,7 +124,7 @@ TEST(test_parser, string_init)
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("x", string_get(node->var->var_name));
+    ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
     struct ast_node *literal = node->var->init_value;
@@ -459,7 +459,7 @@ point:Point2D";
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(0, node->var->init_value);
-    ASSERT_STREQ("point", string_get(node->var->var_name));
+    ASSERT_STREQ("point", string_get(node->var->var->ident->name));
     ast_node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
@@ -483,8 +483,8 @@ struct Point2D = \n\
     struct ast_node *var2 = *(struct ast_node **)array_back(&node->struct_def->body->block->nodes);
     ASSERT_EQ(VAR_NODE, var1->node_type);
     ASSERT_EQ(VAR_NODE, var2->node_type);
-    ASSERT_STREQ("x", string_get(var1->var->var_name));
-    ASSERT_STREQ("y", string_get(var2->var->var_name));
+    ASSERT_STREQ("x", string_get(var1->var->var->ident->name));
+    ASSERT_STREQ("y", string_get(var2->var->var->ident->name));
     ast_node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
@@ -507,8 +507,8 @@ xy = Point2D(10.0, 20.0)";
     struct ast_node *var2 = *(struct ast_node **)array_back(&node->struct_def->body->block->nodes);
     ASSERT_EQ(VAR_NODE, var1->node_type);
     ASSERT_EQ(VAR_NODE, var2->node_type);
-    ASSERT_STREQ("x", string_get(var1->var->var_name));
-    ASSERT_STREQ("y", string_get(var2->var->var_name));
+    ASSERT_STREQ("x", string_get(var1->var->var->ident->name));
+    ASSERT_STREQ("y", string_get(var2->var->var->ident->name));
 
     // struct type variable assignement
     struct ast_node *var = *(struct ast_node **)array_back(&block->block->nodes);
@@ -545,8 +545,8 @@ let get_point() = Point2D(10.0, 20.0)";
     struct ast_node *var2 = *(struct ast_node **)array_back(&node->struct_def->body->block->nodes);
     ASSERT_EQ(VAR_NODE, var1->node_type);
     ASSERT_EQ(VAR_NODE, var2->node_type);
-    ASSERT_STREQ("x", string_get(var1->var->var_name));
-    ASSERT_STREQ("y", string_get(var2->var->var_name));
+    ASSERT_STREQ("x", string_get(var1->var->var->ident->name));
+    ASSERT_STREQ("y", string_get(var2->var->var->ident->name));
 
     // 2. second line is to define a one line function
     struct ast_node *fun_node = *(struct ast_node **)array_back(&block->block->nodes);
@@ -580,7 +580,7 @@ xy.x";
     node = *(struct ast_node **)array_get(&block->block->nodes, 1);
     ASSERT_EQ(VAR_NODE, node->node_type);
     struct ast_node *var = node;
-    ASSERT_STREQ("xy", string_get(var->var->var_name));
+    ASSERT_STREQ("xy", string_get(var->var->var->ident->name));
     ASSERT_STREQ("Point2D", string_get(var->var->is_of_type->ident->name));
     node = *(struct ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
@@ -608,7 +608,7 @@ xy.x = 10.0";
     node = *(struct ast_node **)array_get(&block->block->nodes, 1);
     ASSERT_EQ(VAR_NODE, node->node_type);
     struct ast_node *var = node;
-    ASSERT_STREQ("xy", string_get(var->var->var_name));
+    ASSERT_STREQ("xy", string_get(var->var->var->ident->name));
     ASSERT_STREQ("Point2D", string_get(var->var->is_of_type->ident->name));
     node = *(struct ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(BINARY_NODE, node->node_type);
@@ -690,7 +690,7 @@ TEST(test_parser, import_global)
     ASSERT_EQ(IMPORT_NODE, node->node_type);
     node = node->import->import;
     ASSERT_EQ(VAR_NODE, node->node_type);
-    ASSERT_STREQ("__stack_pointer", string_get(node->var->var_name));
+    ASSERT_STREQ("__stack_pointer", string_get(node->var->var->ident->name));
     ast_node_free(block);
     parser_free(parser);
     frontend_deinit(fe);

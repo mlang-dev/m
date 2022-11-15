@@ -1065,11 +1065,11 @@ void _emit_import_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_
             wasm_emit_uint(ba, type_index++); //type index
             break;
         case VAR_NODE:
-            wasm_emit_string(ba, node->var->var_name);
+            wasm_emit_string(ba, node->var->var->ident->name);
             ba_add(ba, IMPORT_GLOBAL);
             ASSERT_TYPE(node->type->type);
             ba_add(ba, type_2_wtype[node->type->type]);
-            if (__MEMORY_BASE == node->var->var_name)
+            if (__MEMORY_BASE == node->var->var->ident->name)
                 ba_add(ba, GLOBAL_CONST); // immutable
             else{
                 ba_add(ba, GLOBAL_VAR); // mutable

@@ -118,6 +118,13 @@ bool _is_array_size_same(struct type_expr *type1, struct type_expr *type2)
 
 struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
+    symbol var_name = node->var->var->ident->name;
+    if(has_symbol(&context->decl_2_typexps, var_name)){
+        //this is assignment, not var declaration
+        node->transformed = binary_node_new(OP_ASSIGN, node->var->var, node->var->init_value, node->loc);
+        node->transformed->type = analyze(context, node->transformed);
+        return node->transformed->type;
+    }
     struct type_expr *var_type = 0;
     if(context->scope_level == 1){
         //global variable, test JIT directly evaluates global variable
@@ -125,22 +132,22 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     }
     assert(node->var->is_of_type || node->var->init_value);
     if (node->var->is_global){
-        hashtable_set_p(&context->gvar_name_2_ast, node->var->var_name, node);
+        hashtable_set_p(&context->gvar_name_2_ast, var_name, node);
     }
     if (node->var->is_of_type){
         var_type = create_type_from_type_node(context, node->var->is_of_type);
         assert(var_type);
         if(hashtable_in_p(&context->struct_typename_2_asts, var_type->name)||
             !node->var->init_value){
-            push_symbol_type(&context->decl_2_typexps, node->var->var_name, var_type);
-            push_symbol_type(&context->varname_2_asts, node->var->var_name, node);
+            push_symbol_type(&context->decl_2_typexps, var_name, var_type);
+            push_symbol_type(&context->varname_2_asts, var_name, node);
             if (node->var->init_value)
                 analyze(context, node->var->init_value);
             return var_type;
         }
     }
-    if (!var_type && has_symbol_in_scope(&context->decl_2_typexps, node->var->var_name, context->scope_marker))
-        var_type = retrieve_type_for_var_name(context, node->var->var_name);
+    if (!var_type && has_symbol_in_scope(&context->decl_2_typexps, var_name, context->scope_marker))
+        var_type = retrieve_type_for_var_name(context, var_name);
     struct type_expr *type = analyze(context, node->var->init_value);
     if (type && var_type && _is_array_size_same(var_type, type)){
         type = var_type;
@@ -158,8 +165,9 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     if(node->var->is_of_type && result_type->type != var_type->type && node->var->init_value){
         node->var->init_value->transformed = cast_to_node(var_type, node->var->init_value);
     }
-    push_symbol_type(&context->decl_2_typexps, node->var->var_name, var_type);
-    push_symbol_type(&context->varname_2_asts, node->var->var_name, node);
+    
+    push_symbol_type(&context->decl_2_typexps, var_name, var_type);
+    push_symbol_type(&context->varname_2_asts, var_name, node);
     return var_type;
 }
 
@@ -269,8 +277,8 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
             exp = create_type_var();
         array_push(&fun_sig, &exp);
         array_push(&context->nongens, &exp);
-        push_symbol_type(&context->decl_2_typexps, param->var->var_name, exp);
-        push_symbol_type(&context->varname_2_asts, param->var->var_name, param);
+        push_symbol_type(&context->decl_2_typexps, param->var->var->ident->name, exp);
+        push_symbol_type(&context->varname_2_asts, param->var->var->ident->name, param);
     }
     /*analyze function body*/
     struct type_expr *fun_type = create_type_var();
