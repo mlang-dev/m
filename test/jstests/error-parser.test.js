@@ -19,8 +19,8 @@ let f x
 `;
         expect(m.run_code(code)).toEqual(undefined);
         expected = [
-            "symbol [:] is expected to parse [param_decl = IDENT .: type_expr] but got [NEWLINE].\n",
-            "symbol [NEWLINE] is not expected after grammar rule [param_decl = IDENT].\n"
+            "symbol : is expected to parse param_decl = IDENT .: type_expr but got NEWLINE\n",
+            "symbol NEWLINE is not expected after grammar rule param_decl = IDENT\n"
         ];     
         expect(output).toEqual(expected, output);
     });

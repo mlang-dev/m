@@ -68,6 +68,7 @@ struct var_info *_req_new_local_var(struct cg_wasm *cg, struct type_expr *type, 
 void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
 {
     struct ast_node *arg_node;
+    if(node->transformed) node = node->transformed;
     switch(node->node_type)
     {
         default:

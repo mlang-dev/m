@@ -152,6 +152,10 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
             return items[0].ast;
+        }else if(rule->action.item_index_count == 3){
+            //this is special for action
+            ast = items[rule->action.item_index[2]].ast;
+            return _do_action(rule->action.item_index[0], rule->action.item_index[1], ast);
         }else{
             return items[rule->action.item_index[0]].ast;
         }
@@ -159,11 +163,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     enum aggregate_type aggregate_type;
     switch (rule->action.node_type) {
     case NULL_NODE:
-        //this is special for action
-        assert(rule->action.item_index_count == 3);
-        ast = items[rule->action.item_index[2]].ast;
-        ast = _do_action(rule->action.item_index[0], rule->action.item_index[1], ast);
-        break;
     case TOTAL_NODE:
     case UNIT_NODE:
     case LITERAL_NODE:
@@ -477,14 +476,14 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
                 u8 parsed = psi->items[i].dot;
                 if(parsed == rule->symbol_count){
                     //rule is complete, but 
-                    printf("symbol [%s] is not expected after grammar rule [%s].\n", got_symbol, rule->rule_string);
+                    printf("symbol %s is not expected after grammar rule %s\n", got_symbol, rule->rule_string);
                 }else{
                     const char *next_symbol = (*parser->psd)[rule->rhs[parsed]];
                     if(!is_terminal(rule->rhs[parsed])){
                         //printf("skip next symbol: %s\n", next_symbol);
                         continue;
                     }
-                    printf("symbol [%s] is expected to parse [%s] but got [%s].\n", next_symbol, psi->items[i].item_string, got_symbol);
+                    printf("symbol %s is expected to parse %s but got %s\n", next_symbol, psi->items[i].item_string, got_symbol);
                 }
             }
             // printf("the parser stack is: \n");
