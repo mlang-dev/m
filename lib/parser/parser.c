@@ -432,7 +432,7 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
             s_item = _pop_state(parser);
             ast = s_item->ast;
             break;
-        }else if(tok->token_type == TOKEN_ERROR){
+        }else if(tok->token_type == TOKEN_NULL){
             struct error_report *er = get_last_error_report(lexer);
             printf("%s location (line, col): (%d, %d)\n", er->error_msg, er->loc.line, er->loc.col);
             ast = 0;
