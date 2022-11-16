@@ -19,7 +19,7 @@ TEST(test_lexer, string_error_missing_end_quote)
         struct lexer *lexer;
         lexer = lexer_new_with_string("\"");
         tok = get_tok(lexer);
-        ASSERT_EQ(TOKEN_ERROR, tok->token_type);
+        ASSERT_EQ(TOKEN_NULL, tok->token_type);
         struct error_report *er = get_last_error_report(lexer);
         ASSERT_STREQ("missing end quote for string literal.", er->error_msg);
         ASSERT_EQ(1, er->loc.line);
@@ -38,7 +38,7 @@ TEST(test_lexer, char_error_missing_end_quote)
         struct lexer *lexer;
         lexer = lexer_new_with_string("'");
         tok = get_tok(lexer);
-        ASSERT_EQ(TOKEN_ERROR, tok->token_type);
+        ASSERT_EQ(TOKEN_NULL, tok->token_type);
         struct error_report *er = get_last_error_report(lexer);
         ASSERT_STREQ("missing end quote for char literal.", er->error_msg);
         ASSERT_EQ(1, er->loc.line);
@@ -57,7 +57,7 @@ TEST(test_lexer, char_error_multichar_end_quote)
         struct lexer *lexer;
         lexer = lexer_new_with_string("'abc'");
         tok = get_tok(lexer);
-        ASSERT_EQ(TOKEN_ERROR, tok->token_type);
+        ASSERT_EQ(TOKEN_NULL, tok->token_type);
         struct error_report *er = get_last_error_report(lexer);
         ASSERT_STREQ("character literal is found to have more than 1 character.", er->error_msg);
         ASSERT_EQ(1, er->loc.line);
@@ -82,7 +82,7 @@ TEST(test_lexer, indent_level_error)
         lexer = lexer_new_with_string(code);
         for(int i = 0; i < 6; i++)
             tok = get_tok(lexer);
-        ASSERT_EQ(TOKEN_ERROR, tok->token_type);
+        ASSERT_EQ(TOKEN_NULL, tok->token_type);
         struct error_report *er = get_last_error_report(lexer);
         ASSERT_STREQ("inconsistent indent level found.", er->error_msg);
         ASSERT_EQ(3, er->loc.line);

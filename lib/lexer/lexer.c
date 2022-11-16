@@ -321,7 +321,7 @@ struct token *get_tok(struct lexer *lexer)
             return tok;
         }
         else if(match == INVALID_INDENTS){
-            tok->token_type = TOKEN_ERROR;
+            tok->token_type = TOKEN_NULL;
             report_error(lexer, EC_INCONSISTENT_INDENT_LEVEL, tok->loc);
             goto mark_end;
         }
@@ -349,13 +349,13 @@ struct token *get_tok(struct lexer *lexer)
         _mark_token(lexer, TOKEN_CHAR, 0);
         _scan_until(lexer, '\'');
         if(lexer->buff[lexer->pos] != '\''){
-            tok->token_type = TOKEN_ERROR;
+            tok->token_type = TOKEN_NULL;
             report_error(lexer, EC_CHAR_MISS_END_QUOTE, tok->loc);
             goto mark_end;
         }
         _move_ahead(lexer); //skip the single quote
         if(!_is_valid_char(lexer)){
-            tok->token_type = TOKEN_ERROR;
+            tok->token_type = TOKEN_NULL;
             report_error(lexer, EC_CHAR_LEN_TOO_LONG, tok->loc);
             goto mark_end;
         }
@@ -369,7 +369,7 @@ struct token *get_tok(struct lexer *lexer)
         _mark_token(lexer, TOKEN_STRING, 0);
         _scan_until(lexer, '"');
         if(lexer->buff[lexer->pos] != '"'){
-            tok->token_type = TOKEN_ERROR;
+            tok->token_type = TOKEN_NULL;
             report_error(lexer, EC_STR_MISS_END_QUOTE, tok->loc);
             goto mark_end;
         }
