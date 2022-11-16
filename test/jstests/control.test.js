@@ -18,6 +18,14 @@ x = 10
 if x then 100 else 10
 `, 100);
 
+mtest.mtest('if but no else', 'only if but no else branch', 
+`
+x = 10
+if x==10 then 
+    x = 100
+x
+`, 100, true, true);
+
 mtest.mtest('ternary operator', 'use ternary operator', 
 `
 x = 10

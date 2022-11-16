@@ -33,7 +33,7 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
     ARRAY_STRING(args);
     for (size_t i = 0; i < array_size(&func_type->ft->params->block->nodes); i++) {
         struct ast_node *var = *(struct ast_node **)array_get(&func_type->ft->params->block->nodes, i);
-        string_copy(&var_str, var->var->var_name);
+        string_copy(&var_str, var->var->var->ident->name);
         if (var->var->is_of_type && var->var->is_of_type->node_type == IDENT_NODE &&var->var->is_of_type->ident->name) {
             enum type type_enum = get_type_enum_from_symbol(var->var->is_of_type->ident->name);
             if(type_enum != TYPE_GENERIC){
@@ -75,7 +75,7 @@ string _dump_var(struct sema_context *context, struct ast_node *var)
 {
     string var_str;
     string_init_chars(&var_str, "var: ");
-    string_add(&var_str, var->var->var_name);
+    string_add(&var_str, var->var->var->ident->name);
     string_add_chars(&var_str, "=");
     string init_value = dump(context, var->var->init_value);
     string_add(&var_str, &init_value);
@@ -142,7 +142,7 @@ string _dump_for(struct sema_context *context, struct ast_node *fornode)
 {
     string result;
     string_init_chars(&result, "for ");
-    string_add(&result, fornode->forloop->var->var->var_name);
+    string_add(&result, fornode->forloop->var->var->var->ident->name);
     string_add_chars(&result, " in ");
     string str_start = dump(context, fornode->forloop->range->range->start);
     string str_end = dump(context, fornode->forloop->range->range->end);
@@ -180,7 +180,7 @@ string dump(struct sema_context *context, struct ast_node *node)
         return _dump_var(context, node);
     else if (node->node_type == UNARY_NODE)
         return _dump_unary(context, node);
-    else if (node->node_type == BINARY_NODE)
+    else if (node->node_type == BINARY_NODE||node->node_type == ASSIGN_NODE)
         return _dump_binary(context, node);
     else if (node->node_type == IF_NODE)
         return _dump_if(context, node);

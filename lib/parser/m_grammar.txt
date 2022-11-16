@@ -88,7 +88,7 @@ cond_expr       = logic_or_expr
 const_expr      = cond_expr
 
 assign_expr     = cond_expr
-                | unary_expr assign_op  assign_expr                                         { binop 0 1 2 }
+                | unary_expr assign_op  assign_expr                                         { assign 0 1 2 }
 
 assign_op       = '='
                 | "*="
@@ -184,10 +184,10 @@ param_decls     = param_decls param_decl                                        
 var_decls       = var_decls ',' var_decl                                                    { block 0 2 }
                 | var_decl
 
-param_decl      = IDENT ':' type_expr                                                       { var 0 0 2 } # var name:type, no initial value
-                | IDENT                                                                     { var 0 0 } # value name, no type, no initial value
+param_decl      = IDENT ':' type_expr                                                       { variable 0 0 2 } # var name:type, no initial value
+                | IDENT                                                                     { variable 0 0 } # value name, no type, no initial value
                 | "..."
 
-var_decl        = IDENT ':' type_expr                                                       { var 0 0 2 }   # var name:type, no initial value
-                | IDENT ':' type_expr '=' expr                                              { var 1 0 2 4 } # var name:type with init value
-                | IDENT '=' expr                                                            { var 1 0 2 }   # var name with initial value
+var_decl        = IDENT ':' type_expr                                                       { variable 0 0 2 }   # var name:type, no initial value
+                | IDENT ':' type_expr '=' expr                                              { variable 1 0 2 4 } # var name:type with init value
+                | IDENT '=' expr                                                            { variable 1 0 2 }   # var name with initial value

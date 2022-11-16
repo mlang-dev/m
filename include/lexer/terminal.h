@@ -25,50 +25,61 @@ enum token_type{
     TOKEN_EPSILON,
     TOKEN_INDENT,
     TOKEN_DEDENT,
+
     TOKEN_NEWLINE,
     TOKEN_INT,
     TOKEN_DOUBLE,
     TOKEN_COMPLEX,
     TOKEN_CHAR,
+
     TOKEN_STRING,
     TOKEN_FROM,
     TOKEN_IMPORT,
     TOKEN_MEMORY,
     TOKEN_EXTERN,
+
     TOKEN_ENUM,
     TOKEN_STRUCT,
     TOKEN_UNION,
     TOKEN_TYPE,
     TOKEN_LET,
+
+    TOKEN_VAR,
     TOKEN_FUN,
     TOKEN_MAPTO,
     TOKEN_IF,
     TOKEN_THEN,
+
     TOKEN_ELSE,
     TOKEN_TRUE,
     TOKEN_FALSE,
     TOKEN_IN,
     TOKEN_FOR,
+
     TOKEN_WHILE,
     TOKEN_BREAK,
     TOKEN_CONTINUE,
     TOKEN_LPAREN,
     TOKEN_RPAREN,
+
     TOKEN_UNIT,
     TOKEN_LBRACKET,
     TOKEN_RBRACKET,
     TOKEN_LCBRACKET,
     TOKEN_RCBRACKET,
+
     TOKEN_COMMA,
     TOKEN_SEMICOLON,
     TOKEN_RANGE,
     TOKEN_VARIADIC,
     TOKEN_ISTYPEOF,
+
     TOKEN_DO,
     TOKEN_SWITCH,
     TOKEN_CASE,
     TOKEN_DEFAULT,
     TOKEN_RETURN,
+    
     TOKEN_YIELD,
     TOKEN_ASYNC,
     TOKEN_AWAIT,
@@ -182,15 +193,12 @@ const char *get_opcode(enum op_code opcode);
 
 bool is_terminal(u16 symbol_index);
 
-bool is_assign(enum op_code opcode);
-
 bool is_relational_op(enum op_code opcode);
 
 #define is_open_group(tp) (tp == TOKEN_LPAREN || tp == TOKEN_LBRACKET || tp == TOKEN_LCBRACKET)
 #define is_close_group(tp) (tp == TOKEN_RPAREN || tp == TOKEN_RBRACKET || tp == TOKEN_RCBRACKET)
 #define is_match_open(open, close) ((open == TOKEN_LPAREN && close == TOKEN_RPAREN) || (open == TOKEN_LBRACKET && close == TOKEN_RBRACKET) || (open == TOKEN_LCBRACKET && close == TOKEN_RCBRACKET))
 #define is_assign_op_sugar(tp) (tp >= OP_MUL_ASSN && tp <= OP_OR_ASSN)
-#define is_assign(tp) (tp >= OP_ASSIGN && tp <= OP_OR_ASSN)
 
 enum op_code get_op_code_from_assign_op(enum op_code assign_op);
 

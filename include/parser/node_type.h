@@ -39,6 +39,7 @@ extern "C" {
     ENUM_ITEM(RANGE_NODE)           \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \
+    ENUM_ITEM(ASSIGN_NODE)          \
     ENUM_ITEM(MEMBER_INDEX_NODE)    \
     ENUM_ITEM(IF_NODE)              \
     ENUM_ITEM(FOR_NODE)             \

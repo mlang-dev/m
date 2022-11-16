@@ -52,8 +52,9 @@ struct _memory_node {
 };
 
 struct _var_node {
-    symbol var_name;
     bool is_global;
+    bool is_mut; //is mutable
+    struct ast_node *var;
     struct ast_node *is_of_type;
     struct ast_node *init_value;
 };
@@ -238,7 +239,7 @@ struct ast_node *char_node_new(char val, struct source_location loc);
 struct ast_node *unit_node_new(struct source_location loc);
 struct ast_node *string_node_new(const char *val, struct source_location loc);
 struct ast_node *const_one_node_new(enum type type, struct source_location loc);
-struct ast_node *var_node_new(symbol var_name, struct ast_node *is_of_type, struct ast_node *init_value, bool is_global, struct source_location loc);
+struct ast_node *var_node_new(struct ast_node *var, struct ast_node *is_of_type, struct ast_node *init_value, bool is_global, bool is_mut, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
 struct ast_node *import_node_new(symbol from_module, struct ast_node *node, struct source_location loc);
@@ -263,6 +264,7 @@ struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_n
 struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc);
 struct ast_node *cast_node_new(struct ast_node *to_type_node, struct ast_node *expr, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
+struct ast_node *assign_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *member_index_node_new(enum aggregate_type aggregate_type, struct ast_node *object, struct ast_node *index, struct source_location loc);
 struct ast_node *for_node_new(struct ast_node *var, struct ast_node *range, struct ast_node *body, struct source_location loc);
 struct ast_node *while_node_new(struct ast_node *expr, struct ast_node *body, struct source_location loc);

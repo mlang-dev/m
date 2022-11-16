@@ -87,6 +87,7 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
         case UNARY_NODE:
             collect_local_variables(cg, node->unop->operand);
             break;
+        case ASSIGN_NODE:
         case BINARY_NODE:
             func_register_local_variable(cg, node, true);
             break;
@@ -174,13 +175,14 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         hashtable_set_p(&fc->ast_2_index, node, vi);
         break;
     case  VAR_NODE:
-        if(symboltable_get(&fc->varname_2_index, node->var->var_name)){
+        if(symboltable_get(&fc->varname_2_index, node->var->var->ident->name)){
             break;
         }
         vi = _req_new_local_var(cg, node->type, is_local_var, node->is_ret, node->is_addressed);
         hashtable_set_p(&fc->ast_2_index, node, vi);
-        symboltable_push(&fc->varname_2_index, node->var->var_name, vi);
+        symboltable_push(&fc->varname_2_index, node->var->var->ident->name, vi);
         break;
+    case ASSIGN_NODE:
     case BINARY_NODE:
         if(node->binop->lhs->type->type == TYPE_STRUCT){
             if(node->binop->lhs->node_type != IDENT_NODE){
@@ -195,7 +197,7 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         break;
     case FOR_NODE:
         vi = _req_new_local_var(cg, node->forloop->range->range->start->type, is_local_var, node->forloop->range->range->start->is_ret, node->forloop->range->range->start->is_addressed);
-        symboltable_push(&fc->varname_2_index, node->forloop->var->var->var_name, vi);
+        symboltable_push(&fc->varname_2_index, node->forloop->var->var->var->ident->name, vi);
         hashtable_set_p(&fc->ast_2_index, node->forloop->var, vi);
         vi = _req_new_local_var(cg, node->forloop->range->range->step->type, true, node->forloop->range->range->step->is_ret, node->forloop->range->range->step->is_addressed);
         hashtable_set_p(&fc->ast_2_index, node->forloop->range->range->step, vi);
@@ -233,7 +235,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     struct ast_node *p0 = 0;
     if(has_sret){
         struct ast_node *is_of_type = ident_node_new(fi->ret.type->name, node->loc);
-        p0 = var_node_new(to_symbol("__p0"), is_of_type, 0, false, node->loc);
+        p0 = var_node_new(ident_node_new(to_symbol("__p0"), node->loc), is_of_type, 0, false, true, node->loc);
         p0->type = fi->ret.type;
         func_register_local_variable(cg, p0, false); //register one parameter
     }

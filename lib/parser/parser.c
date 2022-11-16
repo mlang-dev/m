@@ -128,6 +128,23 @@ struct ast_node *_wrap_as_block_node(struct ast_node *node)
     return block_node_new(&nodes);
 }
 
+struct ast_node *_do_action(u8 action_code, u8 param, struct ast_node *node)
+{
+    if(action_code == 0){
+        //mark mutable attribute on node
+        if(node->node_type == VAR_NODE){
+            node->var->is_mut = param;
+        }else if(node->node_type == BLOCK_NODE){
+            for(u32 i = 0; i < array_size(&node->block->nodes); i++){
+                struct ast_node *elm = *(struct ast_node **)array_get(&node->block->nodes, i);
+                assert(elm->node_type == VAR_NODE);
+                elm->var->is_mut = param;
+            }
+        }
+    }
+    return node;
+}
+
 struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct parse_rule *rule, struct stack_item *items)
 {
     struct ast_node *ast = 0;
@@ -142,6 +159,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     enum aggregate_type aggregate_type;
     switch (rule->action.node_type) {
     case NULL_NODE:
+        //this is special for action
+        assert(rule->action.item_index_count == 3);
+        ast = items[rule->action.item_index[2]].ast;
+        ast = _do_action(rule->action.item_index[0], rule->action.item_index[1], ast);
+        break;
     case TOTAL_NODE:
     case UNIT_NODE:
     case LITERAL_NODE:
@@ -202,7 +224,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             type_name = items[rule->action.item_index[2]].ast;
         }
         assert(!type_name || type_name->node_type == IDENT_NODE||type_name->node_type == UNARY_NODE||type_name->node_type == ARRAY_TYPE_NODE);
-        ast = var_node_new(var->ident->name, type_name, init_value, false, var->loc);
+        ast = var_node_new(var, type_name, init_value, false, false, var->loc);
         break;
     }
     case RANGE_NODE:
@@ -225,7 +247,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(var->node_type == VAR_NODE);
         struct ast_node *range = items[rule->action.item_index[1]].ast;
         struct ast_node *body = items[rule->action.item_index[2]].ast; 
-        range->range->end = binary_node_new(OP_LT, ident_node_new(var->var->var_name, var->loc), range->range->end, range->range->end->loc);
+        range->range->end = binary_node_new(OP_LT, ident_node_new(var->var->var->ident->name, var->loc), range->range->end, range->range->end->loc);
         ast = for_node_new(var, range, body, var->loc);
         break;
     }
@@ -264,6 +286,15 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *lhs = items[rule->action.item_index[0]].ast;
         struct ast_node *rhs = items[rule->action.item_index[2]].ast;
         ast = binary_node_new(opcode, lhs, rhs, lhs->loc);
+        break;
+    }
+    case ASSIGN_NODE:
+    {
+        struct ast_node *op = items[rule->action.item_index[1]].ast;
+        enum op_code opcode = op->node_type & 0xFFFF;
+        struct ast_node *lhs = items[rule->action.item_index[0]].ast;
+        struct ast_node *rhs = items[rule->action.item_index[2]].ast;
+        ast = assign_node_new(opcode, lhs, rhs, lhs->loc);
         break;
     }
     case MEMBER_INDEX_NODE:
@@ -446,7 +477,7 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
                 u8 parsed = psi->items[i].dot;
                 if(parsed == rule->symbol_count){
                     //rule is complete, but 
-                    printf("symbol [%s] is not expected after grammar [%s].\n", got_symbol, rule->rule_string);
+                    printf("symbol [%s] is not expected after grammar rule [%s].\n", got_symbol, rule->rule_string);
                 }else{
                     const char *next_symbol = (*parser->psd)[rule->rhs[parsed]];
                     if(!is_terminal(rule->rhs[parsed])){

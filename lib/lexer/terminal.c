@@ -35,6 +35,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("union", UNION, NULL),
     KEYWORD_PATTERN("type", TYPE, NULL),
     KEYWORD_PATTERN("let", LET, NULL),
+    KEYWORD_PATTERN("var", VAR, NULL),
     KEYWORD_PATTERN("fun", FUN, NULL),
     KEYWORD_PATTERN("->", MAPTO, NULL),
     KEYWORD_PATTERN("if", IF, NULL),
@@ -48,6 +49,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("while", WHILE, NULL),
     KEYWORD_PATTERN("break", BREAK, NULL),
     KEYWORD_PATTERN("continue", CONTINUE, NULL),
+
 
     NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL),
     NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL),
@@ -78,6 +80,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("with", WITH, NULL),
 
     TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL), //
+    
     /*operators*/
     TOKEN_PATTERN(0, OP, NULL),
     NAME_KEYWORD_PATTERN(".", "\\.", OP, DOT), // literal dot

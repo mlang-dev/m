@@ -20,7 +20,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(memory_decl, MEMORY),
     NODE_TYPE_NAME(literal, LITERAL),
     NODE_TYPE_NAME(ident, IDENT),
-    NODE_TYPE_NAME(var, VAR),
+    NODE_TYPE_NAME(variable, VAR),
     NODE_TYPE_NAME(enum_def, ENUM),
     NODE_TYPE_NAME(cast, CAST),
     NODE_TYPE_NAME(struct_def, STRUCT),
@@ -31,6 +31,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(range, RANGE),
     NODE_TYPE_NAME(unop, UNARY),
     NODE_TYPE_NAME(binop, BINARY),
+    NODE_TYPE_NAME(assign, ASSIGN),
     NODE_TYPE_NAME(indexing, MEMBER_INDEX),
     NODE_TYPE_NAME(if_cond, IF),
     NODE_TYPE_NAME(for_loop, FOR),
@@ -79,6 +80,7 @@ enum node_type symbol_to_node_type(symbol action_name)
     if(!action_name)
         return NULL_NODE;
     struct node_type_name *ntn = get_node_type_name_by_symbol(action_name);
-    assert(ntn);
+    if(!ntn) return 0;
     return ntn->node_type;
 }
+

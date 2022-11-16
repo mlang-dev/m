@@ -53,7 +53,7 @@ LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bo
 
 LLVMValueRef _emit_local_var_type_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    symbol var_name = node->var->var_name;
+    symbol var_name = node->var->var->ident->name;
     LLVMValueRef alloca = 0;
 
     if (node->var->init_value->node_type == STRUCT_INIT_NODE) {
@@ -77,7 +77,7 @@ LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
     // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
     // fprintf(stderr, "_emit_var_node:2 %lu!\n", node->var_names.size());
-    symbol var_name = node->var->var_name;
+    symbol var_name = node->var->var->ident->name;
     // log_info(DEBUG, "local var cg: %s", var_name.c_str());
     assert(node->var->init_value);
     LLVMValueRef init_val = emit_ir_code(cg, node->var->init_value);
@@ -123,12 +123,12 @@ LLVMValueRef _get_zero_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, stru
 LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *node,
     bool is_external)
 {
-    const char *var_name = string_get(node->var->var_name);
+    const char *var_name = string_get(node->var->var->ident->name);
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     assert(node->type);
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, node->type->name);
     assert(type);
-    if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var_name) && !gVar && !is_external)
+    if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name) && !gVar && !is_external)
         is_external = true;
     if (!gVar) {
         if (is_external) {
@@ -136,7 +136,7 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
             gVar = LLVMAddGlobal(cg->module, type, var_name);
         } else {
             //global variable with initialization
-            hashtable_set_p(&cg->cg_gvar_name_2_asts, node->var->var_name, node);
+            hashtable_set_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name, node);
             gVar = LLVMAddGlobal(cg->module, type, var_name);
             LLVMValueRef init_value;
             if (node->var->init_value)
@@ -146,7 +146,7 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
             LLVMSetInitializer(gVar, init_value);
         }
     }
-    hashtable_set_p(&cg->varname_2_typename, node->var->var_name, node->type->name);
+    hashtable_set_p(&cg->varname_2_typename, node->var->var->ident->name, node->type->name);
     if (!cg->base.sema_context->is_repl)
         return 0;
     //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
@@ -168,19 +168,19 @@ LLVMValueRef _emit_global_var_node(struct cg_llvm *cg, struct ast_node *node,
     if (node->type->type == TYPE_STRUCT) {
         return _emit_global_var_type_node(cg, node, is_external);
     }
-    const char *var_name = string_get(node->var->var_name);
+    const char *var_name = string_get(node->var->var->ident->name);
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     LLVMValueRef exp = emit_ir_code(cg, node->var->init_value);
     assert(node->type && cg->module);
     enum type type = get_type(node->type);
-    if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var_name) && !gVar && !is_external)
+    if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name) && !gVar && !is_external)
         is_external = true;
     if (!gVar) {
         if (is_external) {
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->type), var_name);
             LLVMSetExternallyInitialized(gVar, true);
         } else {
-            hashtable_set_p(&cg->cg_gvar_name_2_asts, node->var->var_name, node);
+            hashtable_set_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name, node);
             gVar = LLVMAddGlobal(cg->module, cg->ops[type].get_type(cg->context, node->type), var_name);
             LLVMSetExternallyInitialized(gVar, false);
             if (cg->base.sema_context->is_repl)
