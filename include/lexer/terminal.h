@@ -19,66 +19,75 @@
 extern "C" {
 #endif
 
-#define FOREACH_TOKENTYPE(ENUM_ITEM) \
-    ENUM_ITEM(TOKEN_ERROR)           \
-    ENUM_ITEM(TOKEN_EOF)             \
-    ENUM_ITEM(TOKEN_EPSILON)         \
-    ENUM_ITEM(TOKEN_INDENT)          \
-    ENUM_ITEM(TOKEN_DEDENT)          \
-    ENUM_ITEM(TOKEN_NEWLINE)         \
-    ENUM_ITEM(TOKEN_INT)             \
-    ENUM_ITEM(TOKEN_DOUBLE)          \
-    ENUM_ITEM(TOKEN_COMPLEX)         \
-    ENUM_ITEM(TOKEN_CHAR)            \
-    ENUM_ITEM(TOKEN_STRING)          \
-    ENUM_ITEM(TOKEN_FROM)            \
-    ENUM_ITEM(TOKEN_IMPORT)          \
-    ENUM_ITEM(TOKEN_MEMORY)          \
-    ENUM_ITEM(TOKEN_EXTERN)          \
-    ENUM_ITEM(TOKEN_ENUM)            \
-    ENUM_ITEM(TOKEN_STRUCT)          \
-    ENUM_ITEM(TOKEN_UNION)           \
-    ENUM_ITEM(TOKEN_TYPE)            \
-    ENUM_ITEM(TOKEN_LET)             \
-    ENUM_ITEM(TOKEN_FUN)             \
-    ENUM_ITEM(TOKEN_MAPTO)           \
-    ENUM_ITEM(TOKEN_IF)              \
-    ENUM_ITEM(TOKEN_THEN)            \
-    ENUM_ITEM(TOKEN_ELSE)            \
-    ENUM_ITEM(TOKEN_TRUE)            \
-    ENUM_ITEM(TOKEN_FALSE)           \
-    ENUM_ITEM(TOKEN_IN)              \
-    ENUM_ITEM(TOKEN_FOR)             \
-    ENUM_ITEM(TOKEN_WHILE)           \
-    ENUM_ITEM(TOKEN_BREAK)           \
-    ENUM_ITEM(TOKEN_CONTINUE)        \
-    ENUM_ITEM(TOKEN_IDENT)           \
-    ENUM_ITEM(TOKEN_VAR)             \
-    ENUM_ITEM(TOKEN_LPAREN)          \
-    ENUM_ITEM(TOKEN_RPAREN)          \
-    ENUM_ITEM(TOKEN_UNIT)            \
-    ENUM_ITEM(TOKEN_LBRACKET)        \
-    ENUM_ITEM(TOKEN_RBRACKET)        \
-    ENUM_ITEM(TOKEN_LCBRACKET)       \
-    ENUM_ITEM(TOKEN_RCBRACKET)       \
-    ENUM_ITEM(TOKEN_COMMA)           \
-    ENUM_ITEM(TOKEN_SEMICOLON)       \
-    ENUM_ITEM(TOKEN_RANGE)           \
-    ENUM_ITEM(TOKEN_VARIADIC)        \
-    ENUM_ITEM(TOKEN_ISTYPEOF)        \
-    ENUM_ITEM(TOKEN_DO)              \
-    ENUM_ITEM(TOKEN_SWITCH)          \
-    ENUM_ITEM(TOKEN_CASE)            \
-    ENUM_ITEM(TOKEN_DEFAULT)         \
-    ENUM_ITEM(TOKEN_RETURN)          \
-    ENUM_ITEM(TOKEN_YIELD)           \
-    ENUM_ITEM(TOKEN_ASYNC)           \
-    ENUM_ITEM(TOKEN_AWAIT)           \
-    ENUM_ITEM(TOKEN_MATCH)           \
-    ENUM_ITEM(TOKEN_WITH)            \
-    ENUM_ITEM(TOKEN_OP)
+enum token_type{
+    TOKEN_NULL,
+    TOKEN_EOF,
+    TOKEN_EPSILON,
+    TOKEN_INDENT,
+    TOKEN_DEDENT,
 
-enum token_type { FOREACH_TOKENTYPE(GENERATE_ENUM) };
+    TOKEN_NEWLINE,
+    TOKEN_INT,
+    TOKEN_DOUBLE,
+    TOKEN_COMPLEX,
+    TOKEN_CHAR,
+
+    TOKEN_STRING,
+    TOKEN_FROM,
+    TOKEN_IMPORT,
+    TOKEN_MEMORY,
+    TOKEN_EXTERN,
+
+    TOKEN_ENUM,
+    TOKEN_STRUCT,
+    TOKEN_UNION,
+    TOKEN_TYPE,
+    TOKEN_LET,
+
+    TOKEN_VAR,
+    TOKEN_FUN,
+    TOKEN_MAPTO,
+    TOKEN_IF,
+    TOKEN_THEN,
+
+    TOKEN_ELSE,
+    TOKEN_TRUE,
+    TOKEN_FALSE,
+    TOKEN_IN,
+    TOKEN_FOR,
+    
+    TOKEN_WHILE,
+    TOKEN_BREAK,
+    TOKEN_CONTINUE,
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_UNIT,
+    TOKEN_LBRACKET,
+    TOKEN_RBRACKET,
+    TOKEN_LCBRACKET,
+    TOKEN_RCBRACKET,
+    TOKEN_COMMA,
+    TOKEN_SEMICOLON,
+    TOKEN_RANGE,
+    TOKEN_VARIADIC,
+    TOKEN_ISTYPEOF,
+    TOKEN_DO,
+    TOKEN_SWITCH,
+    TOKEN_CASE,
+    TOKEN_DEFAULT,
+    TOKEN_RETURN,
+    TOKEN_YIELD,
+    TOKEN_ASYNC,
+    TOKEN_AWAIT,
+    TOKEN_MATCH,
+    TOKEN_WITH,
+    
+    /*IDENT token has to been at the end of keyword list, so that exact keyword match 
+      always happens before identifier match
+    */
+    TOKEN_IDENT, 
+    TOKEN_OP,
+};
 
 enum op_code {
     OP_NULL,
@@ -132,8 +141,6 @@ enum op_code {
 #define TERMINAL_COUNT TOKEN_OP + OP_TOTAL
 #define MAX_NONTERMS 2048
 #define MAX_GRAMMAR_SYMBOLS TERMINAL_COUNT + MAX_NONTERMS
-
-extern const char *token_type_strings[];
 
 struct token_pattern{
     const char *name;       //c string name

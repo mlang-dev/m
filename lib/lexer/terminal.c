@@ -13,7 +13,7 @@
 #define NAME_KEYWORD_PATTERN(name, keyword, tok_name, op_name) {name, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
 
 struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
-    TOKEN_PATTERN(0, ERROR, NULL), // 1
+    TOKEN_PATTERN(0, NULL, NULL), // 1
     TOKEN_PATTERN(0, EOF, NULL), // 1
     TOKEN_PATTERN(0, EPSILON, NULL),
     TOKEN_PATTERN(0, INDENT, NULL),
@@ -29,11 +29,13 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("import", IMPORT, NULL),
     KEYWORD_PATTERN("memory", MEMORY, NULL),
     KEYWORD_PATTERN("extern", EXTERN, NULL), // 10
+
     KEYWORD_PATTERN("enum", ENUM, NULL),
     KEYWORD_PATTERN("struct", STRUCT, NULL),
     KEYWORD_PATTERN("union", UNION, NULL),
     KEYWORD_PATTERN("type", TYPE, NULL),
     KEYWORD_PATTERN("let", LET, NULL),
+    KEYWORD_PATTERN("var", VAR, NULL),
     KEYWORD_PATTERN("fun", FUN, NULL),
     KEYWORD_PATTERN("->", MAPTO, NULL),
     KEYWORD_PATTERN("if", IF, NULL),
@@ -48,8 +50,6 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("break", BREAK, NULL),
     KEYWORD_PATTERN("continue", CONTINUE, NULL),
 
-    TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL), //
-    KEYWORD_PATTERN("var", VAR, NULL),
 
     NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL),
     NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL),
@@ -79,6 +79,8 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("match", MATCH, NULL),
     KEYWORD_PATTERN("with", WITH, NULL),
 
+    TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL), //
+    
     /*operators*/
     TOKEN_PATTERN(0, OP, NULL),
     NAME_KEYWORD_PATTERN(".", "\\.", OP, DOT), // literal dot
@@ -124,11 +126,6 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
 
     NAME_KEYWORD_PATTERN("++", "\\+\\+", OP, INC),
     KEYWORD_PATTERN("--", OP, DEC),
-};
-
-
-const char *token_type_strings[] = {
-    FOREACH_TOKENTYPE(GENERATE_ENUM_STRING)
 };
 
 

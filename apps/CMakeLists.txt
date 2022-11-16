@@ -128,7 +128,6 @@ else()
   #   # COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/x86_64-linux-gnu/libc.so -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
   # )
 
-
   target_link_libraries(c2m PRIVATE 
     mlrl 
     clib

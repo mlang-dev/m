@@ -146,6 +146,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                     expr->action.exp_item_index[expr->action.exp_item_index_count++] = next_tok.int_val;
                 }
                 else{    
+                    printf("unaccepted token type: %d\n", next_tok.token_type);
                     assert(false);
                 }
             next_tok = *get_tok(lexer); // skip ']'
