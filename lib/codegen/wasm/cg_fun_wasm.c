@@ -87,6 +87,7 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
         case UNARY_NODE:
             collect_local_variables(cg, node->unop->operand);
             break;
+        case ASSIGN_NODE:
         case BINARY_NODE:
             func_register_local_variable(cg, node, true);
             break;
@@ -181,6 +182,7 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         hashtable_set_p(&fc->ast_2_index, node, vi);
         symboltable_push(&fc->varname_2_index, node->var->var->ident->name, vi);
         break;
+    case ASSIGN_NODE:
     case BINARY_NODE:
         if(node->binop->lhs->type->type == TYPE_STRUCT){
             if(node->binop->lhs->node_type != IDENT_NODE){

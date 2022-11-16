@@ -651,6 +651,31 @@ void _free_binary_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *assign_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(ASSIGN_NODE, loc);
+    MALLOC(node->binop, sizeof(*node->binop));
+    node->binop->opcode = opcode;
+    node->binop->lhs = lhs;
+    node->binop->rhs = rhs;
+    return node;
+}
+
+struct ast_node *_copy_assign_node(struct ast_node *orig_node)
+{
+    return assign_node_new(orig_node->binop->opcode,
+        orig_node->binop->lhs, orig_node->binop->rhs, orig_node->loc);
+}
+
+void _free_assign_node(struct ast_node *node)
+{
+    if (node->binop->lhs)
+        node_free(node->binop->lhs);
+    if (node->binop->rhs)
+        node_free(node->binop->rhs);
+    ast_node_free(node);
+}
+
 struct ast_node *cast_node_new(struct ast_node *to_type_node, struct ast_node *expr, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(CAST_NODE, loc);
@@ -839,6 +864,8 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_unary_node(node);
     case BINARY_NODE:
         return _copy_binary_node(node);
+    case ASSIGN_NODE:
+        return _copy_assign_node(node);
     case RANGE_NODE:
         return _copy_range_node(node);
     case ARRAY_INIT_NODE:
@@ -911,6 +938,9 @@ void node_free(struct ast_node *node)
         break;
     case BINARY_NODE:
         _free_binary_node(node);
+        break;
+    case ASSIGN_NODE:
+        _free_assign_node(node);
         break;
     case RANGE_NODE:
         _free_range_node(node);

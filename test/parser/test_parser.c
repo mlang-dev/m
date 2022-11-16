@@ -611,7 +611,7 @@ xy.x = 10.0";
     ASSERT_STREQ("xy", string_get(var->var->var->ident->name));
     ASSERT_STREQ("Point2D", string_get(var->var->is_of_type->ident->name));
     node = *(struct ast_node **)array_get(&block->block->nodes, 2);
-    ASSERT_EQ(BINARY_NODE, node->node_type);
+    ASSERT_EQ(ASSIGN_NODE, node->node_type);
     ASSERT_EQ(MEMBER_INDEX_NODE, node->binop->lhs->node_type);
     ASSERT_EQ(LITERAL_NODE, node->binop->rhs->node_type);
     ASSERT_EQ(OP_ASSIGN, node->binop->opcode);

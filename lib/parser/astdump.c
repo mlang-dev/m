@@ -180,7 +180,7 @@ string dump(struct sema_context *context, struct ast_node *node)
         return _dump_var(context, node);
     else if (node->node_type == UNARY_NODE)
         return _dump_unary(context, node);
-    else if (node->node_type == BINARY_NODE)
+    else if (node->node_type == BINARY_NODE||node->node_type == ASSIGN_NODE)
         return _dump_binary(context, node);
     else if (node->node_type == IF_NODE)
         return _dump_if(context, node);

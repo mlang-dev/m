@@ -121,7 +121,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     symbol var_name = node->var->var->ident->name;
     if(has_symbol(&context->decl_2_typexps, var_name)){
         //this is assignment, not var declaration
-        node->transformed = binary_node_new(OP_ASSIGN, node->var->var, node->var->init_value, node->loc);
+        node->transformed = assign_node_new(OP_ASSIGN, node->var->var, node->var->init_value, node->loc);
         node->transformed->type = analyze(context, node->transformed);
         return node->transformed->type;
     }
@@ -394,7 +394,7 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
     }
     else if(node->unop->opcode == OP_INC || node->unop->opcode == OP_DEC){
         struct ast_node *new_node = binary_node_new(node->unop->opcode == OP_INC ? OP_PLUS : OP_MINUS, node->unop->operand, int_node_new(1, node->loc), node->loc);
-        node->transformed = binary_node_new(OP_ASSIGN, node->unop->operand, new_node, node->loc);
+        node->transformed = assign_node_new(OP_ASSIGN, node->unop->operand, new_node, node->loc);
         node->transformed->type = op_type;
     }
     return op_type;
@@ -492,7 +492,7 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
     if(is_assign_op_sugar(node->binop->opcode)){
         enum op_code binop = get_op_code_from_assign_op(node->binop->opcode);
         struct ast_node *new_node = binary_node_new(binop, node->binop->lhs, node->binop->rhs, node->loc);
-        node->transformed = binary_node_new(OP_ASSIGN, node->binop->lhs, new_node, node->loc);
+        node->transformed = assign_node_new(OP_ASSIGN, node->binop->lhs, new_node, node->loc);
         node->transformed->type = result;
     }
     return result;
@@ -656,11 +656,10 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
                 type = _analyze_struct_field_accessor(context, node);
             break;
         case BINARY_NODE:
-            if(is_assign(node->binop->opcode)){
-                type = _analyze_assign(context, node);
-            }else{
-                type = _analyze_binary(context, node);
-            }
+            type = _analyze_binary(context, node);
+            break;
+        case ASSIGN_NODE:
+            type = _analyze_assign(context, node);
             break;
         case IF_NODE:
             type = _analyze_if(context, node);

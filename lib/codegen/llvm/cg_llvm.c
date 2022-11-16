@@ -765,6 +765,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case MEMBER_INDEX_NODE:
             value = _emit_accessor_node(cg, node);
             break;
+        case ASSIGN_NODE:
         case BINARY_NODE:
             value = _emit_binary_node(cg, node);
             break;

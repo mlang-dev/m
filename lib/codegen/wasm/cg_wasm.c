@@ -941,11 +941,10 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             }
             break;
         case BINARY_NODE:
-            if(is_assign(node->binop->opcode)){
-                _emit_assignment(cg, ba, node);
-            }else{
-                _emit_binary(cg, ba, node);
-            }
+            _emit_binary(cg, ba, node);
+            break;
+        case ASSIGN_NODE:
+            _emit_assignment(cg, ba, node);
             break;
         case UNARY_NODE:
             _emit_unary(cg, ba, node);

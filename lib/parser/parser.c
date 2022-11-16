@@ -288,6 +288,15 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         ast = binary_node_new(opcode, lhs, rhs, lhs->loc);
         break;
     }
+    case ASSIGN_NODE:
+    {
+        struct ast_node *op = items[rule->action.item_index[1]].ast;
+        enum op_code opcode = op->node_type & 0xFFFF;
+        struct ast_node *lhs = items[rule->action.item_index[0]].ast;
+        struct ast_node *rhs = items[rule->action.item_index[2]].ast;
+        ast = assign_node_new(opcode, lhs, rhs, lhs->loc);
+        break;
+    }
     case MEMBER_INDEX_NODE:
     {
         aggregate_type = rule->action.item_index[0];

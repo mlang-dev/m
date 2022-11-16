@@ -31,6 +31,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(range, RANGE),
     NODE_TYPE_NAME(unop, UNARY),
     NODE_TYPE_NAME(binop, BINARY),
+    NODE_TYPE_NAME(assign, ASSIGN),
     NODE_TYPE_NAME(indexing, MEMBER_INDEX),
     NODE_TYPE_NAME(if_cond, IF),
     NODE_TYPE_NAME(for_loop, FOR),
