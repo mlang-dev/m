@@ -352,13 +352,14 @@ TEST(test_analyzer, for_loop_fun)
     char test_code[] = "\n\
 # using for loop\n\
 let loopprint n = \n\
+  sum = 0\n\
   for i in 0..n\n\
-    printf \"%d\" i\n\
+    sum += i\n\
+  sum\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
-    
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
@@ -367,12 +368,13 @@ let loopprint n = \n\
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
-    ASSERT_STREQ("int -> ()", string_get(&type_str));
-    struct ast_node *forn = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_STREQ("int -> int", string_get(&type_str));
+    struct ast_node *forn = *(struct ast_node **)array_get(&node->func->body->block->nodes, 1);
+    ASSERT_EQ(FOR_NODE, forn->node_type);
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->step->type));
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->start->type));
     ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->range->range->end->type));
-    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->body->type));
+    ASSERT_EQ(TYPE_UNIT, get_type(forn->forloop->body->type));
     ast_node_free(block);
     frontend_deinit(fe);
 }
@@ -382,8 +384,10 @@ TEST(test_analyzer, float_var_loop)
     char test_code[] = "\n\
 # using for loop\n\
 let loopprint n:f64 =\n\
+  sum = 0.0\n\
   for i in 0.0..1.0..n\n\
-    printf \"%d\" i\n\
+    sum += i\n\
+  sum\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -397,12 +401,13 @@ let loopprint n:f64 =\n\
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
-    ASSERT_STREQ("f64 -> ()", string_get(&type_str));
-    struct ast_node *forn = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_STREQ("f64 -> f64", string_get(&type_str));
+    struct ast_node *forn = *(struct ast_node **)array_get(&node->func->body->block->nodes, 1);
+    ASSERT_EQ(FOR_NODE, forn->node_type);
     ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->step->type));
     ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->start->type));
     ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->range->range->end->type));
-    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->body->type));
+    ASSERT_EQ(TYPE_UNIT, get_type(forn->forloop->body->type));
     ast_node_free(block);
     frontend_deinit(fe);
 }
@@ -488,12 +493,11 @@ TEST(test_analyzer, printf_fun)
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
-    
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(CALL_NODE, node->node_type);
     string type_str = to_string(node->type);
-    ASSERT_STREQ("int", string_get(&type_str));
+    ASSERT_STREQ("type mismatch", string_get(&type_str));
     ast_node_free(block);
     frontend_deinit(fe);
 }
@@ -519,7 +523,7 @@ struct Point2D = x:f64, y:f64\n\
 TEST(test_analyzer, fun_type_annotation)
 {
     char test_code[] = "\n\
-let print x:int = printf \"%d\" x\n\
+let inc x:int = x + 1\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -527,7 +531,7 @@ let print x:int = printf \"%d\" x\n\
     
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("print", string_get(node->func->func_type->ft->name));
+    ASSERT_STREQ("inc", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
     struct type_expr *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
@@ -541,7 +545,7 @@ let print x:int = printf \"%d\" x\n\
 TEST(test_analyzer, fun_type_with_ret_type)
 {
     char test_code[] = "\n\
-let prt:int x:int = printf \"%d\" x\n\
+let inc:int x:int = x + 1\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -549,7 +553,7 @@ let prt:int x:int = printf \"%d\" x\n\
     
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("prt", string_get(node->func->func_type->ft->name));
+    ASSERT_STREQ("inc", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
     struct type_expr *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);

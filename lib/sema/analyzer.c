@@ -551,7 +551,7 @@ struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *no
     node->forloop->range->range->end->type = end_type;
     node->forloop->body->type = body_type;
     leave_loop(context);
-    return create_nullary_type(TYPE_UNIT, get_type_symbol(TYPE_UNIT));
+    return create_unit_type();
 }
 
 
