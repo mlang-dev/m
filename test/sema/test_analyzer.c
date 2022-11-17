@@ -89,7 +89,7 @@ TEST(test_analyzer, empty_array)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-a = []\n\
+var a = []\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
