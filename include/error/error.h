@@ -40,12 +40,17 @@ enum error_code {
     EC_NOT_REFERENCE_TYPE,
     
     EC_IDENT_NOT_DEFINED,
+
+    EC_IMMUTABLE_ASSIGNMENT,
+    
     ALL_ERROR
 };
 
+#define MAX_ERROR_MSG_SIZE  256
+
 struct error_report {
     enum error_code error_code;
-    const char *error_msg;
+    char error_msg[MAX_ERROR_MSG_SIZE];
     struct source_location loc;
 };
 
@@ -61,7 +66,7 @@ void error_init();
 void error_deinit();
 struct error_reports get_error_reports(ErrorHandle handle);
 struct error_report *get_last_error_report(ErrorHandle handle);
-void report_error(ErrorHandle handle, enum error_code error_code, struct source_location loc);
+void report_error(ErrorHandle handle, enum error_code error_code, struct source_location loc, ...);
 
 #ifdef __cplusplus
 }

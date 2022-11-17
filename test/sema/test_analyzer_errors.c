@@ -78,6 +78,89 @@ x[3]\n\
     frontend_deinit(fe);
 }
 
+TEST(test_analyzer_error, id_not_defined)
+{
+    char test_code[] = "\n\
+x + 3\n\
+";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct error_report* er = get_last_error_report(fe->sema_context);
+    ASSERT_EQ(EC_IDENT_NOT_DEFINED, er->error_code);
+    ASSERT_STREQ("id: x is not defined", er->error_msg);
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
+TEST(test_analyzer_error, id_not_defined_unary)
+{
+    char test_code[] = "\n\
+-x\n\
+";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct error_report* er = get_last_error_report(fe->sema_context);
+    ASSERT_EQ(EC_IDENT_NOT_DEFINED, er->error_code);
+    ASSERT_STREQ("id: x is not defined", er->error_msg);
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
+TEST(test_analyzer_error, id_not_mutable)
+{
+    char test_code[] = "\n\
+x = 10\n\
+x = 20\n\
+";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct error_report* er = get_last_error_report(fe->sema_context);
+    ASSERT_EQ(EC_IMMUTABLE_ASSIGNMENT, er->error_code);
+    ASSERT_STREQ("id: x is immutable, it can't be mutated", er->error_msg);
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
+TEST(test_analyzer_error, id_not_assignable)
+{
+    char test_code[] = "\n\
+x = 10\n\
+x += 20\n\
+";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct error_report* er = get_last_error_report(fe->sema_context);
+    ASSERT_EQ(EC_IMMUTABLE_ASSIGNMENT, er->error_code);
+    ASSERT_STREQ("id: x is immutable, it can't be mutated", er->error_msg);
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
+TEST(test_analyzer_error, int_to_float)
+{
+    char test_code[] = "\n\
+var x = 10\n\
+x = 10.0\n\
+";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct error_report* er = get_last_error_report(fe->sema_context);
+    ASSERT_EQ(EC_TYPES_DO_NOT_MATCH, er->error_code);
+    ASSERT_STREQ("types do not match", er->error_msg);
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
 int test_analyzer_errors()
 {
     UNITY_BEGIN();
@@ -85,5 +168,10 @@ int test_analyzer_errors()
     RUN_TEST(test_analyzer_error_type_mismatch);
     RUN_TEST(test_analyzer_error_no_struct_type_found);
     RUN_TEST(test_analyzer_error_no_array_type_found);
+    RUN_TEST(test_analyzer_error_id_not_defined);
+    RUN_TEST(test_analyzer_error_id_not_defined_unary);
+    RUN_TEST(test_analyzer_error_id_not_mutable);
+    RUN_TEST(test_analyzer_error_id_not_assignable);
+    RUN_TEST(test_analyzer_error_int_to_float);
     return UNITY_END();
 }

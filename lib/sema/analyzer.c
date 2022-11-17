@@ -87,7 +87,7 @@ struct type_expr *_analyze_ident(struct sema_context *context, struct ast_node *
 {
     node->ident->var = _get_var_node(context, node);
     if(!node->ident->var){
-        report_error(context, EC_IDENT_NOT_DEFINED, node->loc);
+        report_error(context, EC_IDENT_NOT_DEFINED, node->loc, string_get(node->ident->name));
         return 0;
     }
     return retrieve_type_for_var_name(context, node->ident->name);
@@ -121,6 +121,12 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     symbol var_name = node->var->var->ident->name;
     if(has_symbol(&context->decl_2_typexps, var_name)){
         //this is assignment, not var declaration
+        //check if it's mutable
+        struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, var_name);
+        if(!orig_var->var->is_mut){
+            report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(var_name));
+            return 0;
+        }
         node->transformed = assign_node_new(OP_ASSIGN, node->var->var, node->var->init_value, node->loc);
         node->transformed->type = analyze(context, node->transformed);
         return node->transformed->type;
@@ -452,6 +458,7 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
 {
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
+    if(!lhs_type || !rhs_type) return 0;
     struct type_expr *result_type = unify(lhs_type, rhs_type, &context->nongens);
     if (result_type) {
         if (is_relational_op(node->binop->opcode))
@@ -478,17 +485,25 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
 {
     set_lvalue(node->binop->lhs);
     if(node->binop->lhs->node_type == IDENT_NODE){
-        if(!has_symbol(&context->decl_2_typexps, node->binop->lhs->ident->name)){
-            //immutable binding
+        symbol var_name = node->binop->lhs->ident->name;
+        if(!has_symbol(&context->decl_2_typexps, var_name)){
+            //first time assignment, immutable binding
             node->transformed = var_node_new(node->binop->lhs, 0, node->binop->rhs, false, false, node->loc);
             node->transformed->type = analyze(context, node->transformed);
             return node->transformed->type;
+        }else{
+            struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, var_name);
+            if(!orig_var->var->is_mut){
+                report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(var_name));
+                return 0;
+            }
         }
     }
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
-    if (unify(lhs_type, rhs_type, &context->nongens)) {
+    struct type_expr *unified = unify(lhs_type, rhs_type, &context->nongens);
+    if (unified == lhs_type) {
         result = create_unit_type();
     } else {
         if(is_int_type(lhs_type->type) && is_int_type(rhs_type->type)){
