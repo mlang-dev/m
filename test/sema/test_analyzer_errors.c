@@ -144,6 +144,23 @@ x += 20\n\
     frontend_deinit(fe);
 }
 
+TEST(test_analyzer_error, id_not_inc)
+{
+    char test_code[] = "\n\
+x = 10\n\
+x ++\n\
+";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct error_report* er = get_last_error_report(fe->sema_context);
+    ASSERT_EQ(EC_IMMUTABLE_ASSIGNMENT, er->error_code);
+    ASSERT_STREQ("id: x is immutable, it can't be mutated", er->error_msg);
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
 TEST(test_analyzer_error, int_to_float)
 {
     char test_code[] = "\n\
@@ -172,6 +189,7 @@ int test_analyzer_errors()
     RUN_TEST(test_analyzer_error_id_not_defined_unary);
     RUN_TEST(test_analyzer_error_id_not_mutable);
     RUN_TEST(test_analyzer_error_id_not_assignable);
+    RUN_TEST(test_analyzer_error_id_not_inc);
     RUN_TEST(test_analyzer_error_int_to_float);
     return UNITY_END();
 }

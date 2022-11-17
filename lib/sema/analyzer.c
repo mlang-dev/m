@@ -401,7 +401,7 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
     else if(node->unop->opcode == OP_INC || node->unop->opcode == OP_DEC){
         struct ast_node *new_node = binary_node_new(node->unop->opcode == OP_INC ? OP_PLUS : OP_MINUS, node->unop->operand, int_node_new(1, node->loc), node->loc);
         node->transformed = assign_node_new(OP_ASSIGN, node->unop->operand, new_node, node->loc);
-        node->transformed->type = op_type;
+        node->transformed->type = analyze(context, node->transformed);
     }
     return op_type;
 }
@@ -496,6 +496,7 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
             if(!orig_var->var->is_mut){
                 report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(var_name));
                 return 0;
+                
             }
         }
     }

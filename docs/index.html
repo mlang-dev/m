@@ -63,7 +63,7 @@ for x in 0..300
         cy = -1.0 + scale*y
         var zx = 0.0, zy = 0.0
         var zx2 = 0.0, zy2 = 0.0
-        n = 0
+        var n = 0
         while n<510 && (zx2 + zy2) < 4.0
             zy = 2.0 * zx * zy + cy
             zx = zx2  - zy2 + cx
