@@ -86,7 +86,6 @@ else()
   add_executable(mtest
     tutil.cc
     parser/test_astdump.cc
-    sema/test_analyzer.cc
     compiler/test_jit_relational.cc
     compiler/test_jit_logical.cc
     compiler/test_jit.cc
