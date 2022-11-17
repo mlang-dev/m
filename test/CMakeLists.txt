@@ -34,6 +34,7 @@ if (WASM)
     parser/test_parser_error.c    
     parser/test_grammar.c
     sema/test_analyzer.c
+    sema/test_analyzer_errors.c
     codegen/test_type_size_info.c
     codegen/wasm/test_wasm_codegen.c
   )
@@ -85,8 +86,6 @@ else()
   add_executable(mtest
     tutil.cc
     parser/test_astdump.cc
-    sema/test_analyzer.cc
-    sema/test_analyzer_errors.cc
     compiler/test_jit_relational.cc
     compiler/test_jit_logical.cc
     compiler/test_jit.cc
@@ -154,6 +153,7 @@ else()
   parser/test_parser_error.c
   parser/test_grammar.c
   sema/test_analyzer.c
+  sema/test_analyzer_errors.c
   codegen/test_type_size_info.c
   codegen/wasm/test_wasm_codegen.c
   )

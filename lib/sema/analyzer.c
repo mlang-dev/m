@@ -477,6 +477,14 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
 struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node *node)
 {
     set_lvalue(node->binop->lhs);
+    if(node->binop->lhs->node_type == IDENT_NODE){
+        if(!has_symbol(&context->decl_2_typexps, node->binop->lhs->ident->name)){
+            //immutable binding
+            node->transformed = var_node_new(node->binop->lhs, 0, node->binop->rhs, false, false, node->loc);
+            node->transformed->type = analyze(context, node->transformed);
+            return node->transformed->type;
+        }
+    }
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
@@ -543,7 +551,7 @@ struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *no
     node->forloop->range->range->end->type = end_type;
     node->forloop->body->type = body_type;
     leave_loop(context);
-    return create_nullary_type(TYPE_UNIT, get_type_symbol(TYPE_UNIT));
+    return create_unit_type();
 }
 
 
