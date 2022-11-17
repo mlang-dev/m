@@ -352,7 +352,7 @@ TEST(test_analyzer, for_loop_fun)
     char test_code[] = "\n\
 # using for loop\n\
 let loopprint n = \n\
-  sum = 0\n\
+  var sum = 0\n\
   for i in 0..n\n\
     sum += i\n\
   sum\n\
@@ -384,7 +384,7 @@ TEST(test_analyzer, float_var_loop)
     char test_code[] = "\n\
 # using for loop\n\
 let loopprint n:f64 =\n\
-  sum = 0.0\n\
+  var sum = 0.0\n\
   for i in 0.0..1.0..n\n\
     sum += i\n\
   sum\n\
@@ -598,28 +598,6 @@ x\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer, int_to_float)
-{
-    char test_code[] = "\n\
-x = 10.0\n\
-x = 10\n\
-";
-    struct frontend *fe = frontend_init();
-    struct ast_node *block = parse_code(fe->parser, test_code);
-    ASSERT_EQ(2, array_size(&block->block->nodes));
-    analyze(fe->sema_context, block);
-    
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    string type_str = to_string(node->type);
-    ASSERT_STREQ("f64", string_get(&type_str));
-    /*fun definition*/
-    node = *(struct ast_node **)array_get(&block->block->nodes, 1);
-    type_str = to_string(node->type);
-    ASSERT_STREQ("()", string_get(&type_str));
-    ast_node_free(block);
-    frontend_deinit(fe);
-}
-
 TEST(test_analyzer, struct_type_vars)
 {
     char test_code[] = "\n\
@@ -824,7 +802,6 @@ int test_analyzer()
     RUN_TEST(test_analyzer_greater_than);
     RUN_TEST(test_analyzer_identity_function);
     RUN_TEST(test_analyzer_int_int_fun);
-    RUN_TEST(test_analyzer_int_to_float);
     RUN_TEST(test_analyzer_local_string_fun);
     RUN_TEST(test_analyzer_local_var_fun);
     RUN_TEST(test_analyzer_multi_param_fun);

@@ -20,7 +20,7 @@ if x then 100 else 10
 
 mtest.mtest('if but no else', 'only if but no else branch', 
 `
-x = 10
+var x = 10
 if x==10 then 
     x = 100
 x
@@ -94,7 +94,7 @@ choice 24
 
 mtest.mtest('for loop statement', 'for loop statement', 
 `
-sum = 0
+var sum = 0
 for i in 0..5
     sum = sum + i
 sum
@@ -102,7 +102,7 @@ sum
 
 mtest.mtest('for loop statement float', 'for loop statement using float type', 
 `
-sum = 0.0
+var sum = 0.0
 for i in 0.0..5.0
     sum = sum + i
 sum
@@ -111,7 +111,7 @@ sum
 mtest.mtest('for loop with step', 'for loop statement with step variable', 
 `
 step = 2
-sum = 0
+var sum = 0
 for i in 2..step..10
     sum = sum + i
 sum
@@ -119,7 +119,7 @@ sum
 
 mtest.mtest('nest for loop', 'nest for loop statement', 
 `
-sum = 0
+var sum = 0
 for i in 1..3
     for j in 1..3
         sum = sum + i * j
@@ -134,7 +134,7 @@ factorial 5
 mtest.mtest('for loop factorial', 'implement factorial using for loop', 
 `
 let factorial n = 
-    p = 1
+    var p = 1
     for i in 2..n+1
         p = p * i
     p
@@ -165,7 +165,7 @@ i
 
 mtest.mtest('while loop', 'use while loop', 
 `
-i = 0
+var i = 0
 while i < 10
     i = i + 1
 i
@@ -173,7 +173,7 @@ i
 
 mtest.mtest('while loop break', 'break while loop', 
 `
-i = 0
+var i = 0
 while i < 10
     if i == 5 then
         break
@@ -183,8 +183,8 @@ i
 
 mtest.mtest('while loop continue', 'use continue in while loop', 
 `
-i = 0
-n = 0
+var i = 0
+var n = 0
 while i < 5
     i = i + 1
     if i == 3 then
@@ -195,7 +195,7 @@ n
 
 mtest.mtest('for loop continue', 'use continue in for loop', 
 `
-n = 0
+var n = 0
 for i in 0..5
     if i == 3 then
         continue

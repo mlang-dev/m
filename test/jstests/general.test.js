@@ -105,31 +105,31 @@ print "old_z.x: %.2f, new_z.x: %.2f" (old_z.x) (new_z.x)
 
 mtest.mtest('more assign op', 'more assignment operators', 
 `
-x = 1000
+var x = 1000
 x += 1
 x`, 1001, false);
 
 mtest.mtest('inc op postfix', 'inc assignment operator, postfix', 
 `
-x = 1000
+var x = 1000
 x++
 x`, 1001, false);
 
 mtest.mtest('inc op', 'inc assignment operator', 
 `
-x = 1000
+var x = 1000
 ++x
 x`, 1001, false);
 
 mtest.mtest('dec op postfix', 'dec assignment operator, postfix', 
 `
-x = 1000
+var x = 1000
 x--
 x`, 999, false);
 
 mtest.mtest('dec op', 'dec assignment operator', 
 `
-x = 1000
+var x = 1000
 --x
 x`, 999, false);
 

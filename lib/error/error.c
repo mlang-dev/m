@@ -10,7 +10,9 @@
 #include "error/error.h"
 #include "clib/hashtable.h"
 #include "clib/array.h"
+#include "clib/util.h"
 #include <assert.h>
+#include <stdarg.h>
 
 
 const char *err_messages[ALL_ERROR] = {
@@ -28,12 +30,14 @@ const char *err_messages[ALL_ERROR] = {
 
     "field does not exist.",
     "variable type not matched with literal constant.",
-    "types do not match.",
+    "types do not match",
     "function is not defined.",
     "left side is not assignable.",
     "reference is not on the value type.",
     "dereference is not on the reference type.",
-    "ident is not defined"
+    "id: %s is not defined",
+
+    "id: %s is immutable, it can't be mutated",
 };
 
 struct hashtable g_error_reports;
@@ -74,7 +78,7 @@ struct error_report *get_last_error_report(ErrorHandle handle)
     return array_back(arr);
 }
 
-void report_error(ErrorHandle handle, enum error_code error_code, struct source_location loc)
+void report_error(ErrorHandle handle, enum error_code error_code, struct source_location loc, ...)
 {
     struct array *arr = hashtable_get_p(&g_error_reports, handle);
     if(!arr){
@@ -83,10 +87,13 @@ void report_error(ErrorHandle handle, enum error_code error_code, struct source_
         hashtable_set_p(&g_error_reports, handle, &new_array);
         arr = hashtable_get_p(&g_error_reports, handle);
     }
-    assert(arr);
+    const char *format = err_messages[error_code];
     struct error_report report;
     report.error_code = error_code;
-    report.error_msg = err_messages[error_code];
     report.loc = loc;
+    va_list vl;
+    va_start(vl, loc);
+    vsnprintf(report.error_msg, MAX_ERROR_MSG_SIZE, format, vl);
+    va_end(vl);
     array_push(arr, &report);
 }
