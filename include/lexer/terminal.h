@@ -45,6 +45,7 @@ enum token_type{
     TOKEN_LET,
 
     TOKEN_VAR,
+    TOKEN_MUT,
     TOKEN_FUN,
     TOKEN_MAPTO,
     TOKEN_IF,

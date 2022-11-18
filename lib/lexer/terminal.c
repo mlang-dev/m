@@ -36,6 +36,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("type", TYPE, NULL),
     KEYWORD_PATTERN("let", LET, NULL),
     KEYWORD_PATTERN("var", VAR, NULL),
+    KEYWORD_PATTERN("mut", MUT, NULL),
     KEYWORD_PATTERN("fun", FUN, NULL),
     KEYWORD_PATTERN("->", MAPTO, NULL),
     KEYWORD_PATTERN("if", IF, NULL),

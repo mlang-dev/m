@@ -40,7 +40,7 @@ struct _literal_node {
     };
 };
 
-struct _ident_node {
+struct ident_node {
     symbol name;
     struct ast_node *var;
     bool is_member_index_object;
@@ -126,7 +126,7 @@ struct _func_type_node {
     symbol name;
     symbol op;
     struct ast_node *params; /*block ast_node for params*/
-    struct ast_node *is_of_ret_type_node; /*returning ast_node type*/
+    struct ast_node *ret_type_node; /*returning ast_node type*/
     char is_operator;
     int precedence;
     bool is_variadic;
@@ -154,7 +154,7 @@ struct _call_node {
     struct ast_node *callee_func_type;
 };
 
-struct _array_type_node {
+struct array_type_node {
     struct ast_node *elm_type;
     struct ast_node *dims; 
 };
@@ -167,6 +167,23 @@ struct _import_node {
 struct _cast_node {
     struct ast_node *to_type_node;
     struct ast_node *expr;
+};
+
+enum TypeNodeKind {
+    UnitType = 0,
+    TypeName,  //builtin types or user defined types
+    ArrayType,
+    RefType
+};
+
+struct type_node {
+    bool is_mut;
+    enum TypeNodeKind kind;
+    union{
+        symbol type_name;
+        struct array_type_node *array_type_node;
+        struct type_node *val_node; //used in ref node;
+    };
 };
 
 struct ast_node {
@@ -190,7 +207,7 @@ struct ast_node {
         void *data; //node data represents any of following pointer
         struct _literal_node *liter;
         
-        struct _ident_node *ident;
+        struct ident_node *ident;
         struct _unary_node *unop;
         struct _binary_node *binop;
         struct _member_index_node *index;
@@ -203,7 +220,8 @@ struct ast_node {
         struct _struct_node *struct_def; 
         struct _struct_init_node *struct_init;
         struct ast_node *array_init;
-        struct _array_type_node *array_type;
+        struct array_type_node *array_type;
+        struct type_node *type_node;
         struct _range_node *range;
         struct _import_node *import;
         struct _if_node *cond;
@@ -231,7 +249,10 @@ struct type_expr *get_ret_type(struct ast_node *fun_node);
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc);
 struct ast_node *ident_node_new(symbol name, struct source_location loc);
-
+struct ast_node *type_node_new_with_type_name(symbol type_name, struct source_location loc);
+struct ast_node *type_node_new_with_array_type(struct array_type_node *array_type_node, struct source_location loc);
+struct ast_node *type_node_new_with_unit_type(struct source_location loc);
+struct ast_node *type_node_new_with_ref_type(struct type_node *val_node, struct source_location loc);
 struct ast_node *double_node_new(f64 val, struct source_location loc);
 struct ast_node *int_node_new(int val, struct source_location loc);
 struct ast_node *bool_node_new(bool val, struct source_location loc);

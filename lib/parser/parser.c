@@ -128,10 +128,17 @@ struct ast_node *_wrap_as_block_node(struct ast_node *node)
     return block_node_new(&nodes);
 }
 
-struct ast_node *_do_action(u8 action_code, u8 param, struct ast_node *node)
+enum ast_action {
+    MarkMutVar = 0,
+    MarkMutType = 1
+};
+
+struct ast_node *_do_action(enum ast_action action, u8 param, struct ast_node *node)
 {
-    if(action_code == 0){
-        //mark mutable attribute on node
+    switch (action)
+    {
+    case MarkMutVar:
+        /* code */
         if(node->node_type == VAR_NODE){
             node->var->is_mut = param;
         }else if(node->node_type == BLOCK_NODE){
@@ -141,6 +148,11 @@ struct ast_node *_do_action(u8 action_code, u8 param, struct ast_node *node)
                 elm->var->is_mut = param;
             }
         }
+        break;
+    case MarkMutType:
+        assert(node->node_type == TYPE_NODE);
+        node->type_node->is_mut = true;
+        break;
     }
     return node;
 }
@@ -206,24 +218,24 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
     case VAR_NODE:
     {
         struct ast_node *var = items[rule->action.item_index[1]].ast;
-        struct ast_node *type_name = 0;
+        struct ast_node *type_node = 0;
         struct ast_node *init_value = 0;
         assert(var->node_type == IDENT_NODE);
         if (rule->action.item_index[0]) {
             if (rule->action.item_index_count == 4) {
                 //has type and has init value
-                type_name = items[rule->action.item_index[2]].ast;
-                assert(type_name->node_type == IDENT_NODE||type_name->node_type == UNARY_NODE||type_name->node_type == ARRAY_TYPE_NODE);
+                type_node = items[rule->action.item_index[2]].ast;
+                assert(type_node->node_type == TYPE_NODE);
                 init_value = items[rule->action.item_index[3]].ast;
             } else { // has no type info, has init value
                 init_value = items[rule->action.item_index[2]].ast;
             }
         } else if (rule->action.item_index_count > 2) {
             //just has ID and type
-            type_name = items[rule->action.item_index[2]].ast;
+            type_node = items[rule->action.item_index[2]].ast;
         }
-        assert(!type_name || type_name->node_type == IDENT_NODE||type_name->node_type == UNARY_NODE||type_name->node_type == ARRAY_TYPE_NODE);
-        ast = var_node_new(var, type_name, init_value, false, false, var->loc);
+        assert(!type_node || type_node->node_type == TYPE_NODE);
+        ast = var_node_new(var, type_node, init_value, false, false, var->loc);
         break;
     }
     case RANGE_NODE:
@@ -382,7 +394,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(struct_name->node_type == IDENT_NODE);
         struct ast_node *init_body = items[rule->action.item_index[1]].ast;
         assert(init_body->node_type == BLOCK_NODE);
-        ast = struct_init_node_new(init_body, struct_name, struct_name->loc);
+        struct ast_node *type_node = type_node_new_with_type_name(struct_name->ident->name, struct_name->loc);
+        ast = struct_init_node_new(init_body, type_node, struct_name->loc);
         break;
     }
     case ARRAY_INIT_NODE:
@@ -399,6 +412,27 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *elm_type_name = items[rule->action.item_index[0]].ast;
         struct ast_node *dims = items[rule->action.item_index[1]].ast;
         ast = array_type_node_new(elm_type_name, dims, elm_type_name->loc);
+        break;
+    }
+    case TYPE_NODE:
+    {
+        enum TypeNodeKind type_node_kind = rule->action.item_index[0];
+        struct ast_node *node = items[rule->action.item_index[1]].ast;
+        switch(type_node_kind){
+        case UnitType:
+            ast = type_node_new_with_unit_type(node->loc);
+            break;
+        case TypeName:
+            ast = type_node_new_with_type_name(node->ident->name, node->loc);
+            break;
+        case ArrayType:
+            ast = type_node_new_with_array_type(node->array_type, node->loc);
+            break;
+        case RefType:
+            assert(node->node_type == TYPE_NODE);
+            ast = type_node_new_with_ref_type(node->type_node, node->loc);
+            break;
+        }
         break;
     }
     case BLOCK_NODE:

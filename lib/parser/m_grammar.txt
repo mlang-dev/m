@@ -8,10 +8,11 @@ start           = statements
 
 unit_expr       = "()"
 
-type_expr       = IDENT
-                | unit_expr
-                | array_type
-                | '&' type_expr                                                             { unop 0 1 }
+type_expr       = IDENT                                                                     { type_node 1 0 } # 1 is type name
+                | unit_expr                                                                 { type_node 0 0 } # 0 is unit type
+                | array_type                                                                { type_node 2 0 } # 2 is array type
+                | '&' type_expr                                                             { type_node 3 1 }  # 2 is action code for mark_ref
+                | "mut" type_expr                                                           { mark_mut 1 1 1 } # 1 is action code for mark_mut for type node
 
 array_type      = type_expr array_dims                                                      { array_type 0 1 }
 

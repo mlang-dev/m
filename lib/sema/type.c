@@ -506,7 +506,7 @@ string to_string(struct type_expr *type)
         }
     } else if (type->kind == KIND_OPER) {
         if (array_size(&type->args) == 0) { /* nullary operator, e.g. builtin types: int, f64*/
-            string_add(&typestr, get_type_symbol(type->type));
+            string_add(&typestr, type->name);
             return typestr;
         } else if (type->type == TYPE_STRUCT) {
             string_copy(&typestr, type->name);

@@ -724,6 +724,23 @@ let z() = get_point()\n\
     frontend_deinit(fe);
 }
 
+TEST(test_analyzer, array_type_decl)
+{
+    char test_code[] = "\n\
+a:u8[2]\n\
+";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("u8[2]", string_get(&type_str));
+    ast_node_free(block);
+    frontend_deinit(fe);
+}
+
 TEST(test_analyzer, ret_value_flag)
 {
     char test_code[] = "\n\
@@ -784,10 +801,10 @@ int test_analyzer()
     RUN_TEST(test_analyzer_ref_type_variable);
     RUN_TEST(test_analyzer_ref_type_func);
     RUN_TEST(test_analyzer_array_variable);
+    RUN_TEST(test_analyzer_array_type_decl);
     RUN_TEST(test_analyzer_empty_array);
     RUN_TEST(test_analyzer_int_variable);
     RUN_TEST(test_analyzer_double_variable);
-    RUN_TEST(test_analyzer_array_variable);
     RUN_TEST(test_analyzer_bool_fun);
     RUN_TEST(test_analyzer_bool_variable);
     RUN_TEST(test_analyzer_char_variable);
