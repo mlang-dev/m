@@ -428,6 +428,7 @@ struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, s
     }
     struct type_expr *member_type = *(struct type_expr **)array_get(&struct_type->args, index);
     node->index->index->type = member_type;
+    node->index->index->ident->var = *(struct ast_node **)array_get(&type_node->struct_def->body->block->nodes, index);
     return member_type;
 }
 
@@ -481,6 +482,7 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
     return result_type;
 }
 
+
 struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node *node)
 {
     set_lvalue(node->binop->lhs);
@@ -491,20 +493,26 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
             node->transformed = var_node_new(node->binop->lhs, 0, node->binop->rhs, false, false, node->loc);
             node->transformed->type = analyze(context, node->transformed);
             return node->transformed->type;
-        }else{
-            struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, var_name);
-            if(!orig_var->var->is_mut){
-                report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(var_name));
-                return 0;
-                
-            }
         }
     }
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
+    struct ast_node *ident = 0;
+    if(node->binop->lhs->node_type == IDENT_NODE){
+        ident = node->binop->lhs;
+    }else if(node->binop->lhs->node_type == MEMBER_INDEX_NODE){
+        ident = node->binop->lhs->index->index;
+    }
+    if(!ident->ident->var->var->is_mut){
+        report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(ident->ident->name));
+        return 0;
+    }
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
     struct type_expr *unified = unify(lhs_type, rhs_type, &context->nongens);
-    if (unified == lhs_type) {
+    if (unified) {
+        if(unified != lhs_type){
+            node->binop->rhs->transformed = cast_to_node(lhs_type, node->binop->rhs);
+        }
         result = create_unit_type();
     } else {
         if(is_int_type(lhs_type->type) && is_int_type(rhs_type->type)){
