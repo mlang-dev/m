@@ -24,7 +24,6 @@ jobs:
     steps:
     - name: Install LLVM & LLD
       run: |
-        sudo apt remove llvm-10
         sudo apt remove llvm-11
         sudo apt remove llvm-12
         sudo apt remove clang-11
