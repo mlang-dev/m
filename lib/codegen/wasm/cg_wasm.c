@@ -307,10 +307,8 @@ void _cg_wasm_deinit(struct cg_wasm *cg)
     hashtable_deinit(&cg->func_name_2_ast);
     hashtable_deinit(&cg->func_name_2_idx);
     ba_deinit(&cg->ba);
-    node_free(cg->fun_types);
-    if (cg->funs) {
-        free_block_node(cg->funs, false);
-    }
+    free_block_node(cg->fun_types, false); //container only
+    free_block_node(cg->funs, false);
     node_free(cg->data_block);
 }
 

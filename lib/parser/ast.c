@@ -93,6 +93,7 @@ void _free_block_node(struct ast_node *node)
 
 void free_block_node(struct ast_node *node, bool deep_free)
 {
+    if(!node) return;
     if(deep_free){
         _free_block_node(node);
     }else{

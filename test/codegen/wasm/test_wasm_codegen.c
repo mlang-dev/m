@@ -17,7 +17,6 @@ TEST(test_wasm_codegen, parse_as_module)
     /*print \"%s %d\" \"hello world\" 10\n\
      */
     struct engine* engine = engine_wasm_new();
-    /*
     struct cg_wasm *cg = engine->be->cg;
 //     char test_code[] = "\n\
 // a:u8[3][3]\n\
@@ -32,7 +31,6 @@ var x = 10\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);
-    */
     engine_free(engine);
 }
 
