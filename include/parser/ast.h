@@ -54,6 +54,7 @@ struct _memory_node {
 struct _var_node {
     bool is_global;
     bool is_mut; //is mutable
+    bool is_init_shared; //is init value is a shared node, not owning it.
     struct ast_node *var;
     struct ast_node *is_of_type;
     struct ast_node *init_value;

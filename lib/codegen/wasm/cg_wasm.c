@@ -276,7 +276,7 @@ void _imports_init(struct imports *imports)
 
 void _imports_deinit(struct imports *imports)
 {
-    free_block_node(imports->import_block, false);
+    node_free(imports->import_block);
     imports->import_block = 0;
     imports->num_fun = 0;
     imports->num_global = 0;
@@ -306,7 +306,7 @@ void _cg_wasm_init(struct cg_wasm *cg)
 void _cg_wasm_deinit(struct cg_wasm *cg)
 {
     _imports_deinit(&cg->imports);
-    free_block_node(cg->sys_block, false);
+    node_free(cg->sys_block);
     // for (u32 i = 0; i < FUN_LEVELS; i++) {
     //     fc_deinit(&cg->fun_contexts[i]);
     // }
@@ -314,15 +314,11 @@ void _cg_wasm_deinit(struct cg_wasm *cg)
     hashtable_deinit(&cg->func_name_2_ast);
     hashtable_deinit(&cg->func_name_2_idx);
     ba_deinit(&cg->ba);
-    if(cg->fun_types){
-        free_block_node(cg->fun_types, false);
-    }
+    node_free(cg->fun_types);
     if (cg->funs) {
         free_block_node(cg->funs, false);
     }
-    if(cg->data_block){
-        free_block_node(cg->data_block, false);
-    }
+    node_free(cg->data_block);
 }
 
 void wasm_emit_store_scalar_value_at(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node)

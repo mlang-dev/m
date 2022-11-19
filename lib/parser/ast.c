@@ -192,7 +192,6 @@ void _free_type_node(struct ast_node *node)
     //TODO: fixme the memory leak
     // if(node->type_node->kind == ArrayType)
     //     ast_node_free(node->type_node->array_type_node);
-    free(node->type_node);
     ast_node_free(node);
 }
 
@@ -316,6 +315,7 @@ struct ast_node *var_node_new(struct ast_node *var, struct ast_node *is_of_type,
     node->var->is_of_type = is_of_type;
     node->var->is_global = is_global;
     node->var->is_mut = is_mut;
+    node->var->is_init_shared = 0;
     node->is_addressable = true;
     return node;
 }
@@ -332,7 +332,7 @@ void _free_var_node(struct ast_node *node)
 {
     if(node->var->is_of_type)
         node_free(node->var->is_of_type);
-    if (node->var->init_value)
+    if (node->var->init_value && !node->var->is_init_shared)
         node_free(node->var->init_value);
     ast_node_free(node);
 }
@@ -422,7 +422,6 @@ struct ast_node *_copy_array_init_node(struct ast_node *orig_node)
 
 void _free_array_init_node(struct ast_node *node)
 {
-    ast_node_free(node->array_init);
     ast_node_free(node);
 }
 
