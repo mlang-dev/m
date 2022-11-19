@@ -26,9 +26,9 @@ void hashtable_init(struct hashtable *ht)
     hashtable_init_with_value_size(ht, 0, 0);
 }
 
-void hashtable_c_str_key_init(struct hashtable *ht)
+void hashtable_c_str_key_init(struct hashtable *ht, free_fun free_element)
 {
-    hashtable_init_with_value_size(ht, 0, 0);
+    hashtable_init_with_value_size(ht, 0, free_element);
     ht->key_is_c_str = true;
 }
 
