@@ -200,7 +200,6 @@ void _free_real_type_node(struct type_node *type_node)
 
 void _free_type_node(struct ast_node *node)
 {
-    //TODO: fixme the memory leak
     _free_real_type_node(node->type_node);
     ast_node_free(node);
 }
@@ -344,6 +343,8 @@ void _free_var_node(struct ast_node *node)
         node_free(node->var->is_of_type);
     if (node->var->init_value && !node->var->is_init_shared)
         node_free(node->var->init_value);
+    if(node->var->var)
+        node_free(node->var->var);
     ast_node_free(node);
 }
 
@@ -479,6 +480,7 @@ struct ast_node *_copy_import_node(struct ast_node *orig_node)
 void _free_import_node(struct ast_node *node)
 {
     ast_node_free(node->import->import);
+    //?? node_free(node->import->import);
     ast_node_free(node);
 }
 
@@ -501,10 +503,9 @@ struct ast_node *_copy_memory_node(struct ast_node *orig_node)
 
 void _free_memory_node(struct ast_node *node)
 {
-    ast_node_free(node->memory->initial);
-    if(node->memory->max){
-        ast_node_free(node->memory->max);
-    }
+    node_free(node->memory->initial);
+    node_free(node->memory->max);
+
     ast_node_free(node);
 }
 
@@ -592,8 +593,8 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
 
 void _free_func_type_node(struct ast_node *node)
 {
-    _free_block_node(node->ft->params);
-    ast_node_free(node->ft->ret_type_node);
+    node_free(node->ft->params);
+    node_free(node->ft->ret_type_node);
     ast_node_free(node);
 }
 
@@ -960,6 +961,11 @@ struct ast_node *node_copy(struct ast_node *node)
 void node_free(struct ast_node *node)
 {
     if (!node) return;
+    if(node->node_type > TOTAL_NODE){
+        //hacked token node
+        ast_node_free(node);
+        return;
+    }
     switch (node->node_type) {
     case NULL_NODE:
         FREE(node);
@@ -1030,12 +1036,17 @@ void node_free(struct ast_node *node)
     case CAST_NODE:
         _free_cast_node(node);
         break;
-    case UNIT_NODE:
     case MEMORY_NODE:
+        _free_memory_node(node);
+        break;
+    case MEMBER_INDEX_NODE:
+        _free_member_index_node(node);
+        break;
+    case UNIT_NODE:
     case ENUM_NODE:
     case UNION_NODE:
-    case MEMBER_INDEX_NODE:
     case TOTAL_NODE:
+        ast_node_free(node);
         break;
     }
 }

@@ -9,4 +9,5 @@ void engine_free(struct engine *engine)
 {
     backend_deinit(engine->be);
     frontend_deinit(engine->fe);
+    free(engine);
 }

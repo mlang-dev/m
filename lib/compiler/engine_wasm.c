@@ -18,9 +18,6 @@ from sys import fun putchar ch:int -> ()\n\
 from sys import fun setImageData data:u32 width:u32 height:u32 -> ()\n\
 from math import fun pow x:f64 y:f64 -> f64\n\
 ";
-// const char *g_imports = "\n\
-// from sys import memory 10\n\
-// ";
 
 const char *g_sys = "\n\
 struct cf64 = re:f64, im:f64\n\
@@ -38,6 +35,7 @@ void _cg_wasm_free(struct codegen *cg)
 
 void _categorize_imports(struct imports *imports)
 {
+    if(!imports->import_block) return;
     for (u32 i = 0; i < array_size(&imports->import_block->block->nodes); i++) {
         struct ast_node *node = *(struct ast_node **)array_get(&imports->import_block->block->nodes, i);
         assert(node->node_type == IMPORT_NODE);
@@ -147,10 +145,12 @@ void compile_to_wasm(struct engine *engine, const char *expr)
     struct error_report *er = get_last_error_report(engine->fe->sema_context);
     if(er){
         printf("%s loc (line, col): (%d, %d)\n", er->error_msg, er->loc.line, er->loc.col);
-        return;
+        goto exit;
     }
     ast = _decorate_as_module(cg, &engine->fe->parser->symbol_2_int_types, ast);
     wasm_emit_module(cg, ast);
     ast_node_free(ast);
+    //??? node_free(ast);
+exit:
     free_block_node(global_block, false);
 }
