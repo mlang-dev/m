@@ -94,7 +94,7 @@ print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)
 
 mtest.mtest_string('pass by value', `mlang uses pass-by value calling convention to pass arguments to functions. This means the argument value is copied to function's parameter.`,
 `
-struct Point2D = x:f64, y:f64
+struct Point2D = var x:f64, y:f64
 let change z:Point2D = 
     z.x = z.x * 10.0
     z

@@ -142,6 +142,69 @@ void _free_ident_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *type_node_new_with_type_name(symbol type_name, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
+    MALLOC(node->type_node, sizeof(*node->type_node));
+    node->type_node->kind = TypeName;
+    node->type_node->is_mut = 0;
+    node->type_node->type_name = type_name;
+    return node;
+}
+
+struct ast_node *type_node_new_with_array_type(struct array_type_node *array_type_node, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
+    MALLOC(node->type_node, sizeof(*node->type_node));
+    node->type_node->kind = ArrayType;
+    node->type_node->is_mut = 0;
+    node->type_node->array_type_node = array_type_node;
+    return node;
+}
+
+struct ast_node *type_node_new_with_ref_type(struct type_node *val_node, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
+    MALLOC(node->type_node, sizeof(*node->type_node));
+    node->type_node->kind = RefType;
+    node->type_node->is_mut = 0;
+    node->type_node->val_node = val_node;
+    return node;
+}
+
+struct ast_node *type_node_new_with_unit_type(struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
+    MALLOC(node->type_node, sizeof(*node->type_node));
+    node->type_node->kind = UnitType;
+    node->type_node->is_mut = 0;
+    node->type_node->array_type_node = 0;
+    return node;
+}
+
+struct ast_node *_copy_type_node(struct ast_node *orig_node)
+{
+    switch(orig_node->type_node->kind){
+        case ArrayType:
+            return type_node_new_with_array_type(orig_node->type_node->array_type_node, orig_node->loc);
+        case UnitType:
+            return type_node_new_with_unit_type(orig_node->loc);
+        case TypeName:
+            return type_node_new_with_type_name(orig_node->type_node->type_name, orig_node->loc);
+        case RefType:
+            return type_node_new_with_ref_type(orig_node->type_node->val_node, orig_node->loc);
+    }
+}
+
+void _free_type_node(struct ast_node *node)
+{
+    //TODO: fixme the memory leak
+    // if(node->type_node->kind == ArrayType)
+    //     ast_node_free(node->type_node->array_type_node);
+    free(node->type_node);
+    ast_node_free(node);
+}
+
 struct ast_node *_create_literal_int_node(int val, enum type type, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(LITERAL_NODE, loc);
@@ -489,7 +552,7 @@ struct ast_node *func_type_node_new(symbol name,
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = name;
     node->ft->params = params;
-    node->ft->is_of_ret_type_node = ret_type_node;
+    node->ft->ret_type_node = ret_type_node;
     node->ft->is_operator = false;
     node->ft->precedence = 0;
     node->ft->is_variadic = is_variadic;
@@ -497,7 +560,7 @@ struct ast_node *func_type_node_new(symbol name,
     node->ft->op = 0;
     if (is_variadic) {
         symbol symbol_name = get_type_symbol(TYPE_GENERIC);
-        struct ast_node *is_of_type = ident_node_new(symbol_name, loc);
+        struct ast_node *is_of_type = type_node_new_with_type_name(symbol_name, loc);
         struct ast_node *fun_param = var_node_new(ident_node_new(symbol_name, loc), is_of_type, 0, false, true, loc);
         fun_param->type = create_nullary_type(TYPE_GENERIC, symbol_name);
         array_push(&node->ft->params->block->nodes, &fun_param);
@@ -518,7 +581,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
     node->ft->op = func_type->ft->op;
     if (func_type->ft->is_variadic) {
         symbol var_name = get_type_symbol(TYPE_GENERIC);
-        struct ast_node *is_of_type = ident_node_new(var_name, node->loc);
+        struct ast_node *is_of_type = type_node_new_with_type_name(var_name, node->loc);
         struct ast_node *fun_param = var_node_new(ident_node_new(var_name, node->loc), is_of_type, 0, false, true, node->loc);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }
@@ -528,7 +591,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
 void _free_func_type_node(struct ast_node *node)
 {
     _free_block_node(node->ft->params);
-    ast_node_free(node->ft->is_of_ret_type_node);
+    ast_node_free(node->ft->ret_type_node);
     ast_node_free(node);
 }
 
@@ -872,6 +935,8 @@ struct ast_node *node_copy(struct ast_node *node)
         return _copy_array_init_node(node);
     case ARRAY_TYPE_NODE:
         return _copy_array_type_node(node);
+    case TYPE_NODE:
+        return _copy_type_node(node);
     case WHILE_NODE:
         return _copy_while_node(node);
     case JUMP_NODE:
@@ -950,6 +1015,9 @@ void node_free(struct ast_node *node)
         break;
     case ARRAY_TYPE_NODE:
         _free_array_type_node(node);
+        break;
+    case TYPE_NODE:
+        _free_type_node(node);
         break;
     case WHILE_NODE:
         _free_while_node(node);

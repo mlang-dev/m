@@ -36,6 +36,7 @@ extern "C" {
     ENUM_ITEM(STRUCT_INIT_NODE)     \
     ENUM_ITEM(ARRAY_INIT_NODE)      \
     ENUM_ITEM(ARRAY_TYPE_NODE)      \
+    ENUM_ITEM(TYPE_NODE)            \
     ENUM_ITEM(RANGE_NODE)           \
     ENUM_ITEM(UNARY_NODE)           \
     ENUM_ITEM(BINARY_NODE)          \
