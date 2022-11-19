@@ -443,8 +443,10 @@ struct ast_node *_copy_array_type_node(struct ast_node *orig_node)
 
 void _free_array_type_node(struct ast_node *node)
 {
-    ast_node_free(node->array_type->elm_type);
-    ast_node_free(node->array_type->dims);
+    if(node->array_type){
+        ast_node_free(node->array_type->elm_type);
+        ast_node_free(node->array_type->dims);
+    }
     ast_node_free(node);
 }
 /*******/

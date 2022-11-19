@@ -43,7 +43,6 @@ void tearDown(){}
 EXPORT int ENTRY()
 {
   int failures = 0;
-  /*
   failures += test_array();
   failures += test_byte_array();
   failures += test_hashset();
@@ -69,7 +68,6 @@ EXPORT int ENTRY()
   failures += test_analyzer();
   failures += test_analyzer_errors();
   failures += test_type_size_info();
-  */
   failures += test_wasm_codegen();
   if (!failures)
     printf("Unit tests passed !\n");
