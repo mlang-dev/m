@@ -157,323 +157,339 @@ struct ast_node *_do_action(enum ast_action action, u8 param, struct ast_node *n
     return node;
 }
 
+struct ast_node *_take(struct ast_node *nodes[], u8 index)
+{
+    struct ast_node *node = nodes[index];
+    nodes[index] = 0;
+    return node;
+}
+
 struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct parse_rule *rule, struct stack_item *items)
 {
     struct ast_node *ast = 0;
     bool is_variadic = false;
+    struct ast_node *nodes[rule->symbol_count];
+    for(u8 i=0;i<rule->symbol_count; i++){
+        nodes[i] = items[i].ast; //intialize all asts on the stack
+    }
     if (!rule->action.node_type){
         if (rule->action.item_index_count == 0){
-            return items[0].ast;
+            ast = _take(nodes, 0);
         }else if(rule->action.item_index_count == 3){
             //this is special for action
-            ast = items[rule->action.item_index[2]].ast;
-            return _do_action(rule->action.item_index[0], rule->action.item_index[1], ast);
+            ast = _take(nodes, rule->action.item_index[2]);
+            ast = _do_action(rule->action.item_index[0], rule->action.item_index[1], ast);
         }else{
-            return items[rule->action.item_index[0]].ast;
+            ast = _take(nodes, rule->action.item_index[0]);
         }
-    }
-    enum aggregate_type aggregate_type;
-    switch (rule->action.node_type) {
-    case NULL_NODE:
-    case TOTAL_NODE:
-    case UNIT_NODE:
-    case LITERAL_NODE:
-    case IDENT_NODE:
-        printf("type: %d is not supported for nonterm node.", rule->action.node_type);
-        break;
-    case IMPORT_NODE:
-    {
-        struct ast_node *module = items[rule->action.item_index[0]].ast;
-        struct ast_node *object = items[rule->action.item_index[1]].ast;
-        ast = import_node_new(module->ident->name, object, module->loc);
-        //we need to free module
-        node_free(module);
-        break;
-    }
-    case MEMORY_NODE:
-    {
-        struct ast_node *initial = items[rule->action.item_index[0]].ast;
-        struct ast_node *max = 0;
-        if (rule->action.item_index_count==2){
-            max = items[rule->action.item_index[1]].ast;
-        }
-        ast = memory_node_new(initial, max, initial->loc);
-        break;
-    }
-    case UNARY_NODE:
-    {        
-        assert(rule->action.item_index_count==2);
-        struct ast_node *op = items[rule->action.item_index[0]].ast;
-        enum op_code opcode = op->node_type & 0xFFFF;
-        struct ast_node *operand = items[rule->action.item_index[1]].ast;
-        ast = unary_node_new(opcode, operand, rule->action.item_index[0] > rule->action.item_index[1], op->loc);
-        node_free(op); 
-        break;
-    }
-    case CAST_NODE:
-    {
-        assert(rule->action.item_index_count==2);
-        struct ast_node *to_type_node = items[rule->action.item_index[0]].ast;
-        struct ast_node *expr = items[rule->action.item_index[1]].ast;
-        ast = cast_node_new(to_type_node, expr, to_type_node->loc);
-        break;
-    }
-    case VAR_NODE:
-    {
-        struct ast_node *var = items[rule->action.item_index[1]].ast;
-        struct ast_node *type_node = 0;
-        struct ast_node *init_value = 0;
-        assert(var->node_type == IDENT_NODE);
-        if (rule->action.item_index[0]) {
-            if (rule->action.item_index_count == 4) {
-                //has type and has init value
-                type_node = items[rule->action.item_index[2]].ast;
-                assert(type_node->node_type == TYPE_NODE);
-                init_value = items[rule->action.item_index[3]].ast;
-            } else { // has no type info, has init value
-                init_value = items[rule->action.item_index[2]].ast;
-            }
-        } else if (rule->action.item_index_count > 2) {
-            //just has ID and type
-            type_node = items[rule->action.item_index[2]].ast;
-        }
-        assert(!type_node || type_node->node_type == TYPE_NODE);
-        ast = var_node_new(var, type_node, init_value, false, false, var->loc);
-        break;
-    }
-    case RANGE_NODE:
-    {
-        struct ast_node *start = items[rule->action.item_index[0]].ast; //start
-        struct ast_node *step = 0;
-        struct ast_node *end;
-        if(rule->action.item_index_count == 3){
-            step = items[rule->action.item_index[1]].ast; //step
-            end = items[rule->action.item_index[2]].ast; // end
-        } else {
-            end = items[rule->action.item_index[1]].ast; // end
-        }
-        ast = range_node_new(start, end, step, start->loc);
-        break;
-    }
-    case FOR_NODE:
-    {
-        struct ast_node *var = items[rule->action.item_index[0]].ast;
-        assert(var->node_type == VAR_NODE);
-        struct ast_node *range = items[rule->action.item_index[1]].ast;
-        struct ast_node *body = items[rule->action.item_index[2]].ast; 
-        range->range->end = binary_node_new(OP_LT, ident_node_new(var->var->var->ident->name, var->loc), range->range->end, range->range->end->loc);
-        ast = for_node_new(var, range, body, var->loc);
-        break;
-    }
-    case WHILE_NODE:
-    {
-        struct ast_node *expr = items[rule->action.item_index[0]].ast; //expr
-        struct ast_node * body = items[rule->action.item_index[1]].ast; //body
-        ast = while_node_new(expr, body, expr->loc);
-        break;
-    }
-    case JUMP_NODE:
-    {
-        struct ast_node *token_node = items[rule->action.item_index[0]].ast; //token node
-        enum token_type token_type = NODE_TO_TOKEN_TYPE(token_node->node_type);
-        struct ast_node *expr = 0;
-        if (rule->action.item_index_count == 2)
-            expr = items[rule->action.item_index[1]].ast; //expr
-        ast = jump_node_new(token_type, expr, token_node->loc);
-        node_free(token_node);
-        break;
-    }
-    case IF_NODE:
-    {
-        struct ast_node *cond = items[rule->action.item_index[0]].ast;
-        struct ast_node *then_expr = items[rule->action.item_index[1]].ast;
-        struct ast_node *else_expr = 0;
-        if (rule->action.item_index_count == 3){
-            else_expr = items[rule->action.item_index[2]].ast;
-        }
-        ast = if_node_new(cond, then_expr, else_expr, cond->loc);
-        break;
-    }
-    case BINARY_NODE:
-    {
-        struct ast_node *op = items[rule->action.item_index[1]].ast;
-        enum op_code opcode = op->node_type & 0xFFFF;
-        struct ast_node *lhs = items[rule->action.item_index[0]].ast;
-        struct ast_node *rhs = items[rule->action.item_index[2]].ast;
-        ast = binary_node_new(opcode, lhs, rhs, lhs->loc);
-        node_free(op);
-        break;
-    }
-    case ASSIGN_NODE:
-    {
-        struct ast_node *op = items[rule->action.item_index[1]].ast;
-        enum op_code opcode = op->node_type & 0xFFFF;
-        struct ast_node *lhs = items[rule->action.item_index[0]].ast;
-        struct ast_node *rhs = items[rule->action.item_index[2]].ast;
-        ast = assign_node_new(opcode, lhs, rhs, lhs->loc);
-        node_free(op);
-        break;
-    }
-    case MEMBER_INDEX_NODE:
-    {
-        aggregate_type = rule->action.item_index[0];
-        struct ast_node *object = items[rule->action.item_index[1]].ast;
-        struct ast_node *index = items[rule->action.item_index[2]].ast;
-        ast = member_index_node_new(aggregate_type, object, index, object->loc);
-        break;
-    }
-    case FUNC_TYPE_NODE:
-    {
-        assert(rule->action.item_index_count == 3);
-        struct ast_node *ft_name = items[rule->action.item_index[0]].ast; //fun name
-        assert(ft_name->node_type == IDENT_NODE);
-        struct ast_node *parameters = items[rule->action.item_index[2]].ast; // parameters
-        assert(parameters->node_type == BLOCK_NODE);
-        if (array_size(&parameters->block->nodes)) {
-            struct ast_node *last_param = *(struct ast_node **)array_back(&parameters->block->nodes);
-            if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
-                is_variadic = true;
-                array_pop(&parameters->block->nodes);
-            }
-        }
-        struct ast_node *ret_type_name = items[rule->action.item_index[1]].ast; //return type name
-        ast = func_type_node_default_new(ft_name->ident->name, parameters, 0, ret_type_name, is_variadic, true, ft_name->loc);
-        node_free(ft_name);
-        break;
-    }
-    case FUNC_NODE:
-    {
-        struct ast_node *func_name = items[rule->action.item_index[0]].ast; //fun name
-        assert(func_name->node_type == IDENT_NODE);
-        struct ast_node *parameters = items[rule->action.item_index[1]].ast; //parameters
-        assert(parameters->node_type == BLOCK_NODE);
-        if (array_size(&parameters->block->nodes)) {
-            struct ast_node *last_param = *(struct ast_node **)array_back(&parameters->block->nodes);
-            if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
-                is_variadic = true;
-                array_pop(&parameters->block->nodes);
-            }
-        }
-        struct ast_node *func_body = items[rule->action.item_index[2]].ast;
-        if (func_body->node_type != BLOCK_NODE) {
-            // convert to block node even it's a one line statement
-            func_body = _wrap_as_block_node(func_body);
-        }
-        struct ast_node *ret_type_node = 0;
-        if (rule->action.item_index_count == 4){
-            //has return type
-            ret_type_node = items[rule->action.item_index[3]].ast;
-        }
-        struct ast_node *ft = func_type_node_default_new(func_name->ident->name, parameters, 0, ret_type_node, is_variadic, false, func_name->loc);
-        ast = function_node_new(ft, func_body, func_name->loc);
-        hashtable_set_int(symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
-        node_free(func_name);
-        break;
-    }
-    case CALL_NODE:
-    {
-        assert(rule->action.item_index_count == 2);
-        struct ast_node *callee_name = items[rule->action.item_index[0]].ast;
-        assert(callee_name->node_type == IDENT_NODE);
-        struct ast_node *arguments = items[rule->action.item_index[1]].ast;
-        assert(arguments->node_type == BLOCK_NODE);
-        ast = call_node_new(callee_name->ident->name, arguments, callee_name->loc);
-        node_free(callee_name);
-        break;
-    }
-    case UNION_NODE:
-    case ENUM_NODE:
-    case STRUCT_NODE: // new type definition, like struct in C
-    {
-        assert(rule->action.item_index_count == 2);
-        struct ast_node *struct_name = items[rule->action.item_index[0]].ast;
-        assert(struct_name->node_type == IDENT_NODE);
-        struct ast_node *struct_body = items[rule->action.item_index[1]].ast;
-        if(struct_body->node_type != BLOCK_NODE){
-            struct_body = _wrap_as_block_node(struct_body);
-        }
-        ast = struct_node_new(struct_name->ident->name, struct_body, struct_name->loc);
-        hashtable_set_int(symbol_2_int_types, struct_name->ident->name, TYPE_STRUCT);
-        node_free(struct_name);
-        break;
-    }
-    case STRUCT_INIT_NODE: 
-    {
-        assert(rule->action.item_index_count == 2);
-        struct ast_node *struct_name = items[rule->action.item_index[0]].ast;
-        assert(struct_name->node_type == IDENT_NODE);
-        struct ast_node *init_body = items[rule->action.item_index[1]].ast;
-        assert(init_body->node_type == BLOCK_NODE);
-        struct ast_node *type_node = type_node_new_with_type_name(struct_name->ident->name, struct_name->loc);
-        ast = struct_init_node_new(init_body, type_node, struct_name->loc);
-        node_free(struct_name);
-        break;
-    }
-    case ARRAY_INIT_NODE:
-    {
-        struct ast_node *init_expr = 0; //array initialization expression in the braket
-        if(rule->action.item_index_count){
-            init_expr = items[rule->action.item_index[0]].ast;
-        }
-        ast = array_init_node_new(init_expr, items[0].ast->loc);
-        break;
-    }
-    case ARRAY_TYPE_NODE:
-    {
-        struct ast_node *elm_type_name = items[rule->action.item_index[0]].ast;
-        struct ast_node *dims = items[rule->action.item_index[1]].ast;
-        ast = array_type_node_new(elm_type_name, dims, elm_type_name->loc);
-        break;
-    }
-    case TYPE_NODE:
-    {
-        enum TypeNodeKind type_node_kind = rule->action.item_index[0];
-        struct ast_node *node = items[rule->action.item_index[1]].ast;
-        switch(type_node_kind){
-        case UnitType:
-            ast = type_node_new_with_unit_type(node->loc);
-            node_free(node);
+    }else{
+        enum aggregate_type aggregate_type;
+        switch (rule->action.node_type) {
+        case NULL_NODE:
+        case TOTAL_NODE:
+        case UNIT_NODE:
+        case LITERAL_NODE:
+        case IDENT_NODE:
+            printf("type: %d is not supported for nonterm node.", rule->action.node_type);
             break;
-        case TypeName:
-            ast = type_node_new_with_type_name(node->ident->name, node->loc);
-            node_free(node);
-            break;
-        case ArrayType:
-            ast = type_node_new_with_array_type(node->array_type, node->loc);
-            node->array_type = 0; //to prevent its being freed
-            node_free(node);
-            break;
-        case RefType:
-            assert(node->node_type == TYPE_NODE);
-            ast = type_node_new_with_ref_type(node->type_node, node->loc);
-            node->type_node = 0;
-            node_free(node);
+        case IMPORT_NODE:
+        {
+            struct ast_node *module = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *object = _take(nodes, rule->action.item_index[1]);
+            ast = import_node_new(module->ident->name, object, module->loc);
+            //we need to free module
+            node_free(module);
             break;
         }
-        break;
+        case MEMORY_NODE:
+        {
+            struct ast_node *initial = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *max = 0;
+            if (rule->action.item_index_count==2){
+                max = _take(nodes, rule->action.item_index[1]);
+            }
+            ast = memory_node_new(initial, max, initial->loc);
+            break;
+        }
+        case UNARY_NODE:
+        {        
+            assert(rule->action.item_index_count==2);
+            struct ast_node *op = _take(nodes, rule->action.item_index[0]);
+            enum op_code opcode = op->node_type & 0xFFFF;
+            struct ast_node *operand = _take(nodes, rule->action.item_index[1]);
+            ast = unary_node_new(opcode, operand, rule->action.item_index[0] > rule->action.item_index[1], op->loc);
+            node_free(op); 
+            break;
+        }
+        case CAST_NODE:
+        {
+            assert(rule->action.item_index_count==2);
+            struct ast_node *to_type_node = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *expr = _take(nodes, rule->action.item_index[1]);
+            ast = cast_node_new(to_type_node, expr, to_type_node->loc);
+            break;
+        }
+        case VAR_NODE:
+        {
+            struct ast_node *var = _take(nodes, rule->action.item_index[1]);
+            struct ast_node *type_node = 0;
+            struct ast_node *init_value = 0;
+            assert(var->node_type == IDENT_NODE);
+            if (rule->action.item_index[0]) {
+                if (rule->action.item_index_count == 4) {
+                    //has type and has init value
+                    type_node = _take(nodes, rule->action.item_index[2]);
+                    assert(type_node->node_type == TYPE_NODE);
+                    init_value = _take(nodes, rule->action.item_index[3]);
+                } else { // has no type info, has init value
+                    init_value = _take(nodes, rule->action.item_index[2]);
+                }
+            } else if (rule->action.item_index_count > 2) {
+                //just has ID and type
+                type_node = _take(nodes, rule->action.item_index[2]);
+            }
+            assert(!type_node || type_node->node_type == TYPE_NODE);
+            ast = var_node_new(var, type_node, init_value, false, false, var->loc);
+            break;
+        }
+        case RANGE_NODE:
+        {
+            struct ast_node *start = _take(nodes, rule->action.item_index[0]); //start
+            struct ast_node *step = 0;
+            struct ast_node *end;
+            if(rule->action.item_index_count == 3){
+                step = _take(nodes, rule->action.item_index[1]); //step
+                end = _take(nodes, rule->action.item_index[2]); // end
+            } else {
+                end = _take(nodes, rule->action.item_index[1]); // end
+            }
+            ast = range_node_new(start, end, step, start->loc);
+            break;
+        }
+        case FOR_NODE:
+        {
+            struct ast_node *var = _take(nodes, rule->action.item_index[0]);
+            assert(var->node_type == VAR_NODE);
+            struct ast_node *range = _take(nodes, rule->action.item_index[1]);
+            struct ast_node *body = _take(nodes, rule->action.item_index[2]); 
+            range->range->end = binary_node_new(OP_LT, ident_node_new(var->var->var->ident->name, var->loc), range->range->end, range->range->end->loc);
+            ast = for_node_new(var, range, body, var->loc);
+            break;
+        }
+        case WHILE_NODE:
+        {
+            struct ast_node *expr = _take(nodes, rule->action.item_index[0]); //expr
+            struct ast_node * body = _take(nodes, rule->action.item_index[1]); //body
+            ast = while_node_new(expr, body, expr->loc);
+            break;
+        }
+        case JUMP_NODE:
+        {
+            struct ast_node *token_node = _take(nodes, rule->action.item_index[0]); //token node
+            enum token_type token_type = NODE_TO_TOKEN_TYPE(token_node->node_type);
+            struct ast_node *expr = 0;
+            if (rule->action.item_index_count == 2)
+                expr = _take(nodes, rule->action.item_index[1]); //expr
+            ast = jump_node_new(token_type, expr, token_node->loc);
+            node_free(token_node);
+            break;
+        }
+        case IF_NODE:
+        {
+            struct ast_node *cond = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *then_expr = _take(nodes, rule->action.item_index[1]);
+            struct ast_node *else_expr = 0;
+            if (rule->action.item_index_count == 3){
+                else_expr = _take(nodes, rule->action.item_index[2]);
+            }
+            ast = if_node_new(cond, then_expr, else_expr, cond->loc);
+            break;
+        }
+        case BINARY_NODE:
+        {
+            struct ast_node *op = _take(nodes, rule->action.item_index[1]);
+            enum op_code opcode = op->node_type & 0xFFFF;
+            struct ast_node *lhs = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *rhs = _take(nodes, rule->action.item_index[2]);
+            ast = binary_node_new(opcode, lhs, rhs, lhs->loc);
+            node_free(op);
+            break;
+        }
+        case ASSIGN_NODE:
+        {
+            struct ast_node *op = _take(nodes, rule->action.item_index[1]);
+            enum op_code opcode = op->node_type & 0xFFFF;
+            struct ast_node *lhs = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *rhs = _take(nodes, rule->action.item_index[2]);
+            ast = assign_node_new(opcode, lhs, rhs, lhs->loc);
+            node_free(op);
+            break;
+        }
+        case MEMBER_INDEX_NODE:
+        {
+            aggregate_type = rule->action.item_index[0];
+            struct ast_node *object = _take(nodes, rule->action.item_index[1]);
+            struct ast_node *index = _take(nodes, rule->action.item_index[2]);
+            ast = member_index_node_new(aggregate_type, object, index, object->loc);
+            break;
+        }
+        case FUNC_TYPE_NODE:
+        {
+            assert(rule->action.item_index_count == 3);
+            struct ast_node *ft_name = _take(nodes, rule->action.item_index[0]); //fun name
+            assert(ft_name->node_type == IDENT_NODE);
+            struct ast_node *parameters = _take(nodes, rule->action.item_index[2]); // parameters
+            assert(parameters->node_type == BLOCK_NODE);
+            if (array_size(&parameters->block->nodes)) {
+                struct ast_node *last_param = *(struct ast_node **)array_back(&parameters->block->nodes);
+                if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
+                    is_variadic = true;
+                    node_free(*(struct ast_node**)array_pop(&parameters->block->nodes));
+                }
+            }
+            struct ast_node *ret_type_name = _take(nodes, rule->action.item_index[1]); //return type name
+            ast = func_type_node_default_new(ft_name->ident->name, parameters, 0, ret_type_name, is_variadic, true, ft_name->loc);
+            node_free(ft_name);
+            break;
+        }
+        case FUNC_NODE:
+        {
+            struct ast_node *func_name = _take(nodes, rule->action.item_index[0]); //fun name
+            assert(func_name->node_type == IDENT_NODE);
+            struct ast_node *parameters = _take(nodes, rule->action.item_index[1]); //parameters
+            assert(parameters->node_type == BLOCK_NODE);
+            if (array_size(&parameters->block->nodes)) {
+                struct ast_node *last_param = *(struct ast_node **)array_back(&parameters->block->nodes);
+                if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
+                    is_variadic = true;
+                    array_pop(&parameters->block->nodes);
+                }
+            }
+            struct ast_node *func_body = _take(nodes, rule->action.item_index[2]);
+            if (func_body->node_type != BLOCK_NODE) {
+                // convert to block node even it's a one line statement
+                func_body = _wrap_as_block_node(func_body);
+            }
+            struct ast_node *ret_type_node = 0;
+            if (rule->action.item_index_count == 4){
+                //has return type
+                ret_type_node = _take(nodes, rule->action.item_index[3]);
+            }
+            struct ast_node *ft = func_type_node_default_new(func_name->ident->name, parameters, 0, ret_type_node, is_variadic, false, func_name->loc);
+            ast = function_node_new(ft, func_body, func_name->loc);
+            hashtable_set_int(symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
+            node_free(func_name);
+            break;
+        }
+        case CALL_NODE:
+        {
+            assert(rule->action.item_index_count == 2);
+            struct ast_node *callee_name = _take(nodes, rule->action.item_index[0]);
+            assert(callee_name->node_type == IDENT_NODE);
+            struct ast_node *arguments = _take(nodes, rule->action.item_index[1]);
+            assert(arguments->node_type == BLOCK_NODE);
+            ast = call_node_new(callee_name->ident->name, arguments, callee_name->loc);
+            node_free(callee_name);
+            break;
+        }
+        case UNION_NODE:
+        case ENUM_NODE:
+        case STRUCT_NODE: // new type definition, like struct in C
+        {
+            assert(rule->action.item_index_count == 2);
+            struct ast_node *struct_name = _take(nodes, rule->action.item_index[0]);
+            assert(struct_name->node_type == IDENT_NODE);
+            struct ast_node *struct_body = _take(nodes, rule->action.item_index[1]);
+            if(struct_body->node_type != BLOCK_NODE){
+                struct_body = _wrap_as_block_node(struct_body);
+            }
+            ast = struct_node_new(struct_name->ident->name, struct_body, struct_name->loc);
+            hashtable_set_int(symbol_2_int_types, struct_name->ident->name, TYPE_STRUCT);
+            node_free(struct_name);
+            break;
+        }
+        case STRUCT_INIT_NODE: 
+        {
+            assert(rule->action.item_index_count == 2);
+            struct ast_node *struct_name = _take(nodes, rule->action.item_index[0]);
+            assert(struct_name->node_type == IDENT_NODE);
+            struct ast_node *init_body = _take(nodes, rule->action.item_index[1]);
+            assert(init_body->node_type == BLOCK_NODE);
+            struct ast_node *type_node = type_node_new_with_type_name(struct_name->ident->name, struct_name->loc);
+            ast = struct_init_node_new(init_body, type_node, struct_name->loc);
+            node_free(struct_name);
+            break;
+        }
+        case ARRAY_INIT_NODE:
+        {
+            struct ast_node *init_expr = 0; //array initialization expression in the braket
+            if(rule->action.item_index_count){
+                init_expr = _take(nodes, rule->action.item_index[0]);
+            }
+            ast = array_init_node_new(init_expr, items[0].ast->loc);
+            break;
+        }
+        case ARRAY_TYPE_NODE:
+        {
+            struct ast_node *elm_type_name = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *dims = _take(nodes, rule->action.item_index[1]);
+            ast = array_type_node_new(elm_type_name, dims, elm_type_name->loc);
+            break;
+        }
+        case TYPE_NODE:
+        {
+            enum TypeNodeKind type_node_kind = rule->action.item_index[0];
+            struct ast_node *node = _take(nodes, rule->action.item_index[1]);
+            switch(type_node_kind){
+            case UnitType:
+                ast = type_node_new_with_unit_type(node->loc);
+                break;
+            case TypeName:
+                ast = type_node_new_with_type_name(node->ident->name, node->loc);
+                break;
+            case ArrayType:
+                ast = type_node_new_with_array_type(node->array_type, node->loc);
+                node->array_type = 0; //to prevent its being freed
+                break;
+            case RefType:
+                assert(node->node_type == TYPE_NODE);
+                ast = type_node_new_with_ref_type(node->type_node, node->loc);
+                node->type_node = 0;
+                break;
+            }
+            node_free(node);
+            break;
+        }
+        case BLOCK_NODE:
+            if (rule->action.item_index_count == 0){
+                struct array nodes;
+                array_init(&nodes, sizeof(struct ast_node *));
+                ast = block_node_new(&nodes);
+            }
+            else if (rule->action.item_index_count == 1){
+                ast = _take(nodes, rule->action.item_index[0]);
+                if(ast->node_type != BLOCK_NODE)
+                    ast = _wrap_as_block_node(ast);
+            }
+            else if(rule->action.item_index_count == 2){
+                ast = _take(nodes, rule->action.item_index[0]);
+                if(ast->node_type != BLOCK_NODE){
+                    ast = _wrap_as_block_node(ast);
+                }
+                struct ast_node *node = _take(nodes, rule->action.item_index[1]);
+                if(node->node_type){
+                    block_node_add(ast, node);
+                }
+            }
+            break;
+        }
     }
-    case BLOCK_NODE:
-        if (rule->action.item_index_count == 0){
-            struct array nodes;
-            array_init(&nodes, sizeof(struct ast_node *));
-            ast = block_node_new(&nodes);
+    //free unused nodes (with pointer value is not zero)
+    for(u8 i = 0; i < rule->symbol_count; i++){
+        if(nodes[i]){
+            //not used nodes
+            node_free(nodes[i]);
         }
-        else if (rule->action.item_index_count == 1){
-            ast = items[rule->action.item_index[0]].ast;
-            if(ast->node_type != BLOCK_NODE)
-                ast = _wrap_as_block_node(ast);
-        }
-        else if(rule->action.item_index_count == 2){
-            ast = items[rule->action.item_index[0]].ast;
-            if(ast->node_type != BLOCK_NODE){
-                ast = _wrap_as_block_node(ast);
-            }
-            struct ast_node *node = items[rule->action.item_index[1]].ast;
-            if(node->node_type){
-                block_node_add(ast, node);
-            }
-        }
-        break;
     }
     return ast;
 }

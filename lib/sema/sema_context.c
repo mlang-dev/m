@@ -90,6 +90,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
         //string type = to_string(func_type->base.type);
     }
     array_init_free(&context->nested_levels, sizeof(struct array), _free_nested_levels);
+    array_deinit(&builtins);
     return context;
 }
 
