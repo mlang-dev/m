@@ -187,11 +187,21 @@ struct ast_node *_copy_type_node(struct ast_node *orig_node)
     }
 }
 
+void _free_real_type_node(struct type_node *type_node)
+{
+    if(!type_node) return;
+    if(type_node->kind == ArrayType){
+        ast_node_free(type_node->array_type_node->dims);
+        ast_node_free(type_node->array_type_node->elm_type);
+    } else if(type_node->kind == RefType){
+        _free_real_type_node(type_node->val_node);
+    }
+}
+
 void _free_type_node(struct ast_node *node)
 {
     //TODO: fixme the memory leak
-    // if(node->type_node->kind == ArrayType)
-    //     ast_node_free(node->type_node->array_type_node);
+    _free_real_type_node(node->type_node);
     ast_node_free(node);
 }
 

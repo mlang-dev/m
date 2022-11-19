@@ -432,24 +432,21 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         switch(type_node_kind){
         case UnitType:
             ast = type_node_new_with_unit_type(node->loc);
-            node_free(node);
             break;
         case TypeName:
             ast = type_node_new_with_type_name(node->ident->name, node->loc);
-            node_free(node);
             break;
         case ArrayType:
             ast = type_node_new_with_array_type(node->array_type, node->loc);
             node->array_type = 0; //to prevent its being freed
-            node_free(node);
             break;
         case RefType:
             assert(node->node_type == TYPE_NODE);
             ast = type_node_new_with_ref_type(node->type_node, node->loc);
             node->type_node = 0;
-            node_free(node);
             break;
         }
+        node_free(node);
         break;
     }
     case BLOCK_NODE:
