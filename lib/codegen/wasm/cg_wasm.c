@@ -288,10 +288,6 @@ void _cg_wasm_init(struct cg_wasm *cg)
     ba_init(&cg->ba, 17);
     hashtable_init_with_value_size(&cg->func_name_2_idx, sizeof(u32), 0);
     hashtable_init(&cg->func_name_2_ast);
-
-    // for(u32 i = 0; i < FUN_LEVELS; i++){
-    //     fc_init(&cg->fun_contexts[i]);
-    // }
     _imports_init(&cg->imports);
     cg->sys_block = 0;
     cg->fun_top = 0;

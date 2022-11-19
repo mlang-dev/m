@@ -18,6 +18,9 @@ from sys import fun putchar ch:int -> ()\n\
 from sys import fun setImageData data:u32 width:u32 height:u32 -> ()\n\
 from math import fun pow x:f64 y:f64 -> f64\n\
 ";
+// const char *g_imports = "\n\
+// from sys import memory 10\n\
+// ";
 
 const char *g_sys = "\n\
 struct cf64 = re:f64, im:f64\n\

@@ -112,6 +112,7 @@ void _parse_triple(struct target_info *ti)
         }
     }
     string_deinit(&str);
+    array_deinit(&ar);
 }
 
 struct target_info *ti_new(const char *target_triple)
