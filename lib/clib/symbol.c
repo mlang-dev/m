@@ -42,12 +42,19 @@ symbol string_2_symbol(string *name)
     return to_symbol(string_get(name));
 }
 
+void _free_symbol(void *string)
+{
+    symbol symbol = string;
+    string_deinit(symbol);
+    FREE(symbol);
+}
+
 void symbols_init()
 {
     if (g_symbols)
         return;
     MALLOC(g_symbols, sizeof(*g_symbols));
-    hashtable_c_str_key_init(g_symbols);
+    hashtable_c_str_key_init(g_symbols, _free_symbol);
     EmptySymbol = to_symbol("");
 }
 

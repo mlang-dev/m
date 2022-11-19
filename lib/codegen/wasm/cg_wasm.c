@@ -276,7 +276,7 @@ void _imports_init(struct imports *imports)
 
 void _imports_deinit(struct imports *imports)
 {
-    ast_node_free(imports->import_block);
+    free_block_node(imports->import_block, false);
     imports->import_block = 0;
     imports->num_fun = 0;
     imports->num_global = 0;
@@ -306,7 +306,7 @@ void _cg_wasm_init(struct cg_wasm *cg)
 void _cg_wasm_deinit(struct cg_wasm *cg)
 {
     _imports_deinit(&cg->imports);
-    ast_node_free(cg->sys_block);
+    free_block_node(cg->sys_block, false);
     // for (u32 i = 0; i < FUN_LEVELS; i++) {
     //     fc_deinit(&cg->fun_contexts[i]);
     // }

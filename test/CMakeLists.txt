@@ -159,6 +159,7 @@ else()
   )
 
   TARGET_LINK_LIBRARIES(mctest mlrw clib unity
+    -g
   )
 
   add_custom_command(
