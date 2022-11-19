@@ -307,9 +307,6 @@ void _cg_wasm_deinit(struct cg_wasm *cg)
 {
     _imports_deinit(&cg->imports);
     node_free(cg->sys_block);
-    // for (u32 i = 0; i < FUN_LEVELS; i++) {
-    //     fc_deinit(&cg->fun_contexts[i]);
-    // }
     cg->fun_top = 0;
     hashtable_deinit(&cg->func_name_2_ast);
     hashtable_deinit(&cg->func_name_2_idx);
