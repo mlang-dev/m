@@ -10,15 +10,34 @@
 #include "clib/symboltable.h"
 #include "clib/util.h"
 
+void _free_symbol_list_entries(struct symbol_list *ll)
+{
+    struct symbol_list_entry *entry = list_first(ll);
+    struct symbol_list_entry *last_entry = 0;
+    while (entry != list_end(ll)){
+        last_entry = entry;
+        entry = list_next(entry);
+        free(last_entry);
+    }
+}
+
+void _free_symbol_list(void *elm)
+{
+    struct symbol_list *ll = elm;
+    _free_symbol_list_entries(ll);
+    free(ll);
+}
+
 void symboltable_init(symboltable *st)
 {
-    hashtable_init(&st->ht);
+    hashtable_init_with_value_size(&st->ht, 0, _free_symbol_list);
     st->symbols.first = NULL;
 }
 
 void symboltable_deinit(symboltable *st)
 {
     hashtable_deinit(&st->ht);
+    _free_symbol_list_entries(&st->symbols);
 }
 
 link_list_add_data_fn(symbol_list, symbol_list_entry, void *)

@@ -27,7 +27,7 @@ printf \"hello\"\n\
     ASSERT_EQ(TYPE_INT, node->type->type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -48,7 +48,7 @@ y = &x";
     ASSERT_EQ(TYPE_REF, y->type->type);
     ASSERT_EQ(to_symbol("&int"), y->type->name);
     ASSERT_TRUE(y->type->val_type);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -66,7 +66,7 @@ let update z:&AB =\n\
     struct ast_node* fun = *(struct ast_node **)array_get(&block->block->nodes, 1);
     ASSERT_EQ(TYPE_FUNCTION, fun->type->type);
     ASSERT_EQ(to_symbol("&AB -> ()"), fun->type->name);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -82,7 +82,7 @@ a = [10, 20, 30]\n\
     struct ast_node* array = *(struct ast_node **)array_get(&block->block->nodes, 0);
     ASSERT_EQ(TYPE_ARRAY, array->type->type);
     ASSERT_EQ(to_symbol("int[3]"), array->type->name);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -98,7 +98,7 @@ var a = []\n\
     struct ast_node* array = *(struct ast_node **)array_get(&block->block->nodes, 0);
     ASSERT_EQ(TYPE_ARRAY, array->type->type);
     ASSERT_EQ(to_symbol("()[]"), array->type->name);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -116,7 +116,7 @@ TEST(test_analyzer, int_variable)
     ASSERT_EQ(KIND_OPER, node->type->kind);
     string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -133,7 +133,7 @@ TEST(test_analyzer, double_variable)
     ASSERT_EQ(TYPE_F64, node->var->init_value->type->type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("f64", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -151,7 +151,7 @@ TEST(test_analyzer, bool_variable)
     ASSERT_EQ(TYPE_BOOL, node->var->init_value->type->type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("bool", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -169,7 +169,7 @@ TEST(test_analyzer, char_variable)
     ASSERT_EQ(TYPE_CHAR, node->var->init_value->type->type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("char", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -187,7 +187,7 @@ TEST(test_analyzer, string_variable)
     ASSERT_EQ(TYPE_STRING, node->var->init_value->type->type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("string", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -203,7 +203,7 @@ TEST(test_analyzer, double_int_literal_error)
     ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(TYPE_F64, node->type->type);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -218,7 +218,7 @@ TEST(test_analyzer, greater_than)
     ASSERT_EQ(BINARY_NODE, node->node_type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("bool", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -239,7 +239,7 @@ TEST(test_analyzer, identity_function)
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("a -> a", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -259,7 +259,7 @@ TEST(test_analyzer, int_int_fun)
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -279,7 +279,7 @@ TEST(test_analyzer, double_double_fun)
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("f64 -> f64", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -299,7 +299,7 @@ TEST(test_analyzer, bool_fun)
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("bool -> bool", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -319,7 +319,7 @@ TEST(test_analyzer, multi_param_fun)
     ASSERT_EQ(3, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("f64 * f64 -> f64", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -343,7 +343,7 @@ let factorial n = \n\
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -375,7 +375,7 @@ let loopprint n = \n\
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->start->type));
     ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->range->range->end->type));
     ASSERT_EQ(TYPE_UNIT, get_type(forn->forloop->body->type));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -408,7 +408,7 @@ let loopprint n:f64 =\n\
     ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->start->type));
     ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->range->range->end->type));
     ASSERT_EQ(TYPE_UNIT, get_type(forn->forloop->body->type));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -435,7 +435,7 @@ let distance x1:f64 y1:f64 x2 y2 = \n\
     ASSERT_EQ(5, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("f64 * f64 * f64 * f64 -> f64", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -460,7 +460,7 @@ let to_string () = \n\
     ASSERT_EQ(1, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("() -> string", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -483,7 +483,7 @@ let var_func ... = 0\n\
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("... -> int", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -498,7 +498,7 @@ TEST(test_analyzer, printf_fun)
     ASSERT_EQ(CALL_NODE, node->node_type);
     string type_str = to_string(node->type);
     ASSERT_STREQ("type mismatch", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -517,6 +517,7 @@ struct Point2D = x:f64, y:f64\n\
     string type_str = to_string(node->type);
     ASSERT_EQ(TYPE_STRUCT, node->type->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -538,7 +539,7 @@ let inc x:int = x + 1\n\
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -560,7 +561,7 @@ let inc:int x:int = x + 1\n\
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -594,7 +595,7 @@ x\n\
     ASSERT_EQ(IDENT_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -620,7 +621,7 @@ xy.x\n\
     ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("f64", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -649,7 +650,7 @@ getx()\n\
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("f64", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -690,7 +691,7 @@ z = getx()\n\
     /*verify variable xy in inner function is out of scope*/
     symbol xy = to_symbol("xy");
     ASSERT_EQ(false, has_symbol(&fe->sema_context->decl_2_typexps, xy));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -720,7 +721,7 @@ let z() = get_point()\n\
     ASSERT_EQ(FUNC_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> Point2D", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -737,7 +738,7 @@ a:u8[2]\n\
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("u8[2]", string_get(&type_str));
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -764,7 +765,7 @@ let getx()=\n\
     struct ast_node *var_y = *(struct ast_node **)array_get(&node->func->body->block->nodes, 1);
     ASSERT_EQ(false, var_x->is_ret);
     ASSERT_EQ(true, var_y->is_ret);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -790,7 +791,7 @@ let getx()=\n\
     struct ast_node *exp = *(struct ast_node **)array_get(&node->func->body->block->nodes, 1);
     ASSERT_EQ(false, var_x->is_ret);
     ASSERT_EQ(BINARY_NODE, exp->node_type);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 

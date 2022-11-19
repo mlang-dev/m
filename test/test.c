@@ -69,7 +69,6 @@ EXPORT int ENTRY()
   failures += test_analyzer_errors();
   failures += test_type_size_info();
   failures += test_wasm_codegen();
-
   if (!failures)
     printf("Unit tests passed !\n");
   else

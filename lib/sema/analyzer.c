@@ -550,7 +550,9 @@ struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *no
     struct loop_nested_level *bnl = enter_loop(context);
     bnl->block_levels = 1; //body is itself a block
     struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
+    //now we need to know who owns the start node memory
     node->forloop->var->var->init_value = node->forloop->range->range->start;
+    node->forloop->var->var->is_init_shared = true;
     struct type_expr *var_type = analyze(context, node->forloop->var);
     struct type_expr *start_type = analyze(context, node->forloop->range->range->start);
     struct type_expr *step_type = 0;

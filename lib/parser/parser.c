@@ -186,6 +186,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *module = items[rule->action.item_index[0]].ast;
         struct ast_node *object = items[rule->action.item_index[1]].ast;
         ast = import_node_new(module->ident->name, object, module->loc);
+        //we need to free module
+        node_free(module);
         break;
     }
     case MEMORY_NODE:
@@ -205,6 +207,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         enum op_code opcode = op->node_type & 0xFFFF;
         struct ast_node *operand = items[rule->action.item_index[1]].ast;
         ast = unary_node_new(opcode, operand, rule->action.item_index[0] > rule->action.item_index[1], op->loc);
+        node_free(op); 
         break;
     }
     case CAST_NODE:
@@ -277,6 +280,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         if (rule->action.item_index_count == 2)
             expr = items[rule->action.item_index[1]].ast; //expr
         ast = jump_node_new(token_type, expr, token_node->loc);
+        node_free(token_node);
         break;
     }
     case IF_NODE:
@@ -297,6 +301,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *lhs = items[rule->action.item_index[0]].ast;
         struct ast_node *rhs = items[rule->action.item_index[2]].ast;
         ast = binary_node_new(opcode, lhs, rhs, lhs->loc);
+        node_free(op);
         break;
     }
     case ASSIGN_NODE:
@@ -306,6 +311,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *lhs = items[rule->action.item_index[0]].ast;
         struct ast_node *rhs = items[rule->action.item_index[2]].ast;
         ast = assign_node_new(opcode, lhs, rhs, lhs->loc);
+        node_free(op);
         break;
     }
     case MEMBER_INDEX_NODE:
@@ -332,6 +338,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }
         struct ast_node *ret_type_name = items[rule->action.item_index[1]].ast; //return type name
         ast = func_type_node_default_new(ft_name->ident->name, parameters, 0, ret_type_name, is_variadic, true, ft_name->loc);
+        node_free(ft_name);
         break;
     }
     case FUNC_NODE:
@@ -360,6 +367,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *ft = func_type_node_default_new(func_name->ident->name, parameters, 0, ret_type_node, is_variadic, false, func_name->loc);
         ast = function_node_new(ft, func_body, func_name->loc);
         hashtable_set_int(symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
+        node_free(func_name);
         break;
     }
     case CALL_NODE:
@@ -370,6 +378,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         struct ast_node *arguments = items[rule->action.item_index[1]].ast;
         assert(arguments->node_type == BLOCK_NODE);
         ast = call_node_new(callee_name->ident->name, arguments, callee_name->loc);
+        node_free(callee_name);
         break;
     }
     case UNION_NODE:
@@ -385,6 +394,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }
         ast = struct_node_new(struct_name->ident->name, struct_body, struct_name->loc);
         hashtable_set_int(symbol_2_int_types, struct_name->ident->name, TYPE_STRUCT);
+        node_free(struct_name);
         break;
     }
     case STRUCT_INIT_NODE: 
@@ -396,6 +406,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         assert(init_body->node_type == BLOCK_NODE);
         struct ast_node *type_node = type_node_new_with_type_name(struct_name->ident->name, struct_name->loc);
         ast = struct_init_node_new(init_body, type_node, struct_name->loc);
+        node_free(struct_name);
         break;
     }
     case ARRAY_INIT_NODE:
@@ -421,16 +432,22 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         switch(type_node_kind){
         case UnitType:
             ast = type_node_new_with_unit_type(node->loc);
+            node_free(node);
             break;
         case TypeName:
             ast = type_node_new_with_type_name(node->ident->name, node->loc);
+            node_free(node);
             break;
         case ArrayType:
             ast = type_node_new_with_array_type(node->array_type, node->loc);
+            node->array_type = 0; //to prevent its being freed
+            node_free(node);
             break;
         case RefType:
             assert(node->node_type == TYPE_NODE);
             ast = type_node_new_with_ref_type(node->type_node, node->loc);
+            node->type_node = 0;
+            node_free(node);
             break;
         }
         break;
