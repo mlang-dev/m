@@ -20,6 +20,7 @@ void fc_deinit(struct fun_context *fc)
     struct_type_deinit(&fc->stack_type);
     hashtable_deinit(&fc->ast_2_index);
     symboltable_deinit(&fc->varname_2_index);
+    tsi_free(&fc->stack_size_info);
 }
 
 struct var_info *_fc_get_var_info_by_node(struct fun_context *fc, struct ast_node *node)

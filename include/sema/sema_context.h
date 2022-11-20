@@ -34,7 +34,7 @@ struct sema_context {
      *  value type env: symboltable of <symbol, struct type_expr>*>
      *  binding variable name to type expression
      */
-    struct symboltable decl_2_typexps;
+    struct symboltable decl_2_typexprs;
 
     /* 
      *  value ast env: symboltable of <symbol, struct ast_node>*>

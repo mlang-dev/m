@@ -480,8 +480,8 @@ struct ast_node *_copy_import_node(struct ast_node *orig_node)
 
 void _free_import_node(struct ast_node *node)
 {
-    ast_node_free(node->import->import);
-    //?? node_free(node->import->import);
+    //ast_node_free(node->import->import);
+    node_free(node->import->import);
     ast_node_free(node);
 }
 
@@ -599,6 +599,11 @@ void _free_func_type_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+void _free_sp(void *elm)
+{
+    //?? node_free(elm);
+}
+
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc)
 {
@@ -606,7 +611,7 @@ struct ast_node *function_node_new(struct ast_node *func_type,
     MALLOC(node->func, sizeof(*node->func));
     node->func->func_type = func_type;
     node->func->body = body;
-    array_init(&node->func->sp_funs, sizeof(struct ast_node*));
+    array_init_free(&node->func->sp_funs, sizeof(struct ast_node*), _free_sp);
     return node;
 }
 

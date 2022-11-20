@@ -83,7 +83,8 @@ struct type_expr *create_unit_type();
 struct type_expr *wrap_as_fun_type(struct type_expr *oper);
 struct type_expr *create_ref_type(struct type_expr *val_type);
 struct type_expr *create_array_type(struct type_expr *element_type, struct array *dims);
-void type_exp_free(struct type_expr *type);
+void type_expr_free(struct type_expr *type);
+
 bool occurs_in_type(struct type_expr *var, struct type_expr *type2);
 struct type_expr *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
 void push_symbol_type(symboltable *st, symbol name, void *type);

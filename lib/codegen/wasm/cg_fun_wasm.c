@@ -217,7 +217,7 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
             hashtable_set_p(&fc->ast_2_index, node, vi);
         }
         if(has_optional_args){
-            //TODO: fix memory leak, but we can't free here type_exp_free(te);
+            //TODO: fix memory leak, but we can't free here type_expr_free(te);
             //
         }
         break;
