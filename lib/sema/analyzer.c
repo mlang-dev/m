@@ -55,6 +55,7 @@ struct ast_node *cast_to_node(struct type_expr *to_type, struct ast_node *node)
 {
     struct ast_node *type_name = ident_node_new(get_type_symbol(to_type->type), node->loc);
     //we have to make a copy of init_value node, otherwise it's endlessly calling cast node
+    //TODO: remove the copy
     struct ast_node *copy_node = node_copy(node);
     copy_node->type = node->type;
     struct ast_node *cast = cast_node_new(type_name, copy_node, node->loc);
@@ -129,7 +130,9 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
             report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(var_name));
             return 0;
         }
+        //
         node->transformed = assign_node_new(OP_ASSIGN, node->var->var, node->var->init_value, node->loc);
+        //moved 
         node->transformed->type = analyze(context, node->transformed);
         return node->transformed->type;
     }
@@ -496,6 +499,9 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
         symbol var_name = node->binop->lhs->ident->name;
         if(!has_symbol(&context->decl_2_typexprs, var_name)){
             //first time assignment, immutable binding
+            //this is only possible when grammar is changed to "id = expr" not 
+            //as var decl. 
+            assert(false);
             node->transformed = var_node_new(node->binop->lhs, 0, node->binop->rhs, false, false, node->loc);
             node->transformed->type = analyze(context, node->transformed);
             return node->transformed->type;

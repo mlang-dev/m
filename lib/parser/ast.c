@@ -48,8 +48,13 @@ void ast_node_free(struct ast_node *node)
     if(!node) return;
     if(node->data)
         FREE(node->data);
-    if(node->transformed)
-        FREE(node->transformed);
+    if(node->transformed){
+        if(node->transformed->node_type == CAST_NODE){
+            node_free(node->transformed);
+        } else {
+            FREE(node->transformed);
+        }
+    }
     FREE(node);
 }
 

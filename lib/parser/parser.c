@@ -54,6 +54,7 @@ void _push_state(struct parser *parser, u16 state, struct ast_node *ast)
 
 struct stack_item *_pop_state(struct parser *parser)
 {
+    if(parser->stack_top == 0) return 0;
     return &parser->stack[--parser->stack_top];
 }
 
@@ -558,6 +559,10 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
             //     printf("%d,", parser->stack[i].state_index);
             // }
             // printf("\n");
+            //clean stack items
+            while((s_item = _pop_state(parser))){
+                node_free(s_item->ast);
+            }
             ast = 0;
             break;
         }
