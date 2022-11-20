@@ -157,7 +157,7 @@ struct type_expr *_create_type_for_call_with_optional_parameters(struct cg_wasm*
         }
         array_push(&arg_types, &arg->type);
     }
-    return create_type_oper_struct(0, &arg_types);
+    return create_type_oper_struct(0, Immutable, &arg_types);
 }
 /*
  * register local variable & stack space

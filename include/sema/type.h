@@ -69,6 +69,7 @@ struct type_expr {
     enum Mut mut; //mutability of the data of the type
     struct type_expr* val_type;// val_type the reference type is referred to or element type of the array
     symbol name; //name of type exp: like "->" for function, "bool", "int", "f64" for type variable
+    symbol canon_name; //base name of the type, invariant among different variances of types: e.g. alwasy int for int, &int, &mut int, mut &mut int etc.
     union {
         struct type_expr *instance; //used for KIND_VAR
         //used for KIND_OPER struct array of struct type_expr*
@@ -86,14 +87,14 @@ struct type_expr_pair {
 
 void types_init();
 void types_deinit();
-struct type_expr *create_type_var();
+struct type_expr *create_type_var(enum Mut mut);
 struct type_expr *create_type_oper_var(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args);
-struct type_expr *create_type_oper_struct(symbol type_name, struct array *args);
+struct type_expr *create_type_oper_struct(symbol type_name, enum Mut mut, struct array *args);
 struct type_expr *create_nullary_type(enum type type);
 struct type_expr *create_type_fun(struct array *args);
 struct type_expr *create_unit_type();
 struct type_expr *wrap_as_fun_type(struct type_expr *oper);
-struct type_expr *create_ref_type(struct type_expr *val_type);
+struct type_expr *create_ref_type(struct type_expr *val_type, enum Mut mut);
 struct type_expr *create_array_type(struct type_expr *element_type, struct array *dims);
 void type_expr_free(struct type_expr *type);
 
@@ -123,6 +124,8 @@ void struct_type_add_member(struct type_expr *struct_type, struct type_expr *typ
 
 struct type_expr *fresh(struct type_expr *type, struct array *nongens);
 struct type_expr_pair *get_type_expr_pair(symbol type_name);
+struct type_expr *tep_find_type_expr(struct type_expr_pair *pair, enum Mut mut, bool is_ref, enum Mut referent_mut);
+struct type_expr *find_type_expr(struct type_expr *oper, enum Mut mut);
 
 #define is_int_type(type) (type >= TYPE_BOOL && type <= TYPE_INT)
 #define is_aggregate_type(node_type) (node_type->type==TYPE_STRUCT || node_type->type == TYPE_ARRAY)

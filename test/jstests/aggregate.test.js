@@ -94,7 +94,7 @@ let add z:cf64 op:f64 = cf64(z.re + op, z.im + op)
 mtest.mtest('struct member assign struct', 'struct member assign struct',
 `
 struct xy = x:f64, y:f64
-struct wz = w:f64, z:xy
+struct wz = var w:f64, z:xy
 ab = wz(10.0, xy(20.0, 30.0))
 ab.z = xy(200.0, 300.0)
 ab.z.y
@@ -185,9 +185,10 @@ let sq z:cf64 = cf64(z.re ** 2.0 - z.im ** 2.0, 2.0 * z.re * z.im)
 
 mtest.mtest('struct member assign', 'struct member assign',
 `
-z = cf64(10.0, 20.0)
-z.re = 30.0
-z.re
+struct Point = var x:f64, y:f64
+z = Point(10.0, 20.0)
+z.x = 30.0
+z.x
 `, 30.0);
 
 

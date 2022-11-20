@@ -21,14 +21,14 @@ enum type _get_type_enum(struct sema_context *context, symbol type_name)
     return hashtable_get_int(context->symbol_2_int_types, type_name);
 }
 
-struct type_expr *retrieve_type_with_type_name(struct sema_context *context, symbol name)
+struct type_expr *_retrieve_type_with_type_name(struct sema_context *context, symbol name, enum Mut mut)
 {
     struct type_expr_pair * tep = symboltable_get(&context->typename_2_typexpr_pairs, name);
     if (!tep){
         printf("No type is found for the symbol: %s.\n", string_get(name));
         return 0;
     }
-    struct type_expr *type = tep->val_types[0];
+    struct type_expr *type = tep_find_type_expr(tep, mut, false, mut);
     return fresh(type, &context->nongens);
 }
 
@@ -37,10 +37,10 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
     struct type_expr *value_type;
     switch(type_node->kind){
     case TypeName:
-        return retrieve_type_with_type_name(context, type_node->type_name); // example like int
+        return _retrieve_type_with_type_name(context, type_node->type_name, mut); // example like int
     case ArrayType:
     {
-        value_type = retrieve_type_with_type_name(context, type_node->array_type_node->elm_type->type_node->type_name);
+        value_type = _retrieve_type_with_type_name(context, type_node->array_type_node->elm_type->type_node->type_name, mut);
         struct array dims;
         array_init(&dims, sizeof(u32));
         for(u32 i=0; i<array_size(&type_node->array_type_node->dims->block->nodes); i++){
@@ -54,7 +54,7 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
         return create_unit_type();
     case RefType:
         value_type = create_type_from_type_node(context, type_node->val_node, mut);
-        return create_ref_type(value_type);
+        return create_ref_type(value_type, Immutable);
     }
 }
 
@@ -106,7 +106,7 @@ struct type_expr *_analyze_ident(struct sema_context *context, struct ast_node *
 struct type_expr *_analyze_liter(struct sema_context *context, struct ast_node *node)
 {
     symbol type_name = get_type_symbol(node->liter->type);
-    return retrieve_type_with_type_name(context, type_name);
+    return _retrieve_type_with_type_name(context, type_name, Immutable);
 }
 
 u32 _get_array_size(struct type_expr *type)
@@ -161,7 +161,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     }
     if (node->var->is_of_type){
         enum Mut mut = Immutable;
-        if(node->var->mut == Mutable && node->var->is_of_type->type_node->mut == Mutable){
+        if(node->var->mut == Mutable || node->var->is_of_type->type_node->mut == Mutable){
             mut = Mutable;
         }
         var_type = create_type_from_type_node(context, node->var->is_of_type->type_node, mut);
@@ -185,7 +185,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     if (!type)
         return 0;
     if(!var_type)
-        var_type = create_type_var();
+        var_type = create_type_var(node->var->mut);
     struct type_expr *result_type = unify(var_type, type, &context->nongens);
     if (!result_type) {
         report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
@@ -211,7 +211,7 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
         array_push(&args, &field_node->type);
     }
     symbol struct_name = node->struct_def->name;
-    struct type_expr *result_type = create_type_oper_struct(struct_name, &args);
+    struct type_expr *result_type = create_type_oper_struct(struct_name, Immutable, &args);
     assert(node->struct_def->name == result_type->name);
     struct type_expr_pair * tep = get_type_expr_pair(struct_name);
     push_symbol_type(&context->typename_2_typexpr_pairs, struct_name, tep);
@@ -308,15 +308,16 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
         struct type_expr *exp;
         if (param->var->is_of_type) {
            exp = create_type_from_type_node(context, param->var->is_of_type->type_node, Immutable);
-        } else
-            exp = create_type_var();
+        } else{
+            exp = create_type_var(param->var->mut);
+        }
         array_push(&fun_sig, &exp);
         array_push(&context->nongens, &exp);
         push_symbol_type(&context->decl_2_typexprs, param->var->var->ident->name, exp);
         push_symbol_type(&context->varname_2_asts, param->var->var->ident->name, param);
     }
     /*analyze function body*/
-    struct type_expr *fun_type_var = create_type_var();
+    struct type_expr *fun_type_var = create_type_var(Immutable); //?
     push_symbol_type(&context->decl_2_typexprs, node->func->func_type->ft->name, fun_type_var);
     struct type_expr *ret_type = analyze(context, node->func->body);
     array_push(&fun_sig, &ret_type);
@@ -377,7 +378,7 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
             node->call->callee_func_type = sp_fun->func->func_type;
         }
     }
-    struct type_expr *result_type = create_type_var();
+    struct type_expr *result_type = create_type_var(Immutable); //?? immutable result assumed
     array_push(&args, &result_type);
     struct type_expr *call_fun = create_type_fun(&args);
     unify(call_fun, fun_type, &context->nongens);
@@ -399,7 +400,6 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
 
 struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *node)
 {
-    struct ast_node *var = 0;
     struct type_expr *op_type = analyze(context, node->unop->operand);
     if(!op_type) return 0;
     if (node->unop->opcode == OP_NOT) {
@@ -414,11 +414,10 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
         }
         //reference-of or address-of operator
         if(node->unop->operand->node_type == IDENT_NODE){
-            var = _get_var_node(context, node->unop->operand);
-            if(var) var->is_addressed = true;
+            node->unop->operand->ident->var->is_addressed = true;
         }
         node->unop->operand->is_addressed = true;
-        op_type = create_ref_type(op_type);
+        op_type = create_ref_type(op_type, Immutable);
     }
     else if(node->unop->opcode == OP_STAR){
         //dereference-of
@@ -458,6 +457,7 @@ struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, s
     }
     struct type_expr *member_type = *(struct type_expr **)array_get(&struct_type->args, index);
     node->index->index->type = member_type;
+    node->index->index->ident->var = *(struct ast_node **)array_get(&type_node->struct_def->body->block->nodes, index);    
     return member_type;
 }
 
@@ -470,9 +470,9 @@ struct type_expr *_analyze_array_member_accessor(struct sema_context *context, s
         report_error(context, EC_EXPECT_ARRAY_TYPE, node->loc);
         return 0;
     }
-    if(array_size(&type->dims) == 1)
-        return type->val_type;
-    else{
+    if(array_size(&type->dims) == 1){
+        return find_type_expr(type->val_type, type->mut);
+    }else{
         //remove one dimension
         struct array dims;
         array_init(&dims, sizeof(u32));
@@ -534,18 +534,11 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
         }
     }
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
-    /*
-    struct type_expr *lhs_type = analyze(context, node->binop->lhs);
     if(lhs_type && !lhs_type->mut){
         string lhs_str = dump(context, node->binop->lhs);
-        struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, &lhs_str);
-        if(orig_var->var->mut == Immutable){
-            report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(&lhs_str));
-            return 0;
-            
-        }
+        report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(&lhs_str));
+        return 0;
     }  
-    */    
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
     struct type_expr *unified = unify(lhs_type, rhs_type, &context->nongens);
