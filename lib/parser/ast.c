@@ -333,7 +333,7 @@ struct ast_node *var_node_new(struct ast_node *var, struct ast_node *is_of_type,
 struct ast_node *_copy_var_node(struct ast_node *orig_node)
 {
     return var_node_new(
-        orig_node->var->var, node_copy(orig_node->var->is_of_type),
+        node_copy(orig_node->var->var), node_copy(orig_node->var->is_of_type),
         node_copy(orig_node->var->init_value), orig_node->var->is_global, orig_node->var->is_mut, 
         orig_node->loc);
 }
@@ -388,7 +388,7 @@ struct ast_node *_copy_struct_init_node(struct ast_node *orig_node)
 void _free_struct_init_node(struct ast_node *node)
 {
     _free_block_node(node->struct_init->body);
-    ast_node_free(node->struct_init->is_of_type);
+    node_free(node->struct_init->is_of_type);
     ast_node_free(node);
 }
 
@@ -412,9 +412,9 @@ struct ast_node *_copy_range_node(struct ast_node *orig_node)
 
 void _free_range_node(struct ast_node *node)
 {
-    ast_node_free(node->range->start);
-    ast_node_free(node->range->end);
-    ast_node_free(node->range->step);
+    node_free(node->range->start);
+    node_free(node->range->end);
+    node_free(node->range->step);
     ast_node_free(node);
 }
 
@@ -456,8 +456,8 @@ struct ast_node *_copy_array_type_node(struct ast_node *orig_node)
 void _free_array_type_node(struct ast_node *node)
 {
     if(node->array_type){
-        ast_node_free(node->array_type->elm_type);
-        ast_node_free(node->array_type->dims);
+        node_free(node->array_type->elm_type);
+        node_free(node->array_type->dims);
     }
     ast_node_free(node);
 }
@@ -531,7 +531,7 @@ struct ast_node *_copy_call_node(struct ast_node *orig_node)
 
 void _free_call_node(struct ast_node *node)
 {
-    ast_node_free(node->call->arg_block);
+    node_free(node->call->arg_block);
     ast_node_free(node);
 }
 
@@ -582,6 +582,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
     node->ft->precedence = func_type->ft->precedence;
     node->ft->is_variadic = func_type->ft->is_variadic;
     node->ft->is_extern = func_type->ft->is_extern;
+    node->ft->ret_type_node = node_copy(func_type->ft->ret_type_node);
     node->ft->op = func_type->ft->op;
     if (func_type->ft->is_variadic) {
         symbol var_name = get_type_symbol(TYPE_GENERIC);
@@ -601,7 +602,7 @@ void _free_func_type_node(struct ast_node *node)
 
 void _free_sp(void *elm)
 {
-    //?? node_free(elm);
+    node_free(elm);
 }
 
 struct ast_node *function_node_new(struct ast_node *func_type,
@@ -640,7 +641,6 @@ void _free_function_node(struct ast_node *node)
 {
     _free_func_type_node(node->func->func_type);
     _free_block_node(node->func->body);
-    /*TODO: sp_funs make sure free function is provided*/
     array_deinit(&node->func->sp_funs);
     ast_node_free(node);
 }
