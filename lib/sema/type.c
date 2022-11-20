@@ -148,12 +148,19 @@ symbol to_array_type_name(symbol element_type_name, struct array *dims)
 }
 /*symbol 2 type expr pairs*/
 struct hashtable _symbol_2_type_exprs; 
+/*type variables: collect type variables*/
+struct hashtable _type_expr_vars; 
 
 void _free_type_pair(void *type)
 {
     struct type_expr_pair *pair = type;
-    type_exp_free(pair->ref_type);
-    type_exp_free(pair->val_type);
+    type_expr_free(pair->ref_type);
+    type_expr_free(pair->val_type);
+}
+
+void _free_type_expr_var(void *elm)
+{
+    type_expr_free(elm);
 }
 
 void types_init()
@@ -167,11 +174,13 @@ void types_init()
         string_deinit(&str);
     }
     hashtable_init_with_value_size(&_symbol_2_type_exprs, sizeof(struct type_expr_pair), _free_type_pair);
+    hashtable_init_with_value_size(&_type_expr_vars, 0, _free_type_expr_var);
 }
 
 void types_deinit()
 {
     hashtable_deinit(&_symbol_2_type_exprs);
+    hashtable_deinit(&_type_expr_vars);
 }
 
 void struct_type_init(struct type_expr *struct_type)
@@ -187,7 +196,7 @@ void struct_type_deinit(struct type_expr *struct_type)
     struct_type->kind = KIND_OPER;
     struct_type->name = 0;
     struct_type->type = TYPE_STRUCT;
-    array_init(&struct_type->args, sizeof(struct type_expr *));
+    array_deinit(&struct_type->args);
 }
 
 void struct_type_add_member(struct type_expr *struct_type, struct type_expr *type)
@@ -230,6 +239,15 @@ struct type_expr *create_type_oper(enum kind kind, symbol type_name, enum type t
     return tep.val_type;
 }
 
+/*val_type: referenced value type: e.g. it's int for &int type */
+struct type_expr *create_ref_type(struct type_expr *val_type)
+{
+    create_type_oper(KIND_OPER, val_type->name, val_type->type, 0);
+    struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, val_type->name);
+    assert(pair);
+    return pair->ref_type;
+}
+
 struct type_expr *_create_type_var(symbol name)
 {
     return _create_type_oper(KIND_VAR, name, 0, 0, 0);
@@ -239,7 +257,9 @@ struct type_expr *create_type_var()
 {
     string name = get_id_name();
     symbol type_name = to_symbol(string_get(&name));
-    return _create_type_var(type_name);
+    struct type_expr *type_var = _create_type_var(type_name);
+    hashtable_set_p(&_type_expr_vars, type_var, type_var);
+    return type_var;
 }
 
 struct type_expr *copy_type_var(struct type_expr *var)
@@ -250,12 +270,6 @@ struct type_expr *copy_type_var(struct type_expr *var)
     return copy_var;
 }
 
-/*val_type: referenced value type: e.g. it's int for &int type */
-struct type_expr *create_ref_type(struct type_expr *val_type)
-{
-    symbol ref_type_name = to_ref_symbol(val_type->name);
-    return _create_type_oper(KIND_OPER, ref_type_name, TYPE_REF, val_type, 0);
-}
 
 struct type_expr *create_unit_type()
 {
@@ -265,7 +279,7 @@ struct type_expr *create_unit_type()
 
 struct type_expr *create_type_oper_struct(symbol type_name, struct array *args)
 {
-    return _create_type_oper(KIND_OPER, type_name, TYPE_STRUCT, 0, args);
+    return create_type_oper(KIND_OPER, type_name, TYPE_STRUCT, args);
 }
 
 struct type_expr *create_nullary_type(enum type type, symbol type_symbol)
@@ -278,8 +292,9 @@ struct type_expr *create_type_fun(struct array *args)
     symbol type_name = get_type_symbol(TYPE_FUNCTION);
     symbol fun_type_name = _to_fun_type_name(args);
     if(fun_type_name){
-        return _create_type_oper(KIND_OPER, fun_type_name, TYPE_FUNCTION, 0, args);
+        return create_type_oper(KIND_OPER, fun_type_name, TYPE_FUNCTION, args);
     } else {
+        //we still have type variable, could be generic function
         return _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
     }
 }
@@ -303,7 +318,7 @@ struct type_expr *wrap_as_fun_type(struct type_expr *oper)
     return create_type_fun(&fun_sig);
 }
 
-void type_exp_free(struct type_expr *type)
+void type_expr_free(struct type_expr *type)
 {
     if(type->kind == KIND_OPER){
         array_deinit(&type->args);

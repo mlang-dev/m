@@ -26,6 +26,7 @@ void fun_info_init(struct fun_info *fi, struct ast_node *func_type)
 
 void fun_info_deinit(struct fun_info *fi)
 {
+    target_arg_info_deinit(&fi->tai);
     array_deinit(&fi->args);
 }
 

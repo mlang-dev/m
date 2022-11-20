@@ -44,6 +44,7 @@ struct struct_layout *sl_new(symbol type_name);
 void sl_free(struct struct_layout *sl);
 void tsi_init();
 void tsi_deinit();
+void tsi_free(void *tsi);
 u64 align_to(u64 field_offset, u64 align);
 
 #ifdef __cplusplus

@@ -82,7 +82,7 @@ struct ast_node *_get_var_node(struct sema_context *context, struct ast_node *no
 
 struct type_expr *retrieve_type_for_var_name(struct sema_context *context, symbol name)
 {
-    return get_symbol_type(&context->decl_2_typexps, &context->nongens, name);
+    return get_symbol_type(&context->decl_2_typexprs, &context->nongens, name);
 }
 
 struct type_expr *_analyze_ident(struct sema_context *context, struct ast_node *node)
@@ -121,7 +121,7 @@ bool _is_array_size_same(struct type_expr *type1, struct type_expr *type2)
 struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
     symbol var_name = node->var->var->ident->name;
-    if(has_symbol(&context->decl_2_typexps, var_name)){
+    if(has_symbol(&context->decl_2_typexprs, var_name)){
         //this is assignment, not var declaration
         //check if it's mutable
         struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, var_name);
@@ -147,14 +147,14 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         assert(var_type);
         if(hashtable_in_p(&context->struct_typename_2_asts, var_type->name)||
             !node->var->init_value){
-            push_symbol_type(&context->decl_2_typexps, var_name, var_type);
+            push_symbol_type(&context->decl_2_typexprs, var_name, var_type);
             push_symbol_type(&context->varname_2_asts, var_name, node);
             if (node->var->init_value)
                 analyze(context, node->var->init_value);
             return var_type;
         }
     }
-    if (!var_type && has_symbol_in_scope(&context->decl_2_typexps, var_name, context->scope_marker))
+    if (!var_type && has_symbol_in_scope(&context->decl_2_typexprs, var_name, context->scope_marker))
         var_type = retrieve_type_for_var_name(context, var_name);
     struct type_expr *type = analyze(context, node->var->init_value);
     if (type && var_type && _is_array_size_same(var_type, type)){
@@ -174,7 +174,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         node->var->init_value->transformed = cast_to_node(var_type, node->var->init_value);
     }
     
-    push_symbol_type(&context->decl_2_typexps, var_name, var_type);
+    push_symbol_type(&context->decl_2_typexprs, var_name, var_type);
     push_symbol_type(&context->varname_2_asts, var_name, node);
     return var_type;
 }
@@ -269,7 +269,7 @@ struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_no
     array_push(&fun_sig, &to);
     node->type = create_type_fun(&fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
-    push_symbol_type(&context->decl_2_typexps, node->ft->name, node->type);
+    push_symbol_type(&context->decl_2_typexprs, node->ft->name, node->type);
     return node->type;
 }
 
@@ -290,17 +290,17 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
             exp = create_type_var();
         array_push(&fun_sig, &exp);
         array_push(&context->nongens, &exp);
-        push_symbol_type(&context->decl_2_typexps, param->var->var->ident->name, exp);
+        push_symbol_type(&context->decl_2_typexprs, param->var->var->ident->name, exp);
         push_symbol_type(&context->varname_2_asts, param->var->var->ident->name, param);
     }
     /*analyze function body*/
-    struct type_expr *fun_type = create_type_var();
-    push_symbol_type(&context->decl_2_typexps, node->func->func_type->ft->name, fun_type);
+    struct type_expr *fun_type_var = create_type_var();
+    push_symbol_type(&context->decl_2_typexprs, node->func->func_type->ft->name, fun_type_var);
     struct type_expr *ret_type = analyze(context, node->func->body);
     array_push(&fun_sig, &ret_type);
     struct type_expr *result_type = create_type_fun(&fun_sig);
-    unify(fun_type, result_type, &context->nongens);
-    struct type_expr *result = prune(fun_type);
+    unify(fun_type_var, result_type, &context->nongens);
+    struct type_expr *result = prune(fun_type_var);
     node->func->func_type->type = result;
     if (is_generic(result)) {
         hashtable_set(&context->generic_ast, string_get(node->func->func_type->ft->name), node);
@@ -309,6 +309,7 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
     (void)saved_node;
     assert(node == saved_node);
     leave_function(context);
+    //free type variable
     return result;
 }
 
@@ -335,7 +336,7 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
         if (!parent_func || (parent_func->func->func_type->ft->name != node->call->callee)){
             string sp_callee = monomorphize(string_get(node->call->callee), &args);
             node->call->specialized_callee = to_symbol(string_get(&sp_callee));
-            if (has_symbol(&context->decl_2_typexps, node->call->specialized_callee)) {
+            if (has_symbol(&context->decl_2_typexprs, node->call->specialized_callee)) {
                 fun_type = retrieve_type_for_var_name(context, node->call->specialized_callee);
                 return *(struct type_expr **)array_back(&fun_type->args);
             }
@@ -348,7 +349,7 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
             fun_type = analyze(context, sp_fun);
             hashtable_set(&context->specialized_ast, string_get(sp_fun->func->func_type->ft->name), sp_fun);
             array_push(&context->new_specialized_asts, &sp_fun);     
-            push_symbol_type(&context->decl_2_typexps, node->call->specialized_callee, fun_type);
+            push_symbol_type(&context->decl_2_typexprs, node->call->specialized_callee, fun_type);
             hashtable_set_p(&context->func_types, node->call->specialized_callee, sp_fun->func->func_type);
             hashtable_set_p(&context->calls, node->call->specialized_callee, node);
             node->call->callee_func_type = sp_fun->func->func_type;
@@ -493,7 +494,7 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
     set_lvalue(node->binop->lhs);
     if(node->binop->lhs->node_type == IDENT_NODE){
         symbol var_name = node->binop->lhs->ident->name;
-        if(!has_symbol(&context->decl_2_typexps, var_name)){
+        if(!has_symbol(&context->decl_2_typexprs, var_name)){
             //first time assignment, immutable binding
             node->transformed = var_node_new(node->binop->lhs, 0, node->binop->rhs, false, false, node->loc);
             node->transformed->type = analyze(context, node->transformed);

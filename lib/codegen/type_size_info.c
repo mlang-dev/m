@@ -10,9 +10,15 @@
     */
 struct hashtable g_type_infos;
 
+void tsi_free(void *elm)
+{
+    struct type_size_info *tsi = elm;
+    sl_free(tsi->sl);
+}
+
 void tsi_init()
 {
-    hashtable_init_with_value_size(&g_type_infos, sizeof(struct type_size_info), 0);
+    hashtable_init_with_value_size(&g_type_infos, sizeof(struct type_size_info), tsi_free);
 }
 
 void tsi_deinit()
@@ -194,12 +200,13 @@ u64 get_type_align(struct type_expr *type)
     struct type_size_info tsi = get_type_size_info(type);
     return tsi.align_bits / 8;
 }
-
-void _free_sl(void *sl)
+/*
+void _free_sl(void *elm)
 {
+    struct struct_layout *sl = elm;
     sl_free(sl);
 }
-
+*/
 struct struct_layout *sl_new(symbol type_name)
 {
     struct struct_layout *sl;
@@ -216,13 +223,14 @@ struct struct_layout *sl_new(symbol type_name)
     sl->padded_field_size = 0;
     sl->required_alignment = true;
     array_init(&sl->field_offsets, sizeof(u64));
-    array_init_free(&sl->field_layouts, sizeof(struct struct_layout *), _free_sl);
+    array_init(&sl->field_layouts, sizeof(struct struct_layout *));
     return sl;
 }
 
 void sl_free(struct struct_layout *sl)
 {
-    array_deinit(&sl->field_layouts);
+    if(!sl) return;
     array_deinit(&sl->field_offsets);
+    array_deinit(&sl->field_layouts);
     FREE(sl);
 }

@@ -120,9 +120,10 @@ struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbo
             }
         } else if(node->node_type == STRUCT_NODE){
             block_node_add(wmodule, node);
+        } else {
+            assert(false);
         }
     }
-    free_block_node(block, false);
     return wmodule;
 }
 
@@ -133,24 +134,25 @@ void compile_to_wasm(struct engine *engine, const char *expr)
     if (!expr_ast){
         return;
     }
-    struct ast_node *global_block = block_node_new_empty();
-    struct ast_node *start_func = _start_func_node(cg, &engine->fe->parser->symbol_2_int_types, expr_ast, global_block);
+    struct ast_node *user_global_block = block_node_new_empty();
+    struct ast_node *user_start_func = _start_func_node(cg, &engine->fe->parser->symbol_2_int_types, expr_ast, user_global_block);
     free_block_node(expr_ast, false);
-    struct ast_node *ast = block_node_new_empty();
-    block_node_add_block(ast, cg->sys_block);
-    block_node_add_block(ast, cg->imports.import_block);
-    block_node_add_block(ast, global_block);
-    block_node_add(ast, start_func);
-    analyze(engine->fe->sema_context, ast);
+    struct ast_node *ast_block = block_node_new_empty();
+    block_node_add_block(ast_block, cg->sys_block);
+    block_node_add_block(ast_block, cg->imports.import_block);
+    block_node_add_block(ast_block, user_global_block);
+    block_node_add(ast_block, user_start_func);
+    analyze(engine->fe->sema_context, ast_block);
     struct error_report *er = get_last_error_report(engine->fe->sema_context);
     if(er){
         printf("%s loc (line, col): (%d, %d)\n", er->error_msg, er->loc.line, er->loc.col);
         goto exit;
     }
-    ast = _decorate_as_module(cg, &engine->fe->parser->symbol_2_int_types, ast);
+    struct ast_node *ast = _decorate_as_module(cg, &engine->fe->parser->symbol_2_int_types, ast_block);
     wasm_emit_module(cg, ast);
-    ast_node_free(ast);
-    //??? node_free(ast);
+    free_block_node(ast, false);
 exit:
-    free_block_node(global_block, false);
+    free_block_node(ast_block, false);
+    node_free(user_global_block);
+    node_free(user_start_func);
 }

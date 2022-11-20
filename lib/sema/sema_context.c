@@ -17,7 +17,7 @@
 
 size_t enter_scope(struct sema_context *context)
 {
-    symboltable_push(&context->decl_2_typexps, context->scope_marker, 0);
+    symboltable_push(&context->decl_2_typexprs, context->scope_marker, 0);
     return ++context->scope_level;
 }
 
@@ -25,7 +25,7 @@ size_t leave_scope(struct sema_context *context)
 {
     symbol s;
     do {
-        s = symboltable_pop(&context->decl_2_typexps);
+        s = symboltable_pop(&context->decl_2_typexprs);
         assert(s);
     } while (s != context->scope_marker);
     return --context->scope_level;
@@ -46,7 +46,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     array_init(&context->nongens, sizeof(struct type_expr *));
     array_init(&context->used_builtin_names, sizeof(symbol));
     symboltable_init(&context->typename_2_typexps);
-    symboltable_init(&context->decl_2_typexps);
+    symboltable_init(&context->decl_2_typexprs);
     symboltable_init(&context->varname_2_asts);
     hashtable_init(&context->gvar_name_2_ast);
     stack_init(&context->func_stack, sizeof(struct ast_node *));
@@ -60,8 +60,6 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     hashtable_init(&context->type_2_ref_symbol);
     context->scope_level = 0;
     context->scope_marker = to_symbol("<enter_scope_marker>");
-    struct array args;
-    array_init(&args, sizeof(struct type_expr *));
     /*nullary type: builtin default types*/
     for (size_t i = 0; i < TYPE_TYPES; i++) {
         symbol type_name = get_type_symbol(i);
@@ -85,7 +83,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
         struct ast_node *node = *(struct ast_node **)array_get(&builtins, i);
         assert(node->node_type == FUNC_TYPE_NODE);
         analyze(context, node);
-        push_symbol_type(&context->decl_2_typexps, node->ft->name, node->type);
+        push_symbol_type(&context->decl_2_typexprs, node->ft->name, node->type);
         hashtable_set_p(&context->builtin_ast, node->ft->name, node);
         //string type = to_string(func_type->base.type);
     }
@@ -107,7 +105,7 @@ void sema_context_free(struct sema_context *context)
     stack_deinit(&context->func_stack);
     hashtable_deinit(&context->gvar_name_2_ast);
     symboltable_deinit(&context->varname_2_asts);
-    symboltable_deinit(&context->decl_2_typexps);
+    symboltable_deinit(&context->decl_2_typexprs);
     symboltable_deinit(&context->typename_2_typexps);
     array_deinit(&context->used_builtin_names);
     array_deinit(&context->nongens);
