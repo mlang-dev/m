@@ -24,7 +24,7 @@ TEST(test_analyzer_error, fun_no_found)
     ASSERT_EQ(CALL_NODE, node->node_type);
     struct error_report *er = get_last_error_report(fe->sema_context);
     ASSERT_STREQ("function is not defined.", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -40,7 +40,7 @@ x:int = \"string\"\n\
     ASSERT_EQ(VAR_NODE, node->node_type);
     struct error_report *er = get_last_error_report(fe->sema_context);
     ASSERT_STREQ("variable type not matched with literal constant.", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -57,7 +57,7 @@ x.y\n\
     struct error_report* er = get_last_error_report(fe->sema_context);
     ASSERT_EQ(EC_EXPECT_STRUCT_TYPE, er->error_code);
     ASSERT_STREQ("The left side of the dot is expected to be a struct type.", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -74,7 +74,7 @@ x[3]\n\
     struct error_report* er = get_last_error_report(fe->sema_context);
     ASSERT_EQ(EC_EXPECT_ARRAY_TYPE, er->error_code);
     ASSERT_STREQ("The left side of the bracket is expected to be an array type.", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -90,7 +90,7 @@ x + 3\n\
     struct error_report* er = get_last_error_report(fe->sema_context);
     ASSERT_EQ(EC_IDENT_NOT_DEFINED, er->error_code);
     ASSERT_STREQ("id: x is not defined", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -106,7 +106,7 @@ TEST(test_analyzer_error, id_not_defined_unary)
     struct error_report* er = get_last_error_report(fe->sema_context);
     ASSERT_EQ(EC_IDENT_NOT_DEFINED, er->error_code);
     ASSERT_STREQ("id: x is not defined", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -123,7 +123,7 @@ x = 20\n\
     struct error_report* er = get_last_error_report(fe->sema_context);
     ASSERT_EQ(EC_IMMUTABLE_ASSIGNMENT, er->error_code);
     ASSERT_STREQ("id: x is immutable, it can't be mutated", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -140,7 +140,7 @@ x += 20\n\
     struct error_report* er = get_last_error_report(fe->sema_context);
     ASSERT_EQ(EC_IMMUTABLE_ASSIGNMENT, er->error_code);
     ASSERT_STREQ("id: x is immutable, it can't be mutated", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -157,7 +157,7 @@ x ++\n\
     struct error_report* er = get_last_error_report(fe->sema_context);
     ASSERT_EQ(EC_IMMUTABLE_ASSIGNMENT, er->error_code);
     ASSERT_STREQ("id: x is immutable, it can't be mutated", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 
@@ -174,7 +174,7 @@ x = 10.0\n\
     struct error_report* er = get_last_error_report(fe->sema_context);
     ASSERT_EQ(EC_TYPES_DO_NOT_MATCH, er->error_code);
     ASSERT_STREQ("types do not match", er->error_msg);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 

@@ -127,6 +127,9 @@ struct lexer *lexer_new_with_string(const char *text)
 
 void lexer_free(struct lexer *lexer)
 {
+    if(lexer->file){
+        fclose(lexer->file);
+    }
     array_deinit(&lexer->open_closes);
     FREE(lexer);
 }
