@@ -35,9 +35,9 @@ const char *err_messages[ALL_ERROR] = {
     "left side is not assignable.",
     "reference is not on the value type.",
     "dereference is not on the reference type.",
-    "id: %s is not defined",
+    "%s is not defined",
 
-    "id: %s is immutable, it can't be mutated",
+    "%s is immutable, it can't be mutated",
 };
 
 struct hashtable g_error_reports;

@@ -27,12 +27,11 @@ TEST(test_wasm_codegen, parse_as_module)
 // pick a\n\
 // ";
     char test_code[] = "\n\
-#var x = 10\n\
-let id x = x\n\
-id 10.0\n\
-#struct AB = a:cf64, b:cf64\n\
-#ab = AB(cf64(10.0, 20.0), cf64(30.0, 40.0))\n\
-#ab.b.im\n\
+struct Point = x:f64, y:f64\n\
+struct wz = var z:Point, w:f64\n\
+ab = wz(Point(20.0, 30.0), 10.0)\n\
+ab.z = Point(200.0, 300.0)\n\
+ab.z.y\n\
 ";
     compile_to_wasm(engine, test_code);
     ASSERT_TRUE(cg->ba.size!=0);

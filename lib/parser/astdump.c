@@ -7,7 +7,7 @@
 #include "sema/analyzer.h"
 #include "clib/string.h"
 #include "clib/util.h"
-
+#include <assert.h>
 
 string _dump_block(struct sema_context *context, struct ast_node *node)
 {
@@ -106,6 +106,31 @@ string _dump_binary(struct sema_context *context, struct ast_node *binary)
     return bin;
 }
 
+string _dump_field_access(struct sema_context *context, struct ast_node *member_index)
+{
+    string lhs_str = dump(context, member_index->index->object);
+    string rhs_str = dump(context, member_index->index->index);
+    string field;
+    string_init_chars(&field, "");
+    string_add(&field, &lhs_str);
+    string_add_chars(&field, ".");
+    string_add(&field, &rhs_str);
+    return field;
+}
+
+string _dump_array_index(struct sema_context *context, struct ast_node *array_index)
+{
+    string lhs_str = dump(context, array_index->index->object);
+    string rhs_str = dump(context, array_index->index->index);
+    string field;
+    string_init_chars(&field, "");
+    string_add(&field, &lhs_str);
+    string_add_chars(&field, "[");
+    string_add(&field, &rhs_str);
+    string_add_chars(&field, "]");
+    return field;
+}
+
 string _dump_call(struct sema_context *context, struct ast_node *call)
 {
     ARRAY_STRING(args);
@@ -155,7 +180,7 @@ string _dump_for(struct sema_context *context, struct ast_node *fornode)
 string _dump_id(struct sema_context *context, struct ast_node *idnode)
 {
     string str_id;
-    string_init_chars(&str_id, "id: ");
+    string_init_chars(&str_id, "");
     string_add(&str_id, idnode->ident->name);
     return str_id;
 }
@@ -172,32 +197,44 @@ string _dump_number(struct sema_context *context, struct ast_node *node)
 
 string dump(struct sema_context *context, struct ast_node *node)
 {
-    if (node->node_type == FUNC_NODE)
+    switch (node->node_type){
+    case FUNC_NODE:
         return _dump_function(context, node);
-    else if (node->node_type == FUNC_TYPE_NODE)
+    case FUNC_TYPE_NODE:
         return _dump_func_type(context, node);
-    else if (node->node_type == VAR_NODE)
+    case VAR_NODE:
         return _dump_var(context, node);
-    else if (node->node_type == UNARY_NODE)
+    case UNARY_NODE:
         return _dump_unary(context, node);
-    else if (node->node_type == BINARY_NODE||node->node_type == ASSIGN_NODE)
+    case BINARY_NODE:
+    case ASSIGN_NODE:
         return _dump_binary(context, node);
-    else if (node->node_type == IF_NODE)
+    case MEMBER_INDEX_NODE:
+        if(node->index->aggregate_type == AGGREGATE_TYPE_STRUCT)
+            return _dump_field_access(context, node);        
+        else {
+            assert(node->index->aggregate_type == AGGREGATE_TYPE_ARRAY);
+            return _dump_array_index(context, node);
+        }
+        break;
+    case IF_NODE:
         return _dump_if(context, node);
-    else if (node->node_type == CALL_NODE)
+    case CALL_NODE:
         return _dump_call(context, node);
-    else if (node->node_type == FOR_NODE)
+    case FOR_NODE:
         return _dump_for(context, node);
-    else if (node->node_type == IDENT_NODE)
+    case IDENT_NODE:
         return _dump_id(context, node);
-    else if (node->node_type == LITERAL_NODE)
+    case LITERAL_NODE:
         return _dump_number(context, node);
-    else if (node->node_type == BLOCK_NODE)
+    case BLOCK_NODE:
         return _dump_block(context, node);
-    else {
-        string not_supported;
-        string_init_chars(&not_supported, "ast->node_type not supported: ");
-        string_add_chars(&not_supported, node_type_strings[node->node_type]);
-        return not_supported;
+    default:
+        {
+            string not_supported;
+            string_init_chars(&not_supported, "ast->node_type not supported: ");
+            string_add_chars(&not_supported, node_type_strings[node->node_type]);
+            return not_supported;
+        }
     }
 }

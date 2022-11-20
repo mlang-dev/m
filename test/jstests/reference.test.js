@@ -20,7 +20,7 @@ j = &i
 
 mtest.mtest('change via ref', 'change original value by its reference.',
 `
-i = 10
+var i = 10
 j = &i
 *j = 20
 i
@@ -28,7 +28,7 @@ i
 
 mtest.mtest('change via ref 2', 'change original value by its reference. print reference', 
 `
-i = 10
+var i = 10
 j = &i
 *j = 20
 *j
@@ -43,10 +43,11 @@ j.im
 
 mtest.mtest('pass struct by ref', `pass struct data to function by reference`, 
 `
-let update x:&cf64 =
-    x.re = 10.0
-z = &cf64(100.0, 200.0)
+struct Point = var x:f64, y:f64
+let update xy:&Point =
+    xy.x = 10.0
+z = &Point(100.0, 200.0)
 update z
-z.re
+z.x
 `, 10.0, true);
 

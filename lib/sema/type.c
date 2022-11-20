@@ -191,7 +191,6 @@ void types_init()
     hashtable_init_with_value_size(&_type_expr_vars, 0, _free_type_expr_var);
 }
 
-
 void types_deinit()
 {
     hashtable_deinit(&_symbol_2_type_exprs);
@@ -220,13 +219,14 @@ void struct_type_add_member(struct type_expr *struct_type, struct type_expr *typ
     array_push(&struct_type->args, &type);
 }
 
-struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type type, enum Mut mut, struct type_expr *val_type, struct array *args)
+struct type_expr *_create_type_oper(enum kind kind, symbol canon_name, symbol type_name, enum type type, enum Mut mut, struct type_expr *val_type, struct array *args)
 {
     struct type_expr *oper;
     MALLOC(oper, sizeof(*oper));
     oper->kind = kind;
     oper->type = type;
     oper->name = type_name;
+    oper->canon_name = canon_name;
     oper->val_type = val_type;
     oper->mut = mut;
     if(kind == KIND_OPER){
@@ -248,7 +248,7 @@ struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type 
 struct type_expr *create_type_oper_var(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args)
 {
     //there is some var inside the type_oper types
-    struct type_expr *type_var = _create_type_oper(kind, type_name, type, Immutable, val_type, args);
+    struct type_expr *type_var = _create_type_oper(kind, type_name, type_name, type, Immutable, val_type, args);
     hashtable_set_p(&_type_expr_vars, type_var, type_var);
     return type_var;
 }
@@ -265,56 +265,47 @@ struct type_expr *create_type_oper(enum kind kind, symbol type_name, enum type t
     }
     struct type_expr_pair tep = {0};
     symbol ref_type_name = to_ref_symbol(type_name);
-    tep.val_types[0] = _create_type_oper(kind, type_name, type, Immutable, 0, args);
+    tep.val_types[0] = _create_type_oper(kind, type_name, type_name, type, Immutable, 0, args);
+    struct array new_args;
     if(args){
-        struct array new_args;
         array_copy(&new_args, args);
         args = &new_args;
     }
-    tep.val_types[1] = _create_type_oper(kind, type_name, type, Mutable, 0, args);
-    tep.ref_types[0][0] = _create_type_oper(kind, ref_type_name, TYPE_REF, Immutable, tep.val_types[0], 0);
-    tep.ref_types[0][1] = _create_type_oper(kind, ref_type_name, TYPE_REF, Immutable, tep.val_types[1], 0);
-    tep.ref_types[1][0] = _create_type_oper(kind, ref_type_name, TYPE_REF, Mutable, tep.val_types[0], 0);
-    tep.ref_types[1][1] = _create_type_oper(kind, ref_type_name, TYPE_REF, Mutable, tep.val_types[1], 0);
+    tep.val_types[1] = _create_type_oper(kind, type_name, type_name, type, Mutable, 0, args);
+    tep.ref_types[0][0] = _create_type_oper(kind, type_name, ref_type_name, TYPE_REF, Immutable, tep.val_types[0], 0);
+    tep.ref_types[0][1] = _create_type_oper(kind, type_name, ref_type_name, TYPE_REF, Immutable, tep.val_types[1], 0);
+    tep.ref_types[1][0] = _create_type_oper(kind, type_name, ref_type_name, TYPE_REF, Mutable, tep.val_types[0], 0);
+    tep.ref_types[1][1] = _create_type_oper(kind, type_name, ref_type_name, TYPE_REF, Mutable, tep.val_types[1], 0);
     hashtable_set_p(&_symbol_2_type_exprs, type_name, &tep);
     return tep.val_types[mut];
 }
 
 /*val_type: referenced value type: e.g. it's int for &int type */
-struct type_expr *create_ref_type(struct type_expr *val_type)
+struct type_expr *create_ref_type(struct type_expr *val_type, enum Mut mut)
 {
     create_type_oper(KIND_OPER, val_type->name, val_type->type, Immutable, 0);
     struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, val_type->name);
     assert(pair);
-    return pair->ref_types[0][0];
+    return pair->ref_types[mut][val_type->mut];
 }
 
-/*val_type: referenced value type: e.g. it's int for &int type */
-/*
-struct type_expr *create_ref_type(struct type_expr *val_type)
+struct type_expr *_create_type_var(symbol name, enum Mut mut)
 {
-    symbol ref_type_name = to_ref_symbol(val_type->name);
-    return _create_type_oper(KIND_OPER, ref_type_name, TYPE_REF, Immutable, val_type, 0);
-}
-*/
-
-struct type_expr *_create_type_var(symbol name)
-{
-    return _create_type_oper(KIND_VAR, name, 0, Immutable, 0, 0);
+    return _create_type_oper(KIND_VAR, name, name, 0, mut, 0, 0);
 }
 
-struct type_expr *create_type_var()
+struct type_expr *create_type_var(enum Mut mut)
 {
     string name = get_id_name();
     symbol type_name = to_symbol(string_get(&name));
-    struct type_expr *type_var = _create_type_var(type_name);
+    struct type_expr *type_var = _create_type_var(type_name, mut);
     hashtable_set_p(&_type_expr_vars, type_var, type_var);
     return type_var;
 }
 
 struct type_expr *copy_type_var(struct type_expr *var)
 {
-    struct type_expr *copy_var = _create_type_var(var->name);
+    struct type_expr *copy_var = _create_type_var(var->name, var->mut);
     copy_var->instance = var->instance;
     copy_var->type = var->type;
     return copy_var;
@@ -326,9 +317,9 @@ struct type_expr *create_unit_type()
     return create_type_oper(KIND_OPER, type_name, TYPE_UNIT, Immutable, 0);
 }
 
-struct type_expr *create_type_oper_struct(symbol type_name, struct array *args)
+struct type_expr *create_type_oper_struct(symbol type_name, enum Mut mut, struct array *args)
 {
-    return create_type_oper(KIND_OPER, type_name, TYPE_STRUCT, Immutable, args);
+    return create_type_oper(KIND_OPER, type_name, TYPE_STRUCT, mut, args);
 }
 
 struct type_expr *create_nullary_type(enum type type)
@@ -345,7 +336,7 @@ struct type_expr *create_type_fun(struct array *args)
         return create_type_oper(KIND_OPER, fun_type_name, TYPE_FUNCTION, Immutable, args);
     } else {
         //we still have type variable, could be generic function
-        struct type_expr *type_var = _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, Immutable, 0, args);
+        struct type_expr *type_var = _create_type_oper(KIND_OPER, type_name, type_name, TYPE_FUNCTION, Immutable, 0, args);
         hashtable_set_p(&_type_expr_vars, type_var, type_var);
         return type_var;
     }
@@ -382,14 +373,31 @@ void type_expr_free(struct type_expr *type)
     FREE(type);
 }
 
-struct type_expr *prune(struct type_expr *type)
+struct type_expr *tep_find_type_expr(struct type_expr_pair *pair, enum Mut mut, bool is_ref, enum Mut referent_mut)
 {
-    if (!type)
-        return type;
+    if(pair){
+        return is_ref ? pair->ref_types[mut][referent_mut] : pair->val_types[mut];
+    }
+    return 0;
+}
+
+struct type_expr *find_type_expr(struct type_expr *oper, enum Mut mut)
+{
+    if(oper->mut == mut || oper->type == TYPE_ARRAY){
+        return oper;
+    }
+    struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, oper->canon_name);
+    struct type_expr *type = tep_find_type_expr(pair, mut, oper->type == TYPE_REF, oper->val_type ? oper->val_type->mut : Immutable);
+    return type ? type : oper;
+}
+
+struct type_expr *_prune(struct type_expr *type, enum Mut mut)
+{
+    if (!type) return type;
     if (type->kind == KIND_VAR) {
         assert(type != type->instance);
         if (type->instance) {
-            type->instance = prune(type->instance);
+            type->instance = _prune(type->instance, type->mut);
             return type->instance;
         }
     } else {
@@ -397,11 +405,19 @@ struct type_expr *prune(struct type_expr *type)
         struct type_expr *argt;
         for (unsigned i = 0; i < array_size(&type->args); ++i) {
             argt = *(struct type_expr **)array_get(&type->args, i);
-            struct type_expr *element_type = prune(argt);
+            struct type_expr *element_type = _prune(argt, argt->mut);
             array_set(&type->args, i, &element_type);
         }
+        /*after pruned all vars*/
+        type = find_type_expr(type, mut);
     }
     return type;
+}
+
+struct type_expr *prune(struct type_expr *type)
+{
+    if(!type) return 0;
+    return _prune(type, type->mut);
 }
 
 bool _occurs_in_type_list(struct type_expr *var, struct array *list)
@@ -480,6 +496,7 @@ struct type_expr *unify(struct type_expr *type1, struct type_expr *type2, struct
                 *(struct type_expr **)array_get(&type2->args, i == arg_size - 1 ? arg_size2 - 1 : i), nongens);
         }
     }
+    type1 = prune(type1);
     return type1->type >= type2->type ? type1 : type2;
 }
 
@@ -506,7 +523,7 @@ struct type_expr *_freshrec(struct type_expr *type, struct array *nongens, struc
         if (_is_generic(type, nongens)) {
             struct type_expr *temp = hashtable_get_p(type_vars, type);
             if (!temp) {
-                temp = create_type_var();
+                temp = create_type_var(type->mut);
                 hashtable_set_p(type_vars, type, temp);
             }
             return temp;
@@ -524,7 +541,7 @@ struct type_expr *_freshrec(struct type_expr *type, struct array *nongens, struc
         array_push(&refreshed, &new_arg_type);
     }
     if (type->type == TYPE_STRUCT) {
-        return create_type_oper_struct(type->name, &refreshed);
+        return create_type_oper_struct(type->name, type->mut, &refreshed);
     }
     return create_type_oper_var(KIND_OPER, type->name, type->type, 0, &refreshed);
 }
