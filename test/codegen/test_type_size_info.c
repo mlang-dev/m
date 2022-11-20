@@ -22,7 +22,7 @@ TEST(test_type_size_info, struct_double_double)
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -44,7 +44,7 @@ struct Contains = xy:Point2D\n\
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
 
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -66,7 +66,7 @@ struct Contains = xy:&Point2D\n\
     ASSERT_EQ(32, tsi.width_bits);
     ASSERT_EQ(32, tsi.align_bits);
 
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -80,7 +80,7 @@ TEST(test_type_size_info, struct_char_double)
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -94,7 +94,7 @@ TEST(test_type_size_info, struct_char_char)
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(16, tsi.width_bits);
     ASSERT_EQ(8, tsi.align_bits);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -108,7 +108,7 @@ TEST(test_type_size_info, struct_bool_char)
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(16, tsi.width_bits);
     ASSERT_EQ(8, tsi.align_bits);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -122,7 +122,7 @@ TEST(test_type_size_info, struct_char_int)
     struct type_size_info tsi = get_type_size_info(node->type);
     ASSERT_EQ(64, tsi.width_bits);
     ASSERT_EQ(32, tsi.align_bits);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 

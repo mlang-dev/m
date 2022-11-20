@@ -20,7 +20,7 @@ TEST(test_parser_expr, arithmetic_simple_add)
     analyze(fe->sema_context, ast);
     string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(1+2)", string_get(&dump_str));
-    ast_node_free(ast);
+    node_free(ast);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -34,7 +34,7 @@ TEST(test_parser_expr, arithmetic_simple_mult)
     analyze(fe->sema_context, ast);
     string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(1*2)", string_get(&dump_str));
-    ast_node_free(ast);
+    node_free(ast);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -48,7 +48,7 @@ TEST(test_parser_expr, arithmetic_exp_neg)
     analyze(fe->sema_context, ast);
     string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(-1+2)", string_get(&dump_str));
-    ast_node_free(ast);
+    node_free(ast);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -62,7 +62,7 @@ TEST(test_parser_expr, arithmetic_exp)
     analyze(fe->sema_context, ast);
     string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(1+(2*3))", string_get(&dump_str));
-    ast_node_free(ast);
+    node_free(ast);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -76,7 +76,7 @@ TEST(test_parser_expr, arithmetic_exp2)
     analyze(fe->sema_context, ast);
     string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("(1+(2*(3**4)))", string_get(&dump_str));
-    ast_node_free(ast);
+    node_free(ast);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -91,7 +91,7 @@ TEST(test_parser_expr, arithmetic_exp_parentheses)
     string dump_str = dump(fe->sema_context, ast);
     ASSERT_STREQ("((1+2)*3)", string_get(&dump_str));
 
-    ast_node_free(ast);
+    node_free(ast);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -105,7 +105,7 @@ TEST(test_parser_expr, logical_or)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("||", get_opcode(node->binop->opcode));
-    ast_node_free(block);
+    node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -119,7 +119,7 @@ TEST(test_parser_expr, logical_and)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("&&", get_opcode(node->binop->opcode));
-    ast_node_free(block);
+    node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -133,7 +133,7 @@ TEST(test_parser_expr, logical_not)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(UNARY_NODE, node->node_type);
     ASSERT_STREQ("!", get_opcode(node->unop->opcode));
-    ast_node_free(block);
+    node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -147,7 +147,7 @@ TEST(test_parser_expr, lt)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("<", get_opcode(node->binop->opcode));
-    ast_node_free(block);
+    node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -162,7 +162,7 @@ TEST(test_parser_expr, gt)
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_EQ(OP_GT, node->binop->opcode);
     ASSERT_STREQ(">", get_opcode(node->binop->opcode));
-    ast_node_free(block);
+    node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -176,7 +176,7 @@ TEST(test_parser_expr, eq)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("==", get_opcode(node->binop->opcode));
-    ast_node_free(block);
+    node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -190,7 +190,7 @@ TEST(test_parser_expr, neq)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("!=", get_opcode(node->binop->opcode));
-    ast_node_free(block);
+    node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -204,7 +204,7 @@ TEST(test_parser_expr, ge)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ(">=", get_opcode(node->binop->opcode));
-    ast_node_free(block);
+    node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
 }
@@ -218,7 +218,7 @@ TEST(test_parser_expr, le)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("<=", get_opcode(node->binop->opcode));
-    ast_node_free(block);
+    node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
 }

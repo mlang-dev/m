@@ -196,6 +196,7 @@ void _free_real_type_node(struct type_node *type_node)
         ast_node_free(type_node->array_type_node->elm_type);
     } else if(type_node->kind == RefType){
         _free_real_type_node(type_node->val_node);
+        FREE(type_node->val_node);
     }
 }
 
@@ -434,6 +435,8 @@ struct ast_node *_copy_array_init_node(struct ast_node *orig_node)
 
 void _free_array_init_node(struct ast_node *node)
 {
+    node_free(node->array_init);
+    node->array_init = 0;
     ast_node_free(node);
 }
 

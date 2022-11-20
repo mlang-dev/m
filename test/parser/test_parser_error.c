@@ -17,7 +17,7 @@ TEST(test_parser_error, char_literal)
     char test_code[] = "let f x";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(0, block);
-    ast_node_free(block);
+    node_free(block);
     frontend_deinit(fe);
 }
 

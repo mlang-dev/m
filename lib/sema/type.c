@@ -237,8 +237,13 @@ struct type_expr *create_type_oper_var(enum kind kind, symbol type_name, enum ty
 struct type_expr *create_type_oper(enum kind kind, symbol type_name, enum type type, struct array *args)
 {
     struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, type_name);
-    if(pair)
+    if(pair){
+        if(args){
+            //we own it now
+            array_deinit(args);
+        }
         return pair->val_type;
+    }
     struct type_expr_pair tep;
     symbol ref_type_name = to_ref_symbol(type_name);
     tep.val_type = _create_type_oper(kind, type_name, type, 0, args);
@@ -552,6 +557,8 @@ string to_string(struct type_expr *type)
                 string_add_chars(&typestr, " * ");
             }
             string_add(&typestr, (string *)array_back(&array_type_strs));
+            array_deinit(&array_type_strs);
+            array_deinit(&subarray);
             return typestr;
         }
     } else {
