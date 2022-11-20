@@ -63,8 +63,15 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     /*nullary type: builtin default types*/
     for (size_t i = 0; i < TYPE_TYPES; i++) {
         symbol type_name = get_type_symbol(i);
-        struct type_expr *exp = create_nullary_type(i, type_name);
-        push_symbol_type(&context->typename_2_typexps, type_name, exp);
+        struct type_expr *te;
+        if(i != TYPE_ARRAY){
+            te = create_nullary_type(i, type_name);
+        } else {
+            struct array dims;
+            array_init(&dims, sizeof(u32));
+            te = create_array_type(create_unit_type(), &dims);
+        }
+        push_symbol_type(&context->typename_2_typexps, type_name, te);
         hashtable_set_p(&context->type_2_ref_symbol, type_name, to_ref_symbol(type_name));
     }
 

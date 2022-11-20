@@ -290,7 +290,7 @@ TEST(test_m_lexer, string_literal)
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_STRING, token->token_type);
-    ASSERT_STREQ("hello world!", string_get(token->str_val));
+    ASSERT_STREQ("hello world!", token->str_val);
     lexer_free(lexer);
     frontend_deinit(fe);
 }
@@ -302,8 +302,8 @@ TEST(test_m_lexer, string_literal_with_newline)
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_STRING, token->token_type);
-    ASSERT_STREQ("hello\n", string_get(token->str_val));
-    ASSERT_EQ(6, strlen(string_get(token->str_val)));
+    ASSERT_STREQ("hello\n", token->str_val);
+    ASSERT_EQ(6, strlen(token->str_val));
     lexer_free(lexer);
     frontend_deinit(fe);
 }
@@ -315,10 +315,11 @@ TEST(test_m_lexer, string_multi)
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_STRING, token->token_type);
-    ASSERT_STREQ("hello", string_get(token->str_val));
+    ASSERT_STREQ("hello", token->str_val);
+    tok_clean(token);
     token = get_tok(lexer);
     ASSERT_EQ(TOKEN_STRING, token->token_type);
-    ASSERT_STREQ("world", string_get(token->str_val));
+    ASSERT_STREQ("world", token->str_val);
     lexer_free(lexer);
     frontend_deinit(fe);
 }
@@ -333,10 +334,11 @@ TEST(test_m_lexer, string_with_id)
     ASSERT_STREQ("printf", string_get(token->symbol_val));
     token = get_tok(lexer);
     ASSERT_EQ(TOKEN_STRING, token->token_type);
-    ASSERT_STREQ("%s", string_get(token->str_val));
+    ASSERT_STREQ("%s", token->str_val);
+    tok_clean(token);
     token = get_tok(lexer);
     ASSERT_EQ(TOKEN_STRING, token->token_type);
-    ASSERT_STREQ("hello", string_get(token->str_val));
+    ASSERT_STREQ("hello", token->str_val);
     lexer_free(lexer);
     frontend_deinit(fe);
 }

@@ -165,7 +165,7 @@ struct token {
     enum token_type token_type;
     struct source_location loc;
     union {
-        string *str_val; //string literal
+        const char *str_val; //string literal
         f64 double_val; //f64 literal
         int int_val; //int literal
         symbol symbol_val;
@@ -202,6 +202,8 @@ bool is_relational_op(enum op_code opcode);
 #define is_assign_op_sugar(tp) (tp >= OP_MUL_ASSN && tp <= OP_OR_ASSN)
 
 enum op_code get_op_code_from_assign_op(enum op_code assign_op);
+
+void tok_clean(struct token *tok);
 
 #ifdef __cplusplus
 }

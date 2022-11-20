@@ -223,6 +223,9 @@ struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type 
         assert(kind == KIND_VAR);
         oper->instance = 0;
     }
+    if(type == TYPE_ARRAY){
+        array_init(&oper->dims, sizeof(u32));
+    }
     return oper;
 }
 
@@ -317,6 +320,7 @@ struct type_expr *create_array_type(struct type_expr *element_type, struct array
 {
     symbol array_type_name = to_array_type_name(element_type->name, dims);
     struct type_expr *type = create_type_oper(KIND_OPER, array_type_name, TYPE_ARRAY, 0);
+    array_deinit(&type->dims);
     type->dims = *dims;
     type->val_type = element_type;
     return type;
@@ -335,6 +339,9 @@ void type_expr_free(struct type_expr *type)
 {
     if(type->kind == KIND_OPER){
         array_deinit(&type->args);
+    }
+    if(type->type == TYPE_ARRAY){
+        array_deinit(&type->dims);
     }
     FREE(type);
 }

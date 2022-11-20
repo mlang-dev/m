@@ -208,6 +208,7 @@ TEST(test_string, join_multi_long_string)
 
     string result = string_join(&arr, ".");
     ASSERT_STREQ(string_get(&result), "this is a very long string.this is a second very long string");
+    string_deinit(&result);
     array_deinit(&arr);
 }
 

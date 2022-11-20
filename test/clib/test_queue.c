@@ -56,6 +56,7 @@ TEST(test_queue, circle)
         queue_push(&q, &i);
     }
     ASSERT_EQ(7, q.items.cap);
+    queue_deinit(&q);
 }
 
 int test_queue()

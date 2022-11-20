@@ -127,6 +127,7 @@ struct lexer *lexer_new_with_string(const char *text)
 
 void lexer_free(struct lexer *lexer)
 {
+    tok_clean(&lexer->tok);
     if(lexer->file){
         fclose(lexer->file);
     }
@@ -273,6 +274,7 @@ const char * _copy_string_strip_escape(const char *text, size_t len, size_t *out
         }
     }
     *out_size = j;
+    dst[j] = 0;
     return dst;
 }
 
@@ -379,8 +381,7 @@ struct token *get_tok(struct lexer *lexer)
         _move_ahead(lexer); // skip the double quote
         size_t char_len = 0;
         const char *code = _copy_string_strip_escape(&lexer->buff[tok->loc.start - lexer->buff_base + 1], lexer->buff_base + lexer->pos - tok->loc.start - 2, &char_len);
-        lexer->tok.str_val = string_new2(code, char_len);
-        free((void*)code);
+        lexer->tok.str_val = code;
         break;
     }
 mark_end:
