@@ -142,18 +142,18 @@ struct ast_node *_do_action(enum ast_action action, u8 param, struct ast_node *n
     case MarkMutVar:
         /* code */
         if(node->node_type == VAR_NODE){
-            node->var->is_mut = param;
+            node->var->mut = param;
         }else if(node->node_type == BLOCK_NODE){
             for(u32 i = 0; i < array_size(&node->block->nodes); i++){
                 struct ast_node *elm = *(struct ast_node **)array_get(&node->block->nodes, i);
                 assert(elm->node_type == VAR_NODE);
-                elm->var->is_mut = param;
+                elm->var->mut = (enum Mut)param;
             }
         }
         break;
     case MarkMutType:
         assert(node->node_type == TYPE_NODE);
-        node->type_node->is_mut = true;
+        node->type_node->mut = Mutable;
         break;
     }
     return node;
@@ -417,7 +417,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             assert(struct_name->node_type == IDENT_NODE);
             struct ast_node *init_body = _take(nodes, rule->action.item_index[1]);
             assert(init_body->node_type == BLOCK_NODE);
-            struct ast_node *type_node = type_node_new_with_type_name(struct_name->ident->name, struct_name->loc);
+            struct ast_node *type_node = type_node_new_with_type_name(struct_name->ident->name, Immutable, struct_name->loc);
             ast = struct_init_node_new(init_body, type_node, struct_name->loc);
             node_free(struct_name);
             break;
@@ -444,18 +444,18 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             struct ast_node *node = _take(nodes, rule->action.item_index[1]);
             switch(type_node_kind){
             case UnitType:
-                ast = type_node_new_with_unit_type(node->loc);
+                ast = type_node_new_with_unit_type(Immutable, node->loc);
                 break;
             case TypeName:
-                ast = type_node_new_with_type_name(node->ident->name, node->loc);
+                ast = type_node_new_with_type_name(node->ident->name, Immutable, node->loc);
                 break;
             case ArrayType:
-                ast = type_node_new_with_array_type(node->array_type, node->loc);
+                ast = type_node_new_with_array_type(node->array_type, Immutable, node->loc);
                 node->array_type = 0; //to prevent its being freed
                 break;
             case RefType:
                 assert(node->node_type == TYPE_NODE);
-                ast = type_node_new_with_ref_type(node->type_node, node->loc);
+                ast = type_node_new_with_ref_type(node->type_node, Immutable, node->loc);
                 node->type_node = 0;
                 break;
             }

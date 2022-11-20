@@ -45,7 +45,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     context->is_repl = is_repl;
     array_init(&context->nongens, sizeof(struct type_expr *));
     array_init(&context->used_builtin_names, sizeof(symbol));
-    symboltable_init(&context->typename_2_typexps);
+    symboltable_init(&context->typename_2_typexpr_pairs);
     symboltable_init(&context->decl_2_typexprs);
     symboltable_init(&context->varname_2_asts);
     hashtable_init(&context->gvar_name_2_ast);
@@ -65,13 +65,14 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
         symbol type_name = get_type_symbol(i);
         struct type_expr *te;
         if(i != TYPE_ARRAY){
-            te = create_nullary_type(i, type_name);
+            te = create_nullary_type(i);
         } else {
             struct array dims;
             array_init(&dims, sizeof(u32));
             te = create_array_type(create_unit_type(), &dims);
         }
-        push_symbol_type(&context->typename_2_typexps, type_name, te);
+        struct type_expr_pair *tep = get_type_expr_pair(te->name);
+        push_symbol_type(&context->typename_2_typexpr_pairs, type_name, tep);
         hashtable_set_p(&context->type_2_ref_symbol, type_name, to_ref_symbol(type_name));
     }
 
@@ -113,7 +114,7 @@ void sema_context_free(struct sema_context *context)
     hashtable_deinit(&context->gvar_name_2_ast);
     symboltable_deinit(&context->varname_2_asts);
     symboltable_deinit(&context->decl_2_typexprs);
-    symboltable_deinit(&context->typename_2_typexps);
+    symboltable_deinit(&context->typename_2_typexpr_pairs);
     array_deinit(&context->used_builtin_names);
     array_deinit(&context->nongens);
     array_deinit(&context->new_specialized_asts);

@@ -121,6 +121,7 @@ x = 20\n\
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     struct error_report* er = get_last_error_report(fe->sema_context);
+    ASSERT_TRUE(er);
     ASSERT_EQ(EC_IMMUTABLE_ASSIGNMENT, er->error_code);
     ASSERT_STREQ("id: x is immutable, it can't be mutated", er->error_msg);
     node_free(block);
@@ -138,6 +139,7 @@ x += 20\n\
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     struct error_report* er = get_last_error_report(fe->sema_context);
+    ASSERT_TRUE(er);
     ASSERT_EQ(EC_IMMUTABLE_ASSIGNMENT, er->error_code);
     ASSERT_STREQ("id: x is immutable, it can't be mutated", er->error_msg);
     node_free(block);
@@ -155,6 +157,7 @@ x ++\n\
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     struct error_report* er = get_last_error_report(fe->sema_context);
+    ASSERT_TRUE(er);
     ASSERT_EQ(EC_IMMUTABLE_ASSIGNMENT, er->error_code);
     ASSERT_STREQ("id: x is immutable, it can't be mutated", er->error_msg);
     node_free(block);

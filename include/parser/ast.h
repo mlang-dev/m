@@ -53,7 +53,7 @@ struct _memory_node {
 
 struct _var_node {
     bool is_global;
-    bool is_mut; //is mutable
+    enum Mut mut; //is mutable
     bool is_init_shared; //is init value is a shared node, not owning it.
     struct ast_node *var;
     struct ast_node *is_of_type;
@@ -178,7 +178,7 @@ enum TypeNodeKind {
 };
 
 struct type_node {
-    bool is_mut;
+    enum Mut mut;
     enum TypeNodeKind kind;
     union{
         symbol type_name;
@@ -250,10 +250,10 @@ struct type_expr *get_ret_type(struct ast_node *fun_node);
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc);
 struct ast_node *ident_node_new(symbol name, struct source_location loc);
-struct ast_node *type_node_new_with_type_name(symbol type_name, struct source_location loc);
-struct ast_node *type_node_new_with_array_type(struct array_type_node *array_type_node, struct source_location loc);
-struct ast_node *type_node_new_with_unit_type(struct source_location loc);
-struct ast_node *type_node_new_with_ref_type(struct type_node *val_node, struct source_location loc);
+struct ast_node *type_node_new_with_type_name(symbol type_name, enum Mut mut, struct source_location loc);
+struct ast_node *type_node_new_with_array_type(struct array_type_node *array_type_node, enum Mut mut, struct source_location loc);
+struct ast_node *type_node_new_with_unit_type(enum Mut mut, struct source_location loc);
+struct ast_node *type_node_new_with_ref_type(struct type_node *val_node, enum Mut mut, struct source_location loc);
 struct ast_node *double_node_new(f64 val, struct source_location loc);
 struct ast_node *int_node_new(int val, struct source_location loc);
 struct ast_node *bool_node_new(bool val, struct source_location loc);
@@ -261,7 +261,7 @@ struct ast_node *char_node_new(char val, struct source_location loc);
 struct ast_node *unit_node_new(struct source_location loc);
 struct ast_node *string_node_new(const char *val, struct source_location loc);
 struct ast_node *const_one_node_new(enum type type, struct source_location loc);
-struct ast_node *var_node_new(struct ast_node *var, struct ast_node *is_of_type, struct ast_node *init_value, bool is_global, bool is_mut, struct source_location loc);
+struct ast_node *var_node_new(struct ast_node *var, struct ast_node *is_of_type, struct ast_node *init_value, bool is_global, enum Mut mut, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
 struct ast_node *import_node_new(symbol from_module, struct ast_node *node, struct source_location loc);

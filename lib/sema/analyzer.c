@@ -12,6 +12,7 @@
 #include "sema/eval.h"
 #include "tool/cmodule.h"
 #include "error/error.h"
+#include "parser/astdump.h"
 #include <assert.h>
 #include <limits.h>
 
@@ -22,10 +23,16 @@ enum type _get_type_enum(struct sema_context *context, symbol type_name)
 
 struct type_expr *retrieve_type_with_type_name(struct sema_context *context, symbol name)
 {
-    return get_symbol_type(&context->typename_2_typexps, &context->nongens, name);
+    struct type_expr_pair * tep = symboltable_get(&context->typename_2_typexpr_pairs, name);
+    if (!tep){
+        printf("No type is found for the symbol: %s.\n", string_get(name));
+        return 0;
+    }
+    struct type_expr *type = tep->val_types[0];
+    return fresh(type, &context->nongens);
 }
 
-struct type_expr *create_type_from_type_node(struct sema_context *context, struct type_node *type_node)
+struct type_expr *create_type_from_type_node(struct sema_context *context, struct type_node *type_node, enum Mut mut)
 {
     struct type_expr *value_type;
     switch(type_node->kind){
@@ -46,7 +53,7 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
     case UnitType:
         return create_unit_type();
     case RefType:
-        value_type = create_type_from_type_node(context, type_node->val_node);
+        value_type = create_type_from_type_node(context, type_node->val_node, mut);
         return create_ref_type(value_type);
     }
 }
@@ -133,7 +140,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         //this is assignment, not var declaration
         //check if it's mutable
         struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, var_name);
-        if(!orig_var->var->is_mut){
+        if(orig_var->var->mut == Immutable){
             report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(var_name));
             return 0;
         }
@@ -153,7 +160,11 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         hashtable_set_p(&context->gvar_name_2_ast, var_name, node);
     }
     if (node->var->is_of_type){
-        var_type = create_type_from_type_node(context, node->var->is_of_type->type_node);
+        enum Mut mut = Immutable;
+        if(node->var->mut == Mutable && node->var->is_of_type->type_node->mut == Mutable){
+            mut = Mutable;
+        }
+        var_type = create_type_from_type_node(context, node->var->is_of_type->type_node, mut);
         assert(var_type);
         if(hashtable_in_p(&context->struct_typename_2_asts, var_type->name)||
             !node->var->init_value){
@@ -199,19 +210,20 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
         struct ast_node *field_node = *(struct ast_node **)array_get(&node->struct_def->body->block->nodes, i);
         array_push(&args, &field_node->type);
     }
-    struct type_expr *result_type = create_type_oper_struct(node->struct_def->name, &args);
+    symbol struct_name = node->struct_def->name;
+    struct type_expr *result_type = create_type_oper_struct(struct_name, &args);
     assert(node->struct_def->name == result_type->name);
-    struct type_expr *ref_type = create_ref_type(result_type);
-    push_symbol_type(&context->typename_2_typexps, node->struct_def->name, result_type);
-    push_symbol_type(&context->typename_2_typexps, ref_type->name, ref_type);
+    struct type_expr_pair * tep = get_type_expr_pair(struct_name);
+    push_symbol_type(&context->typename_2_typexpr_pairs, struct_name, tep);
     hashtable_set_p(&context->struct_typename_2_asts, node->struct_def->name, node);
     return result_type;
 }
 
 struct type_expr *_analyze_struct_init(struct sema_context *context, struct ast_node *node)
 {
-    if (node->struct_init->is_of_type)
-        node->type = create_type_from_type_node(context, node->struct_init->is_of_type->type_node);
+    if (node->struct_init->is_of_type){
+        node->type = create_type_from_type_node(context, node->struct_init->is_of_type->type_node, Immutable);
+    }
     for (size_t i = 0; i < array_size(&node->struct_init->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
         analyze(context, *(struct ast_node **)array_get(&node->struct_init->body->block->nodes, i));
@@ -247,7 +259,7 @@ struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_n
 {
     symbol elm_type_name = node->array_type->elm_type->ident->name;
     enum type elm_type_enum = get_type_enum_from_symbol(elm_type_name);
-    struct type_expr *elm_type = create_nullary_type(elm_type_enum, elm_type_name);
+    struct type_expr *elm_type = create_nullary_type(elm_type_enum);
     struct array dims;
     array_init(&dims, sizeof(u32));
     for(u32 i = 0; i < array_size(&node->array_init->block->nodes); i++){
@@ -270,12 +282,12 @@ struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_no
     for (size_t i = 0; i < array_size(&node->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
         assert(param->var->is_of_type);
-        struct type_expr* to = create_type_from_type_node(context, param->var->is_of_type->type_node);
+        struct type_expr* to = create_type_from_type_node(context, param->var->is_of_type->type_node, Immutable);
         param->type = to;
         array_push(&fun_sig, &param->type);
     }
     assert(node->ft->ret_type_node);
-    struct type_expr *to = create_type_from_type_node(context, node->ft->ret_type_node->type_node);
+    struct type_expr *to = create_type_from_type_node(context, node->ft->ret_type_node->type_node, Immutable);
     array_push(&fun_sig, &to);
     node->type = create_type_fun(&fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
@@ -295,7 +307,7 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
         struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
         struct type_expr *exp;
         if (param->var->is_of_type) {
-           exp = create_type_from_type_node(context, param->var->is_of_type->type_node);
+           exp = create_type_from_type_node(context, param->var->is_of_type->type_node, Immutable);
         } else
             exp = create_type_var();
         array_push(&fun_sig, &exp);
@@ -391,7 +403,7 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
     struct type_expr *op_type = analyze(context, node->unop->operand);
     if(!op_type) return 0;
     if (node->unop->opcode == OP_NOT) {
-        struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
+        struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
         unify(op_type, bool_type, &context->nongens);
         node->unop->operand->type = op_type;
     }
@@ -427,7 +439,7 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
 struct type_expr *_analyze_cast(struct sema_context *context, struct ast_node *node)
 {
     analyze(context, node->cast->expr);
-    return create_type_from_type_node(context, node->cast->to_type_node->type_node);
+    return create_type_from_type_node(context, node->cast->to_type_node->type_node, Immutable);
 }
 
 struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, struct ast_node *node)
@@ -480,7 +492,7 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
     struct type_expr *result_type = unify(lhs_type, rhs_type, &context->nongens);
     if (result_type) {
         if (is_relational_op(node->binop->opcode))
-            result_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
+            result_type = create_nullary_type(TYPE_BOOL);
         else{    
             lhs_type = prune(lhs_type);
             rhs_type = prune(rhs_type);
@@ -514,7 +526,7 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
             return node->transformed->type;
         }else{
             struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, var_name);
-            if(!orig_var->var->is_mut){
+            if(orig_var->var->mut == Immutable){
                 report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(var_name));
                 return 0;
                 
@@ -522,6 +534,18 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
         }
     }
     struct type_expr *lhs_type = analyze(context, node->binop->lhs);
+    /*
+    struct type_expr *lhs_type = analyze(context, node->binop->lhs);
+    if(lhs_type && !lhs_type->mut){
+        string lhs_str = dump(context, node->binop->lhs);
+        struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, &lhs_str);
+        if(orig_var->var->mut == Immutable){
+            report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(&lhs_str));
+            return 0;
+            
+        }
+    }  
+    */    
     struct type_expr *rhs_type = analyze(context, node->binop->rhs);
     struct type_expr *result = 0;
     struct type_expr *unified = unify(lhs_type, rhs_type, &context->nongens);
@@ -548,7 +572,7 @@ struct type_expr *_analyze_if(struct sema_context *context, struct ast_node *nod
     struct loop_nested_level *lnl = get_current_block_level(context);
     if(lnl) lnl->block_levels++;
     struct type_expr *cond_type = analyze(context, node->cond->if_node);
-    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
+    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
     unify(cond_type, bool_type, &context->nongens);
     struct type_expr *then_type = analyze(context, node->cond->then_node);
     if(node->cond->else_node){
@@ -563,7 +587,7 @@ struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *no
 {
     struct loop_nested_level *bnl = enter_loop(context);
     bnl->block_levels = 1; //body is itself a block
-    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
+    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
     //now we need to know who owns the start node memory
     node->forloop->var->var->init_value = node->forloop->range->range->start;
     node->forloop->var->var->is_init_shared = true;
@@ -598,7 +622,7 @@ struct type_expr *_analyze_while(struct sema_context *context, struct ast_node *
 {
     struct loop_nested_level *bnl = enter_loop(context);
     bnl->block_levels = 1; 
-    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL, get_type_symbol(TYPE_BOOL));
+    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
     struct type_expr *expr_type = analyze(context, node->whileloop->expr);
     struct type_expr *body_type = analyze(context, node->whileloop->body);
     leave_loop(context);
@@ -607,7 +631,7 @@ struct type_expr *_analyze_while(struct sema_context *context, struct ast_node *
         return 0;
     }
     node->whileloop->body->type = body_type;
-    return create_nullary_type(TYPE_UNIT, get_type_symbol(TYPE_UNIT));
+    return create_nullary_type(TYPE_UNIT);
 }
 
 struct type_expr *_analyze_jump(struct sema_context *context, struct ast_node *node)

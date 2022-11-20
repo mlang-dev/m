@@ -6,7 +6,7 @@
  * symbol c file
  * symbol represents the pointer to string object, it's stored as global string
  * constant for performance improvement in symbol table(hash for the pointer or
- * integer is fast then string)
+ * integer is faster then string)
  */
 #include "clib/symbol.h"
 #include <assert.h>
@@ -39,7 +39,8 @@ symbol to_symbol2(const char *name, size_t name_size)
 
 symbol string_2_symbol(string *name)
 {
-    return to_symbol(string_get(name));
+    char *str = string_get(name);
+    return to_symbol(str);
 }
 
 void _free_symbol(void *string)

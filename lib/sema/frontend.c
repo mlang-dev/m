@@ -12,8 +12,8 @@
 
 struct frontend *frontend_init()
 {
-    error_init();
     symbols_init();
+    error_init();
     types_init();
     terminal_init();
     ast_init();
@@ -29,9 +29,9 @@ void frontend_deinit(struct frontend *fe)
     ast_deinit();
     terminal_deinit();
     types_deinit();
-    symbols_deinit();
     sema_context_free(fe->sema_context);
     parser_free(fe->parser);
-    error_deinit();
     free(fe);
+    error_deinit();
+    symbols_deinit();
 }
