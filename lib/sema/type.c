@@ -226,6 +226,14 @@ struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type 
     return oper;
 }
 
+struct type_expr *create_type_oper_var(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args)
+{
+    //there is some var inside the type_oper types
+    struct type_expr *type_var = _create_type_oper(kind, type_name, type, val_type, args);
+    hashtable_set_p(&_type_expr_vars, type_var, type_var);
+    return type_var;
+}
+
 struct type_expr *create_type_oper(enum kind kind, symbol type_name, enum type type, struct array *args)
 {
     struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, type_name);
@@ -270,7 +278,6 @@ struct type_expr *copy_type_var(struct type_expr *var)
     return copy_var;
 }
 
-
 struct type_expr *create_unit_type()
 {
     symbol type_name = get_type_symbol(TYPE_UNIT);
@@ -295,7 +302,9 @@ struct type_expr *create_type_fun(struct array *args)
         return create_type_oper(KIND_OPER, fun_type_name, TYPE_FUNCTION, args);
     } else {
         //we still have type variable, could be generic function
-        return _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
+        struct type_expr *type_var = _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
+        hashtable_set_p(&_type_expr_vars, type_var, type_var);
+        return type_var;
     }
 }
 
@@ -307,7 +316,6 @@ struct type_expr *create_array_type(struct type_expr *element_type, struct array
     type->val_type = element_type;
     return type;
 }
-
 
 //wrap as function type with signature: () -> oper
 struct type_expr *wrap_as_fun_type(struct type_expr *oper)
@@ -454,8 +462,9 @@ struct type_expr *_freshrec(struct type_expr *type, struct array *nongens, struc
                 hashtable_set_p(type_vars, type, temp);
             }
             return temp;
-        } else
+        } else {
             return type;
+        }
     }
     if (array_size(&type->args) == 0 || _all_is_oper(&type->args))
         return type;
@@ -469,7 +478,7 @@ struct type_expr *_freshrec(struct type_expr *type, struct array *nongens, struc
     if (type->type == TYPE_STRUCT) {
         return create_type_oper_struct(type->name, &refreshed);
     }
-    return _create_type_oper(KIND_OPER, type->name, type->type, 0, &refreshed);
+    return create_type_oper_var(KIND_OPER, type->name, type->type, 0, &refreshed);
 }
 
 struct type_expr *fresh(struct type_expr *type, struct array *nongens)

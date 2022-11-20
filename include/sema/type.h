@@ -76,6 +76,7 @@ void types_init();
 void types_deinit();
 struct type_expr *create_type_var();
 struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type type, struct type_expr *ref_type, struct array *args);
+struct type_expr *create_type_oper_var(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args);
 struct type_expr *create_type_oper_struct(symbol type_name, struct array *args);
 struct type_expr *create_nullary_type(enum type type, symbol type_symbol);
 struct type_expr *create_type_fun(struct array *args);
