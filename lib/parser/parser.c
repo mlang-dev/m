@@ -554,11 +554,6 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
                     printf("symbol %s is expected to parse %s but got %s\n", next_symbol, psi->items[i].item_string, got_symbol);
                 }
             }
-            // printf("the parser stack is: \n");
-            // for (i = 0; i < parser->stack_top; i++){
-            //     printf("%d,", parser->stack[i].state_index);
-            // }
-            // printf("\n");
             //clean stack items
             while((s_item = _pop_state(parser))){
                 node_free(s_item->ast);

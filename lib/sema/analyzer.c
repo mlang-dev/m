@@ -119,6 +119,13 @@ bool _is_array_size_same(struct type_expr *type1, struct type_expr *type2)
 }
 
 
+struct ast_node *_node_copy_with_type(struct ast_node *node)
+{
+    struct ast_node *copy = node_copy(node);
+    copy->type = node->type;
+    return copy;
+}
+
 struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
     symbol var_name = node->var->var->ident->name;
@@ -131,7 +138,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
             return 0;
         }
         //
-        node->transformed = assign_node_new(OP_ASSIGN, node->var->var, node->var->init_value, node->loc);
+        node->transformed = assign_node_new(OP_ASSIGN, _node_copy_with_type(node->var->var), _node_copy_with_type(node->var->init_value), node->loc);
         //moved 
         node->transformed->type = analyze(context, node->transformed);
         return node->transformed->type;
@@ -410,8 +417,8 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
         op_type = node->unop->operand->type->val_type;
     }
     else if(node->unop->opcode == OP_INC || node->unop->opcode == OP_DEC){
-        struct ast_node *new_node = binary_node_new(node->unop->opcode == OP_INC ? OP_PLUS : OP_MINUS, node->unop->operand, int_node_new(1, node->loc), node->loc);
-        node->transformed = assign_node_new(OP_ASSIGN, node->unop->operand, new_node, node->loc);
+        struct ast_node *new_node = binary_node_new(node->unop->opcode == OP_INC ? OP_PLUS : OP_MINUS, _node_copy_with_type(node->unop->operand), int_node_new(1, node->loc), node->loc);
+        node->transformed = assign_node_new(OP_ASSIGN, _node_copy_with_type(node->unop->operand), new_node, node->loc);
         node->transformed->type = analyze(context, node->transformed);
     }
     return op_type;
@@ -502,7 +509,7 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
             //this is only possible when grammar is changed to "id = expr" not 
             //as var decl. 
             assert(false);
-            node->transformed = var_node_new(node->binop->lhs, 0, node->binop->rhs, false, false, node->loc);
+            node->transformed = var_node_new(_node_copy_with_type(node->binop->lhs), 0, _node_copy_with_type(node->binop->rhs), false, false, node->loc);
             node->transformed->type = analyze(context, node->transformed);
             return node->transformed->type;
         }else{
@@ -529,8 +536,8 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
     }
     if(is_assign_op_sugar(node->binop->opcode)){
         enum op_code binop = get_op_code_from_assign_op(node->binop->opcode);
-        struct ast_node *new_node = binary_node_new(binop, node->binop->lhs, node->binop->rhs, node->loc);
-        node->transformed = assign_node_new(OP_ASSIGN, node->binop->lhs, new_node, node->loc);
+        struct ast_node *new_node = binary_node_new(binop, _node_copy_with_type(node->binop->lhs), _node_copy_with_type(node->binop->rhs), node->loc);
+        node->transformed = assign_node_new(OP_ASSIGN, _node_copy_with_type(node->binop->lhs), new_node, node->loc);
         node->transformed->type = result;
     }
     return result;
