@@ -435,6 +435,7 @@ let distance x1:f64 y1:f64 x2 y2 = \n\
     ASSERT_EQ(5, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("f64 * f64 * f64 * f64 -> f64", string_get(&type_str));
+    string_deinit(&type_str);
     node_free(block);
     frontend_deinit(fe);
 }
@@ -472,7 +473,6 @@ let var_func ... = 0\n\
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
-    
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("var_func", string_get(node->func->func_type->ft->name));

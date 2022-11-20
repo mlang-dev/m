@@ -64,6 +64,7 @@ TEST(test_array, element_with_no_overhead)
     array_push(&arr, &exp);
     ASSERT_EQ(1, array_size(&arr));
     ASSERT_STREQ("hello", *(const char**)array_get(&arr, 0));
+    array_deinit(&arr);
 }
 
 TEST(test_array, element_with_no_overhead_int)
@@ -74,6 +75,7 @@ TEST(test_array, element_with_no_overhead_int)
     array_push(&arr, &i);
     ASSERT_EQ(1, array_size(&arr));
     ASSERT_EQ(1000, *((int*)array_get(&arr, 0)));
+    array_deinit(&arr);
 }
 
 int test_array()

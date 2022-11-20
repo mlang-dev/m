@@ -193,8 +193,9 @@ void _free_real_type_node(struct type_node *type_node)
 {
     if(!type_node) return;
     if(type_node->kind == ArrayType){
-        ast_node_free(type_node->array_type_node->dims);
-        ast_node_free(type_node->array_type_node->elm_type);
+        node_free(type_node->array_type_node->dims);
+        node_free(type_node->array_type_node->elm_type);
+        FREE(type_node->array_type_node);
     } else if(type_node->kind == RefType){
         _free_real_type_node(type_node->val_node);
         FREE(type_node->val_node);
@@ -255,7 +256,7 @@ struct ast_node *_create_literal_node(void *val, enum type type, struct source_l
             node->liter->double_val = *(f64 *)val;
             break;
         case TYPE_STRING:
-            node->liter->str_val = str_clone((const char *)val);
+            node->liter->str_val = val;
             break;
         default:
             printf("doesn't support the type %s for literal.\n", string_get(get_type_symbol(type)));
@@ -423,7 +424,6 @@ void _free_range_node(struct ast_node *node)
 struct ast_node *array_init_node_new(struct ast_node *comp, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(ARRAY_INIT_NODE, loc);
-    MALLOC(node->array_init, sizeof(*node->array_init));
     node->array_init = comp;
     return node;
 }
@@ -437,7 +437,7 @@ struct ast_node *_copy_array_init_node(struct ast_node *orig_node)
 void _free_array_init_node(struct ast_node *node)
 {
     node_free(node->array_init);
-    node->array_init = 0;
+    node->array_init = 0; //array init is already deleted
     ast_node_free(node);
 }
 

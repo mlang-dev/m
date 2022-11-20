@@ -155,6 +155,13 @@ void terminal_deinit()
     }
 }
 
+void tok_clean(struct token *tok)
+{
+    if(tok->token_type == TOKEN_STRING && tok->str_val){
+        FREE((void*)tok->str_val);
+        tok->str_val = 0;
+    }
+}
 
 struct token_patterns get_token_patterns()
 {

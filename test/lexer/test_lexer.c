@@ -143,13 +143,13 @@ TEST(test_lexer, token_string)
     struct token *tok;
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
-
     tok = get_tok(lexer);
     ASSERT_EQ(TOKEN_STRING, tok->token_type);
     ASSERT_EQ(1, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
     ASSERT_EQ(5, tok->loc.end);
+    tok_clean(tok);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
     frontend_deinit(fe);
@@ -170,7 +170,8 @@ TEST(test_lexer, token_string_with_escape)
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
     ASSERT_EQ(3, tok->loc.end);
-    ASSERT_STREQ("\n", string_get(tok->str_val));
+    ASSERT_STREQ("\n", tok->str_val);
+    tok_clean(tok);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
     frontend_deinit(fe);
@@ -191,7 +192,8 @@ TEST(test_lexer, token_string_with_raw_escape)
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
     ASSERT_EQ(4, tok->loc.end);
-    ASSERT_STREQ("\n", string_get(tok->str_val));
+    ASSERT_STREQ("\n", tok->str_val);
+    tok_clean(tok);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
     frontend_deinit(fe);
@@ -213,7 +215,8 @@ TEST(test_lexer, token_utc_string)
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
     ASSERT_EQ(8, tok->loc.end);
-    ASSERT_STREQ("你好", string_get(tok->str_val));
+    ASSERT_STREQ("你好", tok->str_val);
+    tok_clean(tok);
     ASSERT_EQ(TOKEN_NEWLINE, get_tok(lexer)->token_type);
     lexer_free(lexer);
     frontend_deinit(fe);

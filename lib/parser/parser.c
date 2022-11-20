@@ -116,7 +116,8 @@ struct ast_node *_build_terminal_ast(struct token *tok)
             ast = char_node_new(tok->int_val, tok->loc);
             break;
         case TOKEN_STRING:
-            ast = string_node_new(string_get(tok->str_val), tok->loc);
+            ast = string_node_new(tok->str_val, tok->loc);
+            tok->str_val = 0; //ownership moved 
             break;
         }
     return ast;
@@ -363,7 +364,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 struct ast_node *last_param = *(struct ast_node **)array_back(&parameters->block->nodes);
                 if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
                     is_variadic = true;
-                    array_pop(&parameters->block->nodes);
+                    node_free(*(struct ast_node**)array_pop(&parameters->block->nodes));
                 }
             }
             struct ast_node *func_body = _take(nodes, rule->action.item_index[2]);
