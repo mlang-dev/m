@@ -49,10 +49,10 @@ struct sema_context {
     struct hashtable gvar_name_2_ast;
 
     /* 
-     *  type env: symboltable of <symbol, struct type_expr>*>
+     *  type env: symboltable of <symbol, struct type_expr_pair*>
      *  binding type name to type expression
      */
-    struct symboltable typename_2_typexps;
+    struct symboltable typename_2_typexpr_pairs;
 
     /* 
      *  new type AST def: hashtable of <symbol, struct ast_node （type_node)*> 

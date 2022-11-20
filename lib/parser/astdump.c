@@ -54,7 +54,7 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
 
     // function type
     if (func_type->ft->ret_type_node) {
-        struct type_expr *type = create_type_from_type_node(context, func_type->ft->ret_type_node->type_node);
+        struct type_expr *type = create_type_from_type_node(context, func_type->ft->ret_type_node->type_node, Immutable);
         string_copy_chars(&var_str, string_get(type->name));
         string_add_chars(&result, " -> ");
         string_add(&result, &var_str);

@@ -44,7 +44,7 @@ struct ast_node *create_function_func_type(CXCursor cursor)
     if (!type) {
         return 0;
     }
-    struct type_expr *ret_type = create_nullary_type(type, get_type_symbol(type));
+    struct type_expr *ret_type = create_nullary_type(type);
     ARRAY_FUN_PARAM(fun_params);
     int num_args = clang_Cursor_getNumArguments(cursor);
     bool is_variadic = clang_isFunctionTypeVariadic(cur_type);
@@ -68,7 +68,7 @@ struct ast_node *create_function_func_type(CXCursor cursor)
         struct ast_node *is_of_type = ident_node_new(arg_type_name, param_loc);
         struct ast_node *var = ident_node_new(var_name, param_loc);
         struct ast_node *fun_param = var_node_new(var, is_of_type, 0, true, true, param_loc);
-        fun_param->type = create_nullary_type(arg_type, arg_type_name);
+        fun_param->type = create_nullary_type(arg_type);
         array_push(&fun_params, &fun_param);
     }
     struct source_location loc = { 0, 1, 0, 0 };

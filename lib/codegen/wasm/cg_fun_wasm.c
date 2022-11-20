@@ -249,7 +249,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     u32 stack_size = fc_get_stack_size(fc);
     if(stack_size){
         //TODO: make builtin type as constant
-        struct type_expr *to_sp = create_nullary_type(TYPE_INT, get_type_symbol(TYPE_INT));
+        struct type_expr *to_sp = create_nullary_type(TYPE_INT);
         fc->local_sp = _req_new_local_var(cg, to_sp, true, false, false);
     }
     

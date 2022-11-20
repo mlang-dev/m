@@ -56,7 +56,7 @@ TEST(test_analyzer, ref_type_func)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-struct AB = re:f64, im:f64\n\
+struct AB = var re:f64, im:f64\n\
 let update z:&AB =\n\
     z.re = 10.0\n\
 ";

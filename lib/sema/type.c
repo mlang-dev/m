@@ -44,43 +44,39 @@ const char *const _type_strings[TYPE_TYPES] = {
 
 #define IS_TYPE_CONVERTIBLE(type)  (type > TYPE_UNIT && type < TYPE_STRING)
 
+
 struct symbol_ref_pair{
-    symbol type_symbol; 
-    symbol ref_type_symbol;
+    symbol type_symbols[2];  //0: immutable, 1 is mutable
+    symbol ref_type_symbols[2][2];
 };
 
-struct symbol_ref_pair type_symbols[TYPE_TYPES] = {
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
+struct symbol_ref_pair _type_symbols[TYPE_TYPES] = {
+    {0},
+    {0},
+    {0},
+    {0},
+    {0},
 
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
+    {0},
+    {0},
+    {0},
+    {0},
+    {0},
+    {0},
+    {0},
+    {0},
 
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
+    {0},
+    {0},
+    {0},
+    {0},
+    {0},
 
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-    {0, 0},
-};
-
-struct type_expr_pair {
-    struct type_expr *val_type;
-    struct type_expr *ref_type;
+    {0},
+    {0},
+    {0},
+    {0},
+    {0},
 };
 
 symbol to_ref_symbol(symbol type_symbol)
@@ -154,8 +150,22 @@ struct hashtable _type_expr_vars;
 void _free_type_pair(void *type)
 {
     struct type_expr_pair *pair = type;
-    type_expr_free(pair->ref_type);
-    type_expr_free(pair->val_type);
+    for(int i = 0; i < 2; i++){
+        for(int j = 0; j < 2; j++)
+            type_expr_free(pair->ref_types[i][j]);
+        type_expr_free(pair->val_types[i]);
+    }
+}
+
+symbol _merge_string(const char *str1, symbol str2)
+{
+    return str2;
+    string str;
+    string_init_chars(&str, str1);
+    string_add(&str, str2);
+    symbol sym = string_2_symbol(&str);
+    string_deinit(&str);
+    return sym;
 }
 
 void _free_type_expr_var(void *elm)
@@ -166,16 +176,21 @@ void _free_type_expr_var(void *elm)
 void types_init()
 {
     for(int i = 0; i < TYPE_TYPES; i++){
-        type_symbols[i].type_symbol = to_symbol(_type_strings[i]);
-        string str;
-        string_init_chars(&str, "&");
-        string_add_chars(&str, _type_strings[i]);
-        type_symbols[i].ref_type_symbol = to_symbol(string_get(&str));
-        string_deinit(&str);
+        symbol type_symbol = to_symbol(_type_strings[i]);
+        symbol mut_type_symbol = _merge_string("mut ", type_symbol);
+        symbol ref_type_symbol = _merge_string("&", type_symbol);
+        symbol ref_mut_type_symbol = _merge_string("&", mut_type_symbol);
+        _type_symbols[i].type_symbols[0] = type_symbol;
+        _type_symbols[i].type_symbols[1] = mut_type_symbol;
+        _type_symbols[i].ref_type_symbols[0][0] = ref_type_symbol;
+        _type_symbols[i].ref_type_symbols[0][1] = ref_mut_type_symbol;
+        _type_symbols[i].ref_type_symbols[1][0] = _merge_string("mut ", ref_type_symbol);
+        _type_symbols[i].ref_type_symbols[1][1] = _merge_string("mut ", ref_mut_type_symbol);
     }
     hashtable_init_with_value_size(&_symbol_2_type_exprs, sizeof(struct type_expr_pair), _free_type_pair);
     hashtable_init_with_value_size(&_type_expr_vars, 0, _free_type_expr_var);
 }
+
 
 void types_deinit()
 {
@@ -205,7 +220,7 @@ void struct_type_add_member(struct type_expr *struct_type, struct type_expr *typ
     array_push(&struct_type->args, &type);
 }
 
-struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args)
+struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type type, enum Mut mut, struct type_expr *val_type, struct array *args)
 {
     struct type_expr *oper;
     MALLOC(oper, sizeof(*oper));
@@ -213,6 +228,7 @@ struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type 
     oper->type = type;
     oper->name = type_name;
     oper->val_type = val_type;
+    oper->mut = mut;
     if(kind == KIND_OPER){
         if(args){
             oper->args = *args;
@@ -232,12 +248,12 @@ struct type_expr *_create_type_oper(enum kind kind, symbol type_name, enum type 
 struct type_expr *create_type_oper_var(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args)
 {
     //there is some var inside the type_oper types
-    struct type_expr *type_var = _create_type_oper(kind, type_name, type, val_type, args);
+    struct type_expr *type_var = _create_type_oper(kind, type_name, type, Immutable, val_type, args);
     hashtable_set_p(&_type_expr_vars, type_var, type_var);
     return type_var;
 }
 
-struct type_expr *create_type_oper(enum kind kind, symbol type_name, enum type type, struct array *args)
+struct type_expr *create_type_oper(enum kind kind, symbol type_name, enum type type, enum Mut mut, struct array *args)
 {
     struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, type_name);
     if(pair){
@@ -245,28 +261,46 @@ struct type_expr *create_type_oper(enum kind kind, symbol type_name, enum type t
             //we own it now
             array_deinit(args);
         }
-        return pair->val_type;
+        return pair->val_types[mut];
     }
-    struct type_expr_pair tep;
+    struct type_expr_pair tep = {0};
     symbol ref_type_name = to_ref_symbol(type_name);
-    tep.val_type = _create_type_oper(kind, type_name, type, 0, args);
-    tep.ref_type = _create_type_oper(kind, ref_type_name, TYPE_REF, tep.val_type, 0);
+    tep.val_types[0] = _create_type_oper(kind, type_name, type, Immutable, 0, args);
+    if(args){
+        struct array new_args;
+        array_copy(&new_args, args);
+        args = &new_args;
+    }
+    tep.val_types[1] = _create_type_oper(kind, type_name, type, Mutable, 0, args);
+    tep.ref_types[0][0] = _create_type_oper(kind, ref_type_name, TYPE_REF, Immutable, tep.val_types[0], 0);
+    tep.ref_types[0][1] = _create_type_oper(kind, ref_type_name, TYPE_REF, Immutable, tep.val_types[1], 0);
+    tep.ref_types[1][0] = _create_type_oper(kind, ref_type_name, TYPE_REF, Mutable, tep.val_types[0], 0);
+    tep.ref_types[1][1] = _create_type_oper(kind, ref_type_name, TYPE_REF, Mutable, tep.val_types[1], 0);
     hashtable_set_p(&_symbol_2_type_exprs, type_name, &tep);
-    return tep.val_type;
+    return tep.val_types[mut];
 }
 
 /*val_type: referenced value type: e.g. it's int for &int type */
 struct type_expr *create_ref_type(struct type_expr *val_type)
 {
-    create_type_oper(KIND_OPER, val_type->name, val_type->type, 0);
+    create_type_oper(KIND_OPER, val_type->name, val_type->type, Immutable, 0);
     struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, val_type->name);
     assert(pair);
-    return pair->ref_type;
+    return pair->ref_types[0][0];
 }
+
+/*val_type: referenced value type: e.g. it's int for &int type */
+/*
+struct type_expr *create_ref_type(struct type_expr *val_type)
+{
+    symbol ref_type_name = to_ref_symbol(val_type->name);
+    return _create_type_oper(KIND_OPER, ref_type_name, TYPE_REF, Immutable, val_type, 0);
+}
+*/
 
 struct type_expr *_create_type_var(symbol name)
 {
-    return _create_type_oper(KIND_VAR, name, 0, 0, 0);
+    return _create_type_oper(KIND_VAR, name, 0, Immutable, 0, 0);
 }
 
 struct type_expr *create_type_var()
@@ -289,17 +323,18 @@ struct type_expr *copy_type_var(struct type_expr *var)
 struct type_expr *create_unit_type()
 {
     symbol type_name = get_type_symbol(TYPE_UNIT);
-    return create_type_oper(KIND_OPER, type_name, TYPE_UNIT, 0);
+    return create_type_oper(KIND_OPER, type_name, TYPE_UNIT, Immutable, 0);
 }
 
 struct type_expr *create_type_oper_struct(symbol type_name, struct array *args)
 {
-    return create_type_oper(KIND_OPER, type_name, TYPE_STRUCT, args);
+    return create_type_oper(KIND_OPER, type_name, TYPE_STRUCT, Immutable, args);
 }
 
-struct type_expr *create_nullary_type(enum type type, symbol type_symbol)
+struct type_expr *create_nullary_type(enum type type)
 {
-    return create_type_oper(KIND_OPER, type_symbol, type, 0);
+    symbol type_symbol = get_type_symbol(type);
+    return create_type_oper(KIND_OPER, type_symbol, type, Immutable, 0);
 }
 
 struct type_expr *create_type_fun(struct array *args)
@@ -307,10 +342,10 @@ struct type_expr *create_type_fun(struct array *args)
     symbol type_name = get_type_symbol(TYPE_FUNCTION);
     symbol fun_type_name = _to_fun_type_name(args);
     if(fun_type_name){
-        return create_type_oper(KIND_OPER, fun_type_name, TYPE_FUNCTION, args);
+        return create_type_oper(KIND_OPER, fun_type_name, TYPE_FUNCTION, Immutable, args);
     } else {
         //we still have type variable, could be generic function
-        struct type_expr *type_var = _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, 0, args);
+        struct type_expr *type_var = _create_type_oper(KIND_OPER, type_name, TYPE_FUNCTION, Immutable, 0, args);
         hashtable_set_p(&_type_expr_vars, type_var, type_var);
         return type_var;
     }
@@ -319,7 +354,7 @@ struct type_expr *create_type_fun(struct array *args)
 struct type_expr *create_array_type(struct type_expr *element_type, struct array *dims)
 {
     symbol array_type_name = to_array_type_name(element_type->name, dims);
-    struct type_expr *type = create_type_oper(KIND_OPER, array_type_name, TYPE_ARRAY, 0);
+    struct type_expr *type = create_type_oper(KIND_OPER, array_type_name, TYPE_ARRAY, Mutable, 0);
     array_deinit(&type->dims);
     type->dims = *dims;
     type->val_type = element_type;
@@ -337,6 +372,7 @@ struct type_expr *wrap_as_fun_type(struct type_expr *oper)
 
 void type_expr_free(struct type_expr *type)
 {
+    if(!type) return;
     if(type->kind == KIND_OPER){
         array_deinit(&type->args);
     }
@@ -667,19 +703,24 @@ struct type_expr *is_single_element_struct(struct type_expr *type)
 
 symbol get_type_symbol(enum type type_enum)
 {
-    return type_symbols[type_enum].type_symbol;
+    return _type_symbols[type_enum].type_symbols[0];
 }
 
 enum type get_type_enum_from_symbol(symbol type_name)
 {
      struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, type_name);
     if(pair)
-        return pair->val_type->type;
+        return pair->val_types[0]->type;
     return TYPE_NULL;
 }
 
 symbol get_ref_symbol(symbol type_name)
 {
      struct type_expr_pair *pair = hashtable_get_p(&_symbol_2_type_exprs, type_name);
-    return pair ? pair->ref_type->name : 0;
+    return pair ? pair->ref_types[0][0]->name : 0;
+}
+
+struct type_expr_pair *get_type_expr_pair(symbol type_name)
+{
+    return hashtable_get_p(&_symbol_2_type_exprs, type_name);
 }
