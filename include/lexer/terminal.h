@@ -38,12 +38,16 @@ enum token_type{
     TOKEN_MEMORY,
     TOKEN_EXTERN,
 
-    TOKEN_ENUM,
-    TOKEN_STRUCT,
-    TOKEN_UNION,
+    //wit items
     TOKEN_TYPE,
-    TOKEN_LET,
+    TOKEN_STRUCT,
+    TOKEN_FLAGS, //struct of all bool values
+    TOKEN_VARIANT,
+    TOKEN_ENUM,
+    TOKEN_UNION,
+    TOKEN_RESOURCE, //resource, like file descriptors
 
+    TOKEN_LET,
     TOKEN_VAR,
     TOKEN_MUT,
     TOKEN_FUN,

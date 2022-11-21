@@ -30,10 +30,14 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("memory", MEMORY, NULL),
     KEYWORD_PATTERN("extern", EXTERN, NULL), // 10
 
-    KEYWORD_PATTERN("enum", ENUM, NULL),
-    KEYWORD_PATTERN("struct", STRUCT, NULL),
-    KEYWORD_PATTERN("union", UNION, NULL),
     KEYWORD_PATTERN("type", TYPE, NULL),
+    KEYWORD_PATTERN("struct", STRUCT, NULL),
+    KEYWORD_PATTERN("flags", FLAGS, NULL),
+    KEYWORD_PATTERN("variant", VARIANT, NULL),
+    KEYWORD_PATTERN("enum", ENUM, NULL),
+    KEYWORD_PATTERN("union", UNION, NULL),
+    KEYWORD_PATTERN("resource", RESOURCE, NULL),
+
     KEYWORD_PATTERN("let", LET, NULL),
     KEYWORD_PATTERN("var", VAR, NULL),
     KEYWORD_PATTERN("mut", MUT, NULL),
