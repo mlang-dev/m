@@ -74,7 +74,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - run: | 
-        cd ${{github.workspace}}/test
+        cd ${{ env:GITHUB_WORKSPACE }}/test
         npm ci
         npm run build --if-present
         npm test
