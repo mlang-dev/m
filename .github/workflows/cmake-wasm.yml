@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [18.8]
 
     steps:
     - name: Install LLVM & LLD
@@ -73,6 +73,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
+    - name: run npm test for 
     - run: | 
         cd ${{github.workspace}}/test
         npm ci
