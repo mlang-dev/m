@@ -3,7 +3,7 @@ const mtest = require('./mtest.js');
 
 mtest.mtest('generic function', 'generic function', 
 `
-let sq x = x * x # generic function
+let sq x = x * x  // generic function
 sq 10.0
 `, 100.0);
 

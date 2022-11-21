@@ -83,6 +83,7 @@ struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size
     lexer->filename = filename;
     memset(lexer->buff, '\0', CODE_BUFF_SIZE + 1);
     lexer->tok.token_type = TOKEN_EOF;
+    lexer->last_token_type = TOKEN_EOF;
     if(lexer->file){
         //fmemopen in MacOs will open empty string as null file handle
         fgets(lexer->buff, CODE_BUFF_SIZE + 1, lexer->file);
@@ -286,6 +287,23 @@ bool _is_valid_char(struct lexer *lexer)
     return false;
 }
 
+u32 _skip_empty_lines(struct lexer *lexer, enum token_type last_token_type)
+{
+    u32 spaces;
+    char ch;
+    do {
+        spaces = _scan_until_no_space(lexer);
+        ch = lexer->buff[lexer->pos];
+        if (ch=='\n' && (last_token_type == TOKEN_EOF || last_token_type == TOKEN_NEWLINE)){
+            //skip the empty line
+            _move_ahead(lexer);
+        }else{
+            break;
+        }
+    } while(true);
+    return spaces;
+}
+
 struct token *get_tok(struct lexer *lexer)
 {
     struct token *tok = &lexer->tok;
@@ -294,21 +312,8 @@ struct token *get_tok(struct lexer *lexer)
         lexer->pending_dedents ++;
         return tok;
     }
-    u32 spaces;
-    char ch;
-    do {
-        spaces = _scan_until_no_space(lexer);
-        if(lexer->buff[lexer->pos] == '#') {
-            _scan_until(lexer, '\n');
-        }
-        ch = lexer->buff[lexer->pos];
-        if (ch=='\n' && (tok->token_type == TOKEN_EOF || tok->token_type == TOKEN_NEWLINE)){
-            //skip the empty line
-            _move_ahead(lexer);
-        }else{
-            break;
-        }
-    } while(true);
+    u32 spaces = _skip_empty_lines(lexer, lexer->last_token_type);
+    char ch = lexer->buff[lexer->pos];
     if (ch == '\0'){
         int match = indent_level_stack_match(&lexer->indent_stack, 0);
         if(match < 0){
@@ -384,6 +389,21 @@ struct token *get_tok(struct lexer *lexer)
         lexer->tok.str_val = code;
         break;
     }
+    //
+    if(tok->token_type == TOKEN_LINECOMMENT){
+        _scan_until(lexer, '\n');
+        if(lexer->buff[lexer->pos] == '\n'){
+            return get_tok(lexer);
+        }
+    } else if (tok->token_type == TOKEN_BLOCKCOMMENT_START){
+        do{
+            tok=get_tok(lexer);
+        }while(tok->token_type != TOKEN_BLOCKCOMMENT_END && tok->token_type != TOKEN_NULL && tok->token_type != TOKEN_EOF);
+        if(tok->token_type == TOKEN_BLOCKCOMMENT_END){
+            _move_ahead(lexer); //skip the new line
+            return get_tok(lexer);
+        }
+    }
 mark_end:
     tok->loc.end = lexer->buff_base + lexer->pos;
     if(is_open_group(tok->token_type)){
@@ -405,5 +425,6 @@ mark_end:
         }
         array_pop(&lexer->open_closes);
     }
+    lexer->last_token_type = tok->token_type;
     return tok;
 }
