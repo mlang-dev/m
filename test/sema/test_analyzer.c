@@ -350,7 +350,7 @@ let factorial n = \n\
 TEST(test_analyzer, for_loop_fun)
 {
     char test_code[] = "\n\
-# using for loop\n\
+// using for loop\n\
 let loopprint n = \n\
   var sum = 0\n\
   for i in 0..n\n\
@@ -382,7 +382,7 @@ let loopprint n = \n\
 TEST(test_analyzer, float_var_loop)
 {
     char test_code[] = "\n\
-# using for loop\n\
+// using for loop\n\
 let loopprint n:f64 =\n\
   var sum = 0.0\n\
   for i in 0.0..1.0..n\n\
@@ -415,7 +415,7 @@ let loopprint n:f64 =\n\
 TEST(test_analyzer, local_var_fun)
 {
     char test_code[] = "\n\
-# using for loop\n\
+// using for loop\n\
 let distance x1:f64 y1:f64 x2 y2 = \n\
   xx = (x1-x2) * (x1-x2)\n\
   yy = (y1-y2) * (y1-y2)\n\

@@ -11,24 +11,24 @@ You can try [mlang](https://mlang.dev) in the browser.
 
 ## m code snippets
 ```
-# hello world !
+// hello world !
 let main () = print "hello world !\n"
 
-# comment line: defines a one-line function
+// comment line: defines a one-line function
 let avg x y = (x + y) / 2
 
-# defines a distance function
+// defines a distance function
 let distance x1 y1 x2 y2 = 
   xx = (x1-x2) ** 2.0
   yy = (y1-y2) ** 2.0
   |/ (xx + yy) #call sqrt 
 
-# factorial function with recursive call
+// factorial function with recursive call
 let factorial n = 
   if n < 2 then n
   else n * factorial (n-1)
 
-# using for loop
+// using for loop
 let loopprint n = 
   for i in 0..n
     printf "%d" i   # call c std io printf function

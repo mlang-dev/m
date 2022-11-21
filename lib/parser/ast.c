@@ -715,7 +715,7 @@ struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, stru
 struct ast_node *_copy_binary_node(struct ast_node *orig_node)
 {
     return binary_node_new(orig_node->binop->opcode,
-        orig_node->binop->lhs, orig_node->binop->rhs, orig_node->loc);
+        node_copy(orig_node->binop->lhs), node_copy(orig_node->binop->rhs), orig_node->loc);
 }
 
 void _free_binary_node(struct ast_node *node)
@@ -911,51 +911,74 @@ struct ast_node *block_node_add_block(struct ast_node *block, struct ast_node *n
 struct ast_node *node_copy(struct ast_node *node)
 {
     if (!node) return node;
+    struct ast_node *clone = 0;
     switch (node->node_type) {
     case BLOCK_NODE:
-        return _copy_block_node(node);
+        clone = _copy_block_node(node);
+        break;
     case IMPORT_NODE:
-        return _copy_import_node(node);
+        clone = _copy_import_node(node);
+        break;
     case FUNC_TYPE_NODE:
-        return _copy_func_type_node(node);
+        clone = _copy_func_type_node(node);
+        break;
     case FUNC_NODE:
-        return _copy_function_node(node);
+        clone = _copy_function_node(node);
+        break;
     case VAR_NODE:
-        return _copy_var_node(node);
+        clone = _copy_var_node(node);
+        break;
     case STRUCT_NODE:
-        return _copy_struct_node(node);
+        clone = _copy_struct_node(node);
+        break;
     case STRUCT_INIT_NODE:
-        return _copy_struct_init_node(node);
+        clone = _copy_struct_init_node(node);
+        break;
     case IDENT_NODE:
-        return _copy_ident_node(node);
+        clone = _copy_ident_node(node);
+        break;
     case LITERAL_NODE:
-        return _copy_literal_node(node);
+        clone = _copy_literal_node(node);
+        break;
     case CALL_NODE:
-        return _copy_call_node(node);
+        clone = _copy_call_node(node);
+        break;
     case IF_NODE:
-        return _copy_if_node(node);
+        clone = _copy_if_node(node);
+        break;
     case FOR_NODE:
-        return _copy_for_node(node);
+        clone = _copy_for_node(node);
+        break;
     case UNARY_NODE:
-        return _copy_unary_node(node);
+        clone = _copy_unary_node(node);
+        break;
     case BINARY_NODE:
-        return _copy_binary_node(node);
+        clone = _copy_binary_node(node);
+        break;
     case ASSIGN_NODE:
-        return _copy_assign_node(node);
+        clone = _copy_assign_node(node);
+        break;
     case RANGE_NODE:
-        return _copy_range_node(node);
+        clone = _copy_range_node(node);
+        break;
     case ARRAY_INIT_NODE:
-        return _copy_array_init_node(node);
+        clone = _copy_array_init_node(node);
+        break;
     case ARRAY_TYPE_NODE:
-        return _copy_array_type_node(node);
+        clone = _copy_array_type_node(node);
+        break;
     case TYPE_NODE:
-        return _copy_type_node(node);
+        clone = _copy_type_node(node);
+        break;
     case WHILE_NODE:
-        return _copy_while_node(node);
+        clone = _copy_while_node(node);
+        break;
     case JUMP_NODE:
-        return _copy_jump_node(node);
+        clone = _copy_jump_node(node);
+        break;
     case CAST_NODE:
-        return _copy_cast_node(node);
+        clone = _copy_cast_node(node);
+        break;
     case NULL_NODE:
     case UNIT_NODE:
     case MEMORY_NODE:
@@ -965,7 +988,7 @@ struct ast_node *node_copy(struct ast_node *node)
     case TOTAL_NODE:
         break;
     }
-    return 0;
+    return clone;
 }
 
 void node_free(struct ast_node *node)

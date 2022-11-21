@@ -41,6 +41,7 @@ struct lexer {
     char buff[CODE_BUFF_SIZE + 1];
     struct indent_level_stack indent_stack;
     struct token tok;
+    enum token_type last_token_type; //last effective token type, excluding comments token
     int pos;  //current text position in the buffer
     int buff_base;
     int line;

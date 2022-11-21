@@ -26,7 +26,8 @@ TEST(test_lexer, skip_comment)
     struct frontend *fe = frontend_init();
     char test_code[] = 
 "\n"
-"#123\n"
+"//123\n"
+"/*block comments*/"
 "\n";
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
@@ -41,7 +42,7 @@ TEST(test_lexer, skip_comment_in_func)
     struct frontend *fe = frontend_init();
     char test_code[] = 
 "\n"
-"let id x = x #123\n"
+"let id x = x //123\n"
 "\n";
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
@@ -409,7 +410,7 @@ TEST(test_lexer, expr)
 TEST(test_lexer, other_symbols)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "->( )()[]{} .. ... .< <= == != >= > || && ! |&/+-*^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ? //";
+    char test_code[] = "->( )()[]{} .. ... .< <= == != >= > || && ! |&/+-*^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ? ///**/";
 
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
@@ -459,7 +460,6 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(OP_DEC, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_COND, get_tok(lexer)->opcode);
 
-    //ASSERT_EQ(TOKEN_LINECOMMENT, get_tok(lexer)->opcode);
     lexer_free(lexer);
     frontend_deinit(fe);
 }

@@ -500,7 +500,9 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
             if(lhs_type != result_type){
                 node->binop->lhs->transformed = cast_to_node(result_type, node->binop->lhs);
             }
-            if(rhs_type != result_type){
+            if(rhs_type->type != result_type->type){ 
+                //TODO: we can't just use rhs_type != result_type, due to immutability of 
+                //nested loop unit test
                 node->binop->rhs->transformed =  cast_to_node(result_type, node->binop->rhs);
             }
         }
