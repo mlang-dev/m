@@ -24,7 +24,7 @@ var x = 10
 if x==10 then 
     x = 100
 x
-`, 100, true, true);
+`, 100);
 
 mtest.mtest('ternary operator', 'use ternary operator', 
 `

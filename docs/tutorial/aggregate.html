@@ -189,7 +189,7 @@ x = cf64(10.0, 20.0)
                 <div>struct member assign struct</div>
                 <div style="margin-top: 10px;">
                     <textarea id="struct_member_assign_struct"  rows = "5" style="resize: none;">struct xy = x:f64, y:f64
-struct wz = w:f64, z:xy
+struct wz = var w:f64, z:xy
 ab = wz(10.0, xy(20.0, 30.0))
 ab.z = xy(200.0, 300.0)
 ab.z.y</textarea>
@@ -301,9 +301,10 @@ result.re + result.im</textarea>
                 
                 <div>struct member assign</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="struct_member_assign"  rows = "3" style="resize: none;">z = cf64(10.0, 20.0)
-z.re = 30.0
-z.re</textarea>
+                    <textarea id="struct_member_assign"  rows = "4" style="resize: none;">struct Point = var x:f64, y:f64
+z = Point(10.0, 20.0)
+z.x = 30.0
+z.x</textarea>
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_member_assign')" style="min-width: 50px;">run</button></div>

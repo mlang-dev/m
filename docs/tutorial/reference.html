@@ -84,7 +84,7 @@ j = &i
                 
                 <div>change original value by its reference.</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="change_via_ref"  rows = "4" style="resize: none;">i = 10
+                    <textarea id="change_via_ref"  rows = "4" style="resize: none;">var i = 10
 j = &i
 *j = 20
 i</textarea>
@@ -96,7 +96,7 @@ i</textarea>
                 
                 <div>change original value by its reference. print reference</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="change_via_ref_2"  rows = "4" style="resize: none;">i = 10
+                    <textarea id="change_via_ref_2"  rows = "4" style="resize: none;">var i = 10
 j = &i
 *j = 20
 *j</textarea>
@@ -119,11 +119,12 @@ j.im</textarea>
                 
                 <div>pass struct data to function by reference</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_struct_by_ref"  rows = "5" style="resize: none;">let update x:&cf64 =
-    x.re = 10.0
-z = &cf64(100.0, 200.0)
+                    <textarea id="pass_struct_by_ref"  rows = "6" style="resize: none;">struct Point = var x:f64, y:f64
+let update xy:&Point =
+    xy.x = 10.0
+z = &Point(100.0, 200.0)
 update z
-z.re</textarea>
+z.x</textarea>
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_by_ref')" style="min-width: 50px;">run</button></div>
