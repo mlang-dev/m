@@ -91,15 +91,6 @@ print "hello %s %.2f %d" s f i</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "print_string__float_and_int_result"></div>
                 </div>
                 
-                <div>This expression is to call C's sqrt function</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="math_sqrt"  rows = "1" style="resize: none;">sqrt 4.0</textarea>
-                </div>
-                <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('math_sqrt')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "math_sqrt_result"></div>
-                </div>
-                
                 <div>Use keyword "let" to define a function. 
 The grammar is: "let" IDENT param_decls '=' statement. The following code is to define a square function takes
 a f64 value and outputs its squared f64 value.</div>
@@ -132,21 +123,6 @@ print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)</textarea>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_type')" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_type_result"></div>
-                </div>
-                
-                <div>mlang uses pass-by value calling convention to pass arguments to functions. This means the argument value is copied to function's parameter.</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="pass_by_value"  rows = "7" style="resize: none;">struct Point2D = x:f64, y:f64
-let change z:Point2D = 
-    z.x = z.x * 10.0
-    z
-old_z = Point2D(10.0, 20.0)
-new_z = change old_z
-print "old_z.x: %.2f, new_z.x: %.2f" (old_z.x) (new_z.x)</textarea>
-                </div>
-                <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_by_value')" style="min-width: 50px;">run</button></div>
-                    <div style="display: inline-block; margin-left:5px;" id= "pass_by_value_result"></div>
                 </div>
                 	<!-----------------footer----------------->
 	<footer>
