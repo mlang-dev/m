@@ -31,6 +31,7 @@ if (WASM)
     parser/test_ast.c
     parser/test_parser_expr.c
     parser/test_parser.c
+    parser/test_parser_union.c
     parser/test_parser_error.c    
     parser/test_grammar.c
     sema/test_analyzer.c
@@ -151,6 +152,7 @@ else()
   parser/test_ast.c
   parser/test_parser_expr.c
   parser/test_parser.c
+  parser/test_parser_union.c
   parser/test_parser_error.c
   parser/test_grammar.c
   sema/test_analyzer.c

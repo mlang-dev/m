@@ -187,6 +187,27 @@ struct type_node {
     };
 };
 
+struct name_type{
+    symbol name;
+    struct type_node *type_node;
+};
+
+enum UnionKind {
+    TaggedUnion = 0,
+    UntaggedUnion = 1,
+    Enum = 2
+};
+
+/**
+ * @brief enum type has only tag, but no named types. untagged union (c type of union) has only 
+ * named types while tagged union has both.
+ * 
+ */
+struct union_type_item_node {
+    symbol tag;             
+    struct ast_node *name_types; //block 
+};
+
 struct ast_node {
     enum node_type node_type;
 
@@ -213,12 +234,13 @@ struct ast_node {
         struct _binary_node *binop;
         struct _member_index_node *index;
         struct _var_node *var;
+        struct name_type *name_type;
         
         struct _func_type_node *ft;
         struct _function_node *func;
         struct _call_node *call;
         
-        struct _struct_node *struct_def; 
+        struct _struct_node *struct_type; 
         struct _struct_init_node *struct_init;
         struct ast_node *array_init;
         struct array_type_node *array_type;

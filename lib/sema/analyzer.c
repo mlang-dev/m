@@ -204,18 +204,18 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
 {
     struct array args;
     array_init(&args, sizeof(struct type_expr *));
-    analyze(context, node->struct_def->body);
-    for (size_t i = 0; i < array_size(&node->struct_def->body->block->nodes); i++) {
+    analyze(context, node->struct_type->body);
+    for (size_t i = 0; i < array_size(&node->struct_type->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
-        struct ast_node *field_node = *(struct ast_node **)array_get(&node->struct_def->body->block->nodes, i);
+        struct ast_node *field_node = *(struct ast_node **)array_get(&node->struct_type->body->block->nodes, i);
         array_push(&args, &field_node->type);
     }
-    symbol struct_name = node->struct_def->name;
+    symbol struct_name = node->struct_type->name;
     struct type_expr *result_type = create_type_oper_struct(struct_name, Immutable, &args);
-    assert(node->struct_def->name == result_type->name);
+    assert(node->struct_type->name == result_type->name);
     struct type_expr_pair * tep = get_type_expr_pair(struct_name);
     push_symbol_type(&context->typename_2_typexpr_pairs, struct_name, tep);
-    hashtable_set_p(&context->struct_typename_2_asts, node->struct_def->name, node);
+    hashtable_set_p(&context->struct_typename_2_asts, node->struct_type->name, node);
     return result_type;
 }
 
@@ -457,7 +457,7 @@ struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, s
     }
     struct type_expr *member_type = *(struct type_expr **)array_get(&struct_type->args, index);
     node->index->index->type = member_type;
-    node->index->index->ident->var = *(struct ast_node **)array_get(&type_node->struct_def->body->block->nodes, index);    
+    node->index->index->ident->var = *(struct ast_node **)array_get(&type_node->struct_type->body->block->nodes, index);    
     return member_type;
 }
 
@@ -667,8 +667,8 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
     if (node->type && node->type->kind == KIND_OPER)
         return node->type;
     switch(node->node_type){
-        case ENUM_NODE:
         case UNION_NODE:
+        case UNION_TYPE_ITEM_NODE:
         case TOTAL_NODE:
         case NULL_NODE:
             //type = _analyze_unk(context, node);

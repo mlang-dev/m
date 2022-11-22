@@ -29,6 +29,7 @@ int test_m_lexer();
 int test_ast();
 int test_parser_expr();
 int test_parser();
+int test_parser_union();
 int test_parser_error();
 int test_grammar();
 int test_analyzer();
@@ -64,6 +65,7 @@ EXPORT int ENTRY()
   failures += test_ast();
   failures += test_parser_expr();
   failures += test_parser();
+  failures += test_parser_union();
   failures += test_parser_error();
   failures += test_grammar();
   failures += test_analyzer();

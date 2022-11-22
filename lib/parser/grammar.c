@@ -149,7 +149,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                     printf("unaccepted token type: %d\n", next_tok.token_type);
                     assert(false);
                 }
-            next_tok = *get_tok(lexer); // skip ']'
+                next_tok = *get_tok(lexer); // skip ']'
             }
             next_tok = *get_tok(lexer); // skip ']'
         }

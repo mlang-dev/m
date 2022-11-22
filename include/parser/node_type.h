@@ -29,10 +29,10 @@ extern "C" {
     ENUM_ITEM(LITERAL_NODE)         \
     ENUM_ITEM(IDENT_NODE)           \
     ENUM_ITEM(VAR_NODE)             \
-    ENUM_ITEM(ENUM_NODE)            \
     ENUM_ITEM(CAST_NODE)            \
     ENUM_ITEM(STRUCT_NODE)          \
     ENUM_ITEM(UNION_NODE)           \
+    ENUM_ITEM(UNION_TYPE_ITEM_NODE) \
     ENUM_ITEM(STRUCT_INIT_NODE)     \
     ENUM_ITEM(ARRAY_INIT_NODE)      \
     ENUM_ITEM(ARRAY_TYPE_NODE)      \
