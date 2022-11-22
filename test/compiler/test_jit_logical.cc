@@ -24,7 +24,7 @@ true || true
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -41,7 +41,7 @@ true || false
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -58,7 +58,7 @@ false || false
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -75,7 +75,7 @@ true && true
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -92,7 +92,7 @@ true && false
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -109,7 +109,7 @@ false && false
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -126,7 +126,7 @@ TEST(testJITLogical, testNotFalse)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -143,6 +143,6 @@ TEST(testJITLogical, testNotTrue)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(false, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }

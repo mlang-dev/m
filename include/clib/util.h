@@ -61,6 +61,7 @@ char *get_basename(char *filename);
 #define MALLOC(_ptr, _size)                                                      \
     do {                                                                         \
         if (NULL == (_ptr = MMEM_MALLOC(_size))) {                                    \
+            printf("no enough memory to malloc !\n");                     \
             exit(1);                                                  \
         }                                                                        \
     } while (0)
@@ -68,6 +69,7 @@ char *get_basename(char *filename);
 #define CALLOC(_ptr, _element_count, element_size)                                                      \
     do {                                                                         \
         if (NULL == (_ptr = MMEM_CALLOC(_element_count, element_size))) {                                    \
+            printf("no enough memory to calloc !\n");                     \
             exit(1);                                                  \
         }                                                                        \
     } while (0)

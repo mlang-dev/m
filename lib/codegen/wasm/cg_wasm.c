@@ -308,8 +308,8 @@ void _cg_wasm_deinit(struct cg_wasm *cg)
     hashtable_deinit(&cg->func_name_2_idx);
     ba_deinit(&cg->ba);
     free_block_node(cg->fun_types, false); //container only
-    free_block_node(cg->funs, false);
-    node_free(cg->data_block);
+    free_block_node(cg->funs, false); //container only
+    free_block_node(cg->data_block, false); //container only
 }
 
 void wasm_emit_store_scalar_value_at(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node)
@@ -555,7 +555,7 @@ void _emit_cast(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
 void _free_field_info(void *fi)
 {
     struct field_info *field = fi;
-    ast_node_free(field->offset_expr);
+    node_free(field->offset_expr);
 }
 
 void _emit_struct_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)

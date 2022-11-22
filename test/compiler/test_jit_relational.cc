@@ -24,7 +24,7 @@ TEST(testJITRelational, testLessThan)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -41,7 +41,7 @@ TEST(testJITRelational, testLessThanWrong)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -58,7 +58,7 @@ TEST(testJITRelational, testGreaterThan)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     engine_free(engine);
 }
 
@@ -75,7 +75,7 @@ TEST(testJITRelational, testGreaterThanWrong)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -93,7 +93,7 @@ TEST(testJITRelational, testEqual)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -111,7 +111,7 @@ TEST(testJITRelational, testEqualNot)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -129,7 +129,7 @@ TEST(testJITRelational, testNotEqualTrue)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -147,7 +147,7 @@ TEST(testJITRelational, testNotEqualFalse)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -165,7 +165,7 @@ TEST(testJITRelational, testLETrueL)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -183,7 +183,7 @@ TEST(testJITRelational, testLETrueE)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -201,7 +201,7 @@ TEST(testJITRelational, testLEFalse)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -219,7 +219,7 @@ TEST(testJITRelational, testGETrueL)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -237,7 +237,7 @@ TEST(testJITRelational, testGETrueE)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -255,7 +255,7 @@ TEST(testJITRelational, testGEFalse)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }

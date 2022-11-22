@@ -170,7 +170,8 @@
         "node_type.h": "c",
         "pgen_token.h": "c",
         "terminal.h": "c",
-        "symbol.h": "c"
+        "symbol.h": "c",
+        "engine.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
