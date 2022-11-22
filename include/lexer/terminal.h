@@ -44,11 +44,7 @@ enum token_type{
     //wit items
     TOKEN_TYPE,
     TOKEN_STRUCT,
-    TOKEN_FLAGS, //struct of all bool values
-    TOKEN_VARIANT,
-    TOKEN_ENUM,
     TOKEN_UNION,
-    TOKEN_RESOURCE, //resource, like file descriptors
 
     TOKEN_LET,
     TOKEN_VAR,

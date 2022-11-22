@@ -355,21 +355,21 @@ void _free_var_node(struct ast_node *node)
 struct ast_node *struct_node_new(symbol name, struct ast_node *body, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(STRUCT_NODE, loc);
-    MALLOC(node->struct_def, sizeof(*node->struct_def));
-    node->struct_def->name = name;
-    node->struct_def->body = body;
+    MALLOC(node->struct_type, sizeof(*node->struct_type));
+    node->struct_type->name = name;
+    node->struct_type->body = body;
     return node;
 }
 
 struct ast_node *_copy_struct_node(struct ast_node *orig_node)
 {
     return struct_node_new(
-        orig_node->struct_def->name, _copy_block_node(orig_node->struct_def->body), orig_node->loc);
+        orig_node->struct_type->name, _copy_block_node(orig_node->struct_type->body), orig_node->loc);
 }
 
 void _free_struct_node(struct ast_node *node)
 {
-    _free_block_node(node->struct_def->body);
+    _free_block_node(node->struct_type->body);
     ast_node_free(node);
 }
 
@@ -979,11 +979,11 @@ struct ast_node *node_copy(struct ast_node *node)
     case CAST_NODE:
         clone = _copy_cast_node(node);
         break;
+    case UNION_NODE:
+    case UNION_TYPE_ITEM_NODE:
     case NULL_NODE:
     case UNIT_NODE:
     case MEMORY_NODE:
-    case ENUM_NODE:
-    case UNION_NODE:
     case MEMBER_INDEX_NODE:
     case TOTAL_NODE:
         break;
@@ -1075,9 +1075,9 @@ void node_free(struct ast_node *node)
     case MEMBER_INDEX_NODE:
         _free_member_index_node(node);
         break;
-    case UNIT_NODE:
-    case ENUM_NODE:
     case UNION_NODE:
+    case UNION_TYPE_ITEM_NODE:
+    case UNIT_NODE:
     case TOTAL_NODE:
         ast_node_free(node);
         break;
@@ -1108,8 +1108,8 @@ struct module *module_new(const char *mod_name, FILE *file)
 
 int find_member_index(struct ast_node *type_node, symbol member)
 {
-    for (int i = 0; i < (int)array_size(&type_node->struct_def->body->block->nodes); i++) {
-        struct ast_node *var = *(struct ast_node **)array_get(&type_node->struct_def->body->block->nodes, i);
+    for (int i = 0; i < (int)array_size(&type_node->struct_type->body->block->nodes); i++) {
+        struct ast_node *var = *(struct ast_node **)array_get(&type_node->struct_type->body->block->nodes, i);
         if (var->var->var->ident->name == member) {
             return i;
         }

@@ -394,8 +394,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node_free(callee_name);
             break;
         }
+        case UNION_TYPE_ITEM_NODE:
+            break;
         case UNION_NODE:
-        case ENUM_NODE:
         case STRUCT_NODE: // new type definition, like struct in C
         {
             assert(rule->action.item_index_count == 2);
