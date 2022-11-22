@@ -283,5 +283,5 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     ba_deinit(&func);
 
     _func_leave(cg, node);
-    ast_node_free(p0);
+    node_free(p0);
 }

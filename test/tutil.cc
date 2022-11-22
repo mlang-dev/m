@@ -41,11 +41,10 @@ void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     create_ir_module(cg, module_name);
     make_module_ir(cg->module, module_name, ir_code, module_ir);
-    struct ast_node *block;
-    block = parse_code(engine->fe->parser, m_code);
+    struct ast_node *block = parse_code(engine->fe->parser, m_code);
     char *ir_string = emit_ir_string(cg, block);
     ASSERT_STREQ(module_ir, ir_string);
-    //ast_node_free(block);
+    node_free(block);
     free_ir_string(ir_string);
     engine_free(engine);
 }

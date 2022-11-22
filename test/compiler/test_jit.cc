@@ -36,7 +36,7 @@ TEST(testJIT, testNumber)
     result = eval_exp(jit, node2);
     ASSERT_EQ(TYPE_INT, result.type);
     ASSERT_EQ(10, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -55,7 +55,7 @@ TEST(testJIT, testNegNumber)
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
     ASSERT_EQ(-10, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -74,7 +74,7 @@ TEST(testJIT, testRemainderOp)
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
     ASSERT_EQ(1, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -93,7 +93,7 @@ TEST(testJIT, testPositiveNumber)
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_INT, result.type);
     ASSERT_EQ(10, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -112,7 +112,7 @@ TEST(testJIT, testChar)
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_CHAR, result.type);
     ASSERT_EQ('c', result.c_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -131,7 +131,7 @@ TEST(testJIT, testString)
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(TYPE_STRING, result.type);
     ASSERT_STREQ("hello", result.s_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -149,7 +149,7 @@ TEST(testJIT, testTypeCast)
     auto node = *(ast_node **)array_front(&block->block->nodes);
     //eval_statement(jit, node);
     ASSERT_EQ(TYPE_F64, node->type->type);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -169,7 +169,7 @@ y
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
     ASSERT_EQ(100, eval_exp(jit, node1).i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -189,7 +189,7 @@ y
     auto node1 = *(ast_node **)array_get(&block->block->nodes, 1);
     eval_statement(jit, node);
     ASSERT_STREQ("hello", eval_exp(jit, node1).s_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -212,7 +212,7 @@ y
     eval_statement(jit, node1);
     eval_statement(jit, node2);
     ASSERT_EQ(200, eval_exp(jit, node3).i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -233,7 +233,7 @@ id 10.0
     eval_statement(jit, node1);
     auto result = eval_exp(jit, node2);
     ASSERT_EQ(10.0, result.d_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -258,7 +258,7 @@ id_g 20
     ASSERT_EQ(10.0, result.d_value);
     result = eval_exp(jit, node2);
     ASSERT_EQ(20, result.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -279,7 +279,7 @@ sq 10.0
     eval_statement(jit, node);
     auto result = eval_exp(jit, node1);
     ASSERT_EQ(100.0, result.d_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -306,7 +306,7 @@ if_f 10
     eval_result result2 = eval_exp(jit, node2);
     ASSERT_EQ(5, result1.i_value);
     ASSERT_EQ(0, result2.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -329,7 +329,7 @@ forloop 4
     eval_statement(jit, node);
     eval_result result1 = eval_exp(jit, node1);
     ASSERT_EQ(0, result1.i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -421,7 +421,7 @@ to_string()
     }
     auto node1 = *(ast_node **)array_get(&block->block->nodes, end);
     ASSERT_STREQ("hello", eval_exp(jit, node1).s_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -446,7 +446,7 @@ printf "hello\n"
     }
     auto msg = testing::internal::GetCapturedStdout();
     ASSERT_STREQ("hello\n6:int\n", msg.c_str()); //TODO: fix me later
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -469,7 +469,7 @@ printf "hello:%d" 1
     }
     auto msg = testing::internal::GetCapturedStdout();
     ASSERT_STREQ("hello:17:int\n", msg.c_str());
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -497,7 +497,7 @@ xy.y
     ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
     auto node4 = *(ast_node **)array_get(&block->block->nodes, 3);
     ASSERT_EQ(20.0, eval_exp(jit, node4).d_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -524,7 +524,7 @@ xy.y
     ASSERT_EQ(10, eval_exp(jit, node3).i_value);
     auto node4 = *(ast_node **)array_get(&block->block->nodes, 3);
     ASSERT_EQ(20, eval_exp(jit, node4).i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -551,7 +551,7 @@ xy.y
     ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
     auto node4 = *(ast_node **)array_get(&block->block->nodes, 3);
     ASSERT_EQ(20, eval_exp(jit, node4).i_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
@@ -577,7 +577,7 @@ getx()
     }
     auto node3 = *(ast_node **)array_get(&block->block->nodes, 2);
     ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
-    ast_node_free(block);
+    node_free(block);
     jit_free(jit);
     engine_free(engine);
 }
