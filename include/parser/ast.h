@@ -302,7 +302,7 @@ struct ast_node *func_type_node_new(
     symbol ret_type,
     struct ast_node *ret_type_node, 
     bool is_variadic, bool is_external, struct source_location loc);
-struct ast_node *adt_node_new(enum ADTKind kind, symbol name, struct ast_node *body, struct source_location loc);
+struct ast_node *adt_node_new(enum node_type node_type, symbol name, struct ast_node *body, struct source_location loc);
 struct ast_node *struct_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc);
 struct ast_node *array_init_node_new(struct ast_node *comp, struct source_location loc);
 struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc);

@@ -364,7 +364,7 @@ struct ast_node *adt_node_new(enum node_type node_type, symbol name, struct ast_
 
 struct ast_node *_copy_adt_node(struct ast_node *orig_node)
 {
-    return adt_node_new(
+    return adt_node_new(orig_node->node_type,
         orig_node->adt_type->name, _copy_block_node(orig_node->adt_type->body), orig_node->loc);
 }
 
@@ -930,7 +930,7 @@ struct ast_node *node_copy(struct ast_node *node)
         clone = _copy_var_node(node);
         break;
     case STRUCT_NODE:
-        clone = _copy_struct_node(node);
+        clone = _copy_adt_node(node);
         break;
     case STRUCT_INIT_NODE:
         clone = _copy_struct_init_node(node);
@@ -1020,7 +1020,7 @@ void node_free(struct ast_node *node)
         _free_var_node(node);
         break;
     case STRUCT_NODE:
-        _free_struct_node(node);
+        _free_adt_node(node);
         break;
     case STRUCT_INIT_NODE:
         _free_struct_init_node(node);

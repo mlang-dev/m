@@ -166,7 +166,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         }
         var_type = create_type_from_type_node(context, node->var->is_of_type->type_node, mut);
         assert(var_type);
-        if(hashtable_in_p(&context->adt_typename_2_asts, var_type->name)||
+        if(hashtable_in_p(&context->struct_typename_2_asts, var_type->name)||
             !node->var->init_value){
             push_symbol_type(&context->decl_2_typexprs, var_name, var_type);
             push_symbol_type(&context->varname_2_asts, var_name, node);
@@ -215,7 +215,7 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
     assert(node->adt_type->name == result_type->name);
     struct type_expr_pair * tep = get_type_expr_pair(struct_name);
     push_symbol_type(&context->typename_2_typexpr_pairs, struct_name, tep);
-    hashtable_set_p(&context->adt_typename_2_asts, node->adt_type->name, node);
+    hashtable_set_p(&context->struct_typename_2_asts, node->adt_type->name, node);
     return result_type;
 }
 
@@ -445,11 +445,11 @@ struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, s
 {
     struct type_expr *type = analyze(context, node->index->object);
     if(type->type != TYPE_STRUCT && !(type->type == TYPE_REF && type->val_type->type == TYPE_STRUCT)){
-        report_error(context, EC_EXPECT_adt_type, node->loc);
+        report_error(context, EC_EXPECT_STRUCT_TYPE, node->loc);
         return 0;
     }
     struct type_expr *adt_type = type->val_type ? type->val_type : type;
-    struct ast_node *type_node = hashtable_get_p(&context->adt_typename_2_asts, adt_type->name);
+    struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, adt_type->name);
     int index = find_member_index(type_node, node->index->index->ident->name);
     if (index < 0) {
         report_error(context, EC_FIELD_NOT_EXISTS, node->loc);
