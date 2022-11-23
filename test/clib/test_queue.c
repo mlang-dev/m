@@ -65,5 +65,7 @@ int test_queue()
     RUN_TEST(test_queue_push_and_pop);
     RUN_TEST(test_queue_pop_with_value);
     RUN_TEST(test_queue_circle);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

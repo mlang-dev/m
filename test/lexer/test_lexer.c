@@ -556,5 +556,7 @@ int test_lexer()
     RUN_TEST(test_lexer_token_import_memory);
     RUN_TEST(test_lexer_complex_number);
     RUN_TEST(test_lexer_group_with_multiple_lines);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

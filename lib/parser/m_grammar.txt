@@ -176,6 +176,7 @@ union_items =       = union_items '|' union_item                                
 union_item      = IDENT '(' type_list ')'                                                   { union_type_item 0 0 2 } //tagged union
                 | IDENT ':' type_expr                                                       { union_type_item 1 0 2 } //untagged union
                 | IDENT                                                                     { union_type_item 2 0 }   //enum
+                | IDENT '=' INT                                                             { union_type_item 3 0 2 } //enum
 
 type_list       = type_list ',' typed_item                                                  { block 0 2 }    
                 | typed_item

@@ -89,5 +89,7 @@ int test_util()
     RUN_TEST(test_util_join_path_empty2);
     RUN_TEST(test_util_join_path_null);
     RUN_TEST(test_util_join_path_null2);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

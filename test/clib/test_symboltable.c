@@ -79,5 +79,7 @@ int test_symboltable()
     UNITY_BEGIN();
     //RUN_TEST(test_symboltable_multiple_keys);
     //RUN_TEST(test_symboltable_same_key_multiple_values);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

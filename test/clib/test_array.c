@@ -86,5 +86,8 @@ int test_array()
     RUN_TEST(test_array_of_long_string);
     RUN_TEST(test_array_element_with_no_overhead);
     RUN_TEST(test_array_element_with_no_overhead_int);
+
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

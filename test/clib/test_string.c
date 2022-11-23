@@ -300,6 +300,8 @@ int test_string()
     RUN_TEST(test_string_long_string_add_long_string);
     RUN_TEST(test_string_long_string_add_short_string);
     RUN_TEST(test_string_init_long_string_copy_short_string);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }
 

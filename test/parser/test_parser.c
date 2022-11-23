@@ -859,5 +859,7 @@ int test_parser()
     RUN_TEST(test_parser_array_variable);
     RUN_TEST(test_parser_onebytwo_array_variable);
     RUN_TEST(test_parser_twobytwo_array_variable);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

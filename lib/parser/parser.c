@@ -399,16 +399,17 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             enum UnionKind kind = rule->action.item_index[0];
             struct ast_node *tag_id = _take(nodes, rule->action.item_index[1]);
             symbol tag = tag_id->ident->name;
-            struct ast_node *name_types = 0;
+            struct ast_node *tag_value = 0;
             switch(kind){
                 case TaggedUnion:
                 case UntaggedUnion:
-                    name_types = _take(nodes, rule->action.item_index[2]);
+                case EnumTagValue:
+                    tag_value = _take(nodes, rule->action.item_index[2]);
                     break;
-                case Enum:
+                case EnumTagOnly:
                     break;
             }
-            ast = union_type_item_node_new(tag, name_types, tag_id ? tag_id->loc:name_types->loc);
+            ast = union_type_item_node_new(kind, tag, tag_value, tag_id->loc);
             node_free(tag_id);
             break;
         }

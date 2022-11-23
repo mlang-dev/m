@@ -223,5 +223,7 @@ int test_hashtable()
     RUN_TEST(test_hashtable_clear);
     RUN_TEST(test_hashtable_collision);
     RUN_TEST(test_hashtable_grow_with_collision);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

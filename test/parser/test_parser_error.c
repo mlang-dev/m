@@ -25,5 +25,7 @@ int test_parser_error()
 {
     UNITY_BEGIN();
     RUN_TEST(test_parser_error_char_literal);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

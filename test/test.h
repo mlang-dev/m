@@ -15,6 +15,13 @@
 extern "C" {
 #endif
 
+struct test_stats {
+  int total_failures;
+  int total_tests;
+};
+
+extern struct test_stats test_stats;
+
 #define ASSERT_EQ(expected,  actual) TEST_ASSERT_EQUAL_INT(expected, actual) 
 #define ASSERT_STREQ(expected,  actual) TEST_ASSERT_EQUAL_STRING(expected, actual) 
 #define ASSERT_TRUE(condition) TEST_ASSERT_TRUE(condition)
