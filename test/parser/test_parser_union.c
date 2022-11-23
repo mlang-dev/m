@@ -13,14 +13,13 @@
 TEST(test_parser_union, one_line_definition)
 {
     struct frontend *fe = frontend_init();
-    //char test_code[] = "union XY = x:int | y:float";
-
-    // struct ast_node *block = parse_code(fe->parser, test_code);
-    // ASSERT_EQ(BLOCK_NODE, block->node_type);
-    // ASSERT_EQ(1, array_size(&block->block->nodes));
-    // struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    // ASSERT_EQ(UNION_NODE, node->node_type);
-    // node_free(block);
+    char test_code[] = "union XY = x:int | y:float";
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(BLOCK_NODE, block->node_type);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(UNION_NODE, node->node_type);
+    node_free(block);
     frontend_deinit(fe);
 }
 
