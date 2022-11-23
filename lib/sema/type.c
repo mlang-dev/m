@@ -322,6 +322,11 @@ struct type_expr *create_type_oper_struct(symbol type_name, enum Mut mut, struct
     return create_type_oper(KIND_OPER, type_name, TYPE_STRUCT, mut, args);
 }
 
+struct type_expr *create_type_oper_union(symbol type_name, enum Mut mut, struct array *args)
+{
+    return create_type_oper(KIND_OPER, type_name, TYPE_UNION, mut, args);
+}
+
 struct type_expr *create_nullary_type(enum type type)
 {
     symbol type_symbol = get_type_symbol(type);

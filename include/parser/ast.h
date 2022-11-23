@@ -106,10 +106,6 @@ struct _jump_node {
     struct ast_node *expr;
 };
 
-enum ADTKind {
-    Sum = 0,    //union
-    Product //struct
-};
 /**
  * algebraic data type
 */
