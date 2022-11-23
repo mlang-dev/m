@@ -64,7 +64,7 @@ void _classify(struct type_expr *te, uint64_t offset_base, enum Class *low, enum
         uint64_t size = tsi.width_bits;
         if (size > 512)
             return;
-        struct struct_layout *sl = layout_struct(te);
+        struct struct_layout *sl = layout_struct(te, Product);
         *current = NO_CLASS;
         for (size_t i = 0; i < array_size(&sl->field_offsets); i++) {
             uint64_t offset = offset_base + *(uint64_t *)array_get(&sl->field_offsets, i);
@@ -102,7 +102,7 @@ bool _bits_contain_no_user_data(struct type_expr *type, unsigned start_bit, unsi
     //TODO: for array type
     //record type
     if (type->type == TYPE_STRUCT) {
-        struct struct_layout *sl = layout_struct(type);
+        struct struct_layout *sl = layout_struct(type, Product);
         for (unsigned i = 0; i < array_size(&type->args); i++) {
             unsigned field_offset = (unsigned)*(uint64_t *)array_get(&sl->field_offsets, i);
             if (field_offset >= end_bit)
@@ -111,7 +111,6 @@ bool _bits_contain_no_user_data(struct type_expr *type, unsigned start_bit, unsi
             if (_bits_contain_no_user_data(array_get(&type->args, i), field_start, end_bit - field_offset))
                 return false;
         }
-
         return true;
     }
     return false;

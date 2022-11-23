@@ -1,17 +1,16 @@
 
-#include <complex.h>
-#include <math.h>
-#include <stdbool.h>
-
+union XY{
+    int x;
+    double y;
+};
 
 #define EXPORT __attribute__((visibility("default")))
 __attribute__((import_module("imports"), import_name("print"))) void print(const char *fmt, ...);
 
 EXPORT void _start()
 {
-    double i = 10;
-    double *j = &i;
-    print("hello: %d, %p", i, j);
+    union XY xy = { 0 };
+    print("hello: %f", xy.y);
 }
 // struct Point2D {
 //     double x;

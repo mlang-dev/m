@@ -33,54 +33,44 @@ u64 align_to(u64 field_offset, u64 align)
 
 void _layout_field(struct struct_layout *sl, struct type_expr *field_type)
 {
-    u64 field_offset_bytes = sl->data_size_bits / 8;
-    //uint64_t unpadded_field_offset_bits = sl->data_size_bits - sl->unfilled_bits_last_unit;
-    sl->unfilled_bits_last_unit = 0;
-    sl->last_bit_field_storage_unit_size = 0;
-
-    u64 field_size_bytes, field_align_bytes, effective_field_size_bytes;
-    //bool align_required;
     struct type_size_info tsi = get_type_size_info(field_type);
     array_push(&sl->field_layouts, &tsi.sl);
-    effective_field_size_bytes = field_size_bytes = tsi.width_bits / 8;
+    u64 field_offset_bits = 0;
+    u64 field_offset_bytes = 0;
+    u64 field_size_bytes, field_align_bytes;
+    field_size_bytes = tsi.width_bits / 8;
     field_align_bytes = tsi.align_bits / 8;
-    //align_required = tsi.align_required;
-    // TODO: adjust for microsft struct, AIX
-    u64 preferred_align_bytes = field_align_bytes;
-    u64 unpacked_field_offset_bytes = field_offset_bytes;
-    u64 unpacked_field_align_bytes = field_align_bytes;
-    field_offset_bytes = align_to(field_offset_bytes, field_align_bytes);
-    unpacked_field_offset_bytes = align_to(unpacked_field_offset_bytes, unpacked_field_align_bytes);
-    u64 field_offset_bits = field_offset_bytes * 8;
+    if(sl->kind == Product){
+        field_offset_bytes = sl->data_size_bits / 8;
+        field_offset_bytes = align_to(field_offset_bytes, field_align_bytes);
+        field_offset_bits = field_offset_bytes * 8;
+        sl->data_size_bits = (u32)(field_offset_bytes + field_size_bytes) * 8;
+    }else{
+        if(field_size_bytes * 8 > sl->data_size_bits){
+            sl->data_size_bits = field_size_bytes * 8;
+        }
+    }
     array_push(&sl->field_offsets, &field_offset_bits);
-    sl->data_size_bits = (u32)(field_offset_bytes + effective_field_size_bytes) * 8;
+    
     u64 padded_field_size = field_offset_bytes + field_size_bytes;
     if (sl->padded_field_size < padded_field_size)
         sl->padded_field_size = (u32)padded_field_size;
     if (sl->size_bits < sl->data_size_bits)
         sl->size_bits = sl->data_size_bits;
-    if (sl->unadjusted_alignment < field_align_bytes)
-        sl->unadjusted_alignment = (u32)field_align_bytes;
     if (sl->alignment < field_align_bytes)
         sl->alignment = (u32)field_align_bytes;
-    if (sl->unpacked_alignment < unpacked_field_align_bytes)
-        sl->unadjusted_alignment = (u32)unpacked_field_align_bytes;
-    if (sl->preferred_alignment < preferred_align_bytes)
-        sl->preferred_alignment = (u32)preferred_align_bytes;
 }
 
 void _layout_end(struct struct_layout *sl)
 {
     if (sl->size_bits < sl->padded_field_size * 8)
         sl->size_bits = sl->padded_field_size * 8;
-    //uint64_t unpadded_size = sl->size_bits - sl->unfilled_bits_last_unit;
-    //uint64_t unpadded_size_bits = align_to(sl->size_bits, sl->unpacked_alignment * 8);
     sl->size_bits = (u32)align_to(sl->size_bits, sl->alignment * 8);
 }
 
-struct struct_layout *layout_struct(struct type_expr *to)
+struct struct_layout *layout_struct(struct type_expr *to, enum ADTKind kind)
 {
-    struct struct_layout *sl = sl_new(to->name);
+    struct struct_layout *sl = sl_new(to->name, kind);
     u32 member_count = (u32)array_size(&to->args);
     for (u32 i = 0; i < member_count; i++) {
         struct type_expr *field_type = *(struct type_expr **)array_get(&to->args, i);
@@ -90,10 +80,11 @@ struct struct_layout *layout_struct(struct type_expr *to)
     return sl;
 }
 
-struct type_size_info _create_struct_type_size_info(struct type_expr *to)
+
+struct type_size_info _create_struct_type_size_info(struct type_expr *to, enum ADTKind kind)
 {
     struct type_size_info ti;
-    struct struct_layout *sl = layout_struct(to);
+    struct struct_layout *sl = layout_struct(to, kind);
     ti.width_bits = sl->size_bits;
     ti.align_bits = sl->alignment * 8;
     ti.sl = sl;
@@ -179,7 +170,9 @@ struct type_size_info get_type_size_info(struct type_expr *type)
     if (type->type == TYPE_ARRAY) {
         ti = _create_array_type_size_info(type);
     } else if (type->type == TYPE_STRUCT) {
-        ti = _create_struct_type_size_info(type);
+        ti = _create_struct_type_size_info(type, Product);
+    } else if (type->type == TYPE_UNION) {
+        ti = _create_struct_type_size_info(type, Sum);
     } else {
         ti = _create_scalar_type_size_info(type);
     }
@@ -200,28 +193,17 @@ u64 get_type_align(struct type_expr *type)
     struct type_size_info tsi = get_type_size_info(type);
     return tsi.align_bits / 8;
 }
-/*
-void _free_sl(void *elm)
-{
-    struct struct_layout *sl = elm;
-    sl_free(sl);
-}
-*/
-struct struct_layout *sl_new(symbol type_name)
+
+struct struct_layout *sl_new(symbol type_name, enum ADTKind kind)
 {
     struct struct_layout *sl;
     MALLOC(sl, sizeof(*sl));
     sl->type_name = type_name;
+    sl->kind = kind;
     sl->alignment = 1;
-    sl->unpacked_alignment = 1;
-    sl->preferred_alignment = 1;
-    sl->unadjusted_alignment = 1;
     sl->size_bits = 0;
     sl->data_size_bits = 0;
-    sl->unfilled_bits_last_unit = 0;
-    sl->last_bit_field_storage_unit_size = 0;
     sl->padded_field_size = 0;
-    sl->required_alignment = true;
     array_init(&sl->field_offsets, sizeof(u64));
     array_init(&sl->field_layouts, sizeof(struct struct_layout *));
     return sl;

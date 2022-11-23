@@ -62,6 +62,11 @@ enum Mut {
     Mutable
 };
 
+enum ADTKind {
+    Sum = 0,    //union
+    Product //struct
+};
+
 //type variable or operator
 struct type_expr {
     enum kind kind; //type variable or type operator
@@ -90,6 +95,7 @@ void types_deinit();
 struct type_expr *create_type_var(enum Mut mut);
 struct type_expr *create_type_oper_var(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args);
 struct type_expr *create_type_oper_struct(symbol type_name, enum Mut mut, struct array *args);
+struct type_expr *create_type_oper_union(symbol type_name, enum Mut mut, struct array *args);
 struct type_expr *create_nullary_type(enum type type);
 struct type_expr *create_type_fun(struct array *args);
 struct type_expr *create_unit_type();

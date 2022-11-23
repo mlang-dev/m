@@ -200,23 +200,31 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     return var_type;
 }
 
-struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node *node)
+struct type_expr *_analyze_struct_like(struct sema_context *context, symbol name, struct ast_node *body)
 {
+    assert(body->node_type == BLOCK_NODE);
     struct array args;
     array_init(&args, sizeof(struct type_expr *));
-    analyze(context, node->adt_type->body);
-    for (size_t i = 0; i < array_size(&node->adt_type->body->block->nodes); i++) {
+    analyze(context, body);
+    for (size_t i = 0; i < array_size(&body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
-        struct ast_node *field_node = *(struct ast_node **)array_get(&node->adt_type->body->block->nodes, i);
+        struct ast_node *field_node = *(struct ast_node **)array_get(&body->block->nodes, i);
         array_push(&args, &field_node->type);
     }
-    symbol struct_name = node->adt_type->name;
-    struct type_expr *result_type = create_type_oper_struct(struct_name, Immutable, &args);
-    assert(node->adt_type->name == result_type->name);
-    struct type_expr_pair * tep = get_type_expr_pair(struct_name);
-    push_symbol_type(&context->typename_2_typexpr_pairs, struct_name, tep);
-    hashtable_set_p(&context->struct_typename_2_asts, node->adt_type->name, node);
+    struct type_expr *result_type = create_type_oper_struct(name, Immutable, &args);
+    //assert(node->adt_type->name == result_type->name);
+    struct type_expr_pair * tep = get_type_expr_pair(name);
+    push_symbol_type(&context->typename_2_typexpr_pairs, name, tep);
     return result_type;
+}
+
+struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node *node)
+{
+    struct type_expr *type = _analyze_struct_like(context, node->adt_type->name, node->adt_type->body);
+    if(node->node_type == UNION_NODE)
+        type->type = TYPE_UNION;
+    hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
+    return type;
 }
 
 struct type_expr *_analyze_struct_init(struct sema_context *context, struct ast_node *node)
@@ -661,20 +669,42 @@ struct type_expr *_analyze_block(struct sema_context *context, struct ast_node *
     return type;
 }
 
+struct type_expr *_analyze_union_type_item_node(struct sema_context *context, struct ast_node *node)
+{
+    struct type_expr *type = 0;
+    switch(node->union_type_item_node->kind){
+        case TaggedUnion:{
+            /*name types*/
+            type = _analyze_struct_like(context, node->union_type_item_node->tag, node->union_type_item_node->tag_value);
+            hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
+            break;
+        }
+        case EnumTagValue:
+        case EnumTagOnly:
+            type = analyze(context, node->union_type_item_node->tag_value);
+            break;
+        case UntaggedUnion:
+            type = create_nullary_type(TYPE_INT);
+            break;
+    }
+    return type;
+}
+
 struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = 0;
     if (node->type && node->type->kind == KIND_OPER)
         return node->type;
     switch(node->node_type){
-        case UNION_NODE:
-        case UNION_TYPE_ITEM_NODE:
         case TOTAL_NODE:
         case NULL_NODE:
             //type = _analyze_unk(context, node);
             assert(false);
             break;
         case RANGE_NODE:
+            break;
+        case UNION_TYPE_ITEM_NODE:
+            type = _analyze_union_type_item_node(context, node);
             break;
         case ARRAY_INIT_NODE:
             type = _analyze_array_init(context, node);
@@ -706,6 +736,7 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
         case VAR_NODE:
             type = _analyze_var(context, node);
             break;
+        case UNION_NODE:
         case STRUCT_NODE:
             type = _analyze_struct(context, node);
             break;
