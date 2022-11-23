@@ -395,7 +395,23 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             break;
         }
         case UNION_TYPE_ITEM_NODE:
+        {
+            enum UnionKind kind = rule->action.item_index[0];
+            struct ast_node *tag_id = _take(nodes, rule->action.item_index[1]);
+            symbol tag = tag_id->ident->name;
+            struct ast_node *name_types = 0;
+            switch(kind){
+                case TaggedUnion:
+                case UntaggedUnion:
+                    name_types = _take(nodes, rule->action.item_index[2]);
+                    break;
+                case Enum:
+                    break;
+            }
+            ast = union_type_item_node_new(tag, name_types, tag_id ? tag_id->loc:name_types->loc);
+            node_free(tag_id);
             break;
+        }
         case UNION_NODE:
         case STRUCT_NODE: // new type definition, like struct in C
         {

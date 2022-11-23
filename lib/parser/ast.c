@@ -374,6 +374,27 @@ void _free_adt_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *union_type_item_node_new(symbol tag, struct ast_node *name_types, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(UNION_TYPE_ITEM_NODE, loc);
+    MALLOC(node->union_type_item_node, sizeof(*node->union_type_item_node));
+    node->union_type_item_node->tag = tag;
+    node->union_type_item_node->name_types=name_types;
+    return node;
+}
+
+struct ast_node *_copy_union_type_item_node(struct ast_node *orig_node)
+{
+    return union_type_item_node_new(orig_node->union_type_item_node->tag,
+        _copy_block_node(orig_node->union_type_item_node->name_types), orig_node->loc);
+}
+
+void _free_union_type_item_node(struct ast_node *node)
+{
+    node_free(node->union_type_item_node->name_types);
+    ast_node_free(node);
+}
+
 struct ast_node *struct_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(STRUCT_INIT_NODE, loc);
@@ -929,6 +950,10 @@ struct ast_node *node_copy(struct ast_node *node)
     case VAR_NODE:
         clone = _copy_var_node(node);
         break;
+    case UNION_TYPE_ITEM_NODE:
+        clone = _copy_union_type_item_node(node);
+        break;
+    case UNION_NODE:
     case STRUCT_NODE:
         clone = _copy_adt_node(node);
         break;
@@ -980,8 +1005,6 @@ struct ast_node *node_copy(struct ast_node *node)
     case CAST_NODE:
         clone = _copy_cast_node(node);
         break;
-    case UNION_NODE:
-    case UNION_TYPE_ITEM_NODE:
     case NULL_NODE:
     case UNIT_NODE:
     case MEMORY_NODE:
@@ -1019,6 +1042,10 @@ void node_free(struct ast_node *node)
     case VAR_NODE:
         _free_var_node(node);
         break;
+    case UNION_TYPE_ITEM_NODE:
+        _free_union_type_item_node(node);
+        break;
+    case UNION_NODE:
     case STRUCT_NODE:
         _free_adt_node(node);
         break;
@@ -1076,8 +1103,6 @@ void node_free(struct ast_node *node)
     case MEMBER_INDEX_NODE:
         _free_member_index_node(node);
         break;
-    case UNION_NODE:
-    case UNION_TYPE_ITEM_NODE:
     case UNIT_NODE:
     case TOTAL_NODE:
         ast_node_free(node);
