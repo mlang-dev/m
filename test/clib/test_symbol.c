@@ -39,5 +39,7 @@ int test_symbol()
     UNITY_BEGIN();
     RUN_TEST(test_symbol_equals_to_same_string_key);
     RUN_TEST(test_symbol_support_multiple_values_for_same_key);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

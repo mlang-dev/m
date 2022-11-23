@@ -214,5 +214,7 @@ int test_analyzer_errors()
     RUN_TEST(test_analyzer_error_id_not_assignable);
     RUN_TEST(test_analyzer_error_id_not_inc);
     RUN_TEST(test_analyzer_error_struct_member_immutable);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

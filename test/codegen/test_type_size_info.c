@@ -136,5 +136,7 @@ int test_type_size_info()
     RUN_TEST(test_type_size_info_struct_char_char);
     RUN_TEST(test_type_size_info_struct_bool_char);
     RUN_TEST(test_type_size_info_struct_char_int);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

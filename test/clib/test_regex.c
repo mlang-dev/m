@@ -129,5 +129,7 @@ int test_regex()
     RUN_TEST(test_regex_to_postfix_escaping_char);
     RUN_TEST(test_regex_int_num);
     RUN_TEST(test_regex_float_num);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

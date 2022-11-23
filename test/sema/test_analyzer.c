@@ -837,5 +837,7 @@ int test_analyzer()
     RUN_TEST(test_analyzer_struct_type_vars);
     RUN_TEST(test_analyzer_var_in_scope);
     RUN_TEST(test_analyzer_varadic_fun);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

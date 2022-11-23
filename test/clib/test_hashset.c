@@ -29,5 +29,7 @@ int test_hashset()
 {
     UNITY_BEGIN();
     RUN_TEST(test_hashset_add_and_check);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

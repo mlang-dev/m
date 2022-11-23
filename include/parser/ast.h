@@ -203,7 +203,8 @@ struct name_type{
 enum UnionKind {
     TaggedUnion = 0,
     UntaggedUnion = 1,
-    Enum = 2
+    EnumTagOnly = 2,
+    EnumTagValue = 3
 };
 
 /**
@@ -212,8 +213,13 @@ enum UnionKind {
  * 
  */
 struct union_type_item_node {
+    enum UnionKind kind;
     symbol tag;             
-    struct ast_node *name_types; //block 
+    /**
+     * @brief tag_value for tagged union is block_node, is type_node for untagged union, enum tag only is None, and enum tag value is int const value 
+     * 
+     */
+    struct ast_node *tag_value; 
 };
 
 struct ast_node {
@@ -304,7 +310,7 @@ struct ast_node *func_type_node_new(
     struct ast_node *ret_type_node, 
     bool is_variadic, bool is_external, struct source_location loc);
 struct ast_node *adt_node_new(enum node_type node_type, symbol name, struct ast_node *body, struct source_location loc);
-struct ast_node *union_type_item_node_new(symbol tag, struct ast_node * name_types, struct source_location loc);
+struct ast_node *union_type_item_node_new(enum UnionKind kind, symbol tag, struct ast_node * name_types, struct source_location loc);
 struct ast_node *struct_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc);
 struct ast_node *array_init_node_new(struct ast_node *comp, struct source_location loc);
 struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc);

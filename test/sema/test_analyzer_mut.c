@@ -117,5 +117,7 @@ int test_analyzer_mut()
     RUN_TEST(test_analyzer_mutable_type);
     RUN_TEST(test_analyzer_immutable_struct_member_type);
     RUN_TEST(test_analyzer_mutable_struct_member_type);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

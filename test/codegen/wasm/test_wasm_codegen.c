@@ -78,5 +78,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_emit_nested_for_loop);
     RUN_TEST(test_wasm_codegen_mutable_struct_member);
     RUN_TEST(test_wasm_codegen_print);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

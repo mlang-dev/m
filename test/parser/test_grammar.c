@@ -131,5 +131,7 @@ int test_grammar()
     RUN_TEST(test_grammar_num_token);
     RUN_TEST(test_grammar_arithmetic_exp);
     RUN_TEST(test_grammar_arithmetic_exp_using_charset);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

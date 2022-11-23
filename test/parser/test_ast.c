@@ -21,5 +21,7 @@ int test_ast()
 {
     UNITY_BEGIN();
     RUN_TEST(test_ast_node_type_names);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

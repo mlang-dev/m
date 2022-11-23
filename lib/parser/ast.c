@@ -374,24 +374,25 @@ void _free_adt_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *union_type_item_node_new(symbol tag, struct ast_node *name_types, struct source_location loc)
+struct ast_node *union_type_item_node_new(enum UnionKind kind, symbol tag, struct ast_node *tag_value, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(UNION_TYPE_ITEM_NODE, loc);
     MALLOC(node->union_type_item_node, sizeof(*node->union_type_item_node));
     node->union_type_item_node->tag = tag;
-    node->union_type_item_node->name_types=name_types;
+    node->union_type_item_node->tag_value=tag_value;
+    node->union_type_item_node->kind = kind;
     return node;
 }
 
 struct ast_node *_copy_union_type_item_node(struct ast_node *orig_node)
 {
-    return union_type_item_node_new(orig_node->union_type_item_node->tag,
-        _copy_block_node(orig_node->union_type_item_node->name_types), orig_node->loc);
+    return union_type_item_node_new(orig_node->union_type_item_node->kind, orig_node->union_type_item_node->tag,
+        _copy_block_node(orig_node->union_type_item_node->tag_value), orig_node->loc);
 }
 
 void _free_union_type_item_node(struct ast_node *node)
 {
-    node_free(node->union_type_item_node->name_types);
+    node_free(node->union_type_item_node->tag_value);
     ast_node_free(node);
 }
 

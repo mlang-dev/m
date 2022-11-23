@@ -1,4 +1,4 @@
-#include "codegen/wasm/cg_wasm.h"
+#include "test.h"
 #include <stdio.h>
 
 #ifdef WASM
@@ -8,6 +8,8 @@
 #define ENTRY main
 #define EXPORT
 #endif
+
+struct test_stats test_stats = { 0, 0 };
 
 int test_array();
 int test_byte_array();
@@ -74,7 +76,7 @@ EXPORT int ENTRY()
   failures += test_type_size_info();
   failures += test_wasm_codegen();
   if (!failures)
-    printf("Unit tests passed !\n");
+    printf("%d/%d Unit tests passed !\n", test_stats.total_tests - test_stats.total_failures, test_stats.total_tests);
   else
     printf("Unit tests failures: %d\n", failures);
   return failures;

@@ -241,5 +241,7 @@ int test_parser_expr()
     RUN_TEST(test_parser_expr_ge);
     RUN_TEST(test_parser_expr_eq);
     RUN_TEST(test_parser_expr_neq);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

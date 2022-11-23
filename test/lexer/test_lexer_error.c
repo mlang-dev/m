@@ -100,5 +100,7 @@ int test_lexer_error()
     RUN_TEST(test_lexer_char_error_missing_end_quote);
     RUN_TEST(test_lexer_char_error_multichar_end_quote);
     RUN_TEST(test_lexer_indent_level_error);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

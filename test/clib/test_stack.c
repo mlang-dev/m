@@ -30,5 +30,7 @@ int test_stack()
 {
     UNITY_BEGIN();
     RUN_TEST(test_stack_push_and_pop);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

@@ -372,5 +372,7 @@ int test_m_lexer()
     RUN_TEST(test_m_lexer_string_literal_with_newline);
     RUN_TEST(test_m_lexer_string_multi);
     RUN_TEST(test_m_lexer_string_with_id);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

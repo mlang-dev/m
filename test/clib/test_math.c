@@ -20,5 +20,7 @@ int test_math()
 {
     UNITY_BEGIN();
     RUN_TEST(test_math_pow);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

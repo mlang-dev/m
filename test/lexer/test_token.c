@@ -25,5 +25,7 @@ int test_token()
 {
     UNITY_BEGIN();
     RUN_TEST(test_token_patterns);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }

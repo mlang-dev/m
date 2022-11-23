@@ -22,5 +22,7 @@ int test_byte_array()
 {
     UNITY_BEGIN();
     RUN_TEST(test_byte_array_init);
+    test_stats.total_failures += Unity.TestFailures;
+    test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
 }
