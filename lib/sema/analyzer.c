@@ -204,18 +204,18 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
 {
     struct array args;
     array_init(&args, sizeof(struct type_expr *));
-    analyze(context, node->struct_type->body);
-    for (size_t i = 0; i < array_size(&node->struct_type->body->block->nodes); i++) {
+    analyze(context, node->adt_type->body);
+    for (size_t i = 0; i < array_size(&node->adt_type->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
-        struct ast_node *field_node = *(struct ast_node **)array_get(&node->struct_type->body->block->nodes, i);
+        struct ast_node *field_node = *(struct ast_node **)array_get(&node->adt_type->body->block->nodes, i);
         array_push(&args, &field_node->type);
     }
-    symbol struct_name = node->struct_type->name;
+    symbol struct_name = node->adt_type->name;
     struct type_expr *result_type = create_type_oper_struct(struct_name, Immutable, &args);
-    assert(node->struct_type->name == result_type->name);
+    assert(node->adt_type->name == result_type->name);
     struct type_expr_pair * tep = get_type_expr_pair(struct_name);
     push_symbol_type(&context->typename_2_typexpr_pairs, struct_name, tep);
-    hashtable_set_p(&context->struct_typename_2_asts, node->struct_type->name, node);
+    hashtable_set_p(&context->struct_typename_2_asts, node->adt_type->name, node);
     return result_type;
 }
 
@@ -448,16 +448,16 @@ struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, s
         report_error(context, EC_EXPECT_STRUCT_TYPE, node->loc);
         return 0;
     }
-    struct type_expr *struct_type = type->val_type ? type->val_type : type;
-    struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, struct_type->name);
+    struct type_expr *adt_type = type->val_type ? type->val_type : type;
+    struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, adt_type->name);
     int index = find_member_index(type_node, node->index->index->ident->name);
     if (index < 0) {
         report_error(context, EC_FIELD_NOT_EXISTS, node->loc);
         return 0;
     }
-    struct type_expr *member_type = *(struct type_expr **)array_get(&struct_type->args, index);
+    struct type_expr *member_type = *(struct type_expr **)array_get(&adt_type->args, index);
     node->index->index->type = member_type;
-    node->index->index->ident->var = *(struct ast_node **)array_get(&type_node->struct_type->body->block->nodes, index);    
+    node->index->index->ident->var = *(struct ast_node **)array_get(&type_node->adt_type->body->block->nodes, index);    
     return member_type;
 }
 

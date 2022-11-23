@@ -406,7 +406,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             if(struct_body->node_type != BLOCK_NODE){
                 struct_body = _wrap_as_block_node(struct_body);
             }
-            ast = struct_node_new(struct_name->ident->name, struct_body, struct_name->loc);
+            ast = adt_node_new(rule->action.node_type, struct_name->ident->name, struct_body, struct_name->loc);
             hashtable_set_int(symbol_2_int_types, struct_name->ident->name, TYPE_STRUCT);
             node_free(struct_name);
             break;

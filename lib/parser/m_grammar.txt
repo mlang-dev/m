@@ -148,8 +148,11 @@ block           = NEWLINE INDENT statements DEDENT                              
 statements      = statements statement                                                      { block 0 1 }
                 | statement                                                                 { block 0 }                                                     
 
-type_def            = "struct" IDENT '=' statement                                          { struct_type 1 3 }
+type_def            = "struct" IDENT '=' struct_type                                        { struct_type 1 3 }
                     | "union" IDENT '=' union_type                                          { union_type 1 3 }
+
+struct_type         = var_decls
+                    | NEWLINE INDENT var_decls DEDENT                                       { 2 }
 
 union_type          = union_items                  
                     | union_type_block

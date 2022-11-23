@@ -17,7 +17,9 @@ let main () = print "hello world !\n"
 // comment line: defines a one-line function
 let avg x y = (x + y) / 2
 
-// defines a distance function
+/*
+ * block comments: define a multiline function
+ */
 let distance x1 y1 x2 y2 = 
   xx = (x1-x2) ** 2.0
   yy = (y1-y2) ** 2.0
