@@ -25,6 +25,13 @@ struct A = x:int, y:f64
 a = A { 10, 20.0 }
 a.y`, 20.0);
 
+mtest.mtest('union with different types', `
+use keyword "union" to define a union type`,
+`
+union A = x:int | y:int
+a = A { 10 }
+a.y`, 10);
+
 mtest.mtest('access field no var', 
 `access struct initializer's field without using a variable`,
 `

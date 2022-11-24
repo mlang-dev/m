@@ -1133,16 +1133,26 @@ struct module *module_new(const char *mod_name, FILE *file)
     return mod;
 }
 
-int find_member_index(struct ast_node *type_node, symbol member)
+int find_member_index(struct ast_node *adt_node, symbol member)
 {
-    for (int i = 0; i < (int)array_size(&type_node->adt_type->body->block->nodes); i++) {
-        struct ast_node *var = *(struct ast_node **)array_get(&type_node->adt_type->body->block->nodes, i);
-        if (var->var->var->ident->name == member) {
-            return i;
+    if(adt_node->node_type == STRUCT_NODE){
+        for (int i = 0; i < (int)array_size(&adt_node->adt_type->body->block->nodes); i++) {
+            struct ast_node *var = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, i);
+            if (var->var->var->ident->name == member) {
+                return i;
+            }
+        }
+    } else if (adt_node->node_type == UNION_NODE){
+        for (int i = 0; i < (int)array_size(&adt_node->adt_type->body->block->nodes); i++) {
+            struct ast_node *item = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, i);
+            if (item->union_type_item_node->tag == member) {
+                return i;
+            }
         }
     }
     return -1;
 }
+
 
 struct ast_node *block_node_new_empty()
 {

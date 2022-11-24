@@ -292,7 +292,7 @@ struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_n
 
 struct type_expr *_analyze_type_node(struct sema_context *context, struct ast_node *node)
 {
-    return 0;
+    return create_type_from_type_node(context, node->type_node, Immutable);
 }
 
 struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_node *node)
@@ -464,20 +464,20 @@ struct type_expr *_analyze_cast(struct sema_context *context, struct ast_node *n
 struct type_expr *_analyze_struct_field_accessor(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = analyze(context, node->index->object);
-    if(type->type != TYPE_STRUCT && !(type->type == TYPE_REF && type->val_type->type == TYPE_STRUCT)){
+    if(!is_adt(type) && !(type->type == TYPE_REF && is_adt(type->val_type))){
         report_error(context, EC_EXPECT_STRUCT_TYPE, node->loc);
         return 0;
     }
     struct type_expr *adt_type = type->val_type ? type->val_type : type;
-    struct ast_node *type_node = hashtable_get_p(&context->struct_typename_2_asts, adt_type->name);
-    int index = find_member_index(type_node, node->index->index->ident->name);
+    struct ast_node *adt_node = hashtable_get_p(&context->struct_typename_2_asts, adt_type->name);
+    int index = find_member_index(adt_node, node->index->index->ident->name);
     if (index < 0) {
         report_error(context, EC_FIELD_NOT_EXISTS, node->loc);
         return 0;
     }
     struct type_expr *member_type = *(struct type_expr **)array_get(&adt_type->args, index);
     node->index->index->type = member_type;
-    node->index->index->ident->var = *(struct ast_node **)array_get(&type_node->adt_type->body->block->nodes, index);    
+    node->index->index->ident->var = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, index);    
     return member_type;
 }
 
@@ -691,11 +691,11 @@ struct type_expr *_analyze_union_type_item_node(struct sema_context *context, st
             hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
             break;
         }
-        case EnumTagValue:
-        case EnumTagOnly:
+        case UntaggedUnion:
             type = analyze(context, node->union_type_item_node->tag_value);
             break;
-        case UntaggedUnion:
+        case EnumTagValue:
+        case EnumTagOnly:
             type = create_nullary_type(TYPE_INT);
             break;
     }

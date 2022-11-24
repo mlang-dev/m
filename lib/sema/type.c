@@ -602,7 +602,7 @@ string to_string(struct type_expr *type)
         if (array_size(&type->args) == 0) { /* nullary operator, e.g. builtin types: int, f64*/
             string_add(&typestr, type->name);
             return typestr;
-        } else if (type->type == TYPE_STRUCT) {
+        } else if (is_adt(type)) {
             string_copy(&typestr, type->name);
             return typestr;
         } else {
