@@ -36,7 +36,7 @@ j = &i
 
 mtest.mtest('struct type reference', 'struct type reference',
 `
-z = cf64(10.0, 20.0)
+z = cf64{10.0, 20.0}
 j = &z
 j.im
 `, 20);
@@ -46,7 +46,7 @@ mtest.mtest('pass struct by ref', `pass struct data to function by reference`,
 struct Point = var x:f64, y:f64
 let update xy:&Point =
     xy.x = 10.0
-z = &Point(100.0, 200.0)
+z = &Point{100.0, 200.0}
 update z
 z.x
 `, 10.0, true);

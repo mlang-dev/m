@@ -479,7 +479,7 @@ TEST(testJIT, testProductType)
 {
     char test_code[] = R"(
 struct Point2D = x:f64, y:f64
-xy:Point2D = Point2D(10.0, 20.0)
+xy:Point2D = Point2D { 10.0, 20.0 }
 xy.x
 xy.y
 )";
@@ -506,7 +506,7 @@ TEST(testJIT, testProductTypeIntType)
 {
     char test_code[] = R"(
 struct Point2D = x:int, y:int
-xy:Point2D = Point2D(10, 20)
+xy:Point2D = Point2D { 10, 20 }
 xy.x
 xy.y
 )";
@@ -533,7 +533,7 @@ TEST(testJIT, testProductTypeMixedType)
 {
     char test_code[] = R"(
 struct Point2D = x:f64, y:int
-xy:Point2D = Point2D(10.0, 20)
+xy:Point2D = Point2D { 10.0, 20 }
 xy.x
 xy.y
 )";
@@ -561,7 +561,7 @@ TEST(testJIT, testProductTypeMixedTypeLocalVariable)
     char test_code[] = R"(
 struct Point2D = x:f64, y:int
 let getx()=
-    xy:Point2D = Point2D(10.0, 20)
+    xy:Point2D = Point2D { 10.0, 20 }
     xy.x
 getx()
 )";

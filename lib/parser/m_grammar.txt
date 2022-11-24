@@ -184,7 +184,8 @@ type_list       = type_list ',' typed_item                                      
 typed_item      = IDENT ':' type_expr
                 | type_expr
 
-adt_initializer     = IDENT '(' exprs ')'                                                       { adt_initializer 0 2 }
+adt_initializer = IDENT '{' exprs '}'                                                       { adt_initializer 0 2 }
+                | '{' exprs '}'                                                             { adt_initializer 1 }
 
 func_type       = "fun" IDENT param_decls "->" type_expr                                    { func_type 1 4 2 }
 

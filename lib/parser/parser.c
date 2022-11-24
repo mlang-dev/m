@@ -430,14 +430,19 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }
         case ADT_INIT_NODE: 
         {
-            assert(rule->action.item_index_count == 2);
-            struct ast_node *struct_name = _take(nodes, rule->action.item_index[0]);
-            assert(struct_name->node_type == IDENT_NODE);
-            struct ast_node *init_body = _take(nodes, rule->action.item_index[1]);
-            assert(init_body->node_type == BLOCK_NODE);
-            struct ast_node *type_node = type_node_new_with_type_name(struct_name->ident->name, Immutable, struct_name->loc);
-            ast = adt_init_node_new(init_body, type_node, struct_name->loc);
-            node_free(struct_name);
+            struct ast_node *adt_name = 0;
+            struct ast_node *init_body;
+            if(rule->action.item_index_count == 2){
+                adt_name = _take(nodes, rule->action.item_index[0]);
+                init_body = _take(nodes, rule->action.item_index[1]);
+            } else if (rule->action.item_index_count == 1){
+                init_body = _take(nodes, rule->action.item_index[0]);
+            } else {
+                assert(false);
+            }
+            struct ast_node *type_node = type_node_new_with_type_name(adt_name? adt_name->ident->name : 0, Immutable, adt_name->loc);
+            ast = adt_init_node_new(init_body, type_node, adt_name ? adt_name->loc : init_body->loc);
+            if(adt_name) node_free(adt_name);
             break;
         }
         case ARRAY_INIT_NODE:

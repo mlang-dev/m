@@ -79,7 +79,7 @@ TEST_F(testCGVar, testGlobalVarStructInitializer)
 {
     const char test_code[] = R"(
 struct Point2D = x:int, y:int
-point:Point2D = Point2D(10, 20)
+point:Point2D = Point2D { 10, 20 }
 )";
     const char *expected_ir = R"(
 %Point2D = type { i32, i32 }

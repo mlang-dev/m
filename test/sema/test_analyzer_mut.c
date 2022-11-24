@@ -54,7 +54,7 @@ TEST(test_analyzer, immutable_struct_member_type)
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
 struct Point = x:int, y:int\n\
-xy = Point(10, 20)\n\
+xy = Point { 10, 20 }\n\
 xy.x\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -75,7 +75,7 @@ TEST(test_analyzer, mutable_struct_member_type)
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
 struct Point = var x:int, y:int\n\
-xy = Point(10, 20)\n\
+xy = Point { 10, 20 }\n\
 xy.x\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
