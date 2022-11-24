@@ -428,7 +428,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node_free(struct_name);
             break;
         }
-        case STRUCT_INIT_NODE: 
+        case ADT_INIT_NODE: 
         {
             assert(rule->action.item_index_count == 2);
             struct ast_node *struct_name = _take(nodes, rule->action.item_index[0]);
@@ -436,7 +436,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             struct ast_node *init_body = _take(nodes, rule->action.item_index[1]);
             assert(init_body->node_type == BLOCK_NODE);
             struct ast_node *type_node = type_node_new_with_type_name(struct_name->ident->name, Immutable, struct_name->loc);
-            ast = struct_init_node_new(init_body, type_node, struct_name->loc);
+            ast = adt_init_node_new(init_body, type_node, struct_name->loc);
             node_free(struct_name);
             break;
         }

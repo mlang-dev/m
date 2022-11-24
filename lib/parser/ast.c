@@ -396,25 +396,25 @@ void _free_union_type_item_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *struct_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc)
+struct ast_node *adt_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(STRUCT_INIT_NODE, loc);
-    MALLOC(node->struct_init, sizeof(*node->struct_init));
-    node->struct_init->body = body;
-    node->struct_init->is_of_type = type_node;
+    struct ast_node *node = ast_node_new(ADT_INIT_NODE, loc);
+    MALLOC(node->adt_init, sizeof(*node->adt_init));
+    node->adt_init->body = body;
+    node->adt_init->is_of_type = type_node;
     return node;
 }
 
-struct ast_node *_copy_struct_init_node(struct ast_node *orig_node)
+struct ast_node *_copy_adt_init_node(struct ast_node *orig_node)
 {
-    return struct_init_node_new(
-        _copy_block_node(orig_node->struct_init->body), orig_node->struct_init->is_of_type, orig_node->loc);
+    return adt_init_node_new(
+        _copy_block_node(orig_node->adt_init->body), orig_node->adt_init->is_of_type, orig_node->loc);
 }
 
-void _free_struct_init_node(struct ast_node *node)
+void _free_adt_init_node(struct ast_node *node)
 {
-    _free_block_node(node->struct_init->body);
-    node_free(node->struct_init->is_of_type);
+    _free_block_node(node->adt_init->body);
+    node_free(node->adt_init->is_of_type);
     ast_node_free(node);
 }
 
@@ -958,8 +958,8 @@ struct ast_node *node_copy(struct ast_node *node)
     case STRUCT_NODE:
         clone = _copy_adt_node(node);
         break;
-    case STRUCT_INIT_NODE:
-        clone = _copy_struct_init_node(node);
+    case ADT_INIT_NODE:
+        clone = _copy_adt_init_node(node);
         break;
     case IDENT_NODE:
         clone = _copy_ident_node(node);
@@ -1050,8 +1050,8 @@ void node_free(struct ast_node *node)
     case STRUCT_NODE:
         _free_adt_node(node);
         break;
-    case STRUCT_INIT_NODE:
-        _free_struct_init_node(node);
+    case ADT_INIT_NODE:
+        _free_adt_init_node(node);
         break;
     case IDENT_NODE:
         _free_ident_node(node);

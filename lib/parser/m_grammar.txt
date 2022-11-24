@@ -32,7 +32,7 @@ primary_expr    = INT
 
 postfix_expr    = primary_expr
                 | postfix_expr '[' expr ']'                                                 { indexing 0 0 2 } //first zero indicates left is array
-                | struct_init                                                           
+                | adt_initializer                                                           
                 | postfix_expr '.' IDENT                                                    { indexing 1 0 2 } // first one indicates left is struct
                 | func_call
                 | postfix_expr "++"                                                         { unop 1 0 } // the disorder of operator and operand indicates a postfix op
@@ -184,7 +184,7 @@ type_list       = type_list ',' typed_item                                      
 typed_item      = IDENT ':' type_expr
                 | type_expr
 
-struct_init     = IDENT '(' exprs ')'                                                       { struct_init 0 2 }
+adt_initializer     = IDENT '(' exprs ')'                                                       { adt_initializer 0 2 }
 
 func_type       = "fun" IDENT param_decls "->" type_expr                                    { func_type 1 4 2 }
 

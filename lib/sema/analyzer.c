@@ -200,7 +200,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     return var_type;
 }
 
-struct type_expr *_analyze_struct_like(struct sema_context *context, symbol name, struct ast_node *body)
+struct type_expr *_analyze_adt(struct sema_context *context, enum ADTKind kind, symbol name, struct ast_node *body)
 {
     assert(body->node_type == BLOCK_NODE);
     struct array args;
@@ -211,7 +211,11 @@ struct type_expr *_analyze_struct_like(struct sema_context *context, symbol name
         struct ast_node *field_node = *(struct ast_node **)array_get(&body->block->nodes, i);
         array_push(&args, &field_node->type);
     }
-    struct type_expr *result_type = create_type_oper_struct(name, Immutable, &args);
+    struct type_expr *result_type;
+    if(kind == Product)
+        result_type = create_type_oper_struct(name, Immutable, &args);
+    else 
+        result_type = create_type_oper_union(name, Immutable, &args);
     //assert(node->adt_type->name == result_type->name);
     struct type_expr_pair * tep = get_type_expr_pair(name);
     push_symbol_type(&context->typename_2_typexpr_pairs, name, tep);
@@ -220,21 +224,26 @@ struct type_expr *_analyze_struct_like(struct sema_context *context, symbol name
 
 struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = _analyze_struct_like(context, node->adt_type->name, node->adt_type->body);
-    if(node->node_type == UNION_NODE)
-        type->type = TYPE_UNION;
+    struct type_expr *type = _analyze_adt(context, Product, node->adt_type->name, node->adt_type->body);
     hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
     return type;
 }
 
-struct type_expr *_analyze_struct_init(struct sema_context *context, struct ast_node *node)
+struct type_expr *_analyze_union(struct sema_context *context, struct ast_node *node)
 {
-    if (node->struct_init->is_of_type){
-        node->type = create_type_from_type_node(context, node->struct_init->is_of_type->type_node, Immutable);
+    struct type_expr *type = _analyze_adt(context, Sum, node->adt_type->name, node->adt_type->body);
+    hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
+    return type;
+}
+
+struct type_expr *_analyze_adt_init(struct sema_context *context, struct ast_node *node)
+{
+    if (node->adt_init->is_of_type){
+        node->type = create_type_from_type_node(context, node->adt_init->is_of_type->type_node, Immutable);
     }
-    for (size_t i = 0; i < array_size(&node->struct_init->body->block->nodes); i++) {
+    for (size_t i = 0; i < array_size(&node->adt_init->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
-        analyze(context, *(struct ast_node **)array_get(&node->struct_init->body->block->nodes, i));
+        analyze(context, *(struct ast_node **)array_get(&node->adt_init->body->block->nodes, i));
     }
     return node->type;
 }
@@ -675,7 +684,7 @@ struct type_expr *_analyze_union_type_item_node(struct sema_context *context, st
     switch(node->union_type_item_node->kind){
         case TaggedUnion:{
             /*name types*/
-            type = _analyze_struct_like(context, node->union_type_item_node->tag, node->union_type_item_node->tag_value);
+            type = _analyze_adt(context, Sum, node->union_type_item_node->tag, node->union_type_item_node->tag_value);
             hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
             break;
         }
@@ -737,11 +746,13 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_var(context, node);
             break;
         case UNION_NODE:
+            type = _analyze_union(context, node);
+            break;
         case STRUCT_NODE:
             type = _analyze_struct(context, node);
             break;
-        case STRUCT_INIT_NODE:
-            type = _analyze_struct_init(context, node);
+        case ADT_INIT_NODE:
+            type = _analyze_adt_init(context, node);
             break;
         case UNARY_NODE:
             type = _analyze_unary(context, node);
