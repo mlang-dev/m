@@ -170,8 +170,11 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
             !node->var->init_value){
             push_symbol_type(&context->decl_2_typexprs, var_name, var_type);
             push_symbol_type(&context->varname_2_asts, var_name, node);
-            if (node->var->init_value)
-                analyze(context, node->var->init_value);
+            if (node->var->init_value){
+                if(!analyze(context, node->var->init_value)){
+                    node->var->init_value->type = var_type;
+                }
+            }
             return var_type;
         }
     }

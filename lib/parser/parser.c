@@ -440,7 +440,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             } else {
                 assert(false);
             }
-            struct ast_node *type_node = type_node_new_with_type_name(adt_name? adt_name->ident->name : 0, Immutable, adt_name->loc);
+            struct ast_node *type_node = 0; 
+            if(adt_name) type_node = type_node_new_with_type_name(adt_name->ident->name, Immutable, adt_name->loc);
             ast = adt_init_node_new(init_body, type_node, adt_name ? adt_name->loc : init_body->loc);
             if(adt_name) node_free(adt_name);
             break;
