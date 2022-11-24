@@ -37,6 +37,7 @@ int test_grammar();
 int test_analyzer();
 int test_analyzer_mut();
 int test_analyzer_errors();
+int test_analyzer_struct();
 int test_analyzer_union();
 int test_type_size_info();
 int test_wasm_codegen();
@@ -72,6 +73,7 @@ EXPORT int ENTRY()
   failures += test_parser_error();
   failures += test_grammar();
   failures += test_analyzer();
+  failures += test_analyzer_struct();
   failures += test_analyzer_union();
   failures += test_analyzer_mut();
   failures += test_analyzer_errors();
