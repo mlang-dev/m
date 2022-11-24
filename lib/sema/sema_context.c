@@ -168,7 +168,7 @@ struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_ex
 {
     if(aggr_type->type == TYPE_ARRAY)
         return _sc_array_get_offset_expr(sc, aggr_type, field_node);
-    else if(aggr_type->type == TYPE_STRUCT)
+    else if(aggr_type->type == TYPE_STRUCT || aggr_type->type == TYPE_UNION)
         return _sc_struct_get_offset_expr(sc, aggr_type, field_node);
     assert(false);
 }
@@ -208,6 +208,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
             assert(false);
             break;
         case TYPE_STRUCT:
+        case TYPE_UNION:
         case TYPE_ARRAY:
             offset_expr = sc_aggr_get_offset_expr(sc, aggr_type, field_node);
             break;

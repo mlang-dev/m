@@ -61,6 +61,18 @@ new_z = change old_z\n\
     free(wasm);
 }
 
+TEST(test_wasm_codegen, union_member)
+{
+    char test_code[] = "\n\
+union A = x:int | y:int\n\
+a = A { 10 }\n\
+a.y\n\
+";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 TEST(test_wasm_codegen, print)
 {
     char test_code[] = "\n\
@@ -77,6 +89,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_emit_generic_fun);
     RUN_TEST(test_wasm_codegen_emit_nested_for_loop);
     RUN_TEST(test_wasm_codegen_mutable_struct_member);
+    RUN_TEST(test_wasm_codegen_union_member);
     RUN_TEST(test_wasm_codegen_print);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
