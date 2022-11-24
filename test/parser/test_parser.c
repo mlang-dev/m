@@ -494,7 +494,7 @@ TEST(test_parser, type_var_init)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
-xy = Point2D(10.0, 20.0)";
+xy = Point2D{10.0, 20.0}";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -530,7 +530,7 @@ TEST(test_parser, func_returns_struct_init)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
-let get_point() = Point2D(10.0, 20.0)";
+let get_point() = Point2D{10.0, 20.0}";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -569,7 +569,7 @@ TEST(test_parser, use_type_field)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
-xy:Point2D = Point2D(0.0, 0.0) \n\
+xy:Point2D = Point2D{0.0, 0.0} \n\
 xy.x";
     struct frontend *fe = frontend_init();
     
@@ -597,7 +597,7 @@ TEST(test_parser, member_field_assignment)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
-xy:Point2D = Point2D(0.0, 0.0) \n\
+xy:Point2D = Point2D{0.0, 0.0} \n\
 xy.x = 10.0";
     struct frontend *fe = frontend_init();
     

@@ -14,7 +14,7 @@ struct Point2D = var x:f64, y:f64
 let change z:Point2D = 
     z.x = z.x * 2.0
     z
-old_z = cf64(10.0, 20.0)
+old_z = cf64{10.0, 20.0}
 new_z = change old_z
 new_z.x
 `, 20.0);
@@ -33,7 +33,7 @@ let print_density:() d:int =
     putchar '*'
       
 let sum_sq z:cf64 = z.re ** 2.0 + z.im ** 2.0
-let ms z:cf64 c:cf64 = cf64(z.re ** 2.0 - z.im ** 2.0 + c.re, 2.0 * z.re * z.im + c.im)
+let ms z:cf64 c:cf64 = cf64{z.re ** 2.0 - z.im ** 2.0 + c.re, 2.0 * z.re * z.im + c.im}
 let converger z:cf64 iters:int c:cf64 = 
   if iters > 255 || (sum_sq z) > 4.0 then
     iters
@@ -43,8 +43,8 @@ let converge z:cf64 = converger z 0 z
 let print_ms start:cf64 step:cf64 =
   for y in start.im..step.im..start.im + step.im * 80.0
     for x in start.re..step.re..start.re + step.re * 78.0
-       print_density (converge (cf64(x, y)))
+       print_density (converge (cf64{x, y}))
     putchar '\n'
-print_ms (cf64(-2.3, -1.3)) (cf64(0.05, 0.07))
-(ms (cf64(10.0, 20.0)) (cf64(10.0, 20.0))).im
+print_ms (cf64{-2.3, -1.3}) (cf64{0.05, 0.07})
+(ms (cf64{10.0, 20.0}) (cf64{10.0, 20.0})).im
 `, 400.0 + 20.0, false);

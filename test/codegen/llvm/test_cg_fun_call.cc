@@ -70,7 +70,7 @@ TEST(testCGFunCall, testReturnStructDirect)
     const char test_code[] = R"(
 struct Point2D = x:int, y:int
 let f () = 
-   xy:Point2D = Point2D(10, 20)
+   xy:Point2D = Point2D { 10, 20 }
    xy
 let main() = 
    xy = f()
@@ -109,7 +109,7 @@ TEST(testCGFunCall, testReturnStructDirectWithoutName)
 {
     const char test_code[] = R"(
 struct Point2D = x:int, y:int
-let f() = Point2D(10, 20)
+let f() = Point2D { 10, 20 }
    
 let main() = 
    xy = f()

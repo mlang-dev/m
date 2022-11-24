@@ -87,7 +87,7 @@ sq 10.0
 mtest.mtest_string('struct type', `You can define struct aggregate type like in C. They behavior the same except more succinct in m.`,
 `
 struct Point2D = x:f64, y:f64
-p = Point2D(10.0, 20.0)
+p = Point2D { 10.0, 20.0 }
 print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)
 `, "p.x: 10.0, p.y: 20.0");
 
@@ -98,7 +98,7 @@ struct Point2D = var x:f64, y:f64
 let change z:Point2D = 
     z.x = z.x * 10.0
     z
-old_z = Point2D(10.0, 20.0)
+old_z = Point2D { 10.0, 20.0 }
 new_z = change old_z
 new_z.x
 //print "old_z.x: %.2f, new_z.x: %.2f" (old_z.x) (new_z.x)
