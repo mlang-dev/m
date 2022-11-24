@@ -757,7 +757,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case STRUCT_NODE:
             value = _emit_struct_node(cg, node);
             break;
-        case STRUCT_INIT_NODE:
+        case ADT_INIT_NODE:
             value = emit_struct_init_node(cg, node, false, "tmp");
             break;
         case UNARY_NODE:

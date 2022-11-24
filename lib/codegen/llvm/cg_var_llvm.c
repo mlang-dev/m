@@ -19,8 +19,8 @@
 
 void _store_struct_member_values(struct cg_llvm *cg, LLVMValueRef alloca, struct ast_node *values)
 {
-    for (size_t i = 0; i < array_size(&values->struct_init->body->block->nodes); i++) {
-        struct ast_node *arg = *(struct ast_node **)array_get(&values->struct_init->body->block->nodes, i);
+    for (size_t i = 0; i < array_size(&values->adt_init->body->block->nodes); i++) {
+        struct ast_node *arg = *(struct ast_node **)array_get(&values->adt_init->body->block->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
         LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, (unsigned)i, "");
         LLVMBuildStore(cg->builder, exp, member);
@@ -56,7 +56,7 @@ LLVMValueRef _emit_local_var_type_node(struct cg_llvm *cg, struct ast_node *node
     symbol var_name = node->var->var->ident->name;
     LLVMValueRef alloca = 0;
 
-    if (node->var->init_value->node_type == STRUCT_INIT_NODE) {
+    if (node->var->init_value->node_type == ADT_INIT_NODE) {
         assert(node->type->name == node->var->init_value->type->name);
         alloca = emit_struct_init_node(cg, node->var->init_value, node->is_ret, string_get(var_name));
     } else {
@@ -93,11 +93,11 @@ LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
 
 LLVMValueRef _get_const_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, struct ast_node *struct_values)
 {
-    size_t element_count = array_size(&struct_values->struct_init->body->block->nodes);
+    size_t element_count = array_size(&struct_values->adt_init->body->block->nodes);
     LLVMValueRef *values;
     MALLOC(values, element_count * sizeof(LLVMValueRef));
     for (size_t i = 0; i < element_count; i++) {
-        struct ast_node *arg = *(struct ast_node **)array_get(&struct_values->struct_init->body->block->nodes, i);
+        struct ast_node *arg = *(struct ast_node **)array_get(&struct_values->adt_init->body->block->nodes, i);
         values[i] = emit_ir_code(cg, arg);
     }
     LLVMValueRef value = LLVMConstNamedStruct(type, values, (unsigned int)element_count);
@@ -152,8 +152,8 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
     //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
     struct ast_node *values = node->var->init_value;
     char tempname[64];
-    for (size_t i = 0; i < array_size(&values->struct_init->body->block->nodes); i++) {
-        struct ast_node *arg = *(struct ast_node **)array_get(&values->struct_init->body->block->nodes, i);
+    for (size_t i = 0; i < array_size(&values->adt_init->body->block->nodes); i++) {
+        struct ast_node *arg = *(struct ast_node **)array_get(&values->adt_init->body->block->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
         sprintf_s(tempname, sizeof(tempname), "temp%zu", i);
         LLVMValueRef member = LLVMBuildStructGEP(cg->builder, gVar, (unsigned int)i, tempname);

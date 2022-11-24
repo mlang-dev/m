@@ -116,7 +116,7 @@ struct adt_node {
 };
 
 /*struct initializer node*/
-struct _struct_init_node { 
+struct _adt_init_node { 
     struct ast_node *is_of_type;
     struct ast_node *body; /*body block*/
 };
@@ -252,7 +252,7 @@ struct ast_node {
         
         struct adt_node *adt_type; 
         struct union_type_item_node * union_type_item_node;
-        struct _struct_init_node *struct_init;
+        struct _adt_init_node *adt_init;
         struct ast_node *array_init;
         struct array_type_node *array_type;
         struct type_node *type_node;
@@ -307,7 +307,7 @@ struct ast_node *func_type_node_new(
     bool is_variadic, bool is_external, struct source_location loc);
 struct ast_node *adt_node_new(enum node_type node_type, symbol name, struct ast_node *body, struct source_location loc);
 struct ast_node *union_type_item_node_new(enum UnionKind kind, symbol tag, struct ast_node * name_types, struct source_location loc);
-struct ast_node *struct_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc);
+struct ast_node *adt_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc);
 struct ast_node *array_init_node_new(struct ast_node *comp, struct source_location loc);
 struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc);
 struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc);

@@ -963,8 +963,8 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case JUMP_NODE:
             _emit_jump(cg, ba, node);
             break;
-        case STRUCT_INIT_NODE:
-            wasm_emit_struct_init(cg, ba, node);
+        case ADT_INIT_NODE:
+            wasm_emit_adt_init(cg, ba, node);
             break;
         case ARRAY_INIT_NODE:
             wasm_emit_array_init(cg, ba, node);

@@ -400,7 +400,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
 void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_var_change(struct cg_wasm *cg, struct byte_array *ba, u32 var_index, bool is_global, u8 op, u32 elm_size, struct ast_node* offset_index);
 void wasm_emit_array_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
-void wasm_emit_struct_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
+void wasm_emit_adt_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_store_scalar_value_at(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node);
 void wasm_emit_store_scalar_value(struct cg_wasm *cg, struct byte_array *ba, u32 align, u32 offset, struct ast_node *node);
 void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct struct_layout *sl, struct ast_node *block);
