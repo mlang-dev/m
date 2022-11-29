@@ -43,6 +43,8 @@ extern "C" {
     ENUM_ITEM(ASSIGN_NODE)          \
     ENUM_ITEM(MEMBER_INDEX_NODE)    \
     ENUM_ITEM(IF_NODE)              \
+    ENUM_ITEM(MATCH_NODE)           \
+    ENUM_ITEM(MATCH_ITEM_NODE)      \
     ENUM_ITEM(FOR_NODE)             \
     ENUM_ITEM(WHILE_NODE)           \
     ENUM_ITEM(JUMP_NODE)            \

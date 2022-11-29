@@ -203,12 +203,37 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     return var_type;
 }
 
+void fill_union_tag_values(struct sema_context *context, struct ast_node *body)
+{
+    int next_tag_value = 0;
+    for (size_t i = 0; i < array_size(&body->block->nodes); i++) {
+        struct ast_node *field_node = *(struct ast_node **)array_get(&body->block->nodes, i);
+        switch (field_node->union_type_item_node->kind)
+        {
+        case UntaggedUnion:
+            field_node->union_type_item_node->tag_repr = 0;
+            break;
+        case TaggedUnion:
+        case EnumTagOnly:
+            field_node->union_type_item_node->tag_repr = next_tag_value++;
+            break;
+        case EnumTagValue:
+            field_node->union_type_item_node->tag_repr = eval(field_node->union_type_item_node->tag_value);
+            next_tag_value = field_node->union_type_item_node->tag_repr + 1;
+            break;
+        }
+    }
+}
+
 struct type_expr *_analyze_adt(struct sema_context *context, enum ADTKind kind, symbol name, struct ast_node *body)
 {
     assert(body->node_type == BLOCK_NODE);
     struct array args;
     array_init(&args, sizeof(struct type_expr *));
     analyze(context, body);
+    if(kind == Sum){
+        fill_union_tag_values(context, body);
+    }
     for (size_t i = 0; i < array_size(&body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
         struct ast_node *field_node = *(struct ast_node **)array_get(&body->block->nodes, i);
@@ -598,6 +623,21 @@ struct type_expr *_analyze_if(struct sema_context *context, struct ast_node *nod
     return then_type;
 }
 
+struct type_expr *_analyze_match(struct sema_context *context, struct ast_node *node)
+{
+    analyze(context, node->match->test_expr);
+    return analyze(context, node->match->match_items);
+}
+
+struct type_expr *_analyze_match_item(struct sema_context *context, struct ast_node *node)
+{
+    analyze(context, node->match_item->pattern);
+    struct type_expr *cond_type = analyze(context, node->match_item->cond_expr);
+    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
+    unify(cond_type, bool_type, &context->nongens);
+    return analyze(context, node->match_item->expr);
+}
+
 struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *node)
 {
     struct loop_nested_level *bnl = enter_loop(context);
@@ -631,7 +671,6 @@ struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *no
     leave_loop(context);
     return create_unit_type();
 }
-
 
 struct type_expr *_analyze_while(struct sema_context *context, struct ast_node *node)
 {
@@ -777,6 +816,12 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             break;
         case IF_NODE:
             type = _analyze_if(context, node);
+            break;
+        case MATCH_NODE:
+            type = _analyze_match(context, node);
+            break;
+        case MATCH_ITEM_NODE:
+            type = _analyze_match_item(context, node);
             break;
         case FOR_NODE:
             type = _analyze_for(context, node);

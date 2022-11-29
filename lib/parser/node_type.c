@@ -35,6 +35,8 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(assign, ASSIGN),
     NODE_TYPE_NAME(indexing, MEMBER_INDEX),
     NODE_TYPE_NAME(if_cond, IF),
+    NODE_TYPE_NAME(match_expr, MATCH),
+    NODE_TYPE_NAME(match_item, MATCH_ITEM),
     NODE_TYPE_NAME(for_loop, FOR),
     NODE_TYPE_NAME(while_loop, WHILE),
     NODE_TYPE_NAME(jump, JUMP),

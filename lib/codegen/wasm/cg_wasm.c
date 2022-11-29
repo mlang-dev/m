@@ -742,6 +742,11 @@ void _emit_if(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
     ba_add(ba, OPCODE_END);
 }
 
+void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+{
+
+}
+
 void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type type)
 {
     ba_add(ba, OPCODE_LOCALGET);
@@ -954,6 +959,9 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case IF_NODE:
             _emit_if(cg, ba, node);
             break;
+        case MATCH_NODE:
+            _emit_match(cg, ba, node);
+            break;
         case FOR_NODE:
             _emit_for_loop(cg, ba, node);
             break;
@@ -969,6 +977,7 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case ARRAY_INIT_NODE:
             wasm_emit_array_init(cg, ba, node);
             break;
+        case MATCH_ITEM_NODE:
         case UNION_NODE:
         case UNION_TYPE_ITEM_NODE:
         case ARRAY_TYPE_NODE:

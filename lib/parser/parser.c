@@ -307,6 +307,27 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             ast = if_node_new(cond, then_expr, else_expr, cond->loc);
             break;
         }
+        case MATCH_NODE:
+        {
+            struct ast_node *test_expr = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *match_items = _take(nodes, rule->action.item_index[1]);
+            ast = match_node_new(test_expr, match_items, test_expr->loc);
+            break;
+        }
+        case MATCH_ITEM_NODE:
+        {
+            struct ast_node *pattern = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *cond_expr = 0;
+            struct ast_node *expr;
+            if(rule->action.item_index_count == 3){
+                cond_expr = _take(nodes, rule->action.item_index[1]);
+                expr = _take(nodes, rule->action.item_index[2]);
+            } else {
+                expr = _take(nodes, rule->action.item_index[1]);
+            }
+            ast = match_item_node_new(pattern, cond_expr, expr, pattern->loc);
+            break;
+        }
         case BINARY_NODE:
         {
             struct ast_node *op = _take(nodes, rule->action.item_index[1]);

@@ -21,6 +21,9 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("//", LINECOMMENT, NULL),
     NAME_KEYWORD_PATTERN("/*", "/\\*", BLOCKCOMMENT_START, NULL),
     NAME_KEYWORD_PATTERN("*/", "\\*/", BLOCKCOMMENT_END, NULL),
+
+    KEYWORD_PATTERN("_", WILDCARD, NULL), // 10
+
     TOKEN_PATTERN("\n", NEWLINE, NULL),
     TOKEN_PATTERN("[0-9]+|0x[0-9a-fA-F]+", INT, NULL), // 5
     TOKEN_PATTERN("([0-9]*.)?[0-9]+", DOUBLE, NULL),
@@ -82,6 +85,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("await", AWAIT, NULL),
     KEYWORD_PATTERN("match", MATCH, NULL),
     KEYWORD_PATTERN("with", WITH, NULL),
+    KEYWORD_PATTERN("when", WHEN, NULL),
 
     TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL), //
     
