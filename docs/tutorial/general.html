@@ -127,14 +127,13 @@ print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)</textarea>
                 
                 <div>mlang uses pass-by value calling convention to pass arguments to functions. This means the argument value is copied to function's parameter.</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_by_value"  rows = "8" style="resize: none;">struct Point2D = var x:f64, y:f64
+                    <textarea id="pass_by_value"  rows = "7" style="resize: none;">struct Point2D = var x:f64, y:f64
 let change z:Point2D = 
     z.x = z.x * 10.0
     z
 old_z = Point2D { 10.0, 20.0 }
 new_z = change old_z
-new_z.x
-//print "old_z.x: %.2f, new_z.x: %.2f" (old_z.x) (new_z.x)</textarea>
+new_z.x</textarea>
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_by_value')" style="min-width: 50px;">run</button></div>

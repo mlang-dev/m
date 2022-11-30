@@ -101,7 +101,6 @@ let change z:Point2D =
 old_z = Point2D { 10.0, 20.0 }
 new_z = change old_z
 new_z.x
-//print "old_z.x: %.2f, new_z.x: %.2f" (old_z.x) (new_z.x)
 `, 100.00);
 
 
