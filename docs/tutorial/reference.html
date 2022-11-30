@@ -108,7 +108,7 @@ j = &i
                 
                 <div>struct type reference</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="struct_type_reference"  rows = "3" style="resize: none;">z = cf64(10.0, 20.0)
+                    <textarea id="struct_type_reference"  rows = "3" style="resize: none;">z = cf64{10.0, 20.0}
 j = &z
 j.im</textarea>
                 </div>
@@ -122,7 +122,7 @@ j.im</textarea>
                     <textarea id="pass_struct_by_ref"  rows = "6" style="resize: none;">struct Point = var x:f64, y:f64
 let update xy:&Point =
     xy.x = 10.0
-z = &Point(100.0, 200.0)
+z = &Point{100.0, 200.0}
 update z
 z.x</textarea>
                 </div>
