@@ -210,12 +210,24 @@ enum UnionKind {
  */
 struct union_type_item_node {
     enum UnionKind kind;
-    symbol tag;             
+    symbol tag;   
+    int tag_repr;
     /**
      * @brief tag_value for tagged union is block_node, is type_node for untagged union, enum tag only is None, and enum tag value is int const value 
      * 
      */
     struct ast_node *tag_value; 
+};
+
+struct match_node {
+    struct ast_node *test_expr;
+    struct ast_node *match_items;
+};
+
+struct match_item_node {
+    struct ast_node *pattern;
+    struct ast_node *cond_expr;
+    struct ast_node *expr;
 };
 
 struct ast_node {
@@ -265,6 +277,8 @@ struct ast_node {
         struct _block_node *block;
         struct _memory_node *memory;
         struct _cast_node *cast;
+        struct match_node *match;
+        struct match_item_node *match_item;
     };
 };
 
@@ -317,6 +331,10 @@ struct ast_node *func_type_node_default_new(
 
 struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_node,
     struct ast_node *else_node, struct source_location loc);
+struct ast_node *match_node_new(struct ast_node *condition, struct ast_node *match_items,
+    struct source_location loc);
+struct ast_node *match_item_node_new(struct ast_node *pattern, struct ast_node *when_condition, struct ast_node *expr,
+    struct source_location loc);
 struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc);
 struct ast_node *cast_node_new(struct ast_node *to_type_node, struct ast_node *expr, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);

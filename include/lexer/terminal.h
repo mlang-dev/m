@@ -28,7 +28,8 @@ enum token_type{
     TOKEN_LINECOMMENT,
     TOKEN_BLOCKCOMMENT_START,
     TOKEN_BLOCKCOMMENT_END,
-
+    
+    TOKEN_WILDCARD,
     TOKEN_NEWLINE,
     TOKEN_INT,
     TOKEN_DOUBLE,
@@ -89,6 +90,7 @@ enum token_type{
     TOKEN_AWAIT,
     TOKEN_MATCH,
     TOKEN_WITH,
+    TOKEN_WHEN,
     
     /*IDENT token has to been at the end of keyword list, so that exact keyword match 
       always happens before identifier match
