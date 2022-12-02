@@ -700,13 +700,13 @@ void _free_if_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *match_node_new(struct ast_node *test_expr, struct ast_node *match_items,
+struct ast_node *match_node_new(struct ast_node *test_expr, struct ast_node *match_cases,
     struct source_location loc)
 {
     struct ast_node *node = ast_node_new(MATCH_NODE, loc);
     MALLOC(node->match, sizeof(*node->match));
     node->match->test_expr = test_expr;
-    node->match->match_items = match_items;
+    node->match->match_cases = match_cases;
     return node;
 }
 
@@ -714,39 +714,39 @@ struct ast_node *_copy_match_node(struct ast_node *orig_node)
 {
     return match_node_new(
         node_copy(orig_node->match->test_expr), 
-        node_copy(orig_node->match->match_items),
+        node_copy(orig_node->match->match_cases),
         orig_node->loc);
 }
 
 void _free_match_node(struct ast_node *node)
 {
     node_free(node->match->test_expr);
-    node_free(node->match->match_items);
+    node_free(node->match->match_cases);
 }
 
 struct ast_node *match_item_node_new(struct ast_node *pattern, struct ast_node *cond_expr, struct ast_node *expr,
     struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(MATCH_ITEM_NODE, loc);
-    MALLOC(node->match_item, sizeof(*node->match_item));
-    node->match_item->pattern = pattern;
-    node->match_item->cond_expr = cond_expr;
-    node->match_item->expr = expr;
+    struct ast_node *node = ast_node_new(MATCH_CASE_NODE, loc);
+    MALLOC(node->match_case, sizeof(*node->match_case));
+    node->match_case->pattern = pattern;
+    node->match_case->guard = cond_expr;
+    node->match_case->expr = expr;
     return node;
 }
 
 struct ast_node *_copy_match_item_node(struct ast_node *orig_node)
 {
-    return match_item_node_new(node_copy(orig_node->match_item->pattern), 
-        node_copy(orig_node->match_item->cond_expr),
-        node_copy(orig_node->match_item->expr), orig_node->loc);
+    return match_item_node_new(node_copy(orig_node->match_case->pattern), 
+        node_copy(orig_node->match_case->guard),
+        node_copy(orig_node->match_case->expr), orig_node->loc);
 }
 
 void _free_match_item_node(struct ast_node *node)
 {
-    node_free(node->match_item->pattern);
-    node_free(node->match_item->cond_expr);
-    node_free(node->match_item->expr);
+    node_free(node->match_case->pattern);
+    node_free(node->match_case->guard);
+    node_free(node->match_case->expr);
 }
 
 struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc)
@@ -1025,7 +1025,7 @@ struct ast_node *node_copy(struct ast_node *node)
     case MATCH_NODE:
         clone = _copy_match_node(node);
         break;
-    case MATCH_ITEM_NODE:
+    case MATCH_CASE_NODE:
         clone = _copy_match_item_node(node);
         break;
     case FOR_NODE:
@@ -1123,7 +1123,7 @@ void node_free(struct ast_node *node)
     case MATCH_NODE:
         _free_match_node(node);
         break;
-    case MATCH_ITEM_NODE:
+    case MATCH_CASE_NODE:
         _free_match_item_node(node);
         break;
     case FOR_NODE:

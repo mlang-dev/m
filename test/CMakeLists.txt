@@ -36,6 +36,7 @@ if (WASM)
     parser/test_grammar.c
     sema/test_analyzer.c
     sema/test_analyzer_union.c
+    sema/test_analyzer_pm.c
     sema/test_analyzer_struct.c
     sema/test_analyzer_mut.c
     sema/test_analyzer_errors.c
@@ -159,6 +160,7 @@ else()
   parser/test_grammar.c
   sema/test_analyzer.c
   sema/test_analyzer_union.c
+  sema/test_analyzer_pm.c
   sema/test_analyzer_struct.c
   sema/test_analyzer_mut.c
   sema/test_analyzer_errors.c

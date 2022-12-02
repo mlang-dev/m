@@ -977,7 +977,7 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case ARRAY_INIT_NODE:
             wasm_emit_array_init(cg, ba, node);
             break;
-        case MATCH_ITEM_NODE:
+        case MATCH_CASE_NODE:
         case UNION_NODE:
         case UNION_TYPE_ITEM_NODE:
         case ARRAY_TYPE_NODE:

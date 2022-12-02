@@ -310,11 +310,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         case MATCH_NODE:
         {
             struct ast_node *test_expr = _take(nodes, rule->action.item_index[0]);
-            struct ast_node *match_items = _take(nodes, rule->action.item_index[1]);
-            ast = match_node_new(test_expr, match_items, test_expr->loc);
+            struct ast_node *match_cases = _take(nodes, rule->action.item_index[1]);
+            ast = match_node_new(test_expr, match_cases, test_expr->loc);
             break;
         }
-        case MATCH_ITEM_NODE:
+        case MATCH_CASE_NODE:
         {
             struct ast_node *pattern = _take(nodes, rule->action.item_index[0]);
             struct ast_node *cond_expr = 0;

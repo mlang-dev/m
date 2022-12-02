@@ -73,6 +73,20 @@ a.y\n\
     free(wasm);
 }
 
+TEST(test_wasm_codegen, pattern_match)
+{
+    char test_code[] = "\n\
+let pm x = \n\
+    match x with\n\
+    | 0 -> 100\n\
+    | 1 -> 200\n\
+pm 0\n\
+";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 TEST(test_wasm_codegen, print)
 {
     char test_code[] = "\n\
@@ -90,6 +104,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_emit_nested_for_loop);
     RUN_TEST(test_wasm_codegen_mutable_struct_member);
     RUN_TEST(test_wasm_codegen_union_member);
+    RUN_TEST(test_wasm_codegen_pattern_match);
     RUN_TEST(test_wasm_codegen_print);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;

@@ -143,18 +143,16 @@ jump_stmt       = "continue"                                                    
 cond_stmt       = "if" expr "then" statement                                                { if_cond 1 3 }              
                 | "if" expr "then" statement "else" statement                               { if_cond 1 3 5 }
 
-match_stmt      = "match" expr "with" match_block                                           { match_expr 1 3 }
-
-match_block     = NEWLINE match_block_lines
+match_stmt      = "match" expr "with" NEWLINE match_block_lines                             { match_expr 1 4 }
 
 match_block_lines   = match_block_lines match_block_line                                    { block 0 1 }
                     | match_block_line                                                           
 
-match_block_line    = '|' match_item                                                        { 1 }
-                    | '|' match_item NEWLINE                                                { 1 }
+match_block_line    = '|' match_case                                                        { 1 }
+                    | '|' match_case NEWLINE                                                { 1 }
 
-match_item      = pattern  "->" expr                                                        { match_item 0 2 }
-                | pattern "when" cond_expr "->" expr                                        { match_item 0 2 4 }
+match_case      = pattern  "->" expr                                                        { match_case 0 2 }
+                | pattern "when" cond_expr "->" expr                                        { match_case 0 2 4 }
 
 pattern         = IDENT              //variable pattern     
                 | literal_expr       //constant pattern

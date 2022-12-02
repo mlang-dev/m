@@ -744,7 +744,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case CAST_NODE:
         case UNION_TYPE_ITEM_NODE:
         case MATCH_NODE:
-        case MATCH_ITEM_NODE:
+        case MATCH_CASE_NODE:
             break;
         case LITERAL_NODE:
             value = _emit_literal_node(cg, node);
