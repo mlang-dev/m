@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2020 Ligang Wang <ligangwangs@gmail.com>
+ * Copyright (C) 2022 Ligang Wang <ligangwangs@gmail.com>
  *
- * Unit tests for parser
+ * Unit tests for pattern matching analysis
  */
 #include "parser/parser.h"
 #include "parser/ast.h"
