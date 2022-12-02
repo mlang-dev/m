@@ -365,6 +365,30 @@ let fac n = \n\
     frontend_deinit(fe);
 }
 
+TEST(test_parser, pattern_match)
+{
+    char test_code[] = "\n\
+let pm n = \n\
+    match n with\n\
+    | 0 -> 100\n\
+    | 1 -> 300\n\
+    | _ -> 400\n\
+pm 1";
+    struct frontend *fe = frontend_init();
+    
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    ASSERT_STREQ("pm", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(MATCH_NODE, body_node->node_type);
+    node = *(struct ast_node **)array_back(&block->block->nodes);
+    ASSERT_EQ(CALL_NODE, node->node_type);
+    node_free(block);
+    
+    frontend_deinit(fe);
+}
+
 TEST(test_parser, local_string_function)
 {
     char test_code[] = "\n\
@@ -838,6 +862,7 @@ int test_parser()
     RUN_TEST(test_parser_if_condition_one_block);
     RUN_TEST(test_parser_if_condition_two_blocks);
     RUN_TEST(test_parser_if_condition_no_else);
+    RUN_TEST(test_parser_pattern_match);
     RUN_TEST(test_parser_local_string_function);
     RUN_TEST(test_parser_variadic_function);
     RUN_TEST(test_parser_func_type);

@@ -224,7 +224,7 @@ struct match_node {
     struct ast_node *match_items;
 };
 
-struct match_item_node {
+struct match_case_node {
     struct ast_node *pattern;
     struct ast_node *cond_expr;
     struct ast_node *expr;
@@ -278,7 +278,7 @@ struct ast_node {
         struct _memory_node *memory;
         struct _cast_node *cast;
         struct match_node *match;
-        struct match_item_node *match_item;
+        struct match_case_node *match_item;
     };
 };
 
