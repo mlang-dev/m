@@ -742,9 +742,63 @@ void _emit_if(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
     ba_add(ba, OPCODE_END);
 }
 
+void _emit_case_block(struct cg_wasm *cg, struct byte_array *ba, struct byte_array *embeded_blocks, struct ast_node *node, u32 nested_levels)
+{
+    ba_add(ba, OPCODE_BLOCK); 
+    ba_add(ba, type_2_wtype[node->type->type]); 
+    ba_add2(ba, embeded_blocks);
+    wasm_emit_code(cg, ba, node);
+    ba_add(ba, OPCODE_BR);
+    wasm_emit_uint(ba, nested_levels);
+    ba_add(ba, OPCODE_END);
+}
+
+void _emit_jump_table(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *test_expr, u32 size)
+{
+    ba_add(ba, OPCODE_BLOCK);
+    //ba_add(ba, WASM_TYPE_VOID);
+    ba_add(ba, type_2_wtype[TYPE_INT]);
+    wasm_emit_const_i32(ba, 0); //return 
+    wasm_emit_code(cg, ba, test_expr);
+    ba_add(ba, OPCODE_BR_TABLE);
+    wasm_emit_uint(ba, size); //index vector size
+    for(u32 j = 0; j < size; j++){
+        wasm_emit_uint(ba, j); //index element
+    }
+    wasm_emit_uint(ba, size); //default branch
+    ba_add(ba, OPCODE_END);
+}
+
 void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
-
+    //
+    struct byte_array cases_ba, case_ba;
+    ba_init(&cases_ba, 17);
+    ba_init(&case_ba, 17);
+    
+    u32 num_case = array_size(&node->match->match_cases->block->nodes);
+    _emit_jump_table(cg, &cases_ba, node->match->test_expr, num_case);
+    for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
+        struct ast_node *case_node = *(struct ast_node **)array_get(&node->match->match_cases->block->nodes, i);
+        ba_reset(&case_ba);
+        _emit_case_block(cg, &case_ba, &cases_ba, case_node->match_case->expr, num_case - i);
+        //copy 
+        ba_reset(&cases_ba);
+        ba_add2(&cases_ba, &case_ba);
+    }
+    
+    //add default block
+    {
+        struct ast_node *default_node = int_node_new(0, node->loc);
+        ba_reset(&case_ba);
+        _emit_case_block(cg, &case_ba, &cases_ba, default_node, 0);
+        //copy 
+        ba_reset(&cases_ba);
+        ba_add2(&cases_ba, &case_ba);
+    }
+    ba_add2(ba, &cases_ba);
+    ba_deinit(&cases_ba);
+    ba_deinit(&case_ba);
 }
 
 void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type type)
