@@ -415,6 +415,9 @@ struct type_expr *_prune(struct type_expr *type, enum Mut mut)
         }
         /*after pruned all vars*/
         type = find_type_expr(type, mut);
+        if(type->type == TYPE_FUNCTION){
+            type->name = _to_fun_type_name(&type->args);
+        }
     }
     return type;
 }

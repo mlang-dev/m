@@ -221,12 +221,12 @@ struct union_type_item_node {
 
 struct match_node {
     struct ast_node *test_expr;
-    struct ast_node *match_items;
+    struct ast_node *match_cases;
 };
 
 struct match_case_node {
     struct ast_node *pattern;
-    struct ast_node *cond_expr;
+    struct ast_node *guard;
     struct ast_node *expr;
 };
 
@@ -278,7 +278,7 @@ struct ast_node {
         struct _memory_node *memory;
         struct _cast_node *cast;
         struct match_node *match;
-        struct match_case_node *match_item;
+        struct match_case_node *match_case;
     };
 };
 
@@ -331,7 +331,7 @@ struct ast_node *func_type_node_default_new(
 
 struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_node,
     struct ast_node *else_node, struct source_location loc);
-struct ast_node *match_node_new(struct ast_node *condition, struct ast_node *match_items,
+struct ast_node *match_node_new(struct ast_node *condition, struct ast_node *match_cases,
     struct source_location loc);
 struct ast_node *match_item_node_new(struct ast_node *pattern, struct ast_node *when_condition, struct ast_node *expr,
     struct source_location loc);

@@ -625,17 +625,23 @@ struct type_expr *_analyze_if(struct sema_context *context, struct ast_node *nod
 
 struct type_expr *_analyze_match(struct sema_context *context, struct ast_node *node)
 {
-    analyze(context, node->match->test_expr);
-    return analyze(context, node->match->match_items);
+    struct type_expr *test_type = analyze(context, node->match->test_expr);
+    for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
+        struct ast_node *case_node = *(struct ast_node**)array_get(&node->match->match_cases->block->nodes, i);
+        struct type_expr *pattern_type = analyze(context, case_node->match_case->pattern);
+        unify(test_type, pattern_type, &context->nongens);
+    }
+    return analyze(context, node->match->match_cases);
 }
 
 struct type_expr *_analyze_match_item(struct sema_context *context, struct ast_node *node)
 {
-    analyze(context, node->match_item->pattern);
-    struct type_expr *cond_type = analyze(context, node->match_item->cond_expr);
-    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
-    unify(cond_type, bool_type, &context->nongens);
-    return analyze(context, node->match_item->expr);
+    if(node->match_case->guard){
+        struct type_expr *cond_type = analyze(context, node->match_case->guard);
+        struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
+        unify(cond_type, bool_type, &context->nongens);
+    }
+    return analyze(context, node->match_case->expr);
 }
 
 struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *node)
@@ -820,7 +826,7 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
         case MATCH_NODE:
             type = _analyze_match(context, node);
             break;
-        case MATCH_ITEM_NODE:
+        case MATCH_CASE_NODE:
             type = _analyze_match_item(context, node);
             break;
         case FOR_NODE:

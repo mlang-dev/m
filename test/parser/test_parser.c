@@ -382,6 +382,7 @@ pm 1";
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_STREQ("pm", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(MATCH_NODE, body_node->node_type);
+    ASSERT_EQ(BLOCK_NODE, body_node->match->match_cases->node_type);
     node = *(struct ast_node **)array_back(&block->block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
     node_free(block);
