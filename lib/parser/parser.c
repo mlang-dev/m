@@ -328,6 +328,13 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             ast = match_item_node_new(pattern, cond_expr, expr, pattern->loc);
             break;
         }
+        case WILDCARD_NODE:
+        {
+            struct ast_node *wildcard_node = _take(nodes, 0);
+            ast = ast_node_new(WILDCARD_NODE, wildcard_node->loc);
+            node_free(wildcard_node);
+            break;
+        }
         case BINARY_NODE:
         {
             struct ast_node *op = _take(nodes, rule->action.item_index[1]);

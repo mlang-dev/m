@@ -11,7 +11,7 @@ let pm x =
     | 0 -> 100
     | 1 -> 200
 pm 0
-`, 100, true, true);
+`, 100);
 
 mtest.mtest('pattern match int second', 'Apply pattern match to integer, matching the second case', 
 `
@@ -21,3 +21,13 @@ let pm x =
     | 1 -> 200
 pm 1
 `, 200);
+
+mtest.mtest('pattern match wildcard', 'Apply pattern match to integer, matching wildcard case', 
+`
+let pm x =
+    match x with
+    | 0 -> 100
+    | 1 -> 200
+    | _ -> 300
+pm 20
+`, 300, true, true);

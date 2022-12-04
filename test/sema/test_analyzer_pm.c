@@ -20,6 +20,7 @@ let pm x = \n\
     match x with\n\
     | 0 -> 100\n\
     | 1 -> 200\n\
+    | _ -> 300\n\
 pm 0\n\
 ";
     struct frontend *fe = frontend_init();

@@ -629,7 +629,8 @@ struct type_expr *_analyze_match(struct sema_context *context, struct ast_node *
     for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
         struct ast_node *case_node = *(struct ast_node**)array_get(&node->match->match_cases->block->nodes, i);
         struct type_expr *pattern_type = analyze(context, case_node->match_case->pattern);
-        unify(test_type, pattern_type, &context->nongens);
+        if(pattern_type)
+            unify(test_type, pattern_type, &context->nongens);
     }
     return analyze(context, node->match->match_cases);
 }
@@ -758,6 +759,7 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             //type = _analyze_unk(context, node);
             assert(false);
             break;
+        case WILDCARD_NODE:
         case RANGE_NODE:
             break;
         case UNION_TYPE_ITEM_NODE:
