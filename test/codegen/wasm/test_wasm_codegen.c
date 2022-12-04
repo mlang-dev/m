@@ -15,8 +15,7 @@ u8 *_compile_code(const char *text)
 {
     struct engine *engine = engine_wasm_new();
     struct cg_wasm *cg = (struct cg_wasm*)engine->be->cg;
-    compile_to_wasm(engine, text);
-    u8 *data = cg->ba.data;
+    u8 *data = compile_to_wasm(engine, text);
     cg->ba.data = 0;
     engine_free(engine);
     return data;
@@ -53,8 +52,8 @@ struct Point2D = x:mut f64, y:f64\n\
 let change z:Point2D = \n\
     z.x = z.x * 10.0\n\
     z\n\
-var old_z = Point2D(10.0, 20.0)\n\
-new_z = change old_z\n\
+var old_z = Point2D{10.0, 20.0}\n\
+let new_z = change old_z\n\
 ";
     u8 *wasm = _compile_code(test_code);
     ASSERT_TRUE(wasm);
@@ -109,6 +108,21 @@ x ? 1 : 0\n\
     free(wasm);
 }
 
+TEST(test_wasm_codegen, pattern_match_negative)
+{
+    char test_code[] = "\n\
+let pm x =\n\
+    match x with\n\
+    | -1 -> 100\n\
+    | 3 -> 200\n\
+    | _ -> 300\n\
+pm (-1)\n\
+";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
@@ -119,6 +133,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_pattern_match);
     RUN_TEST(test_wasm_codegen_print);
     RUN_TEST(test_wasm_codegen_ternary_operator);
+    RUN_TEST(test_wasm_codegen_pattern_match_negative);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

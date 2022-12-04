@@ -127,12 +127,12 @@ struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbo
     return wmodule;
 }
 
-void compile_to_wasm(struct engine *engine, const char *expr)
+u8* compile_to_wasm(struct engine *engine, const char *expr)
 {
     struct cg_wasm *cg = (struct cg_wasm*)engine->be->cg;
     struct ast_node *expr_ast = parse_code(engine->fe->parser, expr);
     if (!expr_ast){
-        return;
+        return 0;
     }
     struct ast_node *user_global_block = block_node_new_empty();
     struct ast_node *user_start_func = _start_func_node(cg, &engine->fe->parser->symbol_2_int_types, expr_ast, user_global_block);
@@ -155,4 +155,5 @@ exit:
     free_block_node(ast_block, false);
     node_free(user_global_block);
     node_free(user_start_func);
+    return cg->ba.data;
 }
