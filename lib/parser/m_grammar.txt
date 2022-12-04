@@ -50,7 +50,7 @@ unary_expr      = power_expr
                 | [*&+-~!] unary_expr                                                       { unop 0 1 }
 
 cast_expr       = unary_expr
-	            | '(' type_expr ')' cast_expr                                               { cast 1 3 }
+                | '(' type_expr ')' cast_expr                                               { cast 1 3 }
 
 multi_expr      = cast_expr
                 | multi_expr [*/%] cast_expr                                                { binop 0 1 2 } 
