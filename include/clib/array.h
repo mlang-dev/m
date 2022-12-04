@@ -23,6 +23,8 @@ struct array {
     free_fun fun_free;
 };
 
+typedef int (*cmp_fn_t) (const void *, const void *);
+
 struct array *array_new(size_t element_size);
 void array_init(struct array *arr, size_t element_size);
 void array_init_free(struct array *arr, size_t element_size, free_fun free_fun);
@@ -43,6 +45,7 @@ void array_add(struct array *dest, struct array *src);
 void array_clear(struct array *arr);
 /*reset the size to zero, without freeing memory*/
 void array_reset(struct array *a);
+void array_sort(struct array *a, cmp_fn_t compare);
 
 #define ARRAY(var, elem_type, elem_deinit_fun) \
     struct array var;                          \

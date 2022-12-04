@@ -21,8 +21,8 @@ let avg x y = (x + y) / 2
  * block comments: define a multiline function
  */
 let distance x1 y1 x2 y2 = 
-  xx = (x1-x2) ** 2.0
-  yy = (y1-y2) ** 2.0
+  let xx = (x1-x2) ** 2.0
+  let yy = (y1-y2) ** 2.0
   |/ (xx + yy) #call sqrt 
 
 // factorial function with recursive call

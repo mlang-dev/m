@@ -20,6 +20,27 @@ TEST(test_array, init_int)
     array_deinit(&arr);
 }
 
+int cmp(const void *elm1, const void *elm2)
+{
+    int f = *(int*)elm1;
+    int s = *(int*)elm2;
+    return f - s;
+}
+
+TEST(test_array, sort_int)
+{
+    struct array arr;
+    array_init(&arr, sizeof(int));
+    int i = 20, j = 10;
+    array_push(&arr, &i);
+    array_push(&arr, &j);
+    array_sort(&arr, cmp);
+    ASSERT_EQ(2, array_size(&arr));
+    ASSERT_EQ(10, *((int*)array_get(&arr, 0)));
+    ASSERT_EQ(20, *((int*)array_get(&arr, 1)));
+    array_deinit(&arr);
+}
+
 TEST(test_array, of_string)
 {
     ARRAY_STRING(arr);
@@ -82,6 +103,7 @@ int test_array()
 {
     UNITY_BEGIN();
     RUN_TEST(test_array_init_int);
+    RUN_TEST(test_array_sort_int);
     RUN_TEST(test_array_of_string);
     RUN_TEST(test_array_of_long_string);
     RUN_TEST(test_array_element_with_no_overhead);

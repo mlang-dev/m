@@ -753,8 +753,9 @@ void _emit_case_block(struct cg_wasm *cg, struct byte_array *ba, struct byte_arr
     ba_add(ba, OPCODE_END);
 }
 
-void _emit_jump_table(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *test_expr, u32 size)
+void _emit_jump_table(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *test_expr, struct array *index_vector, u32 default_branch_index)
 {
+    u32 size = array_size(index_vector);
     ba_add(ba, OPCODE_BLOCK);
     //ba_add(ba, WASM_TYPE_VOID);
     ba_add(ba, type_2_wtype[TYPE_INT]);
@@ -763,10 +764,38 @@ void _emit_jump_table(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
     ba_add(ba, OPCODE_BR_TABLE);
     wasm_emit_uint(ba, size); //index vector size
     for(u32 j = 0; j < size; j++){
-        wasm_emit_uint(ba, j); //index element
+        u32 branch_index = *(u32*)array_get(index_vector, j);
+        wasm_emit_uint(ba, branch_index); //index element
     }
-    wasm_emit_uint(ba, size); //default branch
+    wasm_emit_uint(ba, default_branch_index); 
     ba_add(ba, OPCODE_END);
+}
+
+int _match_case_node_cmp(const void *elm1, const void *elm2)
+{
+    struct ast_node *fst = *(struct ast_node **)elm1;
+    struct ast_node *snd = *(struct ast_node **)elm2;
+    int fst_value = eval(fst->match_case->pattern);
+    int snd_value = eval(snd->match_case->pattern);
+    return fst_value - snd_value;
+}
+
+void _build_index_vector(u32 default_index, struct array *nodes, struct array *index_vector)
+{
+    int pattern_value = 0;
+    int last_value = 0;
+    for(u32 i = 0; i < array_size(nodes); i++){
+        struct ast_node *case_node = *(struct ast_node **)array_get(nodes, i);
+        pattern_value = eval(case_node->match_case->pattern);
+        if(i > 0){ //start from the second
+            int gap = pattern_value - last_value - 1;
+            for(int j = 0; j < gap; j++){
+                array_push(index_vector, &default_index);
+            }
+        }
+        array_push(index_vector, &i);
+        last_value = pattern_value;
+    }
 }
 
 void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -782,12 +811,22 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
         }
         array_push(&nodes, &case_node);
     }
+    array_sort(&nodes, _match_case_node_cmp);
     struct byte_array cases_ba, case_ba;
     ba_init(&cases_ba, 17);
     ba_init(&case_ba, 17);
     
     u32 num_case = array_size(&nodes);
-    _emit_jump_table(cg, &cases_ba, node->match->test_expr, num_case);
+    struct ast_node *start_node = *(struct ast_node **)array_front(&nodes);
+    int start_value = eval(start_node->match_case->pattern);
+    struct ast_node *test_expr = 0;
+    if(start_value){
+        test_expr = binary_node_new(OP_MINUS, node->match->test_expr, start_node->match_case->pattern, node->match->test_expr->loc);
+    }
+    struct array index_vector;
+    array_init(&index_vector, sizeof(u32));
+    _build_index_vector(num_case, &nodes, &index_vector);
+    _emit_jump_table(cg, &cases_ba, test_expr ? test_expr : node->match->test_expr, &index_vector, num_case);
 
     for(size_t i = 0; i < array_size(&nodes); i++){
         struct ast_node *case_node = *(struct ast_node **)array_get(&nodes, i);
@@ -812,6 +851,10 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     ba_deinit(&cases_ba);
     ba_deinit(&case_ba);
     array_deinit(&nodes);
+    if(test_expr){
+        ast_node_free(test_expr);
+    }
+    array_deinit(&index_vector);
 }
 
 void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type type)
