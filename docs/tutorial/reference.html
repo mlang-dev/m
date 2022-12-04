@@ -73,8 +73,8 @@ You can only use reference type to refer to the other object or pass the referen
     
                 <div>evaluate the content of reference type variable j</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="evalute_ref_content"  rows = "3" style="resize: none;">i = 10
-j = &i
+                    <textarea id="evalute_ref_content"  rows = "3" style="resize: none;">let i = 10
+let j = &i
 *j</textarea>
                 </div>
                 <div>
@@ -85,7 +85,7 @@ j = &i
                 <div>change original value by its reference.</div>
                 <div style="margin-top: 10px;">
                     <textarea id="change_via_ref"  rows = "4" style="resize: none;">var i = 10
-j = &i
+var j = &i
 *j = 20
 i</textarea>
                 </div>
@@ -97,7 +97,7 @@ i</textarea>
                 <div>change original value by its reference. print reference</div>
                 <div style="margin-top: 10px;">
                     <textarea id="change_via_ref_2"  rows = "4" style="resize: none;">var i = 10
-j = &i
+var j = &i
 *j = 20
 *j</textarea>
                 </div>
@@ -108,8 +108,8 @@ j = &i
                 
                 <div>struct type reference</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="struct_type_reference"  rows = "3" style="resize: none;">z = cf64{10.0, 20.0}
-j = &z
+                    <textarea id="struct_type_reference"  rows = "3" style="resize: none;">let z = cf64{10.0, 20.0}
+let j = &z
 j.im</textarea>
                 </div>
                 <div>
@@ -119,10 +119,10 @@ j.im</textarea>
                 
                 <div>pass struct data to function by reference</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_struct_by_ref"  rows = "6" style="resize: none;">struct Point = var x:f64, y:f64
+                    <textarea id="pass_struct_by_ref"  rows = "6" style="resize: none;">struct Point = x:mut f64, y:f64
 let update xy:&Point =
     xy.x = 10.0
-z = &Point{100.0, 200.0}
+let z = &Point{100.0, 200.0}
 update z
 z.x</textarea>
                 </div>

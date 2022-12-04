@@ -35,7 +35,7 @@ TEST(test_analyzer_struct, var_init)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
-xy:Point2D = { 0.0, 0.0 }\n\
+let xy:Point2D = { 0.0, 0.0 }\n\
 xy.x\n\
 ";
     struct frontend *fe = frontend_init();
@@ -92,9 +92,9 @@ TEST(test_analyzer_struct, ret_struct_type)
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
 let getx()=\n\
-    xy:Point2D = Point2D { 10.0, 0.0 }\n\
+    let xy:Point2D = Point2D { 10.0, 0.0 }\n\
     xy\n\
-z = getx()\n\
+let z = getx()\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -132,7 +132,7 @@ TEST(test_analyzer_struct, type_vars)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
-xy:Point2D = Point2D { 0.0, 0.0 }\n\
+let xy:Point2D = Point2D { 0.0, 0.0 }\n\
 xy.x\n\
 ";
     struct frontend *fe = frontend_init();
@@ -159,7 +159,7 @@ TEST(test_analyzer_struct, type_local_var)
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
 let getx()=\n\
-    xy:Point2D = Point2D { 10.0, 0.0 }\n\
+    let xy:Point2D = Point2D { 10.0, 0.0 }\n\
     xy.x\n\
 getx()\n\
 ";

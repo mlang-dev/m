@@ -798,8 +798,9 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
         ba_add2(&cases_ba, &case_ba);
     }
     
-    if(!default_node)
+    if(!default_node){
         default_node = int_node_new(0, node->loc);
+    }
     {
         ba_reset(&case_ba);
         _emit_case_block(cg, &case_ba, &cases_ba, default_node, 0);

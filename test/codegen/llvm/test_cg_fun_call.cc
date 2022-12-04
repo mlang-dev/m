@@ -70,10 +70,10 @@ TEST(testCGFunCall, testReturnStructDirect)
     const char test_code[] = R"(
 struct Point2D = x:int, y:int
 let f () = 
-   xy:Point2D = Point2D { 10, 20 }
+   let xy:Point2D = Point2D { 10, 20 }
    xy
 let main() = 
-   xy = f()
+   let xy = f()
    xy.x
  )";
     const char *expected_ir = R"(
@@ -112,7 +112,7 @@ struct Point2D = x:int, y:int
 let f() = Point2D { 10, 20 }
    
 let main() = 
-   xy = f()
+   let xy = f()
    xy.x
  )";
     const char *expected_ir = R"(
@@ -373,7 +373,7 @@ TEST(testCGFunCall, testReturnExpressionScalar)
 {
     char test_code[] = R"(
 let getx()=
-    x = 10
+    let x = 10
     x + 1
 let main() = getx()
 )";

@@ -31,3 +31,14 @@ let pm x =
     | _ -> 300
 pm 20
 `, 300, true, true);
+
+mtest.mtest('pattern match with variable', 'Use pattern matching in variable initializer', 
+`
+let x = 100
+let y = 
+    match x with
+    | 0 -> 100
+    | 1 -> 200
+    | _ -> 300
+y
+`, 300, true, true);

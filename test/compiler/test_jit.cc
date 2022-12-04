@@ -157,7 +157,7 @@ TEST(testJIT, testTypeCast)
 TEST(testJIT, testGlobalVar)
 {
     char test_code[] = R"(
-y=100
+let y=100
 y
 )";
     struct engine *engine = engine_llvm_new(true);
@@ -177,7 +177,7 @@ y
 TEST(testJIT, testGlobalVarString)
 {
     char test_code[] = R"(
-y="hello"
+let y="hello"
 y
 )";
     struct engine *engine = engine_llvm_new(true);
@@ -404,8 +404,8 @@ TEST(testJIT, testLocalStringFunc)
 {
     char test_code[] = R"(
 let to_string () = 
-  x = "hello"
-  y = x
+  let x = "hello"
+  let y = x
   y
 to_string()
 )";
@@ -479,7 +479,7 @@ TEST(testJIT, testProductType)
 {
     char test_code[] = R"(
 struct Point2D = x:f64, y:f64
-xy:Point2D = Point2D { 10.0, 20.0 }
+let xy:Point2D = Point2D { 10.0, 20.0 }
 xy.x
 xy.y
 )";
@@ -506,7 +506,7 @@ TEST(testJIT, testProductTypeIntType)
 {
     char test_code[] = R"(
 struct Point2D = x:int, y:int
-xy:Point2D = Point2D { 10, 20 }
+let xy:Point2D = Point2D { 10, 20 }
 xy.x
 xy.y
 )";
@@ -533,7 +533,7 @@ TEST(testJIT, testProductTypeMixedType)
 {
     char test_code[] = R"(
 struct Point2D = x:f64, y:int
-xy:Point2D = Point2D { 10.0, 20 }
+let xy:Point2D = Point2D { 10.0, 20 }
 xy.x
 xy.y
 )";
@@ -561,7 +561,7 @@ TEST(testJIT, testProductTypeMixedTypeLocalVariable)
     char test_code[] = R"(
 struct Point2D = x:f64, y:int
 let getx()=
-    xy:Point2D = Point2D { 10.0, 20 }
+    let xy:Point2D = Point2D { 10.0, 20 }
     xy.x
 getx()
 )";

@@ -15,9 +15,9 @@ test('analyzer type mismatch', () => {
     var result = get_mw(log_fun);
     return result.then((m) => {
         let code = `
-i:int = "string"
+let i:int = "string"
 `;
         expect(m.run_code(code)).toEqual(undefined);
-        expect(output).toEqual("variable type not matched with literal constant. loc (line, col): (2, 1)\n");
+        expect(output).toEqual("variable type not matched with literal constant. loc (line, col): (2, 5)\n");
     });
 });

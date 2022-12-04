@@ -16,7 +16,7 @@ TEST(test_analyzer_union, member_type_float)
 {
     char test_code[] = "\n\
 union XorY = x:f64 | y:int\n\
-xy = XorY{0.0}\n\
+let xy = XorY{0.0}\n\
 xy.x\n\
 ";
     struct frontend *fe = frontend_init();
@@ -41,7 +41,7 @@ TEST(test_analyzer_union, member_type_int)
 {
     char test_code[] = "\n\
 union XorY = x:f64 | y:int\n\
-xy:XorY = {0.0}\n\
+let xy:XorY = {0.0}\n\
 xy.y\n\
 ";
     struct frontend *fe = frontend_init();

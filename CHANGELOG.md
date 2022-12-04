@@ -1,3 +1,16 @@
+# 0.0.37 (2022-12-03)
+
+* start to add pattern match: e.g.
+```
+match x with 
+| 0 -> 100
+| 1 -> 200
+| _ -> 10000
+```
+* enforce keyword "let" to define immutable variable ("var" for mutable variable)
+* without "let" or "var" keyword, "x = 10" always will be interpreted as assignment statement. 
+
+
 # 0.0.36 (2022-11-20)
 
 * various memory leak fix.
@@ -7,7 +20,6 @@
 # 0.0.35 (2022-11-17)
 
 * start to use var/let to declare variable as mutable and immutable.
-
 
 
 # 0.0.34 (2022-11-13)

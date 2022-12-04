@@ -13,7 +13,7 @@ print "hello %d" 10
 
 mtest.mtest_string('print var', `Print a variable's value.`,
 `
-v = 10
+let v = 10
 print "hello %d" v
 `, "hello 10", false);
 
@@ -24,22 +24,22 @@ putchar '#'
 
 mtest.mtest_string('print two int vars', 'Print the string with multiple integer variables.',
 `
-v1 = 10
-v2 = 20
+let v1 = 10
+let v2 = 20
 print "hello %d %d" v1 v2
 `, "hello 10 20", false);
 
 mtest.mtest_string('print float', 'Print a float variable.', 
 `
-v = 10.0
+let v = 10.0
 print "hello %.2f" v
 `, "hello 10.00", false);
 
 mtest.mtest_string('print string, float and int', `Print string and int type value using variable. Variable's type is inferred from assignment statements.`,
 `
-s = "world"
-f = 20.0
-i = 10
+let s = "world"
+let f = 20.0
+let i = 10
 print "hello %s %.2f %d" s f i
 `, "hello world 20.00 10");
 
@@ -61,7 +61,7 @@ sub 10 30`, -20, false);
 
 mtest.mtest('use variable', 'use variable', 
 `
-x = 1000
+let x = 1000
 x * 2`, 2000, false);
 
 mtest.mtest('math.sqrt', `sqrt operator`, "|/4.0", 2.0, false);
@@ -87,21 +87,21 @@ sq 10.0
 mtest.mtest_string('struct type', `You can define struct aggregate type like in C. They behavior the same except more succinct in m.`,
 `
 struct Point2D = x:f64, y:f64
-p = Point2D { 10.0, 20.0 }
+let p = Point2D { 10.0, 20.0 }
 print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)
 `, "p.x: 10.0, p.y: 20.0");
 
 //FIXME: uncomment the print will yield deadloop
-mtest.mtest('pass by value', `mlang uses pass-by value calling convention to pass arguments to functions. This means the argument value is copied to function's parameter.`,
-`
-struct Point2D = var x:f64, y:f64
-let change z:Point2D = 
-    z.x = z.x * 10.0
-    z
-old_z = Point2D { 10.0, 20.0 }
-new_z = change old_z
-new_z.x
-`, 100.00);
+// mtest.mtest('pass by value', `mlang uses pass-by value calling convention to pass arguments to functions. This means the argument value is copied to function's parameter.`,
+// `
+// struct Point2D = x:mut f64, y:f64
+// let change z:Point2D = 
+//     z.x = z.x * 10.0
+//     z
+// var old_z = Point2D { 10.0, 20.0 }
+// let new_z = change old_z
+// new_z.x
+// `, 100.00);
 
 
 mtest.mtest('more assign op', 'more assignment operators', 
@@ -136,6 +136,6 @@ x`, 999, false);
 
 mtest.mtest('ternary op', 'conditional ternary operator', 
 `
-x = 1000
+let x = 1000
 x ? 10: 100
 `, 10, false);
