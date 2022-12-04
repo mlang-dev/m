@@ -155,6 +155,7 @@ match_case      = pattern  "->" expr                                            
                 | pattern "when" cond_expr "->" expr                                        { match_case 0 2 4 }
 
 pattern         = IDENT              //variable pattern     
+                | '-' literal_expr                                                          { unop 0 1 }
                 | literal_expr       //constant pattern
                 | '_'                                                                       { wild_card }//wildcard pattern                     
 

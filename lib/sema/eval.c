@@ -12,6 +12,12 @@ int eval(struct ast_node *node)
     switch(node->node_type){
     default:
         assert(false);
+    case UNARY_NODE:
+        if(node->unop->opcode == OP_PLUS)
+            return eval(node->unop->operand);
+        else if(node->unop->opcode == OP_MINUS)
+            return -eval(node->unop->operand);
+        break;
     case LITERAL_NODE:
         return node->liter->int_val;
     case BINARY_NODE:
@@ -31,4 +37,5 @@ int eval(struct ast_node *node)
             }
         }
     }
+    return 0;
 }

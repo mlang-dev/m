@@ -112,3 +112,33 @@ let pm x =
     | _ -> 300
 pm 2
 `, 300);
+
+mtest.mtest('pattern match negative', 'Apply pattern match to negative integer case', 
+`
+let pm x =
+    match x with
+    | -1 -> 100
+    | 3 -> 200
+    | _ -> 300
+pm (-1)
+`, 100);
+
+mtest.mtest('pattern match negative second match', 'Apply pattern match to negative integer case, matching the second', 
+`
+let pm x =
+    match x with
+    | -1 -> 100
+    | 3 -> 200
+    | _ -> 300
+pm 3
+`, 200);
+
+mtest.mtest('pattern match negative wildcard', 'Apply pattern match to negative integer case, matching the wildcard', 
+`
+let pm x =
+    match x with
+    | -1 -> 100
+    | 3 -> 200
+    | _ -> 300
+pm 0
+`, 300);
