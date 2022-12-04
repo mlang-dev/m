@@ -14,7 +14,7 @@ mtest.mtest('if true statement', 'use true literal', "if true then 100 else 10",
 
 mtest.mtest('use bool variable', 'use bool variable', 
 `
-x = 10
+let x = 10
 if x then 100 else 10
 `, 100);
 
@@ -28,7 +28,7 @@ x
 
 mtest.mtest('ternary operator', 'use ternary operator', 
 `
-x = 10
+let x = 10
 x ? 1 : 0
 `, 1);
 
@@ -110,7 +110,7 @@ sum
 
 mtest.mtest('for loop with step', 'for loop statement with step variable', 
 `
-step = 2
+let step = 2
 var sum = 0
 for i in 2..step..10
     sum = sum + i
@@ -205,14 +205,14 @@ n
 
 mtest.mtest("mandelbrot set function", "various control block to show program structure",
 `
-a:u8[200][300 * 4]
-scale = 0.01
+var a:u8[200][300 * 4]
+let scale = 0.01
 for x in 0..300
     for y in 0..200
-        cx = -2.0 + scale*(f64)x
-        cy = -1.0 + scale*(f64)y
-        zx = 0.0, zy = 0.0
-        zx2 = 0.0, zy2 = 0.0
+        let cx = -2.0 + scale*(f64)x
+        let cy = -1.0 + scale*(f64)y
+        var zx = 0.0, zy = 0.0
+        var zx2 = 0.0, zy2 = 0.0
         for n in 0..255
             if (zx2 + zy2) > 4.0 then
                 break
@@ -230,15 +230,15 @@ setImageData a 300 200
 
 mtest.mtest("mandelbrot set function using while loop", "inner loop using while block to show program structure",
 `
-a:u8[200][300 * 4]
-scale = 0.01
+var a:u8[200][300 * 4]
+let scale = 0.01
 for x in 0..300
     for y in 0..200
-        cx = -2.0 + scale*(f64)x
-        cy = -1.0 + scale*(f64)y
-        zx = 0.0, zy = 0.0
-        zx2 = 0.0, zy2 = 0.0
-        n = 0
+        let cx = -2.0 + scale*(f64)x
+        let cy = -1.0 + scale*(f64)y
+        var zx = 0.0, zy = 0.0
+        var zx2 = 0.0, zy2 = 0.0
+        var n = 0
         while n<255 && (zx2 + zy2) < 4.0
             zy = 2.0 * zx * zy + cy
             zx = zx2  - zy2 + cx

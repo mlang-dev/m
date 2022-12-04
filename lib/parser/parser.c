@@ -600,10 +600,6 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
                     printf("symbol %s is not expected after grammar rule %s\n", got_symbol, rule->rule_string);
                 }else{
                     const char *next_symbol = (*parser->psd)[rule->rhs[parsed]];
-                    if(!is_terminal(rule->rhs[parsed])){
-                        //printf("skip next symbol: %s\n", next_symbol);
-                        continue;
-                    }
                     printf("symbol %s is expected to parse %s but got %s\n", next_symbol, psi->items[i].item_string, got_symbol);
                 }
             }

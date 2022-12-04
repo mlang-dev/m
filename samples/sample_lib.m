@@ -4,8 +4,8 @@ let avg x y = (x + y) / 2.0
 
 // This is a distance function
 let distance x1 y1 x2 y2 = 
-  xx = (x1-x2) * (x1-x2)
-  yy = (y1-y2) * (y1-y2)
+  let xx = (x1-x2) * (x1-x2)
+  let yy = (y1-y2) * (y1-y2)
   sqrt (xx + yy)
 
 // factorial function

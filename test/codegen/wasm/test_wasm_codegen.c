@@ -49,11 +49,11 @@ sum";
 TEST(test_wasm_codegen, mutable_struct_member)
 {
     char test_code[] = "\n\
-struct Point2D = var x:f64, y:f64\n\
+struct Point2D = x:mut f64, y:f64\n\
 let change z:Point2D = \n\
     z.x = z.x * 10.0\n\
     z\n\
-old_z = Point2D(10.0, 20.0)\n\
+var old_z = Point2D(10.0, 20.0)\n\
 new_z = change old_z\n\
 ";
     u8 *wasm = _compile_code(test_code);
@@ -65,7 +65,7 @@ TEST(test_wasm_codegen, union_member)
 {
     char test_code[] = "\n\
 union A = x:int | y:int\n\
-a = A { 10 }\n\
+let a = A { 10 }\n\
 a.y\n\
 ";
     u8 *wasm = _compile_code(test_code);
@@ -98,6 +98,17 @@ print \"hello world\"\n\
     free(wasm);
 }
 
+TEST(test_wasm_codegen, ternary_operator)
+{
+    char test_code[] = "\n\
+let x = 10\n\
+x ? 1 : 0\n\
+";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
@@ -107,6 +118,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_union_member);
     RUN_TEST(test_wasm_codegen_pattern_match);
     RUN_TEST(test_wasm_codegen_print);
+    RUN_TEST(test_wasm_codegen_ternary_operator);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

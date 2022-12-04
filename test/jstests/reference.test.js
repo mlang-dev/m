@@ -8,20 +8,20 @@ const mtest = require('./mtest.js');
 
 mtest.mtest('int ref use stack memory', 'int ref use stack memory', 
 `
-i = 10
-j = &i
+let i = 10
+let j = &i
 i`, 10, false);
 
 mtest.mtest('evalute ref content', 'evaluate the content of reference type variable j',
 `
-i = 10
-j = &i
+let i = 10
+let j = &i
 *j`, 10);
 
 mtest.mtest('change via ref', 'change original value by its reference.',
 `
 var i = 10
-j = &i
+var j = &i
 *j = 20
 i
 `, 20);
@@ -29,24 +29,24 @@ i
 mtest.mtest('change via ref 2', 'change original value by its reference. print reference', 
 `
 var i = 10
-j = &i
+var j = &i
 *j = 20
 *j
 `, 20);
 
 mtest.mtest('struct type reference', 'struct type reference',
 `
-z = cf64{10.0, 20.0}
-j = &z
+let z = cf64{10.0, 20.0}
+let j = &z
 j.im
 `, 20);
 
 mtest.mtest('pass struct by ref', `pass struct data to function by reference`, 
 `
-struct Point = var x:f64, y:f64
+struct Point = x:mut f64, y:f64
 let update xy:&Point =
     xy.x = 10.0
-z = &Point{100.0, 200.0}
+let z = &Point{100.0, 200.0}
 update z
 z.x
 `, 10.0, true);

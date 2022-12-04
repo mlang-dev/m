@@ -136,6 +136,7 @@ assign_op       = '='
                 | "|="
 
 expr            = assign_expr
+                | match_expr
 
 array_init      = '[' array_init_decl ']'                                                   { array_init 1 }
                 | '[' ']'                                                                   { array_init }
@@ -155,7 +156,6 @@ stmt            = func_type
                 | for_stmt                   
                 | while_stmt
                 | cond_stmt    
-                | match_stmt
                 | block
                 | import_decl
                 | jump_stmt
@@ -168,7 +168,7 @@ jump_stmt       = "continue"                                                    
 cond_stmt       = "if" expr "then" statement                                                { if_cond 1 3 }              
                 | "if" expr "then" statement "else" statement                               { if_cond 1 3 5 }
 
-match_stmt      = "match" expr "with" NEWLINE match_block_lines                             { match_expr 1 4 }
+match_expr      = "match" expr "with" NEWLINE match_block_lines                             { match_expr 1 4 }
 
 match_block_lines   = match_block_lines match_block_line                                    { block 0 1 }
                     | match_block_line                                                           
@@ -181,7 +181,7 @@ match_case      = pattern  "->" expr                                            
 
 pattern         = IDENT              //variable pattern     
                 | literal_expr       //constant pattern
-                | '_'                //wildcard pattern
+                | '_'                                                                       { wild_card }//wildcard pattern                     
 
 // stmt and newline if it exists
 statement       = stmt
@@ -194,14 +194,14 @@ statements      = statements statement                                          
 type_def            = "struct" IDENT '=' struct_type                                        { struct_type 1 3 }
                     | "union" IDENT '=' union_type                                          { union_type 1 3 }
 
-struct_type         = var_decls
-                    | NEWLINE INDENT var_decls_lines DEDENT                                 { 2 }
+struct_type         = id_decls
+                    | NEWLINE INDENT field_decls_lines DEDENT                               { 2 }
 
-var_decls_lines     = var_decls_lines var_decls_line                                        { block 0 1 }
-                    | var_decls_line
+field_decls_lines   = field_decls_lines field_decls_line                                    { block 0 1 }
+                    | field_decls_line
 
-var_decls_line      = var_decls 
-                    | var_decls NEWLINE                                                     { 0 }
+field_decls_line    = id_decls 
+                    | id_decls NEWLINE                                                     { 0 }
 
 union_type          = union_items                  
                     | union_type_block
@@ -234,7 +234,7 @@ func_type       = "fun" IDENT param_decls "->" type_expr                        
 
 import_decl     = "from" IDENT "import" memory_decl                                         { import_decl 1 3 }
                 | "from" IDENT "import" func_type                                           { import_decl 1 3 }    
-                | "from" IDENT "import" id_decl                                             { import_decl 1 3 }
+                | "from" IDENT "import" id_decl                                          { import_decl 1 3 }
 
 memory_decl     = "memory" INT                                                              { memory_decl 1 }
                 | "memory" INT ',' INT                                                      { memory_decl 1 3 }
@@ -266,17 +266,23 @@ param_decl      = IDENT ':' type_expr                                           
                 | IDENT                                                                     { variable 0 0 } // value name, no type, no initial value
                 | "..."
 
-var_decls       = id_decls                                                                  { mark_mut 0 0 0 } //first zero is action code to mark immutable
-                | "let" id_decls                                                            { mark_mut 0 0 1 }
+var_decls       = "let" id_decl_inits                                                       { mark_mut 0 0 1 }
+                | "var" id_decl_inits                                                       { mark_mut 0 1 1 }
                 | "var" id_decls                                                            { mark_mut 0 1 1 }
+  
+id_decl_inits   = id_decl_inits ',' id_decl_init                                            { block 0 2 }
+                | id_decl_init
 
 id_decls        = id_decls ',' id_decl                                                      { block 0 2 }
                 | id_decl
 
-
 id_decl         = IDENT ':' type_expr                                                       { variable 0 0 2 }   // var name:type, no initial value
-                | IDENT ':' type_expr '=' expr                                              { variable 1 0 2 4 } // var name:type with init value
-                | IDENT '=' expr                                                            { variable 1 0 2 }   // var name with initial value
+
+id_decl_init    = IDENT ':' type_expr '=' expr_block                                        { variable 1 0 2 4 } // var name:type with init value
+                | IDENT '=' expr_block                                                      { variable 1 0 2 }   // var name with initial value
+
+expr_block      = expr
+                | NEWLINE INDENT expr DEDENT                                                { 2 }
               
 </pre>
 <footer>

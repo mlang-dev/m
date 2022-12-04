@@ -35,8 +35,8 @@ TEST(test_analyzer, ref_type_variable)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-x = 10\n\
-y = &x";
+let x = 10\n\
+let y = &x";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
@@ -56,7 +56,7 @@ TEST(test_analyzer, ref_type_func)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-struct AB = var re:f64, im:f64\n\
+struct AB = re:mut f64, im:f64\n\
 let update z:&AB =\n\
     z.re = 10.0\n\
 ";
@@ -74,7 +74,7 @@ TEST(test_analyzer, array_variable)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-a = [10, 20, 30]\n\
+var a = [10, 20, 30]\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
@@ -104,7 +104,7 @@ var a = []\n\
 
 TEST(test_analyzer, int_variable)
 {
-    char test_code[] = "x = 11";
+    char test_code[] = "let x = 11";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
@@ -122,7 +122,7 @@ TEST(test_analyzer, int_variable)
 
 TEST(test_analyzer, double_variable)
 {
-    char test_code[] = "x = 11.0";
+    char test_code[] = "let x = 11.0";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
@@ -139,7 +139,7 @@ TEST(test_analyzer, double_variable)
 
 TEST(test_analyzer, bool_variable)
 {
-    char test_code[] = "x = true";
+    char test_code[] = "let x = true";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
@@ -157,7 +157,7 @@ TEST(test_analyzer, bool_variable)
 
 TEST(test_analyzer, char_variable)
 {
-    char test_code[] = "x = 'c'";
+    char test_code[] = "let x = 'c'";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
@@ -175,7 +175,7 @@ TEST(test_analyzer, char_variable)
 
 TEST(test_analyzer, string_variable)
 {
-    char test_code[] = "x = \"hello world!\"";
+    char test_code[] = "let x = \"hello world!\"";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
@@ -193,7 +193,7 @@ TEST(test_analyzer, string_variable)
 
 TEST(test_analyzer, double_int_literal_error)
 {
-    char test_code[] = "x = 11.0 + 10";
+    char test_code[] = "let x = 11.0 + 10";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
@@ -417,8 +417,8 @@ TEST(test_analyzer, local_var_fun)
     char test_code[] = "\n\
 // using for loop\n\
 let distance x1:f64 y1:f64 x2 y2 = \n\
-  xx = (x1-x2) * (x1-x2)\n\
-  yy = (y1-y2) * (y1-y2)\n\
+  let xx = (x1-x2) * (x1-x2)\n\
+  let yy = (y1-y2) * (y1-y2)\n\
   |/ (xx + yy)\n\
 ";
     reset_id_name("a");
@@ -444,8 +444,8 @@ TEST(test_analyzer, local_string_fun)
 {
     char test_code[] = "\n\
 let to_string () = \n\
-  x = \"hello\"\n\
-  y = x\n\
+  let x = \"hello\"\n\
+  let y = x\n\
   y\n\
 ";
     struct frontend *fe = frontend_init();
@@ -549,9 +549,9 @@ let inc:int x:int = x + 1\n\
 TEST(test_analyzer, var_in_scope)
 {
     char test_code[] = "\n\
-x = 10\n\
+let x = 10\n\
 let getx()=\n\
-    y = 1.3\n\
+    let y = 1.3\n\
     y\n\
 getx()\n\
 x\n\
@@ -583,7 +583,7 @@ x\n\
 TEST(test_analyzer, array_type_decl)
 {
     char test_code[] = "\n\
-a:u8[2]\n\
+var a:u8[2]\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -601,8 +601,8 @@ TEST(test_analyzer, ret_value_flag)
 {
     char test_code[] = "\n\
 let getx()=\n\
-    x = 10\n\
-    y = x + 1\n\
+    let x = 10\n\
+    let y = x + 1\n\
     y\n\
 ";
     struct frontend *fe = frontend_init();
@@ -628,7 +628,7 @@ TEST(test_analyzer, ret_expr)
 {
     char test_code[] = "\n\
 let getx()=\n\
-    x = 10\n\
+    let x = 10\n\
     x + 1\n\
 ";
     struct frontend *fe = frontend_init();

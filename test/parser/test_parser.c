@@ -13,7 +13,7 @@
 TEST(test_parser, int_type)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "x:int";
+    char test_code[] = "var x:int";
     
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(BLOCK_NODE, block->node_type);
@@ -30,7 +30,7 @@ TEST(test_parser, int_type)
 TEST(test_parser, var_init)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "x = 11";
+    char test_code[] = "let x = 11";
     
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
@@ -47,7 +47,7 @@ TEST(test_parser, var_init)
 
 TEST(test_parser, var_init_name_with_underlying)
 {
-    char test_code[] = "m_x = 11";
+    char test_code[] = "let m_x = 11";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -64,7 +64,7 @@ TEST(test_parser, var_init_name_with_underlying)
 TEST(test_parser, var_struct_init)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "x:int = 11";
+    char test_code[] = "let x:int = 11";
     
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
@@ -83,7 +83,7 @@ TEST(test_parser, var_struct_init)
 TEST(test_parser, bool_init)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "x = true";
+    char test_code[] = "let x = true";
     
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
@@ -100,7 +100,7 @@ TEST(test_parser, bool_init)
 
 TEST(test_parser, char_init)
 {
-    char test_code[] = "x = 'c'";
+    char test_code[] = "let x = 'c'";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -118,7 +118,7 @@ TEST(test_parser, char_init)
 
 TEST(test_parser, string_init)
 {
-    char test_code[] = "x = \"hello world!\"";
+    char test_code[] = "let x = \"hello world!\"";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -192,8 +192,8 @@ TEST(test_parser, distance_function)
 {
     char test_code[] = "\n\
 let distance x1 y1 x2 y2 = \n\
-  xx = (x1-x2) * (x1-x2) \n\
-  yy = (y1-y2) * (y1-y2) \n\
+  let xx = (x1-x2) * (x1-x2) \n\
+  let yy = (y1-y2) * (y1-y2) \n\
   |/ (xx + yy)";
     struct frontend *fe = frontend_init();
     
@@ -390,12 +390,34 @@ pm 1";
     frontend_deinit(fe);
 }
 
+TEST(test_parser, pattern_match_variable)
+{
+    char test_code[] = "\n\
+let n = 10\n\
+let y = \n\
+    match n with\n\
+    | 0 -> 100\n\
+    | 1 -> 300\n\
+    | _ -> 400\n\
+y";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(3, array_size(&block->block->nodes));
+    struct ast_node *var = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    ASSERT_EQ(VAR_NODE, var->node_type);
+    ASSERT_EQ(MATCH_NODE, var->var->init_value->node_type);
+    struct ast_node *ident = *(struct ast_node **)array_back(&block->block->nodes);
+    ASSERT_EQ(IDENT_NODE, ident->node_type);
+    node_free(block);
+    frontend_deinit(fe);
+}
+
 TEST(test_parser, local_string_function)
 {
     char test_code[] = "\n\
 let to_string () = \n\
-  x = \"hello\" \n\
-  y = x \n\
+  let x = \"hello\" \n\
+  let y = x \n\
   y";
     struct frontend *fe = frontend_init();
     
@@ -476,7 +498,7 @@ TEST(test_parser, type_decl)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
-point:Point2D";
+var point:Point2D";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -519,7 +541,7 @@ TEST(test_parser, type_var_init)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
-xy = Point2D{10.0, 20.0}";
+let xy = Point2D{10.0, 20.0}";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -594,7 +616,7 @@ TEST(test_parser, use_type_field)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
-xy:Point2D = Point2D{0.0, 0.0} \n\
+let xy:Point2D = Point2D{0.0, 0.0} \n\
 xy.x";
     struct frontend *fe = frontend_init();
     
@@ -622,7 +644,7 @@ TEST(test_parser, member_field_assignment)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
-xy:Point2D = Point2D{0.0, 0.0} \n\
+var xy:Point2D = Point2D{0.0, 0.0} \n\
 xy.x = 10.0";
     struct frontend *fe = frontend_init();
     
@@ -723,7 +745,7 @@ TEST(test_parser, import_global)
 
 TEST(test_parser, ref_type)
 {
-    char test_code[] = "ri:&int";
+    char test_code[] = "var ri:&int";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -738,7 +760,7 @@ TEST(test_parser, ref_type)
 
 TEST(test_parser, create_ref_variable)
 {
-    char test_code[] = "ri = &i";
+    char test_code[] = "let ri = &i";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -754,7 +776,7 @@ TEST(test_parser, create_ref_variable)
 
 TEST(test_parser, create_deref_variable)
 {
-    char test_code[] = "ri = *i";
+    char test_code[] = "let ri = *i";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -771,7 +793,7 @@ TEST(test_parser, create_deref_variable)
 
 TEST(test_parser, array_variable)
 {
-    char test_code[] = "a = [10,20]";
+    char test_code[] = "var a = [10,20]";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
@@ -784,7 +806,7 @@ TEST(test_parser, array_variable)
 
 TEST(test_parser, onebytwo_array_variable)
 {
-    char test_code[] = "a = [[10,20]]";
+    char test_code[] = "var a = [[10,20]]";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
@@ -807,7 +829,7 @@ TEST(test_parser, onebytwo_array_variable)
 
 TEST(test_parser, twobytwo_array_variable)
 {
-    char test_code[] = "a = [[10,20], [30, 40]]";
+    char test_code[] = "var a = [[10,20], [30, 40]]";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
@@ -864,6 +886,7 @@ int test_parser()
     RUN_TEST(test_parser_if_condition_two_blocks);
     RUN_TEST(test_parser_if_condition_no_else);
     RUN_TEST(test_parser_pattern_match);
+    RUN_TEST(test_parser_pattern_match_variable);
     RUN_TEST(test_parser_local_string_function);
     RUN_TEST(test_parser_variadic_function);
     RUN_TEST(test_parser_func_type);

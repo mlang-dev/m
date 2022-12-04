@@ -14,7 +14,7 @@ complex cf64 is a builtin struct type defined as "struct cf64 = re:f64, im:f64",
 how to initialize a struct type variable and how to access field of the struct type variable.
 `, 
 `
-z = cf64 { 10.0, 20.0 }
+let z = cf64 { 10.0, 20.0 }
 z.re
 `, 10.0);
 
@@ -22,14 +22,14 @@ mtest.mtest('struct with different types', `
 use keyword "struct" to define a struct type`,
 `
 struct A = x:int, y:f64
-a = A { 10, 20.0 }
+let a = A { 10, 20.0 }
 a.y`, 20.0);
 
 mtest.mtest('union with different types', `
 use keyword "union" to define a union type`,
 `
 union A = x:int | y:int
-a = A { 10 }
+let a = A { 10 }
 a.y`, 10);
 
 mtest.mtest('access field no var', 
@@ -45,7 +45,7 @@ Struct could be nested. Here we embed struct cf64 inside struct AB.
 `, 
 `
 struct AB = a:cf64, b:cf64
-ab = AB {cf64{10.0, 20.0}, cf64 { 30.0, 40.0 }}
+let ab = AB {cf64{10.0, 20.0}, cf64 { 30.0, 40.0 }}
 ab.b.im
 `, 40.0);
 
@@ -68,7 +68,7 @@ initializing a struct AB object and return one of field a to the caller.
 `
 struct AB = a:cf64, b:cf64
 let get () = 
-    ab = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}
+    let ab = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}
     ab.a
 get().im
 `, 20.0);
@@ -87,7 +87,7 @@ mtest.mtest('pass return struct',
 `pass a struct and return a new struct to the caller then print the field of returned struct`,
 `
 let add z:cf64 op:f64 = cf64{z.re + op, z.im + op}
-x = cf64{10.0, 20.0}
+let x = cf64{10.0, 20.0}
 (add x 10.0).im
 `, 30.0);
 
@@ -101,8 +101,8 @@ let add z:cf64 op:f64 = cf64 { z.re + op, z.im + op }
 mtest.mtest('struct member assign struct', 'struct member assign struct',
 `
 struct xy = x:f64, y:f64
-struct wz = var w:f64, z:xy
-ab = wz{10.0, xy{20.0, 30.0}}
+struct wz = w:f64, z:mut xy
+let ab = wz{10.0, xy{20.0, 30.0}}
 ab.z = xy{200.0, 300.0}
 ab.z.y
 `, 300.0);
@@ -110,7 +110,7 @@ ab.z.y
 mtest.mtest('variable scope', 'variable scope', 
 `
 struct wz = w:f64, z:f64
-z = wz { 10.0, 20.0 }
+let z = wz { 10.0, 20.0 }
 z.z
 `, 20.0);
 
@@ -119,7 +119,7 @@ mtest.mtest('cf64 expr', `
 use field of struct in expression.
 `, 
 `
-z = cf64 { 10.0, 20.0 }
+let z = cf64 { 10.0, 20.0 }
 z.re + z.im
 `, 30.0);
 
@@ -128,7 +128,7 @@ Here we define a function returning a struct type cf64 and assign it to variable
 `, 
 `
 let z() = cf64 { 10.0, 20.0 }
-x = z()
+let x = z()
 x.re + x.im
 `, 30.0);
 
@@ -146,7 +146,7 @@ We can pass struct argument to a function.
 `, 
 `
 let im z:cf64 = z.im
-x = cf64 { 10.0, 20.0 }
+let x = cf64 { 10.0, 20.0 }
 im x
 `, 20.0);
 
@@ -173,7 +173,7 @@ Pass the struct data, and return with a struct with new value
 `
 let shift z:cf64 = 
     cf64{z.re + 100.0, z.im + 200.0}
-result = shift (cf64 { 10.0, 20.0 })
+let result = shift (cf64 { 10.0, 20.0 })
 result.re + result.im
 `, 110.0 + 220.0);
 
@@ -192,8 +192,8 @@ let sq z:cf64 = cf64 { z.re ** 2.0 - z.im ** 2.0, 2.0 * z.re * z.im }
 
 mtest.mtest('struct member assign', 'struct member assign',
 `
-struct Point = var x:f64, y:f64
-z = Point { 10.0, 20.0 }
+struct Point = x:mut f64, y:f64
+var z = Point { 10.0, 20.0 }
 z.x = 30.0
 z.x
 `, 30.0);
@@ -204,7 +204,7 @@ mtest.mtest('one element array init',
 initialize a 1 length of int array
 `, 
 `
-a = [10]
+var a = [10]
 a[0]
 `, 10);
 
@@ -213,7 +213,7 @@ mtest.mtest('more array element',
 initialize a two elements of int array
 `, 
 `
-a = [10, 20]
+var a = [10, 20]
 a[0]
 `, 10);
 
@@ -222,7 +222,7 @@ mtest.mtest('sum of elements',
 sum a two elements of int array
 `, 
 `
-a = [10, 20]
+var a = [10, 20]
 a[0] + a[1]
 `, 30);
 
@@ -231,7 +231,7 @@ mtest.mtest('update array element',
 update the first element of an array
 `, 
 `
-a = [10]
+var a = [10]
 a[0] = 20
 a[0]
 `, 20);
@@ -241,7 +241,7 @@ mtest.mtest('update second element',
 update the second element of an array
 `, 
 `
-a = [10,20]
+var a = [10,20]
 a[1] = 200
 a[0] + a[1]
 `, 210);
@@ -251,7 +251,7 @@ mtest.mtest('u8 array',
 declare a u8 array
 `, 
 `
-a:u8[2] = [10, 20]
+var a:u8[2] = [10, 20]
 a[0] + a[1]
 `, 30);
 
@@ -260,7 +260,7 @@ mtest.mtest('u8 array update',
 declare a u8 array
 `, 
 `
-a:u8[2] = [10, 20]
+var a:u8[2] = [10, 20]
 a[0] = 30
 a[1] = 40
 a[0] + a[1]
@@ -271,7 +271,7 @@ mtest.mtest('u8 two dimension array',
 declare a u8 two dimensions array
 `, 
 `
-a:u8[2][2] = [10, 20, 30, 40]
+var a:u8[2][2] = [10, 20, 30, 40]
 a[1][1]
 `, 40);
 
@@ -280,7 +280,7 @@ mtest.mtest('u8 two dimen update',
 update two dimensions array
 `, 
 `
-a:u8[2][2] = [10, 20, 30, 40]
+var a:u8[2][2] = [10, 20, 30, 40]
 a[1][1] = 100
 a[1][1]
 `, 100);
@@ -290,7 +290,7 @@ mtest.mtest('u8 access via var',
 update two dimensions array using variable
 `, 
 `
-a:u8[10][10]
+var a:u8[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j
@@ -302,7 +302,7 @@ mtest.mtest('u32 access via var',
 update two dimensions int array using variable
 `, 
 `
-a:u32[10][10]
+var a:u32[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j
@@ -314,7 +314,7 @@ mtest.mtest('pass array to a function',
 pass array variable to a function.
 `, 
 `
-a:u8[10][10]
+var a:u8[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j

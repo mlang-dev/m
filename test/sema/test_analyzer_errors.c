@@ -31,7 +31,7 @@ TEST(test_analyzer_error, fun_no_found)
 TEST(test_analyzer_error, type_mismatch)
 {
     char test_code[] = "\n\
-x:int = \"string\"\n\
+let x:int = \"string\"\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -47,7 +47,7 @@ x:int = \"string\"\n\
 TEST(test_analyzer_error, no_struct_type_found)
 {
     char test_code[] = "\n\
-x = 3\n\
+let x = 3\n\
 x.y\n\
 ";
     struct frontend *fe = frontend_init();
@@ -64,7 +64,7 @@ x.y\n\
 TEST(test_analyzer_error, no_array_type_found)
 {
     char test_code[] = "\n\
-x = 3\n\
+let x = 3\n\
 x[3]\n\
 ";
     struct frontend *fe = frontend_init();
@@ -130,7 +130,7 @@ x = 10.0\n\
 TEST(test_analyzer_error, id_not_mutable)
 {
     char test_code[] = "\n\
-x = 10\n\
+let x = 10\n\
 x = 20\n\
 ";
     struct frontend *fe = frontend_init();
@@ -148,7 +148,7 @@ x = 20\n\
 TEST(test_analyzer_error, id_not_assignable)
 {
     char test_code[] = "\n\
-x = 10\n\
+let x = 10\n\
 x += 20\n\
 ";
     struct frontend *fe = frontend_init();
@@ -166,7 +166,7 @@ x += 20\n\
 TEST(test_analyzer_error, id_not_inc)
 {
     char test_code[] = "\n\
-x = 10\n\
+let x = 10\n\
 x ++\n\
 ";
     struct frontend *fe = frontend_init();

@@ -10,12 +10,12 @@ sq 10.0
 
 mtest.mtest('return struct with var', 'return struct with var', 
 `
-struct Point2D = var x:f64, y:f64
+struct Point2D = x:mut f64, y:f64
 let change z:Point2D = 
     z.x = z.x * 2.0
     z
-old_z = cf64{10.0, 20.0}
-new_z = change old_z
+var old_z = cf64{10.0, 20.0}
+let new_z = change old_z
 new_z.x
 `, 20.0);
 
