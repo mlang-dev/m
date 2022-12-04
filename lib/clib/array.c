@@ -153,3 +153,8 @@ void array_reset(struct array *a)
 {
     a->base.size = 0;
 }
+
+void array_sort(struct array *a, cmp_fn_t compare)
+{
+    qsort(a->base.data.p_data, a->base.size, a->_element_size, compare);
+}
