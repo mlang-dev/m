@@ -156,7 +156,7 @@ match_case      = pattern  "->" expr                                            
 
 pattern         = IDENT              //variable pattern     
                 | literal_expr       //constant pattern
-                | '_'                //wildcard pattern
+                | '_'                                                                       { wild_card }//wildcard pattern                     
 
 // stmt and newline if it exists
 statement       = stmt

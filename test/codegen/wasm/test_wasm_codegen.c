@@ -80,6 +80,7 @@ let pm x = \n\
     match x with\n\
     | 0 -> 100\n\
     | 1 -> 200\n\
+    | _ -> 300\n\
 pm 0\n\
 ";
     u8 *wasm = _compile_code(test_code);

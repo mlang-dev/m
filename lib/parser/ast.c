@@ -1061,6 +1061,9 @@ struct ast_node *node_copy(struct ast_node *node)
     case CAST_NODE:
         clone = _copy_cast_node(node);
         break;
+    case WILDCARD_NODE:
+        clone = ast_node_new(WILDCARD_NODE, node->loc);
+        break;
     case NULL_NODE:
     case UNIT_NODE:
     case MEMORY_NODE:
@@ -1125,6 +1128,9 @@ void node_free(struct ast_node *node)
         break;
     case MATCH_CASE_NODE:
         _free_match_item_node(node);
+        break;
+    case WILDCARD_NODE:
+        ast_node_free(node);
         break;
     case FOR_NODE:
         _free_for_node(node);

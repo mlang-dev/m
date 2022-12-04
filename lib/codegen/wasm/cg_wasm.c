@@ -771,15 +771,26 @@ void _emit_jump_table(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
 
 void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
-    //
+    struct ast_node *default_node = 0;
+    struct array nodes;
+    array_init(&nodes, sizeof(struct ast_node *));
+    for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
+        struct ast_node *case_node = *(struct ast_node **)array_get(&node->match->match_cases->block->nodes, i);
+        if(case_node->match_case->pattern->node_type == WILDCARD_NODE) {
+            default_node = case_node->match_case->expr;
+            continue;
+        }
+        array_push(&nodes, &case_node);
+    }
     struct byte_array cases_ba, case_ba;
     ba_init(&cases_ba, 17);
     ba_init(&case_ba, 17);
     
-    u32 num_case = array_size(&node->match->match_cases->block->nodes);
+    u32 num_case = array_size(&nodes);
     _emit_jump_table(cg, &cases_ba, node->match->test_expr, num_case);
-    for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
-        struct ast_node *case_node = *(struct ast_node **)array_get(&node->match->match_cases->block->nodes, i);
+
+    for(size_t i = 0; i < array_size(&nodes); i++){
+        struct ast_node *case_node = *(struct ast_node **)array_get(&nodes, i);
         ba_reset(&case_ba);
         _emit_case_block(cg, &case_ba, &cases_ba, case_node->match_case->expr, num_case - i);
         //copy 
@@ -787,18 +798,19 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
         ba_add2(&cases_ba, &case_ba);
     }
     
-    //add default block
+    if(!default_node)
+        default_node = int_node_new(0, node->loc);
     {
-        struct ast_node *default_node = int_node_new(0, node->loc);
         ba_reset(&case_ba);
         _emit_case_block(cg, &case_ba, &cases_ba, default_node, 0);
         //copy 
         ba_reset(&cases_ba);
         ba_add2(&cases_ba, &case_ba);
-    }
+    }        
     ba_add2(ba, &cases_ba);
     ba_deinit(&cases_ba);
     ba_deinit(&case_ba);
+    array_deinit(&nodes);
 }
 
 void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type type)
@@ -1032,6 +1044,7 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             wasm_emit_array_init(cg, ba, node);
             break;
         case MATCH_CASE_NODE:
+        case WILDCARD_NODE:
         case UNION_NODE:
         case UNION_TYPE_ITEM_NODE:
         case ARRAY_TYPE_NODE:
