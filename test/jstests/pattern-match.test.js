@@ -1,5 +1,5 @@
 /**
- * M supports pattern matching for tagged union and other structured data types.
+ * Use pattern match to support pattern matching of int, wildcard and variable.
  */
 
 const mtest = require('./mtest.js');
@@ -142,3 +142,13 @@ let pm x =
     | _ -> 300
 pm 0
 `, 300);
+
+mtest.mtest('pattern match variable', 'Apply pattern match to variable case, matching the variable expr', 
+`
+let pm x =
+    match x with
+    | -1 -> 100
+    | 3 -> 200
+    | y -> y + 10
+pm 2
+`, 12);

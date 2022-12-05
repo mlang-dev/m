@@ -123,6 +123,21 @@ pm (-1)\n\
     free(wasm);
 }
 
+TEST(test_wasm_codegen, pattern_match_variable)
+{
+    char test_code[] = "\n\
+let pm x =\n\
+    match x with\n\
+    | -1 -> 100\n\
+    | 3 -> 200\n\
+    | y -> y + 300\n\
+pm (-1)\n\
+";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
@@ -134,6 +149,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_print);
     RUN_TEST(test_wasm_codegen_ternary_operator);
     RUN_TEST(test_wasm_codegen_pattern_match_negative);
+    RUN_TEST(test_wasm_codegen_pattern_match_variable);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

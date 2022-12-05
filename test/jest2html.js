@@ -28,6 +28,10 @@ const include_list = {
     "reference": {
         "files": ["reference.test.js"],
         "order": 5
+    },
+    "pattern-match": {
+        "files": ["pattern-match.test.js"],
+        "order": 6
     }
 };
 

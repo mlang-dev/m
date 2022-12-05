@@ -122,13 +122,6 @@ struct ast_node *_build_terminal_ast(struct token *tok)
         }
     return ast;
 }
-struct ast_node *_wrap_as_block_node(struct ast_node *node)
-{
-    struct array nodes;
-    array_init(&nodes, sizeof(struct ast_node *));
-    array_push(&nodes, &node);
-    return block_node_new(&nodes);
-}
 
 enum ast_action {
     MarkMutVar = 0,
@@ -398,7 +391,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             struct ast_node *func_body = _take(nodes, rule->action.item_index[2]);
             if (func_body->node_type != BLOCK_NODE) {
                 // convert to block node even it's a one line statement
-                func_body = _wrap_as_block_node(func_body);
+                func_body = wrap_as_block_node(func_body);
             }
             struct ast_node *ret_type_node = 0;
             if (rule->action.item_index_count == 4){
@@ -449,7 +442,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             assert(struct_name->node_type == IDENT_NODE);
             struct ast_node *struct_body = _take(nodes, rule->action.item_index[1]);
             if(struct_body->node_type != BLOCK_NODE){
-                struct_body = _wrap_as_block_node(struct_body);
+                struct_body = wrap_as_block_node(struct_body);
             }
             ast = adt_node_new(rule->action.node_type, struct_name->ident->name, struct_body, struct_name->loc);
             hashtable_set_int(symbol_2_int_types, struct_name->ident->name, TYPE_STRUCT);
@@ -523,12 +516,12 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             else if (rule->action.item_index_count == 1){
                 ast = _take(nodes, rule->action.item_index[0]);
                 if(ast->node_type != BLOCK_NODE)
-                    ast = _wrap_as_block_node(ast);
+                    ast = wrap_as_block_node(ast);
             }
             else if(rule->action.item_index_count == 2){
                 ast = _take(nodes, rule->action.item_index[0]);
                 if(ast->node_type != BLOCK_NODE){
-                    ast = _wrap_as_block_node(ast);
+                    ast = wrap_as_block_node(ast);
                 }
                 struct ast_node *node = _take(nodes, rule->action.item_index[1]);
                 if(node->node_type){

@@ -628,9 +628,21 @@ struct type_expr *_analyze_match(struct sema_context *context, struct ast_node *
     struct type_expr *test_type = analyze(context, node->match->test_expr);
     for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
         struct ast_node *case_node = *(struct ast_node**)array_get(&node->match->match_cases->block->nodes, i);
-        struct type_expr *pattern_type = analyze(context, case_node->match_case->pattern);
-        if(pattern_type)
+        struct ast_node *pattern = case_node->match_case->pattern;
+        if(pattern->node_type == IDENT_NODE){
+            //transformed to wildcard
+            struct ast_node *expr = case_node->match_case->expr;
+            pattern->transformed = ast_node_new(WILDCARD_NODE, pattern->loc);
+            struct ast_node *block = wrap_as_block_node(var_node_new(node_copy(pattern), 0, node_copy(node->match->test_expr), false, false, pattern->loc));
+            block_node_add(block, node_copy(expr));
+            analyze(context, block);
+            expr->transformed = block;
+            expr->type = block->type;
+        }
+        struct type_expr *pattern_type = analyze(context, pattern->transformed ? pattern->transformed : pattern);
+        if(pattern_type){
             unify(test_type, pattern_type, &context->nongens);
+        }
     }
     return analyze(context, node->match->match_cases);
 }

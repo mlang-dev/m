@@ -1,3 +1,13 @@
+# 0.0.38 (2022-12-04)
+* use variable pattern in pattern matching. e.g.
+```
+let pm x =
+    match x with
+    | -1 -> 100
+    | 3 -> 200
+    | y -> y + 10
+```
+
 # 0.0.37 (2022-12-03)
 
 * start to add pattern match: e.g.
