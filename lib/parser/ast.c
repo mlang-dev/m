@@ -1267,3 +1267,12 @@ void set_lvalue(struct ast_node *node)
         node->is_lvalue = true;
     }
 }
+
+struct ast_node *wrap_as_block_node(struct ast_node *node)
+{
+    if(node->node_type == BLOCK_NODE) return node;
+    struct array nodes;
+    array_init(&nodes, sizeof(struct ast_node *));
+    array_push(&nodes, &node);
+    return block_node_new(&nodes);
+}

@@ -9,6 +9,7 @@
 
 int eval(struct ast_node *node)
 {
+    if(node->transformed) node = node->transformed;
     switch(node->node_type){
     default:
         assert(false);

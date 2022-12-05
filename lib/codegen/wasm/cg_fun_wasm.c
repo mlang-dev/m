@@ -107,6 +107,14 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
                 collect_local_variables(cg, node->var->init_value);
             }
             break;
+        case MATCH_NODE:
+            for(u32 i = 0; i< array_size(&node->match->match_cases->block->nodes); i++){
+                collect_local_variables(cg, *(struct ast_node **)array_get(&node->match->match_cases->block->nodes, i));
+            }
+            break;
+        case MATCH_CASE_NODE:
+            collect_local_variables(cg, node->match_case->expr);
+            break;
         case CALL_NODE:
             func_register_local_variable(cg, node, true);
             for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){

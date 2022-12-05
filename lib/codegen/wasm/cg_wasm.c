@@ -805,7 +805,9 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     array_init(&nodes, sizeof(struct ast_node *));
     for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
         struct ast_node *case_node = *(struct ast_node **)array_get(&node->match->match_cases->block->nodes, i);
-        if(case_node->match_case->pattern->node_type == WILDCARD_NODE) {
+        struct ast_node *pattern = case_node->match_case->pattern;
+        if(pattern->transformed) pattern = pattern->transformed;
+        if(pattern->node_type == WILDCARD_NODE) {
             default_node = case_node->match_case->expr;
             continue;
         }
