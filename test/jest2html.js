@@ -77,9 +77,9 @@ function _generate_content_from_path(from_path)
                 test_code = code_lines.join('\n');
                 let code_rows =  code_lines.length;
                 const one_test_case = `
-                <div>${test_description}</div>
+                <div style="font-size: small;">${test_description}</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="${test_control_name}"  rows = "${code_rows}" style="resize: none;">${test_code}</textarea>
+                    <textarea id="${test_control_name}"  rows = "${code_rows}" style="resize: none; font-size: small">${test_code}</textarea>
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('${test_control_name}')" style="min-width: 50px;">run</button></div>
@@ -91,7 +91,7 @@ function _generate_content_from_path(from_path)
         }
     });
     return `
-    <div>${file_description}</div>
+    <div style="font-size: small"><b>${file_description}</b></div>
     ${test_cases}`;
 }
 

@@ -188,7 +188,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
     struct field_info *rfi;
     int end = array_size(&field_accessors) - 1;
     for(int i = end; i >= 0; i--){
-        struct ast_node *field_accessor = *(struct ast_node**)array_get(&field_accessors, i);
+        struct ast_node *field_accessor = array_get_p(&field_accessors, i);
         struct ast_node *aggr_node = field_accessor->index->object;
         struct ast_node *field_node = field_accessor->index->index;
         struct type_expr *aggr_type = aggr_node->type;

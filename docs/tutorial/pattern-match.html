@@ -69,11 +69,11 @@
         </nav>
     </p>
     
-    <div>Use pattern match to support pattern matching of int, wildcard and variable.</div>
+    <div style="font-size: small"><b>Use pattern match to support pattern matching of int, wildcard and variable.</b></div>
     
-                <div>Apply pattern match to integer</div>
+                <div style="font-size: small;">Apply pattern match to integer</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_int"  rows = "5" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_int"  rows = "5" style="resize: none; font-size: small">let pm x =
     match x with
     | 0 -> 100
     | 1 -> 200
@@ -84,9 +84,9 @@ pm 0</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_int_result"></div>
                 </div>
                 
-                <div>Apply pattern match to integer, matching the second case</div>
+                <div style="font-size: small;">Apply pattern match to integer, matching the second case</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_int_second"  rows = "5" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_int_second"  rows = "5" style="resize: none; font-size: small">let pm x =
     match x with
     | 0 -> 100
     | 1 -> 200
@@ -97,9 +97,9 @@ pm 1</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_int_second_result"></div>
                 </div>
                 
-                <div>Apply pattern match to integer, matching wildcard case</div>
+                <div style="font-size: small;">Apply pattern match to integer, matching wildcard case</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_wildcard"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_wildcard"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | 0 -> 100
     | 1 -> 200
@@ -111,9 +111,9 @@ pm 20</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_wildcard_result"></div>
                 </div>
                 
-                <div>Use pattern matching in variable initializer</div>
+                <div style="font-size: small;">Use pattern matching in variable initializer</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_with_variable"  rows = "7" style="resize: none;">let x = 100
+                    <textarea id="pattern_match_with_variable"  rows = "7" style="resize: none; font-size: small">let x = 100
 let y = 
     match x with
     | 0 -> 100
@@ -126,9 +126,9 @@ y</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_with_variable_result"></div>
                 </div>
                 
-                <div>Apply pattern match to integer, matching int out of order</div>
+                <div style="font-size: small;">Apply pattern match to integer, matching int out of order</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_out_of_order"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_out_of_order"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | 1 -> 100
     | 0 -> 200
@@ -140,9 +140,9 @@ pm 0</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_out_of_order_result"></div>
                 </div>
                 
-                <div>Apply pattern match to integer starting non-zero, matching the first</div>
+                <div style="font-size: small;">Apply pattern match to integer starting non-zero, matching the first</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_not_zero_base"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_not_zero_base"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | 1 -> 100
     | 2 -> 200
@@ -154,9 +154,9 @@ pm 1</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_not_zero_base_result"></div>
                 </div>
                 
-                <div>Apply pattern match to integer starting non-zero, matching second</div>
+                <div style="font-size: small;">Apply pattern match to integer starting non-zero, matching second</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_not_zero_second"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_not_zero_second"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | 1 -> 100
     | 2 -> 200
@@ -168,9 +168,9 @@ pm 2</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_not_zero_second_result"></div>
                 </div>
                 
-                <div>Apply pattern match to integer starting non-zero, matching wildcard</div>
+                <div style="font-size: small;">Apply pattern match to integer starting non-zero, matching wildcard</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_not_zero_wildcard"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_not_zero_wildcard"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | 1 -> 100
     | 2 -> 200
@@ -182,9 +182,9 @@ pm 0</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_not_zero_wildcard_result"></div>
                 </div>
                 
-                <div>Apply pattern match to integer case with gap, matching first</div>
+                <div style="font-size: small;">Apply pattern match to integer case with gap, matching first</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_gap_pattern"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_gap_pattern"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | 1 -> 100
     | 3 -> 200
@@ -196,9 +196,9 @@ pm 1</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_gap_pattern_result"></div>
                 </div>
                 
-                <div>Apply pattern match to integer case with gap, matching second</div>
+                <div style="font-size: small;">Apply pattern match to integer case with gap, matching second</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_gap_pattern_second"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_gap_pattern_second"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | 1 -> 100
     | 3 -> 200
@@ -210,9 +210,9 @@ pm 3</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_gap_pattern_second_result"></div>
                 </div>
                 
-                <div>Apply pattern match to integer case with gap, matching wildcard</div>
+                <div style="font-size: small;">Apply pattern match to integer case with gap, matching wildcard</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_gap_pattern_wildcard"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_gap_pattern_wildcard"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | 1 -> 100
     | 3 -> 200
@@ -224,9 +224,9 @@ pm 2</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_gap_pattern_wildcard_result"></div>
                 </div>
                 
-                <div>Apply pattern match to negative integer case</div>
+                <div style="font-size: small;">Apply pattern match to negative integer case</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_negative"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_negative"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | -1 -> 100
     | 3 -> 200
@@ -238,9 +238,9 @@ pm (-1)</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_negative_result"></div>
                 </div>
                 
-                <div>Apply pattern match to negative integer case, matching the second</div>
+                <div style="font-size: small;">Apply pattern match to negative integer case, matching the second</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_negative_second_match"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_negative_second_match"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | -1 -> 100
     | 3 -> 200
@@ -252,9 +252,9 @@ pm 3</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_negative_second_match_result"></div>
                 </div>
                 
-                <div>Apply pattern match to negative integer case, matching the wildcard</div>
+                <div style="font-size: small;">Apply pattern match to negative integer case, matching the wildcard</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_negative_wildcard"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_negative_wildcard"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | -1 -> 100
     | 3 -> 200
@@ -266,9 +266,9 @@ pm 0</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_negative_wildcard_result"></div>
                 </div>
                 
-                <div>Apply pattern match to variable case, matching the variable expr</div>
+                <div style="font-size: small;">Apply pattern match to variable case, matching the variable expr</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pattern_match_variable"  rows = "6" style="resize: none;">let pm x =
+                    <textarea id="pattern_match_variable"  rows = "6" style="resize: none; font-size: small">let pm x =
     match x with
     | -1 -> 100
     | 3 -> 200

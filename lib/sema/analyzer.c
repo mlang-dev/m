@@ -46,7 +46,7 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
         for(u32 i=0; i<array_size(&type_node->array_type_node->dims->block->nodes); i++){
             struct ast_node *elm_size_node = *(struct ast_node **)array_get(&type_node->array_type_node->dims->block->nodes, i);
             u32 dim_size = eval(elm_size_node);
-            array_push(&dims, &dim_size);
+            array_push_u32(&dims, dim_size);
         }
         return create_array_type(value_type, &dims);
     }
@@ -287,7 +287,7 @@ struct type_expr *_analyze_array_init(struct sema_context *context, struct ast_n
         type = create_array_type(element_type, &dims);
     }else if(node->array_init->node_type == BLOCK_NODE){
         u32 size = array_size(&node->array_init->block->nodes);
-        array_push(&dims, &size);
+        array_push_u32(&dims, size);
         if(size){
             for(u32 i = 0; i < array_size(&node->array_init->block->nodes); i++){
                 struct ast_node *element = *(struct ast_node **)array_get(&node->array_init->block->nodes, i);
@@ -310,7 +310,7 @@ struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_n
     for(u32 i = 0; i < array_size(&node->array_init->block->nodes); i++){
         struct ast_node *dim_node = *(struct ast_node **)array_get(&node->array_init->block->nodes, i);
         u32 dim = eval(dim_node);
-        array_push(&dims, &dim);
+        array_push_u32(&dims, dim);
     }
     return create_array_type(elm_type, &dims);
 }
@@ -523,7 +523,7 @@ struct type_expr *_analyze_array_member_accessor(struct sema_context *context, s
         array_init(&dims, sizeof(u32));
         for(u32 i = 1; i < array_size(&type->dims); i++){
             u32 size = *(u32*)array_get(&type->dims, i);
-            array_push(&dims, &size);
+            array_push_u32(&dims, size);
         }
         return create_array_type(type->val_type, &dims);
     }
@@ -627,7 +627,7 @@ struct type_expr *_analyze_match(struct sema_context *context, struct ast_node *
 {
     struct type_expr *test_type = analyze(context, node->match->test_expr);
     for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
-        struct ast_node *case_node = *(struct ast_node**)array_get(&node->match->match_cases->block->nodes, i);
+        struct ast_node *case_node = array_get_p(&node->match->match_cases->block->nodes, i);
         struct ast_node *pattern = case_node->match_case->pattern;
         if(pattern->node_type == IDENT_NODE){
             //transformed to wildcard

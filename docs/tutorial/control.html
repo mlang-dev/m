@@ -69,12 +69,12 @@
         </nav>
     </p>
     
-    <div>M supports the following control flow statements if then/else, for loop and while loop. The ternary operator
-? is also suported for brevity of if-else expression.</div>
+    <div style="font-size: small"><b>M supports the following control flow statements if then/else, for loop and while loop. The ternary operator
+? is also suported for brevity of if-else expression.</b></div>
     
-                <div>use bool variable</div>
+                <div style="font-size: small;">use bool variable</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="use_bool_variable"  rows = "2" style="resize: none;">let x = 10
+                    <textarea id="use_bool_variable"  rows = "2" style="resize: none; font-size: small">let x = 10
 if x then 100 else 10</textarea>
                 </div>
                 <div>
@@ -82,9 +82,9 @@ if x then 100 else 10</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "use_bool_variable_result"></div>
                 </div>
                 
-                <div>only if but no else branch</div>
+                <div style="font-size: small;">only if but no else branch</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="if_but_no_else"  rows = "4" style="resize: none;">var x = 10
+                    <textarea id="if_but_no_else"  rows = "4" style="resize: none; font-size: small">var x = 10
 if x==10 then 
     x = 100
 x</textarea>
@@ -94,9 +94,9 @@ x</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "if_but_no_else_result"></div>
                 </div>
                 
-                <div>use ternary operator</div>
+                <div style="font-size: small;">use ternary operator</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="ternary_operator"  rows = "2" style="resize: none;">let x = 10
+                    <textarea id="ternary_operator"  rows = "2" style="resize: none; font-size: small">let x = 10
 x ? 1 : 0</textarea>
                 </div>
                 <div>
@@ -104,27 +104,27 @@ x ? 1 : 0</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "ternary_operator_result"></div>
                 </div>
                 
-                <div>if 0 statement</div>
+                <div style="font-size: small;">if 0 statement</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="if_0_statement"  rows = "1" style="resize: none;">if 0 then 100 else 10</textarea>
+                    <textarea id="if_0_statement"  rows = "1" style="resize: none; font-size: small">if 0 then 100 else 10</textarea>
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_0_statement')" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "if_0_statement_result"></div>
                 </div>
                 
-                <div>use false literal</div>
+                <div style="font-size: small;">use false literal</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="if_false_statement"  rows = "1" style="resize: none;">if false then 100 else 10</textarea>
+                    <textarea id="if_false_statement"  rows = "1" style="resize: none; font-size: small">if false then 100 else 10</textarea>
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_false_statement')" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "if_false_statement_result"></div>
                 </div>
                 
-                <div>else if statement - choose first branch</div>
+                <div style="font-size: small;">else if statement - choose first branch</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="else_if_statement_first"  rows = "6" style="resize: none;">let choice n = 
+                    <textarea id="else_if_statement_first"  rows = "6" style="resize: none; font-size: small">let choice n = 
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
@@ -136,9 +136,9 @@ choice 10</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_first_result"></div>
                 </div>
                 
-                <div>else if statement - choose second branch</div>
+                <div style="font-size: small;">else if statement - choose second branch</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="else_if_statement_second"  rows = "6" style="resize: none;">let choice n = 
+                    <textarea id="else_if_statement_second"  rows = "6" style="resize: none; font-size: small">let choice n = 
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
@@ -150,9 +150,9 @@ choice 20</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_second_result"></div>
                 </div>
                 
-                <div>else if statement - choose third branch</div>
+                <div style="font-size: small;">else if statement - choose third branch</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="else_if_statement_third"  rows = "6" style="resize: none;">let choice n = 
+                    <textarea id="else_if_statement_third"  rows = "6" style="resize: none; font-size: small">let choice n = 
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
@@ -164,9 +164,9 @@ choice 30</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_third_result"></div>
                 </div>
                 
-                <div>else if statement - choose else branch</div>
+                <div style="font-size: small;">else if statement - choose else branch</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="else_if_statement_else"  rows = "6" style="resize: none;">let choice n = 
+                    <textarea id="else_if_statement_else"  rows = "6" style="resize: none; font-size: small">let choice n = 
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
@@ -178,9 +178,9 @@ choice 40</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_else_result"></div>
                 </div>
                 
-                <div>for loop statement</div>
+                <div style="font-size: small;">for loop statement</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="for_loop_statement"  rows = "4" style="resize: none;">var sum = 0
+                    <textarea id="for_loop_statement"  rows = "4" style="resize: none; font-size: small">var sum = 0
 for i in 0..5
     sum = sum + i
 sum</textarea>
@@ -190,9 +190,9 @@ sum</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_statement_result"></div>
                 </div>
                 
-                <div>for loop statement using float type</div>
+                <div style="font-size: small;">for loop statement using float type</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="for_loop_statement_float"  rows = "4" style="resize: none;">var sum = 0.0
+                    <textarea id="for_loop_statement_float"  rows = "4" style="resize: none; font-size: small">var sum = 0.0
 for i in 0.0..5.0
     sum = sum + i
 sum</textarea>
@@ -202,9 +202,9 @@ sum</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_statement_float_result"></div>
                 </div>
                 
-                <div>for loop statement with step variable</div>
+                <div style="font-size: small;">for loop statement with step variable</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="for_loop_with_step"  rows = "5" style="resize: none;">let step = 2
+                    <textarea id="for_loop_with_step"  rows = "5" style="resize: none; font-size: small">let step = 2
 var sum = 0
 for i in 2..step..10
     sum = sum + i
@@ -215,9 +215,9 @@ sum</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_with_step_result"></div>
                 </div>
                 
-                <div>nest for loop statement</div>
+                <div style="font-size: small;">nest for loop statement</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="nest_for_loop"  rows = "5" style="resize: none;">var sum = 0
+                    <textarea id="nest_for_loop"  rows = "5" style="resize: none; font-size: small">var sum = 0
 for i in 1..3
     for j in 1..3
         sum = sum + i * j
@@ -228,9 +228,9 @@ sum</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "nest_for_loop_result"></div>
                 </div>
                 
-                <div>implement factorial using recursive</div>
+                <div style="font-size: small;">implement factorial using recursive</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="recursive_factorial"  rows = "2" style="resize: none;">let factorial n = if n == 1 then n else n * factorial (n-1)
+                    <textarea id="recursive_factorial"  rows = "2" style="resize: none; font-size: small">let factorial n = if n == 1 then n else n * factorial (n-1)
 factorial 5</textarea>
                 </div>
                 <div>
@@ -238,9 +238,9 @@ factorial 5</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "recursive_factorial_result"></div>
                 </div>
                 
-                <div>implement factorial using for loop</div>
+                <div style="font-size: small;">implement factorial using for loop</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="for_loop_factorial"  rows = "6" style="resize: none;">let factorial n = 
+                    <textarea id="for_loop_factorial"  rows = "6" style="resize: none; font-size: small">let factorial n = 
     var p = 1
     for i in 2..n+1
         p = p * i
@@ -252,9 +252,9 @@ factorial 5</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_factorial_result"></div>
                 </div>
                 
-                <div>use break statement in for loop</div>
+                <div style="font-size: small;">use break statement in for loop</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="for_loop_break_if"  rows = "4" style="resize: none;">for i in 0..10
+                    <textarea id="for_loop_break_if"  rows = "4" style="resize: none; font-size: small">for i in 0..10
     if i == 5 then 
         break
 i</textarea>
@@ -264,9 +264,9 @@ i</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_break_if_result"></div>
                 </div>
                 
-                <div>use break statement in for-loop without using if-statement</div>
+                <div style="font-size: small;">use break statement in for-loop without using if-statement</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="for_loop_break"  rows = "3" style="resize: none;">for i in 0..10
+                    <textarea id="for_loop_break"  rows = "3" style="resize: none; font-size: small">for i in 0..10
     break
 i</textarea>
                 </div>
@@ -275,9 +275,9 @@ i</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_break_result"></div>
                 </div>
                 
-                <div>use break statement in for-loop without using if-statement</div>
+                <div style="font-size: small;">use break statement in for-loop without using if-statement</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="for_loop_break"  rows = "3" style="resize: none;">for i in 0..10
+                    <textarea id="for_loop_break"  rows = "3" style="resize: none; font-size: small">for i in 0..10
     break
 i</textarea>
                 </div>
@@ -286,9 +286,9 @@ i</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_break_result"></div>
                 </div>
                 
-                <div>use while loop</div>
+                <div style="font-size: small;">use while loop</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="while_loop"  rows = "4" style="resize: none;">var i = 0
+                    <textarea id="while_loop"  rows = "4" style="resize: none; font-size: small">var i = 0
 while i < 10
     i = i + 1
 i</textarea>
@@ -298,9 +298,9 @@ i</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "while_loop_result"></div>
                 </div>
                 
-                <div>break while loop</div>
+                <div style="font-size: small;">break while loop</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="while_loop_break"  rows = "6" style="resize: none;">var i = 0
+                    <textarea id="while_loop_break"  rows = "6" style="resize: none; font-size: small">var i = 0
 while i < 10
     if i == 5 then
         break
@@ -312,9 +312,9 @@ i</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "while_loop_break_result"></div>
                 </div>
                 
-                <div>use continue in while loop</div>
+                <div style="font-size: small;">use continue in while loop</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="while_loop_continue"  rows = "8" style="resize: none;">var i = 0
+                    <textarea id="while_loop_continue"  rows = "8" style="resize: none; font-size: small">var i = 0
 var n = 0
 while i < 5
     i = i + 1
@@ -328,9 +328,9 @@ n</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "while_loop_continue_result"></div>
                 </div>
                 
-                <div>use continue in for loop</div>
+                <div style="font-size: small;">use continue in for loop</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="for_loop_continue"  rows = "6" style="resize: none;">var n = 0
+                    <textarea id="for_loop_continue"  rows = "6" style="resize: none; font-size: small">var n = 0
 for i in 0..5
     if i == 3 then
         continue

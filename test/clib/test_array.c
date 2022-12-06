@@ -10,34 +10,34 @@
 TEST(test_array, init_int)
 {
     struct array arr;
-    array_init(&arr, sizeof(int));
-    int i = 10, j = 20;
-    array_push(&arr, &i);
-    array_push(&arr, &j);
+    array_init(&arr, sizeof(u32));
+    u32 i = 10, j = 20;
+    array_push_u32(&arr, i);
+    array_push_u32(&arr, j);
     ASSERT_EQ(2, array_size(&arr));
-    ASSERT_EQ(10, *((int*)array_get(&arr, 0)));
-    ASSERT_EQ(20, *((int*)array_get(&arr, 1)));
+    ASSERT_EQ(10, array_get_u32(&arr, 0));
+    ASSERT_EQ(20, array_get_u32(&arr, 1));
     array_deinit(&arr);
 }
 
 int cmp(const void *elm1, const void *elm2)
 {
-    int f = *(int*)elm1;
-    int s = *(int*)elm2;
+    u32 f = *(u32*)elm1;
+    u32 s = *(u32*)elm2;
     return f - s;
 }
 
 TEST(test_array, sort_int)
 {
     struct array arr;
-    array_init(&arr, sizeof(int));
-    int i = 20, j = 10;
-    array_push(&arr, &i);
-    array_push(&arr, &j);
+    array_init(&arr, sizeof(u32));
+    u32 i = 20, j = 10;
+    array_push_u32(&arr, i);
+    array_push_u32(&arr, j);
     array_sort(&arr, cmp);
     ASSERT_EQ(2, array_size(&arr));
-    ASSERT_EQ(10, *((int*)array_get(&arr, 0)));
-    ASSERT_EQ(20, *((int*)array_get(&arr, 1)));
+    ASSERT_EQ(10, array_get_u32(&arr, 0));
+    ASSERT_EQ(20, array_get_u32(&arr, 1));
     array_deinit(&arr);
 }
 

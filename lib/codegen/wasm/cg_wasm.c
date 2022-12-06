@@ -785,15 +785,15 @@ void _build_index_vector(u32 default_index, struct array *nodes, struct array *i
     int pattern_value = 0;
     int last_value = 0;
     for(u32 i = 0; i < array_size(nodes); i++){
-        struct ast_node *case_node = *(struct ast_node **)array_get(nodes, i);
+        struct ast_node *case_node = array_get_p(nodes, i);
         pattern_value = eval(case_node->match_case->pattern);
         if(i > 0){ //start from the second
             int gap = pattern_value - last_value - 1;
             for(int j = 0; j < gap; j++){
-                array_push(index_vector, &default_index);
+                array_push_u32(index_vector, default_index);
             }
         }
-        array_push(index_vector, &i);
+        array_push_u32(index_vector, i);
         last_value = pattern_value;
     }
 }
@@ -804,7 +804,7 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     struct array nodes;
     array_init(&nodes, sizeof(struct ast_node *));
     for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
-        struct ast_node *case_node = *(struct ast_node **)array_get(&node->match->match_cases->block->nodes, i);
+        struct ast_node *case_node = array_get_p(&node->match->match_cases->block->nodes, i);
         struct ast_node *pattern = case_node->match_case->pattern;
         if(pattern->transformed) pattern = pattern->transformed;
         if(pattern->node_type == WILDCARD_NODE) {
@@ -819,7 +819,7 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     ba_init(&case_ba, 17);
     
     u32 num_case = array_size(&nodes);
-    struct ast_node *start_node = *(struct ast_node **)array_front(&nodes);
+    struct ast_node *start_node = array_front_p(&nodes);
     int start_value = eval(start_node->match_case->pattern);
     struct ast_node *test_expr = 0;
     if(start_value){
@@ -831,7 +831,7 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     _emit_jump_table(cg, &cases_ba, test_expr ? test_expr : node->match->test_expr, &index_vector, num_case);
 
     for(size_t i = 0; i < array_size(&nodes); i++){
-        struct ast_node *case_node = *(struct ast_node **)array_get(&nodes, i);
+        struct ast_node *case_node = array_get_p(&nodes, i);
         ba_reset(&case_ba);
         _emit_case_block(cg, &case_ba, &cases_ba, case_node->match_case->expr, num_case - i);
         //copy 
@@ -1266,7 +1266,7 @@ void _emit_data_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
     ba_add(ba, OPCODE_END);
     wasm_emit_uint(ba, cg->data_offset);
     for (u32 i = 0; i < num_data; i++) {
-        struct ast_node *node = *(struct ast_node**)array_get(&block->block->nodes, i);
+        struct ast_node *node = array_get_p(&block->block->nodes, i);
         assert(node->node_type == LITERAL_NODE);
         //data array size and content
         u32 str_length = strlen(node->liter->str_val);

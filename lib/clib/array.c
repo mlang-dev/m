@@ -13,6 +13,32 @@
 #include "clib/generic.h"
 #include "clib/util.h"
 
+#define array_t_impl(type_name, postfix) \
+type_name array_get_##postfix(struct array *arr, size_t index) \
+{ \
+    u8 *data = (u8*)arr->base.data.p_data + (index * arr->_element_size);\
+    return *(type_name *)data;\
+}\
+type_name array_back_##postfix(struct array *arr)\
+{\
+    return *(type_name *)array_back(arr);\
+}\
+type_name array_front_##postfix(struct array *arr)\
+{\
+    return *(type_name *)array_front(arr);\
+}\
+type_name array_pop_##postfix(struct array *arr)\
+{\
+    return *(type_name *)array_pop(arr);\
+}\
+void array_push_##postfix(struct array *arr, type_name element)\
+{\
+    array_push(arr, &element);\
+}
+
+array_t_impl(u32, u32)
+array_t_impl(void *, p)
+
 struct array *array_new(size_t element_size)
 {
     struct array *arr;
@@ -158,3 +184,4 @@ void array_sort(struct array *a, cmp_fn_t compare)
 {
     qsort(a->base.data.p_data, a->base.size, a->_element_size, compare);
 }
+
