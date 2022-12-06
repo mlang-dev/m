@@ -69,19 +69,19 @@
         </nav>
     </p>
     
-    <div>struct and array are aggregate types in m. Their data are stored on the stack by default. M uses call-by-value convention to pass arguments
+    <div style="font-size: small"><b>struct and array are aggregate types in m. Their data are stored on the stack by default. M uses call-by-value convention to pass arguments
 to the called function. Struct type in m is a value type. When the passed argument is struct type, the struct data is duplicated and 
 its reference/address is passed to the function. This is to prevent the struct value is being changed by the callee.
 
 Array type is a reference type in m. When you assign an array object to a variable, only its address is assigned to the variable. The operation is 
-super efficlient and this is in contrast to struct type assignment, where its contents are copied to the assigned variable.</div>
+super efficlient and this is in contrast to struct type assignment, where its contents are copied to the assigned variable.</b></div>
     
-                <div>
+                <div style="font-size: small;">
 complex cf64 is a builtin struct type defined as "struct cf64 = re:f64, im:f64", the example below shows
 how to initialize a struct type variable and how to access field of the struct type variable.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="cf64_re"  rows = "2" style="resize: none;">let z = cf64 { 10.0, 20.0 }
+                    <textarea id="cf64_re"  rows = "2" style="resize: none; font-size: small">let z = cf64 { 10.0, 20.0 }
 z.re</textarea>
                 </div>
                 <div>
@@ -89,10 +89,10 @@ z.re</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "cf64_re_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 use keyword "struct" to define a struct type</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="struct_with_different_types"  rows = "3" style="resize: none;">struct A = x:int, y:f64
+                    <textarea id="struct_with_different_types"  rows = "3" style="resize: none; font-size: small">struct A = x:int, y:f64
 let a = A { 10, 20.0 }
 a.y</textarea>
                 </div>
@@ -101,10 +101,10 @@ a.y</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_with_different_types_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 use keyword "union" to define a union type</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="union_with_different_types"  rows = "3" style="resize: none;">union A = x:int | y:int
+                    <textarea id="union_with_different_types"  rows = "3" style="resize: none; font-size: small">union A = x:int | y:int
 let a = A { 10 }
 a.y</textarea>
                 </div>
@@ -113,9 +113,9 @@ a.y</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "union_with_different_types_result"></div>
                 </div>
                 
-                <div>access struct initializer's field without using a variable</div>
+                <div style="font-size: small;">access struct initializer's field without using a variable</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="access_field_no_var"  rows = "2" style="resize: none;">struct A = x:int, y:f64
+                    <textarea id="access_field_no_var"  rows = "2" style="resize: none; font-size: small">struct A = x:int, y:f64
 A { 10, 20.0 }.y</textarea>
                 </div>
                 <div>
@@ -123,11 +123,11 @@ A { 10, 20.0 }.y</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "access_field_no_var_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 Struct could be nested. Here we embed struct cf64 inside struct AB.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="struct_in_struct"  rows = "3" style="resize: none;">struct AB = a:cf64, b:cf64
+                    <textarea id="struct_in_struct"  rows = "3" style="resize: none; font-size: small">struct AB = a:cf64, b:cf64
 let ab = AB {cf64{10.0, 20.0}, cf64 { 30.0, 40.0 }}
 ab.b.im</textarea>
                 </div>
@@ -136,11 +136,11 @@ ab.b.im</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_in_struct_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 return a nesting struct from a function
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="return_struct_in_struct"  rows = "3" style="resize: none;">struct AB = a:cf64, b:cf64
+                    <textarea id="return_struct_in_struct"  rows = "3" style="resize: none; font-size: small">struct AB = a:cf64, b:cf64
 let get () = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}
 get().b.im</textarea>
                 </div>
@@ -149,12 +149,12 @@ get().b.im</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "return_struct_in_struct_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 We define struct AB as two fields, each of which is also a cf64 struct. The following code is 
 initializing a struct AB object and return one of field a to the caller.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="return_field_from_struct"  rows = "5" style="resize: none;">struct AB = a:cf64, b:cf64
+                    <textarea id="return_field_from_struct"  rows = "5" style="resize: none; font-size: small">struct AB = a:cf64, b:cf64
 let get () = 
     let ab = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}
     ab.a
@@ -165,11 +165,11 @@ get().im</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "return_field_from_struct_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 One more time, but this time we eliminate a variable in the function.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="return_field_struct"  rows = "3" style="resize: none;">struct AB = a:cf64, b:cf64
+                    <textarea id="return_field_struct"  rows = "3" style="resize: none; font-size: small">struct AB = a:cf64, b:cf64
 let get () = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}.a
 get().re</textarea>
                 </div>
@@ -178,9 +178,9 @@ get().re</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "return_field_struct_result"></div>
                 </div>
                 
-                <div>pass a struct and return a new struct to the caller then print the field of returned struct</div>
+                <div style="font-size: small;">pass a struct and return a new struct to the caller then print the field of returned struct</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_return_struct"  rows = "3" style="resize: none;">let add z:cf64 op:f64 = cf64{z.re + op, z.im + op}
+                    <textarea id="pass_return_struct"  rows = "3" style="resize: none; font-size: small">let add z:cf64 op:f64 = cf64{z.re + op, z.im + op}
 let x = cf64{10.0, 20.0}
 (add x 10.0).im</textarea>
                 </div>
@@ -189,9 +189,9 @@ let x = cf64{10.0, 20.0}
                     <div style="display: inline-block; margin-left:5px;" id= "pass_return_struct_result"></div>
                 </div>
                 
-                <div>pass a struct and return a new struct the caller without any temp variable</div>
+                <div style="font-size: small;">pass a struct and return a new struct the caller without any temp variable</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_return_struct_no_variable"  rows = "2" style="resize: none;">let add z:cf64 op:f64 = cf64 { z.re + op, z.im + op }
+                    <textarea id="pass_return_struct_no_variable"  rows = "2" style="resize: none; font-size: small">let add z:cf64 op:f64 = cf64 { z.re + op, z.im + op }
 (add (cf64 { 10.0, 20.0 }) 10.0).re</textarea>
                 </div>
                 <div>
@@ -199,9 +199,9 @@ let x = cf64{10.0, 20.0}
                     <div style="display: inline-block; margin-left:5px;" id= "pass_return_struct_no_variable_result"></div>
                 </div>
                 
-                <div>struct member assign struct</div>
+                <div style="font-size: small;">struct member assign struct</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="struct_member_assign_struct"  rows = "5" style="resize: none;">struct xy = x:f64, y:f64
+                    <textarea id="struct_member_assign_struct"  rows = "5" style="resize: none; font-size: small">struct xy = x:f64, y:f64
 struct wz = w:f64, z:mut xy
 let ab = wz{10.0, xy{20.0, 30.0}}
 ab.z = xy{200.0, 300.0}
@@ -212,9 +212,9 @@ ab.z.y</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_member_assign_struct_result"></div>
                 </div>
                 
-                <div>variable scope</div>
+                <div style="font-size: small;">variable scope</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="variable_scope"  rows = "3" style="resize: none;">struct wz = w:f64, z:f64
+                    <textarea id="variable_scope"  rows = "3" style="resize: none; font-size: small">struct wz = w:f64, z:f64
 let z = wz { 10.0, 20.0 }
 z.z</textarea>
                 </div>
@@ -223,11 +223,11 @@ z.z</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "variable_scope_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 use field of struct in expression.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="cf64_expr"  rows = "2" style="resize: none;">let z = cf64 { 10.0, 20.0 }
+                    <textarea id="cf64_expr"  rows = "2" style="resize: none; font-size: small">let z = cf64 { 10.0, 20.0 }
 z.re + z.im</textarea>
                 </div>
                 <div>
@@ -235,11 +235,11 @@ z.re + z.im</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "cf64_expr_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 Here we define a function returning a struct type cf64 and assign it to variable x.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="return_struct"  rows = "3" style="resize: none;">let z() = cf64 { 10.0, 20.0 }
+                    <textarea id="return_struct"  rows = "3" style="resize: none; font-size: small">let z() = cf64 { 10.0, 20.0 }
 let x = z()
 x.re + x.im</textarea>
                 </div>
@@ -248,11 +248,11 @@ x.re + x.im</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "return_struct_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 We can directly access return of function call without assigning a variable.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="return_struct_no_var"  rows = "2" style="resize: none;">let z() = cf64 { 10.0, 20.0 }
+                    <textarea id="return_struct_no_var"  rows = "2" style="resize: none; font-size: small">let z() = cf64 { 10.0, 20.0 }
 z().im</textarea>
                 </div>
                 <div>
@@ -260,11 +260,11 @@ z().im</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "return_struct_no_var_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 We can pass struct argument to a function.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_struct"  rows = "3" style="resize: none;">let im z:cf64 = z.im
+                    <textarea id="pass_struct"  rows = "3" style="resize: none; font-size: small">let im z:cf64 = z.im
 let x = cf64 { 10.0, 20.0 }
 im x</textarea>
                 </div>
@@ -273,11 +273,11 @@ im x</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_struct_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 We can pass struct argument directly without a variable to a function.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_struct_no_var"  rows = "2" style="resize: none;">let im z:cf64 = z.im
+                    <textarea id="pass_struct_no_var"  rows = "2" style="resize: none; font-size: small">let im z:cf64 = z.im
 im (cf64 { 10.0, 20.0 })</textarea>
                 </div>
                 <div>
@@ -285,11 +285,11 @@ im (cf64 { 10.0, 20.0 })</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_struct_no_var_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 Pass the struct data, and return with expression using one field
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_struct_add_one_value"  rows = "3" style="resize: none;">let im z:cf64 = 
+                    <textarea id="pass_struct_add_one_value"  rows = "3" style="resize: none; font-size: small">let im z:cf64 = 
     z.im + 200.0
 im (cf64 { 10.0, 20.0 })</textarea>
                 </div>
@@ -298,11 +298,11 @@ im (cf64 { 10.0, 20.0 })</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_one_value_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 Pass the struct data, and return with a struct with new value
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_struct_add_value"  rows = "4" style="resize: none;">let shift z:cf64 = 
+                    <textarea id="pass_struct_add_value"  rows = "4" style="resize: none; font-size: small">let shift z:cf64 = 
     cf64{z.re + 100.0, z.im + 200.0}
 let result = shift (cf64 { 10.0, 20.0 })
 result.re + result.im</textarea>
@@ -312,9 +312,9 @@ result.re + result.im</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_value_result"></div>
                 </div>
                 
-                <div>struct member assign</div>
+                <div style="font-size: small;">struct member assign</div>
                 <div style="margin-top: 10px;">
-                    <textarea id="struct_member_assign"  rows = "4" style="resize: none;">struct Point = x:mut f64, y:f64
+                    <textarea id="struct_member_assign"  rows = "4" style="resize: none; font-size: small">struct Point = x:mut f64, y:f64
 var z = Point { 10.0, 20.0 }
 z.x = 30.0
 z.x</textarea>
@@ -324,11 +324,11 @@ z.x</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_member_assign_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 initialize a 1 length of int array
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="one_element_array_init"  rows = "2" style="resize: none;">var a = [10]
+                    <textarea id="one_element_array_init"  rows = "2" style="resize: none; font-size: small">var a = [10]
 a[0]</textarea>
                 </div>
                 <div>
@@ -336,11 +336,11 @@ a[0]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "one_element_array_init_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 initialize a two elements of int array
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="more_array_element"  rows = "2" style="resize: none;">var a = [10, 20]
+                    <textarea id="more_array_element"  rows = "2" style="resize: none; font-size: small">var a = [10, 20]
 a[0]</textarea>
                 </div>
                 <div>
@@ -348,11 +348,11 @@ a[0]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "more_array_element_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 sum a two elements of int array
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="sum_of_elements"  rows = "2" style="resize: none;">var a = [10, 20]
+                    <textarea id="sum_of_elements"  rows = "2" style="resize: none; font-size: small">var a = [10, 20]
 a[0] + a[1]</textarea>
                 </div>
                 <div>
@@ -360,11 +360,11 @@ a[0] + a[1]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "sum_of_elements_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 update the first element of an array
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="update_array_element"  rows = "3" style="resize: none;">var a = [10]
+                    <textarea id="update_array_element"  rows = "3" style="resize: none; font-size: small">var a = [10]
 a[0] = 20
 a[0]</textarea>
                 </div>
@@ -373,11 +373,11 @@ a[0]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "update_array_element_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 update the second element of an array
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="update_second_element"  rows = "3" style="resize: none;">var a = [10,20]
+                    <textarea id="update_second_element"  rows = "3" style="resize: none; font-size: small">var a = [10,20]
 a[1] = 200
 a[0] + a[1]</textarea>
                 </div>
@@ -386,11 +386,11 @@ a[0] + a[1]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "update_second_element_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 declare a u8 array
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="u8_array"  rows = "2" style="resize: none;">var a:u8[2] = [10, 20]
+                    <textarea id="u8_array"  rows = "2" style="resize: none; font-size: small">var a:u8[2] = [10, 20]
 a[0] + a[1]</textarea>
                 </div>
                 <div>
@@ -398,11 +398,11 @@ a[0] + a[1]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_array_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 declare a u8 array
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="u8_array_update"  rows = "4" style="resize: none;">var a:u8[2] = [10, 20]
+                    <textarea id="u8_array_update"  rows = "4" style="resize: none; font-size: small">var a:u8[2] = [10, 20]
 a[0] = 30
 a[1] = 40
 a[0] + a[1]</textarea>
@@ -412,11 +412,11 @@ a[0] + a[1]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_array_update_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 declare a u8 two dimensions array
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="u8_two_dimension_array"  rows = "2" style="resize: none;">var a:u8[2][2] = [10, 20, 30, 40]
+                    <textarea id="u8_two_dimension_array"  rows = "2" style="resize: none; font-size: small">var a:u8[2][2] = [10, 20, 30, 40]
 a[1][1]</textarea>
                 </div>
                 <div>
@@ -424,11 +424,11 @@ a[1][1]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_two_dimension_array_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 update two dimensions array
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="u8_two_dimen_update"  rows = "3" style="resize: none;">var a:u8[2][2] = [10, 20, 30, 40]
+                    <textarea id="u8_two_dimen_update"  rows = "3" style="resize: none; font-size: small">var a:u8[2][2] = [10, 20, 30, 40]
 a[1][1] = 100
 a[1][1]</textarea>
                 </div>
@@ -437,11 +437,11 @@ a[1][1]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_two_dimen_update_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 update two dimensions array using variable
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="u8_access_via_var"  rows = "5" style="resize: none;">var a:u8[10][10]
+                    <textarea id="u8_access_via_var"  rows = "5" style="resize: none; font-size: small">var a:u8[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j
@@ -452,11 +452,11 @@ a[7][8]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_access_via_var_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 update two dimensions int array using variable
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="u32_access_via_var"  rows = "5" style="resize: none;">var a:u32[10][10]
+                    <textarea id="u32_access_via_var"  rows = "5" style="resize: none; font-size: small">var a:u32[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j
@@ -467,11 +467,11 @@ a[7][8]</textarea>
                     <div style="display: inline-block; margin-left:5px;" id= "u32_access_via_var_result"></div>
                 </div>
                 
-                <div>
+                <div style="font-size: small;">
 pass array variable to a function.
 </div>
                 <div style="margin-top: 10px;">
-                    <textarea id="pass_array_to_a_function"  rows = "6" style="resize: none;">var a:u8[10][10]
+                    <textarea id="pass_array_to_a_function"  rows = "6" style="resize: none; font-size: small">var a:u8[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j

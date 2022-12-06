@@ -55,6 +55,17 @@ void array_sort(struct array *a, cmp_fn_t compare);
     struct array var;               \
     array_init_free(&var, sizeof(elem_type), 0)
 
+#define array_t(type_name, postfix) \
+type_name array_get_##postfix(struct array *arr, size_t index); \
+type_name array_back_##postfix(struct array *arr);\
+type_name array_front_##postfix(struct array *arr);\
+type_name array_pop_##postfix(struct array *arr);\
+void array_push_##postfix(struct array *arr, type_name element);\
+
+array_t(u32, u32)
+array_t(void *, p)
+
+
 #ifdef __cplusplus
 }
 #endif
