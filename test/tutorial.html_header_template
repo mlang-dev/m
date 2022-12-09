@@ -19,6 +19,7 @@
 		<nav>
 			<a href="/">M</a>
 			<a class="current">Tutorials</a>
+			<a href="/example/general.html">Examples</a>
 			<a href="/grammar.html">Grammar</a>
 			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
 					<path

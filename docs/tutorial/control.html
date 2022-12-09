@@ -19,6 +19,7 @@
 		<nav>
 			<a href="/">M</a>
 			<a class="current">Tutorials</a>
+			<a href="/example/general.html">Examples</a>
 			<a href="/grammar.html">Grammar</a>
 			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
 					<path
@@ -69,13 +70,16 @@
         </nav>
     </p>
     
-    <div style="font-size: small"><b>M supports the following control flow statements if then/else, for loop and while loop. The ternary operator
-? is also suported for brevity of if-else expression.</b></div>
+    <div style="font-size: small">M supports the following control flow statements if then/else, for loop and while loop. The ternary operator
+? is also suported for brevity of if-else expression.</div>
     
                 <div style="font-size: small;">use bool variable</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="use_bool_variable"  rows = "2" style="resize: none; font-size: small">let x = 10
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="use_bool_variable"  rows = "2" style="resize: none; font-size: small">let x = 10
 if x then 100 else 10</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('use_bool_variable')" style="min-width: 50px;">run</button></div>
@@ -83,11 +87,14 @@ if x then 100 else 10</textarea>
                 </div>
                 
                 <div style="font-size: small;">only if but no else branch</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="if_but_no_else"  rows = "4" style="resize: none; font-size: small">var x = 10
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="if_but_no_else"  rows = "4" style="resize: none; font-size: small">var x = 10
 if x==10 then 
     x = 100
 x</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_but_no_else')" style="min-width: 50px;">run</button></div>
@@ -95,9 +102,12 @@ x</textarea>
                 </div>
                 
                 <div style="font-size: small;">use ternary operator</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="ternary_operator"  rows = "2" style="resize: none; font-size: small">let x = 10
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="ternary_operator"  rows = "2" style="resize: none; font-size: small">let x = 10
 x ? 1 : 0</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('ternary_operator')" style="min-width: 50px;">run</button></div>
@@ -105,8 +115,11 @@ x ? 1 : 0</textarea>
                 </div>
                 
                 <div style="font-size: small;">if 0 statement</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="if_0_statement"  rows = "1" style="resize: none; font-size: small">if 0 then 100 else 10</textarea>
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="if_0_statement"  rows = "1" style="resize: none; font-size: small">if 0 then 100 else 10</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_0_statement')" style="min-width: 50px;">run</button></div>
@@ -114,8 +127,11 @@ x ? 1 : 0</textarea>
                 </div>
                 
                 <div style="font-size: small;">use false literal</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="if_false_statement"  rows = "1" style="resize: none; font-size: small">if false then 100 else 10</textarea>
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="if_false_statement"  rows = "1" style="resize: none; font-size: small">if false then 100 else 10</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_false_statement')" style="min-width: 50px;">run</button></div>
@@ -123,13 +139,16 @@ x ? 1 : 0</textarea>
                 </div>
                 
                 <div style="font-size: small;">else if statement - choose first branch</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="else_if_statement_first"  rows = "6" style="resize: none; font-size: small">let choice n = 
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="else_if_statement_first"  rows = "6" style="resize: none; font-size: small">let choice n = 
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
     else 400
 choice 10</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_first')" style="min-width: 50px;">run</button></div>
@@ -137,13 +156,16 @@ choice 10</textarea>
                 </div>
                 
                 <div style="font-size: small;">else if statement - choose second branch</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="else_if_statement_second"  rows = "6" style="resize: none; font-size: small">let choice n = 
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="else_if_statement_second"  rows = "6" style="resize: none; font-size: small">let choice n = 
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
     else 400
 choice 20</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_second')" style="min-width: 50px;">run</button></div>
@@ -151,13 +173,16 @@ choice 20</textarea>
                 </div>
                 
                 <div style="font-size: small;">else if statement - choose third branch</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="else_if_statement_third"  rows = "6" style="resize: none; font-size: small">let choice n = 
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="else_if_statement_third"  rows = "6" style="resize: none; font-size: small">let choice n = 
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
     else 400
 choice 30</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_third')" style="min-width: 50px;">run</button></div>
@@ -165,13 +190,16 @@ choice 30</textarea>
                 </div>
                 
                 <div style="font-size: small;">else if statement - choose else branch</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="else_if_statement_else"  rows = "6" style="resize: none; font-size: small">let choice n = 
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="else_if_statement_else"  rows = "6" style="resize: none; font-size: small">let choice n = 
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
     else 400
 choice 40</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_else')" style="min-width: 50px;">run</button></div>
@@ -179,11 +207,14 @@ choice 40</textarea>
                 </div>
                 
                 <div style="font-size: small;">for loop statement</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="for_loop_statement"  rows = "4" style="resize: none; font-size: small">var sum = 0
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="for_loop_statement"  rows = "4" style="resize: none; font-size: small">var sum = 0
 for i in 0..5
     sum = sum + i
 sum</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_statement')" style="min-width: 50px;">run</button></div>
@@ -191,11 +222,14 @@ sum</textarea>
                 </div>
                 
                 <div style="font-size: small;">for loop statement using float type</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="for_loop_statement_float"  rows = "4" style="resize: none; font-size: small">var sum = 0.0
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="for_loop_statement_float"  rows = "4" style="resize: none; font-size: small">var sum = 0.0
 for i in 0.0..5.0
     sum = sum + i
 sum</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_statement_float')" style="min-width: 50px;">run</button></div>
@@ -203,12 +237,15 @@ sum</textarea>
                 </div>
                 
                 <div style="font-size: small;">for loop statement with step variable</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="for_loop_with_step"  rows = "5" style="resize: none; font-size: small">let step = 2
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="for_loop_with_step"  rows = "5" style="resize: none; font-size: small">let step = 2
 var sum = 0
 for i in 2..step..10
     sum = sum + i
 sum</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_with_step')" style="min-width: 50px;">run</button></div>
@@ -216,12 +253,15 @@ sum</textarea>
                 </div>
                 
                 <div style="font-size: small;">nest for loop statement</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="nest_for_loop"  rows = "5" style="resize: none; font-size: small">var sum = 0
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="nest_for_loop"  rows = "5" style="resize: none; font-size: small">var sum = 0
 for i in 1..3
     for j in 1..3
         sum = sum + i * j
 sum</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('nest_for_loop')" style="min-width: 50px;">run</button></div>
@@ -229,9 +269,12 @@ sum</textarea>
                 </div>
                 
                 <div style="font-size: small;">implement factorial using recursive</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="recursive_factorial"  rows = "2" style="resize: none; font-size: small">let factorial n = if n == 1 then n else n * factorial (n-1)
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="recursive_factorial"  rows = "2" style="resize: none; font-size: small">let factorial n = if n == 1 then n else n * factorial (n-1)
 factorial 5</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('recursive_factorial')" style="min-width: 50px;">run</button></div>
@@ -239,13 +282,16 @@ factorial 5</textarea>
                 </div>
                 
                 <div style="font-size: small;">implement factorial using for loop</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="for_loop_factorial"  rows = "6" style="resize: none; font-size: small">let factorial n = 
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="for_loop_factorial"  rows = "6" style="resize: none; font-size: small">let factorial n = 
     var p = 1
     for i in 2..n+1
         p = p * i
     p
 factorial 5</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_factorial')" style="min-width: 50px;">run</button></div>
@@ -253,11 +299,14 @@ factorial 5</textarea>
                 </div>
                 
                 <div style="font-size: small;">use break statement in for loop</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="for_loop_break_if"  rows = "4" style="resize: none; font-size: small">for i in 0..10
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="for_loop_break_if"  rows = "4" style="resize: none; font-size: small">for i in 0..10
     if i == 5 then 
         break
 i</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_break_if')" style="min-width: 50px;">run</button></div>
@@ -265,10 +314,13 @@ i</textarea>
                 </div>
                 
                 <div style="font-size: small;">use break statement in for-loop without using if-statement</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="for_loop_break"  rows = "3" style="resize: none; font-size: small">for i in 0..10
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="for_loop_break"  rows = "3" style="resize: none; font-size: small">for i in 0..10
     break
 i</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_break')" style="min-width: 50px;">run</button></div>
@@ -276,10 +328,13 @@ i</textarea>
                 </div>
                 
                 <div style="font-size: small;">use break statement in for-loop without using if-statement</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="for_loop_break"  rows = "3" style="resize: none; font-size: small">for i in 0..10
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="for_loop_break"  rows = "3" style="resize: none; font-size: small">for i in 0..10
     break
 i</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_break')" style="min-width: 50px;">run</button></div>
@@ -287,11 +342,14 @@ i</textarea>
                 </div>
                 
                 <div style="font-size: small;">use while loop</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="while_loop"  rows = "4" style="resize: none; font-size: small">var i = 0
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="while_loop"  rows = "4" style="resize: none; font-size: small">var i = 0
 while i < 10
     i = i + 1
 i</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('while_loop')" style="min-width: 50px;">run</button></div>
@@ -299,13 +357,16 @@ i</textarea>
                 </div>
                 
                 <div style="font-size: small;">break while loop</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="while_loop_break"  rows = "6" style="resize: none; font-size: small">var i = 0
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="while_loop_break"  rows = "6" style="resize: none; font-size: small">var i = 0
 while i < 10
     if i == 5 then
         break
     i = i + 1
 i</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('while_loop_break')" style="min-width: 50px;">run</button></div>
@@ -313,8 +374,9 @@ i</textarea>
                 </div>
                 
                 <div style="font-size: small;">use continue in while loop</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="while_loop_continue"  rows = "8" style="resize: none; font-size: small">var i = 0
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="while_loop_continue"  rows = "8" style="resize: none; font-size: small">var i = 0
 var n = 0
 while i < 5
     i = i + 1
@@ -322,6 +384,8 @@ while i < 5
         continue
     n = n + i
 n</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('while_loop_continue')" style="min-width: 50px;">run</button></div>
@@ -329,13 +393,16 @@ n</textarea>
                 </div>
                 
                 <div style="font-size: small;">use continue in for loop</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="for_loop_continue"  rows = "6" style="resize: none; font-size: small">var n = 0
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="for_loop_continue"  rows = "6" style="resize: none; font-size: small">var n = 0
 for i in 0..5
     if i == 3 then
         continue
     n = n + i
 n</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_continue')" style="min-width: 50px;">run</button></div>
