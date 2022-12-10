@@ -19,6 +19,7 @@
 		<nav>
 			<a href="/" class="current">M</a>
 			<a href="/tutorial/general.html">Tutorials</a>
+			<a href="/example/general.html">Examples</a>
 			<a href="/grammar.html">Grammar</a>
 			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
 					<path
@@ -33,7 +34,10 @@
 		</div>
 		<div style="width: 100%;">
 			<div style="display: inline-block; width: 350px; margin-right: 10px;"><canvas id="canvas" style="height: 240px; width: 100%;"></canvas></div>
-			<div style="display: inline-block; width: 350px; "><textarea style="min-height: 240px; width:100%; font-size:small;" id='console' readonly></textarea></div>
+			<div style="display: block; width: 350px; float: right;">
+				<textarea style="min-height: 240px; width:100%; font-size:small;" id='console' readonly>
+				</textarea>
+			</div>
 		</div>
 		<script>
 			var codeInput = document.getElementById("code");

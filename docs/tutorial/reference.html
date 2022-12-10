@@ -19,6 +19,7 @@
 		<nav>
 			<a href="/">M</a>
 			<a class="current">Tutorials</a>
+			<a href="/example/general.html">Examples</a>
 			<a href="/grammar.html">Grammar</a>
 			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
 					<path
@@ -69,14 +70,17 @@
         </nav>
     </p>
     
-    <div style="font-size: small"><b>Reference type is like pointer in c. The difference is the reference type is not allow to do arithmetic operation. 
-You can only use reference type to refer to the other object or pass the reference to functions.</b></div>
+    <div style="font-size: small">Reference type is like pointer in c. The difference is the reference type is not allow to do arithmetic operation. 
+You can only use reference type to refer to the other object or pass the reference to functions.</div>
     
                 <div style="font-size: small;">evaluate the content of reference type variable j</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="evalute_ref_content"  rows = "3" style="resize: none; font-size: small">let i = 10
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="evalute_ref_content"  rows = "3" style="resize: none; font-size: small">let i = 10
 let j = &i
 *j</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('evalute_ref_content')" style="min-width: 50px;">run</button></div>
@@ -84,11 +88,14 @@ let j = &i
                 </div>
                 
                 <div style="font-size: small;">change original value by its reference.</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="change_via_ref"  rows = "4" style="resize: none; font-size: small">var i = 10
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="change_via_ref"  rows = "4" style="resize: none; font-size: small">var i = 10
 var j = &i
 *j = 20
 i</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('change_via_ref')" style="min-width: 50px;">run</button></div>
@@ -96,11 +103,14 @@ i</textarea>
                 </div>
                 
                 <div style="font-size: small;">change original value by its reference. print reference</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="change_via_ref_2"  rows = "4" style="resize: none; font-size: small">var i = 10
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="change_via_ref_2"  rows = "4" style="resize: none; font-size: small">var i = 10
 var j = &i
 *j = 20
 *j</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('change_via_ref_2')" style="min-width: 50px;">run</button></div>
@@ -108,10 +118,13 @@ var j = &i
                 </div>
                 
                 <div style="font-size: small;">struct type reference</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="struct_type_reference"  rows = "3" style="resize: none; font-size: small">let z = cf64{10.0, 20.0}
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="struct_type_reference"  rows = "3" style="resize: none; font-size: small">let z = cf64{10.0, 20.0}
 let j = &z
 j.im</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_type_reference')" style="min-width: 50px;">run</button></div>
@@ -119,13 +132,16 @@ j.im</textarea>
                 </div>
                 
                 <div style="font-size: small;">pass struct data to function by reference</div>
-                <div style="margin-top: 10px;">
-                    <textarea id="pass_struct_by_ref"  rows = "6" style="resize: none; font-size: small">struct Point = x:mut f64, y:f64
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="pass_struct_by_ref"  rows = "6" style="resize: none; font-size: small">struct Point = x:mut f64, y:f64
 let update xy:&Point =
     xy.x = 10.0
 let z = &Point{100.0, 200.0}
 update z
 z.x</textarea>
+                    </div>
+                    
                 </div>
                 <div>
                     <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_by_ref')" style="min-width: 50px;">run</button></div>

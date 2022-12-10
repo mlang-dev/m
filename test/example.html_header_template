@@ -18,8 +18,8 @@
 		<header>
 		<nav>
 			<a href="/">M</a>
-			<a class="current">Tutorials</a>
-			<a href="/example/general.html">Examples</a>
+			<a href="/tutorial/general.html">Tutorials</a>
+			<a class="current">Examples</a>
 			<a href="/grammar.html">Grammar</a>
 			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
 					<path
@@ -30,15 +30,28 @@
 		</header>
 		<script>
 			var instance = null;
-			var result_control = null;
-			mw(new wasi(), '/mw.wasm', print, true).then(
+			var result_text_control = null;
+			var result_graph_control = null;
+			function set_image_data(data, width, height)
+			{
+				let canvas = document.getElementById(result_graph_control);
+				let ctx = canvas.getContext('2d');
+				canvas.width = width;
+				canvas.height = height;
+				let imageData = ctx.createImageData(width, height);
+				imageData.data.set(data);
+				ctx.putImageData(imageData, 0, 0);
+			}
+
+			mw(new wasi(), '/mw.wasm', print, true, set_image_data).then(
 				result=>{
 					instance = result;
 					print_version(instance.version);
 				}
 			);
 			function run(code_control) {
-				result_control = code_control + "_result";
+				result_text_control = code_control + "_result";
+				result_graph_control = code_control + "_graph_result";
 				clear();
 				let code = document.getElementById(code_control).value;
 				print(instance.run_code(code));
@@ -48,12 +61,16 @@
 				if(text == null || text == undefined){
 					return;
 				}
-				document.getElementById(result_control).textContent = text;
+				document.getElementById(result_text_control).textContent = text;
 			}
 
 			function clear(){
-				document.getElementById(result_control).textContent = '';
+				document.getElementById(result_text_control).textContent = '';
+				let canvas = document.getElementById(result_graph_control); 
+				const ctx = canvas.getContext('2d');
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
 			}
+
 			function print_version(version) {
 				document.getElementById("version").textContent = version;
 			}
