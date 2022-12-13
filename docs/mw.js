@@ -89,6 +89,8 @@ function mw(wasi_env, module_name, print_func, remote_file, set_image_data) {
 				},
 				math:{
 					pow: instance.exports.pow,
+					log2: instance.exports.log2,
+					log: instance.exports.log
 				}
 			});
 		code_memory_as_array = new Uint8Array(code_instance.exports.memory.buffer);

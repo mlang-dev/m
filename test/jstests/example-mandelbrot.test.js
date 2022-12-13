@@ -1,6 +1,6 @@
 const mtest = require('./mtest.js');
 
-mtest.mtest('mandelbrot set', 'draw mandelbrot set', 
+mtest.mtest('mandelbrot set linear', 'draw mandelbrot set using linear color function', 
 `
 var a:u8[200][300 * 4]
 let scale = 0.01
@@ -25,3 +25,40 @@ for x in 0..300
 setImageData a 300 200
 `, undefined);
 
+
+mtest.mtest('mandelbrot set nonlinear', 'draw mandelbrot set using log color function', 
+`
+var a:u8[200][300 * 4]
+let scale = 0.01, max_iter = 510
+var v = 0.0, r = 0.0, g = 0.0, b = 0.0
+for x in 0..300
+    for y in 0..200
+        let cx = -2.0 + scale*x
+        let cy = -1.0 + scale*y
+        var zx = 0.0, zy = 0.0
+        var zx2 = 0.0, zy2 = 0.0
+        var n = 0
+        while n<max_iter && (zx2 + zy2) < 4.0
+            zy = 2.0 * zx * zy + cy
+            zx = zx2  - zy2 + cx
+            zx2 = zx * zx
+            zy2 = zy * zy
+            n++
+        if n < max_iter then
+            v = (log(n+1.5-(log2((log(zx2+zy2))/2.0))))/3.4
+            if v < 1.0 then 
+                r = v ** 4
+                g = v ** 2.5
+                b = v
+            else
+                v = v < 2.0 ? 2.0 - v : 0.0
+                r = v
+                g = v ** 1.5
+                b = v ** 3.0
+        a[y][4*x] = n == max_iter ? 0 : (u8)(r * 255)
+        a[y][4*x+1] = n == max_iter ? 0 : (u8)(g * 255)
+        a[y][4*x+2] = n == max_iter ? 0 : (u8)(b * 255)
+        a[y][4*x+3] = 255
+
+setImageData a 300 200
+`, undefined);
