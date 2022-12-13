@@ -24,5 +24,6 @@ wasm_export_name(tanh) f64 _tanh(f64 x);
 wasm_export_name(exp) f64 _exp(f64 x);
 wasm_export_name(log) f64 _log(f64 x);
 wasm_export_name(log10) f64 _log10(f64 x);
+wasm_export_name(log2) f64 _log2(f64 x);
 wasm_export_name(pow) f64 _pow(f64 x, f64 y);
 wasm_export_name(sqrt) f64 _sqrt(f64 x);

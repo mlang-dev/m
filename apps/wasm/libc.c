@@ -88,6 +88,11 @@ f64 _log10(f64 x)
     return log10(x);
 }
 
+f64 _log2(f64 x)
+{
+    return log2(x);
+}
+
 f64 _pow(f64 x, f64 y)
 {
     return pow(x, y); //x ^ y
