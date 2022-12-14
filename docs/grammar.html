@@ -191,6 +191,7 @@ statement       = stmt
 
 block           = NEWLINE INDENT statements DEDENT                                          { 2 }
 statements      = statements statement                                                      { block 0 1 }
+                | statements ';' statement                                                  { block 0 2 }
                 | statement                                                                 { block 0 }                                                     
 
 type_def            = "struct" IDENT '=' struct_type                                        { struct_type 1 3 }

@@ -1,3 +1,6 @@
+# 0.0.39 (2022-12-13)
+* support multiple statements in one line, separated by semicolon ';'
+
 # 0.0.38 (2022-12-04)
 * use variable pattern in pattern matching. e.g.
 ```
