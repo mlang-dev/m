@@ -862,6 +862,22 @@ TEST(test_parser, twobytwo_array_variable)
     frontend_deinit(fe);
 }
 
+TEST(test_parser, multiple_statements_on_one_line)
+{
+    char test_code[] = "var a = 10; var b = 20";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    ASSERT_EQ(to_symbol("a"), node->var->var->ident->name);
+
+    node = *(struct ast_node **)array_back(&block->block->nodes);
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    ASSERT_EQ(to_symbol("b"), node->var->var->ident->name);
+    node_free(block);
+    frontend_deinit(fe);
+}
 
 int test_parser()
 {
@@ -908,6 +924,7 @@ int test_parser()
     RUN_TEST(test_parser_array_variable);
     RUN_TEST(test_parser_onebytwo_array_variable);
     RUN_TEST(test_parser_twobytwo_array_variable);
+    RUN_TEST(test_parser_multiple_statements_on_one_line);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
