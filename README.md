@@ -11,7 +11,7 @@ MacOS or Linux or WSL is the recommended development OS.
 You can try [mlang](https://mlang.dev) to run the following m code in the browser.
 The code will yield the following image:
 
-![Tux, the Linux mascot](/mandelbrotset.png)
+![mandelbrot set](/mandelbrotset.png)
 ```
 var a:u8[200][300 * 4]
 let scale = 0.01, max_iter = 510
