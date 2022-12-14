@@ -3,37 +3,45 @@
 # m (mlang)
 mlang is a succinct & expressive general purpose programming language for WebAssembly. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction. It's a static-typed language with type inference, which means most of time types of variables are not required to be annotated. 
 
-The mlang is implemented in C without third party library dependency other than C standard libraries. The mlang compiler is compiled as a WebAssembly module so it can be run in the browser or other wasm runtime like nodejs and wastime etc. It can compile m codes into another wasm module and run it in the same environement. 
+The mlang is implemented in C without third party library dependency other than C standard libraries. The mlang compiler is compiled as a WebAssembly module so it can be run in the browser or other wasm runtime like nodejs and wastime etc. It can compile m codes into another wasm module and run it in the same environment. 
 
 MacOS or Linux or WSL is the recommended development OS.
 
-You can try [mlang](https://mlang.dev) in the browser.
+## m code plotting mandelbrot set 
+You can try [mlang](https://mlang.dev) to run the following m code in the browser.
+The code will yield the following image:
 
-## m code snippets
+![Tux, the Linux mascot](/mandelbrotset.png)
 ```
-// hello world !
-let main () = print "hello world !\n"
+var a:u8[200][300 * 4]
+let scale = 0.01, max_iter = 510
+var v = 0.0, r = 0.0, g = 0.0, b = 0.0
+for x in 0..300
+    for y in 0..200
+        let cx = -2.0 + scale*x
+        let cy = -1.0 + scale*y
+        var zx = 0.0, zy = 0.0
+        var zx2 = 0.0, zy2 = 0.0
+        var n = 0
+        while n<max_iter && (zx2 + zy2) < 4.0
+            zy = 2.0 * zx * zy + cy
+            zx = zx2  - zy2 + cx
+            zx2 = zx * zx
+            zy2 = zy * zy
+            n++
+        if n < max_iter then
+            v = (log(n+1.5-(log2((log(zx2+zy2))/2.0))))/3.4
+            if v < 1.0 then 
+                r = v ** 4;g = v ** 2.5;b = v
+            else
+                v = v < 2.0 ? 2.0 - v : 0.0
+                r = v;g = v ** 1.5;b = v ** 3.0
+        a[y][4*x] = n == max_iter ? 0 : (u8)(r * 255)
+        a[y][4*x+1] = n == max_iter ? 0 : (u8)(g * 255)
+        a[y][4*x+2] = n == max_iter ? 0 : (u8)(b * 255)
+        a[y][4*x+3] = 255
 
-// comment line: defines a one-line function
-let avg x y = (x + y) / 2
-
-/*
- * block comments: define a multiline function
- */
-let distance x1 y1 x2 y2 = 
-  let xx = (x1-x2) ** 2.0
-  let yy = (y1-y2) ** 2.0
-  |/ (xx + yy) #call sqrt 
-
-// factorial function with recursive call
-let factorial n = 
-  if n < 2 then n
-  else n * factorial (n-1)
-
-// using for loop
-let loopprint n = 
-  for i in 0..n
-    printf "%d" i   # call c std io printf function
+setImageData a 300 200
 ```
 
 ## prerequisites to build m
