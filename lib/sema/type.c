@@ -36,6 +36,7 @@ const char *const _type_strings[TYPE_TYPES] = {
     "string",
     "->",
     "struct",
+    "tuple",
     "array",
     "union",
     "complex",
@@ -66,6 +67,7 @@ struct symbol_ref_pair _type_symbols[TYPE_TYPES] = {
     {0},
     {0},
 
+    {0},
     {0},
     {0},
     {0},
@@ -320,6 +322,11 @@ struct type_expr *create_unit_type()
 struct type_expr *create_type_oper_struct(symbol type_name, enum Mut mut, struct array *args)
 {
     return create_type_oper(KIND_OPER, type_name, TYPE_STRUCT, mut, args);
+}
+
+struct type_expr *create_type_oper_tuple(enum Mut mut, struct array *args)
+{
+    return _create_type_oper(KIND_OPER, 0, 0, TYPE_TUPLE, mut, 0, args);
 }
 
 struct type_expr *create_type_oper_union(symbol type_name, enum Mut mut, struct array *args)

@@ -155,6 +155,16 @@ struct ast_node *type_node_new_with_array_type(struct array_type_node *array_typ
     return node;
 }
 
+struct ast_node *type_node_new_with_tuple_type(struct ast_node *tuple_block, enum Mut mut, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
+    MALLOC(node->type_node, sizeof(*node->type_node));
+    node->type_node->kind = TupleType;
+    node->type_node->mut = mut;
+    node->type_node->tuple_block = tuple_block;
+    return node;
+}
+
 struct ast_node *type_node_new_with_ref_type(struct type_node *val_node, enum Mut mut, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(TYPE_NODE, loc);
@@ -180,6 +190,8 @@ struct ast_node *_copy_type_node(struct ast_node *orig_node)
     switch(orig_node->type_node->kind){
         case ArrayType:
             return type_node_new_with_array_type(orig_node->type_node->array_type_node, orig_node->type_node->mut, orig_node->loc);
+        case TupleType:
+            return type_node_new_with_tuple_type(orig_node->type_node->tuple_block, orig_node->type_node->mut, orig_node->loc);
         case UnitType:
             return type_node_new_with_unit_type(orig_node->type_node->mut, orig_node->loc);
         case TypeName:

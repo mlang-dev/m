@@ -498,6 +498,10 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 ast = type_node_new_with_array_type(node->array_type, Immutable, node->loc);
                 node->array_type = 0; //to prevent its being freed
                 break;
+            case TupleType:
+                ast = type_node_new_with_tuple_type(node, Immutable, node->loc);
+                node = 0;//not to be freed
+                break;
             case RefType:
                 assert(node->node_type == TYPE_NODE);
                 ast = type_node_new_with_ref_type(node->type_node, Immutable, node->loc);

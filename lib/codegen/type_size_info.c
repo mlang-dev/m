@@ -143,6 +143,7 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
         ti.align_bits = 64;
         break;
     case TYPE_STRUCT:
+    case TYPE_TUPLE:
     case TYPE_ARRAY:
     case TYPE_REF:
     case TYPE_STRING:
