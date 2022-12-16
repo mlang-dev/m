@@ -50,6 +50,19 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
         }
         return create_array_type(value_type, &dims);
     }
+    case TupleType:
+    {
+        struct array args;
+        array_init(&args, sizeof(struct type_expr*));
+        for(u32 i=0; i<array_size(&type_node->tuple_block->block->nodes); i++){
+            struct ast_node *field = *(struct ast_node **)array_get(&type_node->tuple_block->block->nodes, i);
+            assert(field->node_type == TYPE_NODE || field->node_type == VAR_NODE);
+            struct type_node *tn = (field->node_type == TYPE_NODE)? field->type_node : field->var->is_of_type->type_node;
+            struct type_expr *te = create_type_from_type_node(context, tn, mut);
+            array_push(&args, &te);
+        }
+        return create_type_oper_tuple(mut, &args);
+    }
     case UnitType:
         return create_unit_type();
     case RefType:
@@ -125,7 +138,6 @@ bool _is_array_size_same(struct type_expr *type1, struct type_expr *type2)
     return type1->type == type2->type && type2->type == TYPE_ARRAY && _get_array_size(type1) == _get_array_size(type2);
 }
 
-
 struct ast_node *_node_copy_with_type(struct ast_node *node)
 {
     struct ast_node *copy = node_copy(node);
@@ -137,18 +149,8 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
 {
     symbol var_name = node->var->var->ident->name;
     if(has_symbol(&context->decl_2_typexprs, var_name)){
-        //this is assignment, not var declaration
-        //check if it's mutable
-        struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, var_name);
-        if(orig_var->var->mut == Immutable){
-            report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(var_name));
-            return 0;
-        }
-        //
-        node->transformed = assign_node_new(OP_ASSIGN, _node_copy_with_type(node->var->var), _node_copy_with_type(node->var->init_value), node->loc);
-        //moved 
-        node->transformed->type = analyze(context, node->transformed);
-        return node->transformed->type;
+        //TODO: error handling, redefinition
+        assert(false);
     }
     struct type_expr *var_type = 0;
     if(context->scope_level == 1){
@@ -564,13 +566,8 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
     if(node->binop->lhs->node_type == IDENT_NODE){
         symbol var_name = node->binop->lhs->ident->name;
         if(!has_symbol(&context->decl_2_typexprs, var_name)){
-            //first time assignment, immutable binding
-            //this is only possible when grammar is changed to "id = expr" not 
-            //as var decl. 
+            //TODO: error handling, non-defined
             assert(false);
-            node->transformed = var_node_new(_node_copy_with_type(node->binop->lhs), 0, _node_copy_with_type(node->binop->rhs), false, false, node->loc);
-            node->transformed->type = analyze(context, node->transformed);
-            return node->transformed->type;
         }else{
             struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, var_name);
             if(orig_var->var->mut == Immutable){

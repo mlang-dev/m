@@ -21,6 +21,18 @@ u8 *_compile_code(const char *text)
     return data;
 }
 
+TEST(test_wasm_codegen, ref_type)
+{
+    char test_code[] = "\n\
+let i = 10\n\
+let j = &i\n\
+i\n\
+";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 TEST(test_wasm_codegen, emit_generic_fun)
 {
     char test_code[] = "\n\
@@ -141,6 +153,7 @@ pm (-1)\n\
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
+    RUN_TEST(test_wasm_codegen_ref_type);
     RUN_TEST(test_wasm_codegen_emit_generic_fun);
     RUN_TEST(test_wasm_codegen_emit_nested_for_loop);
     RUN_TEST(test_wasm_codegen_mutable_struct_member);

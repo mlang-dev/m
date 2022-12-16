@@ -40,6 +40,7 @@ extern "C" {
     ENUM_ITEM(TYPE_STRING)      \
     ENUM_ITEM(TYPE_FUNCTION)    \
     ENUM_ITEM(TYPE_STRUCT)      \
+    ENUM_ITEM(TYPE_TUPLE)       \
     ENUM_ITEM(TYPE_ARRAY)       \
     ENUM_ITEM(TYPE_UNION)       \
     ENUM_ITEM(TYPE_COMPLEX)     \
@@ -95,6 +96,7 @@ void types_deinit();
 struct type_expr *create_type_var(enum Mut mut);
 struct type_expr *create_type_oper_var(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args);
 struct type_expr *create_type_oper_struct(symbol type_name, enum Mut mut, struct array *args);
+struct type_expr *create_type_oper_tuple(enum Mut mut, struct array *args);
 struct type_expr *create_type_oper_union(symbol type_name, enum Mut mut, struct array *args);
 struct type_expr *create_nullary_type(enum type type);
 struct type_expr *create_type_fun(struct array *args);
