@@ -13,6 +13,8 @@ int eval(struct ast_node *node)
     switch(node->node_type){
     default:
         assert(false);
+    case IDENT_NODE:
+        return eval(node->ident->var->var->init_value);
     case UNARY_NODE:
         if(node->unop->opcode == OP_PLUS)
             return eval(node->unop->operand);

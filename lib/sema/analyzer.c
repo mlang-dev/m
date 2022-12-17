@@ -45,6 +45,7 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
         array_init(&dims, sizeof(u32));
         for(u32 i=0; i<array_size(&type_node->array_type_node->dims->block->nodes); i++){
             struct ast_node *elm_size_node = *(struct ast_node **)array_get(&type_node->array_type_node->dims->block->nodes, i);
+            analyze(context, elm_size_node);
             u32 dim_size = eval(elm_size_node);
             array_push_u32(&dims, dim_size);
         }
@@ -311,6 +312,7 @@ struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_n
     array_init(&dims, sizeof(u32));
     for(u32 i = 0; i < array_size(&node->array_init->block->nodes); i++){
         struct ast_node *dim_node = *(struct ast_node **)array_get(&node->array_init->block->nodes, i);
+        analyze(context, dim_node);
         u32 dim = eval(dim_node);
         array_push_u32(&dims, dim);
     }

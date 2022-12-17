@@ -178,5 +178,9 @@
         "**/.git/subtree-cache/**": true,
         "**/extern/*/**": true
     },
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": true
 }
