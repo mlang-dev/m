@@ -71,4 +71,12 @@ textarea {
 
     font-family: Courier New, Courier, monospace;
     /*remove the resize handle on the bottom right*/
+    
+    /* textarea tab-size is 4*/
+    tab-size: 4;
+  }
+
+.rectangle {
+    border: 1px solid #FF0000;
+    position: absolute;
 }

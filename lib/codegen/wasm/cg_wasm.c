@@ -1185,9 +1185,9 @@ void _emit_import_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_
             ba_add(ba, IMPORT_GLOBAL);
             ASSERT_TYPE(node->type->type);
             ba_add(ba, type_2_wtype[node->type->type]);
-            if (__MEMORY_BASE == node->var->var->ident->name)
+            if (__MEMORY_BASE == node->var->var->ident->name){
                 ba_add(ba, GLOBAL_CONST); // immutable
-            else{
+            }else{
                 ba_add(ba, GLOBAL_VAR); // mutable
             }
             break;

@@ -25,7 +25,7 @@ function mw(wasi_env, module_name, print_func, remote_file, set_image_data) {
 			resolve({
 				run_code: run_code, 
 				compile: compile,
-				module: obj,
+				mw_instance: obj.instance,
 				version: version
 			}); //when success
 		}).catch(function (reason) {
@@ -74,8 +74,7 @@ function mw(wasi_env, module_name, print_func, remote_file, set_image_data) {
 	{
 		let ta = new Uint8Array(instance.exports.memory.buffer, wasm, wasm_size);
 		var compiled = new WebAssembly.Module(ta);
-		var memory_base = instance.exports.malloc(64 * 1024); //assigned 1 page: 64k
-		const __memory_base = new WebAssembly.Global({value: "i32", mutable: false}, memory_base);
+		const __memory_base = new WebAssembly.Global({value: "i32", mutable: false}, 64 * 1024);
 		code_instance = new WebAssembly.Instance(compiled, 
 			{ 
 				sys: 
@@ -94,12 +93,14 @@ function mw(wasi_env, module_name, print_func, remote_file, set_image_data) {
 				}
 			});
 		code_memory_as_array = new Uint8Array(code_instance.exports.memory.buffer);
-		var ret = code_instance.exports._start();
-		instance.exports.free(memory_base);
-		return ret;
+		return { 
+			start_result: code_instance.exports._start(),
+			code_instance: code_instance,
+			code_bytes: wasm
+		};
 	}
 
-	function run_code(code) 
+	function run_code(code, release_wasm_memory=true) 
 	{
 		if (mw_instance == null) {
 			print_func("m loading is failed.");
@@ -113,7 +114,10 @@ function mw(wasi_env, module_name, print_func, remote_file, set_image_data) {
 			return undefined;
 		}
 		let result = run_wasm_code(mw_instance, wasm, wasm_size);
-		mw_instance.exports.free(wasm);
+		if(release_wasm_memory){
+			mw_instance.exports.free(wasm);
+			result = result.start_result;
+		}
 		return result;
 	}
 
