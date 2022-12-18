@@ -32,15 +32,10 @@ function initZoom(canvas, onZoom, x0, y0, x1, y1, width, height) {
         forward: forward
     };
 
-    canvas.onmousemove = function (e) {
-        setMousePosition(e);
-        if (element !== null) {
-            element.style.width = Math.abs(mouse.x - mouse.startX) + 'px';
-            element.style.height = Math.abs(mouse.y - mouse.startY) + 'px';
-            element.style.left = (mouse.x - mouse.startX < 0) ? mouse.x + 'px' : mouse.startX + 'px';
-            element.style.top = (mouse.y - mouse.startY < 0) ? mouse.y + 'px' : mouse.startY + 'px';
-        }
-    }
+    canvas.onmousemove = onZoomMove;
+    canvas.ontouchmove = onZoomMove;
+    canvas.ontouchstart = onZoomStart;
+    canvas.ontouchend = onZoomEnd;
 
     function init()
     {
@@ -83,39 +78,66 @@ function initZoom(canvas, onZoom, x0, y0, x1, y1, width, height) {
         onZoom(_x0, _y0, _x1, _y1);
     }
 
+    function onZoomStart(e)
+    {
+        mouse.startX = mouse.x;
+        mouse.startY = mouse.y;
+        element = document.createElement('div');
+        element.className = 'rectangle'
+        element.style.left = mouse.x + 'px';
+        element.style.top = mouse.y + 'px';
+        canvas.appendChild(element)
+        canvas.style.cursor = "crosshair";
+    }
+
+    function onZoomMove(e){
+        setMousePosition(e);
+        if (element !== null) {
+            element.style.width = Math.abs(mouse.x - mouse.startX) + 'px';
+            element.style.height = Math.abs(mouse.y - mouse.startY) + 'px';
+            element.style.left = (mouse.x - mouse.startX < 0) ? mouse.x + 'px' : mouse.startX + 'px';
+            element.style.top = (mouse.y - mouse.startY < 0) ? mouse.y + 'px' : mouse.startY + 'px';
+        }
+    }
+
+    function onZoomCancel(e)
+    {
+        canvas.removeChild(element);
+        element = null;
+    }
+
+    function onZoomEnd(e)
+    {
+        canvas.removeChild(element);
+        element = null;
+        canvas.style.cursor = "default";
+        var rect = canvas.getBoundingClientRect();
+        var x0 = Math.min(mouse.startX, mouse.x) - rect.left;
+        var y0 = Math.min(mouse.startY, mouse.y) - rect.top;
+        var x1 = Math.max(mouse.startX, mouse.x) - rect.left;
+        var y1 = Math.max(mouse.startY, mouse.y) - rect.top;
+        var scalex = (_x1 - _x0) / _width; 
+        var scaley = (_y1 - _y0) / _height; 
+        let _cx0 = _x0;
+        let _cy0 = _y0;
+        _x0 = _cx0 + scalex * x0;
+        _y0 = _cy0 + scaley * y0;
+        _x1 = _cx0 + scalex * x1;
+        _y1 = _cy0 + scaley * y1; 
+        save_current();
+        onZoom(_x0, _y0, _x1, _y1); 
+    }
+
     canvas.onclick = function (e) {
         if(!_is_init) return;
+        if(e.which == 3){
+            onZoomCancel(e);
+            return;
+        }
         if (element !== null) {
-            canvas.removeChild(element);
-            element = null;
-            canvas.style.cursor = "default";
-            var rect = canvas.getBoundingClientRect();
-            var x0 = Math.min(mouse.startX, mouse.x) - rect.left;
-            var y0 = Math.min(mouse.startY, mouse.y) - rect.top;
-            var x1 = Math.max(mouse.startX, mouse.x) - rect.left;
-            var y1 = Math.max(mouse.startY, mouse.y) - rect.top;
-            var scalex = (_x1 - _x0) / _width; 
-            var scaley = (_y1 - _y0) / _height; 
-            let _cx0 = _x0;
-            let _cx1 = _x1;
-            let _cy0 = _y0;
-            let _cy1 = _y1;
-            _x0 = _cx0 + scalex * x0;
-            _y0 = _cy0 + scaley * y0;
-            _x1 = _cx0 + scalex * x1;
-            _y1 = _cy0 + scaley * y1; 
-            save_current();
-            onZoom(_x0, _y0, _x1, _y1);
+            onZoomEnd(e);
         } else {
-            console.log("begun.", mouse.x, mouse.y);
-            mouse.startX = mouse.x;
-            mouse.startY = mouse.y;
-            element = document.createElement('div');
-            element.className = 'rectangle'
-            element.style.left = mouse.x + 'px';
-            element.style.top = mouse.y + 'px';
-            canvas.appendChild(element)
-            canvas.style.cursor = "crosshair";
+            onZoomStart(e);
         }
     }
     return zoom;
