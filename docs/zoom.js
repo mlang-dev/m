@@ -33,9 +33,9 @@ function initZoom(canvas, onZoom, x0, y0, x1, y1, width, height) {
     };
 
     canvas.onmousemove = onZoomMove;
-    canvas.ontouchmove = onZoomMove;
-    canvas.ontouchstart = onZoomStart;
-    canvas.ontouchend = onZoomEnd;
+    // canvas.ontouchmove = onZoomMove;
+    // canvas.ontouchstart = onZoomStart;
+    // canvas.ontouchend = onZoomEnd;
 
     function init()
     {

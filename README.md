@@ -12,6 +12,11 @@ You can try [mlang](https://mlang.dev) to run the following m code in the browse
 The code will yield the following image:
 
 ![mandelbrot set](/mandelbrotset.png)
+
+You can zoom in for more details.
+
+<img src="mandelbrotset_demo.gif" width="400" height="320"/>
+
 ```
 var a:u8[200][300 * 4]
 let scale = 0.01, max_iter = 510
