@@ -13,7 +13,7 @@ The code will yield the following image:
 
 ![mandelbrot set](/mandelbrotset.png)
 
-You can zoom in for more details.
+You can zoom in to see more details at [https://mlang.dev](https://mlang.dev).
 
 <img src="mandelbrotset_demo.gif" width="400" height="320"/>
 
