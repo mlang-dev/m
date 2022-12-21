@@ -1,13 +1,7 @@
 function initZoom(canvas, onZoom, x0, y0, x1, y1, width, height) {
-    function setMousePosition(e) {
-        var ev = e || window.event; //Moz || IE
-        if (ev.pageX) { //Moz
-            mouse.x = ev.pageX + window.pageXOffset;
-            mouse.y = ev.pageY + window.pageYOffset;
-        } else if (ev.clientX) { //IE
-            mouse.x = ev.clientX + document.body.scrollLeft;
-            mouse.y = ev.clientY + document.body.scrollTop;
-        }
+    function setMousePosition(e) {  
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
     };
 
     var mouse = {
@@ -33,9 +27,9 @@ function initZoom(canvas, onZoom, x0, y0, x1, y1, width, height) {
     };
 
     canvas.onmousemove = onZoomMove;
-    // canvas.ontouchmove = onZoomMove;
-    // canvas.ontouchstart = onZoomStart;
-    // canvas.ontouchend = onZoomEnd;
+    canvas.ontouchmove = onZoomMove;
+    canvas.ontouchstart = onZoomStart;
+    canvas.ontouchend = onZoomEnd;
 
     function init()
     {
@@ -95,8 +89,12 @@ function initZoom(canvas, onZoom, x0, y0, x1, y1, width, height) {
         if (element !== null) {
             element.style.width = Math.abs(mouse.x - mouse.startX) + 'px';
             element.style.height = Math.abs(mouse.y - mouse.startY) + 'px';
-            element.style.left = (mouse.x - mouse.startX < 0) ? mouse.x + 'px' : mouse.startX + 'px';
-            element.style.top = (mouse.y - mouse.startY < 0) ? mouse.y + 'px' : mouse.startY + 'px';
+            let left = mouse.x < mouse.startX ? mouse.x : mouse.startX;
+            let top = mouse.y < mouse.startY ? mouse.y : mouse.startY;
+            left += window.pageXOffset;
+            top += window.pageYOffset;
+            element.style.left = left + 'px';
+            element.style.top = top + 'px';
         }
     }
 
