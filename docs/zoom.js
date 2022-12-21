@@ -27,9 +27,27 @@ function initZoom(canvas, onZoom, x0, y0, x1, y1, width, height) {
     };
 
     canvas.onmousemove = onZoomMove;
-    canvas.ontouchmove = onZoomMove;
-    canvas.ontouchstart = onZoomStart;
-    canvas.ontouchend = onZoomEnd;
+    canvas.ontouchmove = onTouchMove;
+    canvas.ontouchstart = onTouchStart;
+    canvas.ontouchend = onTouchEnd;
+
+    function onTouchMove(e)
+    {
+        if(e.touches.length != 1) return;
+        onZoomMove(e.touches[0]);
+    }
+
+    function onTouchStart(e)
+    {
+        if(e.touches.length != 1) return;
+        onZoomStart(e.touches[0]);
+    }
+
+    function onTouchEnd(e)
+    {
+        if(e.touches.length != 1) return;
+        onZoomEnd(e.touches[0]);
+    }
 
     function init()
     {
@@ -74,6 +92,7 @@ function initZoom(canvas, onZoom, x0, y0, x1, y1, width, height) {
 
     function onZoomStart(e)
     {
+        setMousePosition(e);
         mouse.startX = mouse.x;
         mouse.startY = mouse.y;
         element = document.createElement('div');
