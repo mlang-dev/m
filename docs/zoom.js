@@ -45,8 +45,7 @@ function initZoom(canvas, onZoom, x0, y0, x1, y1, width, height) {
 
     function onTouchEnd(e)
     {
-        if(e.touches.length != 1) return;
-        onZoomEnd(e.touches[0]);
+        onZoomEnd(null);
     }
 
     function init()
