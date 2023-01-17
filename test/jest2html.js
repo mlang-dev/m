@@ -42,16 +42,16 @@ const tutorial_config = {
     }
 };
 
-const example_config = {
-    "to_dir": "../docs/example/",
+const code_config = {
+    "to_dir": "../docs/code/",
     "show_graph": true,
     "template": {
-        "header": "./example.html_header_template",
-        "footer": "./example.html_footer_template"
+        "header": "./code.html_header_template",
+        "footer": "./code.html_footer_template"
     },
     "list": {
         "general": {
-            "files": ["example-mandelbrot.test.js"],
+            "files": ["code-mandelbrot.test.js"],
             "order": 1
         }
     }
@@ -184,8 +184,8 @@ function main()
     if (process.argv.length > 2){
         
         //generate examples
-        console.log("generating examples...");
-        generate_htmls(example_config);
+        console.log("generating codes...");
+        generate_htmls(code_config);
         return;
     }
     console.log("generating tutorials...");
