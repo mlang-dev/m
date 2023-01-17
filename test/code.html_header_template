@@ -18,8 +18,8 @@
 		<header>
 		<nav>
 			<a href="/">M</a>
+			<a class="current">Code</a>
 			<a href="/tutorial/general.html">Tutorials</a>
-			<a class="current">Examples</a>
 			<a href="/grammar.html">Grammar</a>
 			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
 					<path
