@@ -1,4 +1,4 @@
-const mtest = require('../mtest.js');
+const mtest = require('./mtest.js');
 
 mtest.mtest('mandelbrot set linear', 'draw mandelbrot set using linear color function', 
 `
