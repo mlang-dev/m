@@ -5,8 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
-		<script src="/wasi.js"></script>
-		<script src="/mw.js"></script>
+		<script type = "text/javascript" src="/main.bundle.js"></script>
 		<link rel="stylesheet" href="/simple.css">
 		<link rel="stylesheet" href="/style.css">
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -28,36 +27,6 @@
 				</svg>Github</a>
 		</nav>
 		</header>
-		<script>
-			var instance = null;
-			var result_control = null;
-			mw(new wasi(), '/mw.wasm', print, true).then(
-				result=>{
-					instance = result;
-					print_version(instance.version);
-				}
-			);
-			function run(code_control) {
-				result_control = code_control + "_result";
-				clear();
-				let code = document.getElementById(code_control).value;
-				print(instance.run_code(code));
-			}
-			
-			function print(text){
-				if(text == null || text == undefined){
-					return;
-				}
-				document.getElementById(result_control).textContent = text;
-			}
-
-			function clear(){
-				document.getElementById(result_control).textContent = '';
-			}
-			function print_version(version) {
-				document.getElementById("version").textContent = version;
-			}
-		</script>
 
         <nav>
             
@@ -89,7 +58,7 @@ z.re</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('cf64_re')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="cf64_re" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "cf64_re_result"></div>
                 </div>
                 
@@ -104,7 +73,7 @@ a.y</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_with_different_types')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="struct_with_different_types" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_with_different_types_result"></div>
                 </div>
                 
@@ -119,7 +88,7 @@ a.y</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('union_with_different_types')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="union_with_different_types" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "union_with_different_types_result"></div>
                 </div>
                 
@@ -132,7 +101,7 @@ A { 10, 20.0 }.y</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('access_field_no_var')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="access_field_no_var" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "access_field_no_var_result"></div>
                 </div>
                 
@@ -148,7 +117,7 @@ ab.b.im</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_in_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="struct_in_struct" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_in_struct_result"></div>
                 </div>
                 
@@ -164,7 +133,7 @@ get().b.im</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_struct_in_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="return_struct_in_struct" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "return_struct_in_struct_result"></div>
                 </div>
                 
@@ -183,7 +152,7 @@ get().im</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_field_from_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="return_field_from_struct" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "return_field_from_struct_result"></div>
                 </div>
                 
@@ -199,7 +168,7 @@ get().re</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_field_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="return_field_struct" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "return_field_struct_result"></div>
                 </div>
                 
@@ -213,7 +182,7 @@ let x = cf64{10.0, 20.0}
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_return_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pass_return_struct" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_return_struct_result"></div>
                 </div>
                 
@@ -226,7 +195,7 @@ let x = cf64{10.0, 20.0}
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_return_struct_no_variable')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pass_return_struct_no_variable" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_return_struct_no_variable_result"></div>
                 </div>
                 
@@ -242,7 +211,7 @@ ab.z.y</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_member_assign_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="struct_member_assign_struct" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_member_assign_struct_result"></div>
                 </div>
                 
@@ -256,7 +225,7 @@ z.z</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('variable_scope')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="variable_scope" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "variable_scope_result"></div>
                 </div>
                 
@@ -271,7 +240,7 @@ z.re + z.im</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('cf64_expr')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="cf64_expr" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "cf64_expr_result"></div>
                 </div>
                 
@@ -287,7 +256,7 @@ x.re + x.im</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="return_struct" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "return_struct_result"></div>
                 </div>
                 
@@ -302,7 +271,7 @@ z().im</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('return_struct_no_var')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="return_struct_no_var" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "return_struct_no_var_result"></div>
                 </div>
                 
@@ -318,7 +287,7 @@ im x</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pass_struct" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_struct_result"></div>
                 </div>
                 
@@ -333,7 +302,7 @@ im (cf64 { 10.0, 20.0 })</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_no_var')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pass_struct_no_var" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_struct_no_var_result"></div>
                 </div>
                 
@@ -349,7 +318,7 @@ im (cf64 { 10.0, 20.0 })</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_add_one_value')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pass_struct_add_one_value" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_one_value_result"></div>
                 </div>
                 
@@ -366,7 +335,7 @@ result.re + result.im</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_struct_add_value')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pass_struct_add_value" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_struct_add_value_result"></div>
                 </div>
                 
@@ -381,7 +350,7 @@ z.x</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_member_assign')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="struct_member_assign" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_member_assign_result"></div>
                 </div>
                 
@@ -396,7 +365,7 @@ a[0]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('one_element_array_init')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="one_element_array_init" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "one_element_array_init_result"></div>
                 </div>
                 
@@ -411,7 +380,7 @@ a[0]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('more_array_element')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="more_array_element" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "more_array_element_result"></div>
                 </div>
                 
@@ -426,7 +395,7 @@ a[0] + a[1]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('sum_of_elements')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="sum_of_elements" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "sum_of_elements_result"></div>
                 </div>
                 
@@ -442,7 +411,7 @@ a[0]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('update_array_element')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="update_array_element" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "update_array_element_result"></div>
                 </div>
                 
@@ -458,7 +427,7 @@ a[0] + a[1]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('update_second_element')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="update_second_element" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "update_second_element_result"></div>
                 </div>
                 
@@ -473,7 +442,7 @@ a[0] + a[1]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('u8_array')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="u8_array" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_array_result"></div>
                 </div>
                 
@@ -490,7 +459,7 @@ a[0] + a[1]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('u8_array_update')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="u8_array_update" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_array_update_result"></div>
                 </div>
                 
@@ -505,7 +474,7 @@ a[1][1]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('u8_two_dimension_array')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="u8_two_dimension_array" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_two_dimension_array_result"></div>
                 </div>
                 
@@ -521,7 +490,7 @@ a[1][1]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('u8_two_dimen_update')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="u8_two_dimen_update" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_two_dimen_update_result"></div>
                 </div>
                 
@@ -539,7 +508,7 @@ a[7][8]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('u8_access_via_var')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="u8_access_via_var" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "u8_access_via_var_result"></div>
                 </div>
                 
@@ -557,7 +526,7 @@ a[7][8]</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('u32_access_via_var')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="u32_access_via_var" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "u32_access_via_var_result"></div>
                 </div>
                 
@@ -576,7 +545,7 @@ pick a 9 8</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pass_array_to_a_function')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pass_array_to_a_function" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pass_array_to_a_function_result"></div>
                 </div>
                 	<!-----------------footer----------------->

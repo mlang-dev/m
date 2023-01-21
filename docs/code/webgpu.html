@@ -17,8 +17,8 @@
 		<header>
 		<nav>
 			<a href="/">M</a>
-			<a href="/code/general.html">Code</a>
-			<a class="current">Tutorials</a>
+			<a class="current">Code</a>
+			<a href="/tutorial/general.html">Tutorials</a>
 			<a href="/grammar.html">Grammar</a>
 			<a href="https://github.com/ligangwang/m"><svg class="icon" viewBox="0 0 32 32">
 					<path
@@ -27,3 +27,33 @@
 				</svg>Github</a>
 		</nav>
 		</header>
+
+        <nav>
+            
+<a href="/code/general.html">general</a>
+<a class="current">webgpu</a>
+        </nav>
+    </p>
+    
+    <div style="font-size: small">This page is for experimental webgpu examples.
+The examples will only run on Firefox Nightly or Chrome Canary with experimental WebGPU flags enabled. 
+See more details from https://github.com/gpuweb/gpuweb/wiki/Implementation-Status</div>
+    
+                <div style="font-size: small;">experimental webgpu</div>
+                <div>
+                    <div style="display: inline-block; margin-top: 10px; width: 400px">
+                        <textarea id="webgpu"  rows = "0" style="resize: none; font-size: small"></textarea>
+                    </div>
+                    <div style="display: inline-block; width: 350px"><canvas id="webgpu_graph_result" style="height: 240px; width: 100%;"></canvas></div>
+                </div>
+                <div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="webgpu" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-left:5px;" id= "webgpu_result"></div>
+                </div>
+                	<!-----------------footer----------------->
+	<footer>
+		<label id="version"></label>
+		<p>mlang is created by <a href="https://wangs.dev">Ligang Wang</a> and is open sourced under the MIT license.</p>
+	</footer>
+	</body>
+</html>

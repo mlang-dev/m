@@ -1,14 +1,14 @@
-const mtest = require('./mtest.js');
+import { mtest } from './mtest';
 
 
-mtest.mtest('generic function', 'generic function', 
+mtest('generic function', 'generic function', 
 `
 let sq x = x * x  // generic function
 sq 10.0
 `, 100.0);
 
 
-mtest.mtest('return struct with var', 'return struct with var', 
+mtest('return struct with var', 'return struct with var', 
 `
 struct Point2D = x:mut f64, y:f64
 let change z:Point2D = 
@@ -20,7 +20,7 @@ new_z.x
 `, 20.0);
 
 
-mtest.mtest('mandelbrot set function', 'mandelbrot set function',
+mtest('mandelbrot set function', 'mandelbrot set function',
 `
 let print_density:() d:int =
   if d > 8 then

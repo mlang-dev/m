@@ -2,16 +2,94 @@ import { wasi } from './wasi';
 import { mw, MInstance, RunResult } from './mw';
 import { initZoom, Zoom } from './zoom';
 
-window.onload = function() {
-    
-    var instance:MInstance;
-    var runResult:RunResult;
-    var codeDom = document.getElementById("code") as HTMLInputElement;
-    var consoleDom = document.getElementById("console") as HTMLInputElement;
-    var canvasDom = document.getElementById('canvas') as HTMLCanvasElement;
-    var versionDom = document.getElementById("version");
-    var runDom = document.getElementById("run") as HTMLButtonElement;
+var instance:MInstance;
+var runResult:RunResult;
+var zoom: Zoom | null = null;
 
+function set_image_data(data:any, width:number, height:number)
+{
+    let canvasDom = document.getElementById(instance.canvas_id) as HTMLCanvasElement;
+    if(!canvasDom) return;
+    let ctx = canvasDom.getContext('2d');
+    if(!ctx) return;
+    canvasDom.width = width;
+    canvasDom.height = height;
+    let imageData = ctx.createImageData(width, height);
+    imageData.data.set(data);
+    ctx.putImageData(imageData, 0, 0);
+}
+
+mw(wasi(), '/mw.wasm', print, true, set_image_data).then(
+    result=>{
+        instance = result;
+        print_version("version", instance.version);
+    }
+);
+
+function run(code_id:string)
+{
+    let result_text_id = code_id + "_result";
+    let result_graph_id = code_id + "_graph_result";
+    clear(result_text_id, result_graph_id);
+    if(runResult != undefined && runResult.code_bytes != undefined){
+        const free = instance.mw_instance.exports.free as CallableFunction;
+        free(runResult.code_bytes);
+    }
+    let code = (document.getElementById(code_id) as HTMLInputElement).value;
+    instance.canvas_id = result_graph_id;   
+    instance.text_id = result_text_id;     
+    runResult = instance.run_code(code, false);
+    print(runResult.start_result);
+    if(!zoom) return;
+    zoom.init();
+    update_back_forward();
+}
+
+function update_back_forward()
+{
+    if(!zoom) return;
+    (document.getElementById('backward') as HTMLButtonElement).disabled = zoom.cur_pos <= 0;
+    (document.getElementById('forward') as HTMLButtonElement).disabled = zoom.cur_pos >= zoom.history.length - 1;
+}
+        
+function print(text:string){
+    let textDom = document.getElementById(instance.text_id);
+    if(!textDom){
+        console.log("missing textDom: ", instance.text_id);
+        return;
+    }
+    textDom.textContent += text;
+}
+
+function clear(result_text_id:string, result_canvas_id:string){
+    let textDom = document.getElementById(result_text_id);
+    let canvasDom = document.getElementById(result_canvas_id) as HTMLCanvasElement;
+    if(textDom)
+        textDom.textContent = '';
+    if(!canvasDom) return;
+    const ctx = canvasDom.getContext('2d');
+    if(!ctx) return;
+    ctx.clearRect(0, 0, canvasDom.width, canvasDom.height);
+}
+
+function print_version(version_id:string, version:string) {
+    let versionDom = document.getElementById(version_id);
+    if(!versionDom) return;
+    versionDom.textContent = version;
+}
+
+window.onload = function() {
+    var runs = document.querySelectorAll("button[data-run]");
+    runs.forEach((runBtn)=>{
+        let runDom = runBtn as HTMLElement;
+        runDom.addEventListener("click", 
+        event => {
+            run(runDom.dataset.run || '');
+        });
+    });
+    
+    var codeDom = document.getElementById("code") as HTMLInputElement;
+    if(!codeDom) return;
     codeDom.addEventListener('keydown', function(e) {
     if (e.key == 'Tab') {
         e.preventDefault();
@@ -29,7 +107,6 @@ window.onload = function() {
     });
     var backward = document.getElementById("backward") as HTMLButtonElement;
     var forward = document.getElementById("forward") as HTMLButtonElement;
-    var zoom: Zoom | null = null;
 
     backward.addEventListener('click', 
         function ()
@@ -45,12 +122,7 @@ window.onload = function() {
             zoom.forward();
         }
     );
-    function update_back_forward()
-    {
-        if(!zoom) return;
-        backward.disabled = zoom.cur_pos <= 0;
-        forward.disabled = zoom.cur_pos >= zoom.history.length - 1;
-    }
+
     function onZoom(x0:number, y0:number, x1:number, y1:number)
     {
         const plot_mandelbrot_set = runResult.code_instance.exports.plot_mandelbrot_set as CallableFunction;
@@ -100,62 +172,5 @@ let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
 plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 `;
     codeDom.value = code_text;
-    function set_image_data(data:any, width:number, height:number)
-    {
-        if(!canvasDom) return;
-        let ctx = canvasDom.getContext('2d');
-        if(!ctx) return;
-        canvasDom.width = width;
-        canvasDom.height = height;
-        let imageData = ctx.createImageData(width, height);
-        imageData.data.set(data);
-        ctx.putImageData(imageData, 0, 0);
-    }
-
-
-    mw(wasi(), '/mw.wasm', print, true, set_image_data).then(
-        result=>{
-            instance = result;
-            print_version(instance.version);
-        }
-    );
-
-    runDom.addEventListener("click", 
-        function (event) {
-            clear();
-            if(runResult != undefined && runResult.code_bytes != undefined){
-                const free = instance.mw_instance.exports.free as CallableFunction;
-                free(runResult.code_bytes);
-            }
-            let code = codeDom.value;
-            runResult = instance.run_code(code, false);
-            print(runResult.start_result);
-            if(!zoom) return;
-            zoom.init();
-            update_back_forward();
-        }
-    );
-
-    function print(text:string){
-        if(text == null || text == undefined){
-            return;
-        }
-        consoleDom.textContent += text;
-        // const ctx = document.getElementById('canvas').getContext('2d');
-        // ctx.font = '12px serif';
-        // ctx.fillStyle = 'orange';
-        // ctx.fillText(text, 0, 30);
-    }
-
-    function clear(){
-        consoleDom.textContent = '';
-        const ctx = canvasDom.getContext('2d');
-        if(!ctx) return;
-        ctx.clearRect(0, 0, canvasDom.width, canvasDom.height);
-    }
-
-    function print_version(version:string) {
-        if(!versionDom) return;
-        versionDom.textContent = version;
-    }
 };
+

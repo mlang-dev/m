@@ -5,8 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
-		<script src="/wasi.js"></script>
-		<script src="/mw.js"></script>
+		<script type = "text/javascript" src="/main.bundle.js"></script>
 		<link rel="stylesheet" href="/simple.css">
 		<link rel="stylesheet" href="/style.css">
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -28,36 +27,6 @@
 				</svg>Github</a>
 		</nav>
 		</header>
-		<script>
-			var instance = null;
-			var result_control = null;
-			mw(new wasi(), '/mw.wasm', print, true).then(
-				result=>{
-					instance = result;
-					print_version(instance.version);
-				}
-			);
-			function run(code_control) {
-				result_control = code_control + "_result";
-				clear();
-				let code = document.getElementById(code_control).value;
-				print(instance.run_code(code));
-			}
-			
-			function print(text){
-				if(text == null || text == undefined){
-					return;
-				}
-				document.getElementById(result_control).textContent = text;
-			}
-
-			function clear(){
-				document.getElementById(result_control).textContent = '';
-			}
-			function print_version(version) {
-				document.getElementById("version").textContent = version;
-			}
-		</script>
 
         <nav>
             
@@ -82,7 +51,7 @@ if x then 100 else 10</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('use_bool_variable')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="use_bool_variable" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "use_bool_variable_result"></div>
                 </div>
                 
@@ -97,7 +66,7 @@ x</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_but_no_else')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="if_but_no_else" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "if_but_no_else_result"></div>
                 </div>
                 
@@ -110,7 +79,7 @@ x ? 1 : 0</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('ternary_operator')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="ternary_operator" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "ternary_operator_result"></div>
                 </div>
                 
@@ -122,7 +91,7 @@ x ? 1 : 0</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_0_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="if_0_statement" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "if_0_statement_result"></div>
                 </div>
                 
@@ -134,7 +103,7 @@ x ? 1 : 0</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('if_false_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="if_false_statement" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "if_false_statement_result"></div>
                 </div>
                 
@@ -151,7 +120,7 @@ choice 10</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_first')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="else_if_statement_first" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_first_result"></div>
                 </div>
                 
@@ -168,7 +137,7 @@ choice 20</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_second')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="else_if_statement_second" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_second_result"></div>
                 </div>
                 
@@ -185,7 +154,7 @@ choice 30</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_third')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="else_if_statement_third" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_third_result"></div>
                 </div>
                 
@@ -202,7 +171,7 @@ choice 40</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('else_if_statement_else')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="else_if_statement_else" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "else_if_statement_else_result"></div>
                 </div>
                 
@@ -217,7 +186,7 @@ sum</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_statement')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="for_loop_statement" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_statement_result"></div>
                 </div>
                 
@@ -232,7 +201,7 @@ sum</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_statement_float')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="for_loop_statement_float" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_statement_float_result"></div>
                 </div>
                 
@@ -248,7 +217,7 @@ sum</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_with_step')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="for_loop_with_step" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_with_step_result"></div>
                 </div>
                 
@@ -264,7 +233,7 @@ sum</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('nest_for_loop')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="nest_for_loop" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "nest_for_loop_result"></div>
                 </div>
                 
@@ -277,7 +246,7 @@ factorial 5</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('recursive_factorial')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="recursive_factorial" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "recursive_factorial_result"></div>
                 </div>
                 
@@ -294,7 +263,7 @@ factorial 5</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_factorial')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="for_loop_factorial" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_factorial_result"></div>
                 </div>
                 
@@ -309,7 +278,7 @@ i</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_break_if')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="for_loop_break_if" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_break_if_result"></div>
                 </div>
                 
@@ -323,7 +292,7 @@ i</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_break')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="for_loop_break" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_break_result"></div>
                 </div>
                 
@@ -337,7 +306,7 @@ i</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_break')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="for_loop_break" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_break_result"></div>
                 </div>
                 
@@ -352,7 +321,7 @@ i</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('while_loop')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="while_loop" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "while_loop_result"></div>
                 </div>
                 
@@ -369,7 +338,7 @@ i</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('while_loop_break')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="while_loop_break" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "while_loop_break_result"></div>
                 </div>
                 
@@ -388,7 +357,7 @@ n</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('while_loop_continue')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="while_loop_continue" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "while_loop_continue_result"></div>
                 </div>
                 
@@ -405,7 +374,7 @@ n</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('for_loop_continue')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="for_loop_continue" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "for_loop_continue_result"></div>
                 </div>
                 	<!-----------------footer----------------->
