@@ -81,6 +81,16 @@ The build system will build mw.wasm under ./apps
 Note to build m targeting LLVM backend, please refer to the [llvm build](./llvm.md) document.
 
 
+# run mlang site locally
+install http-server if it's not in your environment
+```
+npm install -g http-server
+```
+run http-server on docs folder
+```
+http-server docs
+```
+
 # useful tools
 ## install clang-13 on ubuntu:
 ```
@@ -102,14 +112,3 @@ sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
 clang --target=wasm32 --no-standard-libraries test.c -o test.wasm -mmultivalue -Xclang -target-abi -Xclang experimental-mv
 ```
 
-# setup docs as local mlang site
-```
-npm init -y
-npm i webpack webpack-cli
-tsc --init
-npm i @webgpu/types
-npm i @types/node
-npm i jquery @types/jquery
-npm i css-loader ts-loader
-npm i typescript
-```

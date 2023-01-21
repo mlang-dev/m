@@ -8,6 +8,7 @@ const doctrine = require("doctrine");
 var from_dir = "./jstests/";
 
 const tutorial_config = {
+    "config_name": "tutorial",
     "to_dir": "../docs/tutorial/",
     "show_graph": false,
     "template": {
@@ -16,33 +17,34 @@ const tutorial_config = {
     },
     "list": {
         "general": {
-            "files": ["general.test.js"],
+            "files": ["general.test.ts"],
             "order": 1
         },
         "operators": {
-            "files": ["bitwise.test.js", "logic.test.js", "relation.test.js", "numeric.test.js"],
+            "files": ["bitwise.test.ts", "logic.test.ts", "relation.test.ts", "numeric.test.ts"],
             "order" : 2,
         },
         "control": {
-            "files": ["control.test.js"],
+            "files": ["control.test.ts"],
             "order": 3,
         },
         "aggregate": {
-            "files": ["aggregate.test.js"],
+            "files": ["aggregate.test.ts"],
             "order": 4,
         },
         "reference": {
-            "files": ["reference.test.js"],
+            "files": ["reference.test.ts"],
             "order": 5
         },
         "pattern-match": {
-            "files": ["pattern-match.test.js"],
+            "files": ["pattern-match.test.ts"],
             "order": 6
         }
     }
 };
 
 const code_config = {
+    "config_name": "code",
     "to_dir": "../docs/code/",
     "show_graph": true,
     "template": {
@@ -51,7 +53,11 @@ const code_config = {
     },
     "list": {
         "general": {
-            "files": ["code-mandelbrot.test.js"],
+            "files": ["code-mandelbrot.test.ts"],
+            "order": 1
+        },
+        "webgpu": {
+            "files": ["code-webgpu.test.ts"],
             "order": 1
         }
     }
@@ -74,8 +80,8 @@ function _generate_content_from_path(from_path, show_graph)
     ts.forEachChild(sourceFile, node => {
         if(ts.isExpressionStatement(node)){
             if(ts.isCallExpression(node.expression) && 
-            node.expression.expression.expression != undefined && 
-            node.expression.expression.expression.escapedText == 'mtest'){
+            node.expression.expression != undefined
+            && node.expression.expression.escapedText.substring(0, 5) == 'mtest'){
                 tutorial = node.expression.arguments[4];
                 if(tutorial!=undefined && tutorial.kind == ts.SyntaxKind.FalseKeyword) 
                     return;
@@ -107,7 +113,7 @@ function _generate_content_from_path(from_path, show_graph)
                     ${graph_control}
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('${test_control_name}')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="${test_control_name}" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "${test_result_control_name}"></div>
                 </div>
                 `;
@@ -142,13 +148,13 @@ function generate_file(from_paths, test_navigations, to_path, html_header_file, 
       });
 }
 
-function build_test_navigations(interested_files, current_test_name)
+function build_test_navigations(interested_files, test_folder_name, current_test_name)
 {
     var test_cases = '';
     interested_files.forEach(file_info=>{
         let test_name = file_info[1];
         let test_html = file_info[2];
-        const test_case = test_name == current_test_name? `<a class="current">${test_name}</a>` : `<a href="/tutorial/${test_html}">${test_name}</a>`;
+        const test_case = test_name == current_test_name? `<a class="current">${test_name}</a>` : `<a href="/${test_folder_name}/${test_html}">${test_name}</a>`;
         test_cases += '\n' + test_case;
     });
     var test_navigations = `
@@ -172,7 +178,7 @@ function generate_htmls(config)
         let test_name = file_info[1];
         let test_html = file_info[2];
         let files= file_info[3];
-        var test_navigations = build_test_navigations(interested_files, test_name);
+        var test_navigations = build_test_navigations(interested_files, config["config_name"], test_name);
         var to_path = path.join(config["to_dir"], test_html);
         var from_paths = files.map(file=>path.join(from_dir, file));
         generate_file(from_paths, test_navigations, to_path, config["template"]["header"], config["template"]["footer"], config["show_graph"]);

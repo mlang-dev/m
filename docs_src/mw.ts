@@ -3,7 +3,8 @@ export type MInstance = {
 	version: string
 	run_code: any, 
 	compile: any,
-
+	canvas_id:string,
+	text_id:string,
 };
 
 type MExports = {
@@ -32,7 +33,7 @@ export type RunResult = {
 
 var m_instance:MInstance;
 var m_exports:MExports;
-export function mw(wasi_env:any, module_name:string, print_func:CallableFunction, is_remote_file:boolean, set_image_data:CallableFunction) : Promise<MInstance> {
+export function mw(wasi_env:any, module_name:string, print_func:CallableFunction, is_remote_file:boolean, set_image_data:CallableFunction|null) : Promise<MInstance> {
 	var code_instance = null;
 	var print_func = print_func;
 	var version:string;
@@ -57,6 +58,8 @@ export function mw(wasi_env:any, module_name:string, print_func:CallableFunction
 				compile: compile,
 				version: version,
 				mw_instance: obj.instance,
+				canvas_id: '',
+				text_id: ''
 			};
 			m_exports = {
 				malloc: obj.instance.exports.malloc as CallableFunction,

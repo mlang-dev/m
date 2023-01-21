@@ -5,8 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
-		<script src="/wasi.js"></script>
-		<script src="/mw.js"></script>
+		<script type = "text/javascript" src="/main.bundle.js"></script>
 		<link rel="stylesheet" href="/simple.css">
 		<link rel="stylesheet" href="/style.css">
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -28,36 +27,6 @@
 				</svg>Github</a>
 		</nav>
 		</header>
-		<script>
-			var instance = null;
-			var result_control = null;
-			mw(new wasi(), '/mw.wasm', print, true).then(
-				result=>{
-					instance = result;
-					print_version(instance.version);
-				}
-			);
-			function run(code_control) {
-				result_control = code_control + "_result";
-				clear();
-				let code = document.getElementById(code_control).value;
-				print(instance.run_code(code));
-			}
-			
-			function print(text){
-				if(text == null || text == undefined){
-					return;
-				}
-				document.getElementById(result_control).textContent = text;
-			}
-
-			function clear(){
-				document.getElementById(result_control).textContent = '';
-			}
-			function print_version(version) {
-				document.getElementById("version").textContent = version;
-			}
-		</script>
 
         <nav>
             
@@ -80,7 +49,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('bitwise_not_zero')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="bitwise_not_zero" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "bitwise_not_zero_result"></div>
                 </div>
                 
@@ -92,7 +61,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('bitwise_not_neg_one')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="bitwise_not_neg_one" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "bitwise_not_neg_one_result"></div>
                 </div>
                 
@@ -104,7 +73,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('bitwise_not_one')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="bitwise_not_one" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "bitwise_not_one_result"></div>
                 </div>
                 
@@ -116,7 +85,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('bitwise_shift_left')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="bitwise_shift_left" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "bitwise_shift_left_result"></div>
                 </div>
                 
@@ -128,7 +97,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('bitwise_shift_right')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="bitwise_shift_right" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "bitwise_shift_right_result"></div>
                 </div>
                 
@@ -140,7 +109,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('bitwise_and')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="bitwise_and" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "bitwise_and_result"></div>
                 </div>
                 
@@ -152,7 +121,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('bitwise_or')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="bitwise_or" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "bitwise_or_result"></div>
                 </div>
                 
@@ -164,7 +133,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('bitwise_xor')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="bitwise_xor" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "bitwise_xor_result"></div>
                 </div>
                 
@@ -178,7 +147,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('true')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="true" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "true_result"></div>
                 </div>
                 
@@ -190,7 +159,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('false')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="false" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "false_result"></div>
                 </div>
                 
@@ -202,7 +171,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('true_and_true')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="true_and_true" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "true_and_true_result"></div>
                 </div>
                 
@@ -214,7 +183,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('true_and_false')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="true_and_false" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "true_and_false_result"></div>
                 </div>
                 
@@ -226,7 +195,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('false_and_false')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="false_and_false" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "false_and_false_result"></div>
                 </div>
                 
@@ -238,7 +207,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('false_or_false')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="false_or_false" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "false_or_false_result"></div>
                 </div>
                 
@@ -250,7 +219,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('true_or_false')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="true_or_false" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "true_or_false_result"></div>
                 </div>
                 
@@ -262,7 +231,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('not_true')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="not_true" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "not_true_result"></div>
                 </div>
                 
@@ -274,7 +243,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('not_false')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="not_false" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "not_false_result"></div>
                 </div>
                 
@@ -288,7 +257,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('less_than')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="less_than" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "less_than_result"></div>
                 </div>
                 
@@ -300,7 +269,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('less_than_float')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="less_than_float" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "less_than_float_result"></div>
                 </div>
                 
@@ -312,7 +281,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('less_and_equal_than_float')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="less_and_equal_than_float" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "less_and_equal_than_float_result"></div>
                 </div>
                 
@@ -324,7 +293,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('less_and_equal_than_int')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="less_and_equal_than_int" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "less_and_equal_than_int_result"></div>
                 </div>
                 
@@ -336,7 +305,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('less_and_equal_than_int_equal')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="less_and_equal_than_int_equal" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "less_and_equal_than_int_equal_result"></div>
                 </div>
                 
@@ -348,7 +317,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('less_and_equal_than_int_false')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="less_and_equal_than_int_false" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "less_and_equal_than_int_false_result"></div>
                 </div>
                 
@@ -360,7 +329,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('greater_and_equal_than_int')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="greater_and_equal_than_int" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "greater_and_equal_than_int_result"></div>
                 </div>
                 
@@ -372,7 +341,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('greater_than_int')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="greater_than_int" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "greater_than_int_result"></div>
                 </div>
                 
@@ -384,7 +353,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('equal_int_false')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="equal_int_false" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "equal_int_false_result"></div>
                 </div>
                 
@@ -396,7 +365,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('equal_int')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="equal_int" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "equal_int_result"></div>
                 </div>
                 
@@ -408,7 +377,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('not_equal_int')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="not_equal_int" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "not_equal_int_result"></div>
                 </div>
                 
@@ -420,7 +389,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('not_equal_int_false')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="not_equal_int_false" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "not_equal_int_false_result"></div>
                 </div>
                 
@@ -434,7 +403,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('add_expression')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="add_expression" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "add_expression_result"></div>
                 </div>
                 
@@ -446,7 +415,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('operator_precendence')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="operator_precendence" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "operator_precendence_result"></div>
                 </div>
                 
@@ -458,7 +427,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('negative_opearator')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="negative_opearator" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "negative_opearator_result"></div>
                 </div>
                 
@@ -470,7 +439,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('float_expression')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="float_expression" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "float_expression_result"></div>
                 </div>
                 
@@ -482,7 +451,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('exponentiation_operator')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="exponentiation_operator" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "exponentiation_operator_result"></div>
                 </div>
                 
@@ -494,7 +463,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('modulo_operator_zero')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="modulo_operator_zero" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "modulo_operator_zero_result"></div>
                 </div>
                 
@@ -506,7 +475,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('modulo_operator')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="modulo_operator" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "modulo_operator_result"></div>
                 </div>
                 	<!-----------------footer----------------->

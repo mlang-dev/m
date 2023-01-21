@@ -5,8 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
-		<script src="/wasi.js"></script>
-		<script src="/mw.js"></script>
+		<script type = "text/javascript" src="/main.bundle.js"></script>
 		<link rel="stylesheet" href="/simple.css">
 		<link rel="stylesheet" href="/style.css">
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -28,36 +27,6 @@
 				</svg>Github</a>
 		</nav>
 		</header>
-		<script>
-			var instance = null;
-			var result_control = null;
-			mw(new wasi(), '/mw.wasm', print, true).then(
-				result=>{
-					instance = result;
-					print_version(instance.version);
-				}
-			);
-			function run(code_control) {
-				result_control = code_control + "_result";
-				clear();
-				let code = document.getElementById(code_control).value;
-				print(instance.run_code(code));
-			}
-			
-			function print(text){
-				if(text == null || text == undefined){
-					return;
-				}
-				document.getElementById(result_control).textContent = text;
-			}
-
-			function clear(){
-				document.getElementById(result_control).textContent = '';
-			}
-			function print_version(version) {
-				document.getElementById("version").textContent = version;
-			}
-		</script>
 
         <nav>
             
@@ -84,7 +53,7 @@ pm 0</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_int')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_int" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_int_result"></div>
                 </div>
                 
@@ -100,7 +69,7 @@ pm 1</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_int_second')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_int_second" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_int_second_result"></div>
                 </div>
                 
@@ -117,7 +86,7 @@ pm 20</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_wildcard')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_wildcard" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_wildcard_result"></div>
                 </div>
                 
@@ -135,7 +104,7 @@ y</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_with_variable')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_with_variable" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_with_variable_result"></div>
                 </div>
                 
@@ -152,7 +121,7 @@ pm 0</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_out_of_order')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_out_of_order" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_out_of_order_result"></div>
                 </div>
                 
@@ -169,7 +138,7 @@ pm 1</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_not_zero_base')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_not_zero_base" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_not_zero_base_result"></div>
                 </div>
                 
@@ -186,7 +155,7 @@ pm 2</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_not_zero_second')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_not_zero_second" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_not_zero_second_result"></div>
                 </div>
                 
@@ -203,7 +172,7 @@ pm 0</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_not_zero_wildcard')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_not_zero_wildcard" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_not_zero_wildcard_result"></div>
                 </div>
                 
@@ -220,7 +189,7 @@ pm 1</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_gap_pattern')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_gap_pattern" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_gap_pattern_result"></div>
                 </div>
                 
@@ -237,7 +206,7 @@ pm 3</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_gap_pattern_second')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_gap_pattern_second" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_gap_pattern_second_result"></div>
                 </div>
                 
@@ -254,7 +223,7 @@ pm 2</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_gap_pattern_wildcard')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_gap_pattern_wildcard" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_gap_pattern_wildcard_result"></div>
                 </div>
                 
@@ -271,7 +240,7 @@ pm (-1)</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_negative')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_negative" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_negative_result"></div>
                 </div>
                 
@@ -288,7 +257,7 @@ pm 3</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_negative_second_match')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_negative_second_match" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_negative_second_match_result"></div>
                 </div>
                 
@@ -305,7 +274,7 @@ pm 0</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_negative_wildcard')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_negative_wildcard" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_negative_wildcard_result"></div>
                 </div>
                 
@@ -322,7 +291,7 @@ pm 2</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('pattern_match_variable')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="pattern_match_variable" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "pattern_match_variable_result"></div>
                 </div>
                 	<!-----------------footer----------------->

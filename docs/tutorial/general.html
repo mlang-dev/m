@@ -5,8 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
-		<script src="/wasi.js"></script>
-		<script src="/mw.js"></script>
+		<script type = "text/javascript" src="/main.bundle.js"></script>
 		<link rel="stylesheet" href="/simple.css">
 		<link rel="stylesheet" href="/style.css">
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -28,36 +27,6 @@
 				</svg>Github</a>
 		</nav>
 		</header>
-		<script>
-			var instance = null;
-			var result_control = null;
-			mw(new wasi(), '/mw.wasm', print, true).then(
-				result=>{
-					instance = result;
-					print_version(instance.version);
-				}
-			);
-			function run(code_control) {
-				result_control = code_control + "_result";
-				clear();
-				let code = document.getElementById(code_control).value;
-				print(instance.run_code(code));
-			}
-			
-			function print(text){
-				if(text == null || text == undefined){
-					return;
-				}
-				document.getElementById(result_control).textContent = text;
-			}
-
-			function clear(){
-				document.getElementById(result_control).textContent = '';
-			}
-			function print_version(version) {
-				document.getElementById("version").textContent = version;
-			}
-		</script>
 
         <nav>
             
@@ -80,7 +49,7 @@
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('hello_world')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="hello_world" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "hello_world_result"></div>
                 </div>
                 
@@ -95,7 +64,7 @@ print "hello %s %.2f %d" s f i</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('print_string__float_and_int')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="print_string__float_and_int" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "print_string__float_and_int_result"></div>
                 </div>
                 
@@ -110,7 +79,7 @@ sq 10.0</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('function_definition')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="function_definition" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "function_definition_result"></div>
                 </div>
                 
@@ -124,7 +93,7 @@ sq 10.0</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('generic_function')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="generic_function" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "generic_function_result"></div>
                 </div>
                 
@@ -138,7 +107,7 @@ print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)</textarea>
                     
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('struct_type')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="struct_type" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "struct_type_result"></div>
                 </div>
                 	<!-----------------footer----------------->

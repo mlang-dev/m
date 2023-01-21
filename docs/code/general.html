@@ -5,8 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
-		<script src="/wasi.js"></script>
-		<script src="/mw.js"></script>
+		<script type = "text/javascript" src="/main.bundle.js"></script>
 		<link rel="stylesheet" href="/simple.css">
 		<link rel="stylesheet" href="/style.css">
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -28,57 +27,11 @@
 				</svg>Github</a>
 		</nav>
 		</header>
-		<script>
-			var instance = null;
-			var result_text_control = null;
-			var result_graph_control = null;
-			function set_image_data(data, width, height)
-			{
-				let canvas = document.getElementById(result_graph_control);
-				let ctx = canvas.getContext('2d');
-				canvas.width = width;
-				canvas.height = height;
-				let imageData = ctx.createImageData(width, height);
-				imageData.data.set(data);
-				ctx.putImageData(imageData, 0, 0);
-			}
-
-			mw(new wasi(), '/mw.wasm', print, true, set_image_data).then(
-				result=>{
-					instance = result;
-					print_version(instance.version);
-				}
-			);
-			function run(code_control) {
-				result_text_control = code_control + "_result";
-				result_graph_control = code_control + "_graph_result";
-				clear();
-				let code = document.getElementById(code_control).value;
-				print(instance.run_code(code));
-			}
-			
-			function print(text){
-				if(text == null || text == undefined){
-					return;
-				}
-				document.getElementById(result_text_control).textContent = text;
-			}
-
-			function clear(){
-				document.getElementById(result_text_control).textContent = '';
-				let canvas = document.getElementById(result_graph_control); 
-				const ctx = canvas.getContext('2d');
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-			}
-
-			function print_version(version) {
-				document.getElementById("version").textContent = version;
-			}
-		</script>
 
         <nav>
             
 <a class="current">general</a>
+<a href="/code/webgpu.html">webgpu</a>
         </nav>
     </p>
     
@@ -112,7 +65,7 @@ setImageData a 300 200</textarea>
                     <div style="display: inline-block; width: 350px"><canvas id="mandelbrot_set_linear_graph_result" style="height: 240px; width: 100%;"></canvas></div>
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('mandelbrot_set_linear')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="mandelbrot_set_linear" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "mandelbrot_set_linear_result"></div>
                 </div>
                 
@@ -152,7 +105,7 @@ setImageData a 300 200</textarea>
                     <div style="display: inline-block; width: 350px"><canvas id="mandelbrot_set_nonlinear_graph_result" style="height: 240px; width: 100%;"></canvas></div>
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('mandelbrot_set_nonlinear')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="mandelbrot_set_nonlinear" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "mandelbrot_set_nonlinear_result"></div>
                 </div>
                 
@@ -193,7 +146,7 @@ setImageData a 300 200</textarea>
                     <div style="display: inline-block; width: 350px"><canvas id="julia_set_1_graph_result" style="height: 240px; width: 100%;"></canvas></div>
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('julia_set_1')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="julia_set_1" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "julia_set_1_result"></div>
                 </div>
                 
@@ -234,7 +187,7 @@ setImageData a 300 200</textarea>
                     <div style="display: inline-block; width: 350px"><canvas id="julia_set_2_graph_result" style="height: 240px; width: 100%;"></canvas></div>
                 </div>
                 <div>
-                    <div style="display: inline-block; margin-right:5px;"><button type="button" onclick="run('julia_set_2')" style="min-width: 50px;">run</button></div>
+                    <div style="display: inline-block; margin-right:5px;"><button type="button" data-run="julia_set_2" style="min-width: 50px;">run</button></div>
                     <div style="display: inline-block; margin-left:5px;" id= "julia_set_2_result"></div>
                 </div>
                 	<!-----------------footer----------------->

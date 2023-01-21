@@ -1,6 +1,6 @@
-const mtest = require('./mtest.js');
+import { mtest } from './mtest';
 
-mtest.mtest('mandelbrot set linear', 'draw mandelbrot set using linear color function', 
+mtest('mandelbrot set linear', 'draw mandelbrot set using linear color function', 
 `
 var a:u8[200][300 * 4]
 let scale = 0.01
@@ -23,9 +23,9 @@ for x in 0..300
         a[y][4*x+3] = 255
 
 setImageData a 300 200
-`, undefined);
+`, null);
 
-mtest.mtest('mandelbrot set nonlinear', 'draw mandelbrot set using log color function', 
+mtest('mandelbrot set nonlinear', 'draw mandelbrot set using log color function', 
 `
 var a:u8[200][300 * 4]
 let scale = 0.01, max_iter = 510
@@ -56,9 +56,9 @@ for x in 0..300
         a[y][4*x+3] = 255
 
 setImageData a 300 200
-`, undefined);
+`, null);
 
-mtest.mtest('julia set 1', 'julia set c = -0.79 + 0.15i', 
+mtest('julia set 1', 'julia set c = -0.79 + 0.15i', 
 `
 let width = 300, height = 200
 var a:u8[200][300 * 4]
@@ -90,9 +90,9 @@ for x in 0..300
         a[y][4*x+3] = 255
 
 setImageData a 300 200
-`, undefined);
+`, null);
 
-mtest.mtest('julia set 2', 'julia set c = 0.3 - 0.01i', 
+mtest('julia set 2', 'julia set c = 0.3 - 0.01i', 
 `
 let width = 300, height = 200
 var a:u8[200][300 * 4]
@@ -124,4 +124,4 @@ for x in 0..300
         a[y][4*x+3] = 255
 
 setImageData a 300 200
-`, undefined);
+`, null);
