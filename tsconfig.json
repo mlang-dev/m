@@ -15,7 +15,8 @@
     "module": "es2015",
     "esModuleInterop": true,
     "strict": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "moduleResolution": "node"
   },
   "exclude": [
     "node_modules"

@@ -9,7 +9,6 @@ module.exports = {
     output: {
         filename: "[name].bundle.js",
         path: path.join(__dirname, bundleOutputDir),
-        publicPath: 'public/dist/',
         library: {
             name: 'm',
             type: 'var',
@@ -17,7 +16,11 @@ module.exports = {
     },
     devtool: "source-map",
     resolve: {
-        extensions: ['.js', '.ts']
+        extensions: ['.js', '.ts'],
+        fallback: {
+            "path": false,
+            "fs": false
+        }
     },
     module: {
         rules: [
@@ -33,6 +36,6 @@ module.exports = {
             }
         ]
     },
-    target: 'node'
+    target: 'web'
 };
 

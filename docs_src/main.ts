@@ -1,6 +1,7 @@
 import { wasi } from './wasi';
 import { mw, MInstance, RunResult } from './mw';
 import { initZoom, Zoom } from './zoom';
+import { get_app, signin, signout } from './app';
 
 var instance:MInstance;
 var runResult:RunResult;
@@ -25,6 +26,7 @@ mw(wasi(), '/mw.wasm', print, true, set_image_data).then(
         print_version("version", instance.version);
     }
 );
+
 
 function run(code_id:string)
 {
@@ -79,6 +81,7 @@ function print_version(version_id:string, version:string) {
 }
 
 window.onload = function() {
+    var app = get_app(onUserChange);
     var runs = document.querySelectorAll("button[data-run]");
     runs.forEach((runBtn)=>{
         let runDom = runBtn as HTMLElement;
@@ -172,5 +175,29 @@ let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
 plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 `;
     codeDom.value = code_text;
-};
 
+    var user_link = document.getElementById("user");
+    if (!user_link) return;
+    user_link.onclick = () => {
+        if(app.auth.currentUser){
+            signout(app);
+        }else{
+            signin(app);
+        }
+    };
+    function onUserChange(userDisplayName:string|null, userPhotoURL:string|null){
+        if(!user_link) return;
+        if(userDisplayName){
+            if(userPhotoURL){
+                user_link.innerHTML = `<img class="icon" src="${userPhotoURL}" style="width:35px;height:35px;padding-top:10px;border:none;">`;
+            }else{
+                user_link.innerHTML = userDisplayName;
+            }
+            user_link.style.borderStyle = "none";
+        }else{
+            user_link.innerHTML = "Sign in with Github";
+            user_link.style.borderStyle = "solid";
+            user_link.style.borderRadius = "5px";
+        }
+    }
+};
