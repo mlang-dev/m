@@ -82,6 +82,16 @@ function print_version(version_id:string, version:string) {
 
 window.onload = function() {
     var app = get_app(onUserChange);
+    var user_link = document.getElementById("user");
+    if (!user_link) return;
+    user_link.onclick = () => {
+        if(app.auth.currentUser){
+            signout(app);
+        }else{
+            signin(app);
+        }
+    };
+
     var runs = document.querySelectorAll("button[data-run]");
     runs.forEach((runBtn)=>{
         let runDom = runBtn as HTMLElement;
@@ -176,15 +186,6 @@ plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 `;
     codeDom.value = code_text;
 
-    var user_link = document.getElementById("user");
-    if (!user_link) return;
-    user_link.onclick = () => {
-        if(app.auth.currentUser){
-            signout(app);
-        }else{
-            signin(app);
-        }
-    };
     function onUserChange(userDisplayName:string|null, userPhotoURL:string|null){
         if(!user_link) return;
         if(userDisplayName){
