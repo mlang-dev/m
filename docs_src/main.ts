@@ -2,10 +2,15 @@ import { wasi } from './wasi';
 import { mw, MInstance, RunResult } from './mw';
 import { initZoom, Zoom } from './zoom';
 import { get_app, signin, signout } from './app';
+import { CodeJar } from 'codejar';
+import Prism from 'prismjs';
+import {withLineNumbers} from 'codejar/linenumbers';
+
 
 var instance:MInstance;
 var runResult:RunResult;
 var zoom: Zoom | null = null;
+var jar:CodeJar | null = null;
 
 function set_image_data(data:any, width:number, height:number)
 {
@@ -37,10 +42,17 @@ function run(code_id:string)
         const free = instance.mw_instance.exports.free as CallableFunction;
         free(runResult.code_bytes);
     }
-    let code = (document.getElementById(code_id) as HTMLInputElement).value;
+    var code_string:any;
+    if(jar){
+        code_string = jar.toString();
+        console.log("got code string");
+        console.log(code_string);
+    }else{
+        code_string = (document.getElementById(code_id) as HTMLInputElement).value;
+    }
     instance.canvas_id = result_graph_id;   
     instance.text_id = result_text_id;     
-    runResult = instance.run_code(code, false);
+    runResult = instance.run_code(code_string, false);
     print(runResult.start_result);
     if(!zoom) return;
     zoom.init();
@@ -60,7 +72,8 @@ function print(text:string){
         console.log("missing textDom: ", instance.text_id);
         return;
     }
-    textDom.textContent += text;
+    if(text!=undefined && text != null)
+        textDom.textContent += text;
 }
 
 function clear(result_text_id:string, result_canvas_id:string){
@@ -92,61 +105,6 @@ window.onload = function() {
         }
     };
 
-    var runs = document.querySelectorAll("button[data-run]");
-    runs.forEach((runBtn)=>{
-        let runDom = runBtn as HTMLElement;
-        runDom.addEventListener("click", 
-        event => {
-            run(runDom.dataset.run || '');
-        });
-    });
-    
-    var codeDom = document.getElementById("code") as HTMLInputElement;
-    if(!codeDom) return;
-    codeDom.addEventListener('keydown', function(e) {
-    if (e.key == 'Tab') {
-        e.preventDefault();
-        let start = codeDom.selectionStart || 0;
-        let end = codeDom.selectionEnd || 0;
-
-        // set textarea value to: text before caret + tab + text after caret
-        codeDom.value = codeDom.value.substring(0, start) +
-        "\t" + codeDom.value.substring(end);
-
-        // put caret at right position again
-        codeDom.selectionStart =
-            codeDom.selectionEnd = start + 1;
-    }
-    });
-    var backward = document.getElementById("backward") as HTMLButtonElement;
-    var forward = document.getElementById("forward") as HTMLButtonElement;
-
-    backward.addEventListener('click', 
-        function ()
-        {
-            if(!zoom) return;
-            zoom.backward();
-        });
-
-    forward.addEventListener('click', 
-        function ()
-        {
-            if(!zoom) return;
-            zoom.forward();
-        }
-    );
-
-    function onZoom(x0:number, y0:number, x1:number, y1:number)
-    {
-        const plot_mandelbrot_set = runResult.code_instance.exports.plot_mandelbrot_set as CallableFunction;
-        plot_mandelbrot_set(x0, y0, x1, y1);
-        update_back_forward();
-    }
-
-    let canvas_container = document.getElementById('canvas_container');
-    if(canvas_container)
-        zoom = initZoom(canvas_container, onZoom, -2.0, -1.2, 1.0, 1.2, 400, 300);
-    update_back_forward();
     var code_text = 
     `print "plot a mandelbrot set"
 
@@ -184,7 +142,85 @@ let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
 
 plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 `;
-    codeDom.value = code_text;
+    const highlight = (editor: HTMLElement) => {
+        //Prism.highlightElement(editor);
+    }
+    let code_editor = document.getElementById('code-editor');
+    if(code_editor){
+        jar = CodeJar(code_editor, withLineNumbers(Prism.highlightElement));
+
+        // Update code
+        jar.updateCode(code_text);
+
+        // Get code
+        //let code = jar.toString();
+
+        // Listen to updates
+        jar.onUpdate((code_text:string) => {
+            console.log(code_text);
+        });
+    }
+    var runs = document.querySelectorAll("button[data-run]");
+    runs.forEach((runBtn)=>{
+        let runDom = runBtn as HTMLElement;
+        runDom.addEventListener("click", 
+        event => {
+            run(runDom.dataset.run || '');
+        });
+    });
+    
+    /*
+    var codeDom = document.getElementById("code") as HTMLInputElement;
+    if(!codeDom) return;
+    codeDom.addEventListener('keydown', function(e) {
+    if (e.key == 'Tab') {
+        e.preventDefault();
+        let start = codeDom.selectionStart || 0;
+        let end = codeDom.selectionEnd || 0;
+
+        // set textarea value to: text before caret + tab + text after caret
+        codeDom.value = codeDom.value.substring(0, start) +
+        "\t" + codeDom.value.substring(end);
+
+        // put caret at right position again
+        codeDom.selectionStart =
+            codeDom.selectionEnd = start + 1;
+    }
+    });
+    */
+    // codeDom.value = code_text;
+
+    var backward = document.getElementById("backward") as HTMLButtonElement;
+    if(backward){
+        backward.addEventListener('click', 
+            function ()
+            {
+                if(!zoom) return;
+                zoom.backward();
+            });
+    }
+    var forward = document.getElementById("forward") as HTMLButtonElement;
+    if(forward){
+        forward.addEventListener('click', 
+            function ()
+            {
+                if(!zoom) return;
+                zoom.forward();
+            }
+        );
+    }
+    function onZoom(x0:number, y0:number, x1:number, y1:number)
+    {
+        const plot_mandelbrot_set = runResult.code_instance.exports.plot_mandelbrot_set as CallableFunction;
+        plot_mandelbrot_set(x0, y0, x1, y1);
+        update_back_forward();
+    }
+
+    let canvas_container = document.getElementById('canvas_container');
+    if(canvas_container)
+        zoom = initZoom(canvas_container, onZoom, -2.0, -1.2, 1.0, 1.2, 400, 300);
+    if(backward && forward)
+        update_back_forward();
 
     function onUserChange(userDisplayName:string|null, userPhotoURL:string|null){
         if(!user_link) return;
