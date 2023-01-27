@@ -139,15 +139,19 @@ let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
 
 plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 `;
-    const highlight = (editor: HTMLElement) => {
-        Prism.highlightElement(editor);
-    }
     let code_editor = document.getElementById('code-editor');
     if(code_editor){
         jar = CodeJar(code_editor, withLineNumbers(Prism.highlightElement));
         // Update code
         jar.updateCode(code_text);
+    } else {
+        code_editor = document.getElementById('webgpu-code-editor');
+        if(code_editor){
+            jar = CodeJar(code_editor, withLineNumbers(Prism.highlightElement));
+            
+        }
     }
+
     var runs = document.querySelectorAll("button[data-run]");
     runs.forEach((runBtn)=>{
         let runDom = runBtn as HTMLElement;
