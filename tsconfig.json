@@ -12,7 +12,7 @@
       "jest",
       "@webgpu/types",
     ],
-    "module": "es2015",
+    "module": "CommonJS",
     "esModuleInterop": true,
     "strict": true,
     "sourceMap": true,

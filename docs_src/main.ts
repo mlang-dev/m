@@ -5,7 +5,7 @@ import { get_app, signin, signout } from './app';
 import { CodeJar } from 'codejar';
 import Prism from 'prismjs';
 import {withLineNumbers} from 'codejar/linenumbers';
-
+import { draw_surface } from './webgpu/main';
 
 var instance:MInstance;
 var runResult:RunResult;
@@ -102,6 +102,8 @@ window.onload = function() {
         }
     };
 
+    draw_surface();
+    
     var code_text = 
     `print "plot a mandelbrot set"
 
@@ -148,7 +150,7 @@ plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
         code_editor = document.getElementById('webgpu-code-editor');
         if(code_editor){
             jar = CodeJar(code_editor, withLineNumbers(Prism.highlightElement));
-            
+
         }
     }
 
