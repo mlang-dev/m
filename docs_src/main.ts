@@ -32,7 +32,6 @@ mw(wasi(), '/mw.wasm', print, true, set_image_data).then(
     }
 );
 
-
 function run(code_id:string)
 {
     let result_text_id = code_id + "_result";
@@ -45,8 +44,6 @@ function run(code_id:string)
     var code_string:any;
     if(jar){
         code_string = jar.toString();
-        console.log("got code string");
-        console.log(code_string);
     }else{
         code_string = (document.getElementById(code_id) as HTMLInputElement).value;
     }
@@ -143,22 +140,13 @@ let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
 plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 `;
     const highlight = (editor: HTMLElement) => {
-        //Prism.highlightElement(editor);
+        Prism.highlightElement(editor);
     }
     let code_editor = document.getElementById('code-editor');
     if(code_editor){
         jar = CodeJar(code_editor, withLineNumbers(Prism.highlightElement));
-
         // Update code
         jar.updateCode(code_text);
-
-        // Get code
-        //let code = jar.toString();
-
-        // Listen to updates
-        jar.onUpdate((code_text:string) => {
-            console.log(code_text);
-        });
     }
     var runs = document.querySelectorAll("button[data-run]");
     runs.forEach((runBtn)=>{
