@@ -56,10 +56,6 @@ const code_config = {
             "files": ["code-mandelbrot.test.ts"],
             "order": 1
         },
-        "webgpu": {
-            "files": ["code-webgpu.test.ts"],
-            "order": 1
-        }
     }
 };
 
