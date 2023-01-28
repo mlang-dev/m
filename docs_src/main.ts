@@ -6,6 +6,7 @@ import { CodeJar } from 'codejar';
 import Prism from 'prismjs';
 import {withLineNumbers} from 'codejar/linenumbers';
 import { draw_surface } from './webgpu/main';
+import '../node_modules/prismjs/themes/prism-tomorrow.css';
 
 var instance:MInstance;
 var runResult:RunResult;
