@@ -221,7 +221,7 @@ plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
         if(!user_link) return;
         if(userDisplayName){
             if(userPhotoURL){
-                user_link.innerHTML = `<img class="icon" src="${userPhotoURL}" style="width:35px;height:35px;padding-top:10px;border:none;">`;
+                user_link.innerHTML = `<img src="${userPhotoURL}" style="vertical-align: middle;width:35px;height:35px;border-radius: 50%;">`;
             }else{
                 user_link.innerHTML = userDisplayName;
             }
