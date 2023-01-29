@@ -4,6 +4,7 @@ import { vec3, mat4 } from 'gl-matrix';
 
 export const CreateSurfaceWithColormap = async (vertexData: Float32Array, normalData: Float32Array, colorData: Float32Array, lightInputs:LightInputs, isAnimation = true) => {
     const gpu = await InitGPU();
+    if(!gpu) return;
     const device = gpu.device;
 
     // create vertex buffers
@@ -145,6 +146,7 @@ export const CreateSurfaceWithColormap = async (vertexData: Float32Array, normal
     };
     
     function draw() {
+        if(!gpu) return;
         if(!isAnimation){
             if(camera.tick()){
                 const pMatrix = vp.projectionMatrix;

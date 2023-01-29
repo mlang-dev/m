@@ -528,6 +528,45 @@ TEST(test_lexer, group_with_multiple_lines)
     frontend_deinit(fe);
 }
 
+TEST(test_lexer, highlight_code_empty_string)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "";
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    const char *highlighted = highlight(lexer, test_code);
+    ASSERT_STREQ("", highlighted);
+    free((void*)highlighted);
+    lexer_free(lexer);
+    frontend_deinit(fe);
+}
+
+TEST(test_lexer, highlight_code)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "x";
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    const char *highlighted = highlight(lexer, test_code);
+    ASSERT_STREQ("x", highlighted);
+    free((void*)highlighted);
+    lexer_free(lexer);
+    frontend_deinit(fe);
+}
+
+TEST(test_lexer, highlight_code_multi_lines)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "x\n\tx\n\t\tx\n\t\t\n";
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    const char *highlighted = highlight(lexer, test_code);
+    ASSERT_STREQ(test_code, highlighted);
+    free((void*)highlighted);
+    lexer_free(lexer);
+    frontend_deinit(fe);
+}
+
 int test_lexer()
 {
     UNITY_BEGIN();
@@ -556,6 +595,9 @@ int test_lexer()
     RUN_TEST(test_lexer_token_import_memory);
     RUN_TEST(test_lexer_complex_number);
     RUN_TEST(test_lexer_group_with_multiple_lines);
+    RUN_TEST(test_lexer_highlight_code_empty_string);
+    RUN_TEST(test_lexer_highlight_code);
+    RUN_TEST(test_lexer_highlight_code_multi_lines);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

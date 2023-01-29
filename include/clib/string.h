@@ -61,6 +61,7 @@ char string_back(string *str);
 char string_pop(string *str); // from back
 void string_push(string *str, char ch); //push to back
 char *string_get(string *str);
+char *string_get_owned(string *str);
 const char *string_cstr(string *str);
 size_t string_size(string *str);
 //generic interface

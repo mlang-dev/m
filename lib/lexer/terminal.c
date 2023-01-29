@@ -7,133 +7,133 @@
 #include "clib/hashtable.h"
 #include <assert.h>
 
-#define NULL_PATTERN(pattern, tok_name, op_name) {0, 0, pattern, 0, TOKEN_##tok_name, OP_##op_name}
-#define TOKEN_PATTERN(pattern, tok_name, op_name) {#tok_name, 0, pattern, 0, TOKEN_##tok_name, OP_##op_name}
-#define KEYWORD_PATTERN(keyword, tok_name, op_name) {keyword, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
-#define NAME_KEYWORD_PATTERN(name, keyword, tok_name, op_name) {name, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name}
+#define NULL_PATTERN(pattern, tok_name, op_name, class_name) {0, 0, pattern, 0, TOKEN_##tok_name, OP_##op_name, class_name}
+#define TOKEN_PATTERN(pattern, tok_name, op_name, class_name) {#tok_name, 0, pattern, 0, TOKEN_##tok_name, OP_##op_name, class_name}
+#define KEYWORD_PATTERN(keyword, tok_name, op_name, class_name) {keyword, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name, class_name}
+#define NAME_KEYWORD_PATTERN(name, keyword, tok_name, op_name, class_name) {name, 0, keyword, 0, TOKEN_##tok_name, OP_##op_name, class_name}
 
 struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
-    TOKEN_PATTERN(0, NULL, NULL), // 1
-    TOKEN_PATTERN(0, EOF, NULL), // 1
-    TOKEN_PATTERN(0, EPSILON, NULL),
-    TOKEN_PATTERN(0, INDENT, NULL),
-    TOKEN_PATTERN(0, DEDENT, NULL),
-    KEYWORD_PATTERN("//", LINECOMMENT, NULL),
-    NAME_KEYWORD_PATTERN("/*", "/\\*", BLOCKCOMMENT_START, NULL),
-    NAME_KEYWORD_PATTERN("*/", "\\*/", BLOCKCOMMENT_END, NULL),
+    TOKEN_PATTERN(0, NULL, NULL, 0), // 1
+    TOKEN_PATTERN(0, EOF, NULL, 0), // 1
+    TOKEN_PATTERN(0, EPSILON, NULL, 0),
+    TOKEN_PATTERN(0, INDENT, NULL, 0),
+    TOKEN_PATTERN(0, DEDENT, NULL, 0),
+    KEYWORD_PATTERN("//", LINECOMMENT, NULL, "comment"),
+    NAME_KEYWORD_PATTERN("/*", "/\\*", BLOCKCOMMENT_START, NULL, "block-comment"),
+    NAME_KEYWORD_PATTERN("*/", "\\*/", BLOCKCOMMENT_END, NULL, "block-comment"),
 
-    KEYWORD_PATTERN("_", WILDCARD, NULL), // 10
+    KEYWORD_PATTERN("_", WILDCARD, NULL, "variable"), // 10
 
-    TOKEN_PATTERN("\n", NEWLINE, NULL),
-    TOKEN_PATTERN("[0-9]+|0x[0-9a-fA-F]+", INT, NULL), // 5
-    TOKEN_PATTERN("([0-9]*.)?[0-9]+", DOUBLE, NULL),
-    TOKEN_PATTERN("([0-9]*.)?[0-9]+ \\+ ([0-9]*.)?[0-9]*i", COMPLEX, NULL),
-    TOKEN_PATTERN(0, CHAR, NULL),
-    TOKEN_PATTERN(0, STRING, NULL),
+    TOKEN_PATTERN("\n", NEWLINE, NULL, 0),
+    TOKEN_PATTERN("[0-9]+|0x[0-9a-fA-F]+", INT, NULL, "number"), // 5
+    TOKEN_PATTERN("([0-9]*.)?[0-9]+", DOUBLE, NULL, "number"),
+    TOKEN_PATTERN("([0-9]*.)?[0-9]+ \\+ ([0-9]*.)?[0-9]*i", COMPLEX, NULL, "number"),
+    TOKEN_PATTERN(0, CHAR, NULL, "string"),
+    TOKEN_PATTERN(0, STRING, NULL, "string"),
 
-    KEYWORD_PATTERN("from", FROM, NULL), // 10
-    KEYWORD_PATTERN("import", IMPORT, NULL),
-    KEYWORD_PATTERN("memory", MEMORY, NULL),
-    KEYWORD_PATTERN("extern", EXTERN, NULL), // 10
+    KEYWORD_PATTERN("from", FROM, NULL, "keyword"), // 10
+    KEYWORD_PATTERN("import", IMPORT, NULL, "keyword"),
+    KEYWORD_PATTERN("memory", MEMORY, NULL, "keyword"),
+    KEYWORD_PATTERN("extern", EXTERN, NULL, "keyword"), // 10
 
-    KEYWORD_PATTERN("type", TYPE, NULL),
-    KEYWORD_PATTERN("struct", STRUCT, NULL),
-    KEYWORD_PATTERN("union", UNION, NULL),
+    KEYWORD_PATTERN("type", TYPE, NULL, "keyword"),
+    KEYWORD_PATTERN("struct", STRUCT, NULL, "keyword"),
+    KEYWORD_PATTERN("union", UNION, NULL, "keyword"),
 
-    KEYWORD_PATTERN("let", LET, NULL),
-    KEYWORD_PATTERN("var", VAR, NULL),
-    KEYWORD_PATTERN("mut", MUT, NULL),
-    KEYWORD_PATTERN("fun", FUN, NULL),
-    KEYWORD_PATTERN("->", MAPTO, NULL),
-    KEYWORD_PATTERN("if", IF, NULL),
-    KEYWORD_PATTERN("then", THEN, NULL),
-    KEYWORD_PATTERN("else", ELSE, NULL), // 15
+    KEYWORD_PATTERN("let", LET, NULL, "keyword"),
+    KEYWORD_PATTERN("var", VAR, NULL, "keyword"),
+    KEYWORD_PATTERN("mut", MUT, NULL, "keyword"),
+    KEYWORD_PATTERN("fun", FUN, NULL, "keyword"),
+    KEYWORD_PATTERN("->", MAPTO, NULL, "keyword"),
+    KEYWORD_PATTERN("if", IF, NULL, "keyword"),
+    KEYWORD_PATTERN("then", THEN, NULL, "keyword"),
+    KEYWORD_PATTERN("else", ELSE, NULL, "keyword"), // 15
 
-    KEYWORD_PATTERN("true", TRUE, NULL),
-    KEYWORD_PATTERN("false", FALSE, NULL),
-    KEYWORD_PATTERN("in", IN, NULL),
-    KEYWORD_PATTERN("for", FOR, NULL),
-    KEYWORD_PATTERN("while", WHILE, NULL),
-    KEYWORD_PATTERN("break", BREAK, NULL),
-    KEYWORD_PATTERN("continue", CONTINUE, NULL),
-
-
-    NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL),
-    NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL),
-    NAME_KEYWORD_PATTERN("()", "\\(\\)", UNIT, NULL),
-    NAME_KEYWORD_PATTERN("[", "\\[", LBRACKET, NULL),
-    NAME_KEYWORD_PATTERN("]", "\\]", RBRACKET, NULL),
-    KEYWORD_PATTERN("{", LCBRACKET, NULL), // 25
-    KEYWORD_PATTERN("}", RCBRACKET, NULL),
-
-    KEYWORD_PATTERN(",", COMMA, NULL),
-    KEYWORD_PATTERN(";", SEMICOLON, NULL),
+    KEYWORD_PATTERN("true", TRUE, NULL, "keyword"),
+    KEYWORD_PATTERN("false", FALSE, NULL, "keyword"),
+    KEYWORD_PATTERN("in", IN, NULL, "keyword"),
+    KEYWORD_PATTERN("for", FOR, NULL, "keyword"),
+    KEYWORD_PATTERN("while", WHILE, NULL, "keyword"),
+    KEYWORD_PATTERN("break", BREAK, NULL, "keyword"),
+    KEYWORD_PATTERN("continue", CONTINUE, NULL, "keyword"),
 
 
-    NAME_KEYWORD_PATTERN("..", "\\.\\.", RANGE, NULL),
-    NAME_KEYWORD_PATTERN("...", "\\.\\.\\.", VARIADIC, NULL), // 30
-    KEYWORD_PATTERN(":", ISTYPEOF, NULL),
+    NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL, "operator"),
+    NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL, "operator"),
+    NAME_KEYWORD_PATTERN("()", "\\(\\)", UNIT, NULL, "operator"),
+    NAME_KEYWORD_PATTERN("[", "\\[", LBRACKET, NULL, "operator"),
+    NAME_KEYWORD_PATTERN("]", "\\]", RBRACKET, NULL, "operator"),
+    KEYWORD_PATTERN("{", LCBRACKET, NULL, "operator"), // 25
+    KEYWORD_PATTERN("}", RCBRACKET, NULL, "operator"),
+
+    KEYWORD_PATTERN(",", COMMA, NULL, "operator"),
+    KEYWORD_PATTERN(";", SEMICOLON, NULL, "operator"),
+
+
+    NAME_KEYWORD_PATTERN("..", "\\.\\.", RANGE, NULL, "operator"),
+    NAME_KEYWORD_PATTERN("...", "\\.\\.\\.", VARIADIC, NULL, "operator"), // 30
+    KEYWORD_PATTERN(":", ISTYPEOF, NULL, "operator"),
 
     /*reserved keywords*/
-    KEYWORD_PATTERN("do", DO, NULL),
-    KEYWORD_PATTERN("switch", SWITCH, NULL),
-    KEYWORD_PATTERN("case", CASE, NULL),
-    KEYWORD_PATTERN("default", DEFAULT, NULL),
-    KEYWORD_PATTERN("return", RETURN, NULL),
-    KEYWORD_PATTERN("yield", YIELD, NULL),
-    KEYWORD_PATTERN("async", ASYNC, NULL),
-    KEYWORD_PATTERN("await", AWAIT, NULL),
-    KEYWORD_PATTERN("match", MATCH, NULL),
-    KEYWORD_PATTERN("with", WITH, NULL),
-    KEYWORD_PATTERN("when", WHEN, NULL),
+    KEYWORD_PATTERN("do", DO, NULL, "keyword"),
+    KEYWORD_PATTERN("switch", SWITCH, NULL, "keyword"),
+    KEYWORD_PATTERN("case", CASE, NULL, "keyword"),
+    KEYWORD_PATTERN("default", DEFAULT, NULL, "keyword"),
+    KEYWORD_PATTERN("return", RETURN, NULL, "keyword"),
+    KEYWORD_PATTERN("yield", YIELD, NULL, "keyword"),
+    KEYWORD_PATTERN("async", ASYNC, NULL, "keyword"),
+    KEYWORD_PATTERN("await", AWAIT, NULL, "keyword"),
+    KEYWORD_PATTERN("match", MATCH, NULL, "keyword"),
+    KEYWORD_PATTERN("with", WITH, NULL, "keyword"),
+    KEYWORD_PATTERN("when", WHEN, NULL, "keyword"),
 
-    TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL), //
+    TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL, 0), //
     
     /*operators*/
-    TOKEN_PATTERN(0, OP, NULL),
-    NAME_KEYWORD_PATTERN(".", "\\.", OP, DOT), // literal dot
-    NAME_KEYWORD_PATTERN("||", "\\|\\|", OP, OR),
-    KEYWORD_PATTERN("&&", OP, AND), // 35
-    KEYWORD_PATTERN("!", OP, NOT),
+    TOKEN_PATTERN(0, OP, NULL, "operator"),
+    NAME_KEYWORD_PATTERN(".", "\\.", OP, DOT, "operator"), // literal dot
+    NAME_KEYWORD_PATTERN("||", "\\|\\|", OP, OR, "operator"),
+    KEYWORD_PATTERN("&&", OP, AND, "operator"), // 35
+    KEYWORD_PATTERN("!", OP, NOT, "operator"),
 
-    KEYWORD_PATTERN("~", OP, BITNOT),
-    NAME_KEYWORD_PATTERN("|", "\\|", OP, BITOR),
-    KEYWORD_PATTERN("^", OP, BITEXOR),
-    KEYWORD_PATTERN("&", OP, BAND), //or reference
-    KEYWORD_PATTERN("<<", OP, BSL),
-    KEYWORD_PATTERN(">>", OP, BSR),
+    KEYWORD_PATTERN("~", OP, BITNOT, "operator"),
+    NAME_KEYWORD_PATTERN("|", "\\|", OP, BITOR, "operator"),
+    KEYWORD_PATTERN("^", OP, BITEXOR, "operator"),
+    KEYWORD_PATTERN("&", OP, BAND, "operator"), //or reference
+    KEYWORD_PATTERN("<<", OP, BSL, "operator"),
+    KEYWORD_PATTERN(">>", OP, BSR, "operator"),
 
     // KEYWORD_PATTERN("^", OP, EXPO),
-    NAME_KEYWORD_PATTERN("|/", "\\|/", OP, SQRT),
-    NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, POW), // 40
-    NAME_KEYWORD_PATTERN("*", "\\*", OP, STAR), // 40
-    KEYWORD_PATTERN("/", OP, DIVISION),
-    KEYWORD_PATTERN("%", OP, MODULUS),
-    NAME_KEYWORD_PATTERN("+", "\\+", OP, PLUS),
-    KEYWORD_PATTERN("-", OP, MINUS),
+    NAME_KEYWORD_PATTERN("|/", "\\|/", OP, SQRT, "operator"),
+    NAME_KEYWORD_PATTERN("**", "\\*\\*", OP, POW, "operator"), // 40
+    NAME_KEYWORD_PATTERN("*", "\\*", OP, STAR, "operator"), // 40
+    KEYWORD_PATTERN("/", OP, DIVISION, "operator"),
+    KEYWORD_PATTERN("%", OP, MODULUS, "operator"),
+    NAME_KEYWORD_PATTERN("+", "\\+", OP, PLUS, "operator"),
+    KEYWORD_PATTERN("-", OP, MINUS, "operator"),
 
-    KEYWORD_PATTERN("<", OP, LT), // 45
-    KEYWORD_PATTERN("<=", OP, LE),
-    KEYWORD_PATTERN("==", OP, EQ),
-    KEYWORD_PATTERN(">", OP, GT),
-    KEYWORD_PATTERN(">=", OP, GE),
-    KEYWORD_PATTERN("!=", OP, NE),
-    NAME_KEYWORD_PATTERN("?", "\\?", OP, COND), // 40
+    KEYWORD_PATTERN("<", OP, LT, "operator"), // 45
+    KEYWORD_PATTERN("<=", OP, LE, "operator"),
+    KEYWORD_PATTERN("==", OP, EQ, "operator"),
+    KEYWORD_PATTERN(">", OP, GT, "operator"),
+    KEYWORD_PATTERN(">=", OP, GE, "operator"),
+    KEYWORD_PATTERN("!=", OP, NE, "operator"),
+    NAME_KEYWORD_PATTERN("?", "\\?", OP, COND, "operator"), // 40
 
-    KEYWORD_PATTERN("=", OP, ASSIGN),
-    NAME_KEYWORD_PATTERN("*=", "\\*=", OP, MUL_ASSN),
-    KEYWORD_PATTERN("/=", OP, DIV_ASSN),
-    KEYWORD_PATTERN("%=", OP, MOD_ASSN),
-    NAME_KEYWORD_PATTERN("+=", "\\+=", OP, ADD_ASSN),
-    KEYWORD_PATTERN("-=", OP, SUB_ASSN),
-    KEYWORD_PATTERN("<<=", OP, LEFT_ASSN),
-    KEYWORD_PATTERN(">>=", OP, RIGHT_ASSN),
-    KEYWORD_PATTERN("&=", OP, AND_ASSN),
-    KEYWORD_PATTERN("^=", OP, XOR_ASSN),
-    NAME_KEYWORD_PATTERN("|=", "\\|=", OP, OR_ASSN),
+    KEYWORD_PATTERN("=", OP, ASSIGN, "operator"),
+    NAME_KEYWORD_PATTERN("*=", "\\*=", OP, MUL_ASSN, "operator"),
+    KEYWORD_PATTERN("/=", OP, DIV_ASSN, "operator"),
+    KEYWORD_PATTERN("%=", OP, MOD_ASSN, "operator"),
+    NAME_KEYWORD_PATTERN("+=", "\\+=", OP, ADD_ASSN, "operator"),
+    KEYWORD_PATTERN("-=", OP, SUB_ASSN, "operator"),
+    KEYWORD_PATTERN("<<=", OP, LEFT_ASSN, "operator"),
+    KEYWORD_PATTERN(">>=", OP, RIGHT_ASSN, "operator"),
+    KEYWORD_PATTERN("&=", OP, AND_ASSN, "operator"),
+    KEYWORD_PATTERN("^=", OP, XOR_ASSN, "operator"),
+    NAME_KEYWORD_PATTERN("|=", "\\|=", OP, OR_ASSN, "operator"),
 
-    NAME_KEYWORD_PATTERN("++", "\\+\\+", OP, INC),
-    KEYWORD_PATTERN("--", OP, DEC),
+    NAME_KEYWORD_PATTERN("++", "\\+\\+", OP, INC, "operator"),
+    KEYWORD_PATTERN("--", OP, DEC, "operator"),
 };
 
 

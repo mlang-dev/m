@@ -5,7 +5,8 @@
     "target": "es6",
     "lib": [
       "es2017",
-      "dom"
+      "dom",
+      "ES2021.String"
     ],
     "types": [
       "node",

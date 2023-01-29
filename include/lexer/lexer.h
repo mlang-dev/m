@@ -54,7 +54,7 @@ struct lexer {
 struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size_t code_size);
 struct lexer *lexer_new_for_string(const char *text);
 struct lexer *lexer_new_with_string(const char *text);
-
+const char *highlight(struct lexer *lexer, const char *text);
 void lexer_free(struct lexer *lexer);
 
 struct token *get_tok(struct lexer *lexer);

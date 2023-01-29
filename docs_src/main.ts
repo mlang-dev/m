@@ -3,10 +3,8 @@ import { mw, MInstance, RunResult } from './mw';
 import { initZoom, Zoom } from './zoom';
 import { get_app, signin, signout } from './app';
 import { CodeJar } from 'codejar';
-import Prism from 'prismjs';
 import {withLineNumbers} from 'codejar/linenumbers';
 import { draw_surface } from './webgpu/main';
-import '../node_modules/prismjs/themes/prism-tomorrow.css';
 
 var instance:MInstance;
 var runResult:RunResult;
@@ -30,8 +28,71 @@ mw(wasi(), '/mw.wasm', print, true, set_image_data).then(
     result=>{
         instance = result;
         print_version("version", instance.version);
+        init_code();
     }
 );
+
+function init_code()
+{
+    const highlight = (editor:HTMLElement)=>{
+        //console.log("input: ", editor.textContent?.length);
+        //console.log(JSON.stringify(editor.textContent));
+        let highlighted_code = instance.highlight_code(editor.textContent);
+        //console.log("output: ", highlighted_code.length);
+        //console.log(JSON.stringify(highlighted_code));
+        editor.innerHTML = highlighted_code;
+    };
+    let code_editor = document.getElementById('code-editor');
+    if(code_editor){
+        jar = CodeJar(code_editor, withLineNumbers(highlight));
+        // Update code
+        var code_text = 
+        `print "plot a mandelbrot set"
+    
+let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
+    let width = 400, height = 300
+    var a:u8[height][width * 4]
+    let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510
+    var v = 0.0, r = 0.0, g = 0.0, b = 0.0
+    for x in 0..width
+        for y in 0..height
+            let cx = x0 + scalex*x
+            let cy = y0 + scaley*y
+            var zx = 0.0, zy = 0.0
+            var zx2 = 0.0, zy2 = 0.0
+            var n = 0
+            while n<max_iter && (zx2 + zy2) < 4.0
+                zy = 2.0 * zx * zy + cy
+                zx = zx2  - zy2 + cx
+                zx2 = zx * zx
+                zy2 = zy * zy
+                n++
+            if n < max_iter then
+                v = (log(n+1.5-(log2((log(zx2+zy2))/2.0))))/3.4
+                if v < 1.0 then 
+                    r = v ** 4;g = v ** 2.5;b = v
+                else
+                    v = v < 2.0 ? 2.0 - v : 0.0
+                    r = v;g = v ** 1.5;b = v ** 3.0
+            a[y][4*x] = n == max_iter ? 0 : (u8)(r * 255)
+            a[y][4*x+1] = n == max_iter ? 0 : (u8)(g * 255)
+            a[y][4*x+2] = n == max_iter ? 0 : (u8)(b * 255)
+            a[y][4*x+3] = 255
+
+    setImageData a width height
+
+plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
+    `;
+        instance.text_id = code_editor.dataset.text || '';
+        jar.updateCode(code_text);
+    } else {
+        code_editor = document.getElementById('webgpu-code-editor');
+        if(code_editor){
+            jar = CodeJar(code_editor, withLineNumbers(highlight));
+
+        }
+    }
+}
 
 function run(code_id:string)
 {
@@ -105,55 +166,6 @@ window.onload = function() {
 
     draw_surface();
     
-    var code_text = 
-    `print "plot a mandelbrot set"
-
-let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
-	let width = 400, height = 300
-	var a:u8[height][width * 4]
-	let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510
-	var v = 0.0, r = 0.0, g = 0.0, b = 0.0
-	for x in 0..width
-		for y in 0..height
-			let cx = x0 + scalex*x
-			let cy = y0 + scaley*y
-			var zx = 0.0, zy = 0.0
-			var zx2 = 0.0, zy2 = 0.0
-			var n = 0
-			while n<max_iter && (zx2 + zy2) < 4.0
-				zy = 2.0 * zx * zy + cy
-				zx = zx2  - zy2 + cx
-				zx2 = zx * zx
-				zy2 = zy * zy
-				n++
-			if n < max_iter then
-				v = (log(n+1.5-(log2((log(zx2+zy2))/2.0))))/3.4
-				if v < 1.0 then 
-					r = v ** 4;g = v ** 2.5;b = v
-				else
-					v = v < 2.0 ? 2.0 - v : 0.0
-					r = v;g = v ** 1.5;b = v ** 3.0
-			a[y][4*x] = n == max_iter ? 0 : (u8)(r * 255)
-			a[y][4*x+1] = n == max_iter ? 0 : (u8)(g * 255)
-			a[y][4*x+2] = n == max_iter ? 0 : (u8)(b * 255)
-			a[y][4*x+3] = 255
-
-	setImageData a width height
-
-plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
-`;
-    let code_editor = document.getElementById('code-editor');
-    if(code_editor){
-        jar = CodeJar(code_editor, withLineNumbers(Prism.highlightElement));
-        // Update code
-        jar.updateCode(code_text);
-    } else {
-        code_editor = document.getElementById('webgpu-code-editor');
-        if(code_editor){
-            jar = CodeJar(code_editor, withLineNumbers(Prism.highlightElement));
-
-        }
-    }
 
     var runs = document.querySelectorAll("button[data-run]");
     runs.forEach((runBtn)=>{

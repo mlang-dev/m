@@ -1,7 +1,8 @@
 export type MInstance = {
 	mw_instance: WebAssembly.Instance,
 	version: string
-	run_code: any, 
+	run_code: CallableFunction, 
+	highlight_code: CallableFunction,
 	compile: any,
 	canvas_id:string,
 	text_id:string,
@@ -11,6 +12,7 @@ type MExports = {
 	malloc:CallableFunction,
 	free:CallableFunction,
 	compile_code:CallableFunction,
+	highlight_code:CallableFunction,
 	get_code_size:CallableFunction,
 	get_version: CallableFunction,
 	strlen:CallableFunction,
@@ -55,6 +57,7 @@ export function mw(wasi_env:any, module_name:string, print_func:CallableFunction
 		module.then(function (obj) {
 			m_instance = {
 				run_code: run_code, 
+				highlight_code: highlight_code,
 				compile: compile,
 				version: version,
 				mw_instance: obj.instance,
@@ -65,6 +68,7 @@ export function mw(wasi_env:any, module_name:string, print_func:CallableFunction
 				malloc: obj.instance.exports.malloc as CallableFunction,
 				free: obj.instance.exports.free as CallableFunction,
 				compile_code: obj.instance.exports.compile_code as CallableFunction,
+				highlight_code: obj.instance.exports.highlight_code as CallableFunction,
 				get_code_size: obj.instance.exports.get_code_size as CallableFunction,
 				get_version: obj.instance.exports.version as CallableFunction,
 				strlen: obj.instance.exports.strlen as CallableFunction,
@@ -94,6 +98,7 @@ export function mw(wasi_env:any, module_name:string, print_func:CallableFunction
 		if(m_exports.get_version){
 			let c_str = m_exports.get_version();
 			version = to_js_str(c_str);
+			m_instance.version = version;
 			m_exports.free(c_str);
 		}
 	}
@@ -105,7 +110,7 @@ export function mw(wasi_env:any, module_name:string, print_func:CallableFunction
 		return (new TextDecoder()).decode(ta)
 	}
 
-	function str_to_ab(str:any, c_str:any) : void
+	function str_to_ab(str:string, c_str:any) : void
 	{
 		let ta = (new TextEncoder()).encode(str) //Uint8Array
 		let str_len = ta.length + 1;
@@ -173,6 +178,15 @@ export function mw(wasi_env:any, module_name:string, print_func:CallableFunction
 		return result;
 	}
 
+	function highlight_code(code:string)
+	{
+		let new_ptr = m_exports.malloc(10*1024);
+		str_to_ab(code, new_ptr);
+		let highlighted_code = m_exports.highlight_code(new_ptr);
+		let hc = to_js_str(highlighted_code);
+		m_exports.free(highlighted_code);
+		return hc;
+	}
 	function compile(code:string, file_path:string) : void
 	{
 		let new_ptr = m_exports.malloc(1024);

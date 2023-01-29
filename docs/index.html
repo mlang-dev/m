@@ -10,6 +10,7 @@
 		<script async defer src="https://buttons.github.io/buttons.js"></script>
 		<link rel="stylesheet" href="simple.css">
 		<link rel="stylesheet" href="style.css">
+		<link rel="stylesheet" href="mlang-highlight.css">
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -28,20 +29,20 @@
 		</nav>
 		</header>
 		<div style="width: 100%; border:1px solid var(--border);border-radius: 5px; margin-top: 10px;">
-			<div style="min-height: 300px; font-size:small;" id="code-editor" class="editor language-js"></div>
+			<div style="min-height: 300px; font-size:small;" id="code-editor" data-text="code-editor_result" class="editor language-js"></div>
 		</div>
 		<div style="width: 100%;">
-			<button type="button" data-run="code" style="min-width: 70px;">run</button>
+			<button type="button" data-run="code-editor" style="min-width: 70px;">run</button>
 		</div>
 		<div><button id="backward" onclick="go_backward()" style="padding: 1px 5px 1px 5px;"><-</button>&nbsp;&nbsp;
 			<button id="forward" onclick="go_forward()" style="padding: 1px 5px 1px 5px;">-></button>
 		</div>
 		<div style="width: 100%;">
 			<div id="canvas_container" style="display: inline-block; width: 390px; margin-right: 10px;">
-				<canvas id="code_graph_result" style="height: 300px; width: 400px; padding: 0em;"></canvas>
+				<canvas id="code-editor_graph_result" style="height: 300px; width: 400px; padding: 0em;"></canvas>
 			</div>
 			<div style="display: block; width: 390px; float: right;">
-				<textarea style="min-height: 300px; width:100%; font-size:small;" id='code_result' readonly>
+				<textarea style="min-height: 300px; width:100%; font-size:small;" id='code-editor_result' readonly>
 				</textarea>
 			</div>
 		</div>

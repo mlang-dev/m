@@ -85,8 +85,8 @@ TEST(test_lexer, indent_level_error)
         ASSERT_EQ(TOKEN_NULL, tok->token_type);
         struct error_report *er = get_last_error_report(lexer);
         ASSERT_STREQ("inconsistent indent level found.", er->error_msg);
-        ASSERT_EQ(3, er->loc.line);
-        ASSERT_EQ(7, er->loc.col);
+        ASSERT_EQ(4, er->loc.line);
+        ASSERT_EQ(3, er->loc.col);
         lexer_free(lexer);
         frontend_deinit(fe);
         TEST_ABORT();

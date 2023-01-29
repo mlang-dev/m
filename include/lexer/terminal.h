@@ -159,6 +159,7 @@ struct token_pattern{
     struct re *re;          //regex for the pattern
     enum token_type token_type;
     enum op_code opcode; 
+    const char *class_name;
 };
 
 struct token_patterns{
