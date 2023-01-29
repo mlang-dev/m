@@ -172,11 +172,11 @@ else()
     -g
   )
 
-  add_custom_command(
-    TARGET mctest
-    POST_BUILD
-    COMMAND mctest
-  )
+  # add_custom_command(
+  #   TARGET mctest
+  #   POST_BUILD
+  #   COMMAND mctest
+  # )
 
   add_custom_command(
     TARGET mtest

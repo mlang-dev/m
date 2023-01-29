@@ -9,6 +9,7 @@
 		<script async defer src="https://buttons.github.io/buttons.js"></script>
 		<link rel="stylesheet" href="simple.css">
 		<link rel="stylesheet" href="style.css">
+		<link rel="stylesheet" href="mlang-highlight.css">
 	</head>
 	<body>
 		<header>

@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 #include "clib/array.h"
 #include "clib/object.h"
@@ -54,6 +55,11 @@ string make_string(const char *chars)
 char *string_get(string *str)
 {
     return str->cap <= SSO_LENGTH ? str->_reserved : str->base.data.p_data;
+}
+
+char *string_get_owned(string *str)
+{
+    return str->cap <= SSO_LENGTH ? strdup(str->_reserved) : str->base.data.p_data;
 }
 
 const char *string_cstr(string *str)
@@ -118,7 +124,7 @@ void string_add(string *str1, string *str2)
     if (!str2 || !string_size(str2))
         return;
     //printf("string sizes: %zu, %zu\n", string_size(str1), string_size(str2));
-    assert(string_size(str1) < 1000 && string_size(str2) < 1000);
+    //assert(string_size(str1) < 1000 && string_size(str2) < 1000);
     size_t len = str1->base.size + str2->base.size;
     char *data;
     if (len > SSO_LENGTH - 1) {

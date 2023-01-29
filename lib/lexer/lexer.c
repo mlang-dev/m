@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include "lexer/lexer.h"
 #include <assert.h>
+#include <string.h>
 #include "clib/regex.h"
 #include "clib/win/libfmemopen.h"
 #include "error/error.h"
@@ -312,6 +313,7 @@ struct token *get_tok(struct lexer *lexer)
         lexer->pending_dedents ++;
         return tok;
     }
+    _mark_token(lexer, TOKEN_NULL, OP_NULL);
     u32 spaces = _skip_empty_lines(lexer, lexer->last_token_type);
     char ch = lexer->buff[lexer->pos];
     if (ch == '\0'){
@@ -320,18 +322,19 @@ struct token *get_tok(struct lexer *lexer)
             //dedent
             tok->token_type = TOKEN_DEDENT;
             lexer->pending_dedents = match + 1;
-            return tok;
+            goto mark_end;
         }
-    } else if ((tok->token_type == TOKEN_EOF || tok->token_type == TOKEN_NEWLINE) && ch != '\n') {
+    } else if ((lexer->last_token_type == TOKEN_EOF || lexer->last_token_type == TOKEN_NEWLINE) && ch != '\n') {
         //if last token is new line and this is not an empty line
         //then we're going to check indent/dedent levels
         int match = indent_level_stack_match(&lexer->indent_stack, spaces);
         if(match == 1){
             tok->token_type = TOKEN_INDENT;
-            return tok;
+            goto mark_end;
         }
         else if(match == INVALID_INDENTS){
             tok->token_type = TOKEN_NULL;
+            tok->loc.col = lexer->col; //we need location of end of token here
             report_error(lexer, EC_INCONSISTENT_INDENT_LEVEL, tok->loc);
             goto mark_end;
         }
@@ -339,10 +342,9 @@ struct token *get_tok(struct lexer *lexer)
             //dedent
             tok->token_type = TOKEN_DEDENT;
             lexer->pending_dedents = match + 1;
-            return tok;
+            goto mark_end;
         }
     }
-    tok->token_type = TOKEN_EOF;    
     switch (ch)
     {
     default:
@@ -427,4 +429,41 @@ mark_end:
     }
     lexer->last_token_type = tok->token_type;
     return tok;
+}
+
+const char *highlight(struct lexer *lexer, const char *text)
+{
+    string str;
+    string_init_chars(&str, "");
+    struct token *tok = get_tok(lexer);
+    int last_end = 0;
+    while(tok->token_type != TOKEN_NULL && tok->token_type != TOKEN_EOF){
+        if (tok->token_type == TOKEN_DEDENT) {
+            tok = get_tok(lexer);
+            continue;
+        }
+        if(tok->loc.start - last_end > 0){
+            string_add_chars2(&str, &text[last_end], tok->loc.start - last_end);
+        }
+        struct token_pattern *tp = get_token_pattern_by_token_type(tok->token_type);
+        if(tp->class_name){
+            string tok_str;
+            char span_class[128];
+            sprintf(span_class, "<span class=\"token %s\">", tp->class_name);
+            string_init_chars(&tok_str, span_class);
+            string_add_chars2(&tok_str, &text[tok->loc.start], tok->loc.end-tok->loc.start);
+            string_add_chars(&tok_str, "</span>");
+            string_add(&str, &tok_str);
+            string_deinit(&tok_str);
+        }else{
+            string_add_chars2(&str, &text[tok->loc.start], tok->loc.end-tok->loc.start);
+        }
+        last_end = tok->loc.end;
+        tok = get_tok(lexer);
+    }
+    int len = strlen(text);
+    if(len-last_end > 0){
+        string_add_chars2(&str, &text[last_end], len - last_end);
+    }
+    return string_get_owned(&str);
 }

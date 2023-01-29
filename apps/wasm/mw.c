@@ -1,14 +1,16 @@
 #include "wasm/mw.h"
 #include "clib/typedef.h"
+#include "clib/string.h"
 #include "compiler/engine.h"
 #include "codegen/wasm/cg_wasm.h"
+#include "lexer/lexer.h"
 #include <stdlib.h>
 #include <string.h>
 
 const char *version()
 {
     void * p = malloc(32);
-    strcpy(p, "m - 0.0.39");
+    strcpy(p, "m - 0.0.40");
     return p;
 }
 
@@ -25,6 +27,16 @@ u8 *compile_code(const char *text)
     free((void *)text);
     engine_free(engine);
     return data;
+} 
+
+u8 *highlight_code(const char *text)
+{
+    struct frontend *fe = frontend_init();
+    struct lexer * lexer = lexer_new_with_string(text);
+    const char *highlighted = highlight(lexer, text);
+    lexer_free(lexer);
+    frontend_deinit(fe);
+    return (u8*)highlighted;
 }
 
 u32 get_code_size()
