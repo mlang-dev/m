@@ -33,6 +33,10 @@ module.exports = {
                 test: /\.css$/,
                 sideEffects: true,
                 use: ["style-loader", "css-loader"],
+            },
+            { 
+                test: /\.(wgsl|glsl|vs|fs)$/,
+                loader: 'ts-shader-loader'
             }
         ]
     },

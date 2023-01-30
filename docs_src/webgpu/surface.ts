@@ -1,8 +1,9 @@
 import { InitGPU, CreateGPUBuffer, CreateTransforms, CreateViewProjection, CreateAnimation } from './helper';
-import { Shaders, LightInputs } from './shaders';
+import vertex_shader from './vertex_shader.wgsl';
+import fragment_shader from './fragment_shader.wgsl';
 import { vec3, mat4 } from 'gl-matrix';
 
-export const CreateSurfaceWithColormap = async (vertexData: Float32Array, normalData: Float32Array, colorData: Float32Array, lightInputs:LightInputs, isAnimation = true) => {
+export const CreateSurfaceWithColormap = async (vertexData: Float32Array, normalData: Float32Array, colorData: Float32Array, isAnimation = true) => {
     const gpu = await InitGPU();
     if(!gpu) return;
     const device = gpu.device;
@@ -13,12 +14,11 @@ export const CreateSurfaceWithColormap = async (vertexData: Float32Array, normal
     const normalBuffer = CreateGPUBuffer(device, normalData);
     const colorBuffer = CreateGPUBuffer(device, colorData);
  
-    const shader = Shaders(lightInputs);
     const pipeline = device.createRenderPipeline({
         layout:'auto',
         vertex: {
             module: device.createShaderModule({                    
-                code: shader.vertex
+                code: vertex_shader
             }),
             entryPoint: "main",
             buffers:[
@@ -50,7 +50,7 @@ export const CreateSurfaceWithColormap = async (vertexData: Float32Array, normal
         },
         fragment: {
             module: device.createShaderModule({                    
-                code: shader.fragment
+                code: fragment_shader
             }),
             entryPoint: "main",
             targets: [
