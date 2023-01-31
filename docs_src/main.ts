@@ -158,7 +158,8 @@ window.onload = function() {
     if (!user_link) return;
     user_link.onclick = () => {
         if(app.auth.currentUser){
-            signout(app);
+            window.location.href = '/user/profile.html';
+            //signout(app);
         }else{
             signin(app);
         }
@@ -176,26 +177,6 @@ window.onload = function() {
         });
     });
     
-    /*
-    var codeDom = document.getElementById("code") as HTMLInputElement;
-    if(!codeDom) return;
-    codeDom.addEventListener('keydown', function(e) {
-    if (e.key == 'Tab') {
-        e.preventDefault();
-        let start = codeDom.selectionStart || 0;
-        let end = codeDom.selectionEnd || 0;
-
-        // set textarea value to: text before caret + tab + text after caret
-        codeDom.value = codeDom.value.substring(0, start) +
-        "\t" + codeDom.value.substring(end);
-
-        // put caret at right position again
-        codeDom.selectionStart =
-            codeDom.selectionEnd = start + 1;
-    }
-    });
-    */
-    // codeDom.value = code_text;
 
     var backward = document.getElementById("backward") as HTMLButtonElement;
     if(backward){
@@ -229,8 +210,10 @@ window.onload = function() {
     if(backward && forward)
         update_back_forward();
 
+    //profile page
     function onUserChange(userDisplayName:string|null, userPhotoURL:string|null){
         if(!user_link) return;
+        let signout_link = document.getElementById('signout');
         if(userDisplayName){
             if(userPhotoURL){
                 user_link.innerHTML = `<img src="${userPhotoURL}" style="vertical-align: middle;width:35px;height:35px;border-radius: 50%;">`;
@@ -238,10 +221,25 @@ window.onload = function() {
                 user_link.innerHTML = userDisplayName;
             }
             user_link.style.borderStyle = "none";
+            let avatar = document.getElementById('avatar');
+            if(avatar && app.auth.currentUser && app.auth.currentUser.photoURL){
+                (avatar as HTMLImageElement).src = app.auth.currentUser.photoURL;
+            }
+            let displayname = document.getElementById('displayname');
+            if(displayname){
+                displayname.textContent = userDisplayName;
+            }
+            if(signout_link){
+                signout_link.addEventListener('click', ()=>signout(app));
+            }
+        
         }else{
             user_link.innerHTML = "Sign in with Github";
             user_link.style.borderStyle = "solid";
             user_link.style.borderRadius = "5px";
+            if(signout_link){
+                window.location.href = '/';
+            }
         }
     }
 };

@@ -43,4 +43,5 @@ export function signin(app:App) : void{
 
 export function signout(app:App) : void{
   getAuth(app.app).signOut();
+  window.location.href = '/';
 }
