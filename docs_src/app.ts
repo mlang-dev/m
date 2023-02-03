@@ -4,6 +4,10 @@ import { getAnalytics, Analytics } from "firebase/analytics";
 import { getAuth, GithubAuthProvider, signInWithPopup, Auth, signOut } from 'firebase/auth';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
+import firebase from 'firebase/compat/app';
+import * as firebaseui from 'firebaseui';
+import 'firebaseui/dist/firebaseui.css';
+
 
 export type App = {
   app:FirebaseApp,
@@ -29,19 +33,71 @@ export function get_app(onUserChange: CallableFunction) : App {
   const analytics = getAnalytics(app);
   const auth = getAuth(app);
   auth.onAuthStateChanged((user)=>{
-    onUserChange(user?.displayName, user?.photoURL);
+    onUserChange(user?.displayName, user?.photoURL, user?.email);
   });
   return {app: app, auth: auth, analytics: analytics}
 }
 
-export function signin(app:App) : void{
+export function showSigninUI(app:App)
+{
+      // FirebaseUI config.
+      var uiConfig = {
+        signInSuccessUrl: '/user/profile.html',
+        signInOptions: [
+          // Leave the lines as is for the providers you want to offer your users.
+          firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          // firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+          // firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+          firebase.auth.GithubAuthProvider.PROVIDER_ID,
+          /*
+          {
+            provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+            signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
+            requireDisplayName: true            
+          },
+          */
+          // firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+          // firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID
+        ],
+        // tosUrl and privacyPolicyUrl accept either url string or a callback
+        // function.
+        // Terms of service url/callback.
+        tosUrl: '/terms.html',
+        // Privacy policy url/callback.
+        privacyPolicyUrl: function() {
+          window.location.assign('/privacy.html');
+        },
+
+        callbacks: {
+          signInSuccessWithAuthResult: function(authResult:any, redirectUrl:any){
+            console.log('signed in: ', authResult.user.displayName);
+            if(!authResult.user.displayName){
+              authResult.user.createProfileChangeRequest().displayName = authResult.user.email.match(/^([^@]*)@/)[1]; 
+            }
+            return true;
+          }
+        }
+      };
+
+      // Initialize the FirebaseUI Widget using Firebase.
+      var ui = new firebaseui.auth.AuthUI(app.auth);//firebase.auth());
+      // The start method will wait until the DOM is loaded.
+      // Is there an email link sign-in?
+      ui.start('#firebaseui-auth-container', uiConfig);  
+}
+
+function github_signin(app:App)
+{
   let auth = getAuth(app.app);
   const provider = new GithubAuthProvider();
   signInWithPopup(auth, provider).then((result)=>{
   });
 }
+export function signin(app:App) : void{
+  window.location.href = "/signin.html";
+}
 
 export function signout(app:App) : void{
-  getAuth(app.app).signOut();
+  app.auth.signOut();
   window.location.href = '/';
 }

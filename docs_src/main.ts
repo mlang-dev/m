@@ -1,7 +1,7 @@
 import { wasi } from './wasi';
 import { mw, MInstance, RunResult } from './mw';
 import { initZoom, Zoom } from './zoom';
-import { get_app, signin, signout } from './app';
+import { App, get_app, signin, signout, showSigninUI } from './app';
 import { CodeJar } from 'codejar';
 import {withLineNumbers} from 'codejar/linenumbers';
 import { draw_surface } from './webgpu/main';
@@ -10,6 +10,7 @@ var instance:MInstance;
 var runResult:RunResult;
 var zoom: Zoom | null = null;
 var jar:CodeJar | null = null;
+var app:App | null = null;
 
 function set_image_data(data:any, width:number, height:number)
 {
@@ -96,6 +97,10 @@ plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 
 function run(code_id:string)
 {
+    if(app && !app?.auth.currentUser){
+        signin(app);
+        return;
+    }
     let result_text_id = code_id + "_result";
     let result_graph_id = code_id + "_graph_result";
     clear(result_text_id, result_graph_id);
@@ -153,21 +158,20 @@ function print_version(version_id:string, version:string) {
 }
 
 window.onload = function() {
-    var app = get_app(onUserChange);
+    app = get_app(onUserChange);
     var user_link = document.getElementById("user");
-    if (!user_link) return;
-    user_link.onclick = () => {
-        if(app.auth.currentUser){
-            window.location.href = '/user/profile.html';
-            //signout(app);
-        }else{
-            signin(app);
-        }
-    };
-
+    if (user_link){
+        user_link.onclick = () => {
+            if(!app) return;
+            if(app.auth.currentUser){
+                window.location.href = '/user/profile.html';
+            }else{
+                signin(app);
+            }
+        };
+    }
     draw_surface();
     
-
     var runs = document.querySelectorAll("button[data-run]");
     runs.forEach((runBtn)=>{
         let runDom = runBtn as HTMLElement;
@@ -211,34 +215,52 @@ window.onload = function() {
         update_back_forward();
 
     //profile page
-    function onUserChange(userDisplayName:string|null, userPhotoURL:string|null){
-        if(!user_link) return;
+    function onUserChange(userDisplayName:string|null, userPhotoURL:string|null, email:string|null){
+        if(!app) return;
         let signout_link = document.getElementById('signout');
-        if(userDisplayName){
-            if(userPhotoURL){
-                user_link.innerHTML = `<img src="${userPhotoURL}" style="vertical-align: middle;width:35px;height:35px;border-radius: 50%;">`;
+        if(user_link){
+            if(userDisplayName || email){
+                if(userPhotoURL){
+                    user_link.innerHTML = `<img src="${userPhotoURL}" style="vertical-align: middle;width:35px;height:35px;border-radius: 50%;">`;
+                }else if (userDisplayName){
+                    user_link.innerHTML = userDisplayName;
+                }else if(email){
+                    user_link.innerHTML = email;
+                }
+                user_link.style.borderStyle = "none";
+                let avatar = document.getElementById('avatar');
+                if(avatar && app.auth.currentUser && app.auth.currentUser.photoURL){
+                    (avatar as HTMLImageElement).src = app.auth.currentUser.photoURL;
+                }
+                let displayname = document.getElementById('displayname');
+                if(displayname){
+                    if(userDisplayName)
+                        displayname.textContent = userDisplayName;
+                    else{
+                        displayname.textContent = email;
+                    }
+                }
+                if(signout_link){
+                    signout_link.addEventListener('click', ()=>{
+                        if(app) signout(app);
+                    });
+                }
+            
             }else{
-                user_link.innerHTML = userDisplayName;
+                user_link.innerHTML = "Sign in";
+                user_link.style.borderStyle = "solid";
+                user_link.style.borderRadius = "5px";
+                if(signout_link){
+                    window.location.href = '/';
+                }
             }
-            user_link.style.borderStyle = "none";
-            let avatar = document.getElementById('avatar');
-            if(avatar && app.auth.currentUser && app.auth.currentUser.photoURL){
-                (avatar as HTMLImageElement).src = app.auth.currentUser.photoURL;
-            }
-            let displayname = document.getElementById('displayname');
-            if(displayname){
-                displayname.textContent = userDisplayName;
-            }
-            if(signout_link){
-                signout_link.addEventListener('click', ()=>signout(app));
-            }
-        
-        }else{
-            user_link.innerHTML = "Sign in with Github";
-            user_link.style.borderStyle = "solid";
-            user_link.style.borderRadius = "5px";
-            if(signout_link){
-                window.location.href = '/';
+        }
+        if(document.getElementById('firebaseui-auth-container')){
+            if(!email){
+                showSigninUI(app);
+            }else{
+                //window.location.href = '/user/profile.html';
+                console.log("signed in from: ", document.referrer);
             }
         }
     }
