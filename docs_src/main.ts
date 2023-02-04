@@ -97,7 +97,7 @@ plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 
 function run(code_id:string)
 {
-    if(app && !app?.auth.currentUser){
+    if(app && !app?.auth.currentUser && code_id != "code-editor"){
         signin(app);
         return;
     }
