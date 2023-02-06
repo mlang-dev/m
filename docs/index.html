@@ -5,7 +5,6 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>m | succinct, expressive and efficient programming</title>
-		<script type = "text/javascript" src="/main.bundle.js"></script>
 		<!-- Place this tag in your head or just before your close body tag. -->
 		<script async defer src="https://buttons.github.io/buttons.js"></script>
 		<link rel="stylesheet" href="simple.css">
@@ -20,34 +19,20 @@
 		<header>
 		<nav>
 			<a href="/" class="current">M</a>
-			<a href="/code/general.html">Code</a>
-			<a href="/tutorial/general.html">Tutorials</a>
 			<a href="/grammar.html">Grammar</a>
+			<a href="https://mlang.dev/">mlang.dev</a>
 			<!-- Place this tag where you want the button to render. -->
-			<a id="user">Sign in</a>
 			<a class="github-button" href="https://github.com/ligangwang/m" data-color-scheme="no-preference: dark; light: light; dark: dark;" data-icon="octicon-star" aria-label="Star ligangwang/m on GitHub">Star</a>
 		</nav>
 		</header>
-		<div style="width: 100%; border:1px solid var(--border);border-radius: 5px; margin-top: 10px;">
-			<div style="min-height: 300px; font-size:small;" id="code-editor" data-text="code-editor_result" class="editor language-js"></div>
-		</div>
 		<div style="width: 100%;">
-			<button type="button" data-run="code-editor" style="min-width: 70px;">run</button>
-		</div>
-		<div><button id="backward" onclick="go_backward()" style="padding: 1px 5px 1px 5px;"><-</button>&nbsp;&nbsp;
-			<button id="forward" onclick="go_forward()" style="padding: 1px 5px 1px 5px;">-></button>
-		</div>
-		<div style="width: 100%;">
-			<div id="canvas_container" style="display: inline-block; width: 390px; margin-right: 10px;">
-				<canvas id="code-editor_graph_result" style="height: 300px; width: 400px; padding: 0em;"></canvas>
-			</div>
-			<div style="display: block; width: 390px; float: right;">
-				<textarea style="min-height: 300px; width:100%; font-size:small;" id='code-editor_result' readonly>
-				</textarea>
-			</div>
+			mlang is a succinct & expressive general purpose programming language for WebAssembly. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction. It's a static-typed language with type inference, which means most of time types of variables are not required to be annotated.<br/>
+			<br/>
+			The mlang is implemented in C without third party library dependency other than C standard libraries. The mlang compiler is compiled as a WebAssembly module so it can be run in the browser or other wasm runtime like nodejs and wastime etc. It can compile m codes into another wasm module and run it in the same environment.<br/>
+			<br/>
+			MacOS or Linux or WSL is the recommended development OS.<br/>
 		</div>
 <footer>
-	<label id="version"></label>
 	<p>mlang is open sourced under the MIT license.</p>
 </footer>
 	</body>
