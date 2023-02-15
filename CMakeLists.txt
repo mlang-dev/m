@@ -6,10 +6,21 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(HAVE_FLAG_SEARCH_PATHS_FIRST 0)
 
+set(CMAKE_C_COMPILER clang)
+set(CMAKE_CXX_COMPILER clang++)
+if(NOT DEFINED WASM)
+    set(WASM ON)
+endif()
+set(CMAKE_C_LINK_FLAGS "")
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
-set(CMAKE_C_LINK_FLAGS "")
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/unity
+    ${CMAKE_SOURCE_DIR}/test
+)
+
 
 if(WASM)
 
@@ -44,9 +55,7 @@ else()
 endif()
 
 
-if(WASM)
-#    add_subdirectory(extern/wasm3)
-else()
+if(NOT WASM)
     add_subdirectory(extern/googletest)
 endif()
 

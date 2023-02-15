@@ -1,10 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 if (WASM)
-  include_directories(
-    ${CMAKE_SOURCE_DIR}/include
-  )
-  add_library(clib 
+  add_library(clibw 
     clib/math.c
     clib/object.c
     clib/array.c
@@ -62,10 +59,6 @@ else()
   find_package(LLVM REQUIRED CONFIG)
   message(STATUS "Found LLVM Include: ${LLVM_INCLUDE_DIRS}")
 
-  include_directories(
-    ${LLVM_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/include
-  )
   add_library(clib 
     clib/math.c
     clib/object.c
@@ -87,6 +80,10 @@ else()
     clib/getpath.c
   )
 
+  target_include_directories(clib PUBLIC
+    ${LLVM_INCLUDE_DIRS}
+  )
+
   add_executable(pgen
     error/error.c
     lexer/lexer.c
@@ -98,6 +95,10 @@ else()
     parser/lalr_parser_generator.c
     codegen/type_size_info.c
     pgen/pgen.c
+  )
+
+  target_include_directories(pgen PUBLIC
+    ${LLVM_INCLUDE_DIRS}
   )
 
   target_link_libraries(pgen PRIVATE 
@@ -147,6 +148,10 @@ else()
     compiler/engine_wasm.c
   )
 
+  target_include_directories(mlrw PUBLIC
+    ${LLVM_INCLUDE_DIRS}
+  )
+
   add_library(mlrl
     tool/cmodule.c
     error/error.c
@@ -191,6 +196,10 @@ else()
     compiler/engine.c
     compiler/engine_llvm.c
     compiler/engine_wasm.c
+  )
+
+  target_include_directories(mlrl PUBLIC
+    ${LLVM_INCLUDE_DIRS}
   )
 
 endif()
