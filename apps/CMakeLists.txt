@@ -1,10 +1,8 @@
  cmake_minimum_required(VERSION 3.16)
 
 if(WASM)
-  include_directories(
-    ${CMAKE_SOURCE_DIR}/include
-  )
 
+  # generating mw.wasm
   add_executable(mw
     wasm/mw.c
     wasm/libc.c
@@ -12,7 +10,7 @@ if(WASM)
 
   set_target_properties(mw PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
-  target_link_libraries(mw PRIVATE mlrw clib
+  target_link_libraries(mw PRIVATE mlrw clibw
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
     --target=wasm32
@@ -33,6 +31,17 @@ if(WASM)
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mw.wasm ${CMAKE_SOURCE_DIR}/docs
   )
 
+ #generating m executable
+#  add_executable(m
+#     driver/m.c
+#   )
+
+#   set_target_properties(m PROPERTIES LINKER_LANGUAGE C)
+  
+#   target_link_libraries(m PRIVATE 
+#     mlrl 
+#     clib
+#   )
 
 else()
   find_package(LLVM REQUIRED CONFIG)
@@ -59,22 +68,25 @@ else()
     set(clang_lib clang)
   endif(WIN32)
 
-  include_directories(
-    ${LLVM_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/include
-  )
-
   link_directories(
     ${LLVM_INCLUDE_DIRS}/../lib
   )
-
+  
   add_executable(m
     driver/ld.cc
     driver/m.cc
   )
 
+  target_include_directories(m PUBLIC
+    ${LLVM_INCLUDE_DIRS}
+  )
+
   add_executable(c2m
     c2m/c2m.c
+  )
+
+  target_include_directories(c2m PUBLIC
+    ${LLVM_INCLUDE_DIRS}
   )
 
   set_target_properties(m PROPERTIES LINKER_LANGUAGE CXX)

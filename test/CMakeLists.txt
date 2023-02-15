@@ -3,12 +3,6 @@ cmake_minimum_required(VERSION 3.16)
 project(mtest, VERSION 0.0.9 LANGUAGES CXX)
 
 if (WASM)
-  include_directories(
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/unity
-    ${CMAKE_SOURCE_DIR}/test
-  )
-
   add_executable(mtest
     test.c
     clib/test_array.c
@@ -46,7 +40,7 @@ if (WASM)
 
   set_target_properties(mtest PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
-  target_link_libraries(mtest PRIVATE mlrw clib unity
+  target_link_libraries(mtest PRIVATE mlrw clibw unity
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
     --target=wasm32
@@ -78,16 +72,6 @@ else()
   message(STATUS "Found SYS libraries ${sys_libraries}")
   add_definitions(${LLVM_DEFINITIONS})
 
-  include_directories(
-    ${LLVM_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/test
-    ${CMAKE_SOURCE_DIR}/include
-  )
-
-  link_directories(
-    ${LLVM_INCLUDE_DIRS}/../lib
-  )
-
   add_executable(mtest
     tutil.cc
     parser/test_astdump.cc
@@ -97,7 +81,16 @@ else()
     tool/test_cmodule.cc
     codegen/llvm/test_cg_var.cc
     codegen/llvm/test_cg_fun_call.cc
+ )
+
+ target_include_directories(mtest PUBLIC
+  ${LLVM_INCLUDE_DIRS}
+ )
+
+  link_directories(mtest
+    ${LLVM_INCLUDE_DIRS}/../lib
   )
+
 
   if(WIN32)
     set(clang_lib libclang)
@@ -131,9 +124,7 @@ endif()
 
 if(WASM)
 else()
-  include_directories(
-    ${CMAKE_SOURCE_DIR}/unity
-  )
+
   add_executable(mctest
   test.c
   clib/test_hashset.c
@@ -172,11 +163,11 @@ else()
     -g
   )
 
-  # add_custom_command(
-  #   TARGET mctest
-  #   POST_BUILD
-  #   COMMAND mctest
-  # )
+  add_custom_command(
+    TARGET mctest
+    POST_BUILD
+    COMMAND mctest
+  )
 
   add_custom_command(
     TARGET mtest
