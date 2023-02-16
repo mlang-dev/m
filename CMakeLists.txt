@@ -17,7 +17,7 @@ project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/unity
+    ${CMAKE_SOURCE_DIR}/test/unity
     ${CMAKE_SOURCE_DIR}/test
 )
 
@@ -52,15 +52,9 @@ else()
     -Wno-missing-braces -Wno-enum-conversion -g)
 endif()
 
-
-
 add_subdirectory(extern/googletest)
-
 add_subdirectory(lib)
 add_subdirectory(apps)
 add_subdirectory(test)
-
-if (NOT WASM)
-    add_subdirectory(samples)
-endif()
+add_subdirectory(samples)
 
