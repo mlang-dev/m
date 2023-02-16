@@ -78,18 +78,6 @@ cmake --build .
 ```
 The build system will build mw.wasm under ./apps
 
-Note to build m targeting LLVM backend, please refer to the [llvm build](./llvm.md) document.
-
-
-# run mlang site locally
-install http-server if it's not in your environment
-```
-npm install -g http-server
-```
-run http-server on docs folder
-```
-http-server docs
-```
 
 # useful tools
 ## install clang-13 on ubuntu:

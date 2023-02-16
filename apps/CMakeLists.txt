@@ -11,7 +11,7 @@ set_target_properties(mw PROPERTIES LINKER_LANGUAGE C
 target_link_libraries(mw PRIVATE wasm_options mlrw clibw
   ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
   ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
-  --target=wasm32
+  --target=wasm32-wasi
   -nostdlib
   -g
   -Wl,-z,stack-size=655360 #set stack size to 640k
