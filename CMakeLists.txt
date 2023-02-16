@@ -17,22 +17,22 @@ project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/unity
+    ${CMAKE_SOURCE_DIR}/test/unity
     ${CMAKE_SOURCE_DIR}/test
 )
 
-
-if(WASM)
-
-message(STATUS "building for wasm")
-
 set(CMAKE_AR "llvm-ar")
 set(CMAKE_RANLIB "llvm-ranlib")
-add_compile_definitions(__wasi__=1)
-add_compile_definitions(__wasm32__=1)
-add_compile_definitions(WASM=1)
-add_compile_definitions(UNITY_EXCLUDE_SETJMP_H=1)
-add_compile_options(
+
+add_library(wasm_options INTERFACE)
+
+target_compile_definitions(wasm_options INTERFACE 
+__wasi__=1
+__wasm32__=1
+WASM=1
+UNITY_EXCLUDE_SETJMP_H=1)
+
+target_compile_options(wasm_options INTERFACE
                       --target=wasm32
                       --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot
                       -nostdlib
@@ -41,8 +41,6 @@ add_compile_options(
                       -fvisibility=hidden
                       -g
                       ) 
-endif()
-
 
 if (MSVC)
     # warning level 4 and all warnings as errors
@@ -54,17 +52,9 @@ else()
     -Wno-missing-braces -Wno-enum-conversion -g)
 endif()
 
-
-if(NOT WASM)
-    add_subdirectory(extern/googletest)
-endif()
-
+add_subdirectory(extern/googletest)
 add_subdirectory(lib)
 add_subdirectory(apps)
-add_subdirectory(unity)
 add_subdirectory(test)
-
-if (NOT WASM)
-    add_subdirectory(samples)
-endif()
+add_subdirectory(samples)
 
