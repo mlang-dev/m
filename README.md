@@ -73,7 +73,7 @@ make (required: clang, llvm-ar, llvm-nm)
 ```
 mkdir build
 cd build
-cmake -DWASM=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+cmake ..
 cmake --build .
 ```
 The build system will build mw.wasm under ./apps

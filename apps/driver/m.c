@@ -38,7 +38,6 @@ void compile_file(const char *filename)
     fwrite(wasm, get_code_size(), 1, target_fp);
     fclose(target_fp);
     
-    free((void*)code);
     free(wasm);
 }
 

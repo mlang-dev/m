@@ -1,7 +1,11 @@
 #include "clib/typedef.h"
 #include <stddef.h>
 
+#ifdef NATIVE_APP
+#define wasm_export_name(name)
+#else
 #define wasm_export_name(name) __attribute__((export_name(#name)))
+#endif
 
 /*libc*/
 /*io*/

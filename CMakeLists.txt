@@ -8,9 +8,6 @@ set(HAVE_FLAG_SEARCH_PATHS_FIRST 0)
 
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
-if(NOT DEFINED WASM)
-    set(WASM ON)
-endif()
 set(CMAKE_C_LINK_FLAGS "")
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
