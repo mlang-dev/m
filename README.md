@@ -1,4 +1,4 @@
-[![CMake m](https://github.com/ligangwang/m/actions/workflows/cmake-app.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-app.yml) [![CMake m WASM](https://github.com/ligangwang/m/actions/workflows/cmake-wasm.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-wasm.yml)
+[![CMake m](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml) 
 
 # m (mlang)
 mlang is a succinct & expressive general purpose programming language for WebAssembly. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction. It's a static-typed language with type inference, which means most of time types of variables are not required to be annotated. 
