@@ -2,8 +2,14 @@ cmake_minimum_required(VERSION 3.16)
 
 project(mtest, VERSION 0.0.9 LANGUAGES CXX)
 
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/test
+    ${CMAKE_SOURCE_DIR}/test/unity
+)
+
 if (WASM)
-  add_executable(mtest
+  add_executable(mtestw
     test.c
     clib/test_array.c
     clib/test_byte_array.c
@@ -36,11 +42,13 @@ if (WASM)
     sema/test_analyzer_errors.c
     codegen/test_type_size_info.c
     codegen/wasm/test_wasm_codegen.c
+
+    unity/unity.c
   )
 
-  set_target_properties(mtest PROPERTIES LINKER_LANGUAGE C
+  set_target_properties(mtestw PROPERTIES LINKER_LANGUAGE C
                                       SUFFIX ".wasm")
-  target_link_libraries(mtest PRIVATE mlrw clibw unity
+  target_link_libraries(mtestw PRIVATE wasm_options mlrw clibw
     ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
     ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
     --target=wasm32
@@ -50,8 +58,8 @@ if (WASM)
     -Wl,--no-entry,--strip-all,--export-dynamic
   )
 
-  add_custom_command(TARGET mtest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mtest.wasm ${CMAKE_SOURCE_DIR}/docs
+  add_custom_command(TARGET mtestw POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mtestw.wasm ${CMAKE_SOURCE_DIR}/docs
   )
 
 else()
@@ -157,9 +165,10 @@ else()
   sema/test_analyzer_errors.c
   codegen/test_type_size_info.c
   codegen/wasm/test_wasm_codegen.c
+  unity/unity.c
   )
 
-  TARGET_LINK_LIBRARIES(mctest mlrw clib unity
+  TARGET_LINK_LIBRARIES(mctest mlr clib
     -g
   )
 
