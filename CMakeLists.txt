@@ -8,9 +8,6 @@ set(HAVE_FLAG_SEARCH_PATHS_FIRST 0)
 
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
-if(NOT DEFINED WASM)
-    set(WASM ON)
-endif()
 set(CMAKE_C_LINK_FLAGS "")
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
@@ -33,7 +30,7 @@ WASM=1
 UNITY_EXCLUDE_SETJMP_H=1)
 
 target_compile_options(wasm_options INTERFACE
-                      --target=wasm32
+                      --target=wasm32-wasi
                       --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot
                       -nostdlib
                       # -o3  # aggressive optimization

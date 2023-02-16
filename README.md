@@ -73,23 +73,11 @@ make (required: clang, llvm-ar, llvm-nm)
 ```
 mkdir build
 cd build
-cmake -DWASM=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+cmake ..
 cmake --build .
 ```
 The build system will build mw.wasm under ./apps
 
-Note to build m targeting LLVM backend, please refer to the [llvm build](./llvm.md) document.
-
-
-# run mlang site locally
-install http-server if it's not in your environment
-```
-npm install -g http-server
-```
-run http-server on docs folder
-```
-http-server docs
-```
 
 # useful tools
 ## install clang-13 on ubuntu:

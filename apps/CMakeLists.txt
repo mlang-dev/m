@@ -11,7 +11,7 @@ set_target_properties(mw PROPERTIES LINKER_LANGUAGE C
 target_link_libraries(mw PRIVATE wasm_options mlrw clibw
   ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
   ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
-  --target=wasm32
+  --target=wasm32-wasi
   -nostdlib
   -g
   -Wl,-z,stack-size=655360 #set stack size to 640k
@@ -29,17 +29,19 @@ add_custom_command(TARGET mw POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mw.wasm ${CMAKE_SOURCE_DIR}/docs
 )
 
-#generating m executable
-#  add_executable(m
-#     driver/m.c
-#   )
+add_executable(mlang
+  driver/m.c
+  wasm/mw.c
+)
 
-#   set_target_properties(m PROPERTIES LINKER_LANGUAGE C)
+target_compile_definitions(mlang PUBLIC NATIVE_APP=1)
 
-#   target_link_libraries(m PRIVATE 
-#     mlrl 
-#     clib
-#   )
+set_target_properties(mlang PROPERTIES LINKER_LANGUAGE C)
+
+target_link_libraries(mlang PRIVATE 
+  mlrl 
+  clib
+)
 
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM BIN ${LLVM_TOOLS_BINARY_DIR}")

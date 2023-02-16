@@ -171,7 +171,8 @@
         "pgen_token.h": "c",
         "terminal.h": "c",
         "symbol.h": "c",
-        "engine.h": "c"
+        "engine.h": "c",
+        "mw.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
