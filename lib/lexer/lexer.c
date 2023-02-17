@@ -175,6 +175,16 @@ void _scan_until(struct lexer *lexer, char until)
     } while (true);
 }
 
+void _scan_untils(struct lexer *lexer, char until0, char until1)
+{
+    do{
+        _move_ahead(lexer);
+        if (!lexer->buff[lexer->pos] || (lexer->buff[lexer->pos] == until0 && lexer->buff[lexer->pos-1] != '\\' && lexer->buff[lexer->pos+1] == until1)){
+            break;
+        }
+    } while (true);
+}
+
 bool _scan_until_no_digit(struct lexer *lexer)
 {
     const char *p = &lexer->buff[lexer->pos];
@@ -307,6 +317,15 @@ u32 _skip_empty_lines(struct lexer *lexer, enum token_type last_token_type)
 
 struct token *get_tok(struct lexer *lexer)
 {
+    struct token *tok = 0;
+    do{
+        tok = get_tok_with_comments(lexer);
+    }while(tok->token_type == TOKEN_LINECOMMENT || tok->token_type == TOKEN_BLOCKCOMMENT);
+    return tok;
+}
+
+struct token *get_tok_with_comments(struct lexer *lexer)
+{
     struct token *tok = &lexer->tok;
     if (lexer->pending_dedents < 0){
         assert(tok->token_type == TOKEN_DEDENT);
@@ -394,17 +413,20 @@ struct token *get_tok(struct lexer *lexer)
     //
     if(tok->token_type == TOKEN_LINECOMMENT){
         _scan_until(lexer, '\n');
-        if(lexer->buff[lexer->pos] == '\n'){
-            return get_tok(lexer);
-        }
-    } else if (tok->token_type == TOKEN_BLOCKCOMMENT_START){
+    } else if (tok->token_type == TOKEN_BLOCKCOMMENT){
+        _scan_untils(lexer, '*', '/');
+        if(lexer->buff[lexer->pos] == '*')
+            _move_ahead(lexer);
+        if(lexer->buff[lexer->pos] == '/')
+            _move_ahead(lexer);
+        /*
         do{
             tok=get_tok(lexer);
         }while(tok->token_type != TOKEN_BLOCKCOMMENT_END && tok->token_type != TOKEN_NULL && tok->token_type != TOKEN_EOF);
         if(tok->token_type == TOKEN_BLOCKCOMMENT_END){
             _move_ahead(lexer); //skip the new line
-            return get_tok(lexer);
         }
+        */
     }
 mark_end:
     tok->loc.end = lexer->buff_base + lexer->pos;
@@ -427,7 +449,8 @@ mark_end:
         }
         array_pop(&lexer->open_closes);
     }
-    lexer->last_token_type = tok->token_type;
+    if(tok->token_type != TOKEN_LINECOMMENT && tok->token_type != TOKEN_BLOCKCOMMENT)
+        lexer->last_token_type = tok->token_type;
     return tok;
 }
 
@@ -435,11 +458,11 @@ const char *highlight(struct lexer *lexer, const char *text)
 {
     string str;
     string_init_chars(&str, "");
-    struct token *tok = get_tok(lexer);
+    struct token *tok = get_tok_with_comments(lexer);
     int last_end = 0;
     while(tok->token_type != TOKEN_NULL && tok->token_type != TOKEN_EOF){
         if (tok->token_type == TOKEN_DEDENT) {
-            tok = get_tok(lexer);
+            tok = get_tok_with_comments(lexer);
             continue;
         }
         if(tok->loc.start - last_end > 0){
@@ -459,7 +482,7 @@ const char *highlight(struct lexer *lexer, const char *text)
             string_add_chars2(&str, &text[tok->loc.start], tok->loc.end-tok->loc.start);
         }
         last_end = tok->loc.end;
-        tok = get_tok(lexer);
+        tok = get_tok_with_comments(lexer);
     }
     int len = strlen(text);
     if(len-last_end > 0){

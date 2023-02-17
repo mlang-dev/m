@@ -554,6 +554,45 @@ TEST(test_lexer, highlight_code)
     frontend_deinit(fe);
 }
 
+TEST(test_lexer, highlight_operator)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "+";
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    const char *highlighted = highlight(lexer, test_code);
+    ASSERT_STREQ("<span class=\"token operator\">+</span>", highlighted);
+    free((void*)highlighted);
+    lexer_free(lexer);
+    frontend_deinit(fe);
+}
+
+TEST(test_lexer, highlight_comment)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "// comment line";
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    const char *highlighted = highlight(lexer, test_code);
+    ASSERT_STREQ("<span class=\"token comment\">// comment line</span>", highlighted);
+    free((void*)highlighted);
+    lexer_free(lexer);
+    frontend_deinit(fe);
+}
+
+TEST(test_lexer, highlight_block_comment)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "/* comment line */";
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    const char *highlighted = highlight(lexer, test_code);
+    ASSERT_STREQ("<span class=\"token block-comment\">/* comment line */</span>", highlighted);
+    free((void*)highlighted);
+    lexer_free(lexer);
+    frontend_deinit(fe);
+}
+
 TEST(test_lexer, highlight_code_multi_lines)
 {
     struct frontend *fe = frontend_init();
@@ -597,6 +636,9 @@ int test_lexer()
     RUN_TEST(test_lexer_group_with_multiple_lines);
     RUN_TEST(test_lexer_highlight_code_empty_string);
     RUN_TEST(test_lexer_highlight_code);
+    RUN_TEST(test_lexer_highlight_operator);
+    RUN_TEST(test_lexer_highlight_comment);
+    RUN_TEST(test_lexer_highlight_block_comment);
     RUN_TEST(test_lexer_highlight_code_multi_lines);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;

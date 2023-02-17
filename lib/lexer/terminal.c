@@ -19,7 +19,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, INDENT, NULL, 0),
     TOKEN_PATTERN(0, DEDENT, NULL, 0),
     KEYWORD_PATTERN("//", LINECOMMENT, NULL, "comment"),
-    NAME_KEYWORD_PATTERN("/*", "/\\*", BLOCKCOMMENT_START, NULL, "block-comment"),
+    NAME_KEYWORD_PATTERN("/*", "/\\*", BLOCKCOMMENT, NULL, "block-comment"),
     NAME_KEYWORD_PATTERN("*/", "\\*/", BLOCKCOMMENT_END, NULL, "block-comment"),
 
     KEYWORD_PATTERN("_", WILDCARD, NULL, "variable"), // 10

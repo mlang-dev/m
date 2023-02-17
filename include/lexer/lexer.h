@@ -58,6 +58,7 @@ const char *highlight(struct lexer *lexer, const char *text);
 void lexer_free(struct lexer *lexer);
 
 struct token *get_tok(struct lexer *lexer);
+struct token *get_tok_with_comments(struct lexer *lexer);
 
 #ifdef __cplusplus
 }
