@@ -100,3 +100,8 @@ sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
 clang --target=wasm32 --no-standard-libraries test.c -o test.wasm -mmultivalue -Xclang -target-abi -Xclang experimental-mv
 ```
 
+## compile c into wasi
+```
+clang --target=wasm32-wasi --sysroot=./extern/wasi-libc/sysroot ./samples/test.c -o test.wasm -nodefaultlibs -lc
+```
+
