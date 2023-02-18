@@ -24,20 +24,16 @@ jobs:
     steps:
     - name: Install LLVM & LLD
       run: |
-        sudo apt remove llvm-11
-        sudo apt remove llvm-12
-        sudo apt remove clang-11
-        sudo apt autoclean && sudo apt autoremove
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
-        sudo apt-get install llvm-13 lld-13 clang-13 libclang-13-dev liblld-13-dev libmlir-13-dev
-        sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
-        sudo ln /usr/bin/llvm-ar-13 /usr/bin/llvm-ar
-        sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
-        sudo ln /usr/bin/llvm-ranlib-13 /usr/bin/llvm-ranlib
-        sudo ln -f /usr/bin/clang-13 /usr/bin/clang
-        sudo ln -f /usr/bin/clang++-13 /usr/bin/clang++
-        sudo ln -f /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
+        sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-focal-14 main"
+        sudo apt-get install llvm-14 lld-14 clang-14 libclang-14-dev liblld-14-dev libmlir-14-dev
+        sudo ln /usr/bin/llvm-config-14 /usr/bin/llvm-config
+        sudo ln /usr/bin/llvm-ar-14 /usr/bin/llvm-ar
+        sudo ln /usr/bin/llvm-nm-14 /usr/bin/llvm-nm
+        sudo ln /usr/bin/llvm-ranlib-14 /usr/bin/llvm-ranlib
+        sudo ln -f /usr/bin/clang-14 /usr/bin/clang
+        sudo ln -f /usr/bin/clang++-14 /usr/bin/clang++
+        sudo ln -f /usr/bin/wasm-ld-14 /usr/bin/wasm-ld
         
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
