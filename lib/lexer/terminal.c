@@ -32,8 +32,6 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, STRING, NULL, "string"),
 
     KEYWORD_PATTERN("from", FROM, NULL, "keyword"), 
-    KEYWORD_PATTERN("import", IMPORT, NULL, "keyword"),
-    KEYWORD_PATTERN("export", EXPORT, NULL, "keyword"),
     KEYWORD_PATTERN("memory", MEMORY, NULL, "keyword"),
     KEYWORD_PATTERN("extern", EXTERN, NULL, "keyword"), 
 
@@ -42,9 +40,26 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("type", TYPE, NULL, "keyword"),
     KEYWORD_PATTERN("resource", RESOURCE, NULL, "keyword"), 
     KEYWORD_PATTERN("func", FUNC, NULL, "keyword"),
+    KEYWORD_PATTERN("record", RECORD, NULL, "keyword"),
+    KEYWORD_PATTERN("enum", ENUM, NULL, "keyword"),
+    KEYWORD_PATTERN("flags", FLAGS, NULL, "keyword"),
+    KEYWORD_PATTERN("variant", VARIANT, NULL, "keyword"),
+    KEYWORD_PATTERN("union", UNION, NULL, "keyword"),
+    KEYWORD_PATTERN("option", OPTION, NULL, "keyword"),
+    KEYWORD_PATTERN("list", LIST, NULL, "keyword"),
+    KEYWORD_PATTERN("result", RESULT, NULL, "keyword"),
+    KEYWORD_PATTERN("as", AS, NULL, "keyword"),
+    KEYWORD_PATTERN("static", STATIC, NULL, "keyword"),
+    KEYWORD_PATTERN("interface", INTERFACE, NULL, "keyword"),
+    KEYWORD_PATTERN("world", WORLD, NULL, "keyword"),
+    KEYWORD_PATTERN("tuple", TUPLE, NULL, "keyword"),
+    KEYWORD_PATTERN("future", FUTURE, NULL, "keyword"),
+    KEYWORD_PATTERN("stream", STREAM, NULL, "keyword"),
+    KEYWORD_PATTERN("import", IMPORT, NULL, "keyword"),
+    KEYWORD_PATTERN("export", EXPORT, NULL, "keyword"),
+    KEYWORD_PATTERN("default", DEFAULT, NULL, "keyword"),
 
     KEYWORD_PATTERN("struct", STRUCT, NULL, "keyword"),
-    KEYWORD_PATTERN("union", UNION, NULL, "keyword"),
 
     KEYWORD_PATTERN("let", LET, NULL, "keyword"),
     KEYWORD_PATTERN("var", VAR, NULL, "keyword"),
@@ -83,7 +98,6 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("do", DO, NULL, "keyword"),
     KEYWORD_PATTERN("switch", SWITCH, NULL, "keyword"),
     KEYWORD_PATTERN("case", CASE, NULL, "keyword"),
-    KEYWORD_PATTERN("default", DEFAULT, NULL, "keyword"),
     KEYWORD_PATTERN("return", RETURN, NULL, "keyword"),
     KEYWORD_PATTERN("yield", YIELD, NULL, "keyword"),
     KEYWORD_PATTERN("async", ASYNC, NULL, "keyword"),
@@ -91,8 +105,6 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("match", MATCH, NULL, "keyword"),
     KEYWORD_PATTERN("with", WITH, NULL, "keyword"),
     KEYWORD_PATTERN("when", WHEN, NULL, "keyword"),
-    KEYWORD_PATTERN("interface", INTERFACE, NULL, "keyword"),
-    KEYWORD_PATTERN("world", WORLD, NULL, "keyword"),
 
     TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL, 0), //
     
@@ -258,3 +270,4 @@ enum op_code get_op_code_from_assign_op(enum op_code assign_op)
         return OP_NULL;
     }
 }
+
