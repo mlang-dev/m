@@ -327,3 +327,22 @@ char *str_clone(const char *s)
   MALLOC(new, len);
   return (char *) memcpy (new, s, len);
 }
+
+string* string_replace(const char *src, size_t src_size, char match, const char *replaced_with)
+{
+    string *dst = string_new("");
+    size_t last_pos = 0;
+    size_t i = 0;
+    size_t replace_size = strlen(replaced_with);
+    for(i = 0; i < src_size; i++){
+        if(src[i] == match && i > last_pos){
+            string_add_chars2(dst, &src[last_pos], i - last_pos);
+            string_add_chars2(dst, replaced_with, replace_size);
+            last_pos = i + 1;
+        }
+    }
+    if(i > last_pos){
+        string_add_chars2(dst, &src[last_pos], i - last_pos);
+    }
+    return dst;
+}

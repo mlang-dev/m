@@ -59,8 +59,8 @@ wasm/sys.c
 
 target_link_libraries(mlrw PRIVATE wasm_options)
 
-find_package(LLVM REQUIRED CONFIG)
-message(STATUS "Found LLVM Include: ${LLVM_INCLUDE_DIRS}")
+find_package(LLVM 13 REQUIRED CONFIG)
+message(STATUS "Found LLVM CMAKE DIR: ${LLVM_CMAKE_DIR}, LLVM Include: ${LLVM_INCLUDE_DIRS}")
 
 add_library(clib 
   clib/math.c

@@ -469,17 +469,31 @@ const char *highlight(struct lexer *lexer, const char *text)
             string_add_chars2(&str, &text[last_end], tok->loc.start - last_end);
         }
         struct token_pattern *tp = get_token_pattern_by_token_type(tok->token_type);
+        const char *token_content = &text[tok->loc.start];
+        size_t token_content_len = tok->loc.end-tok->loc.start;
         if(tp->class_name){
             string tok_str;
             char span_class[128];
             sprintf(span_class, "<span class=\"token %s\">", tp->class_name);
             string_init_chars(&tok_str, span_class);
-            string_add_chars2(&tok_str, &text[tok->loc.start], tok->loc.end-tok->loc.start);
+            
+            if(tp->token_type == TOKEN_LINECOMMENT || tp->token_type == TOKEN_BLOCKCOMMENT){
+                //encode 
+                string *dst = string_replace(token_content, token_content_len, '&', "&amp;");
+                string *dst1 = string_replace(string_get(dst), string_size(dst), '<', "&lt;");
+                string *dst2 = string_replace(string_get(dst1), string_size(dst1), '>', "&gt;");
+                string_add_chars2(&tok_str, string_get(dst2), string_size(dst2));
+                string_free(dst);
+                string_free(dst1);
+                string_free(dst2);
+            } else {
+                string_add_chars2(&tok_str, token_content, token_content_len);
+            }
             string_add_chars(&tok_str, "</span>");
             string_add(&str, &tok_str);
             string_deinit(&tok_str);
         }else{
-            string_add_chars2(&str, &text[tok->loc.start], tok->loc.end-tok->loc.start);
+            string_add_chars2(&str, token_content, token_content_len);
         }
         last_end = tok->loc.end;
         tok = get_tok_with_comments(lexer);

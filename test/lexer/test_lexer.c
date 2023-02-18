@@ -583,11 +583,11 @@ TEST(test_lexer, highlight_comment)
 TEST(test_lexer, highlight_block_comment)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "/* comment line */";
+    char test_code[] = "/* n&<>m */";
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
     const char *highlighted = highlight(lexer, test_code);
-    ASSERT_STREQ("<span class=\"token block-comment\">/* comment line */</span>", highlighted);
+    ASSERT_STREQ("<span class=\"token block-comment\">/* n&amp;&lt;&gt;m */</span>", highlighted);
     free((void*)highlighted);
     lexer_free(lexer);
     frontend_deinit(fe);
