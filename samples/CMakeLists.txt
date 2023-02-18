@@ -33,5 +33,6 @@ add_custom_command(
   TARGET msample
   POST_BUILD
   COMMAND msample
+  COMMAND npm test
 )
 
