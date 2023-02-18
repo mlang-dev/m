@@ -359,7 +359,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         case FUNC_TYPE_NODE:
         {
             assert(rule->action.item_index_count == 3);
-            struct ast_node *ft_name = _take(nodes, rule->action.item_index[0]); //fun name
+            struct ast_node *ft_name = _take(nodes, rule->action.item_index[0]); //func name
             assert(ft_name->node_type == IDENT_NODE);
             struct ast_node *parameters = _take(nodes, rule->action.item_index[2]); // parameters
             assert(parameters->node_type == BLOCK_NODE);
@@ -377,7 +377,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }
         case FUNC_NODE:
         {
-            struct ast_node *func_name = _take(nodes, rule->action.item_index[0]); //fun name
+            struct ast_node *func_name = _take(nodes, rule->action.item_index[0]); //func name
             assert(func_name->node_type == IDENT_NODE);
             struct ast_node *parameters = _take(nodes, rule->action.item_index[1]); //parameters
             assert(parameters->node_type == BLOCK_NODE);

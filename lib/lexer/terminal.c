@@ -31,19 +31,24 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, CHAR, NULL, "string"),
     TOKEN_PATTERN(0, STRING, NULL, "string"),
 
-    KEYWORD_PATTERN("from", FROM, NULL, "keyword"), // 10
+    KEYWORD_PATTERN("from", FROM, NULL, "keyword"), 
     KEYWORD_PATTERN("import", IMPORT, NULL, "keyword"),
+    KEYWORD_PATTERN("export", EXPORT, NULL, "keyword"),
     KEYWORD_PATTERN("memory", MEMORY, NULL, "keyword"),
-    KEYWORD_PATTERN("extern", EXTERN, NULL, "keyword"), // 10
+    KEYWORD_PATTERN("extern", EXTERN, NULL, "keyword"), 
 
+    //WIT items
+    KEYWORD_PATTERN("use", USE, NULL, "keyword"), 
     KEYWORD_PATTERN("type", TYPE, NULL, "keyword"),
+    KEYWORD_PATTERN("resource", RESOURCE, NULL, "keyword"), 
+    KEYWORD_PATTERN("func", FUNC, NULL, "keyword"),
+
     KEYWORD_PATTERN("struct", STRUCT, NULL, "keyword"),
     KEYWORD_PATTERN("union", UNION, NULL, "keyword"),
 
     KEYWORD_PATTERN("let", LET, NULL, "keyword"),
     KEYWORD_PATTERN("var", VAR, NULL, "keyword"),
     KEYWORD_PATTERN("mut", MUT, NULL, "keyword"),
-    KEYWORD_PATTERN("fun", FUN, NULL, "keyword"),
     KEYWORD_PATTERN("->", MAPTO, NULL, "keyword"),
     KEYWORD_PATTERN("if", IF, NULL, "keyword"),
     KEYWORD_PATTERN("then", THEN, NULL, "keyword"),
@@ -86,6 +91,8 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("match", MATCH, NULL, "keyword"),
     KEYWORD_PATTERN("with", WITH, NULL, "keyword"),
     KEYWORD_PATTERN("when", WHEN, NULL, "keyword"),
+    KEYWORD_PATTERN("interface", INTERFACE, NULL, "keyword"),
+    KEYWORD_PATTERN("world", WORLD, NULL, "keyword"),
 
     TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL, 0), //
     

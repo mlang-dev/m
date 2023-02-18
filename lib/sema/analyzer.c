@@ -25,7 +25,7 @@ struct type_expr *_retrieve_type_with_type_name(struct sema_context *context, sy
 {
     struct type_expr_pair * tep = symboltable_get(&context->typename_2_typexpr_pairs, name);
     if (!tep){
-        printf("No type is found for the symbol: %s.\n", string_get(name));
+        printf("No type is found for the type name: %s.\n", string_get(name));
         return 0;
     }
     struct type_expr *type = tep_find_type_expr(tep, mut, false, mut);

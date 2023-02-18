@@ -23,7 +23,7 @@ TEST_F(testAstDump, testPrototypeNodeDump)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, false);
-    char test_code[] = "fun printf format:string ... -> int";
+    char test_code[] = "func printf format:string ... -> int";
     ast_node *block = parse_code(parser, test_code);
     analyze(context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);
@@ -42,7 +42,7 @@ TEST_F(testAstDump, testFuncTypeWithNoParam)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, false);
-    char test_code[] = "fun printf () -> int";
+    char test_code[] = "func printf () -> int";
     ast_node *block = parse_code(parser, test_code);
     analyze(context, block);
     auto node = *(ast_node **)array_front(&block->block->nodes);

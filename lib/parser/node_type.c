@@ -43,7 +43,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(jump, JUMP),
     NODE_TYPE_NAME(call, CALL),
     NODE_TYPE_NAME(func_type, FUNC_TYPE),
-    NODE_TYPE_NAME(func, FUNC),
+    NODE_TYPE_NAME(function, FUNC),
     NODE_TYPE_NAME(block, BLOCK),
     NODE_TYPE_NAME(total, TOTAL)
 };

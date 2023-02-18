@@ -39,18 +39,22 @@ enum token_type{
     TOKEN_STRING,
     TOKEN_FROM,
     TOKEN_IMPORT,
+    TOKEN_EXPORT,
     TOKEN_MEMORY,
     TOKEN_EXTERN,
 
-    //wit items
+    //WIT items    
+    TOKEN_USE,
     TOKEN_TYPE,
+    TOKEN_RESOURCE,
+    TOKEN_FUNC,
+    
     TOKEN_STRUCT,
     TOKEN_UNION,
 
     TOKEN_LET,
     TOKEN_VAR,
     TOKEN_MUT,
-    TOKEN_FUN,
     TOKEN_MAPTO,
     TOKEN_IF,
     TOKEN_THEN,
@@ -91,7 +95,9 @@ enum token_type{
     TOKEN_MATCH,
     TOKEN_WITH,
     TOKEN_WHEN,
-    
+    TOKEN_INTERFACE,
+    TOKEN_WORLD,
+
     /*IDENT token has to been at the end of keyword list, so that exact keyword match 
       always happens before identifier match
     */
