@@ -95,12 +95,12 @@ sudo ln /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
 sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
 ```
 
-## compile c into wasm
+## compile c code to wasm target
 ```
 clang --target=wasm32 --no-standard-libraries test.c -o test.wasm -mmultivalue -Xclang -target-abi -Xclang experimental-mv
 ```
 
-## compile c into wasi
+## compile c into wasi target
 ```
 clang --target=wasm32-wasi --sysroot=./extern/wasi-libc/sysroot ./samples/test.c -o test.wasm -nodefaultlibs -lc
 ```

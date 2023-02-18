@@ -216,7 +216,7 @@ typed_item      = IDENT ':' type_expr
 adt_initializer = IDENT '{' exprs '}'                                                       { adt_initializer 0 2 }
                 | '{' exprs '}'                                                             { adt_initializer 1 }
 
-func_type       = "fun" IDENT param_decls "->" type_expr                                    { func_type 1 4 2 }
+func_type       = "func" IDENT param_decls "->" type_expr                                    { func_type 1 4 2 }
 
 import_decl     = "from" IDENT "import" memory_decl                                         { import_decl 1 3 }
                 | "from" IDENT "import" func_type                                           { import_decl 1 3 }    
@@ -225,8 +225,8 @@ import_decl     = "from" IDENT "import" memory_decl                             
 memory_decl     = "memory" INT                                                              { memory_decl 1 }
                 | "memory" INT ',' INT                                                      { memory_decl 1 3 }
 
-func_def        = "let" IDENT param_decls '=' statement                                     { func 1 2 4 }
-                | "let" IDENT ':' type_expr param_decls '=' statement                       { func 1 4 6 3 }
+func_def        = "let" IDENT param_decls '=' statement                                     { function 1 2 4 }
+                | "let" IDENT ':' type_expr param_decls '=' statement                       { function 1 4 6 3 }
 
 func_call       = IDENT arg_exprs                                                           { call 0 1 }
 

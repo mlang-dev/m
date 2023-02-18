@@ -28,7 +28,7 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
     string var_str;
     string_init(&var_str);
     if (func_type->ft->is_extern)
-        string_add_chars(&result, "fun ");
+        string_add_chars(&result, "func ");
     string_add_chars(&result, string_get(func_type->ft->name));
     ARRAY_STRING(args);
     for (size_t i = 0; i < array_size(&func_type->ft->params->block->nodes); i++) {

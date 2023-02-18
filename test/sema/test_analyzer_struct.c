@@ -104,7 +104,7 @@ let z = getx()\n\
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
-    /*fun definition*/
+    /*func definition*/
     node = *(struct ast_node **)array_get(&block->block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> Point2D", string_get(&type_str));
@@ -171,7 +171,7 @@ getx()\n\
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
-    /*fun definition*/
+    /*func definition*/
     node = *(struct ast_node **)array_get(&block->block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> f64", string_get(&type_str));

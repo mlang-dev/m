@@ -16,7 +16,7 @@ TEST(test_analyzer, call_node)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-fun printf __format:string ... -> int\n\
+func printf __format:string ... -> int\n\
 printf \"hello\"\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -63,9 +63,9 @@ let update z:&AB =\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* fun = *(struct ast_node **)array_get(&block->block->nodes, 1);
-    ASSERT_EQ(TYPE_FUNCTION, fun->type->type);
-    ASSERT_EQ(to_symbol("&AB -> ()"), fun->type->name);
+    struct ast_node* func= *(struct ast_node **)array_get(&block->block->nodes, 1);
+    ASSERT_EQ(TYPE_FUNCTION, func->type->type);
+    ASSERT_EQ(to_symbol("&AB -> ()"), func->type->name);
     node_free(block);
     frontend_deinit(fe);
 }
@@ -564,7 +564,7 @@ x\n\
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
-    /*fun definition*/
+    /*func definition*/
     node = *(struct ast_node **)array_get(&block->block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> f64", string_get(&type_str));
@@ -627,7 +627,7 @@ let getx()=\n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     
-    /*validate fun definition*/
+    /*validate func definition*/
     struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, 0);
     string type_str = to_string(node->type);
     ASSERT_STREQ("() -> int", string_get(&type_str));
@@ -653,7 +653,7 @@ let getx()=\n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     
-    /*validate fun definition*/
+    /*validate func definition*/
     struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, 0);
     string type_str = to_string(node->type);
     ASSERT_STREQ("() -> int", string_get(&type_str));
