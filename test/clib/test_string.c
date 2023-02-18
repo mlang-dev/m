@@ -272,6 +272,14 @@ TEST(test_string, init_long_string_copy_short_string)
     string_deinit(&str);
 }
 
+TEST(test_string, replace_char)
+{
+    const char *str = "n<m";
+    string *dst = string_replace(str, strlen(str), '<', "&lt;");
+    ASSERT_STREQ("n&lt;m", string_get(dst));
+    string_free(dst);
+}
+
 int test_string()
 {
     UNITY_BEGIN();
@@ -300,6 +308,7 @@ int test_string()
     RUN_TEST(test_string_long_string_add_long_string);
     RUN_TEST(test_string_long_string_add_short_string);
     RUN_TEST(test_string_init_long_string_copy_short_string);
+    RUN_TEST(test_string_replace_char);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

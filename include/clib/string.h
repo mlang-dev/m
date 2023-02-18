@@ -74,6 +74,7 @@ void string_copy_generic(void *dest, void *src, size_t size);
 void string_free_generic(void *dest);
 bool is_upper(string *str);
 char *str_clone (const char *s);
+string* string_replace(const char *src, size_t src_size, char match, const char *replaced_with);
 
 #define ARRAY_STRING(var) ARRAY(var, string, string_free_generic)
 
