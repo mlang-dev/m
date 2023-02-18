@@ -113,8 +113,8 @@ struct grammar *grammar_parse(const char *grammar_text)
             }else if(expr){
                 expr_add_symbol(expr, s, is_upper((string*)s) ? EI_TOKEN_MATCH : EI_NONTERM);
             }
-        } else if (tok.token_type == TOKEN_STRING || tok.token_type == TOKEN_CHAR) {
-            if(tok.token_type == TOKEN_CHAR)
+        } else if (tok.token_type == TOKEN_LITERAL_STRING || tok.token_type == TOKEN_LITERAL_CHAR) {
+            if(tok.token_type == TOKEN_LITERAL_CHAR)
                 s = to_symbol2((char*)&tok.int_val, 1);
             else
                 s = to_symbol(tok.str_val);
@@ -142,7 +142,7 @@ struct grammar *grammar_parse(const char *grammar_text)
                     assert(expr->action.action == 0);
                     expr->action.action = next_tok.symbol_val;
                 }
-                else if(next_tok.token_type == TOKEN_INT){
+                else if(next_tok.token_type == TOKEN_LITERAL_INT){
                     expr->action.exp_item_index[expr->action.exp_item_index_count++] = next_tok.int_val;
                 }
                 else{    

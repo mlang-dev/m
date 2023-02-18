@@ -68,7 +68,7 @@ TEST(test_lexer, token_char)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_CHAR, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_CHAR, tok->token_type);
     ASSERT_EQ(1, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
@@ -87,7 +87,7 @@ TEST(test_lexer, token_char_with_escape)
     struct lexer *lexer;
     lexer = lexer_new_with_string(test_code);
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_CHAR, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_CHAR, tok->token_type);
     ASSERT_EQ(1, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
@@ -145,7 +145,7 @@ TEST(test_lexer, token_string)
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_STRING, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_STRING, tok->token_type);
     ASSERT_EQ(1, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
@@ -166,7 +166,7 @@ TEST(test_lexer, token_string_with_escape)
     struct lexer *lexer;
     lexer = lexer_new_with_string(test_code);
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_STRING, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_STRING, tok->token_type);
     ASSERT_EQ(1, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
@@ -188,7 +188,7 @@ TEST(test_lexer, token_string_with_raw_escape)
     struct lexer *lexer;
     lexer = lexer_new_with_string(test_code);
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_STRING, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_STRING, tok->token_type);
     ASSERT_EQ(1, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
@@ -211,7 +211,7 @@ TEST(test_lexer, token_utc_string)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_STRING, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_STRING, tok->token_type);
     ASSERT_EQ(1, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(0, tok->loc.start);
@@ -236,7 +236,7 @@ TEST(test_lexer, token_num_int)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_INT, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_INT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
@@ -256,7 +256,7 @@ TEST(test_lexer, token_num_int)
      struct lexer *lexer;
      lexer = lexer_new_for_string(test_code);
      tok = get_tok(lexer);
-     ASSERT_EQ(TOKEN_INT, tok->token_type);
+     ASSERT_EQ(TOKEN_LITERAL_INT, tok->token_type);
      ASSERT_EQ(2, tok->int_val);
      ASSERT_EQ(2, tok->loc.line);
      ASSERT_EQ(1, tok->loc.col);
@@ -277,7 +277,7 @@ TEST(test_lexer, token_num_int_hex2)
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_INT, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_INT, tok->token_type);
     ASSERT_EQ(-1, tok->int_val);
     lexer_free(lexer);
     frontend_deinit(fe);
@@ -293,7 +293,7 @@ TEST(test_lexer, token_num_float)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_DOUBLE, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_FLOAT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
@@ -312,7 +312,7 @@ TEST(test_lexer, token_num_float2)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_DOUBLE, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_FLOAT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
@@ -331,7 +331,7 @@ TEST(test_lexer, token_num_float3)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_DOUBLE, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_FLOAT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
@@ -369,7 +369,7 @@ TEST(test_lexer, token_num_id)
 
     //NUM
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_INT, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_INT, tok->token_type);
     ASSERT_EQ(2, tok->loc.line);
     ASSERT_EQ(1, tok->loc.col);
     ASSERT_EQ(1, tok->loc.start);
@@ -396,12 +396,12 @@ TEST(test_lexer, expr)
     lexer = lexer_new_for_string(test_code);
 
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_INT, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_INT, tok->token_type);
     tok = get_tok(lexer);
     ASSERT_EQ(TOKEN_OP, tok->token_type);
     ASSERT_EQ(OP_PLUS, tok->opcode);
     tok = get_tok(lexer);
-    ASSERT_EQ(TOKEN_DOUBLE, tok->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_FLOAT, tok->token_type);
 
     lexer_free(lexer);
     frontend_deinit(fe);
@@ -506,7 +506,7 @@ TEST(test_lexer, complex_number)
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
 
-    ASSERT_EQ(TOKEN_COMPLEX, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_COMPLEX, get_tok(lexer)->token_type);
 
     lexer_free(lexer);
     frontend_deinit(fe);
