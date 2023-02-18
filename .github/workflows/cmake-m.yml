@@ -40,6 +40,17 @@ jobs:
       with:
         submodules: recursive
 
+    #use nodes now
+    - name: use node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: run npm ci
+      run: | 
+        cd ${{github.workspace}}
+        npm ci
+
     - name: Build wasi-libc
       run: (cd ${{github.workspace}}/extern/wasi-libc && make)
     - name: download libclang_rt.builtins-wasm32-wasi
@@ -53,25 +64,6 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-    - name: Build m
+    - name: Build m & run test
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.  
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
-
-    #use nodes now
-    - name: use node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-
-    - name: run npm test 
-      run: | 
-        cd ${{github.workspace}}
-        npm ci
-        npm run build --if-present
-        CI=true npm test
