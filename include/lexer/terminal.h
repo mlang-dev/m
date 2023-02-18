@@ -38,8 +38,6 @@ enum token_type{
 
     TOKEN_STRING,
     TOKEN_FROM,
-    TOKEN_IMPORT,
-    TOKEN_EXPORT,
     TOKEN_MEMORY,
     TOKEN_EXTERN,
 
@@ -48,9 +46,26 @@ enum token_type{
     TOKEN_TYPE,
     TOKEN_RESOURCE,
     TOKEN_FUNC,
-    
-    TOKEN_STRUCT,
+    TOKEN_RECORD,
+    TOKEN_ENUM,
+    TOKEN_FLAGS,
+    TOKEN_VARIANT,
     TOKEN_UNION,
+    TOKEN_OPTION,
+    TOKEN_LIST,
+    TOKEN_RESULT,
+    TOKEN_AS,
+    TOKEN_STATIC,
+    TOKEN_INTERFACE,
+    TOKEN_WORLD,
+    TOKEN_TUPLE,
+    TOKEN_FUTURE,
+    TOKEN_STREAM,
+    TOKEN_IMPORT,
+    TOKEN_EXPORT,
+    TOKEN_DEFAULT,
+
+    TOKEN_STRUCT,
 
     TOKEN_LET,
     TOKEN_VAR,
@@ -86,7 +101,6 @@ enum token_type{
     TOKEN_DO,
     TOKEN_SWITCH,
     TOKEN_CASE,
-    TOKEN_DEFAULT,
     TOKEN_RETURN,
     
     TOKEN_YIELD,
@@ -95,8 +109,6 @@ enum token_type{
     TOKEN_MATCH,
     TOKEN_WITH,
     TOKEN_WHEN,
-    TOKEN_INTERFACE,
-    TOKEN_WORLD,
 
     /*IDENT token has to been at the end of keyword list, so that exact keyword match 
       always happens before identifier match
