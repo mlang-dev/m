@@ -173,8 +173,8 @@ Pass the struct data, and return with a struct with new value
 `
 let shift z:cf64 = 
     cf64{z.re + 100.0, z.im + 200.0}
-let result = shift (cf64 { 10.0, 20.0 })
-result.re + result.im
+let res = shift (cf64 { 10.0, 20.0 })
+res.re + res.im
 `, 110.0 + 220.0);
 
 
