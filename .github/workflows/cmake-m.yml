@@ -24,16 +24,6 @@ jobs:
     steps:
     - name: Install LLVM & LLD
       run: |
-#        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-#        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main"
-#        sudo apt-get install llvm-14 lld-14 clang-14 libclang-14-dev liblld-14-dev libmlir-14-dev
-#        sudo ln /usr/bin/llvm-config-14 /usr/bin/llvm-config
-#        sudo ln /usr/bin/llvm-ar-14 /usr/bin/llvm-ar
-#        sudo ln /usr/bin/llvm-nm-14 /usr/bin/llvm-nm
-#        sudo ln /usr/bin/llvm-ranlib-14 /usr/bin/llvm-ranlib
-#        sudo ln -f /usr/bin/clang-14 /usr/bin/clang
-#        sudo ln -f /usr/bin/clang++-14 /usr/bin/clang++
-#        sudo ln -f /usr/bin/wasm-ld-14 /usr/bin/wasm-ld
         clang --version
         
     - name: Checkout repository and submodules
