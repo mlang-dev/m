@@ -258,14 +258,14 @@ void _mark_regex_tok(struct lexer *lexer)
         _move_ahead_n(lexer, max_matched);
         if(used_tp->token_type == TOKEN_IDENT)
             tok->symbol_val = to_symbol2(&lexer->buff[tok->loc.start - lexer->buff_base], max_matched);
-        else if(used_tp->token_type == TOKEN_INT){
+        else if(used_tp->token_type == TOKEN_LITERAL_INT){
             int base = 10;
             char hex = lexer->buff[tok->loc.start - lexer->buff_base + 1];
             if (hex == 'x' || hex == 'X'){
                 base = 16;
             }
             tok->int_val = (int)strtoul(&lexer->buff[tok->loc.start - lexer->buff_base], 0, base);
-        } else if (used_tp->token_type == TOKEN_DOUBLE)
+        } else if (used_tp->token_type == TOKEN_LITERAL_FLOAT)
             tok->double_val = strtod(&lexer->buff[tok->loc.start - lexer->buff_base], 0);
     }else{
         report_error(lexer, EC_UNRECOGNIZED_TOKEN, tok->loc);
@@ -377,7 +377,7 @@ struct token *get_tok_with_comments(struct lexer *lexer)
         _move_ahead(lexer); // skip the new line
         break;
     case '\'':
-        _mark_token(lexer, TOKEN_CHAR, 0);
+        _mark_token(lexer, TOKEN_LITERAL_CHAR, 0);
         _scan_until(lexer, '\'');
         if(lexer->buff[lexer->pos] != '\''){
             tok->token_type = TOKEN_NULL;
@@ -397,7 +397,7 @@ struct token *get_tok_with_comments(struct lexer *lexer)
         }
         break;
     case '"':
-        _mark_token(lexer, TOKEN_STRING, 0);
+        _mark_token(lexer, TOKEN_LITERAL_STRING, 0);
         _scan_until(lexer, '"');
         if(lexer->buff[lexer->pos] != '"'){
             tok->token_type = TOKEN_NULL;
@@ -419,14 +419,6 @@ struct token *get_tok_with_comments(struct lexer *lexer)
             _move_ahead(lexer);
         if(lexer->buff[lexer->pos] == '/')
             _move_ahead(lexer);
-        /*
-        do{
-            tok=get_tok(lexer);
-        }while(tok->token_type != TOKEN_BLOCKCOMMENT_END && tok->token_type != TOKEN_NULL && tok->token_type != TOKEN_EOF);
-        if(tok->token_type == TOKEN_BLOCKCOMMENT_END){
-            _move_ahead(lexer); //skip the new line
-        }
-        */
     }
 mark_end:
     tok->loc.end = lexer->buff_base + lexer->pos;

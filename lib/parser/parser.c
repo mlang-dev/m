@@ -100,10 +100,10 @@ struct ast_node *_build_terminal_ast(struct token *tok)
         case TOKEN_IDENT:
             ast = ident_node_new(tok->symbol_val, tok->loc);
             break;
-        case TOKEN_INT:
+        case TOKEN_LITERAL_INT:
             ast = int_node_new(tok->int_val, tok->loc);
             break;
-        case TOKEN_DOUBLE:
+        case TOKEN_LITERAL_FLOAT:
             ast = double_node_new(tok->double_val,tok->loc);
             break;
         case TOKEN_TRUE:
@@ -112,10 +112,10 @@ struct ast_node *_build_terminal_ast(struct token *tok)
         case TOKEN_FALSE:
             ast = bool_node_new(false, tok->loc);
             break;
-        case TOKEN_CHAR:
+        case TOKEN_LITERAL_CHAR:
             ast = char_node_new(tok->int_val, tok->loc);
             break;
-        case TOKEN_STRING:
+        case TOKEN_LITERAL_STRING:
             ast = string_node_new(tok->str_val, tok->loc);
             tok->str_val = 0; //ownership moved 
             break;

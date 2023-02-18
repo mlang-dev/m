@@ -20,22 +20,22 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, DEDENT, NULL, 0),
     KEYWORD_PATTERN("//", LINECOMMENT, NULL, "comment"),
     NAME_KEYWORD_PATTERN("/*", "/\\*", BLOCKCOMMENT, NULL, "block-comment"),
-    NAME_KEYWORD_PATTERN("*/", "\\*/", BLOCKCOMMENT_END, NULL, "block-comment"),
 
     KEYWORD_PATTERN("_", WILDCARD, NULL, "variable"), // 10
 
     TOKEN_PATTERN("\n", NEWLINE, NULL, 0),
-    TOKEN_PATTERN("[0-9]+|0x[0-9a-fA-F]+", INT, NULL, "number"), // 5
-    TOKEN_PATTERN("([0-9]*.)?[0-9]+", DOUBLE, NULL, "number"),
-    TOKEN_PATTERN("([0-9]*.)?[0-9]+ \\+ ([0-9]*.)?[0-9]*i", COMPLEX, NULL, "number"),
-    TOKEN_PATTERN(0, CHAR, NULL, "string"),
-    TOKEN_PATTERN(0, STRING, NULL, "string"),
+    TOKEN_PATTERN("[0-9]+|0x[0-9a-fA-F]+", LITERAL_INT, NULL, "number"), // 5
+    TOKEN_PATTERN("([0-9]*.)?[0-9]+", LITERAL_FLOAT, NULL, "number"),
+    TOKEN_PATTERN("([0-9]*.)?[0-9]+ \\+ ([0-9]*.)?[0-9]*i", LITERAL_COMPLEX, NULL, "number"),
+    TOKEN_PATTERN(0, LITERAL_CHAR, NULL, "string"),
+    TOKEN_PATTERN(0, LITERAL_STRING, NULL, "string"),
 
     KEYWORD_PATTERN("from", FROM, NULL, "keyword"), 
     KEYWORD_PATTERN("memory", MEMORY, NULL, "keyword"),
     KEYWORD_PATTERN("extern", EXTERN, NULL, "keyword"), 
 
     //WIT items
+    //KEYWORD_PATTERN("int", TYPE_INT, NULL, "keyword"), 
     KEYWORD_PATTERN("use", USE, NULL, "keyword"), 
     KEYWORD_PATTERN("type", TYPE, NULL, "keyword"),
     KEYWORD_PATTERN("resource", RESOURCE, NULL, "keyword"), 
@@ -183,7 +183,7 @@ void terminal_deinit()
 
 void tok_clean(struct token *tok)
 {
-    if(tok->token_type == TOKEN_STRING && tok->str_val){
+    if(tok->token_type == TOKEN_LITERAL_STRING && tok->str_val){
         FREE((void*)tok->str_val);
         tok->str_val = 0;
     }
