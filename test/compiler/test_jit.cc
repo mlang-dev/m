@@ -478,7 +478,7 @@ printf "hello:%d" 1
 TEST(testJIT, testProductType)
 {
     char test_code[] = R"(
-struct Point2D = x:f64, y:f64
+record Point2D = x:f64, y:f64
 let xy:Point2D = Point2D { 10.0, 20.0 }
 xy.x
 xy.y
@@ -505,7 +505,7 @@ xy.y
 TEST(testJIT, testProductTypeIntType)
 {
     char test_code[] = R"(
-struct Point2D = x:int, y:int
+record Point2D = x:int, y:int
 let xy:Point2D = Point2D { 10, 20 }
 xy.x
 xy.y
@@ -532,7 +532,7 @@ xy.y
 TEST(testJIT, testProductTypeMixedType)
 {
     char test_code[] = R"(
-struct Point2D = x:f64, y:int
+record Point2D = x:f64, y:int
 let xy:Point2D = Point2D { 10.0, 20 }
 xy.x
 xy.y
@@ -559,7 +559,7 @@ xy.y
 TEST(testJIT, testProductTypeMixedTypeLocalVariable)
 {
     char test_code[] = R"(
-struct Point2D = x:f64, y:int
+record Point2D = x:f64, y:int
 let getx()=
     let xy:Point2D = Point2D { 10.0, 20 }
     xy.x

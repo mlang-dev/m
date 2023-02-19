@@ -79,8 +79,6 @@ enum token_type{
     TOKEN_EXPORT,
     TOKEN_DEFAULT,
 
-    TOKEN_STRUCT,
-
     TOKEN_LET,
     TOKEN_VAR,
     TOKEN_MUT,

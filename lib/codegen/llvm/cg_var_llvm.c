@@ -27,7 +27,7 @@ void _store_struct_member_values(struct cg_llvm *cg, LLVMValueRef alloca, struct
     }
 }
 
-LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bool is_ret, const char *name)
+LLVMValueRef emit_record_init_node(struct cg_llvm *cg, struct ast_node *node, bool is_ret, const char *name)
 {
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->base.sema_context->func_stack);
     struct ast_node *ft_node = parent_func->func->func_type;
@@ -58,7 +58,7 @@ LLVMValueRef _emit_local_var_type_node(struct cg_llvm *cg, struct ast_node *node
 
     if (node->var->init_value->node_type == ADT_INIT_NODE) {
         assert(node->type->name == node->var->init_value->type->name);
-        alloca = emit_struct_init_node(cg, node->var->init_value, node->is_ret, string_get(var_name));
+        alloca = emit_record_init_node(cg, node->var->init_value, node->is_ret, string_get(var_name));
     } else {
         alloca = emit_ir_code(cg, node->var->init_value);
         LLVMSetValueName2(alloca, string_get(var_name), string_size(var_name));

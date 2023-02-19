@@ -22,7 +22,7 @@ from math import func log2 x:f64 -> f64\n\
 ";
 
 const char *g_sys = "\n\
-struct cf64 = re:f64, im:f64\n\
+record cf64 = re:f64, im:f64\n\
 ";
 
 struct codegen *_cg_wasm_new(struct sema_context *context)
@@ -68,7 +68,7 @@ struct engine *engine_wasm_new()
 }
 
 
-#define IS_OUT_OF_FUNC(node_type)  (node_type == FUNC_NODE || node_type == IMPORT_FUNC || node_type == STRUCT_NODE)
+#define IS_OUT_OF_FUNC(node_type)  (node_type == FUNC_NODE || node_type == IMPORT_FUNC || node_type == RECORD_NODE)
 /*
  * collect global statements into _start function
  */
@@ -120,7 +120,7 @@ struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbo
                 hashtable_set_int(&cg->func_name_2_idx, node->ft->name, cg->func_idx++);
                 hashtable_set_p(&cg->func_name_2_ast, node->ft->name, node);
             }
-        } else if(node->node_type == STRUCT_NODE){
+        } else if(node->node_type == RECORD_NODE){
             block_node_add(wmodule, node);
         } else {
             assert(false);

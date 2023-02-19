@@ -110,7 +110,7 @@ void eval_statement(void *p_jit, struct ast_node *node)
         goto exit;
     if (node->node_type == FUNC_TYPE_NODE) {
         emit_ir_code(cg, node);
-    } else if (node->node_type == FUNC_NODE || node->node_type == STRUCT_NODE) {
+    } else if (node->node_type == FUNC_NODE || node->node_type == RECORD_NODE) {
         // function definition
         emit_ir_code(cg, node);
         //LLVMDumpModule(jit->env->module);

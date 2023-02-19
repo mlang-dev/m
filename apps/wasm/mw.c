@@ -10,7 +10,7 @@
 const char *version()
 {
     void * p = malloc(32);
-    strcpy(p, "m - 0.0.41");
+    strcpy(p, "m - 0.0.42");
     return p;
 }
 
