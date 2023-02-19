@@ -89,9 +89,6 @@ struct ast_node *_build_terminal_ast(struct token *tok)
         case TOKEN_EOF:
             ast = ast_node_new(NULL_NODE, tok->loc);
             break;
-        case TOKEN_UNIT:
-            ast = ast_node_new(UNIT_NODE, tok->loc);
-            break;
         case TOKEN_OP:
             //*hacky way to transfer opcode
             node_type = (tok->token_type << 16) | tok->opcode;
@@ -182,7 +179,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         switch (rule->action.node_type) {
         case NULL_NODE:
         case TOTAL_NODE:
-        case UNIT_NODE:
         case LITERAL_NODE:
         case IDENT_NODE:
             printf("type: %d is not supported for nonterm node.", rule->action.node_type);
@@ -488,9 +484,12 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             enum TypeNodeKind type_node_kind = rule->action.item_index[0];
             struct ast_node *node = _take(nodes, rule->action.item_index[1]);
             switch(type_node_kind){
-            case UnitType:
-                ast = type_node_new_with_unit_type(Immutable, node->loc);
+            case BuiltinType:
+            {
+                struct token_pattern *tp = get_token_pattern_by_token_type(node->node_type >> 16);
+                ast = type_node_new_with_builtin_type(tp->symbol_name, Immutable, node->loc);
                 break;
+            }
             case TypeName:
                 ast = type_node_new_with_type_name(node->ident->name, Immutable, node->loc);
                 break;

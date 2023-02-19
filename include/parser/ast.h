@@ -175,7 +175,7 @@ struct _cast_node {
 };
 
 enum TypeNodeKind {
-    UnitType = 0,
+    BuiltinType = 0,
     TypeName,  //builtin types or user defined types
     ArrayType,
     TupleType, //tuple types 
@@ -302,7 +302,7 @@ struct ast_node *ident_node_new(symbol name, struct source_location loc);
 struct ast_node *type_node_new_with_type_name(symbol type_name, enum Mut mut, struct source_location loc);
 struct ast_node *type_node_new_with_array_type(struct array_type_node *array_type_node, enum Mut mut, struct source_location loc);
 struct ast_node *type_node_new_with_tuple_type(struct ast_node *tuple_block, enum Mut mut, struct source_location loc);
-struct ast_node *type_node_new_with_unit_type(enum Mut mut, struct source_location loc);
+struct ast_node *type_node_new_with_builtin_type(symbol type_name, enum Mut mut, struct source_location loc);
 struct ast_node *type_node_new_with_ref_type(struct type_node *val_node, enum Mut mut, struct source_location loc);
 struct ast_node *double_node_new(f64 val, struct source_location loc);
 struct ast_node *int_node_new(int val, struct source_location loc);

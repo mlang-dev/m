@@ -35,7 +35,8 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("extern", EXTERN, NULL, "keyword"), 
 
     //WIT items
-    //KEYWORD_PATTERN("int", TYPE_INT, NULL, "keyword"), 
+    KEYWORD_PATTERN("int", TYPE_INT, NULL, "keyword"), 
+    
     KEYWORD_PATTERN("use", USE, NULL, "keyword"), 
     KEYWORD_PATTERN("type", TYPE, NULL, "keyword"),
     KEYWORD_PATTERN("resource", RESOURCE, NULL, "keyword"), 

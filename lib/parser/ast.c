@@ -175,13 +175,14 @@ struct ast_node *type_node_new_with_ref_type(struct type_node *val_node, enum Mu
     return node;
 }
 
-struct ast_node *type_node_new_with_unit_type(enum Mut mut, struct source_location loc)
+struct ast_node *type_node_new_with_builtin_type(symbol type_name, enum Mut mut, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(TYPE_NODE, loc);
     MALLOC(node->type_node, sizeof(*node->type_node));
-    node->type_node->kind = UnitType;
+    node->type_node->kind = BuiltinType;
     node->type_node->mut = mut;
     node->type_node->array_type_node = 0;
+    node->type_node->type_name = type_name;
     return node;
 }
 
@@ -192,8 +193,8 @@ struct ast_node *_copy_type_node(struct ast_node *orig_node)
             return type_node_new_with_array_type(orig_node->type_node->array_type_node, orig_node->type_node->mut, orig_node->loc);
         case TupleType:
             return type_node_new_with_tuple_type(orig_node->type_node->tuple_block, orig_node->type_node->mut, orig_node->loc);
-        case UnitType:
-            return type_node_new_with_unit_type(orig_node->type_node->mut, orig_node->loc);
+        case BuiltinType:
+            return type_node_new_with_builtin_type(orig_node->type_node->type_name, orig_node->type_node->mut, orig_node->loc);
         case TypeName:
             return type_node_new_with_type_name(orig_node->type_node->type_name, orig_node->type_node->mut, orig_node->loc);
         case RefType:
@@ -1077,7 +1078,6 @@ struct ast_node *node_copy(struct ast_node *node)
         clone = ast_node_new(WILDCARD_NODE, node->loc);
         break;
     case NULL_NODE:
-    case UNIT_NODE:
     case MEMORY_NODE:
     case MEMBER_INDEX_NODE:
     case TOTAL_NODE:
@@ -1183,7 +1183,6 @@ void node_free(struct ast_node *node)
     case MEMBER_INDEX_NODE:
         _free_member_index_node(node);
         break;
-    case UNIT_NODE:
     case TOTAL_NODE:
         ast_node_free(node);
         break;

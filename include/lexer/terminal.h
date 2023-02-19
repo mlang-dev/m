@@ -42,7 +42,7 @@ enum token_type{
     TOKEN_EXTERN,
 
     //WIT items    
-    //TOKEN_TYPE_INT,
+    TOKEN_TYPE_INT,
 
     TOKEN_USE,
     TOKEN_TYPE,

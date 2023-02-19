@@ -12,6 +12,22 @@
 #include "clib/string.h"
 #include <stdio.h>
 
+TEST(test_analyzer, import_func_type_node)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "from sys import func printf __format:string ... -> ()";
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct ast_node *node = *(struct ast_node **)array_back(&block->block->nodes);
+    ASSERT_EQ(IMPORT_NODE, node->node_type);
+    ASSERT_EQ(TYPE_FUNCTION, node->type->type);
+    string type_str = to_string(node->type);
+    ASSERT_STREQ("string * ... -> ()", string_get(&type_str));
+    node_free(block);
+    frontend_deinit(fe);
+}
+
 TEST(test_analyzer, call_node)
 {
     struct frontend *fe = frontend_init();
@@ -670,6 +686,7 @@ let getx()=\n\
 int test_analyzer()
 {
     UNITY_BEGIN();
+    RUN_TEST(test_analyzer_import_func_type_node);
     RUN_TEST(test_analyzer_call_node);
     RUN_TEST(test_analyzer_ref_type_variable);
     RUN_TEST(test_analyzer_ref_type_func);

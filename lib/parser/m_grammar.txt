@@ -8,11 +8,11 @@
 
 start           = statements                                                               
 
-unit_expr       = "()"
+unit_type       = "()"
 
-builtin_types   = unit_expr //| "int" //| "u8" | "u16" | "u32" | "u64" | "i8" | "i16" | "i32" | "i64" | "f32" | "f64" | "char" | "string"
+builtin_types   = unit_type | "int" //| "u8" | "u16" | "u32" | "u64" | "i8" | "i16" | "i32" | "i64" | "f32" | "f64" | "char" | "string"
 
-type_expr       = builtin_types                                                             { type_node 0 0 } // 0 is unit type
+type_expr       = builtin_types                                                             { type_node 0 0 } // 1 is built types
                 | array_type                                                                { type_node 2 0 } // 2 is array type
                 | tuple_type                                                                { type_node 3 0 } // 3 is tuple type
                 | '&' type_expr                                                             { type_node 4 1 } // 4 is ref type
@@ -207,7 +207,7 @@ union_items =       = union_items '|' union_item                                
 union_item      = IDENT '(' type_list ')'                                                   { union_type_item 0 0 2 } //tagged union
                 | IDENT ':' type_expr                                                       { union_type_item 1 0 2 } //untagged union
                 | IDENT                                                                     { union_type_item 2 0 }   //enum
-                | IDENT '=' LITERAL_INT                                                             { union_type_item 3 0 2 } //enum
+                | IDENT '=' LITERAL_INT                                                     { union_type_item 3 0 2 } //enum
 
 type_list       = type_list ',' typed_item                                                  { block 0 2 }    
                 | typed_item
@@ -218,14 +218,14 @@ typed_item      = IDENT ':' type_expr
 adt_initializer = IDENT '{' exprs '}'                                                       { adt_initializer 0 2 }
                 | '{' exprs '}'                                                             { adt_initializer 1 }
 
-func_type       = "func" IDENT param_decls "->" type_expr                                    { func_type 1 4 2 }
+func_type       = "func" IDENT param_decls "->" type_expr                                   { func_type 1 4 2 }
 
 import_decl     = "from" IDENT "import" memory_decl                                         { import_decl 1 3 }
                 | "from" IDENT "import" func_type                                           { import_decl 1 3 }    
                 | "from" IDENT "import" id_decl                                             { import_decl 1 3 }
 
-memory_decl     = "memory" LITERAL_INT                                                              { memory_decl 1 }
-                | "memory" LITERAL_INT ',' LITERAL_INT                                                      { memory_decl 1 3 }
+memory_decl     = "memory" LITERAL_INT                                                      { memory_decl 1 }
+                | "memory" LITERAL_INT ',' LITERAL_INT                                      { memory_decl 1 3 }
 
 func_def        = "let" IDENT param_decls '=' statement                                     { function 1 2 4 }
                 | "let" IDENT ':' type_expr param_decls '=' statement                       { function 1 4 6 3 }
@@ -234,7 +234,7 @@ func_call       = IDENT arg_exprs                                               
 
 arg_exprs       = arg_exprs primary_expr                                                    { block 0 1 }
                 | primary_expr                                                              { block 0 }
-                | unit_expr                                                                 { block }  // empty block
+                | unit_type                                                                 { block }  // empty block
 
 exprs           = exprs ',' expr                                                            { block 0 2 }
                 | expr                                                                      { block 0 }
@@ -248,7 +248,7 @@ range_expr      =  expr ".." expr ".." expr                                     
 
 param_decls     = param_decls param_decl                                                    { block 0 1 }
                 | param_decl                                                                { block 0 }
-                | unit_expr                                                                 { block }  // empty block
+                | unit_type                                                                 { block }  // empty block
 
 param_decl      = IDENT ':' type_expr                                                       { variable 0 0 2 } // var name:type, no initial value
                 | IDENT                                                                     { variable 0 0 } // value name, no type, no initial value
