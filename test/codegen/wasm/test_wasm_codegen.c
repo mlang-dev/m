@@ -72,10 +72,10 @@ let new_z = change old_z\n\
     free(wasm);
 }
 
-TEST(test_wasm_codegen, union_member)
+TEST(test_wasm_codegen, variant_member)
 {
     char test_code[] = "\n\
-union A = x:int | y:int\n\
+variant A = x:int | y:int\n\
 let a = A { 10 }\n\
 a.y\n\
 ";
@@ -157,7 +157,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_emit_generic_fun);
     RUN_TEST(test_wasm_codegen_emit_nested_for_loop);
     RUN_TEST(test_wasm_codegen_mutable_struct_member);
-    RUN_TEST(test_wasm_codegen_union_member);
+    RUN_TEST(test_wasm_codegen_variant_member);
     RUN_TEST(test_wasm_codegen_pattern_match);
     RUN_TEST(test_wasm_codegen_print);
     RUN_TEST(test_wasm_codegen_ternary_operator);

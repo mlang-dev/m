@@ -25,10 +25,10 @@ struct A = x:int, y:f64
 let a = A { 10, 20.0 }
 a.y`, 20.0);
 
-mtest('union with different types', `
-use keyword "union" to define a union type`,
+mtest('variant with different types', `
+use keyword "variant" to define a variant (tagged union) type`,
 `
-union A = x:int | y:int
+variant A = x:int | y:int
 let a = A { 10 }
 a.y`, 10);
 

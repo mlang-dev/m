@@ -1098,8 +1098,8 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             break;
         case MATCH_CASE_NODE:
         case WILDCARD_NODE:
-        case UNION_NODE:
-        case UNION_TYPE_ITEM_NODE:
+        case VARIANT_NODE:
+        case VARIANT_TYPE_ITEM_NODE:
         case ARRAY_TYPE_NODE:
         case TYPE_NODE:
         case STRUCT_NODE:

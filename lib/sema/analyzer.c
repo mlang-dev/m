@@ -211,18 +211,18 @@ void fill_union_tag_values(struct sema_context *context, struct ast_node *body)
     int next_tag_value = 0;
     for (size_t i = 0; i < array_size(&body->block->nodes); i++) {
         struct ast_node *field_node = *(struct ast_node **)array_get(&body->block->nodes, i);
-        switch (field_node->union_type_item_node->kind)
+        switch (field_node->variant_type_item_node->kind)
         {
         case UntaggedUnion:
-            field_node->union_type_item_node->tag_repr = 0;
+            field_node->variant_type_item_node->tag_repr = 0;
             break;
         case TaggedUnion:
         case EnumTagOnly:
-            field_node->union_type_item_node->tag_repr = next_tag_value++;
+            field_node->variant_type_item_node->tag_repr = next_tag_value++;
             break;
         case EnumTagValue:
-            field_node->union_type_item_node->tag_repr = eval(field_node->union_type_item_node->tag_value);
-            next_tag_value = field_node->union_type_item_node->tag_repr + 1;
+            field_node->variant_type_item_node->tag_repr = eval(field_node->variant_type_item_node->tag_value);
+            next_tag_value = field_node->variant_type_item_node->tag_repr + 1;
             break;
         }
     }
@@ -260,7 +260,7 @@ struct type_expr *_analyze_struct(struct sema_context *context, struct ast_node 
     return type;
 }
 
-struct type_expr *_analyze_union(struct sema_context *context, struct ast_node *node)
+struct type_expr *_analyze_variant(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = _analyze_adt(context, Sum, node->adt_type->name, node->adt_type->body);
     hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
@@ -741,15 +741,15 @@ struct type_expr *_analyze_block(struct sema_context *context, struct ast_node *
 struct type_expr *_analyze_union_type_item_node(struct sema_context *context, struct ast_node *node)
 {
     struct type_expr *type = 0;
-    switch(node->union_type_item_node->kind){
+    switch(node->variant_type_item_node->kind){
         case TaggedUnion:{
             /*name types*/
-            type = _analyze_adt(context, Sum, node->union_type_item_node->tag, node->union_type_item_node->tag_value);
+            type = _analyze_adt(context, Sum, node->variant_type_item_node->tag, node->variant_type_item_node->tag_value);
             hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
             break;
         }
         case UntaggedUnion:
-            type = analyze(context, node->union_type_item_node->tag_value);
+            type = analyze(context, node->variant_type_item_node->tag_value);
             break;
         case EnumTagValue:
         case EnumTagOnly:
@@ -773,7 +773,7 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
         case WILDCARD_NODE:
         case RANGE_NODE:
             break;
-        case UNION_TYPE_ITEM_NODE:
+        case VARIANT_TYPE_ITEM_NODE:
             type = _analyze_union_type_item_node(context, node);
             break;
         case ARRAY_INIT_NODE:
@@ -803,8 +803,8 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
         case VAR_NODE:
             type = _analyze_var(context, node);
             break;
-        case UNION_NODE:
-            type = _analyze_union(context, node);
+        case VARIANT_NODE:
+            type = _analyze_variant(context, node);
             break;
         case STRUCT_NODE:
             type = _analyze_struct(context, node);

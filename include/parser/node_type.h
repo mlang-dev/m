@@ -30,8 +30,8 @@ extern "C" {
     ENUM_ITEM(VAR_NODE)             \
     ENUM_ITEM(CAST_NODE)            \
     ENUM_ITEM(STRUCT_NODE)          \
-    ENUM_ITEM(UNION_NODE)           \
-    ENUM_ITEM(UNION_TYPE_ITEM_NODE) \
+    ENUM_ITEM(VARIANT_NODE)           \
+    ENUM_ITEM(VARIANT_TYPE_ITEM_NODE) \
     ENUM_ITEM(ADT_INIT_NODE)        \
     ENUM_ITEM(ARRAY_INIT_NODE)      \
     ENUM_ITEM(ARRAY_TYPE_NODE)      \

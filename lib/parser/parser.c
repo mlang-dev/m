@@ -411,7 +411,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node_free(callee_name);
             break;
         }
-        case UNION_TYPE_ITEM_NODE:
+        case VARIANT_TYPE_ITEM_NODE:
         {
             enum UnionKind kind = rule->action.item_index[0];
             struct ast_node *tag_id = _take(nodes, rule->action.item_index[1]);
@@ -426,11 +426,11 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 case EnumTagOnly:
                     break;
             }
-            ast = union_type_item_node_new(kind, tag, tag_value, tag_id->loc);
+            ast = variant_type_item_node_new(kind, tag, tag_value, tag_id->loc);
             node_free(tag_id);
             break;
         }
-        case UNION_NODE:
+        case VARIANT_NODE:
         case STRUCT_NODE: // new type definition, like struct in C
         {
             assert(rule->action.item_index_count == 2);
