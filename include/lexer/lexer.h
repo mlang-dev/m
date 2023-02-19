@@ -20,8 +20,9 @@
 extern "C" {
 #endif
 
+#define MAX_PATTERNS_PER_CHAR   16
 struct pattern_matches {
-    struct token_pattern *patterns[8];
+    struct token_pattern *patterns[MAX_PATTERNS_PER_CHAR];
     int pattern_match_count;
 };
 

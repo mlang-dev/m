@@ -64,8 +64,8 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
         }
         return create_type_oper_tuple(mut, &args);
     }
-    case UnitType:
-        return create_unit_type();
+    case BuiltinType:
+        return _retrieve_type_with_type_name(context, type_node->type_name, mut); // example like int
     case RefType:
         value_type = create_type_from_type_node(context, type_node->val_node, mut);
         return create_ref_type(value_type, Immutable);
@@ -784,9 +784,6 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             break;
         case TYPE_NODE:
             type = _analyze_type_node(context, node);
-            break;
-        case UNIT_NODE:
-            type = create_unit_type();
             break;
         case IMPORT_NODE:
             type = analyze(context, node->import->import);
