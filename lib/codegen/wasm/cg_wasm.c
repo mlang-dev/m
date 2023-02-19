@@ -565,7 +565,7 @@ void _free_field_info(void *fi)
     node_free(field->offset_expr);
 }
 
-void _emit_struct_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+void _emit_record_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     //lhs is struct var, rhs is field var name
     struct fun_context *fc = cg_get_top_fun_context(cg);
@@ -580,7 +580,7 @@ void _emit_struct_field_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
         if(node->is_ret){
             //copy result into variable index 0
             //for sret
-            wasm_emit_copy_struct_value(ba, 0, 0, field->type, root_vi->var_index, offset);
+            wasm_emit_copy_record_value(ba, 0, 0, field->type, root_vi->var_index, offset);
         }
         //calculate new address and push it to stack
         //wasm_emit_change_var(ba, OPCODE_I32ADD, field.offset, root_vi->var_index, false);
@@ -615,7 +615,7 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
         if(node->is_ret){
             //copy result into variable index 0
             //for sret
-            //wasm_emit_copy_struct_value(ba, 0, 0, field_type, root_vi->var_index, field->offset);
+            //wasm_emit_copy_record_value(ba, 0, 0, field_type, root_vi->var_index, field->offset);
         }
         //calculate new address and push it to stack
         //wasm_emit_change_var(ba, OPCODE_I32ADD, field.offset, root_vi->var_index, false);
@@ -635,14 +635,14 @@ void _emit_assign_value(struct cg_wasm *cg, struct byte_array *ba, u32 addr_var_
         //struct assignment/copy
         struct var_info *rhs_vi = fc_get_var_info(fc, rhs);
         wasm_emit_code(cg, ba, rhs); 
-        wasm_emit_copy_struct_value(ba, addr_var_index, offset, rhs->type, rhs_vi->var_index, 0);
+        wasm_emit_copy_record_value(ba, addr_var_index, offset, rhs->type, rhs_vi->var_index, 0);
     } else {
         //scalar version
         wasm_emit_store_scalar_value_at(cg, ba, addr_var_index, align, offset, rhs);
     }    
 }
 
-void _emit_assign_struct_field(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *lhs, struct ast_node *rhs)
+void _emit_assign_record_field(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *lhs, struct ast_node *rhs)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct array field_infos;
@@ -684,8 +684,8 @@ void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
     if(node->binop->lhs->node_type == MEMBER_INDEX_NODE){
         if(node->binop->lhs->index->aggregate_type == AGGREGATE_TYPE_ARRAY){
             _emit_assign_array_field(cg, ba, node->binop->lhs, node->binop->rhs);
-        } else if(node->binop->lhs->index->aggregate_type == AGGREGATE_TYPE_STRUCT){
-            _emit_assign_struct_field(cg, ba, node->binop->lhs, node->binop->rhs);
+        } else if(node->binop->lhs->index->aggregate_type == AGGREGATE_TYPE_RECORD){
+            _emit_assign_record_field(cg, ba, node->binop->lhs, node->binop->rhs);
         }
     }else{
         struct var_info*vi = fc_get_var_info(fc, lhs);
@@ -1011,7 +1011,7 @@ void _emit_ident(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     }else if(is_aggregate_type(node->type)){
         //for aggregate data
         if(node->is_ret){
-            wasm_emit_copy_struct_value(ba, 0, 0, node->type, var_index, 0);
+            wasm_emit_copy_record_value(ba, 0, 0, node->type, var_index, 0);
         }
     }else{
         if(node->ident->var->is_addressed){
@@ -1047,8 +1047,8 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case MEMBER_INDEX_NODE:
             if(node->index->aggregate_type == AGGREGATE_TYPE_ARRAY){
                 _emit_array_member_accessor(cg, ba, node);
-            } else if(node->index->aggregate_type == AGGREGATE_TYPE_STRUCT){
-                _emit_struct_field_accessor(cg, ba, node);
+            } else if(node->index->aggregate_type == AGGREGATE_TYPE_RECORD){
+                _emit_record_field_accessor(cg, ba, node);
             }
             break;
         case BINARY_NODE:
@@ -1102,7 +1102,7 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case VARIANT_TYPE_ITEM_NODE:
         case ARRAY_TYPE_NODE:
         case TYPE_NODE:
-        case STRUCT_NODE:
+        case RECORD_NODE:
         case NULL_NODE:
         case IMPORT_NODE:
         case MEMORY_NODE:

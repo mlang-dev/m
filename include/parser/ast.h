@@ -73,7 +73,7 @@ struct _binary_node {
 
 enum aggregate_type{
     AGGREGATE_TYPE_ARRAY = 0,
-    AGGREGATE_TYPE_STRUCT = 1
+    AGGREGATE_TYPE_RECORD = 1
 };
 
 struct _member_index_node {

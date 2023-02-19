@@ -84,9 +84,9 @@ let sq x = x * x  // generic function
 sq 10.0
 `, 100.0);
 
-mtest_string('struct type', `You can define struct aggregate type like in C. They behavior the same except more succinct in m.`,
+mtest_string('record type', `You can define record aggregate type like struct in C. They behavior the same except more succinct in m.`,
 `
-struct Point2D = x:f64, y:f64
+record Point2D = x:f64, y:f64
 let p = Point2D { 10.0, 20.0 }
 print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)
 `, "p.x: 10.0, p.y: 20.0");

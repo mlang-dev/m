@@ -431,18 +431,18 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             break;
         }
         case VARIANT_NODE:
-        case STRUCT_NODE: // new type definition, like struct in C
+        case RECORD_NODE: // new type definition, like struct in C
         {
             assert(rule->action.item_index_count == 2);
-            struct ast_node *struct_name = _take(nodes, rule->action.item_index[0]);
-            assert(struct_name->node_type == IDENT_NODE);
-            struct ast_node *struct_body = _take(nodes, rule->action.item_index[1]);
-            if(struct_body->node_type != BLOCK_NODE){
-                struct_body = wrap_as_block_node(struct_body);
+            struct ast_node *record_name = _take(nodes, rule->action.item_index[0]);
+            assert(record_name->node_type == IDENT_NODE);
+            struct ast_node *record_body = _take(nodes, rule->action.item_index[1]);
+            if(record_body->node_type != BLOCK_NODE){
+                record_body = wrap_as_block_node(record_body);
             }
-            ast = adt_node_new(rule->action.node_type, struct_name->ident->name, struct_body, struct_name->loc);
-            hashtable_set_int(symbol_2_int_types, struct_name->ident->name, TYPE_STRUCT);
-            node_free(struct_name);
+            ast = adt_node_new(rule->action.node_type, record_name->ident->name, record_body, record_name->loc);
+            hashtable_set_int(symbol_2_int_types, record_name->ident->name, TYPE_STRUCT);
+            node_free(record_name);
             break;
         }
         case ADT_INIT_NODE: 

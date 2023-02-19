@@ -138,7 +138,7 @@ struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name)
 
 struct source_location zero_loc = {0, 0, 0, 0};
 
-struct ast_node *_sc_struct_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node)
+struct ast_node *_sc_record_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node)
 {
     struct ast_node *struct_node = hashtable_get_p(&sc->struct_typename_2_asts, aggr_type->name);
     assert(struct_node->type->kind == KIND_OPER);
@@ -169,7 +169,7 @@ struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_ex
     if(aggr_type->type == TYPE_ARRAY)
         return _sc_array_get_offset_expr(sc, aggr_type, field_node);
     else if(aggr_type->type == TYPE_STRUCT || aggr_type->type == TYPE_UNION)
-        return _sc_struct_get_offset_expr(sc, aggr_type, field_node);
+        return _sc_record_get_offset_expr(sc, aggr_type, field_node);
     assert(false);
 }
 

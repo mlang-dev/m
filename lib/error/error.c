@@ -25,7 +25,7 @@ const char *err_messages[ALL_ERROR] = {
     "missing end quote for string literal.",
     "inconsistent indent level found.",
 
-    "The left side of the dot is expected to be a struct type.",
+    "The left side of the dot is expected to be a record type.",
     "The left side of the bracket is expected to be an array type.",
 
     "field does not exist.",

@@ -12,10 +12,10 @@
 #include "clib/string.h"
 #include <stdio.h>
 
-TEST(test_analyzer_struct, def_struct_type)
+TEST(test_analyzer_record, def_record_type)
 {
     char test_code[] = "\n\
-struct Point2D = x:f64, y:f64\n\
+record Point2D = x:f64, y:f64\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -23,7 +23,7 @@ struct Point2D = x:f64, y:f64\n\
     
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_EQ(STRUCT_NODE, node->node_type);
+    ASSERT_EQ(RECORD_NODE, node->node_type);
     string type_str = to_string(node->type);
     ASSERT_EQ(TYPE_STRUCT, node->type->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
@@ -31,10 +31,10 @@ struct Point2D = x:f64, y:f64\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer_struct, var_init)
+TEST(test_analyzer_record, var_init)
 {
     char test_code[] = "\n\
-struct Point2D = x:f64, y:f64\n\
+record Point2D = x:f64, y:f64\n\
 let xy:Point2D = { 0.0, 0.0 }\n\
 xy.x\n\
 ";
@@ -57,10 +57,10 @@ xy.x\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer_struct, ret_struct_type_direct)
+TEST(test_analyzer_record, ret_record_type_direct)
 {
     char test_code[] = "\n\
-struct Point2D = x:f64, y:f64\n\
+record Point2D = x:f64, y:f64\n\
 let get_point() = Point2D { 10.0, 0.0 }\n\
 let z() = get_point()\n\
 ";
@@ -87,10 +87,10 @@ let z() = get_point()\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer_struct, ret_struct_type)
+TEST(test_analyzer_record, ret_record_type)
 {
     char test_code[] = "\n\
-struct Point2D = x:f64, y:f64\n\
+record Point2D = x:f64, y:f64\n\
 let getx()=\n\
     let xy:Point2D = Point2D { 10.0, 0.0 }\n\
     xy\n\
@@ -128,10 +128,10 @@ let z = getx()\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer_struct, type_vars)
+TEST(test_analyzer_record, type_vars)
 {
     char test_code[] = "\n\
-struct Point2D = x:f64, y:f64\n\
+record Point2D = x:f64, y:f64\n\
 let xy:Point2D = Point2D { 0.0, 0.0 }\n\
 xy.x\n\
 ";
@@ -154,10 +154,10 @@ xy.x\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer_struct, type_local_var)
+TEST(test_analyzer_record, type_local_var)
 {
     char test_code[] = "\n\
-struct Point2D = x:f64, y:f64\n\
+record Point2D = x:f64, y:f64\n\
 let getx()=\n\
     let xy:Point2D = Point2D { 10.0, 0.0 }\n\
     xy.x\n\
@@ -183,15 +183,15 @@ getx()\n\
     frontend_deinit(fe);
 }
 
-int test_analyzer_struct()
+int test_analyzer_record()
 {
     UNITY_BEGIN();
-    RUN_TEST(test_analyzer_struct_def_struct_type);
-    RUN_TEST(test_analyzer_struct_var_init);
-    RUN_TEST(test_analyzer_struct_ret_struct_type_direct);
-    RUN_TEST(test_analyzer_struct_ret_struct_type);
-    RUN_TEST(test_analyzer_struct_type_local_var);
-    RUN_TEST(test_analyzer_struct_type_vars);
+    RUN_TEST(test_analyzer_record_def_record_type);
+    RUN_TEST(test_analyzer_record_var_init);
+    RUN_TEST(test_analyzer_record_ret_record_type_direct);
+    RUN_TEST(test_analyzer_record_ret_record_type);
+    RUN_TEST(test_analyzer_record_type_local_var);
+    RUN_TEST(test_analyzer_record_type_vars);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

@@ -10,7 +10,7 @@
 #include "sema/frontend.h"
 #include <stdio.h>
 
-TEST(test_parser_union, one_line_definition)
+TEST(test_parser_variant, one_line_definition)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "variant XY = x:int | y:float";
@@ -28,7 +28,7 @@ TEST(test_parser_union, one_line_definition)
     frontend_deinit(fe);
 }
 
-TEST(test_parser_union, block_definition)
+TEST(test_parser_variant, block_definition)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
@@ -50,7 +50,7 @@ variant XY = \n\
     frontend_deinit(fe);
 }
 
-TEST(test_parser_union, untagged_union)
+TEST(test_parser_variant, untagged_union)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
@@ -71,7 +71,7 @@ variant XY = \n\
     frontend_deinit(fe);
 }
 
-TEST(test_parser_union, enum_union)
+TEST(test_parser_variant, enum_union)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
@@ -92,7 +92,7 @@ variant XY = \n\
     frontend_deinit(fe);
 }
 
-TEST(test_parser_union, enum_union_assign_tag)
+TEST(test_parser_variant, enum_union_assign_tag)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
@@ -113,7 +113,7 @@ variant XY = \n\
     frontend_deinit(fe);
 }
 
-TEST(test_parser_union, tagged_union)
+TEST(test_parser_variant, tagged_union)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
@@ -136,14 +136,14 @@ variant XY = \n\
     frontend_deinit(fe);
 }
 
-int test_parser_union()
+int test_parser_variant()
 {
     UNITY_BEGIN();
-    RUN_TEST(test_parser_union_one_line_definition);
-    RUN_TEST(test_parser_union_block_definition);
-    RUN_TEST(test_parser_union_untagged_union);
-    RUN_TEST(test_parser_union_enum_union);
-    RUN_TEST(test_parser_union_tagged_union);
+    RUN_TEST(test_parser_variant_one_line_definition);
+    RUN_TEST(test_parser_variant_block_definition);
+    RUN_TEST(test_parser_variant_untagged_union);
+    RUN_TEST(test_parser_variant_enum_union);
+    RUN_TEST(test_parser_variant_tagged_union);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

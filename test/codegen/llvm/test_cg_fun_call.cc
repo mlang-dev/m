@@ -68,7 +68,7 @@ entry:
 TEST(testCGFunCall, testReturnStructDirect)
 {
     const char test_code[] = R"(
-struct Point2D = x:int, y:int
+record Point2D = x:int, y:int
 let f () = 
    let xy:Point2D = Point2D { 10, 20 }
    xy
@@ -108,7 +108,7 @@ entry:
 TEST(testCGFunCall, testReturnStructDirectWithoutName)
 {
     const char test_code[] = R"(
-struct Point2D = x:int, y:int
+record Point2D = x:int, y:int
 let f() = Point2D { 10, 20 }
    
 let main() = 

@@ -72,8 +72,6 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("export", EXPORT, NULL, "keyword"),
     KEYWORD_PATTERN("default", DEFAULT, NULL, "keyword"),
 
-    KEYWORD_PATTERN("struct", STRUCT, NULL, "keyword"),
-
     KEYWORD_PATTERN("let", LET, NULL, "keyword"),
     KEYWORD_PATTERN("var", VAR, NULL, "keyword"),
     KEYWORD_PATTERN("mut", MUT, NULL, "keyword"),
