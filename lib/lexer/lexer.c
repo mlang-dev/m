@@ -106,7 +106,7 @@ struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size
             if(tps.patterns[j].re){
                 regex_match(tps.patterns[j].re, test, &matched_len);
                 if(!matched_len) continue;
-                assert(lexer->char_matches[i].pattern_match_count <= 8);
+                assert(lexer->char_matches[i].pattern_match_count < MAX_PATTERNS_PER_CHAR);
                 lexer->char_matches[i].patterns[lexer->char_matches[i].pattern_match_count++] = &tps.patterns[j];
             }
         }

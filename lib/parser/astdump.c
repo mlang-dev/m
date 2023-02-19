@@ -34,7 +34,8 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
     for (size_t i = 0; i < array_size(&func_type->ft->params->block->nodes); i++) {
         struct ast_node *var = *(struct ast_node **)array_get(&func_type->ft->params->block->nodes, i);
         string_copy(&var_str, var->var->var->ident->name);
-        if (var->var->is_of_type && var->var->is_of_type->type_node->kind == TypeName &&var->var->is_of_type->type_node->type_name) {
+        if (var->var->is_of_type && (var->var->is_of_type->type_node->kind == TypeName || var->var->is_of_type->type_node->kind == BuiltinType) 
+            &&var->var->is_of_type->type_node->type_name) {
             enum type type_enum = get_type_enum_from_symbol(var->var->is_of_type->type_node->type_name);
             if(type_enum != TYPE_GENERIC){
                 string var_type;

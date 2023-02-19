@@ -36,6 +36,18 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
 
     //WIT items
     KEYWORD_PATTERN("int", TYPE_INT, NULL, "keyword"), 
+    KEYWORD_PATTERN("u8", TYPE_U8, NULL, "keyword"), 
+    KEYWORD_PATTERN("u16", TYPE_U16, NULL, "keyword"), 
+    KEYWORD_PATTERN("u32", TYPE_U32, NULL, "keyword"), 
+    KEYWORD_PATTERN("u64", TYPE_U64, NULL, "keyword"), 
+    KEYWORD_PATTERN("i8", TYPE_I8, NULL, "keyword"), 
+    KEYWORD_PATTERN("i16", TYPE_I16, NULL, "keyword"), 
+    KEYWORD_PATTERN("i32", TYPE_I32, NULL, "keyword"), 
+    KEYWORD_PATTERN("i64", TYPE_I64, NULL, "keyword"), 
+    KEYWORD_PATTERN("f32", TYPE_F32, NULL, "keyword"), 
+    KEYWORD_PATTERN("f64", TYPE_F64, NULL, "keyword"), 
+    KEYWORD_PATTERN("char", TYPE_CHAR, NULL, "keyword"), 
+    KEYWORD_PATTERN("string", TYPE_STRING, NULL, "keyword"), 
     
     KEYWORD_PATTERN("use", USE, NULL, "keyword"), 
     KEYWORD_PATTERN("type", TYPE, NULL, "keyword"),
