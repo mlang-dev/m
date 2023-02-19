@@ -741,7 +741,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case WHILE_NODE:
         case JUMP_NODE:
         case CAST_NODE:
-        case UNION_TYPE_ITEM_NODE:
+        case VARIANT_TYPE_ITEM_NODE:
         case MATCH_NODE:
         case MATCH_CASE_NODE:
         case WILDCARD_NODE:
@@ -755,7 +755,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case VAR_NODE:
             value = emit_var_node(cg, node);
             break;
-        case UNION_NODE:
+        case VARIANT_NODE:
         case STRUCT_NODE:
             value = _emit_struct_node(cg, node);
             break;

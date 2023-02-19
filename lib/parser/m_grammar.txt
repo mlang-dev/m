@@ -172,7 +172,7 @@ statements      = statements statement                                          
                 | statement                                                                 { block 0 }                                                     
 
 type_def            = "struct" IDENT '=' struct_type                                        { struct_type 1 3 }
-                    | "union" IDENT '=' union_type                                          { union_type 1 3 }
+                    | "variant" IDENT '=' variant_type                                      { variant_type 1 3 }
 
 struct_type         = id_decls
                     | NEWLINE INDENT field_decls_lines DEDENT                               { 2 }
@@ -191,23 +191,23 @@ tuple_fields    = tuple_fields ',' tuple_field                                  
 tuple_field     = id_decl
                 | type_expr
 
-union_type          = union_items                  
-                    | union_type_block
+variant_type        = variant_items                  
+                    | variant_type_block
 
-union_type_block    = NEWLINE INDENT union_item_lines DEDENT                                { 2 }
-union_item_lines    = union_item_lines union_item_line                                      { block 0 1 }
-                    | union_item_line                                                           
+variant_type_block  = NEWLINE INDENT variant_item_lines DEDENT                              { 2 }
+variant_item_lines  = variant_item_lines variant_item_line                                  { block 0 1 }
+                    | variant_item_line                                                           
 
-union_item_line     = '|' union_item                                                        { 1 }
-                    | '|' union_item NEWLINE                                                { 1 }
+variant_item_line   = '|' variant_item                                                      { 1 }
+                    | '|' variant_item NEWLINE                                              { 1 }
 
-union_items =       = union_items '|' union_item                                            { block 0 2 }
-                    | union_item
+variant_items   = variant_items '|' variant_item                                            { block 0 2 }
+                | variant_item
 
-union_item      = IDENT '(' type_list ')'                                                   { union_type_item 0 0 2 } //tagged union
-                | IDENT ':' type_expr                                                       { union_type_item 1 0 2 } //untagged union
-                | IDENT                                                                     { union_type_item 2 0 }   //enum
-                | IDENT '=' LITERAL_INT                                                     { union_type_item 3 0 2 } //enum
+variant_item    = IDENT '(' type_list ')'                                                   { variant_type_item 0 0 2 } //tagged union
+                | IDENT ':' type_expr                                                       { variant_type_item 1 0 2 } //untagged union
+                | IDENT                                                                     { variant_type_item 2 0 }   //enum
+                | IDENT '=' LITERAL_INT                                                     { variant_type_item 3 0 2 } //enum
 
 type_list       = type_list ',' typed_item                                                  { block 0 2 }    
                 | typed_item

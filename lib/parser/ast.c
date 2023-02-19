@@ -371,7 +371,7 @@ struct ast_node *adt_node_new(enum node_type node_type, symbol name, struct ast_
     MALLOC(node->adt_type, sizeof(*node->adt_type));
     node->adt_type->name = name;
     node->adt_type->body = body;
-    node->adt_type->kind = node_type == UNION_NODE ? Sum : Product;
+    node->adt_type->kind = node_type == VARIANT_NODE ? Sum : Product;
     return node;
 }
 
@@ -387,25 +387,25 @@ void _free_adt_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *union_type_item_node_new(enum UnionKind kind, symbol tag, struct ast_node *tag_value, struct source_location loc)
+struct ast_node *variant_type_item_node_new(enum UnionKind kind, symbol tag, struct ast_node *tag_value, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(UNION_TYPE_ITEM_NODE, loc);
-    MALLOC(node->union_type_item_node, sizeof(*node->union_type_item_node));
-    node->union_type_item_node->tag = tag;
-    node->union_type_item_node->tag_value=tag_value;
-    node->union_type_item_node->kind = kind;
+    struct ast_node *node = ast_node_new(VARIANT_TYPE_ITEM_NODE, loc);
+    MALLOC(node->variant_type_item_node, sizeof(*node->variant_type_item_node));
+    node->variant_type_item_node->tag = tag;
+    node->variant_type_item_node->tag_value=tag_value;
+    node->variant_type_item_node->kind = kind;
     return node;
 }
 
-struct ast_node *_copy_union_type_item_node(struct ast_node *orig_node)
+struct ast_node *_copy_variant_type_item_node(struct ast_node *orig_node)
 {
-    return union_type_item_node_new(orig_node->union_type_item_node->kind, orig_node->union_type_item_node->tag,
-        _copy_block_node(orig_node->union_type_item_node->tag_value), orig_node->loc);
+    return variant_type_item_node_new(orig_node->variant_type_item_node->kind, orig_node->variant_type_item_node->tag,
+        _copy_block_node(orig_node->variant_type_item_node->tag_value), orig_node->loc);
 }
 
-void _free_union_type_item_node(struct ast_node *node)
+void _free_variant_type_item_node(struct ast_node *node)
 {
-    node_free(node->union_type_item_node->tag_value);
+    node_free(node->variant_type_item_node->tag_value);
     ast_node_free(node);
 }
 
@@ -1013,10 +1013,10 @@ struct ast_node *node_copy(struct ast_node *node)
     case VAR_NODE:
         clone = _copy_var_node(node);
         break;
-    case UNION_TYPE_ITEM_NODE:
-        clone = _copy_union_type_item_node(node);
+    case VARIANT_TYPE_ITEM_NODE:
+        clone = _copy_variant_type_item_node(node);
         break;
-    case UNION_NODE:
+    case VARIANT_NODE:
     case STRUCT_NODE:
         clone = _copy_adt_node(node);
         break;
@@ -1113,10 +1113,10 @@ void node_free(struct ast_node *node)
     case VAR_NODE:
         _free_var_node(node);
         break;
-    case UNION_TYPE_ITEM_NODE:
-        _free_union_type_item_node(node);
+    case VARIANT_TYPE_ITEM_NODE:
+        _free_variant_type_item_node(node);
         break;
-    case UNION_NODE:
+    case VARIANT_NODE:
     case STRUCT_NODE:
         _free_adt_node(node);
         break;
@@ -1220,10 +1220,10 @@ int find_member_index(struct ast_node *adt_node, symbol member)
                 return i;
             }
         }
-    } else if (adt_node->node_type == UNION_NODE){
+    } else if (adt_node->node_type == VARIANT_NODE){
         for (int i = 0; i < (int)array_size(&adt_node->adt_type->body->block->nodes); i++) {
             struct ast_node *item = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, i);
-            if (item->union_type_item_node->tag == member) {
+            if (item->variant_type_item_node->tag == member) {
                 return i;
             }
         }
