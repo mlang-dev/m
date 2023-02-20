@@ -51,7 +51,7 @@ struct _memory_node {
     struct ast_node *max;
 };
 
-struct _ident_type_node {
+struct _ident_type_item_node {
     struct ast_node *ident;
     struct ast_node *is_of_type;
 };
@@ -136,7 +136,7 @@ struct _func_type_node {
     symbol name;
     symbol op;
     struct ast_node *params; /*block ast_node for params*/
-    struct ast_node *ret_type_node; /*returning ast_node type*/
+    struct ast_node *ret_type_item_node; /*returning ast_node type*/
     char is_operator;
     int precedence;
     bool is_variadic;
@@ -175,7 +175,7 @@ struct _import_node {
 };
 
 struct _cast_node {
-    struct ast_node *to_type_node;
+    struct ast_node *to_type_item_node;
     struct ast_node *expr;
 };
 
@@ -187,20 +187,15 @@ enum TypeNodeKind {
     RefType
 };
 
-struct type_node {
+struct type_item_node {
     enum Mut mut;
     enum TypeNodeKind kind;
     union{
         symbol type_name;
         struct array_type_node *array_type_node;
         struct ast_node *tuple_block;
-        struct type_node *val_node; //used in ref node;
+        struct type_item_node *val_node; //used in ref node;
     };
-};
-
-struct name_type{
-    symbol name;
-    struct type_node *type_node;
 };
 
 enum UnionKind {
@@ -215,12 +210,12 @@ enum UnionKind {
  * named types while tagged union has both.
  * 
  */
-struct variant_type_item_node {
+struct variant_type_node {
     enum UnionKind kind;
     symbol tag;   
     int tag_repr;
     /**
-     * @brief tag_value for tagged union is block_node, is type_node for untagged union, enum tag only is None, and enum tag value is int const value 
+     * @brief tag_value for tagged union is block_node, is type_item_node for untagged union, enum tag only is None, and enum tag value is int const value 
      * 
      */
     struct ast_node *tag_value; 
@@ -263,18 +258,17 @@ struct ast_node {
         struct _binary_node *binop;
         struct _member_index_node *index;
         struct _var_node *var;
-        struct name_type *name_type;
         
         struct _func_type_node *ft;
         struct _function_node *func;
         struct _call_node *call;
         
         struct adt_node *adt_type; 
-        struct variant_type_item_node * variant_type_item_node;
+        struct variant_type_node * variant_type_node;
         struct _adt_init_node *adt_init;
         struct ast_node *array_init;
         struct array_type_node *array_type;
-        struct type_node *type_node;
+        struct type_item_node *type_item_node;
         struct _range_node *range;
         struct _import_node *import;
         struct _if_node *cond;
@@ -286,7 +280,7 @@ struct ast_node {
         struct _cast_node *cast;
         struct match_node *match;
         struct match_case_node *match_case;
-        struct _ident_type_node *ident_type;
+        struct _ident_type_item_node *ident_type_item;
     };
 };
 
@@ -305,11 +299,11 @@ struct type_item *get_ret_type(struct ast_node *fun_node);
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc);
 struct ast_node *ident_node_new(symbol name, struct source_location loc);
-struct ast_node *type_node_new_with_type_name(symbol type_name, enum Mut mut, struct source_location loc);
-struct ast_node *type_node_new_with_array_type(struct array_type_node *array_type_node, enum Mut mut, struct source_location loc);
-struct ast_node *type_node_new_with_tuple_type(struct ast_node *tuple_block, enum Mut mut, struct source_location loc);
-struct ast_node *type_node_new_with_builtin_type(symbol type_name, enum Mut mut, struct source_location loc);
-struct ast_node *type_node_new_with_ref_type(struct type_node *val_node, enum Mut mut, struct source_location loc);
+struct ast_node *type_item_node_new_with_type_name(symbol type_name, enum Mut mut, struct source_location loc);
+struct ast_node *type_item_node_new_with_array_type(struct array_type_node *array_type_node, enum Mut mut, struct source_location loc);
+struct ast_node *type_item_node_new_with_tuple_type(struct ast_node *tuple_block, enum Mut mut, struct source_location loc);
+struct ast_node *type_item_node_new_with_builtin_type(symbol type_name, enum Mut mut, struct source_location loc);
+struct ast_node *type_item_node_new_with_ref_type(struct type_item_node *val_node, enum Mut mut, struct source_location loc);
 struct ast_node *double_node_new(f64 val, struct source_location loc);
 struct ast_node *int_node_new(int val, struct source_location loc);
 struct ast_node *bool_node_new(bool val, struct source_location loc);
@@ -322,22 +316,22 @@ struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
 struct ast_node *import_node_new(symbol from_module, struct ast_node *node, struct source_location loc);
 struct ast_node *memory_node_new(struct ast_node *initial, struct ast_node *max, struct source_location loc);
-struct ast_node *func_type_node_new(
+struct ast_node *func_type_item_node_new(
     symbol name,
     struct ast_node *params, 
     symbol ret_type,
-    struct ast_node *ret_type_node, 
+    struct ast_node *ret_type_item_node, 
     bool is_variadic, bool is_external, struct source_location loc);
 struct ast_node *adt_node_new(enum node_type node_type, symbol name, struct ast_node *body, struct source_location loc);
-struct ast_node *variant_type_item_node_new(enum UnionKind kind, symbol tag, struct ast_node * name_types, struct source_location loc);
-struct ast_node *adt_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc);
+struct ast_node *variant_type_node_new(enum UnionKind kind, symbol tag, struct ast_node * name_types, struct source_location loc);
+struct ast_node *adt_init_node_new(struct ast_node *body, struct ast_node *type_item_node, struct source_location loc);
 struct ast_node *array_init_node_new(struct ast_node *comp, struct source_location loc);
 struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc);
-struct ast_node *ident_type_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc);
+struct ast_node *ident_type_item_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc);
 struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc);
-struct ast_node *func_type_node_default_new(
+struct ast_node *func_type_item_node_default_new(
     symbol name,
-    struct ast_node *arg_block, symbol ret_type, struct ast_node *ret_type_node, bool is_variadic, bool is_external, struct source_location loc);
+    struct ast_node *arg_block, symbol ret_type, struct ast_node *ret_type_item_node, bool is_variadic, bool is_external, struct source_location loc);
 
 struct ast_node *if_node_new(struct ast_node *condition, struct ast_node *then_node,
     struct ast_node *else_node, struct source_location loc);
@@ -346,7 +340,7 @@ struct ast_node *match_node_new(struct ast_node *condition, struct ast_node *mat
 struct ast_node *match_item_node_new(struct ast_node *pattern, struct ast_node *when_condition, struct ast_node *expr,
     struct source_location loc);
 struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc);
-struct ast_node *cast_node_new(struct ast_node *to_type_node, struct ast_node *expr, struct source_location loc);
+struct ast_node *cast_node_new(struct ast_node *to_type_item_node, struct ast_node *expr, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *assign_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *member_index_node_new(enum aggregate_type aggregate_type, struct ast_node *object, struct ast_node *index, struct source_location loc);
@@ -368,7 +362,7 @@ bool is_unary_op(struct ast_node *pnode);
 bool is_binary_op(struct ast_node *pnode);
 char get_op_name(struct ast_node *pnode);
 symbol get_callee(struct ast_node *call);
-int find_member_index(struct ast_node *type_node, symbol member);
+int find_member_index(struct ast_node *type_item_node, symbol member);
 
 struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name);
 

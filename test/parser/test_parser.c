@@ -21,7 +21,7 @@ TEST(test_parser, int_type)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_STREQ("x", string_get(node->var->var->ident->name));
-    ASSERT_EQ(TYPE_NODE, node->var->is_of_type->node_type);
+    ASSERT_EQ(TYPE_ITEM_NODE, node->var->is_of_type->node_type);
     ASSERT_EQ(0, node->var->init_value);
     node_free(block);
     
@@ -70,7 +70,7 @@ TEST(test_parser, int_init)
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_STREQ("int", string_get(node->var->is_of_type->type_node->type_name));
+    ASSERT_STREQ("int", string_get(node->var->is_of_type->type_item_node->type_name));
     ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
@@ -472,7 +472,7 @@ TEST(test_parser, func_type_no_param)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
     ASSERT_STREQ("print", string_get(node->ft->name));
-    ASSERT_STREQ("int", string_get(node->ft->ret_type_node->type_node->type_name));
+    ASSERT_STREQ("int", string_get(node->ft->ret_type_item_node->type_item_node->type_name));
     node_free(block);
     
     frontend_deinit(fe);
@@ -489,7 +489,7 @@ TEST(test_parser, func_type_no_param_no_return)
     ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     ASSERT_STREQ("print", string_get(node->ft->name));
-    ASSERT_EQ(BuiltinType, node->ft->ret_type_node->type_node->kind);
+    ASSERT_EQ(BuiltinType, node->ft->ret_type_item_node->type_item_node->kind);
     node_free(block);
     
     frontend_deinit(fe);
@@ -509,7 +509,7 @@ TEST(test_parser, import_fun_type)
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
     ASSERT_STREQ("print", string_get(node->ft->name));
-    ASSERT_EQ(BuiltinType, node->ft->ret_type_node->type_node->kind);
+    ASSERT_EQ(BuiltinType, node->ft->ret_type_item_node->type_item_node->kind);
     node_free(block);
     
     frontend_deinit(fe);
@@ -577,7 +577,7 @@ TEST(test_parser, ref_type)
     struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
-    ASSERT_STREQ("int", string_get(node->var->is_of_type->type_node->val_node->type_name));
+    ASSERT_STREQ("int", string_get(node->var->is_of_type->type_item_node->val_node->type_name));
     node_free(block);
     
     frontend_deinit(fe);

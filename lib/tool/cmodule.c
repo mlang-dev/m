@@ -74,8 +74,8 @@ struct ast_node *create_function_func_type(CXCursor cursor)
     struct source_location loc = { 0, 1, 0, 0 };
     struct ast_node *params = block_node_new(&fun_params);
     symbol ret_type_symbol = ret_type && ret_type->type ? get_type_symbol(ret_type->type) : 0;
-    struct ast_node *ret_type_node = ret_type_symbol ? ident_node_new(ret_type_symbol, loc) : 0;
-    return func_type_node_default_new(string_2_symbol(&fun_name), params, ret_type_symbol, ret_type_node, is_variadic, true, loc);
+    struct ast_node *ret_type_item_node = ret_type_symbol ? ident_node_new(ret_type_symbol, loc) : 0;
+    return func_type_item_node_default_new(string_2_symbol(&fun_name), params, ret_type_symbol, ret_type_item_node, is_variadic, true, loc);
 }
 
 enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, CXClientData client_data)

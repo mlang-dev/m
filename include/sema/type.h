@@ -90,6 +90,10 @@ struct type_item_pair {
     struct type_item *ref_types[2][2];  //refer and val immutability
 };
 
+struct type_expr_item {
+    symbol ident; 
+    struct type_item *type; 
+};
 
 void types_init();
 void types_deinit();

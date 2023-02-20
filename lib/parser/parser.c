@@ -142,8 +142,8 @@ struct ast_node *_do_action(enum ast_action action, u8 param, struct ast_node *n
         }
         break;
     case MarkMutType:
-        assert(node->node_type == TYPE_NODE);
-        node->type_node->mut = Mutable;
+        assert(node->node_type == TYPE_ITEM_NODE);
+        node->type_item_node->mut = Mutable;
         break;
     }
     return node;
@@ -215,23 +215,23 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         case CAST_NODE:
         {
             assert(rule->action.item_index_count==2);
-            struct ast_node *to_type_node = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *to_type_item_node = _take(nodes, rule->action.item_index[0]);
             struct ast_node *expr = _take(nodes, rule->action.item_index[1]);
-            ast = cast_node_new(to_type_node, expr, to_type_node->loc);
+            ast = cast_node_new(to_type_item_node, expr, to_type_item_node->loc);
             break;
         }
         case IDENT_TYPE_NODE:
         {
             struct ast_node *ident = _take(nodes, rule->action.item_index[0]);
             struct ast_node *is_of_type = _take(nodes, rule->action.item_index[1]);
-            ast = ident_type_node_new(ident, is_of_type, ident->loc);
+            ast = ident_type_item_node_new(ident, is_of_type, ident->loc);
             break;
         }
         case VAR_NODE:
         {
             struct ast_node *node = _take(nodes, rule->action.item_index[1]);
             struct ast_node *var = 0;
-            struct ast_node *type_node = 0;
+            struct ast_node *type_item_node = 0;
             struct ast_node *init_value = 0;
             u8 var_kind = rule->action.item_index[0];
             //0: ident
@@ -246,8 +246,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             case 1:
                 //id:type
                 assert(node->node_type == IDENT_TYPE_NODE);
-                var = node->ident_type->ident;
-                type_node = node->ident_type->is_of_type;
+                var = node->ident_type_item->ident;
+                type_item_node = node->ident_type_item->is_of_type;
                 ast_node_free(node);
                 break;
             case 2:
@@ -258,17 +258,17 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             case 3:
                 //id:type = init value
                 assert(node->node_type == IDENT_TYPE_NODE);
-                var = node->ident_type->ident;
-                type_node = node->ident_type->is_of_type;
-                assert(type_node->node_type == TYPE_NODE);
+                var = node->ident_type_item->ident;
+                type_item_node = node->ident_type_item->is_of_type;
+                assert(type_item_node->node_type == TYPE_ITEM_NODE);
                 init_value = _take(nodes, rule->action.item_index[2]);
                 ast_node_free(node);
                 break;
             default:
                 break;
             }
-            assert(!type_node || type_node->node_type == TYPE_NODE);
-            ast = var_node_new(var, type_node, init_value, false, false, var->loc);
+            assert(!type_item_node || type_item_node->node_type == TYPE_ITEM_NODE);
+            ast = var_node_new(var, type_item_node, init_value, false, false, var->loc);
             break;
         }
         case RANGE_NODE:
@@ -395,7 +395,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 }
             }
             struct ast_node *ret_type_name = _take(nodes, rule->action.item_index[1]); //return type name
-            ast = func_type_node_default_new(ft_name->ident->name, parameters, 0, ret_type_name, is_variadic, true, ft_name->loc);
+            ast = func_type_item_node_default_new(ft_name->ident->name, parameters, 0, ret_type_name, is_variadic, true, ft_name->loc);
             node_free(ft_name);
             break;
         }
@@ -417,12 +417,12 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 // convert to block node even it's a one line statement
                 func_body = wrap_as_block_node(func_body);
             }
-            struct ast_node *ret_type_node = 0;
+            struct ast_node *ret_type_item_node = 0;
             if (rule->action.item_index_count == 4){
                 //has return type
-                ret_type_node = _take(nodes, rule->action.item_index[3]);
+                ret_type_item_node = _take(nodes, rule->action.item_index[3]);
             }
-            struct ast_node *ft = func_type_node_default_new(func_name->ident->name, parameters, 0, ret_type_node, is_variadic, false, func_name->loc);
+            struct ast_node *ft = func_type_item_node_default_new(func_name->ident->name, parameters, 0, ret_type_item_node, is_variadic, false, func_name->loc);
             ast = function_node_new(ft, func_body, func_name->loc);
             hashtable_set_int(symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
             node_free(func_name);
@@ -449,8 +449,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 {
                     //id:type
                     struct ast_node *node = tag_id;
-                    tag_id = node->ident_type->ident;
-                    tag_value = node->ident_type->is_of_type;
+                    tag_id = node->ident_type_item->ident;
+                    tag_value = node->ident_type_item->is_of_type;
                     ast_node_free(node);
                     break;
                 }
@@ -462,7 +462,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                     break;
             }
             symbol tag = tag_id->ident->name;
-            ast = variant_type_item_node_new(kind, tag, tag_value, tag_id->loc);
+            ast = variant_type_node_new(kind, tag, tag_value, tag_id->loc);
             node_free(tag_id);
             break;
         }
@@ -493,9 +493,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             } else {
                 assert(false);
             }
-            struct ast_node *type_node = 0; 
-            if(adt_name) type_node = type_node_new_with_type_name(adt_name->ident->name, Immutable, adt_name->loc);
-            ast = adt_init_node_new(init_body, type_node, adt_name ? adt_name->loc : init_body->loc);
+            struct ast_node *type_item_node = 0; 
+            if(adt_name) type_item_node = type_item_node_new_with_type_name(adt_name->ident->name, Immutable, adt_name->loc);
+            ast = adt_init_node_new(init_body, type_item_node, adt_name ? adt_name->loc : init_body->loc);
             if(adt_name) node_free(adt_name);
             break;
         }
@@ -515,32 +515,32 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             ast = array_type_node_new(elm_type_name, dims, elm_type_name->loc);
             break;
         }
-        case TYPE_NODE:
+        case TYPE_ITEM_NODE:
         {
-            enum TypeNodeKind type_node_kind = rule->action.item_index[0];
+            enum TypeNodeKind type_item_node_kind = rule->action.item_index[0];
             struct ast_node *node = _take(nodes, rule->action.item_index[1]);
-            switch(type_node_kind){
+            switch(type_item_node_kind){
             case BuiltinType:
             {
                 struct token_pattern *tp = get_token_pattern_by_token_type(node->node_type >> 16);
-                ast = type_node_new_with_builtin_type(tp->symbol_name, Immutable, node->loc);
+                ast = type_item_node_new_with_builtin_type(tp->symbol_name, Immutable, node->loc);
                 break;
             }
             case TypeName:
-                ast = type_node_new_with_type_name(node->ident->name, Immutable, node->loc);
+                ast = type_item_node_new_with_type_name(node->ident->name, Immutable, node->loc);
                 break;
             case ArrayType:
-                ast = type_node_new_with_array_type(node->array_type, Immutable, node->loc);
+                ast = type_item_node_new_with_array_type(node->array_type, Immutable, node->loc);
                 node->array_type = 0; //to prevent its being freed
                 break;
             case TupleType:
-                ast = type_node_new_with_tuple_type(node, Immutable, node->loc);
+                ast = type_item_node_new_with_tuple_type(node, Immutable, node->loc);
                 node = 0;//not to be freed
                 break;
             case RefType:
-                assert(node->node_type == TYPE_NODE);
-                ast = type_node_new_with_ref_type(node->type_node, Immutable, node->loc);
-                node->type_node = 0;
+                assert(node->node_type == TYPE_ITEM_NODE);
+                ast = type_item_node_new_with_ref_type(node->type_item_node, Immutable, node->loc);
+                node->type_item_node = 0;
                 break;
             }
             node_free(node);

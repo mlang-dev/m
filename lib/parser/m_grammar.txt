@@ -15,17 +15,20 @@ builtin_types   = unit_type | "bool" | "int"
                 | "i8" | "i16" | "i32" | "i64" 
                 | "f32" | "f64" | "char" | "string"
 
-type_item       = builtin_types                                                             { type_node 0 0 } // 1 is built types
-                | array_type                                                                { type_node 2 0 } // 2 is array type
-                | tuple_type                                                                { type_node 3 0 } // 3 is tuple type
-                | '&' type_item                                                             { type_node 4 1 } // 4 is ref type
+type_item       = builtin_types                                                             { type_item_node 0 0 } // 1 is built types
+                | array_type                                                                { type_item_node 2 0 } // 2 is array type
+                | tuple_type                                                                { type_item_node 3 0 } // 3 is tuple type
+                | '&' type_item                                                             { type_item_node 4 1 } // 4 is ref type
                 | "mut" type_item                                                           { mark_mut 1 1 1 } // 1 is action code for mark_mut for type node
-                | IDENT                                                                     { type_node 1 0 } // 1 is type name
+                | IDENT                                                                     { type_item_node 1 0 } // 1 is type name
 
 ident_type      = IDENT ':' type_item                                                       { ident_type 0 2 }
 
-type_item_item  = ident_type
+type_expr_item  = ident_type
                 | type_item
+
+type_expr       = type_expr '*' type_expr_item
+                | type_expr '|' type_expr_item
 
 array_type      = type_item array_dims                                                      { array_type 0 1 }
 
@@ -217,8 +220,8 @@ variant_item    = IDENT '(' type_list ')'                                       
                 | IDENT                                                                     { variant_type_item 2 0 }   //enum
                 | IDENT '=' LITERAL_INT                                                     { variant_type_item 3 0 2 } //enum
 
-type_list       = type_list ',' type_item_item                                              { block 0 2 }    
-                | type_item_item
+type_list       = type_list ',' type_expr_item                                              { block 0 2 }    
+                | type_expr_item
 
 adt_initializer = IDENT '{' exprs '}'                                                       { adt_initializer 0 2 }
                 | '{' exprs '}'                                                             { adt_initializer 1 }
