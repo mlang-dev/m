@@ -255,7 +255,7 @@ param_decls     = param_decls param_decl                                        
                 | param_decl                                                                { block 0 }
                 | unit_type                                                                 { block }  // empty block
 
-param_decl      = IDENT ':' type_expr                                                       { variable 0 0 2 } // var name:type, no initial value
+param_decl      = IDENT ':' type_expr                                                       { variable 1 0 2 } // var name:type, no initial value
                 | IDENT                                                                     { variable 0 0 } // value name, no type, no initial value
                 | "..."
 
@@ -269,10 +269,10 @@ id_decl_inits   = id_decl_inits ',' id_decl_init                                
 id_decls        = id_decls ',' id_decl                                                      { block 0 2 }
                 | id_decl
 
-id_decl         = IDENT ':' type_expr                                                       { variable 0 0 2 }   // var name:type, no initial value
+id_decl         = IDENT ':' type_expr                                                       { variable 1 0 2 }   // var name:type, no initial value
 
-id_decl_init    = IDENT ':' type_expr '=' expr_block                                        { variable 1 0 2 4 } // var name:type with init value
-                | IDENT '=' expr_block                                                      { variable 1 0 2 }   // var name with initial value
+id_decl_init    = IDENT ':' type_expr '=' expr_block                                        { variable 3 0 2 4 } // var name:type with init value
+                | IDENT '=' expr_block                                                      { variable 2 0 2 }   // var name with initial value
 
 expr_block      = expr
                 | NEWLINE INDENT expr DEDENT                                                { 2 }
