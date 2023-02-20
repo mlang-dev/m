@@ -543,7 +543,7 @@ let inc x:int = x + 1\n\
 TEST(test_analyzer, fun_type_with_ret_type)
 {
     char test_code[] = "\n\
-let inc:int x:int = x + 1\n\
+let inc x:int -> int = x + 1\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
