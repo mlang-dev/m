@@ -42,6 +42,8 @@ enum token_type{
     TOKEN_EXTERN,
 
     //WIT items    
+    TOKEN_TYPE_UNIT,
+    TOKEN_TYPE_BOOL,
     TOKEN_TYPE_INT,
     TOKEN_TYPE_U8,
     TOKEN_TYPE_U16,
@@ -98,7 +100,6 @@ enum token_type{
     TOKEN_LPAREN,
     TOKEN_RPAREN,
 
-    TOKEN_UNIT,
     TOKEN_LBRACKET,
     TOKEN_RBRACKET,
     TOKEN_LCBRACKET,
