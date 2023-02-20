@@ -38,8 +38,8 @@ TEST(test_symboltable, same_key_multiple_values)
     ASSERT_EQ(NULL, s1);
     ASSERT_EQ(NULL, symboltable_get(&st, s));
     symboltable_deinit(&st);
-    type_expr_free((struct type_expr *)op1);
-    type_expr_free((struct type_expr *)op2);
+    type_item_free((struct type_item *)op1);
+    type_item_free((struct type_item *)op2);
     symbols_deinit();
 }
 
@@ -68,8 +68,8 @@ TEST(test_symboltable, multiple_keys)
     ASSERT_EQ(NULL, s1);
     ASSERT_EQ(NULL, symboltable_get(&st, s));
     symboltable_deinit(&st);
-    type_expr_free((struct type_expr *)op1);
-    type_expr_free((struct type_expr *)op2);
+    type_item_free((struct type_item *)op1);
+    type_item_free((struct type_item *)op2);
     symbols_deinit();
 }
 */

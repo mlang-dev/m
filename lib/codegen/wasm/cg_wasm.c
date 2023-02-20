@@ -354,7 +354,7 @@ TargetType _get_function_type(TargetType ret_type, TargetType *param_types, unsi
     return 0;
 }
 
-TargetType _get_target_type(struct type_expr *type)
+TargetType _get_target_type(struct type_item *type)
 {
     return &type_2_wtype[type->type];
 }
@@ -628,7 +628,7 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
     }
 }
 
-void _emit_assign_value(struct cg_wasm *cg, struct byte_array *ba, u32 addr_var_index, u32 offset, u32 align, struct type_expr *type, struct ast_node *rhs)
+void _emit_assign_value(struct cg_wasm *cg, struct byte_array *ba, u32 addr_var_index, u32 offset, u32 align, struct type_item *type, struct ast_node *rhs)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
     if(type->type == TYPE_STRUCT){
@@ -698,7 +698,7 @@ void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *no
 {
     wasm_emit_code(cg, ba, node->binop->lhs); 
     wasm_emit_code(cg, ba, node->binop->rhs); 
-    struct type_expr *lhs_type = node->binop->lhs->transformed ? node->binop->lhs->transformed->type : node->binop->lhs->type;
+    struct type_item *lhs_type = node->binop->lhs->transformed ? node->binop->lhs->transformed->type : node->binop->lhs->type;
     enum type type_index = prune(lhs_type)->type;
     assert(type_index >= 0 && type_index < TYPE_TYPES);
     assert(node->binop->opcode >= 0 && node->binop->opcode < OP_TOTAL);
@@ -1128,10 +1128,10 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
     struct ast_node *func_type_node;
     u32 i, j;
     u32 pi; /*param index*/
-    struct type_expr *te;
+    struct type_item *te;
     for (i = 0; i < func_types; i++) {
         func_type_node = *(struct ast_node **)array_get(&block->block->nodes, i);
-        struct type_expr *func_type = func_type_node->type;
+        struct type_item *func_type = func_type_node->type;
         u32 num_params = array_size(&func_type->args) - 1;
         struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, func_type_node);
         bool has_sret = fi_has_sret(fi);
@@ -1146,11 +1146,11 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
                 if(j) pi = j - 1;
                 else pi = num_params - 1;
             }
-            te = *(struct type_expr **)array_get(&func_type->args, pi);
+            te = *(struct type_item **)array_get(&func_type->args, pi);
             ASSERT_TYPE(te->type);
             ba_add(ba, type_2_wtype[te->type]);
         }
-        te = *(struct type_expr **)array_back(&func_type->args);
+        te = *(struct type_item **)array_back(&func_type->args);
         ASSERT_TYPE(te->type);
         if (te->type == TYPE_UNIT||has_sret) {
             ba_add(ba, 0); // num result

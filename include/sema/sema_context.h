@@ -31,7 +31,7 @@ struct sema_context {
     struct hashtable *symbol_2_int_types;
 
     /* 
-     *  value type env: symboltable of <symbol, struct type_expr>*>
+     *  value type env: symboltable of <symbol, struct type_item>*>
      *  binding variable name to type expression
      */
     struct symboltable decl_2_typexprs;
@@ -49,7 +49,7 @@ struct sema_context {
     struct hashtable gvar_name_2_ast;
 
     /* 
-     *  type env: symboltable of <symbol, struct type_expr_pair*>
+     *  type env: symboltable of <symbol, struct type_item_pair*>
      *  binding type name to type expression
      */
     struct symboltable typename_2_typexpr_pairs;
@@ -103,7 +103,7 @@ struct sema_context {
      */
     struct hashtable calls;
     /* 
-     *  struct array of struct type_expr*, specialized (non generic) 
+     *  struct array of struct type_item*, specialized (non generic) 
      */
     struct array nongens;
 
@@ -130,7 +130,7 @@ struct sema_context {
 struct field_info{
     struct ast_node *offset_expr;  //offset expr
     u32 align;  //alignment of the field.
-    struct type_expr *type; //field type
+    struct type_item *type; //field type
     struct ast_node *aggr_root; //root 
 };
 
@@ -139,7 +139,7 @@ void sema_context_free(struct sema_context *env);
 size_t enter_scope(struct sema_context *env);
 size_t leave_scope(struct sema_context *env);
 struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name);
-struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node);
+struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_item *aggr_type, struct ast_node *field_node);
 void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* index, struct array *field_infos);
 symbol get_ref_type_symbol(struct sema_context *context, symbol type_name);
 struct loop_nested_level *get_current_block_level(struct sema_context *context);

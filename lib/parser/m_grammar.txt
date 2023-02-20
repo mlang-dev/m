@@ -15,16 +15,19 @@ builtin_types   = unit_type | "bool" | "int"
                 | "i8" | "i16" | "i32" | "i64" 
                 | "f32" | "f64" | "char" | "string"
 
-type_expr       = builtin_types                                                             { type_node 0 0 } // 1 is built types
+type_item       = builtin_types                                                             { type_node 0 0 } // 1 is built types
                 | array_type                                                                { type_node 2 0 } // 2 is array type
                 | tuple_type                                                                { type_node 3 0 } // 3 is tuple type
-                | '&' type_expr                                                             { type_node 4 1 } // 4 is ref type
-                | "mut" type_expr                                                           { mark_mut 1 1 1 } // 1 is action code for mark_mut for type node
+                | '&' type_item                                                             { type_node 4 1 } // 4 is ref type
+                | "mut" type_item                                                           { mark_mut 1 1 1 } // 1 is action code for mark_mut for type node
                 | IDENT                                                                     { type_node 1 0 } // 1 is type name
 
-ident_type      = IDENT ':' type_expr                                                       { ident_type 0 2 }
+ident_type      = IDENT ':' type_item                                                       { ident_type 0 2 }
 
-array_type      = type_expr array_dims                                                      { array_type 0 1 }
+type_item_item  = ident_type
+                | type_item
+
+array_type      = type_item array_dims                                                      { array_type 0 1 }
 
 array_dims      = '[' const_expr ']'                                                        { block 1 }
                 | array_dims '[' const_expr ']'                                             { block 0 2 }
@@ -58,7 +61,7 @@ unary_expr      = power_expr
                 | [*&+-~!] unary_expr                                                       { unop 0 1 }
 
 cast_expr       = unary_expr
-                | '(' type_expr ')' cast_expr                                               { cast 1 3 }
+                | '(' type_item ')' cast_expr                                               { cast 1 3 }
 
 multi_expr      = cast_expr
                 | multi_expr [*/%] cast_expr                                                { binop 0 1 2 } 
@@ -194,7 +197,7 @@ tuple_fields    = tuple_fields ',' tuple_field                                  
                 | tuple_field
 
 tuple_field     = id_decl
-                | type_expr
+                | type_item
 
 variant_type        = variant_items                  
                     | variant_type_block
@@ -214,16 +217,13 @@ variant_item    = IDENT '(' type_list ')'                                       
                 | IDENT                                                                     { variant_type_item 2 0 }   //enum
                 | IDENT '=' LITERAL_INT                                                     { variant_type_item 3 0 2 } //enum
 
-type_list       = type_list ',' typed_item                                                  { block 0 2 }    
-                | typed_item
-
-typed_item      = IDENT ':' type_expr
-                | type_expr
+type_list       = type_list ',' type_item_item                                              { block 0 2 }    
+                | type_item_item
 
 adt_initializer = IDENT '{' exprs '}'                                                       { adt_initializer 0 2 }
                 | '{' exprs '}'                                                             { adt_initializer 1 }
 
-func_type       = "func" IDENT param_decls "->" type_expr                                   { func_type 1 4 2 }
+func_type       = "func" IDENT param_decls "->" type_item                                   { func_type 1 4 2 }
 
 import_decl     = "from" IDENT "import" memory_decl                                         { import_decl 1 3 }
                 | "from" IDENT "import" func_type                                           { import_decl 1 3 }    
@@ -233,7 +233,7 @@ memory_decl     = "memory" LITERAL_INT                                          
                 | "memory" LITERAL_INT ',' LITERAL_INT                                      { memory_decl 1 3 }
 
 func_def        = "let" IDENT param_decls '=' statement                                     { function 1 2 4 }
-                | "let" IDENT param_decls "->" type_expr '=' statement                      { function 1 2 6 4 }
+                | "let" IDENT param_decls "->" type_item '=' statement                      { function 1 2 6 4 }
 
 func_call       = IDENT arg_exprs                                                           { call 0 1 }
 

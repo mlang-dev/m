@@ -66,7 +66,7 @@ struct struct_layout *fc_get_stack_sl(struct fun_context *fc, struct ast_node *n
     return *(struct struct_layout**)array_get(&fc->stack_size_info.sl->field_layouts, vi->alloc_index);
 }
 
-int fc_register_alloc(struct fun_context *fc, struct type_expr *type)
+int fc_register_alloc(struct fun_context *fc, struct type_item *type)
 {
     assert(type->kind == KIND_OPER);
     struct_type_add_member(&fc->stack_type, type);

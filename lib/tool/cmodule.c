@@ -44,7 +44,7 @@ struct ast_node *create_function_func_type(CXCursor cursor)
     if (!type) {
         return 0;
     }
-    struct type_expr *ret_type = create_nullary_type(type);
+    struct type_item *ret_type = create_nullary_type(type);
     ARRAY_FUN_PARAM(fun_params);
     int num_args = clang_Cursor_getNumArguments(cursor);
     bool is_variadic = clang_isFunctionTypeVariadic(cur_type);

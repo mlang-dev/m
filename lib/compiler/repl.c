@@ -55,7 +55,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
         //analyze(jit->cg->base.sema_context, node);
         emit_code(jit->engine->be->cg, node);
     }
-    struct type_expr *type = node->type;
+    struct type_item *type = node->type;
     struct eval_result result = { 0 };
     node = wrap_expr_as_function(&jit->engine->fe->parser->symbol_2_int_types, node, fn_symbol);
     analyze(cg->base.sema_context, node);

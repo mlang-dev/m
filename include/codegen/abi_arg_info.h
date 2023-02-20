@@ -25,7 +25,7 @@ enum ArgKind {
 };
 
 struct abi_arg_info {
-    struct type_expr *type;
+    struct type_item *type;
     TargetType target_type;
     union {
         TargetType padding_type; //Direct || Extend || Indirect || Expand
@@ -46,15 +46,15 @@ struct abi_arg_info {
     bool sign_ext; //Extend
 };
 
-struct abi_arg_info create_expand(struct type_expr *type, bool padding_inreg, TargetType padding_type);
-struct abi_arg_info create_direct_type_offset(struct type_expr *type, TargetType target_type, unsigned offset);
-struct abi_arg_info create_direct_type(struct type_expr *type, TargetType target_type);
-struct abi_arg_info create_direct(struct type_expr *type);
-struct abi_arg_info create_extend(struct target_info *ti, struct type_expr *ret_type);
-struct abi_arg_info create_indirect_return_result(struct target_info *ti, struct type_expr *ret_type);
-struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_expr *ret_type, unsigned free_int_regs);
-struct abi_arg_info create_natural_align_indirect(struct type_expr *ret_type, bool indirect_byval);
-struct abi_arg_info create_ignore(struct type_expr *type);
+struct abi_arg_info create_expand(struct type_item *type, bool padding_inreg, TargetType padding_type);
+struct abi_arg_info create_direct_type_offset(struct type_item *type, TargetType target_type, unsigned offset);
+struct abi_arg_info create_direct_type(struct type_item *type, TargetType target_type);
+struct abi_arg_info create_direct(struct type_item *type);
+struct abi_arg_info create_extend(struct target_info *ti, struct type_item *ret_type);
+struct abi_arg_info create_indirect_return_result(struct target_info *ti, struct type_item *ret_type);
+struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_item *ret_type, unsigned free_int_regs);
+struct abi_arg_info create_natural_align_indirect(struct type_item *ret_type, bool indirect_byval);
+struct abi_arg_info create_ignore(struct type_item *type);
 
 bool can_have_padding_type(struct abi_arg_info *aai);
 TargetType get_padding_type(struct abi_arg_info *aai);

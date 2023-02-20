@@ -31,7 +31,7 @@ u64 align_to(u64 field_offset, u64 align)
     return (field_offset + align - 1) / align * align;
 }
 
-void _layout_field(struct struct_layout *sl, struct type_expr *field_type)
+void _layout_field(struct struct_layout *sl, struct type_item *field_type)
 {
     struct type_size_info tsi = get_type_size_info(field_type);
     array_push(&sl->field_layouts, &tsi.sl);
@@ -68,12 +68,12 @@ void _layout_end(struct struct_layout *sl)
     sl->size_bits = (u32)align_to(sl->size_bits, sl->alignment * 8);
 }
 
-struct struct_layout *layout_struct(struct type_expr *to, enum ADTKind kind)
+struct struct_layout *layout_struct(struct type_item *to, enum ADTKind kind)
 {
     struct struct_layout *sl = sl_new(to->name, kind);
     u32 member_count = (u32)array_size(&to->args);
     for (u32 i = 0; i < member_count; i++) {
-        struct type_expr *field_type = *(struct type_expr **)array_get(&to->args, i);
+        struct type_item *field_type = *(struct type_item **)array_get(&to->args, i);
         _layout_field(sl, field_type);
     }
     _layout_end(sl);
@@ -81,7 +81,7 @@ struct struct_layout *layout_struct(struct type_expr *to, enum ADTKind kind)
 }
 
 
-struct type_size_info _create_struct_type_size_info(struct type_expr *to, enum ADTKind kind)
+struct type_size_info _create_struct_type_size_info(struct type_item *to, enum ADTKind kind)
 {
     struct type_size_info ti;
     struct struct_layout *sl = layout_struct(to, kind);
@@ -91,7 +91,7 @@ struct type_size_info _create_struct_type_size_info(struct type_expr *to, enum A
     return ti;
 }
 
-struct type_size_info _create_array_type_size_info(struct type_expr *at)
+struct type_size_info _create_array_type_size_info(struct type_item *at)
 {
     struct type_size_info ti;
     struct type_size_info elm_ti = get_type_size_info(at->val_type);
@@ -105,7 +105,7 @@ struct type_size_info _create_array_type_size_info(struct type_expr *at)
     return ti;
 }
 
-struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
+struct type_size_info _create_scalar_type_size_info(struct type_item *type)
 {
     struct type_size_info ti;
     ti.width_bits = 0;
@@ -162,7 +162,7 @@ struct type_size_info _create_scalar_type_size_info(struct type_expr *type)
     return ti;
 }
 
-struct type_size_info get_type_size_info(struct type_expr *type)
+struct type_size_info get_type_size_info(struct type_item *type)
 {
     if (type->name && hashtable_in_p(&g_type_infos, type->name)) {
         return *(struct type_size_info *)hashtable_get_p(&g_type_infos, type->name);
@@ -183,13 +183,13 @@ struct type_size_info get_type_size_info(struct type_expr *type)
     return ti;
 }
 
-u64 get_type_size(struct type_expr *type)
+u64 get_type_size(struct type_item *type)
 {
     struct type_size_info tsi = get_type_size_info(type);
     return tsi.width_bits;
 }
 
-u64 get_type_align(struct type_expr *type)
+u64 get_type_align(struct type_item *type)
 {
     struct type_size_info tsi = get_type_size_info(type);
     return tsi.align_bits / 8;

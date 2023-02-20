@@ -43,7 +43,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     CALLOC(context, 1, sizeof(*context));
     context->symbol_2_int_types = symbol_2_int_types;
     context->is_repl = is_repl;
-    array_init(&context->nongens, sizeof(struct type_expr *));
+    array_init(&context->nongens, sizeof(struct type_item *));
     array_init(&context->used_builtin_names, sizeof(symbol));
     symboltable_init(&context->typename_2_typexpr_pairs);
     symboltable_init(&context->decl_2_typexprs);
@@ -63,7 +63,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     /*nullary type: builtin default types*/
     for (size_t i = 0; i < TYPE_TYPES; i++) {
         symbol type_name = get_type_symbol(i);
-        struct type_expr *te;
+        struct type_item *te;
         if(i != TYPE_ARRAY){
             te = create_nullary_type(i);
         } else {
@@ -71,7 +71,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
             array_init(&dims, sizeof(u32));
             te = create_array_type(create_unit_type(), &dims);
         }
-        struct type_expr_pair *tep = get_type_expr_pair(te->name);
+        struct type_item_pair *tep = get_type_item_pair(te->name);
         push_symbol_type(&context->typename_2_typexpr_pairs, type_name, tep);
         hashtable_set_p(&context->type_2_ref_symbol, type_name, to_ref_symbol(type_name));
     }
@@ -138,7 +138,7 @@ struct ast_node *find_generic_fun(struct sema_context *context, symbol fun_name)
 
 struct source_location zero_loc = {0, 0, 0, 0};
 
-struct ast_node *_sc_record_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node)
+struct ast_node *_sc_record_get_offset_expr(struct sema_context *sc, struct type_item *aggr_type, struct ast_node *field_node)
 {
     struct ast_node *struct_node = hashtable_get_p(&sc->struct_typename_2_asts, aggr_type->name);
     assert(struct_node->type->kind == KIND_OPER);
@@ -148,14 +148,14 @@ struct ast_node *_sc_record_get_offset_expr(struct sema_context *sc, struct type
     return int_node_new(offset, zero_loc);
 }
 
-struct ast_node *_binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct type_expr *type, struct source_location loc)
+struct ast_node *_binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct type_item *type, struct source_location loc)
 {
     struct ast_node *node = binary_node_new(opcode, lhs, rhs, loc);
     node->type = type;
     return node;
 }
 
-struct ast_node *_sc_array_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_expr)
+struct ast_node *_sc_array_get_offset_expr(struct sema_context *sc, struct type_item *aggr_type, struct ast_node *field_expr)
 {
     u32 subarray_size = get_type_size(aggr_type->val_type) / 8;
     for(u32 i = 1; i < array_size(&aggr_type->dims); i++){
@@ -164,7 +164,7 @@ struct ast_node *_sc_array_get_offset_expr(struct sema_context *sc, struct type_
     return _binary_node_new(OP_STAR, int_node_new(subarray_size, zero_loc), field_expr, field_expr->type, zero_loc);
 }
 
-struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_expr *aggr_type, struct ast_node *field_node)
+struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_item *aggr_type, struct ast_node *field_node)
 {
     if(aggr_type->type == TYPE_ARRAY)
         return _sc_array_get_offset_expr(sc, aggr_type, field_node);
@@ -179,7 +179,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
     assert(index->node_type == MEMBER_INDEX_NODE);
     struct ast_node *root = index;
     struct array field_accessors;
-    array_init(&field_accessors, sizeof(struct type_expr*));
+    array_init(&field_accessors, sizeof(struct type_item*));
     //x.y.z turned into z.y.x
     while(root->node_type == MEMBER_INDEX_NODE){
         array_push(&field_accessors, &root);
@@ -191,7 +191,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
         struct ast_node *field_accessor = array_get_p(&field_accessors, i);
         struct ast_node *aggr_node = field_accessor->index->object;
         struct ast_node *field_node = field_accessor->index->index;
-        struct type_expr *aggr_type = aggr_node->type;
+        struct type_item *aggr_type = aggr_node->type;
         if(i == end || aggr_type->type == TYPE_REF){
             struct field_info root_fi;
             array_push(field_infos, &root_fi);

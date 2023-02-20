@@ -69,71 +69,71 @@ enum ADTKind {
 };
 
 //type variable or operator
-struct type_expr {
+struct type_item {
     enum kind kind; //type variable or type operator
     enum type type;
     enum Mut mut; //mutability of the data of the type
-    struct type_expr* val_type;// val_type the reference type is referred to or element type of the array
+    struct type_item* val_type;// val_type the reference type is referred to or element type of the array
     symbol name; //name of type exp: like "->" for function, "bool", "int", "f64" for type variable
     symbol canon_name; //base name of the type, invariant among different variances of types: e.g. alwasy int for int, &int, &mut int, mut &mut int etc.
     union {
-        struct type_expr *instance; //used for KIND_VAR
-        //used for KIND_OPER struct array of struct type_expr*
+        struct type_item *instance; //used for KIND_VAR
+        //used for KIND_OPER struct array of struct type_item*
         struct array args; 
     }; 
     struct array dims;  //dimensions for array type
 };
 
 
-struct type_expr_pair {
-    struct type_expr *val_types[2];     //immutability
-    struct type_expr *ref_types[2][2];  //refer and val immutability
+struct type_item_pair {
+    struct type_item *val_types[2];     //immutability
+    struct type_item *ref_types[2][2];  //refer and val immutability
 };
 
 
 void types_init();
 void types_deinit();
-struct type_expr *create_type_var(enum Mut mut);
-struct type_expr *create_type_oper_var(enum kind kind, symbol type_name, enum type type, struct type_expr *val_type, struct array *args);
-struct type_expr *create_type_oper_struct(symbol type_name, enum Mut mut, struct array *args);
-struct type_expr *create_type_oper_tuple(enum Mut mut, struct array *args);
-struct type_expr *create_type_oper_union(symbol type_name, enum Mut mut, struct array *args);
-struct type_expr *create_nullary_type(enum type type);
-struct type_expr *create_type_fun(struct array *args);
-struct type_expr *create_unit_type();
-struct type_expr *wrap_as_fun_type(struct type_expr *oper);
-struct type_expr *create_ref_type(struct type_expr *val_type, enum Mut mut);
-struct type_expr *create_array_type(struct type_expr *element_type, struct array *dims);
-void type_expr_free(struct type_expr *type);
+struct type_item *create_type_var(enum Mut mut);
+struct type_item *create_type_oper_var(enum kind kind, symbol type_name, enum type type, struct type_item *val_type, struct array *args);
+struct type_item *create_type_oper_struct(symbol type_name, enum Mut mut, struct array *args);
+struct type_item *create_type_oper_tuple(enum Mut mut, struct array *args);
+struct type_item *create_type_oper_union(symbol type_name, enum Mut mut, struct array *args);
+struct type_item *create_nullary_type(enum type type);
+struct type_item *create_type_fun(struct array *args);
+struct type_item *create_unit_type();
+struct type_item *wrap_as_fun_type(struct type_item *oper);
+struct type_item *create_ref_type(struct type_item *val_type, enum Mut mut);
+struct type_item *create_array_type(struct type_item *element_type, struct array *dims);
+void type_item_free(struct type_item *type);
 
-bool occurs_in_type(struct type_expr *var, struct type_expr *type2);
-struct type_expr *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
+bool occurs_in_type(struct type_item *var, struct type_item *type2);
+struct type_item *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
 void push_symbol_type(symboltable *st, symbol name, void *type);
-struct type_expr *unify(struct type_expr *type1, struct type_expr *type2, struct array *nongens);
-string to_string(struct type_expr *type);
-enum type get_type(struct type_expr *type);
-struct type_expr *prune(struct type_expr *type);
-bool is_generic(struct type_expr *type);
+struct type_item *unify(struct type_item *type1, struct type_item *type2, struct array *nongens);
+string to_string(struct type_item *type);
+enum type get_type(struct type_item *type);
+struct type_item *prune(struct type_item *type);
+bool is_generic(struct type_item *type);
 bool is_any_generic(struct array *types);
 string monomorphize(const char *fun_name, struct array *types);
-bool is_promotable_int(struct type_expr *type);
+bool is_promotable_int(struct type_item *type);
 u8 type_size(enum type type);
-bool is_empty_struct(struct type_expr *type);
-struct type_expr *is_single_element_struct(struct type_expr *type);
+bool is_empty_struct(struct type_item *type);
+struct type_item *is_single_element_struct(struct type_item *type);
 symbol get_type_symbol(enum type type_enum);
 enum type get_type_enum_from_symbol(symbol type_name);
 symbol to_ref_symbol(symbol type_symbol);
 symbol get_ref_symbol(symbol type_name);
 symbol to_array_type_name(symbol element_type_name, struct array *dims);
 //anonymous function
-void struct_type_init(struct type_expr *struct_type);
-void struct_type_deinit(struct type_expr *struct_type);
-void struct_type_add_member(struct type_expr *struct_type, struct type_expr *type);
+void struct_type_init(struct type_item *struct_type);
+void struct_type_deinit(struct type_item *struct_type);
+void struct_type_add_member(struct type_item *struct_type, struct type_item *type);
 
-struct type_expr *fresh(struct type_expr *type, struct array *nongens);
-struct type_expr_pair *get_type_expr_pair(symbol type_name);
-struct type_expr *tep_find_type_expr(struct type_expr_pair *pair, enum Mut mut, bool is_ref, enum Mut referent_mut);
-struct type_expr *find_type_expr(struct type_expr *oper, enum Mut mut);
+struct type_item *fresh(struct type_item *type, struct array *nongens);
+struct type_item_pair *get_type_item_pair(symbol type_name);
+struct type_item *tep_find_type_item(struct type_item_pair *pair, enum Mut mut, bool is_ref, enum Mut referent_mut);
+struct type_item *find_type_item(struct type_item *oper, enum Mut mut);
 
 #define is_int_type(type) (type >= TYPE_BOOL && type <= TYPE_INT)
 #define is_aggregate_type(node_type) (node_type->type==TYPE_STRUCT || node_type->type==TYPE_UNION || node_type->type == TYPE_ARRAY)

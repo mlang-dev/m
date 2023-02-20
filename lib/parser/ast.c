@@ -70,9 +70,9 @@ char get_op_name(struct ast_node *node)
     return string_back(node->ft->name);
 }
 
-struct type_expr *get_ret_type(struct ast_node *fun_node)
+struct type_item *get_ret_type(struct ast_node *fun_node)
 {
-    return *(struct type_expr **)array_back(&fun_node->type->args);
+    return *(struct type_item **)array_back(&fun_node->type->args);
 }
 
 struct ast_node *_copy_block_node(struct ast_node *orig_node)

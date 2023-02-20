@@ -29,14 +29,14 @@ struct address emit_address_at_offset(struct cg_llvm *cg, struct address adr, st
 void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
     struct fun_info *fi, LLVMValueRef fun)
 {
-    struct type_expr *proto_type = node->type;
+    struct type_item *proto_type = node->type;
     //assert (LLVMCountParams(fun) == array_size(&proto_type->args) - 1);
     unsigned param_count = (unsigned)array_size(&fi->args);
     struct array params;
     array_init(&params, sizeof(struct address));
     for (unsigned i = 0; i < param_count; i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
-        //struct type_expr *type_exp = *(struct type_expr **)array_get(&proto_type->args, i);
+        //struct type_item *type_exp = *(struct type_item **)array_get(&proto_type->args, i);
         struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
         struct target_arg_range *tar = (struct target_arg_range *)array_get(&fi->tai.args, i);
         unsigned first_ir_arg = tar->first_arg_index;
@@ -108,7 +108,7 @@ LLVMValueRef emit_func_type_node(struct cg_llvm *cg, struct ast_node *node)
 LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, struct fun_info **out_fi)
 {
     assert(node->type);
-    struct type_expr *proto_type = node->type;
+    struct type_item *proto_type = node->type;
     assert(proto_type->kind == KIND_OPER);
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node);
     if (out_fi)
@@ -169,7 +169,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
         ret_val = emit_ir_code(cg, stmt);
     }
     if (!ret_val || !fi->ret.target_type) {
-        //struct type_expr *ret_type = get_ret_type(fun_node);
+        //struct type_item *ret_type = get_ret_type(fun_node);
         //enum type type = get_type(ret_type);
         //ret_val = cg->ops[type].get_zero(cg->context, cg->builder);
         LLVMBuildRetVoid(cg->builder);

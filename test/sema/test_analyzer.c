@@ -250,7 +250,7 @@ TEST(test_analyzer, identity_function)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("id", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -270,7 +270,7 @@ TEST(test_analyzer, int_int_fun)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -290,7 +290,7 @@ TEST(test_analyzer, double_double_fun)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -310,7 +310,7 @@ TEST(test_analyzer, bool_fun)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -330,7 +330,7 @@ TEST(test_analyzer, multi_param_fun)
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("avg", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(3, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -354,7 +354,7 @@ let factorial n = \n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("factorial", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -380,7 +380,7 @@ let loopprint n = \n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -413,7 +413,7 @@ let loopprint n:f64 =\n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -446,7 +446,7 @@ let distance x1:f64 y1:f64 x2 y2 = \n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("distance", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(5, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -472,7 +472,7 @@ let to_string () = \n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("to_string", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(1, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -494,7 +494,7 @@ let var_func ... = 0\n\
     ASSERT_STREQ("var_func", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(true, node->func->func_type->ft->is_variadic);
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -531,7 +531,7 @@ let inc x:int = x + 1\n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("inc", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
@@ -553,7 +553,7 @@ let inc x:int -> int = x + 1\n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("inc", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FUNC_NODE, node->node_type);
-    struct type_expr *var = node->type;
+    struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
