@@ -31,7 +31,7 @@ LLVMValueRef emit_record_init_node(struct cg_llvm *cg, struct ast_node *node, bo
 {
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->base.sema_context->func_stack);
     struct ast_node *ft_node = parent_func->func->func_type;
-    struct type_expr *te = node->type;
+    struct type_item *te = node->type;
     struct type_size_info tsi = get_type_size_info(te);
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node);
     bool is_rvo = check_rvo(fi);
@@ -105,13 +105,13 @@ LLVMValueRef _get_const_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, str
     return value;
 }
 
-LLVMValueRef _get_zero_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, struct type_expr *type_ext)
+LLVMValueRef _get_zero_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, struct type_item *type_ext)
 {
     size_t element_count = array_size(&type_ext->args);
     LLVMValueRef *values;
     MALLOC(values, element_count * sizeof(LLVMValueRef));
     for (size_t i = 0; i < element_count; i++) {
-        enum type element_type = get_type(*(struct type_expr **)array_get(&type_ext->args, i));
+        enum type element_type = get_type(*(struct type_item **)array_get(&type_ext->args, i));
         //values[i] = LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0 * (i+1));
         values[i] = cg->ops[element_type].get_zero(cg->context, cg->builder);
     }

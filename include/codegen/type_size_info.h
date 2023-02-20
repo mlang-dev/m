@@ -31,10 +31,10 @@ struct struct_layout {
     struct array field_layouts; //field layout pointers (NULL if the field is not structure)
 };
 
-struct type_size_info get_type_size_info(struct type_expr *type);
-u64 get_type_size(struct type_expr *type);
-u64 get_type_align(struct type_expr *type);
-struct struct_layout *layout_struct(struct type_expr *to, enum ADTKind kind);
+struct type_size_info get_type_size_info(struct type_item *type);
+u64 get_type_size(struct type_item *type);
+u64 get_type_align(struct type_item *type);
+struct struct_layout *layout_struct(struct type_item *to, enum ADTKind kind);
 struct struct_layout *sl_new(symbol type_name, enum ADTKind kind);
 void sl_free(struct struct_layout *sl);
 void tsi_init();

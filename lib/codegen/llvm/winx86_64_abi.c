@@ -4,7 +4,7 @@
 #include "codegen/fun_info.h"
 #include "codegen/type_size_info.h"
 
-struct abi_arg_info _winx86_64_classify(struct target_info *ti, struct type_expr *type, unsigned *free_sse_regs, bool is_return_type, bool is_vector_call, bool is_reg_call)
+struct abi_arg_info _winx86_64_classify(struct target_info *ti, struct type_item *type, unsigned *free_sse_regs, bool is_return_type, bool is_vector_call, bool is_reg_call)
 {
     (void)free_sse_regs;
     (void)is_vector_call;

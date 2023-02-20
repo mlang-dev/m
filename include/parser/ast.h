@@ -240,7 +240,7 @@ struct match_case_node {
 struct ast_node {
     enum node_type node_type;
 
-    struct type_expr *type; // type inferred
+    struct type_item *type; // type inferred
     struct source_location loc;
 
     /**
@@ -300,7 +300,7 @@ struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
 /*construct ast node with type enum directly*/
 struct ast_node *ast_node_new(enum node_type node_type, struct source_location loc);
 void ast_node_free(struct ast_node *node);
-struct type_expr *get_ret_type(struct ast_node *fun_node);
+struct type_item *get_ret_type(struct ast_node *fun_node);
 
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc);

@@ -32,31 +32,31 @@ LLVMContextRef get_llvm_context()
     return g_cg->context;
 }
 
-LLVMTypeRef get_int_type(LLVMContextRef context, struct type_expr *type)
+LLVMTypeRef get_int_type(LLVMContextRef context, struct type_item *type)
 {
     (void)type;
     return LLVMInt32TypeInContext(context);
 }
 
-LLVMTypeRef get_char_type(LLVMContextRef context, struct type_expr *type)
+LLVMTypeRef get_char_type(LLVMContextRef context, struct type_item *type)
 {
     (void)type;
     return LLVMInt8TypeInContext(context);
 }
 
-LLVMTypeRef get_bool_type(LLVMContextRef context, struct type_expr *type)
+LLVMTypeRef get_bool_type(LLVMContextRef context, struct type_item *type)
 {
     (void)type;
     return LLVMInt1TypeInContext(context);
 }
 
-LLVMTypeRef get_double_type(LLVMContextRef context, struct type_expr *type)
+LLVMTypeRef get_double_type(LLVMContextRef context, struct type_item *type)
 {
     (void)type;
     return LLVMDoubleTypeInContext(context);
 }
 
-LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_expr *type_exp)
+LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_item *type_exp)
 {
     assert(type_exp->type == TYPE_STRUCT);
     assert(g_cg);
@@ -68,7 +68,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_expr *type_exp)
     LLVMTypeRef *members;
     MALLOC(members, member_count * sizeof(LLVMTypeRef));
     for (unsigned i = 0; i < member_count; i++) {
-        struct type_expr *field_type = *(struct type_expr **)array_get(&type_exp->args, i);
+        struct type_item *field_type = *(struct type_item **)array_get(&type_exp->args, i);
         members[i] = get_llvm_type(field_type);
     }
     LLVMStructSetBody(struct_type, members, member_count, false);
@@ -77,7 +77,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_expr *type_exp)
     return struct_type;
 }
 
-LLVMTypeRef get_str_type(LLVMContextRef context, struct type_expr *type)
+LLVMTypeRef get_str_type(LLVMContextRef context, struct type_item *type)
 {
     (void)type;
     return LLVMPointerType(LLVMInt8TypeInContext(context), 0);
@@ -369,7 +369,7 @@ TargetType _get_function_type(TargetType ret_type, TargetType *param_types, unsi
     return LLVMFunctionType(ret_type, (LLVMTypeRef*)param_types, param_count, is_variadic);
 }
 
-TargetType _get_target_type(struct type_expr *type)
+TargetType _get_target_type(struct type_item *type)
 {
     return get_llvm_type(type);
 }
@@ -441,7 +441,7 @@ void llvm_cg_free(struct cg_llvm *cg)
     g_cg = 0;
 }
 
-LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_expr *type)
+LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_item *type)
 {
     enum type en_type = get_type(type);
     return cg->ops[en_type].get_type(cg->context, type);
@@ -815,7 +815,7 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
     return target_machine;
 }
 
-LLVMTypeRef get_llvm_type(struct type_expr *type)
+LLVMTypeRef get_llvm_type(struct type_item *type)
 {
     assert(g_cg);
     return _get_llvm_type(g_cg, type);

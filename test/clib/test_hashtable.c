@@ -189,9 +189,9 @@ TEST(testHashtable, TestHashtablePointerKey)
     ASSERT_EQ(0, hashtable_get_p(&ht, op3));
     ASSERT_EQ(2, hashtable_size(&ht));
     hashtable_deinit(&ht);
-    type_expr_free((type_expr *)op1);
-    type_expr_free((type_expr *)op2);
-    type_expr_free((type_expr *)op3);
+    type_item_free((type_item *)op1);
+    type_item_free((type_item *)op2);
+    type_item_free((type_item *)op3);
     engine_free(engine);
 }
 

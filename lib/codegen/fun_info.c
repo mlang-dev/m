@@ -7,7 +7,7 @@ const unsigned ALL_REQUIRED = ~0U;
 
 void fun_info_init(struct fun_info *fi, struct ast_node *func_type)
 {
-    struct type_expr *fun_type = func_type->type;
+    struct type_item *fun_type = func_type->type;
     unsigned param_num = (unsigned)array_size(&fun_type->args) - 1; //args -> ret type
     if (func_type->ft->is_variadic)
         param_num -= 1;
@@ -16,10 +16,10 @@ void fun_info_init(struct fun_info *fi, struct ast_node *func_type)
     array_init(&fi->args, sizeof(struct abi_arg_info));
     target_arg_info_init(&fi->tai);
 
-    fi->ret.type = *(struct type_expr **)array_back(&fun_type->args);
+    fi->ret.type = *(struct type_item **)array_back(&fun_type->args);
     struct abi_arg_info aai;
     for (unsigned i = 0; i < param_num; i++) {
-        aai.type = *(struct type_expr **)array_get(&fun_type->args, i);
+        aai.type = *(struct type_item **)array_get(&fun_type->args, i);
         array_push(&fi->args, &aai);
     }
 }

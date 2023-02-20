@@ -42,7 +42,7 @@ void _func_leave(struct cg_wasm *cg, struct ast_node *fun)
 }
 
 
-struct var_info *_req_new_local_var(struct cg_wasm *cg, struct type_expr *type, bool is_local_var, bool is_ret, bool is_addressed)
+struct var_info *_req_new_local_var(struct cg_wasm *cg, struct type_item *type, bool is_local_var, bool is_ret, bool is_addressed)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
     if (is_aggregate_type(type) && is_local_var && is_ret){
@@ -151,13 +151,13 @@ u32 _func_get_local_var_nums(struct cg_wasm *cg)
     return fc->local_vars - fc->local_params;
 }
 
-struct type_expr *_create_type_for_call_with_optional_parameters(struct cg_wasm*cg, struct ast_node *node)
+struct type_item *_create_type_for_call_with_optional_parameters(struct cg_wasm*cg, struct ast_node *node)
 {
     symbol callee = node->call->specialized_callee ? node->call->specialized_callee : node->call->callee;
     struct ast_node *fun_type = hashtable_get_p(&cg->func_name_2_ast, callee);
     u32 param_num = array_size(&fun_type->ft->params->block->nodes);
     struct array arg_types;
-    array_init(&arg_types, sizeof(struct type_expr *));
+    array_init(&arg_types, sizeof(struct type_item *));
     for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
         struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
         if (!fun_type->ft->is_variadic||i < param_num - 1) {
@@ -218,14 +218,14 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         /*for variadic function call, we might need one local variable*/
         fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->call->callee_func_type);
         bool has_optional_args = is_variadic_call_with_optional_arguments(cg, node);
-        struct type_expr *te = 0;
+        struct type_item *te = 0;
         if(has_optional_args || fi_has_sret(fi)){
             te = has_optional_args ? _create_type_for_call_with_optional_parameters(cg, node) : fi->ret.type;
             vi = _req_new_local_var(cg, te, is_local_var, has_optional_args ? false : node->is_ret, false);
             hashtable_set_p(&fc->ast_2_index, node, vi);
         }
         if(has_optional_args){
-            //TODO: fix memory leak, but we can't free here type_expr_free(te);
+            //TODO: fix memory leak, but we can't free here type_item_free(te);
             //
         }
         break;
@@ -236,7 +236,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
 {
     assert(node->node_type == FUNC_NODE);
     assert(node->type->kind == KIND_OPER);
-    struct type_expr *to = node->type;
+    struct type_item *to = node->type;
     assert(!is_generic(node->type));
     struct fun_context *fc = _func_enter(cg, node);
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->func->func_type);
@@ -250,14 +250,14 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     }
     for(u32 i=0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++){
         struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
-        param->type = (*(struct type_expr**)array_get(&to->args,i));
+        param->type = (*(struct type_item**)array_get(&to->args,i));
         func_register_local_variable(cg, param, false);
     }
     collect_local_variables(cg, node->func->body);
     u32 stack_size = fc_get_stack_size(fc);
     if(stack_size){
         //TODO: make builtin type as constant
-        struct type_expr *to_sp = create_nullary_type(TYPE_INT);
+        struct type_item *to_sp = create_nullary_type(TYPE_INT);
         fc->local_sp = _req_new_local_var(cg, to_sp, true, false, false);
     }
     

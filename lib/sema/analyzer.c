@@ -21,20 +21,20 @@ enum type _get_type_enum(struct sema_context *context, symbol type_name)
     return hashtable_get_int(context->symbol_2_int_types, type_name);
 }
 
-struct type_expr *_retrieve_type_with_type_name(struct sema_context *context, symbol name, enum Mut mut)
+struct type_item *_retrieve_type_with_type_name(struct sema_context *context, symbol name, enum Mut mut)
 {
-    struct type_expr_pair * tep = symboltable_get(&context->typename_2_typexpr_pairs, name);
+    struct type_item_pair * tep = symboltable_get(&context->typename_2_typexpr_pairs, name);
     if (!tep){
         printf("No type is found for the type name: %s.\n", string_get(name));
         return 0;
     }
-    struct type_expr *type = tep_find_type_expr(tep, mut, false, mut);
+    struct type_item *type = tep_find_type_item(tep, mut, false, mut);
     return fresh(type, &context->nongens);
 }
 
-struct type_expr *create_type_from_type_node(struct sema_context *context, struct type_node *type_node, enum Mut mut)
+struct type_item *create_type_from_type_node(struct sema_context *context, struct type_node *type_node, enum Mut mut)
 {
-    struct type_expr *value_type;
+    struct type_item *value_type;
     switch(type_node->kind){
     case TypeName:
         return _retrieve_type_with_type_name(context, type_node->type_name, mut); // example like int
@@ -54,12 +54,12 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
     case TupleType:
     {
         struct array args;
-        array_init(&args, sizeof(struct type_expr*));
+        array_init(&args, sizeof(struct type_item*));
         for(u32 i=0; i<array_size(&type_node->tuple_block->block->nodes); i++){
             struct ast_node *field = *(struct ast_node **)array_get(&type_node->tuple_block->block->nodes, i);
             assert(field->node_type == TYPE_NODE || field->node_type == VAR_NODE);
             struct type_node *tn = (field->node_type == TYPE_NODE)? field->type_node : field->var->is_of_type->type_node;
-            struct type_expr *te = create_type_from_type_node(context, tn, mut);
+            struct type_item *te = create_type_from_type_node(context, tn, mut);
             array_push(&args, &te);
         }
         return create_type_oper_tuple(mut, &args);
@@ -72,7 +72,7 @@ struct type_expr *create_type_from_type_node(struct sema_context *context, struc
     }
 }
 
-struct ast_node *cast_to_node(struct type_expr *to_type, struct ast_node *node)
+struct ast_node *cast_to_node(struct type_item *to_type, struct ast_node *node)
 {
     struct ast_node *type_name = ident_node_new(get_type_symbol(to_type->type), node->loc);
     //we have to make a copy of init_value node, otherwise it's endlessly calling cast node
@@ -84,7 +84,7 @@ struct ast_node *cast_to_node(struct type_expr *to_type, struct ast_node *node)
     return cast;
 }
 
-struct type_expr *_analyze_unk(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_unk(struct sema_context *context, struct ast_node *node)
 {
     printf("analyzing unk: %s\n", node_type_strings[node->node_type]);
     if (!context || !node)
@@ -102,12 +102,12 @@ struct ast_node *_get_var_node(struct sema_context *context, struct ast_node *no
    return var;
 }
 
-struct type_expr *retrieve_type_for_var_name(struct sema_context *context, symbol name)
+struct type_item *retrieve_type_for_var_name(struct sema_context *context, symbol name)
 {
     return get_symbol_type(&context->decl_2_typexprs, &context->nongens, name);
 }
 
-struct type_expr *_analyze_ident(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_ident(struct sema_context *context, struct ast_node *node)
 {
     node->ident->var = _get_var_node(context, node);
     if(!node->ident->var){
@@ -117,13 +117,13 @@ struct type_expr *_analyze_ident(struct sema_context *context, struct ast_node *
     return retrieve_type_for_var_name(context, node->ident->name);
 }
 
-struct type_expr *_analyze_liter(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_liter(struct sema_context *context, struct ast_node *node)
 {
     symbol type_name = get_type_symbol(node->liter->type);
     return _retrieve_type_with_type_name(context, type_name, Immutable);
 }
 
-u32 _get_array_size(struct type_expr *type)
+u32 _get_array_size(struct type_item *type)
 {
     u32 size = 1;
     if(type->type != TYPE_ARRAY)
@@ -134,7 +134,7 @@ u32 _get_array_size(struct type_expr *type)
     return size * _get_array_size(type->val_type);
 }
 
-bool _is_array_size_same(struct type_expr *type1, struct type_expr *type2)
+bool _is_array_size_same(struct type_item *type1, struct type_item *type2)
 {
     return type1->type == type2->type && type2->type == TYPE_ARRAY && _get_array_size(type1) == _get_array_size(type2);
 }
@@ -146,14 +146,14 @@ struct ast_node *_node_copy_with_type(struct ast_node *node)
     return copy;
 }
 
-struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
     symbol var_name = node->var->var->ident->name;
     if(has_symbol(&context->decl_2_typexprs, var_name)){
         //TODO: error handling, redefinition
         assert(false);
     }
-    struct type_expr *var_type = 0;
+    struct type_item *var_type = 0;
     if(context->scope_level == 1){
         //global variable, test JIT directly evaluates global variable
         node->var->is_global = true;
@@ -183,7 +183,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
     }
     if (!var_type && has_symbol_in_scope(&context->decl_2_typexprs, var_name, context->scope_marker))
         var_type = retrieve_type_for_var_name(context, var_name);
-    struct type_expr *type = analyze(context, node->var->init_value);
+    struct type_item *type = analyze(context, node->var->init_value);
     if (type && var_type && _is_array_size_same(var_type, type)){
         type = var_type;
         node->var->init_value->type = type;
@@ -192,7 +192,7 @@ struct type_expr *_analyze_var(struct sema_context *context, struct ast_node *no
         return 0;
     if(!var_type)
         var_type = create_type_var(node->var->mut);
-    struct type_expr *result_type = unify(var_type, type, &context->nongens);
+    struct type_item *result_type = unify(var_type, type, &context->nongens);
     if (!result_type) {
         report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
         return 0;
@@ -228,11 +228,11 @@ void fill_union_tag_values(struct sema_context *context, struct ast_node *body)
     }
 }
 
-struct type_expr *_analyze_adt(struct sema_context *context, enum ADTKind kind, symbol name, struct ast_node *body)
+struct type_item *_analyze_adt(struct sema_context *context, enum ADTKind kind, symbol name, struct ast_node *body)
 {
     assert(body->node_type == BLOCK_NODE);
     struct array args;
-    array_init(&args, sizeof(struct type_expr *));
+    array_init(&args, sizeof(struct type_item *));
     analyze(context, body);
     if(kind == Sum){
         fill_union_tag_values(context, body);
@@ -242,32 +242,32 @@ struct type_expr *_analyze_adt(struct sema_context *context, enum ADTKind kind, 
         struct ast_node *field_node = *(struct ast_node **)array_get(&body->block->nodes, i);
         array_push(&args, &field_node->type);
     }
-    struct type_expr *result_type;
+    struct type_item *result_type;
     if(kind == Product)
         result_type = create_type_oper_struct(name, Immutable, &args);
     else 
         result_type = create_type_oper_union(name, Immutable, &args);
     //assert(node->adt_type->name == result_type->name);
-    struct type_expr_pair * tep = get_type_expr_pair(name);
+    struct type_item_pair * tep = get_type_item_pair(name);
     push_symbol_type(&context->typename_2_typexpr_pairs, name, tep);
     return result_type;
 }
 
-struct type_expr *_analyze_record(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_record(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = _analyze_adt(context, Product, node->adt_type->name, node->adt_type->body);
+    struct type_item *type = _analyze_adt(context, Product, node->adt_type->name, node->adt_type->body);
     hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
     return type;
 }
 
-struct type_expr *_analyze_variant(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_variant(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = _analyze_adt(context, Sum, node->adt_type->name, node->adt_type->body);
+    struct type_item *type = _analyze_adt(context, Sum, node->adt_type->name, node->adt_type->body);
     hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
     return type;
 }
 
-struct type_expr *_analyze_adt_init(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_adt_init(struct sema_context *context, struct ast_node *node)
 {
     if (node->adt_init->is_of_type){
         node->type = create_type_from_type_node(context, node->adt_init->is_of_type->type_node, Immutable);
@@ -279,10 +279,10 @@ struct type_expr *_analyze_adt_init(struct sema_context *context, struct ast_nod
     return node->type;
 }
 
-struct type_expr *_analyze_array_init(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_array_init(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = 0;
-    struct type_expr *element_type = 0;
+    struct type_item *type = 0;
+    struct type_item *element_type = 0;
     struct array dims;
     array_init(&dims, sizeof(u32));
     if (!node->array_init){
@@ -303,11 +303,11 @@ struct type_expr *_analyze_array_init(struct sema_context *context, struct ast_n
     return type;
 }
 
-struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_array_type(struct sema_context *context, struct ast_node *node)
 {
     symbol elm_type_name = node->array_type->elm_type->ident->name;
     enum type elm_type_enum = get_type_enum_from_symbol(elm_type_name);
-    struct type_expr *elm_type = create_nullary_type(elm_type_enum);
+    struct type_item *elm_type = create_nullary_type(elm_type_enum);
     struct array dims;
     array_init(&dims, sizeof(u32));
     for(u32 i = 0; i < array_size(&node->array_init->block->nodes); i++){
@@ -319,24 +319,24 @@ struct type_expr *_analyze_array_type(struct sema_context *context, struct ast_n
     return create_array_type(elm_type, &dims);
 }
 
-struct type_expr *_analyze_type_node(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_type_node(struct sema_context *context, struct ast_node *node)
 {
     return create_type_from_type_node(context, node->type_node, Immutable);
 }
 
-struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_func_type(struct sema_context *context, struct ast_node *node)
 {
     struct array fun_sig;
-    array_init(&fun_sig, sizeof(struct type_expr *));
+    array_init(&fun_sig, sizeof(struct type_item *));
     for (size_t i = 0; i < array_size(&node->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
         assert(param->var->is_of_type);
-        struct type_expr* to = create_type_from_type_node(context, param->var->is_of_type->type_node, Immutable);
+        struct type_item* to = create_type_from_type_node(context, param->var->is_of_type->type_node, Immutable);
         param->type = to;
         array_push(&fun_sig, &param->type);
     }
     assert(node->ft->ret_type_node);
-    struct type_expr *to = create_type_from_type_node(context, node->ft->ret_type_node->type_node, Immutable);
+    struct type_item *to = create_type_from_type_node(context, node->ft->ret_type_node->type_node, Immutable);
     array_push(&fun_sig, &to);
     node->type = create_type_fun(&fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
@@ -344,17 +344,17 @@ struct type_expr *_analyze_func_type(struct sema_context *context, struct ast_no
     return node->type;
 }
 
-struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_func(struct sema_context *context, struct ast_node *node)
 {
     enter_function(context);
     hashtable_set_p(&context->func_types, node->func->func_type->ft->name, node->func->func_type);
     stack_push(&context->func_stack, &node);
     //# create a new non-generic variable for the binder
     struct array fun_sig;
-    array_init(&fun_sig, sizeof(struct type_expr *));
+    array_init(&fun_sig, sizeof(struct type_item *));
     for (size_t i = 0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
-        struct type_expr *exp;
+        struct type_item *exp;
         if (param->var->is_of_type) {
            exp = create_type_from_type_node(context, param->var->is_of_type->type_node, Immutable);
         } else{
@@ -366,13 +366,13 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
         push_symbol_type(&context->varname_2_asts, param->var->var->ident->name, param);
     }
     /*analyze function body*/
-    struct type_expr *fun_type_var = create_type_var(Immutable); //?
+    struct type_item *fun_type_var = create_type_var(Immutable); //?
     push_symbol_type(&context->decl_2_typexprs, node->func->func_type->ft->name, fun_type_var);
-    struct type_expr *ret_type = analyze(context, node->func->body);
+    struct type_item *ret_type = analyze(context, node->func->body);
     array_push(&fun_sig, &ret_type);
-    struct type_expr *result_type = create_type_fun(&fun_sig);
+    struct type_item *result_type = create_type_fun(&fun_sig);
     unify(fun_type_var, result_type, &context->nongens);
-    struct type_expr *result = prune(fun_type_var);
+    struct type_item *result = prune(fun_type_var);
     node->func->func_type->type = result;
     if (is_generic(result)) {
         hashtable_set(&context->generic_ast, string_get(node->func->func_type->ft->name), node);
@@ -385,19 +385,19 @@ struct type_expr *_analyze_func(struct sema_context *context, struct ast_node *n
     return result;
 }
 
-struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_call(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *fun_type = retrieve_type_for_var_name(context, node->call->callee);
+    struct type_item *fun_type = retrieve_type_for_var_name(context, node->call->callee);
     if (!fun_type) {
         struct source_location loc = { 1, 1, 0, 0 };
         report_error(context, EC_FUNC_NOT_DEFINED, loc);
         return 0;
     }
     struct array args;
-    array_init(&args, sizeof(struct type_expr *));
+    array_init(&args, sizeof(struct type_item *));
     for (size_t i = 0; i < array_size(&node->call->arg_block->block->nodes); i++) {
         struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
-        struct type_expr *type = analyze(context, arg);
+        struct type_item *type = analyze(context, arg);
         assert(type);
         array_push(&args, &type);
     }
@@ -410,7 +410,7 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
             node->call->specialized_callee = to_symbol(string_get(&sp_callee));
             if (has_symbol(&context->decl_2_typexprs, node->call->specialized_callee)) {
                 fun_type = retrieve_type_for_var_name(context, node->call->specialized_callee);
-                return *(struct type_expr **)array_back(&fun_type->args);
+                return *(struct type_item **)array_back(&fun_type->args);
             }
             /* specialized callee */
             struct ast_node *generic_fun = hashtable_get(&context->generic_ast, string_get(node->call->callee));
@@ -427,9 +427,9 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
             node->call->callee_func_type = sp_fun->func->func_type;
         }
     }
-    struct type_expr *result_type = create_type_var(Immutable); //?? immutable result assumed
+    struct type_item *result_type = create_type_var(Immutable); //?? immutable result assumed
     array_push(&args, &result_type);
-    struct type_expr *call_fun = create_type_fun(&args);
+    struct type_item *call_fun = create_type_fun(&args);
     unify(call_fun, fun_type, &context->nongens);
     if(sp_fun){
         fun_type = prune(fun_type);
@@ -447,12 +447,12 @@ struct type_expr *_analyze_call(struct sema_context *context, struct ast_node *n
     return result_type;
 }
 
-struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_unary(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *op_type = analyze(context, node->unop->operand);
+    struct type_item *op_type = analyze(context, node->unop->operand);
     if(!op_type) return 0;
     if (node->unop->opcode == OP_NOT) {
-        struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
+        struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
         unify(op_type, bool_type, &context->nongens);
         node->unop->operand->type = op_type;
     }
@@ -484,35 +484,35 @@ struct type_expr *_analyze_unary(struct sema_context *context, struct ast_node *
     return op_type;
 }
 
-struct type_expr *_analyze_cast(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_cast(struct sema_context *context, struct ast_node *node)
 {
     analyze(context, node->cast->expr);
     return create_type_from_type_node(context, node->cast->to_type_node->type_node, Immutable);
 }
 
-struct type_expr *_analyze_record_field_accessor(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_record_field_accessor(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = analyze(context, node->index->object);
+    struct type_item *type = analyze(context, node->index->object);
     if(!is_adt(type) && !(type->type == TYPE_REF && is_adt(type->val_type))){
         report_error(context, EC_EXPECT_STRUCT_TYPE, node->loc);
         return 0;
     }
-    struct type_expr *adt_type = type->val_type ? type->val_type : type;
+    struct type_item *adt_type = type->val_type ? type->val_type : type;
     struct ast_node *adt_node = hashtable_get_p(&context->struct_typename_2_asts, adt_type->name);
     int index = find_member_index(adt_node, node->index->index->ident->name);
     if (index < 0) {
         report_error(context, EC_FIELD_NOT_EXISTS, node->loc);
         return 0;
     }
-    struct type_expr *member_type = *(struct type_expr **)array_get(&adt_type->args, index);
+    struct type_item *member_type = *(struct type_item **)array_get(&adt_type->args, index);
     node->index->index->type = member_type;
     node->index->index->ident->var = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, index);    
     return member_type;
 }
 
-struct type_expr *_analyze_array_member_accessor(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_array_member_accessor(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = analyze(context, node->index->object);
+    struct type_item *type = analyze(context, node->index->object);
     if(!type) return 0;
     analyze(context, node->index->index);
     if(type->type != TYPE_ARRAY && !(type->type == TYPE_REF && type->val_type->type == TYPE_ARRAY)){
@@ -520,7 +520,7 @@ struct type_expr *_analyze_array_member_accessor(struct sema_context *context, s
         return 0;
     }
     if(array_size(&type->dims) == 1){
-        return find_type_expr(type->val_type, type->mut);
+        return find_type_item(type->val_type, type->mut);
     }else{
         //remove one dimension
         struct array dims;
@@ -533,12 +533,12 @@ struct type_expr *_analyze_array_member_accessor(struct sema_context *context, s
     }
 }
 
-struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_binary(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *lhs_type = analyze(context, node->binop->lhs);
-    struct type_expr *rhs_type = analyze(context, node->binop->rhs);
+    struct type_item *lhs_type = analyze(context, node->binop->lhs);
+    struct type_item *rhs_type = analyze(context, node->binop->rhs);
     if(!lhs_type || !rhs_type) return 0;
-    struct type_expr *result_type = unify(lhs_type, rhs_type, &context->nongens);
+    struct type_item *result_type = unify(lhs_type, rhs_type, &context->nongens);
     if (result_type) {
         if (is_relational_op(node->binop->opcode))
             result_type = create_nullary_type(TYPE_BOOL);
@@ -562,7 +562,7 @@ struct type_expr *_analyze_binary(struct sema_context *context, struct ast_node 
     return result_type;
 }
 
-struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_assign(struct sema_context *context, struct ast_node *node)
 {
     set_lvalue(node->binop->lhs);
     if(node->binop->lhs->node_type == IDENT_NODE){
@@ -579,15 +579,15 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
             }
         }
     }
-    struct type_expr *lhs_type = analyze(context, node->binop->lhs);
+    struct type_item *lhs_type = analyze(context, node->binop->lhs);
     if(lhs_type && !lhs_type->mut){
         string lhs_str = dump(context, node->binop->lhs);
         report_error(context, EC_IMMUTABLE_ASSIGNMENT, node->loc, string_get(&lhs_str));
         return 0;
     }  
-    struct type_expr *rhs_type = analyze(context, node->binop->rhs);
-    struct type_expr *result = 0;
-    struct type_expr *unified = unify(lhs_type, rhs_type, &context->nongens);
+    struct type_item *rhs_type = analyze(context, node->binop->rhs);
+    struct type_item *result = 0;
+    struct type_item *unified = unify(lhs_type, rhs_type, &context->nongens);
     if (unified == lhs_type) {
         result = create_unit_type();
     } else {
@@ -606,25 +606,25 @@ struct type_expr *_analyze_assign(struct sema_context *context, struct ast_node 
     return result;
 }
 
-struct type_expr *_analyze_if(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_if(struct sema_context *context, struct ast_node *node)
 {
     struct loop_nested_level *lnl = get_current_block_level(context);
     if(lnl) lnl->block_levels++;
-    struct type_expr *cond_type = analyze(context, node->cond->if_node);
-    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
+    struct type_item *cond_type = analyze(context, node->cond->if_node);
+    struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
     unify(cond_type, bool_type, &context->nongens);
-    struct type_expr *then_type = analyze(context, node->cond->then_node);
+    struct type_item *then_type = analyze(context, node->cond->then_node);
     if(node->cond->else_node){
-        struct type_expr *else_type = analyze(context, node->cond->else_node);
+        struct type_item *else_type = analyze(context, node->cond->else_node);
         unify(then_type, else_type, &context->nongens);
     }
     if(lnl) lnl->block_levels--;
     return then_type;
 }
 
-struct type_expr *_analyze_match(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_match(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *test_type = analyze(context, node->match->test_expr);
+    struct type_item *test_type = analyze(context, node->match->test_expr);
     for(size_t i = 0; i < array_size(&node->match->match_cases->block->nodes); i++){
         struct ast_node *case_node = array_get_p(&node->match->match_cases->block->nodes, i);
         struct ast_node *pattern = case_node->match_case->pattern;
@@ -638,7 +638,7 @@ struct type_expr *_analyze_match(struct sema_context *context, struct ast_node *
             expr->transformed = block;
             expr->type = block->type;
         }
-        struct type_expr *pattern_type = analyze(context, pattern->transformed ? pattern->transformed : pattern);
+        struct type_item *pattern_type = analyze(context, pattern->transformed ? pattern->transformed : pattern);
         if(pattern_type){
             unify(test_type, pattern_type, &context->nongens);
         }
@@ -646,31 +646,31 @@ struct type_expr *_analyze_match(struct sema_context *context, struct ast_node *
     return analyze(context, node->match->match_cases);
 }
 
-struct type_expr *_analyze_match_item(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_match_item(struct sema_context *context, struct ast_node *node)
 {
     if(node->match_case->guard){
-        struct type_expr *cond_type = analyze(context, node->match_case->guard);
-        struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
+        struct type_item *cond_type = analyze(context, node->match_case->guard);
+        struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
         unify(cond_type, bool_type, &context->nongens);
     }
     return analyze(context, node->match_case->expr);
 }
 
-struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_for(struct sema_context *context, struct ast_node *node)
 {
     struct loop_nested_level *bnl = enter_loop(context);
     bnl->block_levels = 1; //body is itself a block
-    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
+    struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
     //now we need to know who owns the start node memory
     node->forloop->var->var->init_value = node->forloop->range->range->start;
     node->forloop->var->var->is_init_shared = true;
-    struct type_expr *var_type = analyze(context, node->forloop->var);
-    struct type_expr *start_type = analyze(context, node->forloop->range->range->start);
-    struct type_expr *step_type = 0;
+    struct type_item *var_type = analyze(context, node->forloop->var);
+    struct type_item *start_type = analyze(context, node->forloop->range->range->start);
+    struct type_item *step_type = 0;
     if(node->forloop->range->range->step)
         step_type = analyze(context, node->forloop->range->range->step);
-    struct type_expr *end_type = analyze(context, node->forloop->range->range->end);
-    struct type_expr *body_type = analyze(context, node->forloop->body);
+    struct type_item *end_type = analyze(context, node->forloop->range->range->end);
+    struct type_item *body_type = analyze(context, node->forloop->body);
     if (!unify(start_type, var_type, &context->nongens)) {
         printf("failed to unify start type as int: %s, %s\n", kind_strings[start_type->kind], node_type_strings[node->forloop->range->range->start->node_type]);
     }
@@ -690,13 +690,13 @@ struct type_expr *_analyze_for(struct sema_context *context, struct ast_node *no
     return create_unit_type();
 }
 
-struct type_expr *_analyze_while(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_while(struct sema_context *context, struct ast_node *node)
 {
     struct loop_nested_level *bnl = enter_loop(context);
     bnl->block_levels = 1; 
-    struct type_expr *bool_type = create_nullary_type(TYPE_BOOL);
-    struct type_expr *expr_type = analyze(context, node->whileloop->expr);
-    struct type_expr *body_type = analyze(context, node->whileloop->body);
+    struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
+    struct type_item *expr_type = analyze(context, node->whileloop->expr);
+    struct type_item *body_type = analyze(context, node->whileloop->body);
     leave_loop(context);
     if (!unify(bool_type, expr_type, &context->nongens)) {
         printf("failed to unify expr type as bool.\n");
@@ -706,9 +706,9 @@ struct type_expr *_analyze_while(struct sema_context *context, struct ast_node *
     return create_nullary_type(TYPE_UNIT);
 }
 
-struct type_expr *_analyze_jump(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_jump(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = 0;
+    struct type_item *type = 0;
     if (node->jump->expr){
         type = analyze(context, node->jump->expr);
     }else{
@@ -720,10 +720,10 @@ struct type_expr *_analyze_jump(struct sema_context *context, struct ast_node *n
     return type;
 }
 
-struct type_expr *_analyze_block(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_block(struct sema_context *context, struct ast_node *node)
 {
     enter_scope(context);
-    struct type_expr *type = 0;
+    struct type_item *type = 0;
     for (size_t i = 0; i < array_size(&node->block->nodes); i++) {
         struct ast_node *n = *(struct ast_node **)array_get(&node->block->nodes, i);
         type = analyze(context, n);
@@ -738,9 +738,9 @@ struct type_expr *_analyze_block(struct sema_context *context, struct ast_node *
     return type;
 }
 
-struct type_expr *_analyze_union_type_item_node(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_union_type_item_node(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = 0;
+    struct type_item *type = 0;
     switch(node->variant_type_item_node->kind){
         case TaggedUnion:{
             /*name types*/
@@ -759,9 +759,9 @@ struct type_expr *_analyze_union_type_item_node(struct sema_context *context, st
     return type;
 }
 
-struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
+struct type_item *analyze(struct sema_context *context, struct ast_node *node)
 {
-    struct type_expr *type = 0;
+    struct type_item *type = 0;
     if (node->type && node->type->kind == KIND_OPER)
         return node->type;
     switch(node->node_type){

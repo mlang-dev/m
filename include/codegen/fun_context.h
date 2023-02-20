@@ -55,7 +55,7 @@ struct fun_context {
     /*
      *  stack type: an anonymous struct type for stack allocated local variables
      */
-    struct type_expr stack_type; //
+    struct type_item stack_type; //
     struct type_size_info stack_size_info;
 
 
@@ -67,7 +67,7 @@ struct fun_context {
 
 void fc_init(struct fun_context *fc);
 void fc_deinit(struct fun_context *fc);
-int fc_register_alloc(struct fun_context *fc, struct type_expr *struct_type);
+int fc_register_alloc(struct fun_context *fc, struct type_item *struct_type);
 
 struct var_info *fc_get_var_info(struct fun_context *fc, struct ast_node *node);
 i32 fc_get_stack_offset(struct fun_context *fc, struct ast_node *node);
