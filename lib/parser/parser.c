@@ -232,19 +232,36 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             struct ast_node *var = _take(nodes, rule->action.item_index[1]);
             struct ast_node *type_node = 0;
             struct ast_node *init_value = 0;
-            assert(var->node_type == IDENT_NODE);
-            if (rule->action.item_index[0]) {
-                if (rule->action.item_index_count == 4) {
-                    //has type and has init value
-                    type_node = _take(nodes, rule->action.item_index[2]);
-                    assert(type_node->node_type == TYPE_NODE);
-                    init_value = _take(nodes, rule->action.item_index[3]);
-                } else { // has no type info, has init value
-                    init_value = _take(nodes, rule->action.item_index[2]);
-                }
-            } else if (rule->action.item_index_count > 2) {
-                //just has ID and type
+            u8 var_kind = rule->action.item_index[0];
+            //0: ident
+            //1: ident:type
+            //2: ident = init
+            //3: ident:type = init
+            switch (var_kind){
+            case 0:
+                //id
+                break;
+            case 1:
+                //id:type
+                /*
+                assert(var->node_type == IDENT_TYPE_NODE);
+                var = var->ident_type->ident;
+                type_node = var->ident_type->is_of_type;
+                */
                 type_node = _take(nodes, rule->action.item_index[2]);
+                break;
+            case 2:
+                //id = init value
+                init_value = _take(nodes, rule->action.item_index[2]);
+                break;
+            case 3:
+                //id:type = init value
+                type_node = _take(nodes, rule->action.item_index[2]);
+                assert(type_node->node_type == TYPE_NODE);
+                init_value = _take(nodes, rule->action.item_index[3]);
+                break;
+            default:
+                break;
             }
             assert(!type_node || type_node->node_type == TYPE_NODE);
             ast = var_node_new(var, type_node, init_value, false, false, var->loc);
