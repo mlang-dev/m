@@ -528,9 +528,9 @@ LLVMValueRef _emit_accessor_node(struct cg_llvm *cg, struct ast_node *node)
         assert(v);
     }
     string *type_name = hashtable_get_p(&cg->varname_2_typename, id);
-    struct ast_node *type_node = hashtable_get_p(&cg->base.sema_context->struct_typename_2_asts, type_name);
+    struct ast_node *type_item_node = hashtable_get_p(&cg->base.sema_context->struct_typename_2_asts, type_name);
     symbol attr = node->index->index->ident->name;
-    int index = find_member_index(type_node, attr);
+    int index = find_member_index(type_item_node, attr);
     v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
     if (node->type->type < TYPE_STRUCT){
         string dot_id ;
@@ -737,7 +737,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case RANGE_NODE:
         case ARRAY_INIT_NODE:
         case ARRAY_TYPE_NODE:
-        case TYPE_NODE:
+        case TYPE_ITEM_NODE:
         case WHILE_NODE:
         case JUMP_NODE:
         case CAST_NODE:

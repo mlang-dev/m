@@ -1102,7 +1102,7 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case VARIANT_NODE:
         case VARIANT_TYPE_ITEM_NODE:
         case ARRAY_TYPE_NODE:
-        case TYPE_NODE:
+        case TYPE_ITEM_NODE:
         case RECORD_NODE:
         case NULL_NODE:
         case IMPORT_NODE:

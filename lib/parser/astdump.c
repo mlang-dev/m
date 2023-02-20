@@ -34,12 +34,12 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
     for (size_t i = 0; i < array_size(&func_type->ft->params->block->nodes); i++) {
         struct ast_node *var = *(struct ast_node **)array_get(&func_type->ft->params->block->nodes, i);
         string_copy(&var_str, var->var->var->ident->name);
-        if (var->var->is_of_type && (var->var->is_of_type->type_node->kind == TypeName || var->var->is_of_type->type_node->kind == BuiltinType) 
-            &&var->var->is_of_type->type_node->type_name) {
-            enum type type_enum = get_type_enum_from_symbol(var->var->is_of_type->type_node->type_name);
+        if (var->var->is_of_type && (var->var->is_of_type->type_item_node->kind == TypeName || var->var->is_of_type->type_item_node->kind == BuiltinType) 
+            &&var->var->is_of_type->type_item_node->type_name) {
+            enum type type_enum = get_type_enum_from_symbol(var->var->is_of_type->type_item_node->type_name);
             if(type_enum != TYPE_GENERIC){
                 string var_type;
-                string_init_chars(&var_type, string_get(var->var->is_of_type->type_node->type_name));
+                string_init_chars(&var_type, string_get(var->var->is_of_type->type_item_node->type_name));
                 string_add_chars(&var_str, ":");
                 string_add(&var_str, &var_type);
             }
@@ -54,8 +54,8 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
     }
 
     // function type
-    if (func_type->ft->ret_type_node) {
-        struct type_item *type = create_type_from_type_node(context, func_type->ft->ret_type_node->type_node, Immutable);
+    if (func_type->ft->ret_type_item_node) {
+        struct type_item *type = create_type_from_type_item_node(context, func_type->ft->ret_type_item_node->type_item_node, Immutable);
         string_copy_chars(&var_str, string_get(type->name));
         string_add_chars(&result, " -> ");
         string_add(&result, &var_str);

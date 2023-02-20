@@ -34,11 +34,11 @@ start           = statements
 
 unit_expr       = "()"
 
-type_item       = IDENT                                                                     { type_node 1 0 } // 1 is type name
-                | unit_expr                                                                 { type_node 0 0 } // 0 is unit type
-                | array_type                                                                { type_node 2 0 } // 2 is array type
-                | tuple_type                                                                { type_node 3 0 } // 3 is tuple type
-                | '&' type_item                                                             { type_node 4 1 } // 4 is ref type
+type_item       = IDENT                                                                     { type_item_node 1 0 } // 1 is type name
+                | unit_expr                                                                 { type_item_node 0 0 } // 0 is unit type
+                | array_type                                                                { type_item_node 2 0 } // 2 is array type
+                | tuple_type                                                                { type_item_node 3 0 } // 3 is tuple type
+                | '&' type_item                                                             { type_item_node 4 1 } // 4 is ref type
                 | "mut" type_item                                                           { mark_mut 1 1 1 } // 1 is action code for mark_mut for type node
 
 array_type      = type_item array_dims                                                      { array_type 0 1 }

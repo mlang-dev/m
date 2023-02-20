@@ -23,7 +23,7 @@ TEST(test_parser_variant, one_line_definition)
     ASSERT_EQ(BLOCK_NODE, node->adt_type->body->node_type);
     node = *(struct ast_node **)array_front(&node->adt_type->body->block->nodes);
     ASSERT_EQ(VARIANT_TYPE_ITEM_NODE, node->node_type);
-    ASSERT_EQ(UntaggedUnion, node->variant_type_item_node->kind);
+    ASSERT_EQ(UntaggedUnion, node->variant_type_node->kind);
     node_free(block);
     frontend_deinit(fe);
 }
@@ -45,7 +45,7 @@ variant XY = \n\
     ASSERT_EQ(BLOCK_NODE, node->adt_type->body->node_type);
     node = *(struct ast_node **)array_front(&node->adt_type->body->block->nodes);
     ASSERT_EQ(VARIANT_TYPE_ITEM_NODE, node->node_type);
-    ASSERT_EQ(UntaggedUnion, node->variant_type_item_node->kind);
+    ASSERT_EQ(UntaggedUnion, node->variant_type_node->kind);
     node_free(block);
     frontend_deinit(fe);
 }
@@ -66,7 +66,7 @@ variant XY = \n\
     ASSERT_EQ(BLOCK_NODE, node->adt_type->body->node_type);
     node = *(struct ast_node **)array_front(&node->adt_type->body->block->nodes);
     ASSERT_EQ(VARIANT_TYPE_ITEM_NODE, node->node_type);
-    ASSERT_EQ(UntaggedUnion, node->variant_type_item_node->kind);
+    ASSERT_EQ(UntaggedUnion, node->variant_type_node->kind);
     node_free(block);
     frontend_deinit(fe);
 }
@@ -87,7 +87,7 @@ variant XY = \n\
     ASSERT_EQ(BLOCK_NODE, node->adt_type->body->node_type);
     node = *(struct ast_node **)array_front(&node->adt_type->body->block->nodes);
     ASSERT_EQ(VARIANT_TYPE_ITEM_NODE, node->node_type);
-    ASSERT_EQ(EnumTagOnly, node->variant_type_item_node->kind);
+    ASSERT_EQ(EnumTagOnly, node->variant_type_node->kind);
     node_free(block);
     frontend_deinit(fe);
 }
@@ -108,7 +108,7 @@ variant XY = \n\
     ASSERT_EQ(BLOCK_NODE, node->adt_type->body->node_type);
     node = *(struct ast_node **)array_front(&node->adt_type->body->block->nodes);
     ASSERT_EQ(VARIANT_TYPE_ITEM_NODE, node->node_type);
-    ASSERT_EQ(EnumTagValue, node->variant_type_item_node->kind);
+    ASSERT_EQ(EnumTagValue, node->variant_type_node->kind);
     node_free(block);
     frontend_deinit(fe);
 }
@@ -131,7 +131,7 @@ variant XY = \n\
     ASSERT_EQ(BLOCK_NODE, node->adt_type->body->node_type);
     node = *(struct ast_node **)array_front(&node->adt_type->body->block->nodes);
     ASSERT_EQ(VARIANT_TYPE_ITEM_NODE, node->node_type);
-    ASSERT_EQ(TaggedUnion, node->variant_type_item_node->kind);
+    ASSERT_EQ(TaggedUnion, node->variant_type_node->kind);
     node_free(block);
     frontend_deinit(fe);
 }

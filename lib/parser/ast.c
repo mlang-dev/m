@@ -135,89 +135,89 @@ void _free_ident_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *type_node_new_with_type_name(symbol type_name, enum Mut mut, struct source_location loc)
+struct ast_node *type_item_node_new_with_type_name(symbol type_name, enum Mut mut, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
-    MALLOC(node->type_node, sizeof(*node->type_node));
-    node->type_node->kind = TypeName;
-    node->type_node->mut = mut;
-    node->type_node->type_name = type_name;
+    struct ast_node *node = ast_node_new(TYPE_ITEM_NODE, loc);
+    MALLOC(node->type_item_node, sizeof(*node->type_item_node));
+    node->type_item_node->kind = TypeName;
+    node->type_item_node->mut = mut;
+    node->type_item_node->type_name = type_name;
     return node;
 }
 
-struct ast_node *type_node_new_with_array_type(struct array_type_node *array_type_node, enum Mut mut, struct source_location loc)
+struct ast_node *type_item_node_new_with_array_type(struct array_type_node *array_type_node, enum Mut mut, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
-    MALLOC(node->type_node, sizeof(*node->type_node));
-    node->type_node->kind = ArrayType;
-    node->type_node->mut = mut;
-    node->type_node->array_type_node = array_type_node;
+    struct ast_node *node = ast_node_new(TYPE_ITEM_NODE, loc);
+    MALLOC(node->type_item_node, sizeof(*node->type_item_node));
+    node->type_item_node->kind = ArrayType;
+    node->type_item_node->mut = mut;
+    node->type_item_node->array_type_node = array_type_node;
     return node;
 }
 
-struct ast_node *type_node_new_with_tuple_type(struct ast_node *tuple_block, enum Mut mut, struct source_location loc)
+struct ast_node *type_item_node_new_with_tuple_type(struct ast_node *tuple_block, enum Mut mut, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
-    MALLOC(node->type_node, sizeof(*node->type_node));
-    node->type_node->kind = TupleType;
-    node->type_node->mut = mut;
-    node->type_node->tuple_block = tuple_block;
+    struct ast_node *node = ast_node_new(TYPE_ITEM_NODE, loc);
+    MALLOC(node->type_item_node, sizeof(*node->type_item_node));
+    node->type_item_node->kind = TupleType;
+    node->type_item_node->mut = mut;
+    node->type_item_node->tuple_block = tuple_block;
     return node;
 }
 
-struct ast_node *type_node_new_with_ref_type(struct type_node *val_node, enum Mut mut, struct source_location loc)
+struct ast_node *type_item_node_new_with_ref_type(struct type_item_node *val_node, enum Mut mut, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
-    MALLOC(node->type_node, sizeof(*node->type_node));
-    node->type_node->kind = RefType;
-    node->type_node->mut = mut;
-    node->type_node->val_node = val_node;
+    struct ast_node *node = ast_node_new(TYPE_ITEM_NODE, loc);
+    MALLOC(node->type_item_node, sizeof(*node->type_item_node));
+    node->type_item_node->kind = RefType;
+    node->type_item_node->mut = mut;
+    node->type_item_node->val_node = val_node;
     return node;
 }
 
-struct ast_node *type_node_new_with_builtin_type(symbol type_name, enum Mut mut, struct source_location loc)
+struct ast_node *type_item_node_new_with_builtin_type(symbol type_name, enum Mut mut, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
-    MALLOC(node->type_node, sizeof(*node->type_node));
-    node->type_node->kind = BuiltinType;
-    node->type_node->mut = mut;
-    node->type_node->array_type_node = 0;
-    node->type_node->type_name = type_name;
+    struct ast_node *node = ast_node_new(TYPE_ITEM_NODE, loc);
+    MALLOC(node->type_item_node, sizeof(*node->type_item_node));
+    node->type_item_node->kind = BuiltinType;
+    node->type_item_node->mut = mut;
+    node->type_item_node->array_type_node = 0;
+    node->type_item_node->type_name = type_name;
     return node;
 }
 
-struct ast_node *_copy_type_node(struct ast_node *orig_node)
+struct ast_node *_copy_type_item_node(struct ast_node *orig_node)
 {
-    switch(orig_node->type_node->kind){
+    switch(orig_node->type_item_node->kind){
         case ArrayType:
-            return type_node_new_with_array_type(orig_node->type_node->array_type_node, orig_node->type_node->mut, orig_node->loc);
+            return type_item_node_new_with_array_type(orig_node->type_item_node->array_type_node, orig_node->type_item_node->mut, orig_node->loc);
         case TupleType:
-            return type_node_new_with_tuple_type(orig_node->type_node->tuple_block, orig_node->type_node->mut, orig_node->loc);
+            return type_item_node_new_with_tuple_type(orig_node->type_item_node->tuple_block, orig_node->type_item_node->mut, orig_node->loc);
         case BuiltinType:
-            return type_node_new_with_builtin_type(orig_node->type_node->type_name, orig_node->type_node->mut, orig_node->loc);
+            return type_item_node_new_with_builtin_type(orig_node->type_item_node->type_name, orig_node->type_item_node->mut, orig_node->loc);
         case TypeName:
-            return type_node_new_with_type_name(orig_node->type_node->type_name, orig_node->type_node->mut, orig_node->loc);
+            return type_item_node_new_with_type_name(orig_node->type_item_node->type_name, orig_node->type_item_node->mut, orig_node->loc);
         case RefType:
-            return type_node_new_with_ref_type(orig_node->type_node->val_node, orig_node->type_node->mut, orig_node->loc);
+            return type_item_node_new_with_ref_type(orig_node->type_item_node->val_node, orig_node->type_item_node->mut, orig_node->loc);
     }
 }
 
-void _free_real_type_node(struct type_node *type_node)
+void _free_real_type_item_node(struct type_item_node *type_item_node)
 {
-    if(!type_node) return;
-    if(type_node->kind == ArrayType){
-        node_free(type_node->array_type_node->dims);
-        node_free(type_node->array_type_node->elm_type);
-        FREE(type_node->array_type_node);
-    } else if(type_node->kind == RefType){
-        _free_real_type_node(type_node->val_node);
-        FREE(type_node->val_node);
+    if(!type_item_node) return;
+    if(type_item_node->kind == ArrayType){
+        node_free(type_item_node->array_type_node->dims);
+        node_free(type_item_node->array_type_node->elm_type);
+        FREE(type_item_node->array_type_node);
+    } else if(type_item_node->kind == RefType){
+        _free_real_type_item_node(type_item_node->val_node);
+        FREE(type_item_node->val_node);
     }
 }
 
-void _free_type_node(struct ast_node *node)
+void _free_type_item_node(struct ast_node *node)
 {
-    _free_real_type_node(node->type_node);
+    _free_real_type_item_node(node->type_item_node);
     ast_node_free(node);
 }
 
@@ -387,34 +387,34 @@ void _free_adt_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *variant_type_item_node_new(enum UnionKind kind, symbol tag, struct ast_node *tag_value, struct source_location loc)
+struct ast_node *variant_type_node_new(enum UnionKind kind, symbol tag, struct ast_node *tag_value, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(VARIANT_TYPE_ITEM_NODE, loc);
-    MALLOC(node->variant_type_item_node, sizeof(*node->variant_type_item_node));
-    node->variant_type_item_node->tag = tag;
-    node->variant_type_item_node->tag_value=tag_value;
-    node->variant_type_item_node->kind = kind;
+    MALLOC(node->variant_type_node, sizeof(*node->variant_type_node));
+    node->variant_type_node->tag = tag;
+    node->variant_type_node->tag_value=tag_value;
+    node->variant_type_node->kind = kind;
     return node;
 }
 
-struct ast_node *_copy_variant_type_item_node(struct ast_node *orig_node)
+struct ast_node *_copy_variant_type_node(struct ast_node *orig_node)
 {
-    return variant_type_item_node_new(orig_node->variant_type_item_node->kind, orig_node->variant_type_item_node->tag,
-        _copy_block_node(orig_node->variant_type_item_node->tag_value), orig_node->loc);
+    return variant_type_node_new(orig_node->variant_type_node->kind, orig_node->variant_type_node->tag,
+        _copy_block_node(orig_node->variant_type_node->tag_value), orig_node->loc);
 }
 
-void _free_variant_type_item_node(struct ast_node *node)
+void _free_variant_type_node(struct ast_node *node)
 {
-    node_free(node->variant_type_item_node->tag_value);
+    node_free(node->variant_type_node->tag_value);
     ast_node_free(node);
 }
 
-struct ast_node *adt_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc)
+struct ast_node *adt_init_node_new(struct ast_node *body, struct ast_node *type_item_node, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(ADT_INIT_NODE, loc);
     MALLOC(node->adt_init, sizeof(*node->adt_init));
     node->adt_init->body = body;
-    node->adt_init->is_of_type = type_node;
+    node->adt_init->is_of_type = type_item_node;
     return node;
 }
 
@@ -503,25 +503,25 @@ void _free_array_type_node(struct ast_node *node)
 }
 /*******/
 
-struct ast_node *ident_type_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc)
+struct ast_node *ident_type_item_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(IDENT_TYPE_NODE, loc);
-    MALLOC(node->ident_type, sizeof(*node->ident_type));
-    node->ident_type->ident = ident;
-    node->ident_type->is_of_type = is_of_type;
+    MALLOC(node->ident_type_item, sizeof(*node->ident_type_item));
+    node->ident_type_item->ident = ident;
+    node->ident_type_item->is_of_type = is_of_type;
     return node;
 }
 
-struct ast_node *_copy_ident_type_node(struct ast_node *orig_node)
+struct ast_node *_copy_ident_type_item_node(struct ast_node *orig_node)
 {
-    return ident_type_node_new(
-        node_copy(orig_node->ident_type->ident), node_copy(orig_node->ident_type->is_of_type), orig_node->loc);
+    return ident_type_item_node_new(
+        node_copy(orig_node->ident_type_item->ident), node_copy(orig_node->ident_type_item->is_of_type), orig_node->loc);
 }
 
-void _free_ident_type_node(struct ast_node *node)
+void _free_ident_type_item_node(struct ast_node *node)
 {
-    node_free(node->ident_type->ident);
-    node_free(node->ident_type->is_of_type);
+    node_free(node->ident_type_item->ident);
+    node_free(node->ident_type_item->is_of_type);
     ast_node_free(node);
 }
 
@@ -603,23 +603,23 @@ symbol get_callee(struct ast_node *call)
     return call->call->specialized_callee ? call->call->specialized_callee : call->call->callee;
 }
 
-struct ast_node *func_type_node_default_new(symbol name, struct ast_node *arg_block,
-    symbol ret_type, struct ast_node *ret_type_node, bool is_variadic, bool is_external, struct source_location loc)
+struct ast_node *func_type_item_node_default_new(symbol name, struct ast_node *arg_block,
+    symbol ret_type, struct ast_node *ret_type_item_node, bool is_variadic, bool is_external, struct source_location loc)
 {
-    return func_type_node_new(name, arg_block, ret_type, ret_type_node, is_variadic, is_external, loc);
+    return func_type_item_node_new(name, arg_block, ret_type, ret_type_item_node, is_variadic, is_external, loc);
 }
 
-struct ast_node *func_type_node_new(symbol name,
+struct ast_node *func_type_item_node_new(symbol name,
     struct ast_node *params, /*params block ast node*/
     symbol ret_type,
-    struct ast_node *ret_type_node, 
+    struct ast_node *ret_type_item_node, 
     bool is_variadic, bool is_external, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(FUNC_TYPE_NODE, loc);
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = name;
     node->ft->params = params;
-    node->ft->ret_type_node = ret_type_node;
+    node->ft->ret_type_item_node = ret_type_item_node;
     node->ft->is_operator = false;
     node->ft->precedence = 0;
     node->ft->is_variadic = is_variadic;
@@ -627,7 +627,7 @@ struct ast_node *func_type_node_new(symbol name,
     node->ft->op = 0;
     if (is_variadic) {
         symbol symbol_name = get_type_symbol(TYPE_GENERIC);
-        struct ast_node *is_of_type = type_node_new_with_type_name(symbol_name, Immutable, loc);
+        struct ast_node *is_of_type = type_item_node_new_with_type_name(symbol_name, Immutable, loc);
         struct ast_node *fun_param = var_node_new(ident_node_new(symbol_name, loc), is_of_type, 0, false, true, loc);
         fun_param->type = create_nullary_type(TYPE_GENERIC);
         array_push(&node->ft->params->block->nodes, &fun_param);
@@ -645,11 +645,11 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
     node->ft->precedence = func_type->ft->precedence;
     node->ft->is_variadic = func_type->ft->is_variadic;
     node->ft->is_extern = func_type->ft->is_extern;
-    node->ft->ret_type_node = node_copy(func_type->ft->ret_type_node);
+    node->ft->ret_type_item_node = node_copy(func_type->ft->ret_type_item_node);
     node->ft->op = func_type->ft->op;
     if (func_type->ft->is_variadic) {
         symbol var_name = get_type_symbol(TYPE_GENERIC);
-        struct ast_node *is_of_type = type_node_new_with_type_name(var_name, Immutable, node->loc);
+        struct ast_node *is_of_type = type_item_node_new_with_type_name(var_name, Immutable, node->loc);
         struct ast_node *fun_param = var_node_new(ident_node_new(var_name, node->loc), is_of_type, 0, false, true, node->loc);
         array_push(&node->ft->params->block->nodes, &fun_param);
     }
@@ -659,7 +659,7 @@ struct ast_node *_copy_func_type_node(struct ast_node *func_type)
 void _free_func_type_node(struct ast_node *node)
 {
     node_free(node->ft->params);
-    node_free(node->ft->ret_type_node);
+    node_free(node->ft->ret_type_item_node);
     ast_node_free(node);
 }
 
@@ -860,25 +860,25 @@ void _free_assign_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *cast_node_new(struct ast_node *to_type_node, struct ast_node *expr, struct source_location loc)
+struct ast_node *cast_node_new(struct ast_node *to_type_item_node, struct ast_node *expr, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(CAST_NODE, loc);
     MALLOC(node->cast, sizeof(*node->cast));
-    node->cast->to_type_node = to_type_node;
+    node->cast->to_type_item_node = to_type_item_node;
     node->cast->expr = expr;
     return node;
 }
 
 struct ast_node *_copy_cast_node(struct ast_node *orig_node)
 {
-    return cast_node_new(orig_node->cast->to_type_node,
+    return cast_node_new(orig_node->cast->to_type_item_node,
         orig_node->cast->expr, orig_node->loc);
 }
 
 void _free_cast_node(struct ast_node *node)
 {
-    if (node->cast->to_type_node)
-        node_free(node->cast->to_type_node);
+    if (node->cast->to_type_item_node)
+        node_free(node->cast->to_type_item_node);
     if (node->cast->expr)
         node_free(node->cast->expr);
     ast_node_free(node);
@@ -1037,7 +1037,7 @@ struct ast_node *node_copy(struct ast_node *node)
         clone = _copy_var_node(node);
         break;
     case VARIANT_TYPE_ITEM_NODE:
-        clone = _copy_variant_type_item_node(node);
+        clone = _copy_variant_type_node(node);
         break;
     case VARIANT_NODE:
     case RECORD_NODE:
@@ -1086,10 +1086,10 @@ struct ast_node *node_copy(struct ast_node *node)
         clone = _copy_array_type_node(node);
         break;
     case IDENT_TYPE_NODE:
-        clone = _copy_ident_type_node(node);
+        clone = _copy_ident_type_item_node(node);
         break;
-    case TYPE_NODE:
-        clone = _copy_type_node(node);
+    case TYPE_ITEM_NODE:
+        clone = _copy_type_item_node(node);
         break;
     case WHILE_NODE:
         clone = _copy_while_node(node);
@@ -1140,7 +1140,7 @@ void node_free(struct ast_node *node)
         _free_var_node(node);
         break;
     case VARIANT_TYPE_ITEM_NODE:
-        _free_variant_type_item_node(node);
+        _free_variant_type_node(node);
         break;
     case VARIANT_NODE:
     case RECORD_NODE:
@@ -1153,7 +1153,7 @@ void node_free(struct ast_node *node)
         _free_ident_node(node);
         break;
     case IDENT_TYPE_NODE:
-        _free_ident_type_node(node);
+        _free_ident_type_item_node(node);
         break;
     case LITERAL_NODE:
         _free_literal_node(node);
@@ -1194,8 +1194,8 @@ void node_free(struct ast_node *node)
     case ARRAY_TYPE_NODE:
         _free_array_type_node(node);
         break;
-    case TYPE_NODE:
-        _free_type_node(node);
+    case TYPE_ITEM_NODE:
+        _free_type_item_node(node);
         break;
     case WHILE_NODE:
         _free_while_node(node);
@@ -1252,7 +1252,7 @@ int find_member_index(struct ast_node *adt_node, symbol member)
     } else if (adt_node->node_type == VARIANT_NODE){
         for (int i = 0; i < (int)array_size(&adt_node->adt_type->body->block->nodes); i++) {
             struct ast_node *item = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, i);
-            if (item->variant_type_item_node->tag == member) {
+            if (item->variant_type_node->tag == member) {
                 return i;
             }
         }
@@ -1281,7 +1281,7 @@ struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, sy
 {
     ARRAY_FUN_PARAM(fun_params);
     struct ast_node *params = block_node_new(&fun_params);
-    struct ast_node *func_type = func_type_node_default_new(func_name, params, 0, 0, false, false, block->loc);
+    struct ast_node *func_type = func_type_item_node_default_new(func_name, params, 0, 0, false, false, block->loc);
     hashtable_set_int(symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
     return function_node_new(func_type, block, block->loc);
 }

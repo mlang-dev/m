@@ -32,19 +32,19 @@ struct type_item *_retrieve_type_with_type_name(struct sema_context *context, sy
     return fresh(type, &context->nongens);
 }
 
-struct type_item *create_type_from_type_node(struct sema_context *context, struct type_node *type_node, enum Mut mut)
+struct type_item *create_type_from_type_item_node(struct sema_context *context, struct type_item_node *type_item_node, enum Mut mut)
 {
     struct type_item *value_type;
-    switch(type_node->kind){
+    switch(type_item_node->kind){
     case TypeName:
-        return _retrieve_type_with_type_name(context, type_node->type_name, mut); // example like int
+        return _retrieve_type_with_type_name(context, type_item_node->type_name, mut); // example like int
     case ArrayType:
     {
-        value_type = _retrieve_type_with_type_name(context, type_node->array_type_node->elm_type->type_node->type_name, mut);
+        value_type = _retrieve_type_with_type_name(context, type_item_node->array_type_node->elm_type->type_item_node->type_name, mut);
         struct array dims;
         array_init(&dims, sizeof(u32));
-        for(u32 i=0; i<array_size(&type_node->array_type_node->dims->block->nodes); i++){
-            struct ast_node *elm_size_node = *(struct ast_node **)array_get(&type_node->array_type_node->dims->block->nodes, i);
+        for(u32 i=0; i<array_size(&type_item_node->array_type_node->dims->block->nodes); i++){
+            struct ast_node *elm_size_node = *(struct ast_node **)array_get(&type_item_node->array_type_node->dims->block->nodes, i);
             analyze(context, elm_size_node);
             u32 dim_size = eval(elm_size_node);
             array_push_u32(&dims, dim_size);
@@ -55,19 +55,19 @@ struct type_item *create_type_from_type_node(struct sema_context *context, struc
     {
         struct array args;
         array_init(&args, sizeof(struct type_item*));
-        for(u32 i=0; i<array_size(&type_node->tuple_block->block->nodes); i++){
-            struct ast_node *field = *(struct ast_node **)array_get(&type_node->tuple_block->block->nodes, i);
-            assert(field->node_type == TYPE_NODE || field->node_type == VAR_NODE);
-            struct type_node *tn = (field->node_type == TYPE_NODE)? field->type_node : field->var->is_of_type->type_node;
-            struct type_item *te = create_type_from_type_node(context, tn, mut);
+        for(u32 i=0; i<array_size(&type_item_node->tuple_block->block->nodes); i++){
+            struct ast_node *field = *(struct ast_node **)array_get(&type_item_node->tuple_block->block->nodes, i);
+            assert(field->node_type == TYPE_ITEM_NODE || field->node_type == VAR_NODE);
+            struct type_item_node *tn = (field->node_type == TYPE_ITEM_NODE)? field->type_item_node : field->var->is_of_type->type_item_node;
+            struct type_item *te = create_type_from_type_item_node(context, tn, mut);
             array_push(&args, &te);
         }
         return create_type_oper_tuple(mut, &args);
     }
     case BuiltinType:
-        return _retrieve_type_with_type_name(context, type_node->type_name, mut); // example like int
+        return _retrieve_type_with_type_name(context, type_item_node->type_name, mut); // example like int
     case RefType:
-        value_type = create_type_from_type_node(context, type_node->val_node, mut);
+        value_type = create_type_from_type_item_node(context, type_item_node->val_node, mut);
         return create_ref_type(value_type, Immutable);
     }
 }
@@ -164,10 +164,10 @@ struct type_item *_analyze_var(struct sema_context *context, struct ast_node *no
     }
     if (node->var->is_of_type){
         enum Mut mut = Immutable;
-        if(node->var->mut == Mutable || node->var->is_of_type->type_node->mut == Mutable){
+        if(node->var->mut == Mutable || node->var->is_of_type->type_item_node->mut == Mutable){
             mut = Mutable;
         }
-        var_type = create_type_from_type_node(context, node->var->is_of_type->type_node, mut);
+        var_type = create_type_from_type_item_node(context, node->var->is_of_type->type_item_node, mut);
         assert(var_type);
         if(hashtable_in_p(&context->struct_typename_2_asts, var_type->name)||
             !node->var->init_value){
@@ -211,18 +211,18 @@ void fill_union_tag_values(struct sema_context *context, struct ast_node *body)
     int next_tag_value = 0;
     for (size_t i = 0; i < array_size(&body->block->nodes); i++) {
         struct ast_node *field_node = *(struct ast_node **)array_get(&body->block->nodes, i);
-        switch (field_node->variant_type_item_node->kind)
+        switch (field_node->variant_type_node->kind)
         {
         case UntaggedUnion:
-            field_node->variant_type_item_node->tag_repr = 0;
+            field_node->variant_type_node->tag_repr = 0;
             break;
         case TaggedUnion:
         case EnumTagOnly:
-            field_node->variant_type_item_node->tag_repr = next_tag_value++;
+            field_node->variant_type_node->tag_repr = next_tag_value++;
             break;
         case EnumTagValue:
-            field_node->variant_type_item_node->tag_repr = eval(field_node->variant_type_item_node->tag_value);
-            next_tag_value = field_node->variant_type_item_node->tag_repr + 1;
+            field_node->variant_type_node->tag_repr = eval(field_node->variant_type_node->tag_value);
+            next_tag_value = field_node->variant_type_node->tag_repr + 1;
             break;
         }
     }
@@ -270,7 +270,7 @@ struct type_item *_analyze_variant(struct sema_context *context, struct ast_node
 struct type_item *_analyze_adt_init(struct sema_context *context, struct ast_node *node)
 {
     if (node->adt_init->is_of_type){
-        node->type = create_type_from_type_node(context, node->adt_init->is_of_type->type_node, Immutable);
+        node->type = create_type_from_type_item_node(context, node->adt_init->is_of_type->type_item_node, Immutable);
     }
     for (size_t i = 0; i < array_size(&node->adt_init->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
@@ -319,9 +319,9 @@ struct type_item *_analyze_array_type(struct sema_context *context, struct ast_n
     return create_array_type(elm_type, &dims);
 }
 
-struct type_item *_analyze_type_node(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_type_item_node(struct sema_context *context, struct ast_node *node)
 {
-    return create_type_from_type_node(context, node->type_node, Immutable);
+    return create_type_from_type_item_node(context, node->type_item_node, Immutable);
 }
 
 struct type_item *_analyze_func_type(struct sema_context *context, struct ast_node *node)
@@ -331,12 +331,12 @@ struct type_item *_analyze_func_type(struct sema_context *context, struct ast_no
     for (size_t i = 0; i < array_size(&node->ft->params->block->nodes); i++) {
         struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
         assert(param->var->is_of_type);
-        struct type_item* to = create_type_from_type_node(context, param->var->is_of_type->type_node, Immutable);
+        struct type_item* to = create_type_from_type_item_node(context, param->var->is_of_type->type_item_node, Immutable);
         param->type = to;
         array_push(&fun_sig, &param->type);
     }
-    assert(node->ft->ret_type_node);
-    struct type_item *to = create_type_from_type_node(context, node->ft->ret_type_node->type_node, Immutable);
+    assert(node->ft->ret_type_item_node);
+    struct type_item *to = create_type_from_type_item_node(context, node->ft->ret_type_item_node->type_item_node, Immutable);
     array_push(&fun_sig, &to);
     node->type = create_type_fun(&fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
@@ -356,7 +356,7 @@ struct type_item *_analyze_func(struct sema_context *context, struct ast_node *n
         struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
         struct type_item *exp;
         if (param->var->is_of_type) {
-           exp = create_type_from_type_node(context, param->var->is_of_type->type_node, Immutable);
+           exp = create_type_from_type_item_node(context, param->var->is_of_type->type_item_node, Immutable);
         } else{
             exp = create_type_var(param->var->mut);
         }
@@ -487,7 +487,7 @@ struct type_item *_analyze_unary(struct sema_context *context, struct ast_node *
 struct type_item *_analyze_cast(struct sema_context *context, struct ast_node *node)
 {
     analyze(context, node->cast->expr);
-    return create_type_from_type_node(context, node->cast->to_type_node->type_node, Immutable);
+    return create_type_from_type_item_node(context, node->cast->to_type_item_node->type_item_node, Immutable);
 }
 
 struct type_item *_analyze_record_field_accessor(struct sema_context *context, struct ast_node *node)
@@ -741,15 +741,15 @@ struct type_item *_analyze_block(struct sema_context *context, struct ast_node *
 struct type_item *_analyze_union_type_item_node(struct sema_context *context, struct ast_node *node)
 {
     struct type_item *type = 0;
-    switch(node->variant_type_item_node->kind){
+    switch(node->variant_type_node->kind){
         case TaggedUnion:{
             /*name types*/
-            type = _analyze_adt(context, Sum, node->variant_type_item_node->tag, node->variant_type_item_node->tag_value);
+            type = _analyze_adt(context, Sum, node->variant_type_node->tag, node->variant_type_node->tag_value);
             hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
             break;
         }
         case UntaggedUnion:
-            type = analyze(context, node->variant_type_item_node->tag_value);
+            type = analyze(context, node->variant_type_node->tag_value);
             break;
         case EnumTagValue:
         case EnumTagOnly:
@@ -784,8 +784,8 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
         case ARRAY_TYPE_NODE:
             type = _analyze_array_type(context, node);
             break;
-        case TYPE_NODE:
-            type = _analyze_type_node(context, node);
+        case TYPE_ITEM_NODE:
+            type = _analyze_type_item_node(context, node);
             break;
         case IMPORT_NODE:
             type = analyze(context, node->import->import);

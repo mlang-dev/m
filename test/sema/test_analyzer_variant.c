@@ -77,14 +77,14 @@ variant Color = Red | Green | Blue\n\
     ASSERT_EQ(VARIANT_NODE, union_node->node_type);
     ASSERT_EQ(3, array_size(&union_node->adt_type->body->block->nodes));
     struct ast_node *node = *(struct ast_node **)array_front(&union_node->adt_type->body->block->nodes);
-    ASSERT_EQ(to_symbol("Red"), node->variant_type_item_node->tag);
-    ASSERT_EQ(0, node->variant_type_item_node->tag_repr);
+    ASSERT_EQ(to_symbol("Red"), node->variant_type_node->tag);
+    ASSERT_EQ(0, node->variant_type_node->tag_repr);
     node = *(struct ast_node **)array_get(&union_node->adt_type->body->block->nodes, 1);
-    ASSERT_EQ(to_symbol("Green"), node->variant_type_item_node->tag);
-    ASSERT_EQ(1, node->variant_type_item_node->tag_repr);
+    ASSERT_EQ(to_symbol("Green"), node->variant_type_node->tag);
+    ASSERT_EQ(1, node->variant_type_node->tag_repr);
     node = *(struct ast_node **)array_get(&union_node->adt_type->body->block->nodes, 2);
-    ASSERT_EQ(to_symbol("Blue"), node->variant_type_item_node->tag);
-    ASSERT_EQ(2, node->variant_type_item_node->tag_repr);
+    ASSERT_EQ(to_symbol("Blue"), node->variant_type_node->tag);
+    ASSERT_EQ(2, node->variant_type_node->tag_repr);
     node_free(block);
     frontend_deinit(fe);
 }
@@ -104,14 +104,14 @@ variant Color = Red | Green = 10 | Blue\n\
     ASSERT_EQ(VARIANT_NODE, union_node->node_type);
     ASSERT_EQ(3, array_size(&union_node->adt_type->body->block->nodes));
     struct ast_node *node = *(struct ast_node **)array_front(&union_node->adt_type->body->block->nodes);
-    ASSERT_EQ(to_symbol("Red"), node->variant_type_item_node->tag);
-    ASSERT_EQ(0, node->variant_type_item_node->tag_repr);
+    ASSERT_EQ(to_symbol("Red"), node->variant_type_node->tag);
+    ASSERT_EQ(0, node->variant_type_node->tag_repr);
     node = *(struct ast_node **)array_get(&union_node->adt_type->body->block->nodes, 1);
-    ASSERT_EQ(to_symbol("Green"), node->variant_type_item_node->tag);
-    ASSERT_EQ(10, node->variant_type_item_node->tag_repr);
+    ASSERT_EQ(to_symbol("Green"), node->variant_type_node->tag);
+    ASSERT_EQ(10, node->variant_type_node->tag_repr);
     node = *(struct ast_node **)array_get(&union_node->adt_type->body->block->nodes, 2);
-    ASSERT_EQ(to_symbol("Blue"), node->variant_type_item_node->tag);
-    ASSERT_EQ(11, node->variant_type_item_node->tag_repr);
+    ASSERT_EQ(to_symbol("Blue"), node->variant_type_node->tag);
+    ASSERT_EQ(11, node->variant_type_node->tag_repr);
     node_free(block);
     frontend_deinit(fe);
 }
