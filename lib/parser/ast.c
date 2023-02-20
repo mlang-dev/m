@@ -503,6 +503,29 @@ void _free_array_type_node(struct ast_node *node)
 }
 /*******/
 
+struct ast_node *ident_type_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(IDENT_TYPE_NODE, loc);
+    MALLOC(node->ident_type, sizeof(*node->ident_type));
+    node->ident_type->ident = ident;
+    node->ident_type->is_of_type = is_of_type;
+    return node;
+}
+
+struct ast_node *_copy_ident_type_node(struct ast_node *orig_node)
+{
+    return ident_type_node_new(
+        node_copy(orig_node->ident_type->ident), node_copy(orig_node->ident_type->is_of_type), orig_node->loc);
+}
+
+void _free_ident_type_node(struct ast_node *node)
+{
+    node_free(node->ident_type->ident);
+    node_free(node->ident_type->is_of_type);
+    ast_node_free(node);
+}
+
+/******/
 struct ast_node *import_node_new(symbol from_module, struct ast_node *imported, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(IMPORT_NODE, loc);
@@ -1062,6 +1085,9 @@ struct ast_node *node_copy(struct ast_node *node)
     case ARRAY_TYPE_NODE:
         clone = _copy_array_type_node(node);
         break;
+    case IDENT_TYPE_NODE:
+        clone = _copy_ident_type_node(node);
+        break;
     case TYPE_NODE:
         clone = _copy_type_node(node);
         break;
@@ -1125,6 +1151,9 @@ void node_free(struct ast_node *node)
         break;
     case IDENT_NODE:
         _free_ident_node(node);
+        break;
+    case IDENT_TYPE_NODE:
+        _free_ident_type_node(node);
         break;
     case LITERAL_NODE:
         _free_literal_node(node);

@@ -31,6 +31,8 @@ int test_m_lexer();
 int test_ast();
 int test_parser_expr();
 int test_parser();
+int test_parser_record();
+int test_parser_tuple();
 int test_parser_variant();
 int test_parser_error();
 int test_grammar();
@@ -70,6 +72,8 @@ EXPORT int ENTRY()
   failures += test_ast();
   failures += test_parser_expr();
   failures += test_parser();
+  failures += test_parser_record();
+  failures += test_parser_tuple();
   failures += test_parser_variant();
   failures += test_parser_error();
   failures += test_grammar();

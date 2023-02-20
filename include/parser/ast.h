@@ -51,6 +51,11 @@ struct _memory_node {
     struct ast_node *max;
 };
 
+struct _ident_type_node {
+    struct ast_node *ident;
+    struct ast_node *is_of_type;
+};
+
 struct _var_node {
     bool is_global;
     enum Mut mut; //is mutable
@@ -281,6 +286,7 @@ struct ast_node {
         struct _cast_node *cast;
         struct match_node *match;
         struct match_case_node *match_case;
+        struct _ident_type_node *ident_type;
     };
 };
 
@@ -327,6 +333,7 @@ struct ast_node *variant_type_item_node_new(enum UnionKind kind, symbol tag, str
 struct ast_node *adt_init_node_new(struct ast_node *body, struct ast_node *type_node, struct source_location loc);
 struct ast_node *array_init_node_new(struct ast_node *comp, struct source_location loc);
 struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc);
+struct ast_node *ident_type_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc);
 struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc);
 struct ast_node *func_type_node_default_new(
     symbol name,

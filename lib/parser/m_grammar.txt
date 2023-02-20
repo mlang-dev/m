@@ -22,6 +22,8 @@ type_expr       = builtin_types                                                 
                 | "mut" type_expr                                                           { mark_mut 1 1 1 } // 1 is action code for mark_mut for type node
                 | IDENT                                                                     { type_node 1 0 } // 1 is type name
 
+ident_type      = IDENT ':' type_expr                                                       { ident_type 0 2 }
+
 array_type      = type_expr array_dims                                                      { array_type 0 1 }
 
 array_dims      = '[' const_expr ']'                                                        { block 1 }

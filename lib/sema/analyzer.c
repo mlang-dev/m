@@ -770,6 +770,8 @@ struct type_expr *analyze(struct sema_context *context, struct ast_node *node)
             //type = _analyze_unk(context, node);
             assert(false);
             break;
+        /* intermediate node types */
+        case IDENT_TYPE_NODE:
         case WILDCARD_NODE:
         case RANGE_NODE:
             break;
