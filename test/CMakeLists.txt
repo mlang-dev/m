@@ -24,6 +24,8 @@ add_executable(mtestw
   parser/test_ast.c
   parser/test_parser_expr.c
   parser/test_parser.c
+  parser/test_parser_record.c
+  parser/test_parser_tuple.c
   parser/test_parser_variant.c
   parser/test_parser_error.c
   parser/test_grammar.c
@@ -143,6 +145,8 @@ lexer/test_token.c
 parser/test_ast.c
 parser/test_parser_expr.c
 parser/test_parser.c
+parser/test_parser_record.c
+parser/test_parser_tuple.c
 parser/test_parser_variant.c
 parser/test_parser_error.c
 parser/test_grammar.c

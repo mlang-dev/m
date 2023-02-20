@@ -220,6 +220,13 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             ast = cast_node_new(to_type_node, expr, to_type_node->loc);
             break;
         }
+        case IDENT_TYPE_NODE:
+        {
+            struct ast_node *ident = _take(nodes, rule->action.item_index[0]);
+            struct ast_node *is_of_type = _take(nodes, rule->action.item_index[1]);
+            ast = ident_type_node_new(ident, is_of_type, ident->loc);
+            break;
+        }
         case VAR_NODE:
         {
             struct ast_node *var = _take(nodes, rule->action.item_index[1]);
