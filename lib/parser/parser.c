@@ -229,7 +229,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }
         case VAR_NODE:
         {
-            struct ast_node *var = _take(nodes, rule->action.item_index[1]);
+            struct ast_node *node = _take(nodes, rule->action.item_index[1]);
+            struct ast_node *var = 0;
             struct ast_node *type_node = 0;
             struct ast_node *init_value = 0;
             u8 var_kind = rule->action.item_index[0];
@@ -240,25 +241,28 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             switch (var_kind){
             case 0:
                 //id
+                var = node;
                 break;
             case 1:
                 //id:type
-                /*
-                assert(var->node_type == IDENT_TYPE_NODE);
-                var = var->ident_type->ident;
-                type_node = var->ident_type->is_of_type;
-                */
-                type_node = _take(nodes, rule->action.item_index[2]);
+                assert(node->node_type == IDENT_TYPE_NODE);
+                var = node->ident_type->ident;
+                type_node = node->ident_type->is_of_type;
+                ast_node_free(node);
                 break;
             case 2:
                 //id = init value
+                var = node;
                 init_value = _take(nodes, rule->action.item_index[2]);
                 break;
             case 3:
                 //id:type = init value
-                type_node = _take(nodes, rule->action.item_index[2]);
+                assert(node->node_type == IDENT_TYPE_NODE);
+                var = node->ident_type->ident;
+                type_node = node->ident_type->is_of_type;
                 assert(type_node->node_type == TYPE_NODE);
-                init_value = _take(nodes, rule->action.item_index[3]);
+                init_value = _take(nodes, rule->action.item_index[2]);
+                ast_node_free(node);
                 break;
             default:
                 break;
@@ -439,17 +443,25 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         {
             enum UnionKind kind = rule->action.item_index[0];
             struct ast_node *tag_id = _take(nodes, rule->action.item_index[1]);
-            symbol tag = tag_id->ident->name;
             struct ast_node *tag_value = 0;
             switch(kind){
-                case TaggedUnion:
                 case UntaggedUnion:
+                {
+                    //id:type
+                    struct ast_node *node = tag_id;
+                    tag_id = node->ident_type->ident;
+                    tag_value = node->ident_type->is_of_type;
+                    ast_node_free(node);
+                    break;
+                }
+                case TaggedUnion:
                 case EnumTagValue:
                     tag_value = _take(nodes, rule->action.item_index[2]);
                     break;
                 case EnumTagOnly:
                     break;
             }
+            symbol tag = tag_id->ident->name;
             ast = variant_type_item_node_new(kind, tag, tag_value, tag_id->loc);
             node_free(tag_id);
             break;

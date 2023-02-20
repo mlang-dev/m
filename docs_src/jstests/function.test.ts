@@ -22,7 +22,7 @@ new_z.x
 
 mtest('mandelbrot set function', 'mandelbrot set function',
 `
-let print_density:() d:int =
+let print_density d:int -> () =
   if d > 8 then
     putchar ' '
   else if d > 4 then
