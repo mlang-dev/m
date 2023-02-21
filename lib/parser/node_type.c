@@ -29,6 +29,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(array_type, ARRAY_TYPE),
     NODE_TYPE_NAME(type_expr_item, TYPE_EXPR_ITEM),
     NODE_TYPE_NAME(type_item_node, TYPE_ITEM),
+    NODE_TYPE_NAME(type_node, TYPE),
     NODE_TYPE_NAME(range, RANGE),
     NODE_TYPE_NAME(unop, UNARY),
     NODE_TYPE_NAME(binop, BINARY),

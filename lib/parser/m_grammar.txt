@@ -27,11 +27,16 @@ ident_type      = IDENT ':' type_item                                           
 type_expr_item  = ident_type
                 | type_item                                                                 { type_expr_item 0 0 }
 
-type_expr       = type_expr '*' type_expr_item                                              
-                | type_expr '|' type_expr_item
-                | type_expr_item
+type_expr_base  = type_expr_item
+                | '(' type_expr ')'                                                         { 1 }
 
-type_def        = "type" IDENT '=' type_expr                                                
+type_expr_prod  = type_expr_prod '*' type_expr_base                                         { binop 0 1 2 }                               
+                | type_expr_base
+
+type_expr       = type_expr '|' type_expr_prod                                              { binop 0 1 2 }
+                | type_expr_prod
+
+type_def        = "type" IDENT '=' type_expr                                                { type_node 1 3 }
 
 array_type      = type_item array_dims                                                      { array_type 0 1 }
 

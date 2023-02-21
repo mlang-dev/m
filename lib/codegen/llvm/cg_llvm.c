@@ -738,6 +738,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case ARRAY_INIT_NODE:
         case ARRAY_TYPE_NODE:
         case TYPE_ITEM_NODE:
+        case TYPE_NODE:
         case WHILE_NODE:
         case JUMP_NODE:
         case CAST_NODE:

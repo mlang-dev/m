@@ -198,6 +198,11 @@ struct type_item_node {
     };
 };
 
+struct type_node {
+    symbol type_name;
+    struct ast_node *type_body;
+};
+
 enum UnionKind {
     TaggedUnion = 0,
     UntaggedUnion = 1,
@@ -269,6 +274,7 @@ struct ast_node {
         struct ast_node *array_init;
         struct array_type_node *array_type;
         struct type_item_node *type_item_node;
+        struct type_node *type_node;
         struct _range_node *range;
         struct _import_node *import;
         struct _if_node *cond;
@@ -304,6 +310,7 @@ struct ast_node *type_item_node_new_with_array_type(struct array_type_node *arra
 struct ast_node *type_item_node_new_with_tuple_type(struct ast_node *tuple_block, enum Mut mut, struct source_location loc);
 struct ast_node *type_item_node_new_with_builtin_type(symbol type_name, enum Mut mut, struct source_location loc);
 struct ast_node *type_item_node_new_with_ref_type(struct type_item_node *val_node, enum Mut mut, struct source_location loc);
+struct ast_node *type_node_new(symbol type_name, struct ast_node *type_body, struct source_location loc);
 struct ast_node *double_node_new(f64 val, struct source_location loc);
 struct ast_node *int_node_new(int val, struct source_location loc);
 struct ast_node *bool_node_new(bool val, struct source_location loc);

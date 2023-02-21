@@ -221,6 +221,26 @@ void _free_type_item_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *type_node_new(symbol type_name, struct ast_node *type_body, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(TYPE_NODE, loc);
+    MALLOC(node->type_node, sizeof(*node->type_node));
+    node->type_node->type_name = type_name;
+    node->type_node->type_body = type_body;
+    return node;
+}
+
+struct ast_node *_copy_type_node(struct ast_node *orig_node)
+{
+    return type_node_new(orig_node->type_node->type_name, orig_node->type_node->type_body, orig_node->loc);
+}
+
+void _free_type_node(struct ast_node *node)
+{
+    node_free(node->type_node->type_body);
+    ast_node_free(node);
+}
+
 struct ast_node *_create_literal_int_node(int val, enum type type, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(LITERAL_NODE, loc);
@@ -1091,6 +1111,9 @@ struct ast_node *node_copy(struct ast_node *node)
     case TYPE_ITEM_NODE:
         clone = _copy_type_item_node(node);
         break;
+    case TYPE_NODE:
+        clone = _copy_type_node(node);
+        break;
     case WHILE_NODE:
         clone = _copy_while_node(node);
         break;
@@ -1196,6 +1219,9 @@ void node_free(struct ast_node *node)
         break;
     case TYPE_ITEM_NODE:
         _free_type_item_node(node);
+        break;
+    case TYPE_NODE:
+        _free_type_node(node);
         break;
     case WHILE_NODE:
         _free_while_node(node);
