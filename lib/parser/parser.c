@@ -553,6 +553,13 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             node_free(node);
             break;
         }
+        case TYPE_NODE:
+        {
+            struct ast_node *ident = nodes[rule->action.item_index[0]];
+            struct ast_node *node = _take(nodes, rule->action.item_index[1]);
+            ast = type_node_new(ident->ident->name, node, ident->loc);
+            break;
+        }
         case BLOCK_NODE:
             if (rule->action.item_index_count == 0){
                 struct array nodes;

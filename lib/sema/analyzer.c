@@ -808,6 +808,7 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
         case VARIANT_NODE:
             type = _analyze_variant(context, node);
             break;
+        case TYPE_NODE:
         case RECORD_NODE:
             type = _analyze_record(context, node);
             break;
