@@ -503,25 +503,25 @@ void _free_array_type_node(struct ast_node *node)
 }
 /*******/
 
-struct ast_node *ident_type_item_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc)
+struct ast_node *type_expr_item_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc)
 {
-    struct ast_node *node = ast_node_new(IDENT_TYPE_NODE, loc);
-    MALLOC(node->ident_type_item, sizeof(*node->ident_type_item));
-    node->ident_type_item->ident = ident;
-    node->ident_type_item->is_of_type = is_of_type;
+    struct ast_node *node = ast_node_new(TYPE_EXPR_ITEM_NODE, loc);
+    MALLOC(node->type_expr_item, sizeof(*node->type_expr_item));
+    node->type_expr_item->ident = ident;
+    node->type_expr_item->is_of_type = is_of_type;
     return node;
 }
 
-struct ast_node *_copy_ident_type_item_node(struct ast_node *orig_node)
+struct ast_node *_copy_type_expr_item_node(struct ast_node *orig_node)
 {
-    return ident_type_item_node_new(
-        node_copy(orig_node->ident_type_item->ident), node_copy(orig_node->ident_type_item->is_of_type), orig_node->loc);
+    return type_expr_item_node_new(
+        node_copy(orig_node->type_expr_item->ident), node_copy(orig_node->type_expr_item->is_of_type), orig_node->loc);
 }
 
-void _free_ident_type_item_node(struct ast_node *node)
+void _free_type_expr_item_node(struct ast_node *node)
 {
-    node_free(node->ident_type_item->ident);
-    node_free(node->ident_type_item->is_of_type);
+    node_free(node->type_expr_item->ident);
+    node_free(node->type_expr_item->is_of_type);
     ast_node_free(node);
 }
 
@@ -1085,8 +1085,8 @@ struct ast_node *node_copy(struct ast_node *node)
     case ARRAY_TYPE_NODE:
         clone = _copy_array_type_node(node);
         break;
-    case IDENT_TYPE_NODE:
-        clone = _copy_ident_type_item_node(node);
+    case TYPE_EXPR_ITEM_NODE:
+        clone = _copy_type_expr_item_node(node);
         break;
     case TYPE_ITEM_NODE:
         clone = _copy_type_item_node(node);
@@ -1152,8 +1152,8 @@ void node_free(struct ast_node *node)
     case IDENT_NODE:
         _free_ident_node(node);
         break;
-    case IDENT_TYPE_NODE:
-        _free_ident_type_item_node(node);
+    case TYPE_EXPR_ITEM_NODE:
+        _free_type_expr_item_node(node);
         break;
     case LITERAL_NODE:
         _free_literal_node(node);

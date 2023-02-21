@@ -220,11 +220,18 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             ast = cast_node_new(to_type_item_node, expr, to_type_item_node->loc);
             break;
         }
-        case IDENT_TYPE_NODE:
+        case TYPE_EXPR_ITEM_NODE:
         {
-            struct ast_node *ident = _take(nodes, rule->action.item_index[0]);
-            struct ast_node *is_of_type = _take(nodes, rule->action.item_index[1]);
-            ast = ident_type_item_node_new(ident, is_of_type, ident->loc);
+            u8 item_kind = rule->action.item_index[0];
+            struct ast_node *ident = 0;
+            struct ast_node *is_of_type = 0;
+            if(item_kind){ //named type
+                ident = _take(nodes, rule->action.item_index[1]);
+                is_of_type = _take(nodes, rule->action.item_index[2]);
+            }else{//type only
+                is_of_type = _take(nodes, rule->action.item_index[1]);
+            }
+            ast = type_expr_item_node_new(ident, is_of_type, ident ? ident->loc:is_of_type->loc);
             break;
         }
         case VAR_NODE:
@@ -245,9 +252,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 break;
             case 1:
                 //id:type
-                assert(node->node_type == IDENT_TYPE_NODE);
-                var = node->ident_type_item->ident;
-                type_item_node = node->ident_type_item->is_of_type;
+                assert(node->node_type == TYPE_EXPR_ITEM_NODE);
+                var = node->type_expr_item->ident;
+                type_item_node = node->type_expr_item->is_of_type;
                 ast_node_free(node);
                 break;
             case 2:
@@ -257,9 +264,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 break;
             case 3:
                 //id:type = init value
-                assert(node->node_type == IDENT_TYPE_NODE);
-                var = node->ident_type_item->ident;
-                type_item_node = node->ident_type_item->is_of_type;
+                assert(node->node_type == TYPE_EXPR_ITEM_NODE);
+                var = node->type_expr_item->ident;
+                type_item_node = node->type_expr_item->is_of_type;
                 assert(type_item_node->node_type == TYPE_ITEM_NODE);
                 init_value = _take(nodes, rule->action.item_index[2]);
                 ast_node_free(node);
@@ -449,8 +456,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 {
                     //id:type
                     struct ast_node *node = tag_id;
-                    tag_id = node->ident_type_item->ident;
-                    tag_value = node->ident_type_item->is_of_type;
+                    tag_id = node->type_expr_item->ident;
+                    tag_value = node->type_expr_item->is_of_type;
                     ast_node_free(node);
                     break;
                 }
