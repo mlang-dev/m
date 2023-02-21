@@ -22,13 +22,16 @@ type_item       = builtin_types                                                 
                 | "mut" type_item                                                           { mark_mut 1 1 1 } // 1 is action code for mark_mut for type node
                 | IDENT                                                                     { type_item_node 1 0 } // 1 is type name
 
-ident_type      = IDENT ':' type_item                                                       { ident_type 0 2 }
+ident_type      = IDENT ':' type_item                                                       { type_expr_item 1 0 2 }
 
 type_expr_item  = ident_type
-                | type_item
+                | type_item                                                                 { type_expr_item 0 0 }
 
-type_expr       = type_expr '*' type_expr_item
+type_expr       = type_expr '*' type_expr_item                                              
                 | type_expr '|' type_expr_item
+                | type_expr_item
+
+type_def        = "type" IDENT '=' type_expr                                                
 
 array_type      = type_item array_dims                                                      { array_type 0 1 }
 
@@ -139,6 +142,7 @@ expr_list       = expr_list ',' expr                                            
 
 stmt            = func_type
                 | func_def                                                            
+                | adt_type
                 | type_def                                                            
                 | expr                                                                
                 | var_decls                                                           
@@ -182,7 +186,7 @@ statements      = statements statement                                          
                 | statements ';' statement                                                  { block 0 2 }
                 | statement                                                                 { block 0 }                                                     
 
-type_def            = "record" IDENT '=' record_type                                        { record_type 1 3 }
+adt_type            = "record" IDENT '=' record_type                                        { record_type 1 3 }
                     | "variant" IDENT '=' variant_type                                      { variant_type 1 3 }
 
 record_type         = id_decls
