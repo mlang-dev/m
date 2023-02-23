@@ -28,10 +28,26 @@ var point:Point2D";
     frontend_deinit(fe);
 }
 
+TEST(test_parser_adt, tuple_type_variable)
+{
+    char test_code[] = "\n\
+let x  = (10, 20)\n\
+";
+    struct frontend *fe = frontend_init();
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    struct ast_node *node = *(struct ast_node **)array_back(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    ASSERT_STREQ("x", string_get(node->var->var->ident->name));
+    node_free(block);
+    frontend_deinit(fe);
+}
+
 int test_parser_adt()
 {
     UNITY_BEGIN();
     RUN_TEST(test_parser_adt_tuple_type);
+    RUN_TEST(test_parser_adt_tuple_type_variable);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

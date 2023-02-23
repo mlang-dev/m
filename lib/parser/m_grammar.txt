@@ -116,6 +116,7 @@ const_expr      = cond_expr
 
 assignee_expr   = cond_expr
                 | array_init
+                | '(' array_init_decl ')'                                                   { 1 }
 
 assign_expr     = assignee_expr
                 | unary_expr assign_op  assign_expr                                         { assign 0 1 2 }
