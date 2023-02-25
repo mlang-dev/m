@@ -260,6 +260,15 @@ struct type_item *_analyze_record(struct sema_context *context, struct ast_node 
     return type;
 }
 
+struct type_item *_analyze_type(struct sema_context *context, struct ast_node *node)
+{
+    assert(node->type_node->type_body->node_type == TYPE_EXPR_ITEM_NODE);
+    struct ast_node *body = node->type_node->type_body->type_expr_item->is_of_type->type_item_node->tuple_block;
+    struct type_item *type = _analyze_adt(context, Product, node->type_node->type_name, body);
+    hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
+    return type;
+}
+
 struct type_item *_analyze_variant(struct sema_context *context, struct ast_node *node)
 {
     struct type_item *type = _analyze_adt(context, Sum, node->adt_type->name, node->adt_type->body);
@@ -809,6 +818,8 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_variant(context, node);
             break;
         case TYPE_NODE:
+            type = _analyze_type(context, node);
+            break;
         case RECORD_NODE:
             type = _analyze_record(context, node);
             break;

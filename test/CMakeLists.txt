@@ -24,7 +24,7 @@ add_executable(mtestw
   parser/test_ast.c
   parser/test_parser_expr.c
   parser/test_parser.c
-  parser/test_parser_adt.c
+  parser/test_parser_type.c
   parser/test_parser_record.c
   parser/test_parser_variant.c
   parser/test_parser_error.c
@@ -33,6 +33,7 @@ add_executable(mtestw
   sema/test_analyzer_variant.c
   sema/test_analyzer_pm.c
   sema/test_analyzer_record.c
+  sema/test_analyzer_type.c
   sema/test_analyzer_mut.c
   sema/test_analyzer_errors.c
   codegen/test_type_size_info.c
@@ -145,7 +146,7 @@ lexer/test_token.c
 parser/test_ast.c
 parser/test_parser_expr.c
 parser/test_parser.c
-parser/test_parser_adt.c
+parser/test_parser_type.c
 parser/test_parser_record.c
 parser/test_parser_variant.c
 parser/test_parser_error.c
@@ -154,6 +155,7 @@ sema/test_analyzer.c
 sema/test_analyzer_variant.c
 sema/test_analyzer_pm.c
 sema/test_analyzer_record.c
+sema/test_analyzer_type.c
 sema/test_analyzer_mut.c
 sema/test_analyzer_errors.c
 codegen/test_type_size_info.c
