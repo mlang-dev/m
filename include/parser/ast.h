@@ -111,6 +111,11 @@ struct _jump_node {
     struct ast_node *expr;
 };
 
+struct type_node {
+    symbol type_name;
+    struct ast_node *type_body;
+};
+
 /**
  * algebraic data type
 */
@@ -196,11 +201,6 @@ struct type_item_node {
         struct ast_node *tuple_block;
         struct type_item_node *val_node; //used in ref node;
     };
-};
-
-struct type_node {
-    symbol type_name;
-    struct ast_node *type_body;
 };
 
 enum UnionKind {

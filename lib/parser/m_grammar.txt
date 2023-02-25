@@ -204,7 +204,7 @@ field_decls_lines   = field_decls_lines field_decls_line                        
 field_decls_line    = id_decls 
                     | id_decls NEWLINE                                                      { 0 }
 
-tuple_type      = '(' tuple_fields ')'                                                      
+tuple_type      = '(' tuple_fields ')'                                                      { 1 }                                            
 
 tuple_fields    = tuple_fields ',' tuple_field                                              { block 0 2 }
                 | tuple_field
