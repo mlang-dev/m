@@ -72,6 +72,18 @@ struct type_item *create_type_from_type_item_node(struct sema_context *context, 
     }
 }
 
+
+struct type_item *create_tuple_type_from_adt_init_body(struct sema_context *context, struct ast_node *init_body, enum Mut mut)
+{
+    struct array args;
+    array_init(&args, sizeof(struct type_item*));
+    for(u32 i=0; i<array_size(&init_body->block->nodes); i++){
+        struct ast_node *field_expr = *(struct ast_node **)array_get(&init_body->block->nodes, i);
+        array_push(&args, &field_expr->type);
+    }
+    return create_type_oper_tuple(mut, &args);
+}
+
 struct ast_node *cast_to_node(struct type_item *to_type, struct ast_node *node)
 {
     struct ast_node *type_name = ident_node_new(get_type_symbol(to_type->type), node->loc);
@@ -284,6 +296,9 @@ struct type_item *_analyze_adt_init(struct sema_context *context, struct ast_nod
     for (size_t i = 0; i < array_size(&node->adt_init->body->block->nodes); i++) {
         //printf("creating type: %zu\n", i);
         analyze(context, *(struct ast_node **)array_get(&node->adt_init->body->block->nodes, i));
+    }
+    if(node->adt_init->kind == ADTInitTuple){
+        node->type = create_tuple_type_from_adt_init_body(context, node->adt_init->body, Immutable);
     }
     return node->type;
 }
