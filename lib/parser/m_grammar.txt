@@ -271,12 +271,12 @@ param_decl      = ident_type                                                    
 
 var_decls       = "let" id_decl_inits                                                       { mark_mut 0 0 1 }
                 | "var" id_decl_inits                                                       { mark_mut 0 1 1 }
-                | "var" id_decls                                                            { mark_mut 0 1 1 }
+                | "var" id_decl_list                                                        { mark_mut 0 1 1 }
 
 id_decl_inits   = id_decl_inits ',' id_decl_init                                            { block 0 2 }
                 | id_decl_init
 
-id_decls        = id_decls ',' id_decl                                                      { block 0 2 }
+id_decl_list    = id_decl_list ',' id_decl                                                  { block 0 2 }
                 | id_decl
 
 id_decl         = ident_type                                                                { variable 1 0 }   // var name:type, no initial value
