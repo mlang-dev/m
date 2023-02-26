@@ -539,10 +539,16 @@ struct type_item *_analyze_array_member_accessor(struct sema_context *context, s
     struct type_item *type = analyze(context, node->index->object);
     if(!type) return 0;
     analyze(context, node->index->index);
-    if(type->type != TYPE_ARRAY && !(type->type == TYPE_REF && type->val_type->type == TYPE_ARRAY)){
+    if(type->type != TYPE_TUPLE && type->type != TYPE_ARRAY && !(type->type == TYPE_REF && type->val_type->type == TYPE_ARRAY)){
         report_error(context, EC_EXPECT_ARRAY_TYPE, node->loc);
         return 0;
     }
+    //TYPE_TUPLE
+    if(type->type == TYPE_TUPLE){
+        return *(struct type_item **)array_get(&type->args, eval(node->index->index));
+    }
+
+    //TYPE_ARRAY or TYPE_REF to TYPE_ARRAY
     if(array_size(&type->dims) == 1){
         return find_type_item(type->val_type, type->mut);
     }else{
