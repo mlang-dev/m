@@ -125,8 +125,13 @@ struct adt_node {
     symbol name; /*type name*/
 };
 
-/*struct initializer node*/
+/*record or tuple initializer node*/
+enum ADTInitKind {
+    ADTInitRecord = 0,
+    ADTInitTuple
+};
 struct _adt_init_node { 
+    enum ADTInitKind kind;
     struct ast_node *is_of_type;
     struct ast_node *body; /*body block*/
 };
@@ -331,7 +336,7 @@ struct ast_node *func_type_item_node_new(
     bool is_variadic, bool is_external, struct source_location loc);
 struct ast_node *adt_node_new(enum node_type node_type, symbol name, struct ast_node *body, struct source_location loc);
 struct ast_node *variant_type_node_new(enum UnionKind kind, symbol tag, struct ast_node * name_types, struct source_location loc);
-struct ast_node *adt_init_node_new(struct ast_node *body, struct ast_node *type_item_node, struct source_location loc);
+struct ast_node *adt_init_node_new(enum ADTInitKind kind, struct ast_node *body, struct ast_node *type_item_node, struct source_location loc);
 struct ast_node *array_init_node_new(struct ast_node *comp, struct source_location loc);
 struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node *dims, struct source_location loc);
 struct ast_node *type_expr_item_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc);

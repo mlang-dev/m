@@ -429,18 +429,19 @@ void _free_variant_type_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *adt_init_node_new(struct ast_node *body, struct ast_node *type_item_node, struct source_location loc)
+struct ast_node *adt_init_node_new(enum ADTInitKind kind, struct ast_node *body, struct ast_node *type_item_node, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(ADT_INIT_NODE, loc);
     MALLOC(node->adt_init, sizeof(*node->adt_init));
     node->adt_init->body = body;
+    node->adt_init->kind = kind;
     node->adt_init->is_of_type = type_item_node;
     return node;
 }
 
 struct ast_node *_copy_adt_init_node(struct ast_node *orig_node)
 {
-    return adt_init_node_new(
+    return adt_init_node_new(orig_node->adt_init->kind, 
         _copy_block_node(orig_node->adt_init->body), orig_node->adt_init->is_of_type, orig_node->loc);
 }
 
