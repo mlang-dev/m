@@ -30,6 +30,7 @@ TEST(test_parser_type, tuple_type_variable)
 {
     char test_code[] = "\n\
 let x  = (10, 20)\n\
+//let y, z = x\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);

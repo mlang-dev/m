@@ -27,11 +27,11 @@ struct module {
     struct ast_node *block;
 };
 
-struct _block_node {
+struct block_node {
     struct array nodes; // struct array of ast_node*
 };
 
-struct _literal_node {
+struct literal_node {
     enum type type;
     union {
         f64 double_val;
@@ -42,21 +42,26 @@ struct _literal_node {
 
 struct ident_node {
     symbol name;
-    struct ast_node *var;
+    struct ast_node *var; //reference to its variable declaration
     bool is_member_index_object;
 };
 
-struct _memory_node {
+struct memory_node {
     struct ast_node *initial;
     struct ast_node *max;
 };
 
-struct _type_expr_item_node {
+struct type_expr_item_node {
     struct ast_node *ident;
     struct ast_node *is_of_type;
 };
 
-struct _var_node {
+struct name_type_node {
+    symbol var_name; //
+    struct ast_node *is_of_type;
+};
+
+struct var_node {
     bool is_global;
     enum Mut mut; //is mutable
     bool is_init_shared; //is init value is a shared node, not owning it.
@@ -65,13 +70,13 @@ struct _var_node {
     struct ast_node *init_value;
 };
 
-struct _unary_node {
+struct unary_node {
     enum op_code opcode;
     bool is_postfix;
     struct ast_node *operand;
 };
 
-struct _binary_node {
+struct binary_node {
     enum op_code opcode;
     struct ast_node *lhs, *rhs;
 };
@@ -81,27 +86,27 @@ enum aggregate_type{
     AGGREGATE_TYPE_RECORD = 1
 };
 
-struct _member_index_node {
+struct member_index_node {
     enum aggregate_type aggregate_type;
     struct ast_node *object, *index;
 };
 
-struct _if_node {
+struct if_node {
     struct ast_node *if_node, *then_node, *else_node;
 };
 
-struct _for_node {
+struct for_node {
     struct ast_node *var;
     struct ast_node *range;
     struct ast_node *body;
 };
 
-struct _while_node {
+struct while_node {
     struct ast_node *expr;
     struct ast_node *body;
 };
 
-struct _jump_node {
+struct jump_node {
     enum token_type token_type;
     /* 
      * nested_block_levels: generated in Analyzer and used in WebAssembly codegen for break/continue statement,
@@ -130,19 +135,19 @@ enum ADTInitKind {
     ADTInitRecord = 0,
     ADTInitTuple
 };
-struct _adt_init_node { 
+struct adt_init_node { 
     enum ADTInitKind kind;
     struct ast_node *is_of_type;
     struct ast_node *body; /*body block*/
 };
 
-struct _range_node{
+struct range_node{
     struct ast_node *start, *end, *step;
 };
 
 #define ARRAY_FUN_PARAM(var) ARRAY(var, struct ast_node*, 0)
 
-struct _func_type_node {
+struct func_type_node {
     symbol name;
     symbol op;
     struct ast_node *params; /*block ast_node for params*/
@@ -159,7 +164,7 @@ struct _func_type_node {
 #define BINARY_PARAM_SIZE 2
 #define BINARY_SIG_SIZE (BINARY_PARAM_SIZE + 1)
 
-struct _function_node {
+struct function_node {
     struct ast_node *func_type;
     struct ast_node *body; /*body block*/
 
@@ -167,7 +172,7 @@ struct _function_node {
     struct array sp_funs; 
 };
 
-struct _call_node {
+struct call_node {
     symbol callee;
     symbol specialized_callee;
     struct ast_node *arg_block; // args: block ast node
@@ -179,12 +184,12 @@ struct array_type_node {
     struct ast_node *dims; 
 };
 
-struct _import_node {
+struct import_node {
     symbol from_module;
     struct ast_node *import;
 };
 
-struct _cast_node {
+struct cast_node {
     struct ast_node *to_type_item_node;
     struct ast_node *expr;
 };
@@ -261,37 +266,37 @@ struct ast_node {
     bool is_addressable;     // is left value
     union{
         void *data; //node data represents any of following pointer
-        struct _literal_node *liter;
+        struct literal_node *liter;
         
         struct ident_node *ident;
-        struct _unary_node *unop;
-        struct _binary_node *binop;
-        struct _member_index_node *index;
-        struct _var_node *var;
+        struct unary_node *unop;
+        struct binary_node *binop;
+        struct member_index_node *index;
+        struct var_node *var;
         
-        struct _func_type_node *ft;
-        struct _function_node *func;
-        struct _call_node *call;
+        struct func_type_node *ft;
+        struct function_node *func;
+        struct call_node *call;
         
         struct adt_node *adt_type; 
         struct variant_type_node * variant_type_node;
-        struct _adt_init_node *adt_init;
+        struct adt_init_node *adt_init;
         struct ast_node *array_init;
         struct array_type_node *array_type;
         struct type_item_node *type_item_node;
         struct type_node *type_node;
-        struct _range_node *range;
-        struct _import_node *import;
-        struct _if_node *cond;
-        struct _for_node *forloop;
-        struct _while_node *whileloop;
-        struct _jump_node *jump;
-        struct _block_node *block;
-        struct _memory_node *memory;
-        struct _cast_node *cast;
+        struct range_node *range;
+        struct import_node *import;
+        struct if_node *cond;
+        struct for_node *forloop;
+        struct while_node *whileloop;
+        struct jump_node *jump;
+        struct block_node *block;
+        struct memory_node *memory;
+        struct cast_node *cast;
         struct match_node *match;
         struct match_case_node *match_case;
-        struct _type_expr_item_node *type_expr_item;
+        struct type_expr_item_node *type_expr_item;
     };
 };
 
