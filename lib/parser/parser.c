@@ -243,8 +243,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             u8 var_kind = rule->action.item_index[0];
             //0: ident
             //1: ident:type
-            //2: ident = init
-            //3: ident:type = init
+            //2: ident = init or ident:type = init
             switch (var_kind){
             case 0:
                 //id
@@ -259,23 +258,17 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 break;
             case 2:
                 //id = init value
-                var = node;
-                init_value = _take(nodes, rule->action.item_index[2]);
-                break;
-            case 3:
-                //id:type = init value
-                assert(node->node_type == TYPE_EXPR_ITEM_NODE);
-                var = node->type_expr_item->ident;
-                type_item_node = node->type_expr_item->is_of_type;
-                assert(type_item_node->node_type == TYPE_ITEM_NODE);
-                init_value = _take(nodes, rule->action.item_index[2]);
-                ast_node_free(node);
+                ast = node;
+                assert(node->node_type == VAR_NODE);
+                ast->var->init_value = _take(nodes, rule->action.item_index[2]);
                 break;
             default:
                 break;
             }
-            assert(!type_item_node || type_item_node->node_type == TYPE_ITEM_NODE);
-            ast = var_node_new(var, type_item_node, init_value, false, false, var->loc);
+            if(ast==0){
+                assert(!type_item_node || type_item_node->node_type == TYPE_ITEM_NODE);
+                ast = var_node_new(var, type_item_node, init_value, false, false, var->loc);
+            }
             break;
         }
         case RANGE_NODE:
