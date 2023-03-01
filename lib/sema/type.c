@@ -612,7 +612,7 @@ string to_string(struct type_item *type)
         if (array_size(&type->args) == 0) { /* nullary operator, e.g. builtin types: int, f64*/
             string_add(&typestr, type->name);
             return typestr;
-        } else if (is_adt(type)) {
+        } else if (is_adt(type) && type->name) {
             string_copy(&typestr, type->name);
             return typestr;
         } else {

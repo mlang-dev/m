@@ -36,11 +36,10 @@ let y, z = x\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node1 = *(struct ast_node **)array_front(&block->block->nodes);
     struct ast_node *node2 = *(struct ast_node **)array_back(&block->block->nodes);
-    ASSERT_EQ(2, array_size(&block->block->nodes));
+    ASSERT_EQ(3, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node1->node_type);
     ASSERT_STREQ("x", string_get(node1->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node2->node_type);
-    ASSERT_EQ(BLOCK_NODE, node2->var->var->node_type);
     node_free(block);
     frontend_deinit(fe);
 }

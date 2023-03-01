@@ -85,12 +85,27 @@ void _copy_element_to_array(struct array *arr, size_t index, void *element)
     memcpy((unsigned char *)arr->base.data.p_data + (index * arr->_element_size), element, arr->_element_size);
 }
 
+void _shift_elements(struct array *arr, size_t index, size_t elements)
+{
+    memmove((unsigned char*)arr->base.data.p_data + (index + elements) * arr->_element_size, (unsigned char*)arr->base.data.p_data + index * arr->_element_size, arr->_element_size * (arr->base.size - index));
+}
+
 void array_push(struct array *arr, void *element)
 {
     if (arr->base.size == arr->cap) {
         array_grow(arr);
     }
     _copy_element_to_array(arr, arr->base.size, element);
+    arr->base.size++;
+}
+
+void array_insert_at(struct array *arr, void *element, size_t index)
+{
+    if (arr->base.size == arr->cap) {
+        array_grow(arr);
+    }
+    _shift_elements(arr, 0, 1);
+    _copy_element_to_array(arr, index, element);
     arr->base.size++;
 }
 

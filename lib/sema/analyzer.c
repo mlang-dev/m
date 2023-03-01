@@ -523,14 +523,21 @@ struct type_item *_analyze_record_field_accessor(struct sema_context *context, s
     }
     struct type_item *adt_type = type->val_type ? type->val_type : type;
     struct ast_node *adt_node = hashtable_get_p(&context->struct_typename_2_asts, adt_type->name);
-    int index = find_member_index(adt_node, node->index->index->ident->name);
+    int index;
+    if(node->index->index->node_type == IDENT_NODE){
+        index = find_member_index(adt_node, node->index->index->ident->name);
+    }else {
+        index = eval(node->index->index);
+    }
     if (index < 0) {
         report_error(context, EC_FIELD_NOT_EXISTS, node->loc);
         return 0;
     }
     struct type_item *member_type = *(struct type_item **)array_get(&adt_type->args, index);
     node->index->index->type = member_type;
-    node->index->index->ident->var = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, index);    
+    if(node->index->index->node_type == IDENT_NODE){
+        node->index->index->ident->var = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, index);    
+    }
     return member_type;
 }
 

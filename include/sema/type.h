@@ -142,7 +142,7 @@ struct type_item *find_type_item(struct type_item *oper, enum Mut mut);
 #define is_int_type(type) (type >= TYPE_BOOL && type <= TYPE_INT)
 #define is_aggregate_type(node_type) (node_type->type==TYPE_STRUCT || node_type->type==TYPE_UNION || node_type->type == TYPE_ARRAY)
 #define is_ref_type(node_type) (node_type->type == TYPE_REF)
-#define is_adt(te)    (te->type==TYPE_STRUCT || te->type == TYPE_UNION)
+#define is_adt(te)    (te->type==TYPE_STRUCT || te->type == TYPE_UNION || te->type == TYPE_TUPLE)
 
 #ifdef __cplusplus
 }
