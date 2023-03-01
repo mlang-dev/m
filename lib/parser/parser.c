@@ -258,9 +258,16 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 break;
             case 2:
                 //id = init value
-                ast = node;
-                assert(node->node_type == VAR_NODE);
-                ast->var->init_value = _take(nodes, rule->action.item_index[2]);
+                if(node->node_type == VAR_NODE){
+                    ast = node;
+                    ast->var->init_value = _take(nodes, rule->action.item_index[2]);
+                } else if(node->node_type == BLOCK_NODE){
+                    //tuple unpack
+                    var = node;
+                    init_value = _take(nodes, rule->action.item_index[2]);
+                } else {
+                    assert(false);
+                }
                 break;
             default:
                 break;

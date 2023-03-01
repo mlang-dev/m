@@ -277,6 +277,9 @@ var_decls       = "let" var_decl_inits                                          
 var_decl_inits  = var_decl_inits ',' var_decl_init                                          { block 0 2 }
                 | var_decl_init
 
+var_decl_list   = var_decl_list ',' var_decl                                                { block 0 2 }
+                | var_decl
+
 var_type_list   = var_type_list ',' var_type_decl                                           { block 0 2 }
                 | var_type_decl
 
@@ -285,7 +288,7 @@ var_type_decl   = ident_type                                                    
 var_decl        = var_type_decl
                 | IDENT                                                                     { variable 0 0 }   // variable name only
 
-var_decl_init   = var_decl '=' expr_block                                                   { variable 2 0 2 } // var with init value
+var_decl_init   = var_decl_list '=' expr_block                                              { variable 2 0 2 } // var with init value
 
 expr_block      = expr
                 | NEWLINE INDENT expr DEDENT                                                { 2 }
