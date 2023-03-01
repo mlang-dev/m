@@ -50,6 +50,14 @@ void _free_symbol(void *string)
     FREE(symbol);
 }
 
+symbol get_temp_symbol()
+{
+    static int temp_index = 0;
+    char temp[128];
+    sprintf(temp, "__temp%d", temp_index++);
+    return to_symbol(temp);
+}
+
 void symbols_init()
 {
     if (g_symbols)

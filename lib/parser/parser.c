@@ -263,8 +263,25 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                     ast->var->init_value = _take(nodes, rule->action.item_index[2]);
                 } else if(node->node_type == BLOCK_NODE){
                     //tuple unpack
-                    var = node;
+                    ast = node;
                     init_value = _take(nodes, rule->action.item_index[2]);
+                    struct ast_node *temp_var_node = 0;
+                    if(init_value->node_type != IDENT_NODE){
+                        symbol temp_var = get_temp_symbol();
+                        temp_var_node = var_node_new(ident_node_new(temp_var, init_value->loc), 0, init_value, false, Immutable, init_value->loc);
+                        init_value = ident_node_new(temp_var, init_value->loc);
+                    }
+                    for(size_t i = 0; i < array_size(&node->block->nodes); i++){
+                        struct ast_node *n = *(struct ast_node**)array_get(&node->block->nodes, i);
+                        assert(n->node_type == VAR_NODE);
+                        n->var->init_value = member_index_node_new(AGGREGATE_TYPE_RECORD, init_value, int_node_new(i, init_value->loc), init_value->loc);
+                        if(i < array_size(&node->block->nodes) - 1){
+                            init_value = node_copy(init_value);
+                        }
+                    }
+                    if(temp_var_node){
+                        array_insert_at(&node->block->nodes, &temp_var_node, 0);
+                    }
                 } else {
                     assert(false);
                 }

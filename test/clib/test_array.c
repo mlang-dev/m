@@ -99,6 +99,22 @@ TEST(test_array, element_with_no_overhead_int)
     array_deinit(&arr);
 }
 
+
+TEST(test_array, insert_at_begin)
+{
+    struct array arr;
+    array_init(&arr, sizeof(char*));
+    const char *exp = "hello";
+    array_push(&arr, &exp);
+    ASSERT_EQ(1, array_size(&arr));
+    ASSERT_STREQ("hello", *(const char**)array_get(&arr, 0));
+    const char *world = "world";
+    array_insert_at(&arr, &world, 0);
+    ASSERT_STREQ("world", *(const char**)array_get(&arr, 0));
+    ASSERT_STREQ("hello", *(const char**)array_get(&arr, 1));
+    array_deinit(&arr);
+}
+
 int test_array()
 {
     UNITY_BEGIN();
@@ -108,7 +124,7 @@ int test_array()
     RUN_TEST(test_array_of_long_string);
     RUN_TEST(test_array_element_with_no_overhead);
     RUN_TEST(test_array_element_with_no_overhead_int);
-
+    RUN_TEST(test_array_insert_at_begin);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

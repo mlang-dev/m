@@ -31,6 +31,7 @@ void array_init_free(struct array *arr, size_t element_size, free_fun free_fun);
 void array_grow(struct array *arr);
 void array_deinit(struct array *arr);
 void array_push(struct array *arr, void *element);
+void array_insert_at(struct array *arr, void *element, size_t index);
 void *array_pop(struct array *arr);
 void array_set(struct array *arr, size_t index, void *element);
 void array_copy(struct array *dest, struct array *src);
