@@ -299,6 +299,7 @@ struct type_item *_analyze_adt_init(struct sema_context *context, struct ast_nod
     }
     if(node->adt_init->kind == ADTInitTuple){
         node->type = create_tuple_type_from_adt_init_body(context, node->adt_init->body, Immutable);
+        hashtable_set_p(&context->struct_typename_2_asts, node->type->name, node);
     }
     return node->type;
 }
@@ -523,12 +524,7 @@ struct type_item *_analyze_record_field_accessor(struct sema_context *context, s
     }
     struct type_item *adt_type = type->val_type ? type->val_type : type;
     struct ast_node *adt_node = hashtable_get_p(&context->struct_typename_2_asts, adt_type->name);
-    int index;
-    if(node->index->index->node_type == IDENT_NODE){
-        index = find_member_index(adt_node, node->index->index->ident->name);
-    }else {
-        index = eval(node->index->index);
-    }
+    int index = find_field_index(adt_node, node->index->index);
     if (index < 0) {
         report_error(context, EC_FIELD_NOT_EXISTS, node->loc);
         return 0;
@@ -861,9 +857,9 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_cast(context, node);
             break;
         case MEMBER_INDEX_NODE:
-            if(node->index->aggregate_type == AGGREGATE_TYPE_ARRAY)
+            if(node->index->index_type == IndexTypeInteger)
                 type = _analyze_array_member_accessor(context, node);
-            else if(node->index->aggregate_type == AGGREGATE_TYPE_RECORD)
+            else if(node->index->index_type == IndexTypeName)
                 type = _analyze_record_field_accessor(context, node);
             break;
         case BINARY_NODE:

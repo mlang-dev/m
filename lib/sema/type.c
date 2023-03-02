@@ -326,7 +326,12 @@ struct type_item *create_type_oper_struct(symbol type_name, enum Mut mut, struct
 
 struct type_item *create_type_oper_tuple(enum Mut mut, struct array *args)
 {
-    return _create_type_oper(KIND_OPER, 0, 0, TYPE_TUPLE, mut, 0, args);
+    struct type_item* ti = _create_type_oper(KIND_OPER, 0, 0, TYPE_TUPLE, mut, 0, args);
+    string type_name = to_string(ti);
+    ti->name = string_2_symbol(&type_name);
+    ti->canon_name = ti->name;
+    string_deinit(&type_name);
+    return ti;
 }
 
 struct type_item *create_type_oper_union(symbol type_name, enum Mut mut, struct array *args)
@@ -557,6 +562,8 @@ struct type_item *_freshrec(struct type_item *type, struct array *nongens, struc
     }
     if (type->type == TYPE_STRUCT) {
         return create_type_oper_struct(type->name, type->mut, &refreshed);
+    } else if (type->type == TYPE_TUPLE){
+        return create_type_oper_tuple(type->mut, &refreshed);
     }
     return create_type_oper_var(KIND_OPER, type->name, type->type, 0, &refreshed);
 }

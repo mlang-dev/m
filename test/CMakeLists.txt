@@ -167,11 +167,11 @@ TARGET_LINK_LIBRARIES(mctest mlr clib
   -g
 )
 
-add_custom_command(
-  TARGET mctest
-  POST_BUILD
-  COMMAND mctest
-)
+# add_custom_command(
+#   TARGET mctest
+#   POST_BUILD
+#   COMMAND mctest
+# )
 
 add_custom_command(
   TARGET mtest

@@ -321,3 +321,12 @@ for i in 0..10
 let pick arr:u8[10][10] x:int y:int = arr[x][y]
 pick a 9 8
 `, 17);
+
+mtest('use tuple', 
+`
+define a tuple, and access like array
+`, 
+`
+var a = (10, 20)
+a[0] + a[1]
+`, 30);

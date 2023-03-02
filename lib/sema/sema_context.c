@@ -142,7 +142,7 @@ struct ast_node *_sc_record_get_offset_expr(struct sema_context *sc, struct type
 {
     struct ast_node *struct_node = hashtable_get_p(&sc->struct_typename_2_asts, aggr_type->name);
     assert(struct_node->type->kind == KIND_OPER);
-    int index = find_member_index(struct_node, field_node->ident->name);
+    int index = find_field_index(struct_node, field_node);
     struct struct_layout *sl = get_type_size_info(struct_node->type).sl;
     u32 offset = *(u64 *)array_get(&sl->field_offsets, index) / 8;
     return int_node_new(offset, zero_loc);
@@ -168,7 +168,7 @@ struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_it
 {
     if(aggr_type->type == TYPE_ARRAY)
         return _sc_array_get_offset_expr(sc, aggr_type, field_node);
-    else if(aggr_type->type == TYPE_STRUCT || aggr_type->type == TYPE_UNION)
+    else if(is_adt(aggr_type))
         return _sc_record_get_offset_expr(sc, aggr_type, field_node);
     assert(false);
 }
@@ -207,6 +207,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
         default:
             assert(false);
             break;
+        case TYPE_TUPLE:
         case TYPE_STRUCT:
         case TYPE_UNION:
         case TYPE_ARRAY:
