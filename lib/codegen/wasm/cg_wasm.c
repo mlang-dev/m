@@ -595,7 +595,7 @@ void _emit_record_field_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
 
 struct ast_node *_get_root_array(struct ast_node *node)
 {
-    while(node->node_type == MEMBER_INDEX_NODE && node->index->aggregate_type == AGGREGATE_TYPE_ARRAY){
+    while(node->node_type == MEMBER_INDEX_NODE && node->index->object->type->type == TYPE_ARRAY){
         node = node->index->object;
     }
     return node;
@@ -631,7 +631,7 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
 void _emit_assign_value(struct cg_wasm *cg, struct byte_array *ba, u32 addr_var_index, u32 offset, u32 align, struct type_item *type, struct ast_node *rhs)
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
-    if(type->type == TYPE_STRUCT){
+    if(is_record_like_type(type)){
         //struct assignment/copy
         struct var_info *rhs_vi = fc_get_var_info(fc, rhs);
         wasm_emit_code(cg, ba, rhs); 
@@ -682,9 +682,9 @@ void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
 
     wasm_emit_code(cg, ba, node->binop->lhs); 
     if(node->binop->lhs->node_type == MEMBER_INDEX_NODE){
-        if(node->binop->lhs->index->aggregate_type == AGGREGATE_TYPE_ARRAY){
+        if(node->binop->lhs->index->object->type->type == TYPE_ARRAY){
             _emit_assign_array_field(cg, ba, node->binop->lhs, node->binop->rhs);
-        } else if(node->binop->lhs->index->aggregate_type == AGGREGATE_TYPE_RECORD){
+        } else if(is_adt_or_ref(node->binop->lhs->index->object->type)){
             _emit_assign_record_field(cg, ba, node->binop->lhs, node->binop->rhs);
         }
     }else{
@@ -1045,9 +1045,9 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             _emit_block(cg, ba, node);
             break;
         case MEMBER_INDEX_NODE:
-            if(node->index->aggregate_type == AGGREGATE_TYPE_ARRAY){
+            if(node->index->object->type->type == TYPE_ARRAY){
                 _emit_array_member_accessor(cg, ba, node);
-            } else if(node->index->aggregate_type == AGGREGATE_TYPE_RECORD){
+            } else if(is_adt_or_ref(node->index->object->type)){
                 _emit_record_field_accessor(cg, ba, node);
             }
             break;

@@ -120,7 +120,7 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
             for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
                 arg_node = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
                 collect_local_variables(cg, arg_node);
-                if(arg_node->type->type == TYPE_STRUCT && is_refered_later(arg_node)){
+                if(is_record_like_type(arg_node->type) && is_refered_later(arg_node)){
                     /*not for array type, array type is always reference type*/
                     /*struct type is value type, we need to make copy of it to prevent being changed by 
                      *callee
@@ -193,7 +193,7 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
         break;
     case ASSIGN_NODE:
     case BINARY_NODE:
-        if(node->binop->lhs->type->type == TYPE_STRUCT){
+        if(is_record_like_type(node->binop->lhs->type)){
             if(node->binop->lhs->node_type != IDENT_NODE){
                 vi = _req_new_local_var(cg, node->binop->lhs->type, is_local_var, node->binop->lhs->is_ret, node->binop->lhs->is_addressed);
                 hashtable_set_p(&fc->ast_2_index, node->binop->lhs, vi);

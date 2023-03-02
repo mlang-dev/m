@@ -28,7 +28,7 @@ void wasm_emit_store_record_value(struct cg_wasm *cg, struct byte_array *ba, u32
         field = *(struct ast_node **)array_get(&block->block->nodes, i);
         field_offset = *(u64*)array_get(&sl->field_offsets, i) / 8;
         u32 align = get_type_align(field->type);
-        if(field->type->type == TYPE_STRUCT){
+        if(is_record_like_type(field->type)){
             assert(field->node_type == ADT_INIT_NODE);
             struct struct_layout *field_sl = *(struct struct_layout**)array_get(&sl->field_layouts, i);
             wasm_emit_store_record_value(cg, ba, local_address_var_index, offset + field_offset, field_sl, field->adt_init->body);

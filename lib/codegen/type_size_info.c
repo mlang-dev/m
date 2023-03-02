@@ -170,7 +170,7 @@ struct type_size_info get_type_size_info(struct type_item *type)
     struct type_size_info ti;
     if (type->type == TYPE_ARRAY) {
         ti = _create_array_type_size_info(type);
-    } else if (type->type == TYPE_STRUCT) {
+    } else if (is_record_like_type(type)) {
         ti = _create_struct_type_size_info(type, Product);
     } else if (type->type == TYPE_UNION) {
         ti = _create_struct_type_size_info(type, Sum);

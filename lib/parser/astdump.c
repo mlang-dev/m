@@ -211,10 +211,9 @@ string dump(struct sema_context *context, struct ast_node *node)
     case ASSIGN_NODE:
         return _dump_binary(context, node);
     case MEMBER_INDEX_NODE:
-        if(node->index->aggregate_type == AGGREGATE_TYPE_RECORD)
+        if(node->index->index_type == IndexTypeName)
             return _dump_field_access(context, node);        
         else {
-            assert(node->index->aggregate_type == AGGREGATE_TYPE_ARRAY);
             return _dump_array_index(context, node);
         }
         break;

@@ -9,6 +9,8 @@
 #include "clib/array.h"
 #include "parser/grammar.h"
 #include "clib/string.h"
+#include "sema/eval.h"
+
 #include <assert.h>
 
 struct source_location default_loc = {0, 0, 0, 0};
@@ -905,7 +907,7 @@ void _free_cast_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *member_index_node_new(enum aggregate_type aggregate_type, struct ast_node *object, struct ast_node *index, struct source_location loc)
+struct ast_node *member_index_node_new(enum IndexType index_type, struct ast_node *object, struct ast_node *index, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(MEMBER_INDEX_NODE, loc);
     MALLOC(node->index, sizeof(*node->index));
@@ -914,14 +916,14 @@ struct ast_node *member_index_node_new(enum aggregate_type aggregate_type, struc
     }
     node->index->object = object;
     node->index->index = index;
-    node->index->aggregate_type = aggregate_type;
+    node->index->index_type = index_type;
     node->is_addressable = true;
     return node;
 }
 
 struct ast_node *_copy_member_index_node(struct ast_node *orig_node)
 {
-    return member_index_node_new(orig_node->index->aggregate_type,
+    return member_index_node_new(orig_node->index->index_type,
         orig_node->index->object, orig_node->index->index, orig_node->loc);
 }
 
@@ -1287,6 +1289,10 @@ int find_member_index(struct ast_node *adt_node, symbol member)
     return -1;
 }
 
+int find_field_index(struct ast_node *type_item_node, struct ast_node *index)
+{
+    return index->node_type == IDENT_NODE ? find_member_index(type_item_node, index->ident->name) : eval(index);
+}  
 
 struct ast_node *block_node_new_empty()
 {

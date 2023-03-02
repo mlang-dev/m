@@ -175,7 +175,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             ast = _take(nodes, rule->action.item_index[0]);
         }
     }else{
-        enum aggregate_type aggregate_type;
+        enum IndexType index_type;
         switch (rule->action.node_type) {
         case NULL_NODE:
         case TOTAL_NODE:
@@ -274,7 +274,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                     for(size_t i = 0; i < array_size(&node->block->nodes); i++){
                         struct ast_node *n = *(struct ast_node**)array_get(&node->block->nodes, i);
                         assert(n->node_type == VAR_NODE);
-                        n->var->init_value = member_index_node_new(AGGREGATE_TYPE_RECORD, init_value, int_node_new(i, init_value->loc), init_value->loc);
+                        n->var->init_value = member_index_node_new(IndexTypeInteger, init_value, int_node_new(i, init_value->loc), init_value->loc);
                         if(i < array_size(&node->block->nodes) - 1){
                             init_value = node_copy(init_value);
                         }
@@ -398,10 +398,10 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         }
         case MEMBER_INDEX_NODE:
         {
-            aggregate_type = rule->action.item_index[0];
+            index_type = rule->action.item_index[0];
             struct ast_node *object = _take(nodes, rule->action.item_index[1]);
             struct ast_node *index = _take(nodes, rule->action.item_index[2]);
-            ast = member_index_node_new(aggregate_type, object, index, object->loc);
+            ast = member_index_node_new(index_type, object, index, object->loc);
             break;
         }
         case FUNC_TYPE_NODE:

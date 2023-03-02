@@ -81,13 +81,13 @@ struct binary_node {
     struct ast_node *lhs, *rhs;
 };
 
-enum aggregate_type{
-    AGGREGATE_TYPE_ARRAY = 0,
-    AGGREGATE_TYPE_RECORD = 1
+enum IndexType {
+    IndexTypeInteger = 0,
+    IndexTypeName = 1
 };
 
 struct member_index_node {
-    enum aggregate_type aggregate_type;
+    enum IndexType index_type;
     struct ast_node *object, *index;
 };
 
@@ -360,7 +360,7 @@ struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, b
 struct ast_node *cast_node_new(struct ast_node *to_type_item_node, struct ast_node *expr, struct source_location loc);
 struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
 struct ast_node *assign_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct source_location loc);
-struct ast_node *member_index_node_new(enum aggregate_type aggregate_type, struct ast_node *object, struct ast_node *index, struct source_location loc);
+struct ast_node *member_index_node_new(enum IndexType index_type, struct ast_node *object, struct ast_node *index, struct source_location loc);
 struct ast_node *for_node_new(struct ast_node *var, struct ast_node *range, struct ast_node *body, struct source_location loc);
 struct ast_node *while_node_new(struct ast_node *expr, struct ast_node *body, struct source_location loc);
 struct ast_node *jump_node_new(enum token_type token_type, struct ast_node *expr, struct source_location loc);
@@ -380,6 +380,7 @@ bool is_binary_op(struct ast_node *pnode);
 char get_op_name(struct ast_node *pnode);
 symbol get_callee(struct ast_node *call);
 int find_member_index(struct ast_node *type_item_node, symbol member);
+int find_field_index(struct ast_node *type_item_node, struct ast_node *index);
 
 struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name);
 

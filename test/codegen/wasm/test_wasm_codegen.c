@@ -150,6 +150,17 @@ pm (-1)\n\
     free(wasm);
 }
 
+TEST(test_wasm_codegen, tuple)
+{
+    char test_code[] = "\n\
+let t = (100, 200)\n\
+t[0]\n\
+";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
@@ -163,6 +174,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_ternary_operator);
     RUN_TEST(test_wasm_codegen_pattern_match_negative);
     RUN_TEST(test_wasm_codegen_pattern_match_variable);
+    RUN_TEST(test_wasm_codegen_tuple);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

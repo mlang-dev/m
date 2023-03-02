@@ -32,7 +32,7 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
             wasm_emit_code(cg, ba, node->var->init_value);
             if(init_vi->var_index != var_index){
                 //set var index address
-                if(node->type->type == TYPE_STRUCT){
+                if(is_record_like_type(node->type)){
                     if(!node->is_ret){
                         //for return value optimization, var_index is parameter
                         wasm_emit_assign_var(ba, var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);

@@ -71,6 +71,7 @@ let a = y\n\
     ASSERT_EQ(VAR_NODE, node1->node_type);
     string type_str = to_string(node1->type);
     ASSERT_EQ(TYPE_TUPLE, node1->type->type);
+    ASSERT_STREQ("int * int", string_get(node1->type->name));
     ASSERT_STREQ("int * int", string_get(&type_str));
     string_deinit(&type_str);
     ASSERT_EQ(VAR_NODE, node2->node_type);

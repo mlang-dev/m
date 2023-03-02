@@ -57,9 +57,9 @@ primary_expr    = literal_expr
                 | '(' expr ')'                                                              { 1 }
 
 postfix_expr    = primary_expr
-                | postfix_expr '[' expr ']'                                                 { indexing 0 0 2 } //first zero indicates left is array
+                | postfix_expr '[' expr ']'                                                 { indexing 0 0 2 } //first zero indicates indexing with integer
                 | adt_initializer                                                           
-                | postfix_expr '.' IDENT                                                    { indexing 1 0 2 } // first one indicates left is record
+                | postfix_expr '.' IDENT                                                    { indexing 1 0 2 } // first one indicates indexing with named
                 | func_call
                 | postfix_expr "++"                                                         { unop 1 0 } // the disorder of operator and operand indicates a postfix op
                 | postfix_expr "--"                                                         { unop 1 0 }
