@@ -349,3 +349,13 @@ let a = (10, 20)
 let x, y = a
 x + y
 `, 30);
+
+mtest('function returns tuple', 
+`
+return a tuple from a function
+`, 
+`
+let a() = (10, 20)
+let x, y = a()
+x + y
+`, 30);
