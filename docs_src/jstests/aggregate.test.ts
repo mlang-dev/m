@@ -330,3 +330,22 @@ define a tuple, and access like array
 var a = (10, 20)
 a[0] + a[1]
 `, 30);
+
+mtest('use tuple unpack', 
+`
+construct a tuple, and unpack its fields
+`, 
+`
+let x, y = (10, 20)
+x + y
+`, 30);
+
+mtest('unpack tuple fields', 
+`
+construct a tuple variable, and unpack fields of tuple variable
+`, 
+`
+let a = (10, 20)
+let x, y = a
+x + y
+`, 30);
