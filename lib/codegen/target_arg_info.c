@@ -28,7 +28,7 @@ int get_expansion_size(struct type_item *type)
         int size = 0;
         size_t member_count = array_size(&type->args);
         for (size_t i = 0; i < member_count; i++) {
-            struct type_item *field_type = *(struct type_item **)array_get(&type->args, i);
+            struct type_item *field_type = array_get_ptr(&type->args, i);
             size += get_expansion_size(field_type);
         }
         return size;
@@ -41,7 +41,7 @@ void get_expanded_types(struct target_info *ti, struct type_item *type, struct a
     if (type->type == TYPE_STRUCT) {
         size_t member_count = array_size(&type->args);
         for (size_t i = 0; i < member_count; i++) {
-            struct type_item *field_type = *(struct type_item **)array_get(&type->args, i);
+            struct type_item *field_type = array_get(&type->args, i);
             get_expanded_types(ti, field_type, types);
         }
     } else {
@@ -52,5 +52,5 @@ void get_expanded_types(struct target_info *ti, struct type_item *type, struct a
 
 struct target_arg_range *get_target_arg_range(struct target_arg_info *tai, unsigned arg_no)
 {
-    return (struct target_arg_range *)array_get(&tai->args, arg_no);
+    return array_get(&tai->args, arg_no);
 }

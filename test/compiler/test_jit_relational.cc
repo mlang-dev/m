@@ -21,7 +21,7 @@ TEST(testJITRelational, testLessThan)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(true, result.i_value);
     node_free(block);
@@ -38,7 +38,7 @@ TEST(testJITRelational, testLessThanWrong)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
     node_free(block);
@@ -55,7 +55,7 @@ TEST(testJITRelational, testGreaterThan)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
     node_free(block);
@@ -72,7 +72,7 @@ TEST(testJITRelational, testGreaterThanWrong)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
     node_free(block);
@@ -90,7 +90,7 @@ TEST(testJITRelational, testEqual)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
     node_free(block);
@@ -108,7 +108,7 @@ TEST(testJITRelational, testEqualNot)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
     node_free(block);
@@ -126,7 +126,7 @@ TEST(testJITRelational, testNotEqualTrue)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
     node_free(block);
@@ -144,7 +144,7 @@ TEST(testJITRelational, testNotEqualFalse)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
     node_free(block);
@@ -162,7 +162,7 @@ TEST(testJITRelational, testLETrueL)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
     node_free(block);
@@ -180,7 +180,7 @@ TEST(testJITRelational, testLETrueE)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
     node_free(block);
@@ -198,7 +198,7 @@ TEST(testJITRelational, testLEFalse)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
     node_free(block);
@@ -216,7 +216,7 @@ TEST(testJITRelational, testGETrueL)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
     node_free(block);
@@ -234,7 +234,7 @@ TEST(testJITRelational, testGETrueE)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(1, result.i_value);
     node_free(block);
@@ -252,7 +252,7 @@ TEST(testJITRelational, testGEFalse)
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     auto result = eval_exp(jit, node);
     ASSERT_EQ(0, result.i_value);
     node_free(block);

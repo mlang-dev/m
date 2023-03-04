@@ -16,10 +16,10 @@ void fun_info_init(struct fun_info *fi, struct ast_node *func_type)
     array_init(&fi->args, sizeof(struct abi_arg_info));
     target_arg_info_init(&fi->tai);
 
-    fi->ret.type = *(struct type_item **)array_back(&fun_type->args);
+    fi->ret.type = array_back_ptr(&fun_type->args);
     struct abi_arg_info aai;
     for (unsigned i = 0; i < param_num; i++) {
-        aai.type = *(struct type_item **)array_get(&fun_type->args, i);
+        aai.type = array_get_ptr(&fun_type->args, i);
         array_push(&fi->args, &aai);
     }
 }
@@ -41,7 +41,7 @@ void _map_to_target_arg_info(struct target_info *ti, struct fun_info *fi)
         fi->ret.target_type = ti->get_target_type(fi->ret.type);
     unsigned arg_num = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
-        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
+        struct abi_arg_info *aai = array_get(&fi->args, i);
         if (can_have_coerce_to_type(aai) && !aai->target_type)
             aai->target_type = ti->get_target_type(aai->type);
     }
@@ -52,7 +52,7 @@ void _map_to_target_arg_info(struct target_info *ti, struct fun_info *fi)
 
     //unsigned arg_no = 0;
     for (unsigned i = 0; i < arg_num; i++) {
-        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
+        struct abi_arg_info *aai = array_get(&fi->args, i);
         struct target_arg_range iar;
         target_arg_range_init(&iar);
         if (get_padding_type(aai))
@@ -142,7 +142,7 @@ TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi)
     //TODO: inalloca
     unsigned arg_num = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
-        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
+        struct abi_arg_info *aai = array_get(&fi->args, i);
         struct target_arg_range *tar = get_target_arg_range(&fi->tai, i);
         if (tar->padding_arg_index != InvalidIndex) {
             assert(tar->padding_arg_index == array_size(&arg_types));

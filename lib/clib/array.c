@@ -85,6 +85,11 @@ void _copy_element_to_array(struct array *arr, size_t index, void *element)
     memcpy((unsigned char *)arr->base.data.p_data + (index * arr->_element_size), element, arr->_element_size);
 }
 
+void _copy_element_ptr_to_array(struct array *arr, size_t index, void *element)
+{
+    memcpy((unsigned char *)arr->base.data.p_data + (index * arr->_element_size), &element, arr->_element_size);
+}
+
 void _shift_elements(struct array *arr, size_t index, size_t elements)
 {
     memmove((unsigned char*)arr->base.data.p_data + (index + elements) * arr->_element_size, (unsigned char*)arr->base.data.p_data + index * arr->_element_size, arr->_element_size * (arr->base.size - index));
@@ -99,6 +104,15 @@ void array_push(struct array *arr, void *element)
     arr->base.size++;
 }
 
+void array_push_ptr(struct array *arr, void *element)
+{
+    if (arr->base.size == arr->cap) {
+        array_grow(arr);
+    }
+    _copy_element_ptr_to_array(arr, arr->base.size, element);
+    arr->base.size++;
+}
+
 void array_insert_at(struct array *arr, void *element, size_t index)
 {
     if (arr->base.size == arr->cap) {
@@ -106,6 +120,16 @@ void array_insert_at(struct array *arr, void *element, size_t index)
     }
     _shift_elements(arr, 0, 1);
     _copy_element_to_array(arr, index, element);
+    arr->base.size++;
+}
+
+void array_insert_ptr_at(struct array *arr, void *element, size_t index)
+{
+    if (arr->base.size == arr->cap) {
+        array_grow(arr);
+    }
+    _shift_elements(arr, 0, 1);
+    _copy_element_ptr_to_array(arr, index, element);
     arr->base.size++;
 }
 
@@ -136,6 +160,12 @@ void *array_get(struct array *arr, size_t index)
     return (unsigned char *)arr->base.data.p_data + (index * arr->_element_size);
 }
 
+void *array_get_ptr(struct array *arr, size_t index)
+{
+    void *addr = (unsigned char*)arr->base.data.p_data + (index * arr->_element_size);
+    return *(unsigned char **)addr;
+}
+
 void *array_data(struct array *arr)
 {
     return arr->base.data.p_data;
@@ -149,6 +179,16 @@ void *array_back(struct array *arr)
 void *array_front(struct array *arr)
 {
     return array_get(arr, 0);
+}
+
+void *array_back_ptr(struct array *arr)
+{
+    return array_get_ptr(arr, arr->base.size - 1);
+}
+
+void *array_front_ptr(struct array *arr)
+{
+    return array_get_ptr(arr, 0);
 }
 
 size_t array_size(struct array *arr)

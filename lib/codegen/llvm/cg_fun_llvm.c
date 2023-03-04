@@ -35,10 +35,10 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
     struct array params;
     array_init(&params, sizeof(struct address));
     for (unsigned i = 0; i < param_count; i++) {
-        struct ast_node *param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
-        //struct type_item *type_exp = *(struct type_item **)array_get(&proto_type->args, i);
-        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
-        struct target_arg_range *tar = (struct target_arg_range *)array_get(&fi->tai.args, i);
+        struct ast_node *param = array_get_ptr(&node->ft->params->block->nodes, i);
+        //struct type_item *type_exp = array_get_ptr(&proto_type->args, i);
+        struct abi_arg_info *aai = array_get(&fi->args, i);
+        struct target_arg_range *tar = array_get(&fi->tai.args, i);
         unsigned first_ir_arg = tar->first_arg_index;
         unsigned target_arg_num = tar->target_arg_num;
         struct address param_value;
@@ -126,9 +126,9 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
     unsigned param_count = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < param_count; i++) {
         LLVMValueRef param = LLVMGetParam(fun, i);
-        struct ast_node *fun_param = *(struct ast_node **)array_get(&node->ft->params->block->nodes, i);
+        struct ast_node *fun_param = array_get_ptr(&node->ft->params->block->nodes, i);
         LLVMSetValueName2(param, string_get(fun_param->var->var->ident->name), string_size(fun_param->var->var->ident->name));
-        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
+        struct abi_arg_info *aai = array_get(&fi->args, i);
         if (aai->type->type == TYPE_STRUCT)
             hashtable_set_p(&cg->varname_2_typename, fun_param->var->var->ident->name, aai->type->name);
     }
@@ -165,7 +165,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
     //     }
     // }
     for (size_t i = 0; i < array_size(&node->func->body->block->nodes); i++) {
-        struct ast_node *stmt = *(struct ast_node **)array_get(&node->func->body->block->nodes, i);
+        struct ast_node *stmt = array_get_ptr(&node->func->body->block->nodes, i);
         ret_val = emit_ir_code(cg, stmt);
     }
     if (!ret_val || !fi->ret.target_type) {
@@ -189,7 +189,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
         }
         LLVMBuildRet(cg->builder, ret_val);
     }
-    struct ast_node *saved_node = *(struct ast_node **)stack_pop(&cg->base.sema_context->func_stack);
+    struct ast_node *saved_node = stack_pop_ptr(&cg->base.sema_context->func_stack);
     assert(node == saved_node);
     return fun;
 }

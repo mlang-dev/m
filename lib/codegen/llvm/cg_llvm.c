@@ -68,7 +68,7 @@ LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_item *type_exp)
     LLVMTypeRef *members;
     MALLOC(members, member_count * sizeof(LLVMTypeRef));
     for (unsigned i = 0; i < member_count; i++) {
-        struct type_item *field_type = *(struct type_item **)array_get(&type_exp->args, i);
+        struct type_item *field_type = array_get_ptr(&type_exp->args, i);
         members[i] = get_llvm_type(field_type);
     }
     LLVMStructSetBody(struct_type, members, member_count, false);
@@ -451,7 +451,7 @@ LLVMValueRef _emit_block_node(struct cg_llvm *cg, struct ast_node *node)
 {
     LLVMValueRef codegen = 0;
     for (size_t i = 0; i < array_size(&node->block->nodes); i++) {
-        struct ast_node *exp = *(struct ast_node **)array_get(&node->block->nodes, i);
+        struct ast_node *exp = array_get_ptr(&node->block->nodes, i);
         codegen = emit_ir_code(cg, exp);
     }
     return codegen;
@@ -850,7 +850,7 @@ struct cg_llvm *get_cg()
 void emit_sp_code(struct cg_llvm *cg)
 {
     for(size_t i = 0; i < array_size(&cg->base.sema_context->new_specialized_asts); i++){
-        struct ast_node *new_sp = *(struct ast_node **)array_get(&cg->base.sema_context->new_specialized_asts, i);
+        struct ast_node *new_sp = array_get_ptr(&cg->base.sema_context->new_specialized_asts, i);
         emit_ir_code(cg, new_sp);
     }
     array_reset(&cg->base.sema_context->new_specialized_asts);
@@ -861,7 +861,7 @@ void emit_code(struct cg_llvm *cg, struct ast_node *node)
     emit_sp_code(cg);
     if (array_size(&cg->base.sema_context->used_builtin_names)) {
         for (size_t i = 0; i < array_size(&cg->base.sema_context->used_builtin_names); i++) {
-            symbol built_name = *((symbol *)array_get(&cg->base.sema_context->used_builtin_names, i));
+            symbol built_name = array_get_ptr(&cg->base.sema_context->used_builtin_names, i);
             struct ast_node *n = hashtable_get_p(&cg->base.sema_context->builtin_ast, built_name);
             emit_ir_code(cg, n);
         }

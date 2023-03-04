@@ -63,7 +63,7 @@ struct struct_layout *fc_get_stack_sl(struct fun_context *fc, struct ast_node *n
 {
     struct var_info *vi = fc_get_var_info(fc, node);
     if(vi->alloc_index<0) return 0;
-    return *(struct struct_layout**)array_get(&fc->stack_size_info.sl->field_layouts, vi->alloc_index);
+    return array_get_ptr(&fc->stack_size_info.sl->field_layouts, vi->alloc_index);
 }
 
 int fc_register_alloc(struct fun_context *fc, struct type_item *type)

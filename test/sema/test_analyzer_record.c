@@ -21,7 +21,7 @@ record Point2D = x:f64, y:f64\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
     
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(RECORD_NODE, node->node_type);
     string type_str = to_string(node->type);
@@ -43,13 +43,13 @@ xy.x\n\
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
-    node = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    node = array_get_ptr(&block->block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
-    node = *(struct ast_node **)array_get(&block->block->nodes, 2);
+    node = array_get_ptr(&block->block->nodes, 2);
     ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("f64", string_get(&type_str));
@@ -70,16 +70,16 @@ let z() = get_point()\n\
     analyze(fe->sema_context, block);
     
     //1. type definition
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     //2. function definition
-    node = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    node = array_get_ptr(&block->block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> Point2D", string_get(&type_str));
 
     //3. function definition again
-    node = *(struct ast_node **)array_get(&block->block->nodes, 2);
+    node = array_get_ptr(&block->block->nodes, 2);
     ASSERT_EQ(FUNC_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> Point2D", string_get(&type_str));
@@ -101,16 +101,16 @@ let z = getx()\n\
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     /*func definition*/
-    node = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    node = array_get_ptr(&block->block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> Point2D", string_get(&type_str));
 
     /*variable node*/
-    node = *(struct ast_node **)array_get(&block->block->nodes, 2);
+    node = array_get_ptr(&block->block->nodes, 2);
     ASSERT_EQ(VAR_NODE, node->node_type);
     struct ast_node *var = node;
 
@@ -140,13 +140,13 @@ xy.x\n\
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
-    node = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    node = array_get_ptr(&block->block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
-    node = *(struct ast_node **)array_get(&block->block->nodes, 2);
+    node = array_get_ptr(&block->block->nodes, 2);
     ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("f64", string_get(&type_str));
@@ -168,14 +168,14 @@ getx()\n\
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));
     /*func definition*/
-    node = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    node = array_get_ptr(&block->block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> f64", string_get(&type_str));
-    node = *(struct ast_node **)array_get(&block->block->nodes, 2);
+    node = array_get_ptr(&block->block->nodes, 2);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("f64", string_get(&type_str));

@@ -18,7 +18,7 @@ TEST(test_parser, int_type)
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(BLOCK_NODE, block->node_type);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(TYPE_ITEM_NODE, node->var->is_of_type->node_type);
@@ -34,7 +34,7 @@ TEST(test_parser, var_init)
     char test_code[] = "let x = 11";
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
@@ -52,7 +52,7 @@ TEST(test_parser, var_init_name_with_underlying)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("m_x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
@@ -68,7 +68,7 @@ TEST(test_parser, int_init)
     char test_code[] = "let x:int = 11";
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("int", string_get(node->var->is_of_type->type_item_node->type_name));
     ASSERT_STREQ("x", string_get(node->var->var->ident->name));
@@ -87,7 +87,7 @@ TEST(test_parser, bool_init)
     char test_code[] = "let x = true";
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
@@ -105,7 +105,7 @@ TEST(test_parser, char_init)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
@@ -123,7 +123,7 @@ TEST(test_parser, string_init)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("x", string_get(node->var->var->ident->name));
     ASSERT_EQ(VAR_NODE, node->node_type);
@@ -143,9 +143,9 @@ f 10 ";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *func = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *call = *(struct ast_node **)array_back(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&func->func->body->block->nodes);
+    struct ast_node *func = array_front_ptr(&block->block->nodes);
+    struct ast_node *call = array_back_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&func->func->body->block->nodes);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(func->func->func_type->ft->name));
     ASSERT_EQ(IDENT_NODE, body_node->node_type);
@@ -161,8 +161,8 @@ TEST(test_parser, binary_exp_func)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(BINARY_NODE, body_node->node_type);
@@ -179,8 +179,8 @@ let f x = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("f", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(BINARY_NODE, body_node->node_type);
@@ -199,8 +199,8 @@ let distance x1 y1 x2 y2 = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_first = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_first = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(FUNC_NODE, node->node_type);
     ASSERT_STREQ("distance", string_get(node->func->func_type->ft->name));
@@ -219,8 +219,8 @@ let loopprint n = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FOR_NODE, body_node->node_type);
@@ -241,8 +241,8 @@ let loopprint n = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FOR_NODE, body_node->node_type);
@@ -260,8 +260,8 @@ TEST(test_parser, avg_function)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *func = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&func->func->body->block->nodes);
+    struct ast_node *func = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&func->func->body->block->nodes);
     ASSERT_STREQ("avg", string_get(func->func->func_type->ft->name));
     ASSERT_STREQ("BINARY_NODE", node_type_strings[body_node->node_type]);
     node_free(block);
@@ -278,8 +278,8 @@ let fac n = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(IF_NODE, body_node->node_type);
@@ -296,8 +296,8 @@ let fac n = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(IF_NODE, body_node->node_type);
@@ -316,8 +316,8 @@ let fac n = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(IF_NODE, body_node->node_type);
@@ -337,8 +337,8 @@ let fac n = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(IF_NODE, body_node->node_type);
@@ -356,8 +356,8 @@ let fac n = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(IF_NODE, body_node->node_type);
@@ -378,13 +378,13 @@ pm 1";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *body_node = *(struct ast_node **)array_front(&node->func->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_STREQ("pm", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(MATCH_NODE, body_node->node_type);
     ASSERT_EQ(BLOCK_NODE, body_node->match->match_cases->node_type);
-    node = *(struct ast_node **)array_back(&block->block->nodes);
+    node = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
     node_free(block);
     
@@ -404,10 +404,10 @@ y";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
-    struct ast_node *var = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    struct ast_node *var = array_get_ptr(&block->block->nodes, 1);
     ASSERT_EQ(VAR_NODE, var->node_type);
     ASSERT_EQ(MATCH_NODE, var->var->init_value->node_type);
-    struct ast_node *ident = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *ident = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(IDENT_NODE, ident->node_type);
     node_free(block);
     frontend_deinit(fe);
@@ -423,7 +423,7 @@ let to_string () = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(FUNC_NODE, node->node_type);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("to_string", string_get(node->func->func_type->ft->name));
@@ -438,7 +438,7 @@ TEST(test_parser, variadic_function)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(FUNC_NODE, node->node_type);
     ASSERT_EQ(true, node->func->func_type->ft->is_variadic);
     node_free(block);
@@ -452,7 +452,7 @@ TEST(test_parser, func_type)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("printf", string_get(node->ft->name));
@@ -467,7 +467,7 @@ TEST(test_parser, func_type_no_param)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
@@ -484,7 +484,7 @@ TEST(test_parser, func_type_no_param_no_return)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(0, array_size(&node->ft->params->block->nodes));
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
@@ -501,7 +501,7 @@ TEST(test_parser, import_fun_type)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(IMPORT_NODE, node->node_type);
     ASSERT_STREQ("sys", string_get(node->import->from_module));
@@ -521,7 +521,7 @@ TEST(test_parser, import_memory_init)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(IMPORT_NODE, node->node_type);
     node = node->import->import;
@@ -539,7 +539,7 @@ TEST(test_parser, import_memory_init_max)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(IMPORT_NODE, node->node_type);
     node = node->import->import;
@@ -557,7 +557,7 @@ TEST(test_parser, import_global)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(IMPORT_NODE, node->node_type);
     node = node->import->import;
@@ -574,7 +574,7 @@ TEST(test_parser, ref_type)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_STREQ("int", string_get(node->var->is_of_type->type_item_node->val_node->type_name));
@@ -589,7 +589,7 @@ TEST(test_parser, create_ref_variable)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(UNARY_NODE, node->var->init_value->node_type);
@@ -605,7 +605,7 @@ TEST(test_parser, create_deref_variable)
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(UNARY_NODE, node->var->init_value->node_type);
@@ -621,7 +621,7 @@ TEST(test_parser, array_variable)
     char test_code[] = "var a = [10,20]";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(ARRAY_INIT_NODE, node->var->init_value->node_type);
@@ -634,18 +634,18 @@ TEST(test_parser, onebytwo_array_variable)
     char test_code[] = "var a = [[10,20]]";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(ARRAY_INIT_NODE, node->var->init_value->node_type);
     ASSERT_EQ(1, array_size(&node->var->init_value->array_init->block->nodes));
-    struct ast_node *row_node = *(struct ast_node **)array_front(&node->var->init_value->array_init->block->nodes);
+    struct ast_node *row_node = array_front_ptr(&node->var->init_value->array_init->block->nodes);
     ASSERT_EQ(ARRAY_INIT_NODE, row_node->node_type);
     ASSERT_EQ(2, array_size(&row_node->array_init->block->nodes));
-    struct ast_node *cell_node = *(struct ast_node **)array_front(&row_node->array_init->block->nodes);
+    struct ast_node *cell_node = array_front_ptr(&row_node->array_init->block->nodes);
     ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
     ASSERT_EQ(10, cell_node->liter->int_val);
-    cell_node = *(struct ast_node **)array_back(&row_node->array_init->block->nodes);
+    cell_node = array_back_ptr(&row_node->array_init->block->nodes);
     ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
     ASSERT_EQ(20, cell_node->liter->int_val);
     node_free(block);
@@ -657,30 +657,30 @@ TEST(test_parser, twobytwo_array_variable)
     char test_code[] = "var a = [[10,20], [30, 40]]";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(ARRAY_INIT_NODE, node->var->init_value->node_type);
     ASSERT_EQ(2, array_size(&node->var->init_value->array_init->block->nodes));
     //first row
-    struct ast_node *row_node = *(struct ast_node **)array_front(&node->var->init_value->array_init->block->nodes);
+    struct ast_node *row_node = array_front_ptr(&node->var->init_value->array_init->block->nodes);
     ASSERT_EQ(ARRAY_INIT_NODE, row_node->node_type);
     ASSERT_EQ(2, array_size(&row_node->array_init->block->nodes));
-    struct ast_node *cell_node = *(struct ast_node **)array_front(&row_node->array_init->block->nodes);
+    struct ast_node *cell_node = array_front_ptr(&row_node->array_init->block->nodes);
     ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
     ASSERT_EQ(10, cell_node->liter->int_val);
-    cell_node = *(struct ast_node **)array_back(&row_node->array_init->block->nodes);
+    cell_node = array_back_ptr(&row_node->array_init->block->nodes);
     ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
     ASSERT_EQ(20, cell_node->liter->int_val);
 
     //second row
-    row_node = *(struct ast_node **)array_back(&node->var->init_value->array_init->block->nodes);
+    row_node = array_back_ptr(&node->var->init_value->array_init->block->nodes);
     ASSERT_EQ(ARRAY_INIT_NODE, row_node->node_type);
     ASSERT_EQ(2, array_size(&row_node->array_init->block->nodes));
-    cell_node = *(struct ast_node **)array_front(&row_node->array_init->block->nodes);
+    cell_node = array_front_ptr(&row_node->array_init->block->nodes);
     ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
     ASSERT_EQ(30, cell_node->liter->int_val);
-    cell_node = *(struct ast_node **)array_back(&row_node->array_init->block->nodes);
+    cell_node = array_back_ptr(&row_node->array_init->block->nodes);
     ASSERT_EQ(LITERAL_NODE, cell_node->node_type);
     ASSERT_EQ(40, cell_node->liter->int_val);
     node_free(block);
@@ -693,11 +693,11 @@ TEST(test_parser, multiple_statements_on_one_line)
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(to_symbol("a"), node->var->var->ident->name);
 
-    node = *(struct ast_node **)array_back(&block->block->nodes);
+    node = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(to_symbol("b"), node->var->var->ident->name);
     node_free(block);

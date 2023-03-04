@@ -26,7 +26,7 @@ TEST_F(testAstDump, testPrototypeNodeDump)
     char test_code[] = "func printf format:string ... -> int";
     ast_node *block = parse_code(parser, test_code);
     analyze(context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     auto func_type = (ast_node *)node;
     ASSERT_STREQ("printf", string_get((string *)func_type->ft->name));
@@ -45,7 +45,7 @@ TEST_F(testAstDump, testFuncTypeWithNoParam)
     char test_code[] = "func printf () -> int";
     ast_node *block = parse_code(parser, test_code);
     analyze(context, block);
-    auto node = *(ast_node **)array_front(&block->block->nodes);
+    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
     ASSERT_EQ(FUNC_TYPE_NODE, node->node_type);
     auto func_type = (ast_node *)node;
     ASSERT_STREQ("printf", string_get((string *)func_type->ft->name));

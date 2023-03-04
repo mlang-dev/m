@@ -74,7 +74,7 @@ char get_op_name(struct ast_node *node)
 
 struct type_item *get_ret_type(struct ast_node *fun_node)
 {
-    return *(struct type_item **)array_back(&fun_node->type->args);
+    return array_back_ptr(&fun_node->type->args);
 }
 
 struct ast_node *_copy_block_node(struct ast_node *orig_node)
@@ -82,7 +82,7 @@ struct ast_node *_copy_block_node(struct ast_node *orig_node)
     struct array nodes;
     array_init(&nodes, sizeof(struct ast_node *));
     for (size_t i = 0; i < array_size(&orig_node->block->nodes); i++) {
-        struct ast_node *node = node_copy(*(struct ast_node **)array_get(&orig_node->block->nodes, i));
+        struct ast_node *node = node_copy(array_get_ptr(&orig_node->block->nodes, i));
         array_push(&nodes, &node);
     }
     return block_node_new(&nodes);
@@ -716,7 +716,7 @@ struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name)
     assert(generic_fun->node_type == FUNC_NODE);
     struct ast_node *sp_fun = 0;
     for(size_t i = 0; i < array_size(&generic_fun->func->sp_funs); i++){
-        struct ast_node *fun = *(struct ast_node **)array_get(&generic_fun->func->sp_funs, i);
+        struct ast_node *fun = array_get_ptr(&generic_fun->func->sp_funs, i);
         if(fun->func->func_type->ft->name == sp_fun_name){
             sp_fun = fun;
             break;
@@ -1015,7 +1015,7 @@ void _free_jump_node(struct ast_node *node)
 
 struct ast_node *block_node_new(struct array *nodes)
 {
-    struct source_location loc = (nodes && array_size(nodes) > 0) ? (*(struct ast_node **)array_front(nodes))->loc : default_loc;
+    struct source_location loc = (nodes && array_size(nodes) > 0) ? ((struct ast_node*)array_front_ptr(nodes))->loc : default_loc;
     struct ast_node *node = ast_node_new(BLOCK_NODE, loc);
     MALLOC(node->block, sizeof(*node->block));
     if(nodes)
@@ -1035,7 +1035,7 @@ struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node)
 struct ast_node *block_node_add_block(struct ast_node *block, struct ast_node *node)
 {
     for(u32 i = 0; i < array_size(&node->block->nodes); i++){
-        struct ast_node *elem = *(struct ast_node **)array_get(&node->block->nodes, i);
+        struct ast_node *elem = array_get_ptr(&node->block->nodes, i);
         array_push(&block->block->nodes, &elem);
     }
     return block;
@@ -1252,7 +1252,7 @@ void node_free(struct ast_node *node)
 void nodes_free(struct array *nodes)
 {
     for (size_t i = 0; i < array_size(nodes); i++) {
-        struct ast_node *elem = *(struct ast_node **)array_get(nodes, i);
+        struct ast_node *elem = array_get_ptr(nodes, i);
         node_free(elem);
     }
     array_deinit(nodes);
@@ -1275,14 +1275,14 @@ int find_member_index(struct ast_node *adt_node, symbol member)
 {
     if(adt_node->node_type == RECORD_NODE){
         for (int i = 0; i < (int)array_size(&adt_node->adt_type->body->block->nodes); i++) {
-            struct ast_node *var = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, i);
+            struct ast_node *var = array_get_ptr(&adt_node->adt_type->body->block->nodes, i);
             if (var->var->var->ident->name == member) {
                 return i;
             }
         }
     } else if (adt_node->node_type == VARIANT_NODE){
         for (int i = 0; i < (int)array_size(&adt_node->adt_type->body->block->nodes); i++) {
-            struct ast_node *item = *(struct ast_node **)array_get(&adt_node->adt_type->body->block->nodes, i);
+            struct ast_node *item = array_get_ptr(&adt_node->adt_type->body->block->nodes, i);
             if (item->variant_type_node->tag == member) {
                 return i;
             }

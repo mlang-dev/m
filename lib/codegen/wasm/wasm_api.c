@@ -215,7 +215,7 @@ void wasm_emit_copy_record_value(WasmModule ba, u32 to_var_index, u32 to_offset,
     u32 field_offset;
     struct type_size_info tsi = get_type_size_info(type);
     for (u32 i = 0; i < array_size(&type->args); i++) {
-        field_type = *(struct type_item **)array_get(&type->args, i);
+        field_type = array_get_ptr(&type->args, i);
         field_offset = *(u64*)array_get(&tsi.sl->field_offsets, i) / 8;
         u32 align = get_type_align(field_type);
         if(field_type->type == TYPE_STRUCT){

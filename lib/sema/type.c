@@ -97,13 +97,13 @@ symbol _to_fun_type_name(struct array *types)
     if(!array_size(types)){
         return 0;
     }
-    struct type_item *result_type = *(struct type_item**)array_back(types);
+    struct type_item *result_type = array_back_ptr(types);
     if (result_type->kind == KIND_VAR) return 0;
     string str;
     string_init(&str);
     struct type_item *param_type;
     for(size_t i = 0; i < array_size(types) - 1; i++){
-        param_type = *(struct type_item**)array_get(types, i);
+        param_type = array_get_ptr(types, i);
         if(param_type->kind == KIND_VAR){
             string_deinit(&str);
             return 0;
@@ -421,7 +421,7 @@ struct type_item *_prune(struct type_item *type, enum Mut mut)
         assert(type->kind == KIND_OPER);
         struct type_item *argt;
         for (unsigned i = 0; i < array_size(&type->args); ++i) {
-            argt = *(struct type_item **)array_get(&type->args, i);
+            argt = array_get_ptr(&type->args, i);
             struct type_item *element_type = _prune(argt, argt->mut);
             array_set(&type->args, i, &element_type);
         }
@@ -443,7 +443,7 @@ struct type_item *prune(struct type_item *type)
 bool _occurs_in_type_list(struct type_item *var, struct array *list)
 {
     for (unsigned i = 0; i < array_size(list); i++) {
-        struct type_item *type = *(struct type_item **)array_get(list, i);
+        struct type_item *type = array_get_ptr(list, i);
         if (occurs_in_type(var, type))
             return true;
     }
@@ -464,7 +464,7 @@ bool _is_variadic(struct array *args)
 {
     size_t size = array_size(args);
     if (size > 1) {
-        struct type_item *exp = *(struct type_item **)array_get(args, size - 2);
+        struct type_item *exp = array_get_ptr(args, size - 2);
         return get_type(exp) == TYPE_GENERIC;
     }
     return false;
@@ -512,8 +512,8 @@ struct type_item *unify(struct type_item *type1, struct type_item *type2, struct
         size_t arg_size2 = array_size(&type2->args);
         size_t arg_size = MIN(arg_size1, arg_size2);
         for (size_t i = 0; i < arg_size; i++) {
-            unify(*(struct type_item **)array_get(&type1->args, i == arg_size - 1 ? arg_size1 - 1 : i),
-                *(struct type_item **)array_get(&type2->args, i == arg_size - 1 ? arg_size2 - 1 : i), nongens);
+            unify(array_get_ptr(&type1->args, i == arg_size - 1 ? arg_size1 - 1 : i),
+                array_get_ptr(&type2->args, i == arg_size - 1 ? arg_size2 - 1 : i), nongens);
         }
     }
     type1 = prune(type1);
@@ -528,7 +528,7 @@ bool _is_generic(struct type_item *var, struct array *nongens)
 bool _all_is_oper(struct array *arr)
 {
     for (size_t i = 0; i < array_size(arr); i++) {
-        struct type_item *type = (struct type_item *)array_get(arr, i);
+        struct type_item *type = array_get(arr, i);
         if (type->kind != KIND_OPER)
             return false;
     }
@@ -556,7 +556,7 @@ struct type_item *_freshrec(struct type_item *type, struct array *nongens, struc
     struct array refreshed;
     array_init(&refreshed, sizeof(struct type_item *));
     for (size_t i = 0; i < array_size(&type->args); i++) {
-        struct type_item *arg_type = *(struct type_item **)array_get(&type->args, i);
+        struct type_item *arg_type = array_get_ptr(&type->args, i);
         struct type_item *new_arg_type = _freshrec(arg_type, nongens, type_vars);
         array_push(&refreshed, &new_arg_type);
     }
@@ -625,7 +625,7 @@ string to_string(struct type_item *type)
         } else {
             ARRAY_STRING(array_type_strs);
             for (size_t i = 0; i < array_size(&type->args); i++) {
-                string type_str = to_string(*(struct type_item **)array_get(&type->args, i));
+                string type_str = to_string(array_get_ptr(&type->args, i));
                 array_push(&array_type_strs, &type_str);
             }
             struct array subarray;
@@ -657,7 +657,7 @@ bool is_generic(struct type_item *type)
         return true;
     struct type_item *argt;
     for (size_t i = 0; i < array_size(&type->args); i++) {
-        argt = *(struct type_item **)array_get(&type->args, i);
+        argt = array_get_ptr(&type->args, i);
         type = prune(argt);
         if (type->kind == KIND_VAR)
             return true;
@@ -668,7 +668,7 @@ bool is_generic(struct type_item *type)
 bool is_any_generic(struct array *types)
 {
     for (size_t i = 0; i < array_size(types); i++) {
-        struct type_item *exp = *(struct type_item **)array_get(types, i);
+        struct type_item *exp = array_get_ptr(types, i);
         if (is_generic(exp))
             return true;
     }
@@ -681,7 +681,7 @@ string monomorphize(const char *fun_name, struct array *types)
     string_init_chars(&sp, "__");
     string_add_chars(&sp, fun_name);
     for (size_t i = 0; i < array_size(types); i++) {
-        struct type_item *type = *(struct type_item **)array_get(types, i);
+        struct type_item *type = array_get_ptr(types, i);
         string type_str = to_string(type);
         string_add_chars(&sp, "_");
         string_add(&sp, &type_str);
@@ -707,7 +707,7 @@ bool is_empty_struct(struct type_item *type)
         return true;
     }
     for(size_t i = 0; i < array_size(&type->args); i++){
-        type = *(struct type_item **)array_get(&type->args, i);
+        type = array_get_ptr(&type->args, i);
         if(!is_empty_struct(type)){
             return false;
         }
@@ -722,7 +722,7 @@ struct type_item *is_single_element_struct(struct type_item *type)
     }
     struct type_item *found = 0;
     for(size_t i = 0; i < array_size(&type->args); i++){
-        type = *(struct type_item **)array_get(&type->args, i);
+        type = array_get_ptr(&type->args, i);
         if(is_empty_struct(type)){
             continue;
         }

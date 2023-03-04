@@ -1028,7 +1028,7 @@ void _emit_block(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
 {   
     u32 block_size = array_size(&node->block->nodes);
     for(u32 i = 0; i < block_size; i++){
-        struct ast_node *child = *(struct ast_node **)array_get(&node->block->nodes, i);
+        struct ast_node *child = array_get_ptr(&node->block->nodes, i);
         wasm_emit_code(cg, ba, child);
     }
 }
@@ -1131,7 +1131,7 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
     u32 pi; /*param index*/
     struct type_item *te;
     for (i = 0; i < func_types; i++) {
-        func_type_node = *(struct ast_node **)array_get(&block->block->nodes, i);
+        func_type_node = array_get_ptr(&block->block->nodes, i);
         struct type_item *func_type = func_type_node->type;
         u32 num_params = array_size(&func_type->args) - 1;
         struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, func_type_node);
@@ -1147,11 +1147,11 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
                 if(j) pi = j - 1;
                 else pi = num_params - 1;
             }
-            te = *(struct type_item **)array_get(&func_type->args, pi);
+            te = array_get_ptr(&func_type->args, pi);
             ASSERT_TYPE(te->type);
             ba_add(ba, type_2_wtype[te->type]);
         }
-        te = *(struct type_item **)array_back(&func_type->args);
+        te = array_back_ptr(&func_type->args);
         ASSERT_TYPE(te->type);
         if (te->type == TYPE_UNIT||has_sret) {
             ba_add(ba, 0); // num result
@@ -1168,7 +1168,7 @@ void _emit_import_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_
     wasm_emit_uint(ba, num_imports); // number of imports
     u32 type_index = 0;
     for(u32 i = 0; i < array_size(&block->block->nodes); i++){
-        struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
+        struct ast_node *node = array_get_ptr(&block->block->nodes, i);
         assert(node->node_type == IMPORT_NODE);
         wasm_emit_string(ba, node->import->from_module);
         node = node->import->import;
@@ -1241,7 +1241,7 @@ void _emit_export_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_
     wasm_emit_uint(ba, num_func + 1); // num of function exports plus 1 memory
     struct ast_node *func;
     for (u32 i = 0; i < num_func; i++) {
-        func = *(struct ast_node **)array_get(&block->block->nodes, i);
+        func = array_get_ptr(&block->block->nodes, i);
         wasm_emit_string(ba, func->func->func_type->ft->name);
         ba_add(ba, EXPORT_FUNC);
         wasm_emit_uint(ba, i + cg->imports.num_fun); // func index

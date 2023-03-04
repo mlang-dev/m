@@ -58,9 +58,9 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
         arg_values[fi->tai.sret_arg_no] = ret_alloca;
     }
     for (size_t i = 0; i < arg_count; ++i) {
-        struct abi_arg_info *aai = (struct abi_arg_info *)array_get(&fi->args, i);
-        struct target_arg_range *tar = (struct target_arg_range *)array_get(&fi->tai.args, i);
-        struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
+        struct abi_arg_info *aai = array_get(&fi->args, i);
+        struct target_arg_range *tar = array_get(&fi->tai.args, i);
+        struct ast_node *arg = array_get_ptr(&node->call->arg_block->block->nodes, i);
         struct type_size_info tsi = get_type_size_info(arg->type);
         LLVMValueRef arg_value = emit_ir_code(cg, arg);
         switch (aai->kind) {

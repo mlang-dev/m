@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     getcwd(cwd, sizeof(cwd));
     if (array_size(&src_files)) {
         for (size_t i = 0; i < array_size(&src_files); i++) {
-            const char *fn = *(const char **)array_get(&src_files, i);
+            const char *fn = array_get_ptr(&src_files, i);
             join_path(file_path, sizeof(file_path), input_folder, fn);
             if (access(file_path, F_OK) == -1) {
                 printf("file: %s does not exist\n", file_path);

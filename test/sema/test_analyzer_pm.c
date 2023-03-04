@@ -27,10 +27,10 @@ pm 0\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* func= *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node* func= array_front_ptr(&block->block->nodes);
     ASSERT_EQ(TYPE_FUNCTION, func->type->type);
     ASSERT_EQ(to_symbol("int -> int"), func->type->name);
-    struct ast_node* call = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node* call = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(to_symbol("int"), call->type->name);
     node_free(block);
     frontend_deinit(fe);
@@ -50,10 +50,10 @@ pm 0\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* func= *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node* func= array_front_ptr(&block->block->nodes);
     ASSERT_EQ(TYPE_FUNCTION, func->type->type);
     ASSERT_EQ(to_symbol("int -> int"), func->type->name);
-    struct ast_node* call = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node* call = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(to_symbol("int"), call->type->name);
     node_free(block);
     frontend_deinit(fe);

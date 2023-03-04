@@ -21,7 +21,7 @@ let x = 10\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* x = *(struct ast_node **)array_get(&block->block->nodes, 0);
+    struct ast_node* x = array_get_ptr(&block->block->nodes, 0);
     ASSERT_FALSE(x->is_addressed);
     ASSERT_EQ(TYPE_INT, x->type->type);
     ASSERT_EQ(0, x->type->val_type);
@@ -39,7 +39,7 @@ var x = 10\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* x = *(struct ast_node **)array_get(&block->block->nodes, 0);
+    struct ast_node* x = array_get_ptr(&block->block->nodes, 0);
     ASSERT_FALSE(x->is_addressed);
     ASSERT_EQ(TYPE_INT, x->type->type);
     ASSERT_EQ(0, x->type->val_type);
@@ -60,7 +60,7 @@ xy.x\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* x = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node* x = array_back_ptr(&block->block->nodes);
     ASSERT_FALSE(x->is_addressed);
     ASSERT_EQ(TYPE_INT, x->type->type);
     ASSERT_EQ(0, x->type->val_type);
@@ -81,7 +81,7 @@ xy.x\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* x = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node* x = array_back_ptr(&block->block->nodes);
     ASSERT_FALSE(x->is_addressed);
     ASSERT_EQ(TYPE_INT, x->type->type);
     ASSERT_EQ(0, x->type->val_type);
@@ -101,7 +101,7 @@ a[0]\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* x = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node* x = array_back_ptr(&block->block->nodes);
     ASSERT_FALSE(x->is_addressed);
     ASSERT_EQ(TYPE_INT, x->type->type);
     ASSERT_EQ(0, x->type->val_type);

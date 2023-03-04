@@ -22,16 +22,16 @@ TEST(test_grammar, num_token)
         { 1 },
     };
     for (size_t i = 0; i < array_size(&grammar->rules); i++) {
-        struct rule *rule = *(struct rule **)array_get(&grammar->rules, i);
+        struct rule *rule = array_get_ptr(&grammar->rules, i);
         ASSERT_EQ(expected_exps[i], array_size(&rule->exprs));
         for (size_t j = 0; j < array_size(&rule->exprs); j++) {
-            struct expr *expr = (struct expr *)array_get(&rule->exprs, j);
+            struct expr *expr = array_get(&rule->exprs, j);
             ASSERT_EQ(expected_items[i][j], array_size(&expr->items));
         }
     }
     struct rule *rule = (struct rule *)hashtable_get_p(&grammar->rule_map, start);
-    struct expr *expr = (struct expr*)array_front(&rule->exprs);
-    struct expr_item *ei = (struct expr_item*)array_front(&expr->items);
+    struct expr *expr = array_front(&rule->exprs);
+    struct expr_item *ei = array_front(&expr->items);
     ASSERT_EQ(ei->ei_type, EI_TOKEN_MATCH);
     ASSERT_EQ(ei->sym, to_symbol2("INT", 3));
     ASSERT_EQ(0, hashset_size(&grammar->keywords));
@@ -68,10 +68,10 @@ TEST(test_grammar, arithmetic_exp)
         {3, 1, 0, 0}
     };
     for(size_t i = 0; i < array_size(&grammar->rules); i++){
-        struct rule *rule = *(struct rule**)array_get(&grammar->rules, i);
+        struct rule *rule = array_get_ptr(&grammar->rules, i);
         ASSERT_EQ(expected_exps[i], array_size(&rule->exprs));
         for (size_t j = 0; j < array_size(&rule->exprs); j++){
-            struct expr *expr = (struct expr *)array_get(&rule->exprs, j);
+            struct expr *expr = array_get(&rule->exprs, j);
             ASSERT_EQ(expected_items[i][j], array_size(&expr->items));
         }
     }
@@ -112,10 +112,10 @@ TEST(test_grammar, arithmetic_exp_using_charset)
         { 3, 1, 0, 0 }
     };
     for (size_t i = 0; i < array_size(&grammar->rules); i++) {
-        struct rule *rule = *(struct rule **)array_get(&grammar->rules, i);
+        struct rule *rule = array_get_ptr(&grammar->rules, i);
         ASSERT_EQ(expected_exps[i], array_size(&rule->exprs));
         for (size_t j = 0; j < array_size(&rule->exprs); j++) {
-            struct expr *expr = (struct expr *)array_get(&rule->exprs, j);
+            struct expr *expr = array_get(&rule->exprs, j);
             ASSERT_EQ(expected_items[i][j], array_size(&expr->items));
             ASSERT_EQ(expected_actions[i][j], expr->action.exp_item_index_count);
         }

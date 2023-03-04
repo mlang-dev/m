@@ -135,7 +135,7 @@ struct ast_node *_do_action(enum ast_action action, u8 param, struct ast_node *n
             node->var->mut = param;
         }else if(node->node_type == BLOCK_NODE){
             for(u32 i = 0; i < array_size(&node->block->nodes); i++){
-                struct ast_node *elm = *(struct ast_node **)array_get(&node->block->nodes, i);
+                struct ast_node *elm = array_get_ptr(&node->block->nodes, i);
                 assert(elm->node_type == VAR_NODE);
                 elm->var->mut = (enum Mut)param;
             }
@@ -272,7 +272,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                         init_value = ident_node_new(temp_var, init_value->loc);
                     }
                     for(size_t i = 0; i < array_size(&node->block->nodes); i++){
-                        struct ast_node *n = *(struct ast_node**)array_get(&node->block->nodes, i);
+                        struct ast_node *n = array_get_ptr(&node->block->nodes, i);
                         assert(n->node_type == VAR_NODE);
                         n->var->init_value = member_index_node_new(IndexTypeInteger, init_value, int_node_new(i, init_value->loc), init_value->loc);
                         if(i < array_size(&node->block->nodes) - 1){
@@ -412,7 +412,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             struct ast_node *parameters = _take(nodes, rule->action.item_index[2]); // parameters
             assert(parameters->node_type == BLOCK_NODE);
             if (array_size(&parameters->block->nodes)) {
-                struct ast_node *last_param = *(struct ast_node **)array_back(&parameters->block->nodes);
+                struct ast_node *last_param = array_back_ptr(&parameters->block->nodes);
                 if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
                     is_variadic = true;
                     node_free(array_pop_p(&parameters->block->nodes));
@@ -430,7 +430,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             struct ast_node *parameters = _take(nodes, rule->action.item_index[1]); //parameters
             assert(parameters->node_type == BLOCK_NODE);
             if (array_size(&parameters->block->nodes)) {
-                struct ast_node *last_param = *(struct ast_node **)array_back(&parameters->block->nodes);
+                struct ast_node *last_param = array_back_ptr(&parameters->block->nodes);
                 if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
                     is_variadic = true;
                     node_free(array_pop_p(&parameters->block->nodes));

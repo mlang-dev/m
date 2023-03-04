@@ -39,7 +39,7 @@ void _categorize_imports(struct imports *imports)
 {
     if(!imports->import_block) return;
     for (u32 i = 0; i < array_size(&imports->import_block->block->nodes); i++) {
-        struct ast_node *node = *(struct ast_node **)array_get(&imports->import_block->block->nodes, i);
+        struct ast_node *node = array_get_ptr(&imports->import_block->block->nodes, i);
         assert(node->node_type == IMPORT_NODE);
         node = node->import->import;
         if (node->node_type == FUNC_TYPE_NODE) {
@@ -78,7 +78,7 @@ struct ast_node *_start_func_node(struct cg_wasm *cg, struct hashtable *symbol_2
     struct ast_node *node;
     struct ast_node *_start_block = block_node_new_empty();
     for (u32 i = 0; i < nodes; i++) {
-        node = *(struct ast_node **)array_get(&expr_ast->block->nodes, i);
+        node = array_get_ptr(&expr_ast->block->nodes, i);
         if (IS_OUT_OF_FUNC(node->node_type)){
             block_node_add(others, node);
         } else {
@@ -95,11 +95,11 @@ struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbo
     u32 nodes = array_size(&block->block->nodes);
     struct ast_node *wmodule = block_node_new_empty();
     for (u32 i = 0; i < nodes; i++) {
-        node = *(struct ast_node **)array_get(&block->block->nodes, i);
+        node = array_get_ptr(&block->block->nodes, i);
         if (node->node_type == FUNC_NODE){
             if (is_generic(node->type)){
                 for(u32 j = 0; j < array_size(&node->func->sp_funs); j++){
-                    sp_func = *(struct ast_node **)array_get(&node->func->sp_funs, j);
+                    sp_func = array_get_ptr(&node->func->sp_funs, j);
                     block_node_add(wmodule, sp_func);
                     block_node_add(cg->fun_types, sp_func->func->func_type);
                     block_node_add(cg->funs, sp_func);

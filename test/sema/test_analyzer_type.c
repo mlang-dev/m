@@ -20,7 +20,7 @@ type RGB = (u8, u8, u8)\n\
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(TYPE_NODE, node->node_type);
     string type_str = to_string(node->type);
@@ -39,8 +39,8 @@ let y = x[0]\n\
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
-    struct ast_node *node1 = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *node2 = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *node1 = array_front_ptr(&block->block->nodes);
+    struct ast_node *node2 = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node1->node_type);
     string type_str = to_string(node1->type);
@@ -65,8 +65,8 @@ let a = y\n\
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
-    struct ast_node *node1 = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *node2 = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *node1 = array_front_ptr(&block->block->nodes);
+    struct ast_node *node2 = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(4, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node1->node_type);
     string type_str = to_string(node1->type);

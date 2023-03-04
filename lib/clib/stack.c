@@ -43,6 +43,22 @@ void *stack_top(struct stack *s)
     return 0;
 }
 
+void *stack_pop_ptr(struct stack *s)
+{
+    if (s->top > 0) {
+        return array_get_ptr(&s->items, --s->top);
+    }
+    return 0;
+}
+
+void *stack_top_ptr(struct stack *s)
+{
+    if (s->top > 0) {
+        return array_get_ptr(&s->items, s->top-1);
+    }
+    return 0;
+}
+
 void stack_deinit(struct stack *q)
 {
     array_deinit(&q->items);

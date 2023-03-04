@@ -48,6 +48,12 @@ void array_clear(struct array *arr);
 void array_reset(struct array *a);
 void array_sort(struct array *a, cmp_fn_t compare);
 
+void array_insert_ptr_at(struct array *arr, void *element, size_t index);
+void array_push_ptr(struct array *arr, void *element);
+void *array_get_ptr(struct array *arr, size_t index);
+void *array_back_ptr(struct array *arr);
+void *array_front_ptr(struct array *arr);
+
 #define ARRAY(var, elem_type, elem_deinit_fun) \
     struct array var;                          \
     array_init_free(&var, sizeof(elem_type), elem_deinit_fun)

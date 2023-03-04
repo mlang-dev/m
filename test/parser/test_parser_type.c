@@ -17,7 +17,7 @@ type Point2D = (int, int)\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *type_node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *type_node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(TYPE_NODE, type_node->node_type);
     ASSERT_STREQ("Point2D", string_get(type_node->type_node->type_name));
@@ -34,8 +34,8 @@ let y, z = x\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node1 = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *node2 = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *node1 = array_front_ptr(&block->block->nodes);
+    struct ast_node *node2 = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node1->node_type);
     ASSERT_STREQ("x", string_get(node1->var->var->ident->name));
@@ -53,8 +53,8 @@ y + z\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node1 = *(struct ast_node **)array_front(&block->block->nodes);
-    struct ast_node *node2 = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *node1 = array_front_ptr(&block->block->nodes);
+    struct ast_node *node2 = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node1->node_type);
     ASSERT_STREQ("x", string_get(node1->var->var->ident->name));
