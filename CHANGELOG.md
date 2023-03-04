@@ -1,3 +1,7 @@
+# 0.0.43 (2023-03-03)
+* add m code highlight function to format code in html editors
+* support tuple type
+
 # 0.0.39 (2022-12-13)
 * support multiple statements in one line, separated by semicolon ';'
 
