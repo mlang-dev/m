@@ -21,6 +21,52 @@ u8 *_compile_code(const char *text)
     return data;
 }
 
+TEST(test_wasm_codegen, sample_code)
+{
+    char test_code[] = "\n\
+let color_func iter_count iter_max sq_dist =\n\
+    var v = 0.0, r = 0.0, g = 0.0, b = 0.0\n\
+    if iter_count < iter_max then\n\
+        v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4\n\
+        if v < 1.0 then \n\
+            r = v ** 4;g = v ** 2.5;b = v\n\
+        else\n\
+            v = v < 2.0 ? 2.0 - v : 0.0\n\
+            r = v;g = v ** 1.5;b = v ** 3.0\n\
+    ((u8)(r * 255), (u8)(g * 255), (u8)(b * 255))\n\
+\n\
+let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =\n\
+    let width = 400, height = 300\n\
+    var a:u8[height][width * 4]\n\
+    let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510\n\
+    for x in 0..width\n\
+        for y in 0..height\n\
+            let cx = x0 + scalex*x\n\
+            let cy = y0 + scaley*y\n\
+            var zx = 0.0, zy = 0.0\n\
+            var zx2 = 0.0, zy2 = 0.0\n\
+            var n = 0\n\
+            while n<max_iter && (zx2 + zy2) < 4.0\n\
+                zy = 2.0 * zx * zy + cy\n\
+                zx = zx2  - zy2 + cx\n\
+                zx2 = zx * zx\n\
+                zy2 = zy * zy\n\
+                n++\n\
+            let r, g, b = color_func n max_iter (zx2 + zy2)\n\
+            a[y][4*x] = r\n\
+            a[y][4*x+1] = g\n\
+            a[y][4*x+2] = b\n\
+            a[y][4*x+3] = 255\n\
+\n\
+    setImageData a width height\n\
+\n\
+plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2\n\
+    ";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 TEST(test_wasm_codegen, ref_type)
 {
     char test_code[] = "\n\
@@ -189,6 +235,7 @@ x + y\n\
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
+    RUN_TEST(test_wasm_codegen_sample_code);
     RUN_TEST(test_wasm_codegen_ref_type);
     RUN_TEST(test_wasm_codegen_emit_generic_fun);
     RUN_TEST(test_wasm_codegen_emit_nested_for_loop);

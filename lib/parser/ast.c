@@ -128,8 +128,10 @@ struct ast_node *ident_node_new(symbol name, struct source_location loc)
 
 struct ast_node *_copy_ident_node(struct ast_node *orig_node)
 {
-    return ident_node_new(
+    struct ast_node *node = ident_node_new(
         orig_node->ident->name, orig_node->loc);
+    node->ident->var = orig_node->ident->var;
+    return node;
 }
 
 void _free_ident_node(struct ast_node *node)
