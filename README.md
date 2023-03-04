@@ -5,6 +5,8 @@ mlang is a succinct & expressive general purpose programming language for WebAss
 
 The mlang is implemented in C without third party library dependency other than C standard libraries. The mlang compiler is compiled as a WebAssembly module so it can be run in the browser or other wasm runtime like nodejs and wastime etc. It can compile m codes into another wasm module and run it in the same environment. 
 
+mlang is still in early development phase and subject to significant changes.
+ 
 MacOS or Linux or WSL is the recommended development OS.
 
 ## m code plotting mandelbrot set 
@@ -18,35 +20,49 @@ You can zoom in to see more details at [https://mlang.dev](https://mlang.dev).
 <img src="mandelbrotset_demo.gif" width="400" height="320"/>
 
 ```
-var a:u8[200][300 * 4]
-let scale = 0.01, max_iter = 510
-var v = 0.0, r = 0.0, g = 0.0, b = 0.0
-for x in 0..300
-    for y in 0..200
-        let cx = -2.0 + scale*x
-        let cy = -1.0 + scale*y
-        var zx = 0.0, zy = 0.0
-        var zx2 = 0.0, zy2 = 0.0
-        var n = 0
-        while n<max_iter && (zx2 + zy2) < 4.0
-            zy = 2.0 * zx * zy + cy
-            zx = zx2  - zy2 + cx
-            zx2 = zx * zx
-            zy2 = zy * zy
-            n++
-        if n < max_iter then
-            v = (log(n+1.5-(log2((log(zx2+zy2))/2.0))))/3.4
-            if v < 1.0 then 
-                r = v ** 4;g = v ** 2.5;b = v
-            else
-                v = v < 2.0 ? 2.0 - v : 0.0
-                r = v;g = v ** 1.5;b = v ** 3.0
-        a[y][4*x] = n == max_iter ? 0 : (u8)(r * 255)
-        a[y][4*x+1] = n == max_iter ? 0 : (u8)(g * 255)
-        a[y][4*x+2] = n == max_iter ? 0 : (u8)(b * 255)
-        a[y][4*x+3] = 255
+//color function returns (r, g, b) tuple based on iteration count and distance
+let color iter_count:int iter_max:int sq_dist:f64 =
+    var v = 0.0, r = 0.0, g = 0.0, b = 0.0
+    if iter_count < iter_max then
+        v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4
+        if v < 1.0 then 
+            r = v ** 4;g = v ** 2.5;b = v
+        else
+            v = v < 2.0 ? 2.0 - v : 0.0
+            r = v;g = v ** 1.5;b = v ** 3.0
+    ((u8)(r * 255), (u8)(g * 255), (u8)(b * 255))
 
-setImageData a 300 200
+/* main plot function
+x0, y0: coordinate value of top left
+x1, y1: coordinate value of bottom right
+*/
+let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
+    print "plot area: x0:%f y0:%f x1:%f y1:%f\\n" x0 y0 x1 y1
+    let width = 400, height = 300
+    var img:u8[height][width * 4]
+    let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510
+    for x in 0..width
+        for y in 0..height
+            let cx = x0 + scalex*x
+            let cy = y0 + scaley*y
+            var zx = 0.0, zy = 0.0
+            var zx2 = 0.0, zy2 = 0.0
+            var n = 0
+            while n<max_iter && (zx2 + zy2) < 4.0
+                zy = 2.0 * zx * zy + cy
+                zx = zx2  - zy2 + cx
+                zx2 = zx * zx
+                zy2 = zy * zy
+                n++
+            let cr, cg, cb = color n max_iter (zx2 + zy2)
+            img[y][4*x] = cr
+            img[y][4*x+1] = cg
+            img[y][4*x+2] = cb
+            img[y][4*x+3] = 255
+
+    setImageData img width height /*call js to set img data on canvas*/
+// call main plot function
+plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 ```
 
 ## prerequisites to build m
