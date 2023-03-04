@@ -89,8 +89,8 @@ int main(int argc, char *argv[])
                 array_push(&ld_options, &output_str);
 #else
                 const char *output = "-o";
-                array_push(&ld_options, &output);
-                array_push(&ld_options, &optarg);
+                array_push_ptr(&ld_options, (void*)output);
+                array_push_ptr(&ld_options, (void*)optarg);
 #endif
                 use_ld = true;
                 break;
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
                 break;
             }
         } else {
-            array_push(&src_files, &argv[optind]);
+            array_push_ptr(&src_files, argv[optind]);
             optind++;
         }
     }
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
         if (!file_type)
             file_type = FT_OBJECT;
         for (size_t i = 0; i < array_size(&src_files); i++) {
-            const char *fn = *(const char **)array_get(&src_files, i);
+            const char *fn = (const char *)array_get_ptr(&src_files, i);
             if (access(fn, F_OK) == -1) {
                 printf("file: %s does not exist\n", fn);
                 exit(1);
@@ -120,15 +120,15 @@ int main(int argc, char *argv[])
             result = compile(fn, file_type);
             char *basename = get_basename((char *)fn);
             char *obj_name = strcat(basename, ".o");
-            array_push(&ld_options, &obj_name);
+            array_push_ptr(&ld_options, obj_name);
         }
     }
     // do linker
     if (file_type == FT_OBJECT && use_ld) {
         if (finalization)
-            array_push(&ld_options, &finalization);
+            array_push_ptr(&ld_options, (void*)finalization);
         int ld_argc = (int)array_size(&ld_options);
-        const char **ld_argv = (const char **)array_get(&ld_options, 0);
+        const char **ld_argv = (const char **)array_get_ptr(&ld_options, 0);
         result = ld(ld_argc, ld_argv);
     }
     array_deinit(&src_files);

@@ -25,12 +25,12 @@ void wasm_emit_store_record_value(struct cg_wasm *cg, struct byte_array *ba, u32
     struct ast_node *field;
     u32 field_offset;
     for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
-        field = *(struct ast_node **)array_get(&block->block->nodes, i);
+        field = array_get_ptr(&block->block->nodes, i);
         field_offset = *(u64*)array_get(&sl->field_offsets, i) / 8;
         u32 align = get_type_align(field->type);
         if(is_record_like_type(field->type)){
             assert(field->node_type == ADT_INIT_NODE);
-            struct struct_layout *field_sl = *(struct struct_layout**)array_get(&sl->field_layouts, i);
+            struct struct_layout *field_sl = array_get_ptr(&sl->field_layouts, i);
             wasm_emit_store_record_value(cg, ba, local_address_var_index, offset + field_offset, field_sl, field->adt_init->body);
         }else{
             wasm_emit_store_scalar_value_at(cg, ba, local_address_var_index, align, offset + field_offset, field);
@@ -44,7 +44,7 @@ void wasm_emit_store_array_value(struct cg_wasm *cg, struct byte_array *ba, u32 
     u32 field_offset = 0;
     if(array_init->node_type == BLOCK_NODE){
         for (u32 i = 0; i < array_size(&array_init->block->nodes); i++) {
-            field = *(struct ast_node **)array_get(&array_init->block->nodes, i);
+            field = array_get_ptr(&array_init->block->nodes, i);
             wasm_emit_store_scalar_value_at(cg, ba, local_address_var_index, elm_align, offset + field_offset, field);
             field_offset += elm_type_size;
         }

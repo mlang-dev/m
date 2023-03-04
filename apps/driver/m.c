@@ -47,11 +47,11 @@ int main(int argc, char *argv[])
     struct array src_files;
     array_init(&src_files, sizeof(char *));
     while (optind < argc) {
-        array_push(&src_files, &argv[optind]);
+        array_push_ptr(&src_files, argv[optind]);
         optind++;
     }
     for (size_t i = 0; i < array_size(&src_files); i++) {
-        const char *fn = *(const char **)array_get(&src_files, i);
+        const char *fn = array_get_ptr(&src_files, i);
         if (access(fn, F_OK) == -1) {
             printf("file: %s does not exist\n", fn);
             exit(1);

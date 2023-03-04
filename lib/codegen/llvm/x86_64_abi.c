@@ -68,7 +68,7 @@ void _classify(struct type_item *te, uint64_t offset_base, enum Class *low, enum
         *current = NO_CLASS;
         for (size_t i = 0; i < array_size(&sl->field_offsets); i++) {
             uint64_t offset = offset_base + *(uint64_t *)array_get(&sl->field_offsets, i);
-            struct type_item *field_type = *(struct type_item **)array_get(&te->args, i);
+            struct type_item *field_type = array_get_ptr(&te->args, i);
             uint64_t field_type_size = get_type_size(field_type);
             assert(field_type_size);
             if (size > 128 && size != field_type_size) {

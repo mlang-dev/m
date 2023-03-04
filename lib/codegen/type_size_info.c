@@ -73,7 +73,7 @@ struct struct_layout *layout_struct(struct type_item *to, enum ADTKind kind)
     struct struct_layout *sl = sl_new(to->name, kind);
     u32 member_count = (u32)array_size(&to->args);
     for (u32 i = 0; i < member_count; i++) {
-        struct type_item *field_type = *(struct type_item **)array_get(&to->args, i);
+        struct type_item *field_type = array_get_ptr(&to->args, i);
         _layout_field(sl, field_type);
     }
     _layout_end(sl);

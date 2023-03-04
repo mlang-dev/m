@@ -85,6 +85,11 @@ void _copy_element_to_array(struct array *arr, size_t index, void *element)
     memcpy((unsigned char *)arr->base.data.p_data + (index * arr->_element_size), element, arr->_element_size);
 }
 
+void _copy_element_ptr_to_array(struct array *arr, size_t index, void *element)
+{
+    memcpy((unsigned char *)arr->base.data.p_data + (index * arr->_element_size), &element, arr->_element_size);
+}
+
 void _shift_elements(struct array *arr, size_t index, size_t elements)
 {
     memmove((unsigned char*)arr->base.data.p_data + (index + elements) * arr->_element_size, (unsigned char*)arr->base.data.p_data + index * arr->_element_size, arr->_element_size * (arr->base.size - index));
@@ -96,6 +101,15 @@ void array_push(struct array *arr, void *element)
         array_grow(arr);
     }
     _copy_element_to_array(arr, arr->base.size, element);
+    arr->base.size++;
+}
+
+void array_push_ptr(struct array *arr, void *element)
+{
+    if (arr->base.size == arr->cap) {
+        array_grow(arr);
+    }
+    _copy_element_ptr_to_array(arr, arr->base.size, element);
     arr->base.size++;
 }
 
@@ -134,6 +148,12 @@ void array_set(struct array *arr, size_t index, void *element)
 void *array_get(struct array *arr, size_t index)
 {
     return (unsigned char *)arr->base.data.p_data + (index * arr->_element_size);
+}
+
+void *array_get_ptr(struct array *arr, size_t index)
+{
+    void *addr = (unsigned char*)arr->base.data.p_data + (index * arr->_element_size);
+    return *(unsigned char **)addr;
 }
 
 void *array_data(struct array *arr)

@@ -109,7 +109,7 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
             break;
         case MATCH_NODE:
             for(u32 i = 0; i< array_size(&node->match->match_cases->block->nodes); i++){
-                collect_local_variables(cg, *(struct ast_node **)array_get(&node->match->match_cases->block->nodes, i));
+                collect_local_variables(cg, array_get_ptr(&node->match->match_cases->block->nodes, i));
             }
             break;
         case MATCH_CASE_NODE:
@@ -118,7 +118,7 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
         case CALL_NODE:
             func_register_local_variable(cg, node, true);
             for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
-                arg_node = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
+                arg_node = array_get_ptr(&node->call->arg_block->block->nodes, i);
                 collect_local_variables(cg, arg_node);
                 if(is_record_like_type(arg_node->type) && is_refered_later(arg_node)){
                     /*not for array type, array type is always reference type*/
@@ -139,7 +139,7 @@ void collect_local_variables(struct cg_wasm *cg, struct ast_node *node)
             break;
         case BLOCK_NODE:
             for(u32 i = 0; i < array_size(&node->block->nodes); i++){
-                collect_local_variables(cg, *(struct ast_node **)array_get(&node->block->nodes, i));
+                collect_local_variables(cg, array_get_ptr(&node->block->nodes, i));
             }
             break;
     }
@@ -159,7 +159,7 @@ struct type_item *_create_type_for_call_with_optional_parameters(struct cg_wasm*
     struct array arg_types;
     array_init(&arg_types, sizeof(struct type_item *));
     for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
-        struct ast_node *arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
+        struct ast_node *arg = array_get_ptr(&node->call->arg_block->block->nodes, i);
         if (!fun_type->ft->is_variadic||i < param_num - 1) {
             continue;
         }
@@ -249,8 +249,8 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         func_register_local_variable(cg, p0, false); //register one parameter
     }
     for(u32 i=0; i < array_size(&node->func->func_type->ft->params->block->nodes); i++){
-        struct ast_node *param = *(struct ast_node **)array_get(&node->func->func_type->ft->params->block->nodes, i);
-        param->type = (*(struct type_item**)array_get(&to->args,i));
+        struct ast_node *param = array_get_ptr(&node->func->func_type->ft->params->block->nodes, i);
+        param->type = array_get_ptr(&to->args,i);
         func_register_local_variable(cg, param, false);
     }
     collect_local_variables(cg, node->func->body);

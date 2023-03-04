@@ -53,7 +53,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     }
     struct ast_node *block = block_node_new_empty();
     for(u32 i = 0; i < array_size(&node->call->arg_block->block->nodes); i++){
-        arg = *(struct ast_node **)array_get(&node->call->arg_block->block->nodes, i);
+        arg = array_get_ptr(&node->call->arg_block->block->nodes, i);
         if (!fun_type->ft->is_variadic||i < param_num - 1) {
             //normal argument
             wasm_emit_code(cg, ba, arg);
