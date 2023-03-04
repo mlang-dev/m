@@ -9,7 +9,7 @@ mtest('int ref use stack memory', 'int ref use stack memory',
 let i = 10
 let j = &i
 i
-`, 10, false, true);
+`, 10);
 
 mtest('evalute ref content', 'evaluate the content of reference type variable j',
 `
