@@ -55,8 +55,8 @@ x.y\n\
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     struct error_report* er = get_last_error_report(fe->sema_context);
-    ASSERT_EQ(EC_EXPECT_STRUCT_TYPE, er->error_code);
-    ASSERT_STREQ("The left side of the dot is expected to be a record type.", er->error_msg);
+    ASSERT_EQ(EC_EXPECT_ADT_TYPE, er->error_code);
+    ASSERT_STREQ("The left hand is expected to be an ADT type.", er->error_msg);
     node_free(block);
     frontend_deinit(fe);
 }
@@ -72,8 +72,8 @@ x[3]\n\
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     struct error_report* er = get_last_error_report(fe->sema_context);
-    ASSERT_EQ(EC_EXPECT_ARRAY_TYPE, er->error_code);
-    ASSERT_STREQ("The left side of the bracket is expected to be an array type.", er->error_msg);
+    ASSERT_EQ(EC_EXPECT_ADT_TYPE, er->error_code);
+    ASSERT_STREQ("The left hand is expected to be an ADT type.", er->error_msg);
     node_free(block);
     frontend_deinit(fe);
 }
