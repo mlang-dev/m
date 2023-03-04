@@ -102,7 +102,7 @@ TEST(test_parser_expr, logical_or)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("||", get_opcode(node->binop->opcode));
     node_free(block);
@@ -116,7 +116,7 @@ TEST(test_parser_expr, logical_and)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("&&", get_opcode(node->binop->opcode));
     node_free(block);
@@ -130,7 +130,7 @@ TEST(test_parser_expr, logical_not)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(UNARY_NODE, node->node_type);
     ASSERT_STREQ("!", get_opcode(node->unop->opcode));
     node_free(block);
@@ -144,7 +144,7 @@ TEST(test_parser_expr, lt)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("<", get_opcode(node->binop->opcode));
     node_free(block);
@@ -158,7 +158,7 @@ TEST(test_parser_expr, gt)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_EQ(OP_GT, node->binop->opcode);
     ASSERT_STREQ(">", get_opcode(node->binop->opcode));
@@ -173,7 +173,7 @@ TEST(test_parser_expr, eq)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("==", get_opcode(node->binop->opcode));
     node_free(block);
@@ -187,7 +187,7 @@ TEST(test_parser_expr, neq)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("!=", get_opcode(node->binop->opcode));
     node_free(block);
@@ -201,7 +201,7 @@ TEST(test_parser_expr, ge)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ(">=", get_opcode(node->binop->opcode));
     node_free(block);
@@ -215,7 +215,7 @@ TEST(test_parser_expr, le)
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
     ASSERT_STREQ("<=", get_opcode(node->binop->opcode));
     node_free(block);

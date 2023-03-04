@@ -123,6 +123,16 @@ void array_insert_at(struct array *arr, void *element, size_t index)
     arr->base.size++;
 }
 
+void array_insert_ptr_at(struct array *arr, void *element, size_t index)
+{
+    if (arr->base.size == arr->cap) {
+        array_grow(arr);
+    }
+    _shift_elements(arr, 0, 1);
+    _copy_element_ptr_to_array(arr, index, element);
+    arr->base.size++;
+}
+
 void *array_pop(struct array *arr)
 {
     void *data = array_get(arr, arr->base.size - 1);
@@ -169,6 +179,16 @@ void *array_back(struct array *arr)
 void *array_front(struct array *arr)
 {
     return array_get(arr, 0);
+}
+
+void *array_back_ptr(struct array *arr)
+{
+    return array_get_ptr(arr, arr->base.size - 1);
+}
+
+void *array_front_ptr(struct array *arr)
+{
+    return array_get_ptr(arr, 0);
 }
 
 size_t array_size(struct array *arr)

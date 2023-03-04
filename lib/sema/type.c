@@ -97,7 +97,7 @@ symbol _to_fun_type_name(struct array *types)
     if(!array_size(types)){
         return 0;
     }
-    struct type_item *result_type = *(struct type_item**)array_back(types);
+    struct type_item *result_type = array_back_ptr(types);
     if (result_type->kind == KIND_VAR) return 0;
     string str;
     string_init(&str);

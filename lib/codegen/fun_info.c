@@ -16,7 +16,7 @@ void fun_info_init(struct fun_info *fi, struct ast_node *func_type)
     array_init(&fi->args, sizeof(struct abi_arg_info));
     target_arg_info_init(&fi->tai);
 
-    fi->ret.type = *(struct type_item **)array_back(&fun_type->args);
+    fi->ret.type = array_back_ptr(&fun_type->args);
     struct abi_arg_info aai;
     for (unsigned i = 0; i < param_num; i++) {
         aai.type = array_get_ptr(&fun_type->args, i);

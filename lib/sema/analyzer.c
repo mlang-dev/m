@@ -404,7 +404,7 @@ struct type_item *_analyze_func(struct sema_context *context, struct ast_node *n
     if (is_generic(result)) {
         hashtable_set(&context->generic_ast, string_get(node->func->func_type->ft->name), node);
     }
-    struct ast_node *saved_node = *(struct ast_node **)stack_pop(&context->func_stack);
+    struct ast_node *saved_node = stack_pop_ptr(&context->func_stack);
     (void)saved_node;
     assert(node == saved_node);
     leave_function(context);
@@ -437,7 +437,7 @@ struct type_item *_analyze_call(struct sema_context *context, struct ast_node *n
             node->call->specialized_callee = to_symbol(string_get(&sp_callee));
             if (has_symbol(&context->decl_2_typexprs, node->call->specialized_callee)) {
                 fun_type = retrieve_type_for_var_name(context, node->call->specialized_callee);
-                return *(struct type_item **)array_back(&fun_type->args);
+                return array_back_ptr(&fun_type->args);
             }
             /* specialized callee */
             struct ast_node *generic_fun = hashtable_get(&context->generic_ast, string_get(node->call->callee));
@@ -764,7 +764,7 @@ struct type_item *_analyze_block(struct sema_context *context, struct ast_node *
         type = analyze(context, n);
     }
     //tag variable node as returning variable if exists
-    struct ast_node *ret_node = *(struct ast_node **)array_back(&node->block->nodes);
+    struct ast_node *ret_node = array_back_ptr(&node->block->nodes);
     ret_node->is_ret = true;
     struct ast_node *var = _get_var_node(context, ret_node);
     if(var)

@@ -74,7 +74,7 @@ char get_op_name(struct ast_node *node)
 
 struct type_item *get_ret_type(struct ast_node *fun_node)
 {
-    return *(struct type_item **)array_back(&fun_node->type->args);
+    return array_back_ptr(&fun_node->type->args);
 }
 
 struct ast_node *_copy_block_node(struct ast_node *orig_node)
@@ -1015,7 +1015,7 @@ void _free_jump_node(struct ast_node *node)
 
 struct ast_node *block_node_new(struct array *nodes)
 {
-    struct source_location loc = (nodes && array_size(nodes) > 0) ? (*(struct ast_node **)array_front(nodes))->loc : default_loc;
+    struct source_location loc = (nodes && array_size(nodes) > 0) ? ((struct ast_node*)array_front_ptr(nodes))->loc : default_loc;
     struct ast_node *node = ast_node_new(BLOCK_NODE, loc);
     MALLOC(node->block, sizeof(*node->block));
     if(nodes)

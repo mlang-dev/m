@@ -1151,7 +1151,7 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
             ASSERT_TYPE(te->type);
             ba_add(ba, type_2_wtype[te->type]);
         }
-        te = *(struct type_item **)array_back(&func_type->args);
+        te = array_back_ptr(&func_type->args);
         ASSERT_TYPE(te->type);
         if (te->type == TYPE_UNIT||has_sret) {
             ba_add(ba, 0); // num result

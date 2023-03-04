@@ -18,7 +18,7 @@ var point:Point2D";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *node = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node->node_type);
     ASSERT_EQ(0, node->var->init_value);
@@ -37,13 +37,13 @@ record Point2D = \n\
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *node = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(RECORD_NODE, node->node_type);
     ASSERT_STREQ("Point2D", string_get(node->adt_type->name));
     ASSERT_EQ(2, array_size(&node->adt_type->body->block->nodes));
-    struct ast_node *var1 = *(struct ast_node **)array_front(&node->adt_type->body->block->nodes);
-    struct ast_node *var2 = *(struct ast_node **)array_back(&node->adt_type->body->block->nodes);
+    struct ast_node *var1 = array_front_ptr(&node->adt_type->body->block->nodes);
+    struct ast_node *var2 = array_back_ptr(&node->adt_type->body->block->nodes);
     ASSERT_EQ(VAR_NODE, var1->node_type);
     ASSERT_EQ(VAR_NODE, var2->node_type);
     ASSERT_STREQ("x", string_get(var1->var->var->ident->name));
@@ -61,25 +61,25 @@ let xy = Point2D{10.0, 20.0}";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_EQ(RECORD_NODE, node->node_type);
     ASSERT_STREQ("Point2D", string_get(node->adt_type->name));
     ASSERT_EQ(2, array_size(&node->adt_type->body->block->nodes));
-    struct ast_node *var1 = *(struct ast_node **)array_front(&node->adt_type->body->block->nodes);
-    struct ast_node *var2 = *(struct ast_node **)array_back(&node->adt_type->body->block->nodes);
+    struct ast_node *var1 = array_front_ptr(&node->adt_type->body->block->nodes);
+    struct ast_node *var2 = array_back_ptr(&node->adt_type->body->block->nodes);
     ASSERT_EQ(VAR_NODE, var1->node_type);
     ASSERT_EQ(VAR_NODE, var2->node_type);
     ASSERT_STREQ("x", string_get(var1->var->var->ident->name));
     ASSERT_STREQ("y", string_get(var2->var->var->ident->name));
 
     // struct type variable assignement
-    struct ast_node *var = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *var = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, var->node_type);
     ASSERT_EQ(ADT_INIT_NODE, var->var->init_value->node_type);
     struct ast_node *value_node = var->var->init_value;
-    struct ast_node *value1 = *(struct ast_node **)array_front(&value_node->adt_init->body->block->nodes);
-    struct ast_node *value2 = *(struct ast_node **)array_back(&value_node->adt_init->body->block->nodes);
+    struct ast_node *value1 = array_front_ptr(&value_node->adt_init->body->block->nodes);
+    struct ast_node *value2 = array_back_ptr(&value_node->adt_init->body->block->nodes);
     ASSERT_EQ(LITERAL_NODE, value1->node_type);
     ASSERT_EQ(LITERAL_NODE, value2->node_type);
     ASSERT_EQ(10.0, value1->liter->double_val);
@@ -100,25 +100,25 @@ let get_point() = Point2D{10.0, 20.0}";
     ASSERT_EQ(2, array_size(&block->block->nodes));
 
     // 1. first line is to define type
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(RECORD_NODE, node->node_type);
     ASSERT_STREQ("Point2D", string_get(node->adt_type->name));
     ASSERT_EQ(2, array_size(&node->adt_type->body->block->nodes));
-    struct ast_node *var1 = *(struct ast_node **)array_front(&node->adt_type->body->block->nodes);
-    struct ast_node *var2 = *(struct ast_node **)array_back(&node->adt_type->body->block->nodes);
+    struct ast_node *var1 = array_front_ptr(&node->adt_type->body->block->nodes);
+    struct ast_node *var2 = array_back_ptr(&node->adt_type->body->block->nodes);
     ASSERT_EQ(VAR_NODE, var1->node_type);
     ASSERT_EQ(VAR_NODE, var2->node_type);
     ASSERT_STREQ("x", string_get(var1->var->var->ident->name));
     ASSERT_STREQ("y", string_get(var2->var->var->ident->name));
 
     // 2. second line is to define a one line function
-    struct ast_node *fun_node = *(struct ast_node **)array_back(&block->block->nodes);
+    struct ast_node *fun_node = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(FUNC_NODE, fun_node->node_type);
     ASSERT_EQ(1, array_size(&fun_node->func->body->block->nodes));
-    struct ast_node *tv_node = *(struct ast_node **)array_back(&fun_node->func->body->block->nodes);
+    struct ast_node *tv_node = array_back_ptr(&fun_node->func->body->block->nodes);
     ASSERT_EQ(ADT_INIT_NODE, tv_node->node_type);
-    struct ast_node *value1 = *(struct ast_node **)array_front(&tv_node->adt_init->body->block->nodes);
-    struct ast_node *value2 = *(struct ast_node **)array_back(&tv_node->adt_init->body->block->nodes);
+    struct ast_node *value1 = array_front_ptr(&tv_node->adt_init->body->block->nodes);
+    struct ast_node *value2 = array_back_ptr(&tv_node->adt_init->body->block->nodes);
     ASSERT_EQ(LITERAL_NODE, value1->node_type);
     ASSERT_EQ(LITERAL_NODE, value2->node_type);
     ASSERT_EQ(10.0, value1->liter->double_val);
@@ -137,7 +137,7 @@ xy.x";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     ASSERT_EQ(RECORD_NODE, node->node_type);
     node = array_get_ptr(&block->block->nodes, 1);
@@ -165,7 +165,7 @@ xy.x = 10.0";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     ASSERT_EQ(RECORD_NODE, node->node_type);
     node = array_get_ptr(&block->block->nodes, 1);

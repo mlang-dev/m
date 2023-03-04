@@ -20,7 +20,7 @@ TEST(test_analyzer_error, fun_no_found)
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
 
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(CALL_NODE, node->node_type);
     struct error_report *er = get_last_error_report(fe->sema_context);
     ASSERT_STREQ("function is not defined.", er->error_msg);
@@ -36,7 +36,7 @@ let x:int = \"string\"\n\
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
-    struct ast_node* node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node* node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(VAR_NODE, node->node_type);
     struct error_report *er = get_last_error_report(fe->sema_context);
     ASSERT_STREQ("variable type not matched with literal constant.", er->error_msg);

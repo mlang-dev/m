@@ -23,7 +23,7 @@ xy.x\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("XorY", string_get(&type_str));
     node = array_get_ptr(&block->block->nodes, 1);
@@ -48,7 +48,7 @@ xy.y\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node *node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
     string type_str = to_string(node->type);
     ASSERT_STREQ("XorY", string_get(&type_str));
     node = array_get_ptr(&block->block->nodes, 1);
@@ -71,12 +71,12 @@ variant Color = Red | Green | Blue\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node *union_node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *union_node = array_front_ptr(&block->block->nodes);
     string type_str = to_string(union_node->type);
     ASSERT_STREQ("Color", string_get(&type_str));
     ASSERT_EQ(VARIANT_NODE, union_node->node_type);
     ASSERT_EQ(3, array_size(&union_node->adt_type->body->block->nodes));
-    struct ast_node *node = *(struct ast_node **)array_front(&union_node->adt_type->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&union_node->adt_type->body->block->nodes);
     ASSERT_EQ(to_symbol("Red"), node->variant_type_node->tag);
     ASSERT_EQ(0, node->variant_type_node->tag_repr);
     node = array_get_ptr(&union_node->adt_type->body->block->nodes, 1);
@@ -98,12 +98,12 @@ variant Color = Red | Green = 10 | Blue\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node *union_node = *(struct ast_node **)array_front(&block->block->nodes);
+    struct ast_node *union_node = array_front_ptr(&block->block->nodes);
     string type_str = to_string(union_node->type);
     ASSERT_STREQ("Color", string_get(&type_str));
     ASSERT_EQ(VARIANT_NODE, union_node->node_type);
     ASSERT_EQ(3, array_size(&union_node->adt_type->body->block->nodes));
-    struct ast_node *node = *(struct ast_node **)array_front(&union_node->adt_type->body->block->nodes);
+    struct ast_node *node = array_front_ptr(&union_node->adt_type->body->block->nodes);
     ASSERT_EQ(to_symbol("Red"), node->variant_type_node->tag);
     ASSERT_EQ(0, node->variant_type_node->tag_repr);
     node = array_get_ptr(&union_node->adt_type->body->block->nodes, 1);

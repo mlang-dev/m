@@ -157,7 +157,7 @@ struct grammar *grammar_parse(const char *grammar_text)
         next_tok.token_type = TOKEN_EOF;
     }
     if (array_size(&g->rules)) {
-        g->start_symbol = (*(struct rule **)array_front(&g->rules))->nonterm;
+        g->start_symbol = ((struct rule *)array_front_ptr(&g->rules))->nonterm;
     }
     lexer_free(lexer);
     return g;

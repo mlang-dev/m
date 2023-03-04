@@ -30,8 +30,8 @@ TEST(test_grammar, num_token)
         }
     }
     struct rule *rule = (struct rule *)hashtable_get_p(&grammar->rule_map, start);
-    struct expr *expr = (struct expr*)array_front(&rule->exprs);
-    struct expr_item *ei = (struct expr_item*)array_front(&expr->items);
+    struct expr *expr = array_front(&rule->exprs);
+    struct expr_item *ei = array_front(&expr->items);
     ASSERT_EQ(ei->ei_type, EI_TOKEN_MATCH);
     ASSERT_EQ(ei->sym, to_symbol2("INT", 3));
     ASSERT_EQ(0, hashset_size(&grammar->keywords));
