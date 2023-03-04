@@ -173,6 +173,19 @@ x + y\n\
     free(wasm);
 }
 
+
+TEST(test_wasm_codegen, tuple_param)
+{
+    char test_code[] = "\n\
+let a t:(int, int) = (100+t[0], 200+t[1])\n\
+let x, y = a (100, 200)\n\
+x + y\n\
+";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
@@ -188,6 +201,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_pattern_match_variable);
     RUN_TEST(test_wasm_codegen_tuple);
     RUN_TEST(test_wasm_codegen_return_tuple);
+    RUN_TEST(test_wasm_codegen_tuple_param);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

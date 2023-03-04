@@ -359,3 +359,14 @@ let a() = (10, 20)
 let x, y = a()
 x + y
 `, 30);
+
+
+mtest('pass and return tuple', 
+`
+pass a tuple to a function, and return a new tuple from the function
+`, 
+`
+let t a:(int,int) = (10 + a[0], 20 + a[1])
+let x, y = t (100, 200)
+x + y
+`, 110 + 220);

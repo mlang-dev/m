@@ -79,6 +79,8 @@ struct type_item *create_tuple_type_from_adt_init_body(struct sema_context *cont
     array_init(&args, sizeof(struct type_item*));
     for(u32 i=0; i<array_size(&init_body->block->nodes); i++){
         struct ast_node *field_expr = *(struct ast_node **)array_get(&init_body->block->nodes, i);
+        analyze(context, field_expr);
+        assert(field_expr->type);
         array_push(&args, &field_expr->type);
     }
     return create_type_oper_tuple(mut, &args);
@@ -517,9 +519,9 @@ struct type_item *_analyze_cast(struct sema_context *context, struct ast_node *n
 
 struct type_item *_analyze_record_field_accessor(struct sema_context *context, struct ast_node *node)
 {
-    struct type_item *type = analyze(context, node->index->object);
+    struct type_item *type = node->index->object->type;
     if(!is_adt(type) && !(type->type == TYPE_REF && is_adt(type->val_type))){
-        report_error(context, EC_EXPECT_STRUCT_TYPE, node->loc);
+        report_error(context, EC_EXPECT_ADT_TYPE, node->loc);
         return 0;
     }
     struct type_item *adt_type = type->val_type ? type->val_type : type;
@@ -539,7 +541,7 @@ struct type_item *_analyze_record_field_accessor(struct sema_context *context, s
 
 struct type_item *_analyze_array_member_accessor(struct sema_context *context, struct ast_node *node)
 {
-    struct type_item *type = analyze(context, node->index->object);
+    struct type_item *type = node->index->object->type;
     if(!type) return 0;
     analyze(context, node->index->index);
     if(type->type != TYPE_TUPLE && type->type != TYPE_ARRAY && !(type->type == TYPE_REF && type->val_type->type == TYPE_ARRAY)){
@@ -857,10 +859,13 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_cast(context, node);
             break;
         case MEMBER_INDEX_NODE:
-            if(node->index->index_type == IndexTypeInteger)
+            analyze(context, node->index->object);
+            if(node->index->object->type && node->index->object->type->type == TYPE_ARRAY){
                 type = _analyze_array_member_accessor(context, node);
-            else if(node->index->index_type == IndexTypeName)
+            }
+            else{
                 type = _analyze_record_field_accessor(context, node);
+            }
             break;
         case BINARY_NODE:
             type = _analyze_binary(context, node);
