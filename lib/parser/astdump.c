@@ -14,7 +14,7 @@ string _dump_block(struct sema_context *context, struct ast_node *node)
     string block;
     string_init_chars(&block, "");
     for (size_t i = 0; i < array_size(&node->block->nodes); i++) {
-        struct ast_node *stmt = *(struct ast_node **)array_get(&node->block->nodes, i);
+        struct ast_node *stmt = array_get_ptr(&node->block->nodes, i);
         string str_stmt = dump(context, stmt);
         string_add(&block, &str_stmt);
     }
@@ -32,7 +32,7 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
     string_add_chars(&result, string_get(func_type->ft->name));
     ARRAY_STRING(args);
     for (size_t i = 0; i < array_size(&func_type->ft->params->block->nodes); i++) {
-        struct ast_node *var = *(struct ast_node **)array_get(&func_type->ft->params->block->nodes, i);
+        struct ast_node *var = array_get_ptr(&func_type->ft->params->block->nodes, i);
         string_copy(&var_str, var->var->var->ident->name);
         if (var->var->is_of_type && (var->var->is_of_type->type_item_node->kind == TypeName || var->var->is_of_type->type_item_node->kind == BuiltinType) 
             &&var->var->is_of_type->type_item_node->type_name) {
@@ -136,7 +136,7 @@ string _dump_call(struct sema_context *context, struct ast_node *call)
 {
     ARRAY_STRING(args);
     for (size_t i = 0; i < array_size(&call->call->arg_block->block->nodes); i++) {
-        string dp = dump(context, *(struct ast_node **)array_get(&call->call->arg_block->block->nodes, i));
+        string dp = dump(context, array_get_ptr(&call->call->arg_block->block->nodes, i));
         array_push(&args, &dp);
     }
     string args_str = string_join(&args, " ");

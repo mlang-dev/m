@@ -36,7 +36,7 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
     array_init(&params, sizeof(struct address));
     for (unsigned i = 0; i < param_count; i++) {
         struct ast_node *param = array_get_ptr(&node->ft->params->block->nodes, i);
-        //struct type_item *type_exp = *(struct type_item **)array_get(&proto_type->args, i);
+        //struct type_item *type_exp = array_get_ptr(&proto_type->args, i);
         struct abi_arg_info *aai = array_get(&fi->args, i);
         struct target_arg_range *tar = array_get(&fi->tai.args, i);
         unsigned first_ir_arg = tar->first_arg_index;

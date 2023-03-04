@@ -69,7 +69,7 @@ void _expr_2_gr(struct expr *expr, struct parse_rule *gr)
     gr->symbol_count = 0;
     for(size_t i=0; i < array_size(&expr->items); i++){
         assert(i < MAX_SYMBOLS_RULE);
-        ei = (struct expr_item *)array_get(&expr->items, i);
+        ei = array_get(&expr->items, i);
         gr->rhs[gr->symbol_count++] = get_symbol_index(ei->sym);
     }
     _semantic_action_2_rule_action(&expr->action, &gr->action);
@@ -108,7 +108,7 @@ void _expand_expr(struct expr *rule_expr, struct array *a)
             array_copy(&expr->items, &rule_expr->items);
             ei = array_get(&expr->items, which_in_items);
             ei->ei_type = EI_TOKEN_MATCH;
-            ei->sym = *(symbol*)array_get(&symbols, i);
+            ei->sym = array_get_ptr(&symbols, i);
         }
     }
     array_deinit(&symbols);
@@ -406,10 +406,10 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser
     size_t i, j, k;
     pg->rule_count = 0;
     for (i = 0; i < (u16)array_size(&g->rules); i++) {
-        rule = *(struct rule **)array_get(&g->rules, i);
+        rule = array_get_ptr(&g->rules, i);
         nonterm = get_symbol_index(rule->nonterm);
         for (j = 0; j < array_size(&rule->exprs); j++) {
-            rule_expr = (struct expr *)array_get(&rule->exprs, j);
+            rule_expr = array_get(&rule->exprs, j);
             struct array exprs;
             array_init_free(&exprs, sizeof(struct expr), (free_fun)expr_deinit);
             _expand_expr(rule_expr, &exprs);
@@ -644,7 +644,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     pg->g = g;
     struct rule *rule;
     for(i = 0; i < array_size(&g->rules); i++){
-        rule = *(struct rule **)array_get(&g->rules, i);
+        rule = array_get_ptr(&g->rules, i);
         u16 index = register_grammar_nonterm(rule->nonterm); //register new non-term symbol
         assert((u8)i + TERMINAL_COUNT == index);
     }

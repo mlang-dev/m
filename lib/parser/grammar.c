@@ -55,13 +55,13 @@ struct expr *rule_add_expr(struct rule *rule)
     struct expr expr;
     expr_init(&expr);
     array_push(&rule->exprs, &expr);
-    return (struct expr *)array_back(&rule->exprs);
+    return array_back(&rule->exprs);
 }
 
 void rule_deinit(struct rule *rule)
 {
     for (size_t i = 0; i < array_size(&rule->exprs); i++) {
-        struct expr *expr = (struct expr *)array_get(&rule->exprs, i);
+        struct expr *expr = array_get(&rule->exprs, i);
         expr_deinit(expr);
     }
     array_deinit(&rule->exprs);
@@ -178,7 +178,7 @@ string print_rule_expr(symbol nonterm, struct expr *expr)
     string_init_chars2(&s, string_get(nonterm), string_size(nonterm));
     string_add_chars2(&s, " =", 2);
     for(size_t i = 0; i < array_size(&expr->items); i++){
-        struct expr_item *ei = (struct expr_item *)array_get(&expr->items, i);
+        struct expr_item *ei = array_get(&expr->items, i);
         string_add_chars2(&s, " ", 1);
         string_add_chars2(&s, string_get(ei->sym), string_size(ei->sym));
     }

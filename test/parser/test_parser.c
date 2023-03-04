@@ -404,7 +404,7 @@ y";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
-    struct ast_node *var = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    struct ast_node *var = array_get_ptr(&block->block->nodes, 1);
     ASSERT_EQ(VAR_NODE, var->node_type);
     ASSERT_EQ(MATCH_NODE, var->var->init_value->node_type);
     struct ast_node *ident = *(struct ast_node **)array_back(&block->block->nodes);

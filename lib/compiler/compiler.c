@@ -73,7 +73,7 @@ int compile(const char *source_file, enum object_file_type file_type)
     emit_code(cg, block);
     if (block) {
         for (size_t i = 0; i < array_size(&block->block->nodes); i++) {
-            struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, i);
+            struct ast_node *node = array_get_ptr(&block->block->nodes, i);
             emit_ir_code(cg, node);
         }
         if (file_type == FT_OBJECT) {

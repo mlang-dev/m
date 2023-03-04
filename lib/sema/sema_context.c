@@ -80,7 +80,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     array_init(&builtins, sizeof(struct ast_node *));
     if (stdio){
         for (size_t i = 0; i < array_size(&stdio->block->nodes); i++) {
-            struct ast_node *node = *(struct ast_node **)array_get(&stdio->block->nodes, i);
+            struct ast_node *node = array_get_ptr(&stdio->block->nodes, i);
             array_push(&builtins, &node);
         }
     }
@@ -88,7 +88,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
         array_add(&builtins, &math->block->nodes);
     }
     for (size_t i = 0; i < array_size(&builtins); i++) {
-        struct ast_node *node = *(struct ast_node **)array_get(&builtins, i);
+        struct ast_node *node = array_get_ptr(&builtins, i);
         assert(node->node_type == FUNC_TYPE_NODE);
         analyze(context, node);
         push_symbol_type(&context->decl_2_typexprs, node->ft->name, node->type);

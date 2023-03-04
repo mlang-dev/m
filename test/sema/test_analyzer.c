@@ -56,8 +56,8 @@ let y = &x";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* x = *(struct ast_node **)array_get(&block->block->nodes, 0);
-    struct ast_node* y = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    struct ast_node* x = array_get_ptr(&block->block->nodes, 0);
+    struct ast_node* y = array_get_ptr(&block->block->nodes, 1);
     ASSERT_TRUE(x->is_addressed);
     ASSERT_EQ(TYPE_INT, x->type->type);
     ASSERT_EQ(0, x->type->val_type);
@@ -79,7 +79,7 @@ let update z:&AB =\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* func= *(struct ast_node **)array_get(&block->block->nodes, 1);
+    struct ast_node* func= array_get_ptr(&block->block->nodes, 1);
     ASSERT_EQ(TYPE_FUNCTION, func->type->type);
     ASSERT_EQ(to_symbol("&AB -> ()"), func->type->name);
     node_free(block);
@@ -95,7 +95,7 @@ var a = [10, 20, 30]\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* array = *(struct ast_node **)array_get(&block->block->nodes, 0);
+    struct ast_node* array = array_get_ptr(&block->block->nodes, 0);
     ASSERT_EQ(TYPE_ARRAY, array->type->type);
     ASSERT_EQ(to_symbol("int[3]"), array->type->name);
     node_free(block);
@@ -111,7 +111,7 @@ var a = []\n\
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
-    struct ast_node* array = *(struct ast_node **)array_get(&block->block->nodes, 0);
+    struct ast_node* array = array_get_ptr(&block->block->nodes, 0);
     ASSERT_EQ(TYPE_ARRAY, array->type->type);
     ASSERT_EQ(to_symbol("()[]"), array->type->name);
     node_free(block);
@@ -385,7 +385,7 @@ let loopprint n = \n\
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("int -> int", string_get(&type_str));
-    struct ast_node *forn = *(struct ast_node **)array_get(&node->func->body->block->nodes, 1);
+    struct ast_node *forn = array_get_ptr(&node->func->body->block->nodes, 1);
     ASSERT_EQ(FOR_NODE, forn->node_type);
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->step->type));
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->start->type));
@@ -418,7 +418,7 @@ let loopprint n:f64 =\n\
     ASSERT_EQ(2, array_size(&var->args));
     string type_str = to_string(node->type);
     ASSERT_STREQ("f64 -> f64", string_get(&type_str));
-    struct ast_node *forn = *(struct ast_node **)array_get(&node->func->body->block->nodes, 1);
+    struct ast_node *forn = array_get_ptr(&node->func->body->block->nodes, 1);
     ASSERT_EQ(FOR_NODE, forn->node_type);
     ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->step->type));
     ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->start->type));
@@ -581,14 +581,14 @@ x\n\
     string type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
     /*func definition*/
-    node = *(struct ast_node **)array_get(&block->block->nodes, 1);
+    node = array_get_ptr(&block->block->nodes, 1);
     type_str = to_string(node->type);
     ASSERT_STREQ("() -> f64", string_get(&type_str));
-    node = *(struct ast_node **)array_get(&block->block->nodes, 2);
+    node = array_get_ptr(&block->block->nodes, 2);
     ASSERT_EQ(CALL_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("f64", string_get(&type_str));
-    node = *(struct ast_node **)array_get(&block->block->nodes, 3);
+    node = array_get_ptr(&block->block->nodes, 3);
     ASSERT_EQ(IDENT_NODE, node->node_type);
     type_str = to_string(node->type);
     ASSERT_STREQ("int", string_get(&type_str));
@@ -644,13 +644,13 @@ let getx()=\n\
     analyze(fe->sema_context, block);
     
     /*validate func definition*/
-    struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, 0);
+    struct ast_node *node = array_get_ptr(&block->block->nodes, 0);
     string type_str = to_string(node->type);
     ASSERT_STREQ("() -> int", string_get(&type_str));
 
     /*validate inside functions*/
-    struct ast_node *var_x = *(struct ast_node **)array_get(&node->func->body->block->nodes, 0);
-    struct ast_node *var_y = *(struct ast_node **)array_get(&node->func->body->block->nodes, 1);
+    struct ast_node *var_x = array_get_ptr(&node->func->body->block->nodes, 0);
+    struct ast_node *var_y = array_get_ptr(&node->func->body->block->nodes, 1);
     ASSERT_EQ(false, var_x->is_ret);
     ASSERT_EQ(true, var_y->is_ret);
     node_free(block);
@@ -670,13 +670,13 @@ let getx()=\n\
     analyze(fe->sema_context, block);
     
     /*validate func definition*/
-    struct ast_node *node = *(struct ast_node **)array_get(&block->block->nodes, 0);
+    struct ast_node *node = array_get_ptr(&block->block->nodes, 0);
     string type_str = to_string(node->type);
     ASSERT_STREQ("() -> int", string_get(&type_str));
 
     /*validate inside functions*/
-    struct ast_node *var_x = *(struct ast_node **)array_get(&node->func->body->block->nodes, 0);
-    struct ast_node *exp = *(struct ast_node **)array_get(&node->func->body->block->nodes, 1);
+    struct ast_node *var_x = array_get_ptr(&node->func->body->block->nodes, 0);
+    struct ast_node *exp = array_get_ptr(&node->func->body->block->nodes, 1);
     ASSERT_EQ(false, var_x->is_ret);
     ASSERT_EQ(BINARY_NODE, exp->node_type);
     node_free(block);

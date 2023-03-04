@@ -1241,7 +1241,7 @@ void _emit_export_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_
     wasm_emit_uint(ba, num_func + 1); // num of function exports plus 1 memory
     struct ast_node *func;
     for (u32 i = 0; i < num_func; i++) {
-        func = *(struct ast_node **)array_get(&block->block->nodes, i);
+        func = array_get_ptr(&block->block->nodes, i);
         wasm_emit_string(ba, func->func->func_type->ft->name);
         ba_add(ba, EXPORT_FUNC);
         wasm_emit_uint(ba, i + cg->imports.num_fun); // func index
