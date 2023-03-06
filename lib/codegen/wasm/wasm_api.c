@@ -8,8 +8,8 @@
 #include "codegen/wasm/cg_wasm.h"
 #include <assert.h>
 
-u8 set_vars[2] = {OPCODE_LOCALSET, OPCODE_GLOBALSET};
-u8 get_vars[2] = {OPCODE_LOCALGET, OPCODE_GLOBALGET};
+u8 set_vars[2] = {WasmInstrVarLocalSet, WasmInstrVarGlobalSet};
+u8 get_vars[2] = {WasmInstrVarLocalGet, WasmInstrVarGlobalGet};
 
 u8 aligns[9] = { 0, 0, 1, 2, 2, 3, 3, 3, 3 };
 
@@ -96,19 +96,19 @@ u8 wasm_emit_f64(WasmModule module, f64 value)
 
 void wasm_emit_const_i32(WasmModule module, i32 const_value)
 {
-    ba_add(module, OPCODE_I32CONST);
+    ba_add(module, WasmInstrNumI32Const);
     wasm_emit_int(module, const_value);
 }
 
 void wasm_emit_const_f64(WasmModule module, f64 const_value)
 {
-    ba_add(module, OPCODE_F64CONST);
+    ba_add(module, WasmInstrNumF64Const);
     wasm_emit_f64(module, const_value);
 }
 
 void wasm_emit_const_f32(WasmModule module, f32 const_value)
 {
-    ba_add(module, OPCODE_F32CONST);
+    ba_add(module, WasmInstrNumF32Const);
     wasm_emit_f64(module, const_value);
 }
 
@@ -172,7 +172,7 @@ void wasm_emit_addr_offset(WasmModule ba, u32 var_index, bool is_global, u32 off
 
 void wasm_emit_call_fun(WasmModule ba, u32 fun_index)
 {
-    ba_add(ba, OPCODE_CALL); // num local variables
+    ba_add(ba, WasmInstrControlCall); // num local variables
     wasm_emit_uint(ba, fun_index);
 }
 
@@ -228,5 +228,5 @@ void wasm_emit_copy_record_value(WasmModule ba, u32 to_var_index, u32 to_offset,
 
 void wasm_emit_drop(WasmModule ba)
 {
-    ba_add(ba, OPCODE_DROP);
+    ba_add(ba, WasmInstrRefDrop);
 }
