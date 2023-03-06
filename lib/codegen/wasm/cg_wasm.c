@@ -28,20 +28,20 @@ u8 type_2_const[TYPE_TYPES] = {
     /*UNK*/ 0,
     /*GENERIC*/ 0,
     /*UNIT*/ 0,
-    /*BOOL*/ OPCODE_I32CONST,
-    /*CHAR*/ OPCODE_I32CONST,
-    /*i8*/ OPCODE_I32CONST,
-    /*u8*/ OPCODE_I32CONST,
-    /*i16*/ OPCODE_I32CONST,
-    /*u16*/ OPCODE_I32CONST,
-    /*i32*/ OPCODE_I32CONST,
-    /*u32*/ OPCODE_I32CONST,
-    /*i64*/ OPCODE_I32CONST,
-    /*u64*/ OPCODE_I32CONST,
-    /*INT*/ OPCODE_I32CONST,
-    /*F32*/ OPCODE_F32CONST,
-    /*F64*/ OPCODE_F64CONST,
-    /*STRING*/ OPCODE_I32CONST,
+    /*BOOL*/ WasmInstrNumI32Const,
+    /*CHAR*/ WasmInstrNumI32Const,
+    /*i8*/ WasmInstrNumI32Const,
+    /*u8*/ WasmInstrNumI32Const,
+    /*i16*/ WasmInstrNumI32Const,
+    /*u16*/ WasmInstrNumI32Const,
+    /*i32*/ WasmInstrNumI32Const,
+    /*u32*/ WasmInstrNumI32Const,
+    /*i64*/ WasmInstrNumI32Const,
+    /*u64*/ WasmInstrNumI32Const,
+    /*INT*/ WasmInstrNumI32Const,
+    /*F32*/ WasmInstrNumF32Const,
+    /*F64*/ WasmInstrNumF64Const,
+    /*STRING*/ WasmInstrNumI32Const,
     /*FUNCTION*/ 0,
     /*STRUCT*/ 0,
     /*TUPLE*/ 0,
@@ -53,83 +53,83 @@ u8 type_2_const[TYPE_TYPES] = {
 
 u8 type_2_wtype[TYPE_TYPES] = {
     /*UNK*/ 0,
-    /*GENERIC*/ WASM_TYPE_I32,
-    /*UNIT*/ WASM_TYPE_VOID,
-    /*BOOL*/ WASM_TYPE_I32,
-    /*CHAR*/ WASM_TYPE_I32,
-    /*i8*/ WASM_TYPE_I32,
-    /*u8*/ WASM_TYPE_I32,
-    /*i16*/ WASM_TYPE_I32,
-    /*u16*/ WASM_TYPE_I32,
-    /*i32*/ WASM_TYPE_I32,
-    /*u32*/ WASM_TYPE_I32,
-    /*i64*/ WASM_TYPE_I64,
-    /*u64*/ WASM_TYPE_I64,
-    /*INT*/ WASM_TYPE_I32,
-    /*F32*/ WASM_TYPE_F32,
-    /*F64*/ WASM_TYPE_F64,
-    /*STRING*/ WASM_TYPE_I32,
+    /*GENERIC*/ WasmTypeI32,
+    /*UNIT*/ WasmTypeVoid,
+    /*BOOL*/ WasmTypeI32,
+    /*CHAR*/ WasmTypeI32,
+    /*i8*/ WasmTypeI32,
+    /*u8*/ WasmTypeI32,
+    /*i16*/ WasmTypeI32,
+    /*u16*/ WasmTypeI32,
+    /*i32*/ WasmTypeI32,
+    /*u32*/ WasmTypeI32,
+    /*i64*/ WasmTypeI64,
+    /*u64*/ WasmTypeI64,
+    /*INT*/ WasmTypeI32,
+    /*F32*/ WasmTypeF32,
+    /*F64*/ WasmTypeF64,
+    /*STRING*/ WasmTypeI32,
     /*FUNCTION*/ 0,
-    /*STRUCT*/ WASM_TYPE_I32,
-    /*TUPLE*/ WASM_TYPE_I32,
-    /*ARRAY*/ WASM_TYPE_I32,
-    /*UNION*/ WASM_TYPE_I32,
-    /*COMPLEX*/ WASM_TYPE_I32,
-    /*REF*/ WASM_TYPE_I32,
+    /*STRUCT*/ WasmTypeI32,
+    /*TUPLE*/ WasmTypeI32,
+    /*ARRAY*/ WasmTypeI32,
+    /*UNION*/ WasmTypeI32,
+    /*COMPLEX*/ WasmTypeI32,
+    /*REF*/ WasmTypeI32,
 };
 
 u8 type_2_store_op[TYPE_TYPES] = {
     /*UNK*/ 0,
     /*GENERIC*/ 0,
     /*UNIT*/ 0,
-    /*BOOL*/ OPCODE_I32STORE,
-    /*CHAR*/ OPCODE_I32STORE,
-    /*i8*/ OPCODE_I32STORE_8,
-    /*u8*/ OPCODE_I32STORE_8,
-    /*i16*/ OPCODE_I32STORE_16,
-    /*u16*/ OPCODE_I32STORE_16,
-    /*i32*/ OPCODE_I32STORE,
-    /*u32*/ OPCODE_I32STORE,
-    /*i64*/ OPCODE_I64STORE,
-    /*u64*/ OPCODE_I64STORE,
-    /*INT*/ OPCODE_I32STORE,
-    /*F32*/ OPCODE_F32STORE,
-    /*F64*/ OPCODE_F64STORE,
-    /*STRING*/ OPCODE_I32STORE,
+    /*BOOL*/ WasmInstrMemI32Store,
+    /*CHAR*/ WasmInstrMemI32Store,
+    /*i8*/ WasmInstrMemI32Store8,
+    /*u8*/ WasmInstrMemI32Store8,
+    /*i16*/ WasmInstrMemI32Store16,
+    /*u16*/ WasmInstrMemI32Store16,
+    /*i32*/ WasmInstrMemI32Store,
+    /*u32*/ WasmInstrMemI32Store,
+    /*i64*/ WasmInstrMemI64Store,
+    /*u64*/ WasmInstrMemI64Store,
+    /*INT*/ WasmInstrMemI32Store,
+    /*F32*/ WasmInstrMemF32Store,
+    /*F64*/ WasmInstrMemF64Store,
+    /*STRING*/ WasmInstrMemI32Store,
     /*FUNCTION*/ 0,
     /*STRUCT*/ 0,
     /*TUPLE*/ 0,
     /*ARRAY*/ 0,
     /*UNION*/ 0,
     /*COMPLEX*/ 0,
-    /*REF*/OPCODE_I32STORE
+    /*REF*/WasmInstrMemI32Store
 };
 
 u8 type_2_load_op[TYPE_TYPES] = {
     /*UNK*/ 0,
     /*GENERIC*/ 0,
     /*UNIT*/ 0,
-    /*BOOL*/ OPCODE_I32LOAD,
-    /*CHAR*/ OPCODE_I32LOAD,
-    /*i8*/ OPCODE_I32LOAD_8S,
-    /*u8*/ OPCODE_I32LOAD_8U,
-    /*i16*/ OPCODE_I32LOAD_16S,
-    /*u16*/ OPCODE_I32LOAD_16U,
-    /*i32*/ OPCODE_I32LOAD,
-    /*u32*/ OPCODE_I32LOAD,
-    /*i64*/ OPCODE_I64LOAD,
-    /*u64*/ OPCODE_I64LOAD,
-    /*INT*/ OPCODE_I32LOAD,
-    /*F32*/ OPCODE_F32LOAD,
-    /*F64*/ OPCODE_F64LOAD,
-    /*STRING*/ OPCODE_I32LOAD,
+    /*BOOL*/ WasmInstrMemI32Load,
+    /*CHAR*/ WasmInstrMemI32Load,
+    /*i8*/ WasmInstrMemI32Load8S,
+    /*u8*/ WasmInstrMemI32Load8U,
+    /*i16*/ WasmInstrMemI32Load16S,
+    /*u16*/ WasmInstrMemI32Load16U,
+    /*i32*/ WasmInstrMemI32Load,
+    /*u32*/ WasmInstrMemI32Load,
+    /*i64*/ WasmInstrMemI64Load,
+    /*u64*/ WasmInstrMemI64Load,
+    /*INT*/ WasmInstrMemI32Load,
+    /*F32*/ WasmInstrMemF32Load,
+    /*F64*/ WasmInstrMemF64Load,
+    /*STRING*/ WasmInstrMemI32Load,
     /*FUNCTION*/ 0,
     /*STRUCT*/ 0,
     /*TUPLE*/ 0,
     /*ARRAY*/ 0,
     /*UNION*/ 0,
     /*COMPLEX*/ 0,
-    /*REF*/OPCODE_I32LOAD
+    /*REF*/WasmInstrMemI32Load
 };
 
 u8 type_conversion_op[TYPE_TYPES][TYPE_TYPES] = {
@@ -436,7 +436,7 @@ void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
         case TYPE_STRING:
             len = strlen(node->liter->str_val);
             if(cg->imports.num_memory){
-                ba_add(ba, OPCODE_GLOBALGET);
+                ba_add(ba, WasmInstrVarGlobalGet);
                 wasm_emit_uint(ba, MEMORY_BASE_VAR_INDEX);
                 if(cg->data_offset){
                     wasm_emit_const_i32(ba, cg->data_offset);
@@ -714,7 +714,7 @@ void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *no
     }else{
         //call pow function
         u32 func_index = hashtable_get_int(&cg->func_name_2_idx, POW_FUN_NAME);
-        ba_add(ba, OPCODE_CALL);
+        ba_add(ba, WasmInstrControlCall);
         wasm_emit_uint(ba, func_index);
     }
 }
@@ -738,44 +738,44 @@ void _emit_if(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == IF_NODE);
     wasm_emit_code(cg, ba, node->cond->if_node);
-    ba_add(ba, OPCODE_IF);
+    ba_add(ba, WasmInstrControlIf);
     ASSERT_TYPE(node->cond->then_node->type->type);
     ba_add(ba, type_2_wtype[node->cond->then_node->type->type]);
     wasm_emit_code(cg, ba, node->cond->then_node);
     if (node->cond->else_node) {
-        ba_add(ba, OPCODE_ELSE);
+        ba_add(ba, WasmInstrControlElse);
         wasm_emit_code(cg, ba, node->cond->else_node);
     }
-    ba_add(ba, OPCODE_END);
+    ba_add(ba, WasmInstrControlEnd);
 }
 
 void _emit_case_block(struct cg_wasm *cg, struct byte_array *ba, struct byte_array *embeded_blocks, struct ast_node *node, u32 nested_levels)
 {
-    ba_add(ba, OPCODE_BLOCK); 
+    ba_add(ba, WasmInstrControlBlock); 
     ba_add(ba, type_2_wtype[node->type->type]); 
     ba_add2(ba, embeded_blocks);
     wasm_emit_code(cg, ba, node);
-    ba_add(ba, OPCODE_BR);
+    ba_add(ba, WasmInstrControlBr);
     wasm_emit_uint(ba, nested_levels);
-    ba_add(ba, OPCODE_END);
+    ba_add(ba, WasmInstrControlEnd);
 }
 
 void _emit_jump_table(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *test_expr, struct array *index_vector, u32 default_branch_index)
 {
     u32 size = array_size(index_vector);
-    ba_add(ba, OPCODE_BLOCK);
-    //ba_add(ba, WASM_TYPE_VOID);
+    ba_add(ba, WasmInstrControlBlock);
+    //ba_add(ba, WasmTypeVoid);
     ba_add(ba, type_2_wtype[TYPE_INT]);
     wasm_emit_const_i32(ba, 0); //return 
     wasm_emit_code(cg, ba, test_expr);
-    ba_add(ba, OPCODE_BR_TABLE);
+    ba_add(ba, WasmInstrControlBrTable);
     wasm_emit_uint(ba, size); //index vector size
     for(u32 j = 0; j < size; j++){
         u32 branch_index = *(u32*)array_get(index_vector, j);
         wasm_emit_uint(ba, branch_index); //index element
     }
     wasm_emit_uint(ba, default_branch_index); 
-    ba_add(ba, OPCODE_END);
+    ba_add(ba, WasmInstrControlEnd);
 }
 
 int _match_case_node_cmp(const void *elm1, const void *elm2)
@@ -868,12 +868,12 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
 
 void _emit_if_local_var_ge_zero(struct byte_array *ba, u32 var_index, enum type type)
 {
-    ba_add(ba, OPCODE_LOCALGET);
+    ba_add(ba, WasmInstrVarLocalGet);
     wasm_emit_uint(ba, var_index);
     _emit_const_zero(ba, type);
     ba_add(ba, op_maps[OP_GE][type]);
-    ba_add(ba, OPCODE_IF);
-    ba_add(ba, WASM_TYPE_I32);
+    ba_add(ba, WasmInstrControlIf);
+    ba_add(ba, WasmTypeI32);
 }
 
 void _emit_for_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
@@ -889,96 +889,96 @@ void _emit_for_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     //ASSERT_TYPE(body_type);
     // initializing start value
     wasm_emit_code(cg, ba, node->forloop->range->range->start);
-    ba_add(ba, OPCODE_LOCALSET);
+    ba_add(ba, WasmInstrVarLocalSet);
     wasm_emit_uint(ba, var_index);  //1
 
     // set step value
     wasm_emit_code(cg, ba, node->forloop->range->range->step);
-    ba_add(ba, OPCODE_LOCALSET);
+    ba_add(ba, WasmInstrVarLocalSet);
     wasm_emit_uint(ba, step_index); //2
     // set end value
     assert(node->forloop->range->range->end->node_type == BINARY_NODE);
     wasm_emit_code(cg, ba, node->forloop->range->range->end->binop->rhs);
-    ba_add(ba, OPCODE_LOCALSET);
+    ba_add(ba, WasmInstrVarLocalSet);
     wasm_emit_uint(ba, end_index);  //3
 
-    ba_add(ba, OPCODE_BLOCK); // outside block branch labelidx 1
-    ba_add(ba, WASM_TYPE_VOID); // type_2_wtype[body_type]); // branch type
+    ba_add(ba, WasmInstrControlBlock); // outside block branch labelidx 1
+    ba_add(ba, WasmTypeVoid); // type_2_wtype[body_type]); // branch type
 
-    ba_add(ba, OPCODE_LOOP);  // loop branch, branch labelidx 0
-    ba_add(ba, WASM_TYPE_VOID); //type_2_wtype[body_type]); // branch type
+    ba_add(ba, WasmInstrControlLoop);  // loop branch, branch labelidx 0
+    ba_add(ba, WasmTypeVoid); //type_2_wtype[body_type]); // branch type
 
     //if step >= 0
     _emit_if_local_var_ge_zero(ba, step_index, node->forloop->range->range->step->type->type);
     //branch body
     //1. get var value
     //nested a if branch
-    ba_add(ba, OPCODE_LOCALGET);
+    ba_add(ba, WasmInstrVarLocalGet);
     wasm_emit_uint(ba, var_index);
-    ba_add(ba, OPCODE_LOCALGET);
+    ba_add(ba, WasmInstrVarLocalGet);
     wasm_emit_uint(ba, end_index);
     ba_add(ba, op_maps[OP_GE][type]);
 
-    ba_add(ba, OPCODE_ELSE);
+    ba_add(ba, WasmInstrControlElse);
 
-    ba_add(ba, OPCODE_LOCALGET);
+    ba_add(ba, WasmInstrVarLocalGet);
     wasm_emit_uint(ba, var_index);
-    ba_add(ba, OPCODE_LOCALGET);
+    ba_add(ba, WasmInstrVarLocalGet);
     wasm_emit_uint(ba, end_index);
     ba_add(ba, op_maps[OP_LE][type]);
-    ba_add(ba, OPCODE_END); 
+    ba_add(ba, WasmInstrControlEnd); 
     //end of if step >= 0
 
-    ba_add(ba, OPCODE_BR_IF); //if out of scope, branch to out side block
+    ba_add(ba, WasmInstrControlBrIf); //if out of scope, branch to out side block
     wasm_emit_uint(ba, 1); //if true, jump out of block
 
     //body, another block into for loop due to post loop adjustment
 
-    ba_add(ba, OPCODE_BLOCK); // add body block
-    ba_add(ba, WASM_TYPE_VOID); // void type
+    ba_add(ba, WasmInstrControlBlock); // add body block
+    ba_add(ba, WasmTypeVoid); // void type
     wasm_emit_code(cg, ba, node->forloop->body);
-    ba_add(ba, OPCODE_END); //end of body block
+    ba_add(ba, WasmInstrControlEnd); //end of body block
 
     //var += step
-    ba_add(ba, OPCODE_LOCALGET);
+    ba_add(ba, WasmInstrVarLocalGet);
     wasm_emit_uint(ba, var_index);
-    ba_add(ba, OPCODE_LOCALGET);
+    ba_add(ba, WasmInstrVarLocalGet);
     wasm_emit_uint(ba, step_index);
     ba_add(ba, op_maps[OP_PLUS][type]);
-    ba_add(ba, OPCODE_LOCALSET);
+    ba_add(ba, WasmInstrVarLocalSet);
     wasm_emit_uint(ba, var_index);
-    ba_add(ba, OPCODE_BR); //branch to loop again
+    ba_add(ba, WasmInstrControlBr); //branch to loop again
     wasm_emit_uint(ba, 0); 
-    ba_add(ba, OPCODE_END); //end of loop branch
-    ba_add(ba, OPCODE_END); //end of outside branch
+    ba_add(ba, WasmInstrControlEnd); //end of loop branch
+    ba_add(ba, WasmInstrControlEnd); //end of outside branch
 }
 
 void _emit_while_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
-    ba_add(ba, OPCODE_BLOCK); // outside block branch labelidx 1
-    ba_add(ba, WASM_TYPE_VOID); // type_2_wtype[body_type]); // branch type
+    ba_add(ba, WasmInstrControlBlock); // outside block branch labelidx 1
+    ba_add(ba, WasmTypeVoid); // type_2_wtype[body_type]); // branch type
 
-    ba_add(ba, OPCODE_LOOP);  // loop branch, branch labelidx 0
-    ba_add(ba, WASM_TYPE_VOID); //type_2_wtype[body_type]); // branch type
+    ba_add(ba, WasmInstrControlLoop);  // loop branch, branch labelidx 0
+    ba_add(ba, WasmTypeVoid); //type_2_wtype[body_type]); // branch type
 
     //if not true of node->whileloop->expr, then break the loop branch (goto outside block branch)
     struct ast_node *not_expr = unary_node_new(OP_NOT, node->whileloop->expr, false, node->whileloop->expr->loc);
     not_expr->type = node->whileloop->expr->type;
     wasm_emit_code(cg, ba, not_expr);
-    ba_add(ba, OPCODE_BR_IF);
+    ba_add(ba, WasmInstrControlBrIf);
     wasm_emit_uint(ba, 1); //if true, jump out of loop branch, got to the outside block branch
 
     //body, this is to be consist to for loop, actually is not needed, but then break needs to be
     //aware of which loop it is in
-    ba_add(ba, OPCODE_BLOCK); 
-    ba_add(ba, WASM_TYPE_VOID); 
+    ba_add(ba, WasmInstrControlBlock); 
+    ba_add(ba, WasmTypeVoid); 
     wasm_emit_code(cg, ba, node->whileloop->body);
-    ba_add(ba, OPCODE_END); //end of loop branch
+    ba_add(ba, WasmInstrControlEnd); //end of loop branch
 
-    ba_add(ba, OPCODE_BR); //goto loop branch again
+    ba_add(ba, WasmInstrControlBr); //goto loop branch again
     wasm_emit_uint(ba, 0); 
-    ba_add(ba, OPCODE_END); //end of loop branch
-    ba_add(ba, OPCODE_END); //end of outside branch
+    ba_add(ba, WasmInstrControlEnd); //end of loop branch
+    ba_add(ba, WasmInstrControlEnd); //end of outside branch
     ast_node_free(not_expr);
 }
 
@@ -988,12 +988,12 @@ void _emit_jump(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
         wasm_emit_code(cg, ba, node->jump->expr);
     }
     if(node->jump->token_type == TOKEN_RETURN){
-        ba_add(ba, OPCODE_RETURN);
+        ba_add(ba, WasmInstrControlReturn);
     } else if(node->jump->token_type == TOKEN_CONTINUE){
-        ba_add(ba, OPCODE_BR);
+        ba_add(ba, WasmInstrControlBr);
         wasm_emit_uint(ba, node->jump->nested_block_levels - 1); //jump to innermost loop
     } else if(node->jump->token_type == TOKEN_BREAK){
-        ba_add(ba, OPCODE_BR);
+        ba_add(ba, WasmInstrControlBr);
         wasm_emit_uint(ba, node->jump->nested_block_levels + 1); //jump to out side of innermost loop
     }
 }
@@ -1136,7 +1136,7 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
         u32 num_params = array_size(&func_type->args) - 1;
         struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, func_type_node);
         bool has_sret = fi_has_sret(fi);
-        ba_add(ba, TYPE_FUNC);
+        ba_add(ba, WasmTypeFunc);
         if(has_sret){
             num_params += 1;
         }
@@ -1178,29 +1178,29 @@ void _emit_import_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_
             break;
         case FUNC_TYPE_NODE:
             wasm_emit_string(ba, node->ft->name);
-            ba_add(ba, IMPORT_FUNC);
+            ba_add(ba, WasmImportTypeFunc);
             wasm_emit_uint(ba, type_index++); //type index
             break;
         case VAR_NODE:
             wasm_emit_string(ba, node->var->var->ident->name);
-            ba_add(ba, IMPORT_GLOBAL);
+            ba_add(ba, WasmImportTypeGlobal);
             ASSERT_TYPE(node->type->type);
             ba_add(ba, type_2_wtype[node->type->type]);
             if (__MEMORY_BASE == node->var->var->ident->name){
-                ba_add(ba, GLOBAL_CONST); // immutable
+                ba_add(ba, WasmGlobalTypeConst); // immutable
             }else{
-                ba_add(ba, GLOBAL_VAR); // mutable
+                ba_add(ba, WasmGlobalTypeVar); // mutable
             }
             break;
         case MEMORY_NODE:
             wasm_emit_string(ba, MEMORY);
-            ba_add(ba, IMPORT_MEMORY);
+            ba_add(ba, WasmImportTypeMemory);
             if(node->memory->max){
-                ba_add(ba, LIMITS_MIN_MAX);
+                ba_add(ba, WasmLimitsTypeMinMax);
                 wasm_emit_uint(ba, node->memory->initial->liter->int_val);
                 wasm_emit_uint(ba, node->memory->max->liter->int_val);
             }else{
-                ba_add(ba, LIMITS_MIN_ONLY);
+                ba_add(ba, WasmLimitsTypeMinOnly);
                 wasm_emit_uint(ba, node->memory->initial->liter->int_val);
             }
             break;
@@ -1220,7 +1220,7 @@ void _emit_function_section(struct cg_wasm *cg, struct byte_array *ba, struct as
 void _emit_memory_section(struct cg_wasm *cg, struct byte_array *ba)
 {
     ba_add(ba, 1); // num memories
-    ba_add(ba, LIMITS_MIN_MAX);
+    ba_add(ba, WasmLimitsTypeMinMax);
     ba_add(ba, 2);//min 2x64k
     ba_add(ba, 10);//max 10x64k
 }
@@ -1229,10 +1229,10 @@ void _emit_global_section(struct cg_wasm *cg, struct byte_array *ba)
 {
     //__stack_pointer: base address
     ba_add(ba, 1);  //num globals
-    ba_add(ba, WASM_TYPE_I32);
-    ba_add(ba, GLOBAL_VAR); //mutable
+    ba_add(ba, WasmTypeI32);
+    ba_add(ba, WasmGlobalTypeVar); //mutable
     wasm_emit_const_i32(ba, STACK_BASE_ADDRESS);
-    ba_add(ba, OPCODE_END);
+    ba_add(ba, WasmInstrControlEnd);
 }
 
 void _emit_export_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *block)
@@ -1243,11 +1243,11 @@ void _emit_export_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_
     for (u32 i = 0; i < num_func; i++) {
         func = array_get_ptr(&block->block->nodes, i);
         wasm_emit_string(ba, func->func->func_type->ft->name);
-        ba_add(ba, EXPORT_FUNC);
+        ba_add(ba, WasmExportTypeFunc);
         wasm_emit_uint(ba, i + cg->imports.num_fun); // func index
     }
     wasm_emit_string(ba, MEMORY);
-    ba_add(ba, EXPORT_MEMORY);
+    ba_add(ba, WasmExportTypeMemory);
     wasm_emit_uint(ba, 0); //export memory 0
 }
 
@@ -1262,16 +1262,16 @@ void _emit_data_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
 {
     u32 num_data = array_size(&block->block->nodes);
     wasm_emit_uint(ba, 1); //1 data segment
-    wasm_emit_uint(ba, DATA_ACTIVE);
+    wasm_emit_uint(ba, WasmDataSegmentTypeActive);
     // offset of memory
     if (cg->imports.num_memory){
-        ba_add(ba, OPCODE_GLOBALGET);
+        ba_add(ba, WasmInstrVarGlobalGet);
         wasm_emit_uint(ba, MEMORY_BASE_VAR_INDEX);
     }else{
-        ba_add(ba, OPCODE_I32CONST);
+        ba_add(ba, WasmInstrNumI32Const);
         wasm_emit_uint(ba, DATA_SECTION_START_ADDRESS);
     }
-    ba_add(ba, OPCODE_END);
+    ba_add(ba, WasmInstrControlEnd);
     wasm_emit_uint(ba, cg->data_offset);
     for (u32 i = 0; i < num_data; i++) {
         struct ast_node *node = array_get_p(&block->block->nodes, i);
@@ -1312,35 +1312,35 @@ void wasm_emit_module(struct cg_wasm *cg, struct ast_node *node)
     // 11.   data section
     // 12.   data count section
     // type section
-    ba_add(ba, TYPE_SECTION);       // code: 1
+    ba_add(ba, WasmSectionType);       // code: 1
     _emit_type_section(cg, &section, cg->fun_types);
     _append_section(ba, &section);
     // import section
-    ba_add(ba, IMPORT_SECTION);     // code: 2
+    ba_add(ba, WasmSectionImport);     // code: 2
     _emit_import_section(cg, &section, cg->imports.import_block);
     _append_section(ba, &section);
 
     // function section
-    ba_add(ba, FUNCTION_SECTION);   // code: 3
+    ba_add(ba, WasmSectionFunction);   // code: 3
     _emit_function_section(cg, &section, cg->funs);
     _append_section(ba, &section);
 
     // table section                // code: 4
     // memory section               // code: 5
     if(!cg->imports.num_memory){
-        ba_add(ba, MEMORY_SECTION);
+        ba_add(ba, WasmSectionMemory);
         _emit_memory_section(cg, &section);
         _append_section(ba, &section);
     }
 
     // global section               // code: 6
     if(!cg->imports.num_global){
-        ba_add(ba, GLOBAL_SECTION);
+        ba_add(ba, WasmSectionGlobal);
         _emit_global_section(cg, &section);
         _append_section(ba, &section);
     }
     // export section               // code: 7
-    ba_add(ba, EXPORT_SECTION); 
+    ba_add(ba, WasmSectionExport); 
     _emit_export_section(cg, &section, cg->funs);
     _append_section(ba, &section);
 
@@ -1349,18 +1349,18 @@ void wasm_emit_module(struct cg_wasm *cg, struct ast_node *node)
 
     // data count section           // code: 12, data count must before code section
     if (array_size(&cg->data_block->block->nodes)) {
-        ba_add(ba, DATA_COUNT_SECTION); 
+        ba_add(ba, WasmSectionDataCount); 
         wasm_emit_uint(ba, 1); //   data count size
         wasm_emit_uint(ba, 1); //   data count
     }
     // code section                 // code: 10
-    ba_add(ba, CODE_SECTION); 
+    ba_add(ba, WasmSectionCode); 
     _emit_code_section(cg, &section, cg->funs);
     _append_section(ba, &section);
 
     // data section                 // code: 11
     if(array_size(&cg->data_block->block->nodes)){
-        ba_add(ba, DATA_SECTION);
+        ba_add(ba, WasmSectionData);
         _emit_data_section(cg, &section, cg->data_block);
         _append_section(ba, &section);
     }

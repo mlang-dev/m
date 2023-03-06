@@ -285,7 +285,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         wasm_emit_assign_var(&func, STACK_POINTER_VAR_INDEX, true, OPCODE_I32ADD, stack_size, fc->local_sp->var_index, false);
     }
     //end of function
-    ba_add(&func, OPCODE_END);
+    ba_add(&func, WasmInstrControlEnd);
     wasm_emit_uint(ba, func.size); //function body size
     ba_add2(ba, &func);
     ba_deinit(&func);

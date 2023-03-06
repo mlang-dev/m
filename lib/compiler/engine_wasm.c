@@ -68,7 +68,7 @@ struct engine *engine_wasm_new()
 }
 
 
-#define IS_OUT_OF_FUNC(node_type)  (node_type == FUNC_NODE || node_type == IMPORT_FUNC || node_type == RECORD_NODE)
+#define IS_OUT_OF_FUNC(node_type)  (node_type == FUNC_NODE || node_type == WasmImportTypeFunc || node_type == RECORD_NODE)
 /*
  * collect global statements into _start function
  */
