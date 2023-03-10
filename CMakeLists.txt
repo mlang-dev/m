@@ -49,8 +49,10 @@ else()
     -Wno-missing-braces -Wno-enum-conversion -g)
 endif()
 
-string(REPLACE "-headerpad_max_install_names" "" CMAKE_C_LINK_FLAGS ${CMAKE_C_LINK_FLAGS})
-string(REPLACE "-headerpad_max_install_names" "" CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS})
+if (APPLE)
+    string(REPLACE "-headerpad_max_install_names" "" CMAKE_C_LINK_FLAGS ${CMAKE_C_LINK_FLAGS})
+    string(REPLACE "-headerpad_max_install_names" "" CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS})
+endif()
 
 add_subdirectory(extern/googletest)
 add_subdirectory(lib)
