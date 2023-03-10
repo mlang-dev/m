@@ -60,18 +60,17 @@ add_custom_command(TARGET mtestw POST_BUILD
 
 
 find_package(LLVM 13 REQUIRED CONFIG)
-execute_process(COMMAND llvm-config --libnames
-                OUTPUT_VARIABLE llvm_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND llvm-config --libfiles
+                OUTPUT_VARIABLE llvm_libfiles OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --system-libs
                 OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(NOT ${sys_libraries} STREQUAL "")
   string(REPLACE " -llibxml2.tbd" "" sys_libraries ${sys_libraries})
   string(REPLACE " " ";" sys_libraries ${sys_libraries})
 endif()
-string(REPLACE " " ";" llvm_libraries ${llvm_libraries})
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Found LLVM for mtest ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-message(STATUS "Found LLVM libraries ${llvm_libraries}")
+message(STATUS "LLVM shared libs ")
 message(STATUS "Found SYS libraries ${sys_libraries}")
 add_definitions(${LLVM_DEFINITIONS})
 
@@ -90,11 +89,6 @@ target_include_directories(mtest PUBLIC
 ${LLVM_INCLUDE_DIRS}
 )
 
-link_directories(mtest
-  ${LLVM_INCLUDE_DIRS}/../lib
-)
-
-
 if(WIN32)
   set(clang_lib libclang)
 else()
@@ -106,7 +100,7 @@ if(MSVC)
 endif()
 
 TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlrl clib
-  ${llvm_libraries}
+  ${llvm_libfiles}
   ${sys_libraries}
   ${clang_lib}
 )

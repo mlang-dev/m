@@ -45,17 +45,16 @@ target_link_libraries(mlang PRIVATE
 
 find_package(LLVM 13 REQUIRED CONFIG)
 message(STATUS "Found LLVM BIN ${LLVM_TOOLS_BINARY_DIR}")
-execute_process(COMMAND llvm-config --libnames
-                OUTPUT_VARIABLE llvm_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND llvm-config --libfiles
+                OUTPUT_VARIABLE llvm_libfiles OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --system-libs
                 OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(NOT ${sys_libraries} STREQUAL "")
   string(REPLACE " -llibxml2.tbd" "" sys_libraries ${sys_libraries})
   string(REPLACE " " ";" sys_libraries ${sys_libraries})
 endif()
-string(REPLACE " " ";" llvm_libraries ${llvm_libraries})
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Found LLVM libraries ${llvm_libraries}")
+message(STATUS "Found LLVM libraries ${llvm_libfiles}")
 message(STATUS "Found LLVM include dirs: ${LLVM_INCLUDE_DIRS}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found SYS libraries ${sys_libraries}") 
@@ -104,7 +103,7 @@ target_link_libraries(m PRIVATE
   lldReaderWriter
   lldCommon
   lldCore
-  ${llvm_libraries}
+  ${llvm_libfiles}
   ${sys_libraries}
 )
 
