@@ -8,7 +8,7 @@ set(HAVE_FLAG_SEARCH_PATHS_FIRST 0)
 
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
-set(CMAKE_C_LINK_FLAGS "")
+
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
@@ -48,6 +48,9 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-unused-parameter # -Wno-error=unused-command-line-argument
     -Wno-missing-braces -Wno-enum-conversion -g)
 endif()
+
+string(REPLACE "-headerpad_max_install_names" "" CMAKE_C_LINK_FLAGS ${CMAKE_C_LINK_FLAGS})
+string(REPLACE "-headerpad_max_install_names" "" CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS})
 
 add_subdirectory(extern/googletest)
 add_subdirectory(lib)

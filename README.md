@@ -7,7 +7,7 @@ The mlang is implemented in C without third party library dependency other than 
 
 mlang is still in early development phase and subject to significant changes.
  
-MacOS or Linux or WSL is the recommended development OS.
+MacOS or Linux or WSL is the recommended development OS, and clang/llvm-13 is the compiler for mlang development.
 
 ## m code plotting mandelbrot set 
 You can try [mlang](https://mlang.dev) to run the following m code in the browser.
