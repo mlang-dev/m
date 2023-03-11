@@ -1,7 +1,7 @@
 [![CMake m](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml) 
 
 # m (mlang)
-mlang is a succinct & expressive general purpose programming language for WebAssembly. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction. It's a static-typed language with type inference, which means most of time types of variables are not required to be annotated. 
+mlang is a succinct & expressive general purpose programming language for WebAssembly. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction. It's a static-typed language with type inference support. 
 
 The mlang is implemented in C without third party library dependency other than C standard libraries. The mlang compiler is compiled as a WebAssembly module so it can be run in the browser or other wasm runtime like nodejs and wastime etc. It can compile m codes into another wasm module and run it in the same environment. 
 
@@ -13,11 +13,11 @@ MacOS or Linux or WSL is the recommended development OS, and clang/llvm-13 is th
 You can try [mlang](https://mlang.dev) to run the following m code in the browser.
 The code will yield the following image:
 
-![mandelbrot set](/mandelbrotset.png)
+![mandelbrot set](./docs_src/mandelbrotset.png)
 
 You can zoom in to see more details at [https://mlang.dev](https://mlang.dev).
 
-<img src="mandelbrotset_demo.gif" width="400" height="320"/>
+<img src="./docs_src/mandelbrotset_demo.gif" width="400" height="320"/>
 
 ```
 //color function returns (r, g, b) tuple based on iteration count and distance
