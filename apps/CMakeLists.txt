@@ -66,6 +66,10 @@ else()
   set(clang_lib clang)
 endif(WIN32)
 
+link_directories(
+  ${LLVM_INCLUDE_DIRS}/../lib
+)
+
 add_executable(m
   driver/ld.cc
   driver/m.cc
