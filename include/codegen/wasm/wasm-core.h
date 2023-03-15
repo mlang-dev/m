@@ -152,151 +152,142 @@ enum WasmInstrNum {
     WasmInstrNumI64Const = 0x42,
     WasmInstrNumF32Const = 0x43,
     WasmInstrNumF64Const = 0x44,
-};
 
-//TODO: move the following definitions into enum WasmInstrNum
-#define OPCODE_I32EQZ 0x45
-#define OPCODE_I32EQ 0x46
-#define OPCODE_I32NE 0x47
-#define OPCODE_I32LT_S 0x48
-#define OPCODE_I32LT_U 0x49
-#define OPCODE_I32GT_S 0x4A
-#define OPCODE_I32GT_U 0x4B
-#define OPCODE_I32LE_S 0x4C
-#define OPCODE_I32LE_U 0x4D
-#define OPCODE_I32GE_S 0x4E
-#define OPCODE_I32GE_U 0x4F
+    WasmInstrNumI32EQZ = 0x45,
+    WasmInstrNumI32EQ = 0x46,
+    WasmInstrNumI32NE = 0x47,
+    WasmInstrNumI32LTS = 0x48,
+    WasmInstrNumI32LTU = 0x49,
+    WasmInstrNumI32GTS = 0x4A,
+    WasmInstrNumI32GTU = 0x4B,
+    WasmInstrNumI32LES = 0x4C,
+    WasmInstrNumI32LEU = 0x4D,
+    WasmInstrNumI32GES = 0x4E,
+    WasmInstrNumI32GEU = 0x4F,
 
-#define OPCODE_I64EQZ 0x50
-#define OPCODE_I64EQ 0x51
-#define OPCODE_I64NE 0x52
-#define OPCODE_I64LT_S 0x53
-#define OPCODE_I64LT_U 0x54
-#define OPCODE_I64GT_S 0x55
-#define OPCODE_I64GT_U 0x56
-#define OPCODE_I64LE_S 0x57
-#define OPCODE_I64LE_U 0x58
-#define OPCODE_I64GE_S 0x59
-#define OPCODE_I64GE_U 0x5A
+    WasmInstrNumI64EQZ = 0x50,
+    WasmInstrNumI64EQ = 0x51,
+    WasmInstrNumI64NE = 0x52,
 
-#define OPCODE_F32EQ 0x5B
-#define OPCODE_F32NE 0x5C
-#define OPCODE_F32LT 0x5D
-#define OPCODE_F32GT 0x5E
-#define OPCODE_F32LE 0x5F
-#define OPCODE_F32GE 0x60
+    WasmInstrNumI64LTS = 0x53,
+    WasmInstrNumI64LTU = 0x54,
+    WasmInstrNumI64GTS = 0x55,
+    WasmInstrNumI64GTU = 0x56,
+    WasmInstrNumI64LES = 0x57,
+    WasmInstrNumI64LEU = 0x58,
+    WasmInstrNumI64GES = 0x59,
+    WasmInstrNumI64GEU = 0x5A,
 
-#define OPCODE_F64EQ 0x61
-#define OPCODE_F64NE 0x62
-#define OPCODE_F64LT 0x63
-#define OPCODE_F64GT 0x64
-#define OPCODE_F64LE 0x65
-#define OPCODE_F64GE 0x66
+    WasmInstrNumF32EQ = 0x5B,
+    WasmInstrNumF32NE = 0x5C,
+    WasmInstrNumF32LT = 0x5D,
+    WasmInstrNumF32GT = 0x5E,
+    WasmInstrNumF32LE = 0x5F,
+    WasmInstrNumF32GE = 0x60,
 
-#define OPCODE_I32CLZ 0x67
-#define OPCODE_I32CTZ 0x68
-#define OPCODE_I32POPCNT 0x69
-#define OPCODE_I32ADD 0x6A
-#define OPCODE_I32SUB 0x6B
-#define OPCODE_I32MUL 0x6C
-#define OPCODE_I32DIV_S 0x6D
-#define OPCODE_I32DIV_U 0x6E
-#define OPCODE_I32REM_S 0x6F
-#define OPCODE_I32REM_U 0x70
+    WasmInstrNumF64EQ = 0x61,
+    WasmInstrNumF64NE = 0x62,
+    WasmInstrNumF64LT = 0x63,
+    WasmInstrNumF64GT = 0x64,
+    WasmInstrNumF64LE = 0x65,
+    WasmInstrNumF64GE = 0x66,
 
-#define OPCODE_I32AND 0x71
-#define OPCODE_I32OR 0x72
-#define OPCODE_I32XOR 0x73
-#define OPCODE_I32SHL 0x74
-#define OPCODE_I32SHR_S 0x75
-#define OPCODE_I32SHR_U 0x76
-#define OPCODE_I32ROTL 0x77
-#define OPCODE_I32ROTR 0x78
+    WasmInstrNumI32CLZ = 0x67,
+    WasmInstrNumI32CTZ = 0x68,
+    WasmInstrNumI32POPCNT = 0x69,
+    WasmInstrNumI32ADD = 0x6A,
+    WasmInstrNumI32SUB = 0x6B,
+    WasmInstrNumI32MUL = 0x6C,
+    WasmInstrNumI32DIVS = 0x6D,
+    WasmInstrNumI32DIVU = 0x6E,
+    WasmInstrNumI32REMS = 0x6F,
+    WasmInstrNumI32REMU = 0x70,
+    WasmInstrNumI32AND = 0x71,
+    WasmInstrNumI32OR = 0x72,
+    WasmInstrNumI32XOR = 0x73,
+    WasmInstrNumI32SHL = 0x74,
+    WasmInstrNumI32SHRS = 0x75,
+    WasmInstrNumI32SHRU = 0x76,
+    WasmInstrNumI32ROTL = 0x77,
+    WasmInstrNumI32ROTR = 0x78,
+    WasmInstrNumI64CLZ = 0x79,
+    WasmInstrNumI64CTZ = 0x7A,
+    WasmInstrNumI64POPCNT = 0x7B,
+    WasmInstrNumI64ADD = 0x7C,
+    WasmInstrNumI64SUB = 0x7D,
+    WasmInstrNumI64MUL = 0x7E,
+    WasmInstrNumI64DIVS = 0x7F,
+    WasmInstrNumI64DIVU = 0x80,
+    WasmInstrNumI64REMS = 0x81,
+    WasmInstrNumI64REMU = 0x82,
+    WasmInstrNumI64AND = 0x83,
+    WasmInstrNumI64OR = 0x84,
+    WasmInstrNumI64XOR = 0x85,
+    WasmInstrNumI64SHL = 0x86,
+    WasmInstrNumI64SHRS = 0x87,
+    WasmInstrNumI64SHRU = 0x88,
+    WasmInstrNumI64ROTL = 0x89,
+    WasmInstrNumI64ROTR = 0x8A,
 
-#define OPCODE_I64CLZ 0x79
-#define OPCODE_I64CTZ 0x7A
-#define OPCODE_I64POPCNT 0x7B
-#define OPCODE_I64ADD 0x7C
-#define OPCODE_I64SUB 0x7D
-#define OPCODE_I64MUL 0x7E
-#define OPCODE_I64DIV_S 0x7F
-#define OPCODE_I64DIV_U 0x80
-#define OPCODE_I64REM_S 0x81
-#define OPCODE_I64REM_U 0x82
-
-#define OPCODE_I64AND 0x83
-#define OPCODE_I64OR 0x84
-#define OPCODE_I64XOR 0x85
-#define OPCODE_I64SHL 0x86
-#define OPCODE_I64SHR_S 0x87
-#define OPCODE_I64SHR_U 0x88
-#define OPCODE_I64ROTL 0x89
-#define OPCODE_I64ROTR 0x8A
-
-#define OPCODE_F32ABS 0x8B
-#define OPCODE_F32NEG 0x8C
-#define OPCODE_F32CEIL 0x8D
-#define OPCODE_F32FLOOR 0x8E
-#define OPCODE_F32TRUNC 0x8F
-#define OPCODE_F32NEAREST 0x90
-#define OPCODE_F32SQRT 0x91
-#define OPCODE_F32ADD 0x92
-#define OPCODE_F32SUB 0x93
-#define OPCODE_F32MUL 0x94
-#define OPCODE_F32DIV 0x95
-#define OPCODE_F32MIN 0x96
-#define OPCODE_F32MAX 0x97
-#define OPCODE_F32COPYSIGN 0x98
-
-#define OPCODE_F64ABS 0x99
-#define OPCODE_F64NEG 0x9A
-#define OPCODE_F64CEIL 0x9B
-#define OPCODE_F64FLOOR 0x9C
-#define OPCODE_F64TRUNC 0x9D
-#define OPCODE_F64NEAREST 0x9E
-#define OPCODE_F64SQRT 0x9F
-#define OPCODE_F64ADD 0xA0
-#define OPCODE_F64SUB 0xA1
-#define OPCODE_F64MUL 0xA2
-#define OPCODE_F64DIV 0xA3
-#define OPCODE_F64MIN 0xA4
-#define OPCODE_F64MAX 0xA5
-#define OPCODE_F64COPYSIGN 0xA6
-
-#define OPCODE_I32WRAPI64 0xA7
-#define OPCODE_I32TRUNC_F32S 0xA8
-#define OPCODE_I32TRUNC_F32U 0xA9
-#define OPCODE_I32TRUNC_F64S 0xAA
-#define OPCODE_I32TRUNC_F64U 0xAB
-#define OPCODE_I64EXTEND_I32S 0xAC
-#define OPCODE_I64EXTEND_I32U 0xAD
-#define OPCODE_I64TRUNC_F32S 0xAE
-#define OPCODE_I64TRUNC_F32U 0xAF
-#define OPCODE_I64TRUNC_F64S 0xB0
-#define OPCODE_I64TRUNC_F64U 0xB1
-
-#define OPCODE_F32CONVERT_I32S 0xB2
-#define OPCODE_F32CONVERT_I32U 0xB3
-#define OPCODE_F32CONVERT_I64S 0xB4
-#define OPCODE_F32CONVERT_I64U 0xB5
-#define OPCODE_F32DEMOTE_F64 0xB6
-#define OPCODE_F64CONVERT_I32S 0xB7
-#define OPCODE_F64CONVERT_I32U 0xB8
-#define OPCODE_F64CONVERT_I64S 0xB9
-#define OPCODE_F64CONVERT_I64U 0xBA
-#define OPCODE_F64PROMOTE_F32 0xBB
-#define OPCODE_I32REINTERPRET_F32 0xBC
-#define OPCODE_I64REINTERPRET_F64 0xBD
-#define OPCODE_F32REINTERPRET_I32 0xBE
-#define OPCODE_F64REINTERPRET_I64 0xBF
-
-#define OPCODE_I32EXTEND8_S 0xC0
-#define OPCODE_I32EXTEND16_S 0xC1
-#define OPCODE_I64EXTEND8_S 0xC2
-#define OPCODE_I64EXTEND16_S 0xC3
-#define OPCODE_I64EXTEND32_S 0xC4
-
-#define OPCODE_TRUNC_SAT 0xFC // 0 i32.trunc_sat_f32_s
+    WasmInstrNumF32ABS = 0x8B,
+    WasmInstrNumF32NEG = 0x8C,
+    WasmInstrNumF32CEIL = 0x8D,
+    WasmInstrNumF32FLOOR = 0x8E,
+    WasmInstrNumF32TRUNC = 0x8F,
+    WasmInstrNumF32NEAREST = 0x90,
+    WasmInstrNumF32SQRT = 0x91,
+    WasmInstrNumF32ADD = 0x92,
+    WasmInstrNumF32SUB = 0x93,
+    WasmInstrNumF32MUL = 0x94,
+    WasmInstrNumF32DIV = 0x95,
+    WasmInstrNumF32MIN = 0x96,
+    WasmInstrNumF32MAX = 0x97,
+    WasmInstrNumF32COPYSIGN = 0x98,
+    WasmInstrNumF64ABS = 0x99,
+    WasmInstrNumF64NEG = 0x9A,
+    WasmInstrNumF64CEIL = 0x9B,
+    WasmInstrNumF64FLOOR = 0x9C,
+    WasmInstrNumF64TRUNC = 0x9D,
+    WasmInstrNumF64NEAREST = 0x9E,
+    WasmInstrNumF64SQRT = 0x9F,
+    WasmInstrNumF64ADD = 0xA0,
+    WasmInstrNumF64SUB = 0xA1,
+    WasmInstrNumF64MUL = 0xA2,
+    WasmInstrNumF64DIV = 0xA3,
+    WasmInstrNumF64MIN = 0xA4,
+    WasmInstrNumF64MAX = 0xA5,
+    WasmInstrNumF64COPYSIGN = 0xA6,
+    WasmInstrNumI32WRAPI64 = 0xA7,
+    WasmInstrNumI32TRUNCF32S = 0xA8,
+    WasmInstrNumI32TRUNCF32U = 0xA9,
+    WasmInstrNumI32TRUNCF64S = 0xAA,
+    WasmInstrNumI32TRUNCF64U = 0xAB,
+    WasmInstrNumI64EXTENDI32S = 0xAC,
+    WasmInstrNumI64EXTENDI32U = 0xAD,
+    WasmInstrNumI64TRUNCF32S = 0xAE,
+    WasmInstrNumI64TRUNCF32U = 0xAF,
+    WasmInstrNumI64TRUNCF64S = 0xB0,
+    WasmInstrNumI64TRUNCF64U = 0xB1,
+    WasmInstrNumF32CONVERTI32S = 0xB2,
+    WasmInstrNumF32CONVERTI32U = 0xB3,
+    WasmInstrNumF32CONVERTI64S = 0xB4,
+    WasmInstrNumF32CONVERTI64U = 0xB5,
+    WasmInstrNumF32DEMOTEF64 = 0xB6,
+    WasmInstrNumF64CONVERTI32S = 0xB7,
+    WasmInstrNumF64CONVERTI32U = 0xB8,
+    WasmInstrNumF64CONVERTI64S = 0xB9,
+    WasmInstrNumF64CONVERTI64U = 0xBA,
+    WasmInstrNumF64PROMOTEF32 = 0xBB,
+    WasmInstrNumI32REINTERPRETF32 = 0xBC,
+    WasmInstrNumI64REINTERPRETF64 = 0xBD,
+    WasmInstrNumF32REINTERPRETI32 = 0xBE,
+    WasmInstrNumF64REINTERPRETI64 = 0xBF,
+    WasmInstrNumI32EXTEND8S = 0xC0,
+    WasmInstrNumI32EXTEND16S = 0xC1,
+    WasmInstrNumI64EXTEND8S = 0xC2,
+    WasmInstrNumI64EXTEND16S = 0xC3,
+    WasmInstrNumI64EXTEND32S = 0xC4,
+    WasmInstrNumTRUNCSAT = 0xFC, // 0 i32.trunc_sat_f32_s
                               // 1 i32.trunc_sat_f32_u
                               // 2 i32.trunc_sat_f64_s
                               // 3 i32.trunc_sat_f64_u
@@ -304,6 +295,7 @@ enum WasmInstrNum {
                               // 5 i64.trunc_sat_f32_u
                               // 6 i64.trunc_sat_f64_s
                               // 7 i64.trunc_sat_f64_u
+};
 
 // vector instructions
 enum WasmSection {

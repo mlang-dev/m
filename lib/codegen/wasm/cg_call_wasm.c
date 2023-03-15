@@ -47,7 +47,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         //alloc = fc_get_alloc(fc, node);
         i32 stack_offset = fc_get_stack_offset(fc, node);
 
-        wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
+        wasm_emit_assign_var(ba, vi->var_index, false, WasmInstrNumI32ADD, stack_offset, fc->local_sp->var_index, false);
         wasm_emit_get_var(ba, vi->var_index, false); 
         //send the sret address to the calling stack
     }
@@ -67,7 +67,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
                 }else{
                     u32 temp_var_index = vi->var_index + 1; //TODO: we should do it explicity in collect_local_variables
                     u32 field_offset = *(u64*)array_get(&fc->stack_size_info.sl->field_offsets, temp_var_index) / 8;
-                    wasm_emit_assign_var(ba, temp_var_index, false, OPCODE_I32ADD, field_offset, fc->local_sp->var_index, false);
+                    wasm_emit_assign_var(ba, temp_var_index, false, WasmInstrNumI32ADD, field_offset, fc->local_sp->var_index, false);
                     wasm_emit_copy_record_value(ba, temp_var_index, 0, arg->type, vi->var_index, 0);
                     wasm_emit_get_var(ba, temp_var_index, false);
                 }
@@ -87,7 +87,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             vi = fc_get_var_info(fc, node);
             i32 stack_offset = fc_get_stack_offset(fc, node);
             struct struct_layout *sl = fc_get_stack_sl(fc, node);
-            wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
+            wasm_emit_assign_var(ba, vi->var_index, false, WasmInstrNumI32ADD, stack_offset, fc->local_sp->var_index, false);
             wasm_emit_store_record_value(cg, ba, vi->var_index, 0, sl, block);
             //lastly, sending start address as optional arguments as the rest call parameter
             wasm_emit_get_var(ba, vi->var_index, false);

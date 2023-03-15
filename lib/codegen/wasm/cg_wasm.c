@@ -137,19 +137,19 @@ u8 type_conversion_op[TYPE_TYPES][TYPE_TYPES] = {
     /*UNK*/ {0},
     /*GENERIC*/ {0},
     /*UNIT*/ {0},
-    /*BOOL*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
-    /*CHAR*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
-    /*i8*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
-    /*u8*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
-    /*i16*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
-    /*u16*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
-    /*i32*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32S, /*f64*/OPCODE_F64CONVERT_I32S},
-    /*u32*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32U, /*f64*/OPCODE_F64CONVERT_I32U},
+    /*BOOL*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/WasmInstrNumF32CONVERTI32S, /*f64*/WasmInstrNumF64CONVERTI32S},
+    /*CHAR*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/WasmInstrNumF32CONVERTI32S, /*f64*/WasmInstrNumF64CONVERTI32S},
+    /*i8*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/WasmInstrNumF32CONVERTI32S, /*f64*/WasmInstrNumF64CONVERTI32S},
+    /*u8*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/WasmInstrNumF32CONVERTI32S, /*f64*/WasmInstrNumF64CONVERTI32S},
+    /*i16*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/WasmInstrNumF32CONVERTI32S, /*f64*/WasmInstrNumF64CONVERTI32S},
+    /*u16*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/WasmInstrNumF32CONVERTI32S, /*f64*/WasmInstrNumF64CONVERTI32S},
+    /*i32*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/WasmInstrNumF32CONVERTI32S, /*f64*/WasmInstrNumF64CONVERTI32S},
+    /*u32*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/WasmInstrNumF32CONVERTI32U, /*f64*/WasmInstrNumF64CONVERTI32U},
     /*i64*/ {0, 0, 0, 0},
     /*u64*/ {0, 0, 0, 0},
-    /*INT*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/OPCODE_F32CONVERT_I32U, /*f64*/OPCODE_F64CONVERT_I32U},
-    /*F32*/ {0, 0, 0, /*BOOL*/OPCODE_I32TRUNC_F32S, /*CHAR*/OPCODE_I32TRUNC_F32S, /*i8*/OPCODE_I32TRUNC_F32S, /*u8*/OPCODE_I32TRUNC_F32S, /*i16*/OPCODE_I32TRUNC_F32S, /*u16*/OPCODE_I32TRUNC_F32S, /*i32*/OPCODE_I32TRUNC_F32S, /*u32*/OPCODE_I32TRUNC_F32U, /*i64*/OPCODE_I64TRUNC_F32S, /*u64*/OPCODE_I64TRUNC_F32U, /*int*/OPCODE_I32TRUNC_F32S, /*f32*/0, /*f64*/OPCODE_F64PROMOTE_F32},
-    /*F64*/ {0, 0, 0, /*BOOL*/OPCODE_I32TRUNC_F64S, /*CHAR*/OPCODE_I32TRUNC_F64S, /*i8*/OPCODE_I32TRUNC_F64S, /*u8*/OPCODE_I32TRUNC_F64S, /*i16*/OPCODE_I32TRUNC_F64S, /*u16*/OPCODE_I32TRUNC_F64S, /*i32*/OPCODE_I32TRUNC_F64S, /*u32*/OPCODE_I32TRUNC_F64U, /*i64*/OPCODE_I64TRUNC_F64S, /*u64*/OPCODE_I64TRUNC_F64U, /*int*/OPCODE_I32TRUNC_F64S, /*f32*/OPCODE_F32DEMOTE_F64, /*f64*/0},
+    /*INT*/ {0, 0, 0, /*BOOL*/0, /*CHAR*/0, /*i8*/0, /*u8*/0, /*i16*/0, /*u16*/0, /*i32*/0, /*u32*/0, /*i64*/0, /*u64*/0, /*int*/0, /*f32*/WasmInstrNumF32CONVERTI32U, /*f64*/WasmInstrNumF64CONVERTI32U},
+    /*F32*/ {0, 0, 0, /*BOOL*/WasmInstrNumI32TRUNCF32S, /*CHAR*/WasmInstrNumI32TRUNCF32S, /*i8*/WasmInstrNumI32TRUNCF32S, /*u8*/WasmInstrNumI32TRUNCF32S, /*i16*/WasmInstrNumI32TRUNCF32S, /*u16*/WasmInstrNumI32TRUNCF32S, /*i32*/WasmInstrNumI32TRUNCF32S, /*u32*/WasmInstrNumI32TRUNCF32U, /*i64*/WasmInstrNumI64TRUNCF32S, /*u64*/WasmInstrNumI64TRUNCF32U, /*int*/WasmInstrNumI32TRUNCF32S, /*f32*/0, /*f64*/WasmInstrNumF64PROMOTEF32},
+    /*F64*/ {0, 0, 0, /*BOOL*/WasmInstrNumI32TRUNCF64S, /*CHAR*/WasmInstrNumI32TRUNCF64S, /*i8*/WasmInstrNumI32TRUNCF64S, /*u8*/WasmInstrNumI32TRUNCF64S, /*i16*/WasmInstrNumI32TRUNCF64S, /*u16*/WasmInstrNumI32TRUNCF64S, /*i32*/WasmInstrNumI32TRUNCF64S, /*u32*/WasmInstrNumI32TRUNCF64U, /*i64*/WasmInstrNumI64TRUNCF64S, /*u64*/WasmInstrNumI64TRUNCF64U, /*int*/WasmInstrNumI32TRUNCF64S, /*f32*/WasmInstrNumF32DEMOTEF64, /*f64*/0},
     /*STRING*/ {0, 0, 0, 0},
     /*FUNCTION*/ {0},
     /*STRUCT*/ {0},
@@ -192,10 +192,10 @@ u64 extend_signs[TYPE_TYPES] = {
     /*GENERIC*/ 0,
     /*UNIT*/ 0,
     /*BOOL*/ 0,
-    /*CHAR*/ OPCODE_I32EXTEND8_S,
-    /*i8*/ OPCODE_I32EXTEND8_S,
+    /*CHAR*/ WasmInstrNumI32EXTEND8S,
+    /*i8*/ WasmInstrNumI32EXTEND8S,
     /*u8*/ 0,
-    /*i16*/ OPCODE_I32EXTEND16_S,
+    /*i16*/ WasmInstrNumI32EXTEND16S,
     /*u16*/ 0,
     /*i32*/ 0,
     /*u32*/ 0,
@@ -220,31 +220,31 @@ u8 op_maps[OP_TOTAL][TYPE_TYPES] = {
     */
     /*OP_NULL   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
     /*OP_DOT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0,},
-    /*OP_OR     */{0, 0, 0, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_AND    */{0, 0, 0, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_NOT    */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0, 0,}, //xor 1
+    /*OP_OR     */{0, 0, 0, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_AND    */{0, 0, 0, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_NOT    */{0, 0, 0, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, 0, 0, 0, 0, 0, 0, 0,}, //xor 1
 
-    /*OP_BITNOT   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0, 0,},             //xor -1
-    /*OP_BITOR    */{0, 0, 0, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, OPCODE_I32OR, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BITEXOR   */{0, 0, 0, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, OPCODE_I32XOR, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BAND   */{0, 0, 0, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, OPCODE_I32AND, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BSL    */{0, 0, 0, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, OPCODE_I32SHL, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_BSR    */{0, 0, 0, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, OPCODE_I32SHR_S, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_BITNOT   */{0, 0, 0, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, 0, 0, 0, 0, 0, 0, 0,},             //xor -1
+    /*OP_BITOR    */{0, 0, 0, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, WasmInstrNumI32OR, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_BITEXOR   */{0, 0, 0, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, WasmInstrNumI32XOR, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_BAND   */{0, 0, 0, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, WasmInstrNumI32AND, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_BSL    */{0, 0, 0, WasmInstrNumI32SHL, WasmInstrNumI32SHL, WasmInstrNumI32SHL, WasmInstrNumI32SHL, WasmInstrNumI32SHL, WasmInstrNumI32SHL, WasmInstrNumI32SHL, WasmInstrNumI32SHL, WasmInstrNumI32SHL, WasmInstrNumI32SHL, WasmInstrNumI32SHL, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_BSR    */{0, 0, 0, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, WasmInstrNumI32SHRS, 0, 0, 0, 0, 0, 0, 0,},
 
-    /*OP_SQRT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, OPCODE_F32SQRT, OPCODE_F64SQRT, 0, 0, 0, 0, 0,},
+    /*OP_SQRT   */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, WasmInstrNumF32SQRT, WasmInstrNumF64SQRT, 0, 0, 0, 0, 0,},
     /*OP_POW    */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_STAR  */{0, 0, 0, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_I32MUL, OPCODE_F32MUL, OPCODE_F64MUL, 0, 0, 0, 0, 0,},
-    /*OP_DIV    */{0, 0, 0, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_I32DIV_S, OPCODE_F32DIV, OPCODE_F64DIV, 0, 0, 0, 0, 0,},
-    /*OP_MOD    */{0, 0, 0, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, OPCODE_I32REM_S, 0, 0, 0, 0, 0, 0, 0,},
-    /*OP_PLUS   */{0, 0, 0, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_I32ADD, OPCODE_F32ADD, OPCODE_F64ADD, 0, 0, 0, 0, 0,},
-    /*OP_MINUS  */{0, 0, 0, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_I32SUB, OPCODE_F32SUB, OPCODE_F64SUB, 0, 0, 0, 0, 0,},
+    /*OP_STAR  */{0, 0, 0, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumI32MUL, WasmInstrNumF32MUL, WasmInstrNumF64MUL, 0, 0, 0, 0, 0,},
+    /*OP_DIV    */{0, 0, 0, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumI32DIVS, WasmInstrNumF32DIV, WasmInstrNumF64DIV, 0, 0, 0, 0, 0,},
+    /*OP_MOD    */{0, 0, 0, WasmInstrNumI32REMS, WasmInstrNumI32REMS, WasmInstrNumI32REMS, WasmInstrNumI32REMS, WasmInstrNumI32REMS, WasmInstrNumI32REMS, WasmInstrNumI32REMS, WasmInstrNumI32REMS, WasmInstrNumI32REMS, WasmInstrNumI32REMS, WasmInstrNumI32REMS, 0, 0, 0, 0, 0, 0, 0,},
+    /*OP_PLUS   */{0, 0, 0, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumI32ADD, WasmInstrNumF32ADD, WasmInstrNumF64ADD, 0, 0, 0, 0, 0,},
+    /*OP_MINUS  */{0, 0, 0, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumI32SUB, WasmInstrNumF32SUB, WasmInstrNumF64SUB, 0, 0, 0, 0, 0,},
 
-    /*OP_LT   */{0, 0, 0, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_I32LT_S, OPCODE_F32LT, OPCODE_F64LT, 0, 0, 0, 0, 0,},
-    /*OP_LE  */{0, 0, 0, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_I32LE_S, OPCODE_F32LE, OPCODE_F64LE, 0, 0, 0, 0, 0,},
-    /*OP_EQ    */{0, 0, 0, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_I32EQ, OPCODE_F32EQ, OPCODE_F64EQ, 0, 0, 0, 0, 0,},
-    /*OP_GT    */{0, 0, 0, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_I32GT_S, OPCODE_F32GT, OPCODE_F64GT, 0, 0, 0, 0, 0,},
-    /*OP_GE   */{0, 0, 0, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_I32GE_S, OPCODE_F32GE, OPCODE_F64GE, 0, 0, 0, 0, 0,},
-    /*OP_NE  */{0, 0, 0, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_I32NE, OPCODE_F32NE, OPCODE_F64NE, 0, 0, 0, 0, 0,},
+    /*OP_LT   */{0, 0, 0, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumI32LTS, WasmInstrNumF32LT, WasmInstrNumF64LT, 0, 0, 0, 0, 0,},
+    /*OP_LE  */{0, 0, 0, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumI32LES, WasmInstrNumF32LE, WasmInstrNumF64LE, 0, 0, 0, 0, 0,},
+    /*OP_EQ    */{0, 0, 0, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumI32EQ, WasmInstrNumF32EQ, WasmInstrNumF64EQ, 0, 0, 0, 0, 0,},
+    /*OP_GT    */{0, 0, 0, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumI32GTS, WasmInstrNumF32GT, WasmInstrNumF64GT, 0, 0, 0, 0, 0,},
+    /*OP_GE   */{0, 0, 0, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumI32GES, WasmInstrNumF32GE, WasmInstrNumF64GE, 0, 0, 0, 0, 0,},
+    /*OP_NE  */{0, 0, 0, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumI32NE, WasmInstrNumF32NE, WasmInstrNumF64NE, 0, 0, 0, 0, 0,},
 
     /*OP_COND  */{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
 
@@ -337,7 +337,7 @@ void wasm_emit_var_change(struct cg_wasm *cg, WasmModule ba, u32 var_index, bool
     //
     wasm_emit_code(cg, ba, offset_index);
     wasm_emit_const_i32(ba, elm_size);
-    ba_add(ba, OPCODE_I32MUL);
+    ba_add(ba, WasmInstrNumI32MUL);
 
     ba_add(ba, op); 
 }
@@ -346,7 +346,7 @@ void wasm_emit_addr_offset_by_expr(struct cg_wasm *cg, WasmModule ba, u32 var_in
 {
     wasm_emit_get_var(ba, var_index, is_global);
     wasm_emit_code(cg, ba, offset_expr);
-    ba_add(ba, OPCODE_I32ADD);
+    ba_add(ba, WasmInstrNumI32ADD);
 }
 
 TargetType _get_function_type(TargetType ret_type, TargetType *param_types, unsigned param_count, bool is_variadic)
@@ -440,7 +440,7 @@ void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
                 wasm_emit_uint(ba, MEMORY_BASE_VAR_INDEX);
                 if(cg->data_offset){
                     wasm_emit_const_i32(ba, cg->data_offset);
-                    ba_add(ba, OPCODE_I32ADD);
+                    ba_add(ba, WasmInstrNumI32ADD);
                 }
                 cg->data_offset += len + 1; //null terminated string
             } else {
@@ -540,7 +540,7 @@ void _emit_cast(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
                 u64 bit_mask = max_int_bits[node->type->type];
                 assert(bit_mask);
                 wasm_emit_const_i32(ba, bit_mask);
-                ba_add(ba, OPCODE_I32AND);
+                ba_add(ba, WasmInstrNumI32AND);
                 //we need to upcasting to i32/i64 since WASM only supports i32/i64 int
                 u8 sign_op = extend_signs[node->type->type];
                 if(sign_op){
@@ -583,7 +583,7 @@ void _emit_record_field_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
             wasm_emit_copy_record_value(ba, 0, 0, field->type, root_vi->var_index, offset);
         }
         //calculate new address and push it to stack
-        //wasm_emit_change_var(ba, OPCODE_I32ADD, field.offset, root_vi->var_index, false);
+        //wasm_emit_change_var(ba, WasmInstrNumI32ADD, field.offset, root_vi->var_index, false);
     }else{ //scalar value
         //read the value: scalar value read
         if(!node->is_lvalue){//read for right value
@@ -618,7 +618,7 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
             //wasm_emit_copy_record_value(ba, 0, 0, field_type, root_vi->var_index, field->offset);
         }
         //calculate new address and push it to stack
-        //wasm_emit_change_var(ba, OPCODE_I32ADD, field.offset, root_vi->var_index, false);
+        //wasm_emit_change_var(ba, WasmInstrNumI32ADD, field.offset, root_vi->var_index, false);
     }else{ //scalar value
         //read the value: scalar value read
         if(!node->is_lvalue){//read for right value

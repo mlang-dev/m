@@ -167,7 +167,7 @@ void wasm_emit_change_var(WasmModule ba, u8 op, u32 operand, u32 var_index, bool
 
 void wasm_emit_addr_offset(WasmModule ba, u32 var_index, bool is_global, u32 offset)
 {
-    wasm_emit_change_var(ba, OPCODE_I32ADD, offset, var_index, is_global);
+    wasm_emit_change_var(ba, WasmInstrNumI32ADD, offset, var_index, is_global);
 }
 
 void wasm_emit_call_fun(WasmModule ba, u32 fun_index)

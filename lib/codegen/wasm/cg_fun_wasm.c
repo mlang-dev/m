@@ -273,7 +273,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
 
     if(stack_size){
         //adjust sp
-        wasm_emit_assign_var(&func, fc->local_sp->var_index, false, OPCODE_I32SUB, stack_size, STACK_POINTER_VAR_INDEX, true);
+        wasm_emit_assign_var(&func, fc->local_sp->var_index, false, WasmInstrNumI32SUB, stack_size, STACK_POINTER_VAR_INDEX, true);
         
         //set global sp to the new address
         wasm_emit_assign_var(&func, STACK_POINTER_VAR_INDEX, true, 0, 0, fc->local_sp->var_index, false);
@@ -282,7 +282,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     wasm_emit_code(cg, &func, node->func->body);
     if(stack_size){
         //adjustment back to original sp
-        wasm_emit_assign_var(&func, STACK_POINTER_VAR_INDEX, true, OPCODE_I32ADD, stack_size, fc->local_sp->var_index, false);
+        wasm_emit_assign_var(&func, STACK_POINTER_VAR_INDEX, true, WasmInstrNumI32ADD, stack_size, fc->local_sp->var_index, false);
     }
     //end of function
     ba_add(&func, WasmInstrControlEnd);
