@@ -66,7 +66,7 @@ void wasm_emit_adt_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
     } else {
         struct var_info *vi = fc_get_var_info(fc, node);
         i32 stack_offset = fc_get_stack_offset(fc, node);
-        wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
+        wasm_emit_assign_var(ba, vi->var_index, false, WasmInstrNumI32ADD, stack_offset, fc->local_sp->var_index, false);
         wasm_emit_store_record_value(cg, ba, vi->var_index, 0, tsi.sl, node->adt_init->body);
     }
 }
@@ -88,7 +88,7 @@ void wasm_emit_array_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_
     } else {
         struct var_info *vi = fc_get_var_info(fc, node);
         i32 stack_offset = fc_get_stack_offset(fc, node);
-        wasm_emit_assign_var(ba, vi->var_index, false, OPCODE_I32ADD, stack_offset, fc->local_sp->var_index, false);
+        wasm_emit_assign_var(ba, vi->var_index, false, WasmInstrNumI32ADD, stack_offset, fc->local_sp->var_index, false);
         addr_var_index = vi->var_index;
     }
     struct type_size_info tsi = get_type_size_info(node->type->val_type);
