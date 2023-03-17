@@ -64,7 +64,7 @@ link_directories(
 )
 
 add_executable(m
-  driver/ld.cc
+  driver/ld.c
   driver/m.cc
 )
 
@@ -77,17 +77,18 @@ set_target_properties(m PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(m PRIVATE 
   mlrl
   clib
-  lldDriver
-  lldCOFF
-  lldELF
-  lldMachO
-  lldMachO2
-  lldMinGW
-  lldWasm
-  lldYAML
-  lldReaderWriter
-  lldCommon
-  lldCore
+  # LD dependencies
+  # lldDriver
+  # lldCOFF
+  # lldELF
+  # lldMachO
+  # lldMachO2
+  # lldMinGW
+  # lldWasm
+  # lldYAML
+  # lldReaderWriter
+  # lldCommon
+  # lldCore
   ${llvm_libfiles}
   ${sys_libraries}
 )
