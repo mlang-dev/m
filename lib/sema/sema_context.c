@@ -11,7 +11,6 @@
 #include "clib/array.h"
 #include "sema/analyzer.h"
 #include "codegen/type_size_info.h"
-#include "tool/cmodule.h"
 #include <assert.h>
 #include <limits.h>
 
