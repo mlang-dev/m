@@ -117,7 +117,6 @@ if(REGEN_PARSER)
 endif()
 
 add_library(mlr
-  tool/cmodule.c
   error/error.c
   lexer/terminal.c
   lexer/lexer.c
@@ -156,7 +155,6 @@ target_include_directories(mlr PUBLIC
 )
 
 add_library(mlrl
-  tool/cmodule.c
   error/error.c
   lexer/terminal.c
   lexer/lexer.c

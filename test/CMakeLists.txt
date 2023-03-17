@@ -80,7 +80,6 @@ add_executable(mtest
   compiler/test_jit_relational.cc
   compiler/test_jit_logical.cc
   compiler/test_jit.cc
-  tool/test_cmodule.cc
   codegen/llvm/test_cg_var.cc
   codegen/llvm/test_cg_fun_call.cc
 )
@@ -89,12 +88,6 @@ target_include_directories(mtest PUBLIC
 ${LLVM_INCLUDE_DIRS}
 )
 
-if(WIN32)
-  set(clang_lib libclang)
-else()
-  set(clang_lib clang)
-endif(WIN32)
-
 if(MSVC)
     set_property(TARGET mtest APPEND PROPERTY LINK_FLAGS /DEBUG)
 endif()
@@ -102,7 +95,6 @@ endif()
 TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlrl clib
   ${llvm_libfiles}
   ${sys_libraries}
-  ${clang_lib}
 )
 
 enable_testing()

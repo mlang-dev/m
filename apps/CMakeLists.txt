@@ -58,13 +58,6 @@ message(STATUS "Found LLVM libraries ${llvm_libfiles}")
 message(STATUS "Found LLVM include dirs: ${LLVM_INCLUDE_DIRS}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found SYS libraries ${sys_libraries}") 
-if(WIN32)
-  set(clang_lib libclang)
-  message(STATUS, "Found Windows Kit: ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-  message(STATUS, "Found Windows Platform: ${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}")
-else()
-  set(clang_lib clang)
-endif(WIN32)
 
 link_directories(
   ${LLVM_INCLUDE_DIRS}/../lib
@@ -76,14 +69,6 @@ add_executable(m
 )
 
 target_include_directories(m PUBLIC
-  ${LLVM_INCLUDE_DIRS}
-)
-
-add_executable(c2m
-  c2m/c2m.c
-)
-
-target_include_directories(c2m PUBLIC
   ${LLVM_INCLUDE_DIRS}
 )
 
@@ -137,11 +122,3 @@ add_custom_command(
   # MacOS COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/libc.dylib -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
   # COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/x86_64-linux-gnu/libc.so -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
 )
-
-target_link_libraries(c2m PRIVATE 
-  mlrl 
-  clib
-  ${clang_lib}
-  ${sys_libraries}
-)
-
