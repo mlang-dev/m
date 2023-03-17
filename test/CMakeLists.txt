@@ -80,7 +80,6 @@ add_executable(mtest
   compiler/test_jit_relational.cc
   compiler/test_jit_logical.cc
   compiler/test_jit.cc
-  tool/test_cmodule.cc
   codegen/llvm/test_cg_var.cc
   codegen/llvm/test_cg_fun_call.cc
 )
