@@ -58,13 +58,6 @@ message(STATUS "Found LLVM libraries ${llvm_libfiles}")
 message(STATUS "Found LLVM include dirs: ${LLVM_INCLUDE_DIRS}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "Found SYS libraries ${sys_libraries}") 
-if(WIN32)
-  set(clang_lib libclang)
-  message(STATUS, "Found Windows Kit: ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-  message(STATUS, "Found Windows Platform: ${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}")
-else()
-  set(clang_lib clang)
-endif(WIN32)
 
 link_directories(
   ${LLVM_INCLUDE_DIRS}/../lib
