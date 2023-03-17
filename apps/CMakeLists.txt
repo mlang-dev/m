@@ -79,14 +79,6 @@ target_include_directories(m PUBLIC
   ${LLVM_INCLUDE_DIRS}
 )
 
-add_executable(c2m
-  c2m/c2m.c
-)
-
-target_include_directories(c2m PUBLIC
-  ${LLVM_INCLUDE_DIRS}
-)
-
 set_target_properties(m PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(m PRIVATE 
@@ -137,11 +129,3 @@ add_custom_command(
   # MacOS COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/libc.dylib -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
   # COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/x86_64-linux-gnu/libc.so -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
 )
-
-target_link_libraries(c2m PRIVATE 
-  mlrl 
-  clib
-  ${clang_lib}
-  ${sys_libraries}
-)
-
