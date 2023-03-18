@@ -15,11 +15,11 @@ jobs:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [18.8]
+        node-version: [18.15]
 
     steps:
     #use nodes now
@@ -27,18 +27,6 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Install LLVM & LLD
-      run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
-        sudo apt-get install llvm-13 lld-13 clang-13
-        sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
-        sudo ln /usr/bin/llvm-ar-13 /usr/bin/llvm-ar
-        sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
-        sudo ln /usr/bin/llvm-ranlib-13 /usr/bin/llvm-ranlib
-        sudo ln -f /usr/bin/clang-13 /usr/bin/clang
-        sudo ln -f /usr/bin/clang++-13 /usr/bin/clang++
-        sudo ln -f /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
         
     - name: Checkout repository and submodules
       uses: actions/checkout@v2

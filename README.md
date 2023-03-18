@@ -69,7 +69,26 @@ plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 * Source code version control: git
 * Build system generator: cmake (3.16.3 is the verified version that works !, you might need to twist flags for other versions.)
 * Build system: GNU make (Unix-like system)
-* Compiler: c/c++ compilers: clang 13 or later
+* Compiler: c/c++ compilers: clang/llvm 14, nodejs v18.15
+
+## development tool-chains from a clean ubuntu 22.04
+```
+sudo apt install cmake
+sudo apt install clang lld llvm
+```
+
+## install nvm
+```
+sudo apt install curl -y
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash 
+source ~/.profile
+```
+
+## install nodejs v18.15 and typescript
+```
+nvm install v18.15.0
+npm install -g typescript
+```
 
 ## get source codes
 ```
