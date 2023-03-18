@@ -75,6 +75,7 @@ plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 # install tool-chains on Ubuntu-22.04 
 ## install cmake/clang/llvm/lld 
 ```
+sudo apt update
 sudo apt install cmake
 sudo apt install clang lld llvm
 ```
@@ -100,22 +101,24 @@ git clone https://github.com/ligangwang/m
 cd m
 git submodule init
 git submodule update
+npm install
 ```
 
 ## build & install wasi-libc
 ```
 cd ./extern/wasi-libc
-make (required: clang, llvm-ar, llvm-nm)
+make (required: clang, llvm-ar and llvm-nm, installed in previous steps)
 ```
 
 ## build mlang
 ```
+cd ../../
 mkdir build
 cd build
 cmake ..
 cmake --build .
 ```
-The build system will build mw.wasm under ./apps
+The build system will build m and mw.wasm under ./apps and run all unit tests.
 
 
 # useful tools
