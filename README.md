@@ -71,8 +71,10 @@ plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 * Build system: GNU make (Unix-like system)
 * Compiler: c/c++ compilers: clang/llvm 14, nodejs v18.15
 
+# using vscode developing inside a Container
 
-# install tool-chains on Ubuntu-22.04 
+
+# or manually install tool-chains on Ubuntu-22.04 
 ## install cmake/clang/llvm/lld 
 ```
 sudo apt update
