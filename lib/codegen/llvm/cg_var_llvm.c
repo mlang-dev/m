@@ -22,7 +22,7 @@ void _store_struct_member_values(struct cg_llvm *cg, LLVMValueRef alloca, struct
     for (size_t i = 0; i < array_size(&values->adt_init->body->block->nodes); i++) {
         struct ast_node *arg = array_get_ptr(&values->adt_init->body->block->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, (unsigned)i, "");
+        LLVMValueRef member = LLVMBuildStructGEP2(cg->builder, LLVMTypeOf(alloca), alloca, (unsigned)i, "");
         LLVMBuildStore(cg->builder, exp, member);
     }
 }
@@ -156,7 +156,7 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
         struct ast_node *arg = array_get_ptr(&values->adt_init->body->block->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
         sprintf_s(tempname, sizeof(tempname), "temp%zu", i);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, gVar, (unsigned int)i, tempname);
+        LLVMValueRef member = LLVMBuildStructGEP2(cg->builder, LLVMTypeOf(gVar), gVar, (unsigned int)i, tempname);
         LLVMBuildStore(cg->builder, exp, member);
     }
     return 0;

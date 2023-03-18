@@ -59,7 +59,7 @@ add_custom_command(TARGET mtestw POST_BUILD
 )
 
 
-find_package(LLVM 13 REQUIRED CONFIG)
+find_package(LLVM 14 REQUIRED CONFIG)
 execute_process(COMMAND llvm-config --libfiles
                 OUTPUT_VARIABLE llvm_libfiles OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config --system-libs

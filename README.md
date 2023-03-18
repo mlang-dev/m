@@ -106,13 +106,11 @@ npm install
 
 ## build & install wasi-libc
 ```
-cd ./extern/wasi-libc
-make (required: clang, llvm-ar and llvm-nm, installed in previous steps)
+(cd ./extern/wasi-libc && make)
 ```
 
 ## build mlang
 ```
-cd ../../
 mkdir build
 cd build
 cmake ..
