@@ -27,7 +27,13 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-        
+
+    - name: Install LLVM & LLD
+      run: |
+        sudo apt install lld llvm
+        clang -version
+        llvm-config --version
+
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
       with:
