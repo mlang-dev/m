@@ -106,17 +106,13 @@ npm install
 
 ## build & install wasi-libc
 ```
-cd ./extern/wasi-libc
-make (required: clang, llvm-ar and llvm-nm, installed in previous steps)
+(cd ./extern/wasi-libc && make)
 ```
 
 ## build mlang
 ```
-cd ../../
-mkdir build
-cd build
-cmake ..
-cmake --build .
+cmake -B build -S .
+cmake --build build
 ```
 The build system will build m and mw.wasm under ./apps and run all unit tests.
 

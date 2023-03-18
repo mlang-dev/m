@@ -17,12 +17,12 @@
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 
-void _store_struct_member_values(struct cg_llvm *cg, LLVMValueRef alloca, struct ast_node *values)
+void _store_struct_member_values(struct cg_llvm *cg, LLVMTypeRef alloca_type, LLVMValueRef alloca, struct ast_node *values)
 {
     for (size_t i = 0; i < array_size(&values->adt_init->body->block->nodes); i++) {
         struct ast_node *arg = array_get_ptr(&values->adt_init->body->block->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, alloca, (unsigned)i, "");
+        LLVMValueRef member = LLVMBuildStructGEP2(cg->builder, alloca_type, alloca, (unsigned)i, "");
         LLVMBuildStore(cg->builder, exp, member);
     }
 }
@@ -42,11 +42,14 @@ LLVMValueRef emit_record_init_node(struct cg_llvm *cg, struct ast_node *node, bo
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
         alloca = LLVMGetParam(fun, fi->tai.sret_arg_no);
-        _store_struct_member_values(cg, alloca, node);
+        LLVMTypeRef ret_type = get_llvm_type(fi->ret.type);
+        assert(ret_type);
+        _store_struct_member_values(cg, ret_type, alloca, node);
     } else {
         LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
+        assert(type);
         alloca = create_alloca(type, tsi.align_bits / 8, fun, name);
-        _store_struct_member_values(cg, alloca, node);
+        _store_struct_member_values(cg, type, alloca, node);
     }
     return alloca;
 }
@@ -156,7 +159,7 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
         struct ast_node *arg = array_get_ptr(&values->adt_init->body->block->nodes, i);
         LLVMValueRef exp = emit_ir_code(cg, arg);
         sprintf_s(tempname, sizeof(tempname), "temp%zu", i);
-        LLVMValueRef member = LLVMBuildStructGEP(cg->builder, gVar, (unsigned int)i, tempname);
+        LLVMValueRef member = LLVMBuildStructGEP2(cg->builder, type, gVar, (unsigned int)i, tempname);
         LLVMBuildStore(cg->builder, exp, member);
     }
     return 0;

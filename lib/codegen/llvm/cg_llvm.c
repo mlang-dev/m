@@ -21,6 +21,7 @@
 #include <llvm-c/Support.h>
 #include <llvm-c/TargetMachine.h>
 #include <llvm-c/Core.h>
+#include "parser/astdump.h"
 
 
 struct cg_llvm *g_cg = 0;
@@ -134,7 +135,8 @@ LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void 
     // implementation of LLVMBuildGlobalString, except of way of getting module
     unsigned size = (unsigned)strlen(str);
     LLVMValueRef str_const = LLVMConstStringInContext(context, str, size, 0);
-    LLVMValueRef str_value = LLVMAddGlobal(get_llvm_module(), LLVMTypeOf(str_const), "");
+    LLVMTypeRef str_type = LLVMTypeOf(str_const);
+    LLVMValueRef str_value = LLVMAddGlobal(get_llvm_module(), str_type, "");
     LLVMSetInitializer(str_value, str_const);
     LLVMSetGlobalConstant(str_value, true);
     LLVMSetLinkage(str_value, LLVMPrivateLinkage);
@@ -144,7 +146,7 @@ LLVMValueRef get_str_const(LLVMContextRef context, LLVMBuilderRef builder, void 
     // converting GlobalVariable to a pointer
     LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(context), 0, false);
     LLVMValueRef indexes[2] = { zero, zero };
-    return LLVMBuildInBoundsGEP2(builder, LLVMGlobalGetValueType(str_value), str_value, indexes, 2, "");
+    return LLVMBuildInBoundsGEP2(builder, str_type, str_value, indexes, 2, "");
 }
 
 LLVMValueRef get_int_zero(LLVMContextRef context, LLVMBuilderRef builder)
@@ -485,7 +487,9 @@ LLVMValueRef _emit_ident_node(struct cg_llvm *cg, struct ast_node *node)
         assert(v);
     }
     if (node->type->type < TYPE_STRUCT){
-        return LLVMBuildLoad(cg->builder, v, string_get(node->ident->name));
+        LLVMTypeRef vt = get_llvm_type(node->type);
+        assert(vt);
+        return LLVMBuildLoad2(cg->builder, vt, v, string_get(node->ident->name));
     }
     else{
         return v;
@@ -513,7 +517,7 @@ LLVMValueRef _emit_unary_node(struct cg_llvm *cg, struct ast_node *node)
         return log_info(ERROR, "Unknown unary operator");
 
     // KSDbgInfo.emitLocation(this);
-    return LLVMBuildCall(cg->builder, fun, &operand_v, 1, "unop");
+    return LLVMBuildCall2(cg->builder, LLVMGetElementType(LLVMTypeOf(fun)), fun, &operand_v, 1, "unop");
 }
 
 LLVMValueRef _emit_accessor_node(struct cg_llvm *cg, struct ast_node *node)
@@ -528,17 +532,21 @@ LLVMValueRef _emit_accessor_node(struct cg_llvm *cg, struct ast_node *node)
         assert(v);
     }
     string *type_name = hashtable_get_p(&cg->varname_2_typename, id);
+    LLVMTypeRef struct_type = hashtable_get_p(&g_cg->typename_2_irtypes, type_name);
+    assert(struct_type);
     struct ast_node *type_item_node = hashtable_get_p(&cg->base.sema_context->struct_typename_2_asts, type_name);
     symbol attr = node->index->index->ident->name;
     int index = find_member_index(type_item_node, attr);
-    v = LLVMBuildStructGEP(cg->builder, v, index, string_get(attr));
+    v = LLVMBuildStructGEP2(cg->builder, struct_type, v, index, string_get(attr));
     if (node->type->type < TYPE_STRUCT){
         string dot_id ;
         string_init(&dot_id);
         string_add(&dot_id, id);
         string_add_chars(&dot_id, ".");
         string_add(&dot_id, attr);
-        return LLVMBuildLoad(cg->builder, v, string_get(&dot_id));
+        LLVMTypeRef vt = get_llvm_type(node->type);
+        assert(vt);
+        return LLVMBuildLoad2(cg->builder, vt, v, string_get(&dot_id));
     }
     else{
         return v;
@@ -606,7 +614,7 @@ LLVMValueRef _emit_binary_node(struct cg_llvm *cg, struct ast_node *node)
             LLVMValueRef fun = get_llvm_function(cg, op);
             assert(fun && "binary operator not found!");
             LLVMValueRef lrv[2] = { lv, rv };
-            return LLVMBuildCall(cg->builder, fun, lrv, 2, "binop");
+            return LLVMBuildCall2(cg->builder, LLVMGetElementType(LLVMTypeOf(fun)), fun, lrv, 2, "binop");
     }
 }
 
@@ -663,7 +671,9 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
 
     // TODO: fixme with correct type_exp passed down
-    LLVMValueRef alloca = create_alloca(cg->ops[TYPE_INT].get_type(cg->context, 0), 4, fun, string_get(var_name));
+    LLVMTypeRef at = cg->ops[TYPE_INT].get_type(cg->context, 0);
+    assert(at);
+    LLVMValueRef alloca = create_alloca(at, 4, fun, string_get(var_name));
 
     // KSDbgInfo.emitLocation(this);
     LLVMValueRef start_v = emit_ir_code(cg, node->forloop->range->range->start);
@@ -687,7 +697,7 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef end_cond = emit_ir_code(cg, node->forloop->range->range->end);
     assert(end_cond);
 
-    LLVMValueRef cur_var = LLVMBuildLoad(cg->builder, alloca, string_get(var_name));
+    LLVMValueRef cur_var = LLVMBuildLoad2(cg->builder, at, alloca, string_get(var_name));
     LLVMValueRef next_var = LLVMBuildAdd(cg->builder, cur_var, step_v, "nextvar");
     LLVMBuildStore(cg->builder, next_var, alloca);
     end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg->context, cg->builder), "loopcond");

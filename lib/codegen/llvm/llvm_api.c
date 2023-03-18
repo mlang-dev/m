@@ -45,14 +45,14 @@ LLVMValueRef _access_bytes_struct(LLVMBuilderRef builder, LLVMValueRef value, LL
     return value;
 }
 
-void _create_aggregate_store(LLVMBuilderRef builder, LLVMValueRef value, LLVMValueRef store, unsigned align)
+void _create_aggregate_store(LLVMBuilderRef builder, LLVMValueRef value, LLVMTypeRef store_type, LLVMValueRef store, unsigned align)
 {
     LLVMTypeRef value_type = LLVMTypeOf(value);
     LLVMTypeKind value_kind = LLVMGetTypeKind(value_type);
     if (value_kind == LLVMStructTypeKind) {
         for (unsigned i = 0; i < LLVMCountStructElementTypes(value_type); ++i) {
             LLVMValueRef ele = LLVMBuildExtractValue(builder, value, i, "");
-            LLVMValueRef ele_to = LLVMBuildStructGEP2(builder, LLVMTypeOf(store), store, i, "");
+            LLVMValueRef ele_to = LLVMBuildStructGEP2(builder, store_type, store, i, "");
             LLVMBuildStore(builder, ele, ele_to);
         }
     } else {
@@ -103,7 +103,7 @@ void create_coerced_store(LLVMBuilderRef builder, LLVMValueRef src, LLVMValueRef
         // bit cast the src pointer
         LLVMTypeRef src_ptr_type = LLVMPointerType(src_type, 0);
         dst = LLVMBuildBitCast(builder, dst, src_ptr_type, "");
-        _create_aggregate_store(builder, src, dst, align);
+        _create_aggregate_store(builder, src, dst_type, dst, align);
     }
 }
 
