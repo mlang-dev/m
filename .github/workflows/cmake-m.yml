@@ -31,7 +31,7 @@ jobs:
     - name: Install LLVM & LLD
       run: |
         sudo apt install lld llvm
-        clang -version
+        clang --version
         llvm-config --version
 
     - name: Checkout repository and submodules

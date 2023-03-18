@@ -115,21 +115,6 @@ The build system will build mw.wasm under ./apps
 
 
 # useful tools
-## install clang-13 on ubuntu:
-```
-wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
-sudo apt install clang-13 lldb-13 lld-13 libclang-13-dev liblld-13-dev
-
-sudo ln /usr/bin/clang-13 /usr/bin/clang
-sudo ln /usr/bin/clang++-13 /usr/bin/clang++
-sudo ln /usr/bin/llvm-ar-13 /usr/bin/llvm-ar
-sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
-sudo ln /usr/bin/llvm-ranlib-13 /usr/bin/llvm-ranlib
-sudo ln /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
-sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
-```
-
 ## compile c code to wasm target
 ```
 clang --target=wasm32 --no-standard-libraries test.c -o test.wasm -mmultivalue -Xclang -target-abi -Xclang experimental-mv
