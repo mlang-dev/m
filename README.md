@@ -7,7 +7,7 @@ The mlang is implemented in C and compiled as a WebAssembly module so it can be 
 
 mlang is still in early development phase and subject to significant changes.
  
-MacOS or Linux or WSL is the recommended development OS, and clang/llvm-13 is the compiler for mlang development.
+MacOS or Linux or WSL is the recommended development OS, and clang/llvm-14 is the compiler for mlang development.
 
 ## m code plotting mandelbrot set 
 You can try [mlang](https://mlang.dev) to run the following m code in the browser.
@@ -67,11 +67,34 @@ plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 
 ## prerequisites to build m
 * Source code version control: git
-* Build system generator: cmake (3.16.3 is the verified version that works !, you might need to twist flags for other versions.)
+* Build system generator: cmake 
 * Build system: GNU make (Unix-like system)
-* Compiler: c/c++ compilers: clang 13 or later
+* Compiler: c/c++ compilers: clang/llvm 14, nodejs v18.15
 
-## get source codes
+
+# install tool-chains on Ubuntu-22.04 
+## install cmake/clang/llvm/lld 
+```
+sudo apt install cmake
+sudo apt install clang lld llvm
+```
+
+## install nodejs v18.15 and typescript
+### install nvm first
+```
+sudo apt install curl -y
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash 
+source ~/.profile
+```
+
+### use nvm to install node with version
+```
+nvm install v18.15.0
+npm install -g typescript
+```
+
+# build m from source code
+## get m source code
 ```
 git clone https://github.com/ligangwang/m
 cd m
@@ -85,7 +108,7 @@ cd ./extern/wasi-libc
 make (required: clang, llvm-ar, llvm-nm)
 ```
 
-## build mlang as WebAssembly module
+## build mlang
 ```
 mkdir build
 cd build
@@ -96,21 +119,6 @@ The build system will build mw.wasm under ./apps
 
 
 # useful tools
-## install clang-13 on ubuntu:
-```
-wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-sudo apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
-sudo apt install clang-13 lldb-13 lld-13 libclang-13-dev liblld-13-dev
-
-sudo ln /usr/bin/clang-13 /usr/bin/clang
-sudo ln /usr/bin/clang++-13 /usr/bin/clang++
-sudo ln /usr/bin/llvm-ar-13 /usr/bin/llvm-ar
-sudo ln /usr/bin/llvm-nm-13 /usr/bin/llvm-nm
-sudo ln /usr/bin/llvm-ranlib-13 /usr/bin/llvm-ranlib
-sudo ln /usr/bin/wasm-ld-13 /usr/bin/wasm-ld
-sudo ln /usr/bin/llvm-config-13 /usr/bin/llvm-config
-```
-
 ## compile c code to wasm target
 ```
 clang --target=wasm32 --no-standard-libraries test.c -o test.wasm -mmultivalue -Xclang -target-abi -Xclang experimental-mv
