@@ -65,16 +65,16 @@ let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
 plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
 ```
 
+# Development: vscode dev container (no manual installation)
+https://user-images.githubusercontent.com/6968989/226146999-12b037e6-45e1-48e3-80e9-17282a2361ba.mp4
+
+# or manually install tool-chains on Ubuntu-22.04 
 ## prerequisites to build m
 * Source code version control: git
 * Build system generator: cmake 
 * Build system: GNU make (Unix-like system)
 * Compiler: c/c++ compilers: clang/llvm 14, nodejs v18.15
 
-# using vscode developing inside a Container
-
-
-# or manually install tool-chains on Ubuntu-22.04 
 ## install cmake/clang/llvm/lld 
 ```
 sudo apt update
