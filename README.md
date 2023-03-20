@@ -119,7 +119,7 @@ cmake --build build
 The build system will build m and mw.wasm under ./apps and run all unit tests.
 
 
-# useful tools
+# useful clang commands to compile to wasm/wasi target
 ## compile c code to wasm target
 ```
 clang --target=wasm32 --no-standard-libraries test.c -o test.wasm -mmultivalue -Xclang -target-abi -Xclang experimental-mv
@@ -127,6 +127,17 @@ clang --target=wasm32 --no-standard-libraries test.c -o test.wasm -mmultivalue -
 
 ## compile c into wasi target
 ```
-clang --target=wasm32-wasi --sysroot=./extern/wasi-libc/sysroot ./samples/test.c -o test.wasm -nodefaultlibs -lc
+clang --target=wasm32-wasi --sysroot=../extern/wasi-libc/sysroot hello.c -o hello.wasm -nodefaultlibs -lc -v
+```
+or manually invoke clang front-end and back-end as two steps:
+
+use front-end clang to produce wasm object file
+```
+clang -cc1 -triple wasm32-unknown-wasi -emit-obj -internal-isystem /usr/lib/llvm-14/lib/clang/14.0.0/include -internal-isystem ./extern/wasi-libc/sysroot/include -o hello.o -x c hello.c
+```
+
+then use back-end wasm-ld to produce wasm module
+```
+wasm-ld -m wasm32 -L./extern/wasi-libc/sysroot/lib/wasm32-wasi ./extern/wasi-libc/sysroot/lib/wasm32-wasi/crt1-command.o hello.o -lc -o hello.wasm
 ```
 
