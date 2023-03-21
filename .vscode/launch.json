@@ -36,17 +36,21 @@
             "MIMode": "gdb"
         },
         {
-            "name": "(lldb) Launch mctest",
+            "name": "(gdb) Launch m",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test/mctest", //;"${workspaceFolder}/build/test/mctest",
+            "program": "${workspaceFolder}/build/apps/m", 
             "args": [
+                "${workspaceFolder}/hello.m",
+                "-o",
+                "${workspaceFolder}/hello"
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb"
+            "miDebuggerPath": "/usr/bin/gdb",
+            "MIMode": "gdb"
         },
         {
             "name": "(gdb) Launch mtest",

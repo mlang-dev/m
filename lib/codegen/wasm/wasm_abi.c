@@ -11,7 +11,7 @@
 #include "sema/type.h"
 #include <assert.h>
 
-struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_item *ret_type)
+struct abi_arg_info _classify_return_type_wasm(struct target_info *ti, struct type_item *ret_type)
 {
     if (ret_type->type == TYPE_UNIT){
         return create_ignore(ret_type);
@@ -28,7 +28,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_it
     }
 }
 
-struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_item *type)
+struct abi_arg_info _classify_argument_type_wasm(struct target_info *ti, struct type_item *type)
 {
     //TODO: use first field if transparent union
     if(is_aggregate_type(type)){
@@ -46,9 +46,9 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
 ///compute abi info
 void wasm_compute_fun_info(struct target_info *ti, struct fun_info *fi)
 {
-    fi->ret = _classify_return_type(ti, fi->ret.type);
+    fi->ret = _classify_return_type_wasm(ti, fi->ret.type);
     for (unsigned arg_no = 0; arg_no < array_size(&fi->args); arg_no++) {
         struct abi_arg_info *aai = array_get(&fi->args, arg_no);
-        *aai = _classify_argument_type(ti, aai->type);
+        *aai = _classify_argument_type_wasm(ti, aai->type);
     }
 }

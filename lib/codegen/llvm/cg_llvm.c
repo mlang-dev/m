@@ -358,7 +358,7 @@ unsigned _get_count_struct_element_types(TargetType type)
     return LLVMCountStructElementTypes(type);
 }
 
-void _fill_struct_fields(struct array *fields, TargetType struct_type)
+void _fill_struct_fields_llvm(struct array *fields, TargetType struct_type)
 {
     for (unsigned j = 0; j < LLVMCountStructElementTypes(struct_type); ++j) {
         LLVMTypeRef field_type = LLVMStructGetTypeAtIndex(struct_type, j);
@@ -366,35 +366,35 @@ void _fill_struct_fields(struct array *fields, TargetType struct_type)
     }
 }
 
-TargetType _get_function_type(TargetType ret_type, TargetType *param_types, unsigned param_count, bool is_variadic)
+TargetType _get_function_type_llvm(TargetType ret_type, TargetType *param_types, unsigned param_count, bool is_variadic)
 {
     return LLVMFunctionType(ret_type, (LLVMTypeRef*)param_types, param_count, is_variadic);
 }
 
-TargetType _get_target_type(struct type_item *type)
+TargetType _get_target_type_llvm(struct type_item *type)
 {
     return get_llvm_type(type);
 }
 
-TargetType _get_pointer_type(TargetType type)
+TargetType _get_pointer_type_llvm(TargetType type)
 {
     return LLVMPointerType(type, 0);
 }
 
-TargetType _get_size_int_type(unsigned width)
+TargetType _get_size_int_type_llvm(unsigned width)
 {
     return LLVMIntTypeInContext(get_llvm_context(), width);
 }
 
 
-void _init_target_info(struct target_info *ti)
+void _init_target_info_llvm(struct target_info *ti)
 {
     ti->extend_type = LLVMInt8TypeInContext(get_llvm_context()); //would use 32 bits
-    ti->get_size_int_type = _get_size_int_type;//LLVMIntTypeInContext(get_llvm_context(), width)
-    ti->get_pointer_type = _get_pointer_type; //LLVMPointerType(get_llvm_type(fi->ret.type), 0)
-    ti->get_target_type = _get_target_type; //get_llvm_type(fi->ret.type)
-    ti->get_function_type = _get_function_type;
-    ti->fill_struct_fields = _fill_struct_fields;//
+    ti->get_size_int_type = _get_size_int_type_llvm;//LLVMIntTypeInContext(get_llvm_context(), width)
+    ti->get_pointer_type = _get_pointer_type_llvm; //LLVMPointerType(get_llvm_type(fi->ret.type), 0)
+    ti->get_target_type = _get_target_type_llvm; //get_llvm_type(fi->ret.type)
+    ti->get_function_type = _get_function_type_llvm;
+    ti->fill_struct_fields = _fill_struct_fields_llvm;//
     ti->get_count_struct_element_types = _get_count_struct_element_types; //LLVMCountStructElementTypes
     ti->void_type = LLVMVoidTypeInContext(get_llvm_context());
 }
@@ -419,7 +419,7 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
     hashtable_init(&cg->varname_2_typename);
     cg->base.target_info = ti_new(LLVMGetDefaultTargetTriple());
     g_cg = cg;
-    _init_target_info(cg->base.target_info);
+    _init_target_info_llvm(cg->base.target_info);
     if (get_os() == OS_WIN32){
         cg->base.compute_fun_info = winx86_64_compute_fun_info;
     }else{
