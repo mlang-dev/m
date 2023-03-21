@@ -29,20 +29,6 @@ add_custom_command(TARGET mw POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mw.wasm ${CMAKE_SOURCE_DIR}/docs
 )
 
-add_executable(mlang
-  driver/m.c
-  wasm/mw.c
-)
-
-target_compile_definitions(mlang PUBLIC NATIVE_APP=1)
-
-set_target_properties(mlang PROPERTIES LINKER_LANGUAGE C)
-
-target_link_libraries(mlang PRIVATE 
-  mlrl 
-  clib
-)
-
 find_package(LLVM 14 REQUIRED CONFIG)
 message(STATUS "Found LLVM BIN ${LLVM_TOOLS_BINARY_DIR}")
 execute_process(COMMAND llvm-config --libfiles
@@ -64,9 +50,11 @@ link_directories(
 )
 
 add_executable(m
-  driver/ld.c
-  driver/m.cc
+wasm/mw.c
+driver/m.cc
 )
+
+target_compile_definitions(m PUBLIC NATIVE_APP=1)
 
 target_include_directories(m PUBLIC
   ${LLVM_INCLUDE_DIRS}

@@ -11,16 +11,18 @@
 #include "compiler/ld.h"
 #include "compiler/repl.h"
 #include <string.h>
+#include <stdlib.h>
 
 extern char *optarg;
 extern int optind, opterr, optopt;
 
 void print_usage()
 {
-    printf("Usage as a compiler: m -o output file -f ir|bc|ob src file\n");
-    printf("Usage as a repl: m\n");
+    printf("m usage: m -o output file -f ir|bc|ob src file\n");
     exit(2);
 }
+
+const char * ld_exe_cmd = "ld.lld -pie -z relro --hash-style=gnu --build-id --eh-frame-hdr -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 /lib/x86_64-linux-gnu/Scrt1.o /lib/x86_64-linux-gnu/crti.o /usr/bin/../lib/gcc/x86_64-linux-gnu/11/crtbeginS.o -L/usr/bin/../lib/gcc/x86_64-linux-gnu/11 -L/usr/bin/../lib/gcc/x86_64-linux-gnu/11/../../../../lib64 -L/lib/x86_64-linux-gnu -L/lib/../lib64 -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib64 -L/usr/lib/llvm-14/bin/../lib -L/lib -L/usr/lib -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/bin/../lib/gcc/x86_64-linux-gnu/11/crtendS.o /lib/x86_64-linux-gnu/crtn.o";
 
 int main(int argc, char *argv[])
 {
@@ -30,13 +32,15 @@ int main(int argc, char *argv[])
     enum object_file_type file_type = FT_OBJECT;
     struct array src_files;
     array_init(&src_files, sizeof(char *));
-    struct array ld_options;
-    array_init(&ld_options, sizeof(char *));
+    struct array obj_files;
+    array_init(&obj_files, sizeof(char *));
     bool use_ld = false;
+    string link_cmd;
+    string_init_chars(&link_cmd, ld_exe_cmd);
+
 #ifdef __APPLE__
     const char *ld_cmd = "ld64.lld.darwinnew";
     const char *finalization = "-lSystem";
-    array_push(&ld_options, &ld_cmd);
 #elif defined(_WIN32)
     const char *finalization = 0;
     char output[PATH_MAX];
@@ -46,26 +50,7 @@ int main(int argc, char *argv[])
     const char *entry_main = "/ENTRY:main";
     const char *libstdio = "legacy_stdio_definitions.lib";
     const char *libc = "ucrtd.lib";
-    array_push(&ld_options, &ld_cmd);
-    array_push(&ld_options, &entry_main);
-    array_push(&ld_options, &libstdio);
-    array_push(&ld_options, &libc);
 #elif defined(__linux__)
-    const char *finalization = 0;
-    const char *ld_cmd = "ld.lld";
-    const char *libcpath = "-L/usr/lib/x86_64-linux-gnu";
-    const char *libc = "-lc";
-    const char *dynamic_link = "-dynamic-linker"; // only elf
-    const char *libld = "/lib64/ld-linux-x86-64.so.2";
-    const char *start_entry = "/usr/lib/x86_64-linux-gnu/crt1.o";
-    const char *initialization = "/usr/lib/x86_64-linux-gnu/crti.o";
-    array_push(&ld_options, &ld_cmd);
-    array_push(&ld_options, &libcpath);
-    array_push(&ld_options, &libc);
-    array_push(&ld_options, &dynamic_link);
-    array_push(&ld_options, &libld);
-    array_push(&ld_options, &start_entry);
-    array_push(&ld_options, &initialization);
 #endif
     while (optind < argc) {
         if ((c = getopt(argc, argv, "f:o:")) != -1) {
@@ -88,9 +73,8 @@ int main(int argc, char *argv[])
                 strcat_s(output, sizeof(output), optarg);
                 array_push(&ld_options, &output_str);
 #else
-                const char *output = "-o";
-                array_push_ptr(&ld_options, (void*)output);
-                array_push_ptr(&ld_options, (void*)optarg);
+                string_add_chars(&link_cmd, " -o ");
+                string_add_chars(&link_cmd, optarg);
 #endif
                 use_ld = true;
                 break;
@@ -106,8 +90,9 @@ int main(int argc, char *argv[])
     }
     int result = 0;
     if (!array_size(&src_files)) {
-        printf("m - 0.0.17\n");
-        result = run_repl();
+        printf("m - 0.0.43\n");
+        print_usage();
+        //result = run_repl();
     } else {
         if (!file_type)
             file_type = FT_OBJECT;
@@ -120,18 +105,15 @@ int main(int argc, char *argv[])
             result = compile(fn, file_type);
             char *basename = get_basename((char *)fn);
             char *obj_name = strcat(basename, ".o");
-            array_push_ptr(&ld_options, obj_name);
+            string_add_chars(&link_cmd, " ");
+            string_add_chars(&link_cmd, obj_name);
         }
     }
     // do linker
     if (file_type == FT_OBJECT && use_ld) {
-        if (finalization)
-            array_push_ptr(&ld_options, (void*)finalization);
-        int ld_argc = (int)array_size(&ld_options);
-        const char **ld_argv = (const char **)array_get_ptr(&ld_options, 0);
-        result = ld(ld_argc, ld_argv);
+        result = system(string_get(&link_cmd));
     }
     array_deinit(&src_files);
-    array_deinit(&ld_options);
+    string_deinit(&link_cmd);
     return result;
 }
