@@ -55,6 +55,7 @@ if (APPLE)
 endif()
 
 add_subdirectory(extern/googletest)
+#add_subdirectory(src)
 add_subdirectory(lib)
 add_subdirectory(apps)
 add_subdirectory(test)
