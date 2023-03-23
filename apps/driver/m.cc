@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
     array_init(&src_files, sizeof(char *));
     struct array obj_files;
     array_init(&obj_files, sizeof(char *));
-    bool use_ld = false;
+    bool is_compiler_front_end = false;
     string link_cmd;
     string_init_chars(&link_cmd, ld_exe_cmd);
-
+    char *output_filepath = 0;
 #ifdef __APPLE__
     const char *ld_cmd = "ld64.lld.darwinnew";
     const char *finalization = "-lSystem";
@@ -52,41 +52,47 @@ int main(int argc, char *argv[])
     const char *libc = "ucrtd.lib";
 #elif defined(__linux__)
 #endif
-    while (optind < argc) {
-        if ((c = getopt(argc, argv, "f:o:")) != -1) {
-            switch (c) {
-            case 'f': {
-                if (strcmp(optarg, "bc") == 0)
-                    file_type = FT_BITCODE;
-                else if (strcmp(optarg, "ob") == 0)
-                    file_type = FT_OBJECT;
-                else if (strcmp(optarg, "ir") == 0)
-                    file_type = FT_IR;
-                if (fflag || !file_type) {
-                    print_usage();
-                }
-                fflag = 1;
-                break;
+    /**
+     * ':' indicating this option has argument value: optarg
+     * 
+     */
+    while ((c = getopt(argc, argv, "cf:o:")) != -1) {
+        switch (c) {
+        case 'f': {
+            if (strcmp(optarg, "bc") == 0)
+                file_type = FT_BITCODE;
+            else if (strcmp(optarg, "ob") == 0)
+                file_type = FT_OBJECT;
+            else if (strcmp(optarg, "ir") == 0)
+                file_type = FT_IR;
+            if (fflag || !file_type) {
+                print_usage();
             }
-            case 'o': {
-#ifdef _WIN32
-                strcat_s(output, sizeof(output), optarg);
-                array_push(&ld_options, &output_str);
-#else
-                string_add_chars(&link_cmd, " -o ");
-                string_add_chars(&link_cmd, optarg);
-#endif
-                use_ld = true;
-                break;
-            }
-            case '?':
-            default:
-                break;
-            }
-        } else {
-            array_push_ptr(&src_files, argv[optind]);
-            optind++;
+            fflag = 1;
+            break;
         }
+        case 'o': {
+#ifdef _WIN32
+            strcat_s(output, sizeof(output), optarg);
+            array_push(&ld_options, &output_str);
+#else
+            string_add_chars(&link_cmd, " -o ");
+            string_add_chars(&link_cmd, optarg);
+#endif
+            output_filepath = optarg;
+            break;
+        }
+        case 'c':{
+            is_compiler_front_end = true;
+            break;
+        }
+        case '?':
+        default:
+            break;
+        }
+    }
+    for(; optind < argc; optind++){     
+        array_push_ptr(&src_files, argv[optind]);
     }
     int result = 0;
     if (!array_size(&src_files)) {
@@ -102,7 +108,8 @@ int main(int argc, char *argv[])
                 printf("file: %s does not exist\n", fn);
                 exit(1);
             }
-            result = compile(fn, file_type);
+            printf("compiling %s -> %s\n", fn, output_filepath);
+            result = compile(fn, file_type, output_filepath);
             char *basename = get_basename((char *)fn);
             char *obj_name = strcat(basename, ".o");
             string_add_chars(&link_cmd, " ");
@@ -110,7 +117,8 @@ int main(int argc, char *argv[])
         }
     }
     // do linker
-    if (file_type == FT_OBJECT && use_ld) {
+    if (file_type == FT_OBJECT && !is_compiler_front_end) {
+        printf("linking %s\n", string_get(&link_cmd));
         result = system(string_get(&link_cmd));
     }
     array_deinit(&src_files);

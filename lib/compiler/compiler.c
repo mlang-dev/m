@@ -15,11 +15,12 @@
 
 int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, const char *filename)
 {
+    printf("emitting object file: %s\n", filename);
     if (LLVMTargetMachineEmitToFile(target_machine, module, (char *)filename, LLVMObjectFile, 0)) {
         printf("Target machine can't emit an object file\n");
         return 2;
     }
-    //printf("generated obj file: %s\n", filename);
+    printf("generated obj file: %s\n", filename);
     return 0;
 }
 
@@ -60,7 +61,7 @@ int generate_ir_file(LLVMModuleRef module, const char *filename)
     return 0;
 }
 
-int compile(const char *source_file, enum object_file_type file_type)
+int compile(const char *source_file, enum object_file_type file_type, const char *output_filepath)
 {
     string filename;
     string_init_chars(&filename, source_file);
@@ -78,13 +79,16 @@ int compile(const char *source_file, enum object_file_type file_type)
         }
         if (file_type == FT_OBJECT) {
             string_add_chars(&filename, ".o");
-            generate_object_file(cg->module, string_get(&filename));
+            if(!output_filepath) output_filepath = string_get(&filename);
+            generate_object_file(cg->module, output_filepath);
         } else if (file_type == FT_BITCODE) {
             string_add_chars(&filename, ".bc");
-            generate_bitcode_file(cg->module, string_get(&filename));
+            if(!output_filepath) output_filepath = string_get(&filename);
+            generate_bitcode_file(cg->module, output_filepath);
         } else if (file_type == FT_IR) {
             string_add_chars(&filename, ".ir");
-            generate_ir_file(cg->module, string_get(&filename));
+            if(!output_filepath) output_filepath = string_get(&filename);
+            generate_ir_file(cg->module, output_filepath);
         }
     } else {
         log_info(INFO, "no statement is found.");

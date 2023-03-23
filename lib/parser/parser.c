@@ -684,9 +684,9 @@ struct ast_node *parse_repl_code(struct parser *parser, void (*fun)(void *, stru
     return parse_file(parser, 0);
 }
 
-struct ast_node *parse_file(struct parser *parser, const char *file_name)
+struct ast_node *parse_file(struct parser *parser, const char *file_path)
 {
-    const char *code = read_text_file(file_name);
+    const char *code = read_text_file(file_path);
     struct ast_node * block = parse_code(parser, code);
     free((void*)code);
     return block;

@@ -41,9 +41,10 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/apps/m", 
             "args": [
-                "${workspaceFolder}/hello.m",
+                "-c",
                 "-o",
-                "${workspaceFolder}/hello"
+                "${workspaceFolder}/build/src/CMakeFiles/mlanglib.dir/lib/array.m.o",
+                "${workspaceFolder}/src/lib/array.m",
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
@@ -67,7 +68,7 @@
             "MIMode": "gdb"
         },
         {
-            "name": "(gdb) Launch m",
+            "name": "(gdb) Launch m hello world",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/apps/m",
