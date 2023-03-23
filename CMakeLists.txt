@@ -8,7 +8,7 @@ set(HAVE_FLAG_SEARCH_PATHS_FIRST 0)
 
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
-
+set(CMAKE_M_COMPILER ${CMAKE_SOURCE_DIR}/dep/m)
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
 
@@ -55,7 +55,7 @@ if (APPLE)
 endif()
 
 add_subdirectory(extern/googletest)
-#add_subdirectory(src)
+add_subdirectory(src)
 add_subdirectory(lib)
 add_subdirectory(apps)
 add_subdirectory(test)

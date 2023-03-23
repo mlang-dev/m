@@ -5,4 +5,4 @@ project(mlang)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 enable_language(M)
 add_library(mlanglib OBJECT 
-hello.m)
+    lib/array.m)

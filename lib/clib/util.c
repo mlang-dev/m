@@ -200,7 +200,6 @@ const char *read_text_file(const char *file_path)
     char *buffer = 0;
     long length;
     FILE *f = fopen(file_path, "rb");
-
     if (f) {
         fseek(f, 0, SEEK_END);
         length = ftell(f);
@@ -211,6 +210,8 @@ const char *read_text_file(const char *file_path)
         }
         buffer[length] = '\0';
         fclose(f);
+    }else{
+        printf("cannot open file %s\n", file_path);
     }
     return buffer;
 }
