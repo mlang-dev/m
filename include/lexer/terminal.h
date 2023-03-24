@@ -62,7 +62,7 @@ enum token_type{
     TOKEN_TYPE,
     TOKEN_RESOURCE,
     TOKEN_FUNC,
-    TOKEN_RECORD,
+    TOKEN_STRUCT,
     TOKEN_ENUM,
     TOKEN_FLAGS,
     TOKEN_VARIANT,

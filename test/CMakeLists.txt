@@ -79,6 +79,8 @@ add_executable(mtest
   parser/test_astdump.cc
   compiler/test_jit_relational.cc
   compiler/test_jit_logical.cc
+  compiler/test_jit_control.cc
+  compiler/test_jit_adt.cc
   compiler/test_jit.cc
   codegen/llvm/test_cg_var.cc
   codegen/llvm/test_cg_fun_call.cc
