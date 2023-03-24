@@ -49,7 +49,7 @@ var x = 10\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer, immutable_record_member_type)
+TEST(test_analyzer, immutable_struct_member_type)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
@@ -70,7 +70,7 @@ xy.x\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer, mutable_record_member_type)
+TEST(test_analyzer, mutable_struct_member_type)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
@@ -115,8 +115,8 @@ int test_analyzer_mut()
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_type_immutable);
     RUN_TEST(test_analyzer_mutable_type);
-    RUN_TEST(test_analyzer_immutable_record_member_type);
-    RUN_TEST(test_analyzer_mutable_record_member_type);
+    RUN_TEST(test_analyzer_immutable_struct_member_type);
+    RUN_TEST(test_analyzer_mutable_struct_member_type);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

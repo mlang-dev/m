@@ -12,7 +12,7 @@
 #include "test.h"
 
 
-TEST(test_type_size_info, record_double_double)
+TEST(test_type_size_info, struct_double_double)
 {
     char test_code[] = "struct Point2D = x:f64, y:f64";
     struct engine *engine = engine_wasm_new();
@@ -26,7 +26,7 @@ TEST(test_type_size_info, record_double_double)
     engine_free(engine);
 }
 
-TEST(test_type_size_info, record_contains_struct)
+TEST(test_type_size_info, struct_contains_struct)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
@@ -48,7 +48,7 @@ struct Contains = xy:Point2D\n\
     engine_free(engine);
 }
 
-TEST(test_type_size_info, record_refs_struct)
+TEST(test_type_size_info, struct_refs_struct)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
@@ -70,7 +70,7 @@ struct Contains = xy:&Point2D\n\
     engine_free(engine);
 }
 
-TEST(test_type_size_info, record_char_double)
+TEST(test_type_size_info, struct_char_double)
 {
     char test_code[] = "struct Point2D = x:char, y:f64";
     struct engine *engine = engine_wasm_new();
@@ -84,7 +84,7 @@ TEST(test_type_size_info, record_char_double)
     engine_free(engine);
 }
 
-TEST(test_type_size_info, record_char_char)
+TEST(test_type_size_info, struct_char_char)
 {
     char test_code[] = "struct Point2D = x:char, y:char";
     struct engine *engine = engine_wasm_new();
@@ -98,7 +98,7 @@ TEST(test_type_size_info, record_char_char)
     engine_free(engine);
 }
 
-TEST(test_type_size_info, record_bool_char)
+TEST(test_type_size_info, struct_bool_char)
 {
     char test_code[] = "struct Point2D = x:bool, y:char";
     struct engine *engine = engine_wasm_new();
@@ -112,7 +112,7 @@ TEST(test_type_size_info, record_bool_char)
     engine_free(engine);
 }
 
-TEST(test_type_size_info, record_char_int)
+TEST(test_type_size_info, struct_char_int)
 {
     char test_code[] = "struct Point2D = x:char, y:int";
     struct engine *engine = engine_wasm_new();
@@ -143,13 +143,13 @@ TEST(test_type_size_info, variant_int)
 int test_type_size_info()
 {
     UNITY_BEGIN();
-    RUN_TEST(test_type_size_info_record_double_double);
-    RUN_TEST(test_type_size_info_record_contains_struct);
-    RUN_TEST(test_type_size_info_record_refs_struct);
-    RUN_TEST(test_type_size_info_record_char_double);
-    RUN_TEST(test_type_size_info_record_char_char);
-    RUN_TEST(test_type_size_info_record_bool_char);
-    RUN_TEST(test_type_size_info_record_char_int);
+    RUN_TEST(test_type_size_info_struct_double_double);
+    RUN_TEST(test_type_size_info_struct_contains_struct);
+    RUN_TEST(test_type_size_info_struct_refs_struct);
+    RUN_TEST(test_type_size_info_struct_char_double);
+    RUN_TEST(test_type_size_info_struct_char_char);
+    RUN_TEST(test_type_size_info_struct_bool_char);
+    RUN_TEST(test_type_size_info_struct_char_int);
     RUN_TEST(test_type_size_info_variant_int);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;

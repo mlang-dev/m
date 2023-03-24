@@ -208,7 +208,7 @@ void wasm_emit_copy_scalar_value(WasmModule ba, u32 to_var_index, u32 to_offset,
     wasm_emit_store_mem(ba, align,  to_offset, type);
 }
 
-void wasm_emit_copy_record_value(WasmModule ba, u32 to_var_index, u32 to_offset, struct type_item *type, u32 from_var_index, u32 from_offset)
+void wasm_emit_copy_struct_value(WasmModule ba, u32 to_var_index, u32 to_offset, struct type_item *type, u32 from_var_index, u32 from_offset)
 {
     assert(type->kind == KIND_OPER);
     struct type_item *field_type;
@@ -219,7 +219,7 @@ void wasm_emit_copy_record_value(WasmModule ba, u32 to_var_index, u32 to_offset,
         field_offset = *(u64*)array_get(&tsi.sl->field_offsets, i) / 8;
         u32 align = get_type_align(field_type);
         if(field_type->type == TYPE_STRUCT){
-            wasm_emit_copy_record_value(ba, to_var_index, to_offset + field_offset, field_type, from_var_index, from_offset + field_offset);
+            wasm_emit_copy_struct_value(ba, to_var_index, to_offset + field_offset, field_type, from_var_index, from_offset + field_offset);
         }else{
             wasm_emit_copy_scalar_value(ba, to_var_index, to_offset + field_offset, from_var_index, from_offset + field_offset, align, field_type->type);
         }

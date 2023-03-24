@@ -217,10 +217,10 @@ statements      = statements statement                                          
                 | statements ';' statement                                                  { block 0 2 }
                 | statement                                                                 { block 0 }                                                     
 
-adt_type            = "struct" IDENT '=' record_type                                        { record_type 1 3 }
+adt_type            = "struct" IDENT '=' struct_type                                        { struct_type 1 3 }
                     | "variant" IDENT '=' variant_type                                      { variant_type 1 3 }
 
-record_type         = var_type_list
+struct_type         = var_type_list
                     | NEWLINE INDENT field_decls_lines DEDENT                               { 2 }
 
 field_decls_lines   = field_decls_lines field_decls_line                                    { block 0 1 }

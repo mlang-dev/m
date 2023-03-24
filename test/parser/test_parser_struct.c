@@ -10,7 +10,7 @@
 #include "sema/frontend.h"
 #include <stdio.h>
 
-TEST(test_parser_record, type_decl)
+TEST(test_parser_struct, type_decl)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
@@ -28,7 +28,7 @@ var point:Point2D";
     frontend_deinit(fe);
 }
 
-TEST(test_parser_record, type_decl2)
+TEST(test_parser_struct, type_decl2)
 {
     char test_code[] = "\n\
 struct Point2D = \n\
@@ -53,7 +53,7 @@ struct Point2D = \n\
     frontend_deinit(fe);
 }
 
-TEST(test_parser_record, type_var_init)
+TEST(test_parser_struct, type_var_init)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
@@ -89,7 +89,7 @@ let xy = Point2D{10.0, 20.0}";
     frontend_deinit(fe);
 }
 
-TEST(test_parser_record, func_returns_record_init)
+TEST(test_parser_struct, func_returns_struct_init)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
@@ -128,7 +128,7 @@ let get_point() = Point2D{10.0, 20.0}";
     frontend_deinit(fe);
 }
 
-TEST(test_parser_record, use_type_field)
+TEST(test_parser_struct, use_type_field)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
@@ -156,7 +156,7 @@ xy.x";
     frontend_deinit(fe);
 }
 
-TEST(test_parser_record, member_field_assignment)
+TEST(test_parser_struct, member_field_assignment)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
@@ -186,15 +186,15 @@ xy.x = 10.0";
     frontend_deinit(fe);
 }
 
-int test_parser_record()
+int test_parser_struct()
 {
     UNITY_BEGIN();
-    RUN_TEST(test_parser_record_type_decl);
-    RUN_TEST(test_parser_record_type_decl2);
-    RUN_TEST(test_parser_record_type_var_init);
-    RUN_TEST(test_parser_record_func_returns_record_init);
-    RUN_TEST(test_parser_record_use_type_field);
-    RUN_TEST(test_parser_record_member_field_assignment);
+    RUN_TEST(test_parser_struct_type_decl);
+    RUN_TEST(test_parser_struct_type_decl2);
+    RUN_TEST(test_parser_struct_type_var_init);
+    RUN_TEST(test_parser_struct_func_returns_struct_init);
+    RUN_TEST(test_parser_struct_use_type_field);
+    RUN_TEST(test_parser_struct_member_field_assignment);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

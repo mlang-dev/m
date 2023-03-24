@@ -266,7 +266,7 @@ struct type_item *_analyze_adt(struct sema_context *context, enum ADTKind kind, 
     return result_type;
 }
 
-struct type_item *_analyze_record(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_struct(struct sema_context *context, struct ast_node *node)
 {
     struct type_item *type = _analyze_adt(context, Product, node->adt_type->name, node->adt_type->body);
     hashtable_set_p(&context->struct_typename_2_asts, type->name, node);
@@ -516,7 +516,7 @@ struct type_item *_analyze_cast(struct sema_context *context, struct ast_node *n
     return create_type_from_type_item_node(context, node->cast->to_type_item_node->type_item_node, Immutable);
 }
 
-struct type_item *_analyze_record_field_accessor(struct sema_context *context, struct ast_node *node)
+struct type_item *_analyze_struct_field_accessor(struct sema_context *context, struct ast_node *node)
 {
     struct type_item *type = node->index->object->type;
     if(!is_adt(type) && !(type->type == TYPE_REF && is_adt(type->val_type))){
@@ -846,7 +846,7 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_type(context, node);
             break;
         case RECORD_NODE:
-            type = _analyze_record(context, node);
+            type = _analyze_struct(context, node);
             break;
         case ADT_INIT_NODE:
             type = _analyze_adt_init(context, node);
@@ -863,7 +863,7 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
                 type = _analyze_array_member_accessor(context, node);
             }
             else{
-                type = _analyze_record_field_accessor(context, node);
+                type = _analyze_struct_field_accessor(context, node);
             }
             break;
         case BINARY_NODE:
