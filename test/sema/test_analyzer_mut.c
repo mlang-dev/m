@@ -53,7 +53,7 @@ TEST(test_analyzer, immutable_record_member_type)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-record Point = x:int, y:int\n\
+struct Point = x:int, y:int\n\
 let xy = Point { 10, 20 }\n\
 xy.x\n\
 ";
@@ -74,7 +74,7 @@ TEST(test_analyzer, mutable_record_member_type)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-record Point = x:mut int, y:int\n\
+struct Point = x:mut int, y:int\n\
 let xy = Point { 10, 20 }\n\
 xy.x\n\
 ";

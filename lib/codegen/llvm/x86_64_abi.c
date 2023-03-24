@@ -100,7 +100,7 @@ bool _bits_contain_no_user_data(struct type_item *type, unsigned start_bit, unsi
         return true;
 
     //TODO: for array type
-    //record type
+    //struct type
     if (type->type == TYPE_STRUCT) {
         struct struct_layout *sl = layout_struct(type, Product);
         for (unsigned i = 0; i < array_size(&type->args); i++) {

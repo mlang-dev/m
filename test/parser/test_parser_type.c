@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2023 Ligang Wang <ligangwangs@gmail.com>
  *
- * Unit tests for parsing record type
+ * Unit tests for parsing struct type
  */
 #include "parser/parser.h"
 #include "parser/ast.h"

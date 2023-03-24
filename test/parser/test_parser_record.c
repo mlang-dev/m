@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2023 Ligang Wang <ligangwangs@gmail.com>
  *
- * Unit tests for parsing record type
+ * Unit tests for parsing struct type
  */
 #include "parser/parser.h"
 #include "parser/ast.h"
@@ -13,7 +13,7 @@
 TEST(test_parser_record, type_decl)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64\n\
+struct Point2D = x:f64, y:f64\n\
 var point:Point2D";
     struct frontend *fe = frontend_init();
     
@@ -31,7 +31,7 @@ var point:Point2D";
 TEST(test_parser_record, type_decl2)
 {
     char test_code[] = "\n\
-record Point2D = \n\
+struct Point2D = \n\
   x:f64 \n\
   y:f64";
     struct frontend *fe = frontend_init();
@@ -56,7 +56,7 @@ record Point2D = \n\
 TEST(test_parser_record, type_var_init)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64 \n\
+struct Point2D = x:f64, y:f64 \n\
 let xy = Point2D{10.0, 20.0}";
     struct frontend *fe = frontend_init();
     
@@ -92,7 +92,7 @@ let xy = Point2D{10.0, 20.0}";
 TEST(test_parser_record, func_returns_record_init)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64 \n\
+struct Point2D = x:f64, y:f64 \n\
 let get_point() = Point2D{10.0, 20.0}";
     struct frontend *fe = frontend_init();
     
@@ -131,7 +131,7 @@ let get_point() = Point2D{10.0, 20.0}";
 TEST(test_parser_record, use_type_field)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64 \n\
+struct Point2D = x:f64, y:f64 \n\
 let xy:Point2D = Point2D{0.0, 0.0} \n\
 xy.x";
     struct frontend *fe = frontend_init();
@@ -159,7 +159,7 @@ xy.x";
 TEST(test_parser_record, member_field_assignment)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64 \n\
+struct Point2D = x:f64, y:f64 \n\
 var xy:Point2D = Point2D{0.0, 0.0} \n\
 xy.x = 10.0";
     struct frontend *fe = frontend_init();

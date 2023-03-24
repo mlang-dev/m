@@ -184,7 +184,7 @@ x ++\n\
 TEST(test_analyzer_error, record_member_immutable)
 {
     char test_code[] = "\n\
-record Point2D = x:f32, y:f32\n\
+struct Point2D = x:f32, y:f32\n\
 var p = Point2D { 1.0, 2.0 }\n\
 p.x = (f32)10.0\n\
 ";

@@ -15,7 +15,7 @@
 TEST(test_analyzer_record, def_record_type)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64\n\
+struct Point2D = x:f64, y:f64\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -34,7 +34,7 @@ record Point2D = x:f64, y:f64\n\
 TEST(test_analyzer_record, var_init)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64\n\
+struct Point2D = x:f64, y:f64\n\
 let xy:Point2D = { 0.0, 0.0 }\n\
 xy.x\n\
 ";
@@ -60,7 +60,7 @@ xy.x\n\
 TEST(test_analyzer_record, ret_record_type_direct)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64\n\
+struct Point2D = x:f64, y:f64\n\
 let get_point() = Point2D { 10.0, 0.0 }\n\
 let z() = get_point()\n\
 ";
@@ -90,7 +90,7 @@ let z() = get_point()\n\
 TEST(test_analyzer_record, ret_record_type)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64\n\
+struct Point2D = x:f64, y:f64\n\
 let getx()=\n\
     let xy:Point2D = Point2D { 10.0, 0.0 }\n\
     xy\n\
@@ -131,7 +131,7 @@ let z = getx()\n\
 TEST(test_analyzer_record, type_vars)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64\n\
+struct Point2D = x:f64, y:f64\n\
 let xy:Point2D = Point2D { 0.0, 0.0 }\n\
 xy.x\n\
 ";
@@ -157,7 +157,7 @@ xy.x\n\
 TEST(test_analyzer_record, type_local_var)
 {
     char test_code[] = "\n\
-record Point2D = x:f64, y:f64\n\
+struct Point2D = x:f64, y:f64\n\
 let getx()=\n\
     let xy:Point2D = Point2D { 10.0, 0.0 }\n\
     xy.x\n\

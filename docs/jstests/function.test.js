@@ -5,8 +5,8 @@ const mtest_1 = require("./mtest");
 let sq x = x * x  // generic function
 sq 10.0
 `, 100.0);
-(0, mtest_1.mtest)('return record with var', 'return record type with var', `
-record Point2D = x:mut f64, y:f64
+(0, mtest_1.mtest)('return struct with var', 'return struct type with var', `
+struct Point2D = x:mut f64, y:f64
 let change z:Point2D = 
     z.x = z.x * 2.0
     z

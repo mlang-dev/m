@@ -41,7 +41,7 @@ interface-item  =   typedef-item | use-item | func-item
 
 typedef-item    =   resource-item
                 |   variant-items
-                |   record-item
+                |   struct-item
                 |   union-items
                 |   flags-items
                 |   enum-items
@@ -71,11 +71,11 @@ use-path    =   IDENT
 
 type-item   =   "type"  IDENT '=' ty
 
-record-item =   "record" IDENT '{' record-fields '}'
+struct-item =   "struct" IDENT '{' struct-fields '}'
 
-record-fields = record-field
-              | record-fields ',' record-field
-record-field  = IDENT ':' ty
+struct-fields = struct-field
+              | struct-fields ',' struct-field
+struct-field  = IDENT ':' ty
 
 flags-items  = "flags" IDENT '{' flags-fields '}'
 

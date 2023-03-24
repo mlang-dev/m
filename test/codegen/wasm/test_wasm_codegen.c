@@ -106,7 +106,7 @@ sum";
 TEST(test_wasm_codegen, mutable_record_member)
 {
     char test_code[] = "\n\
-record Point2D = x:mut f64, y:f64\n\
+struct Point2D = x:mut f64, y:f64\n\
 let change z:Point2D = \n\
     z.x = z.x * 10.0\n\
     z\n\
