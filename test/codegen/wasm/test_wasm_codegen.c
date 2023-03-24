@@ -103,10 +103,10 @@ sum";
     free(wasm);
 }
 
-TEST(test_wasm_codegen, mutable_record_member)
+TEST(test_wasm_codegen, mutable_struct_member)
 {
     char test_code[] = "\n\
-record Point2D = x:mut f64, y:f64\n\
+struct Point2D = x:mut f64, y:f64\n\
 let change z:Point2D = \n\
     z.x = z.x * 10.0\n\
     z\n\
@@ -239,7 +239,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_ref_type);
     RUN_TEST(test_wasm_codegen_emit_generic_fun);
     RUN_TEST(test_wasm_codegen_emit_nested_for_loop);
-    RUN_TEST(test_wasm_codegen_mutable_record_member);
+    RUN_TEST(test_wasm_codegen_mutable_struct_member);
     RUN_TEST(test_wasm_codegen_variant_member);
     RUN_TEST(test_wasm_codegen_pattern_match);
     RUN_TEST(test_wasm_codegen_print);

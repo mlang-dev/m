@@ -8,9 +8,9 @@ sq 10.0
 `, 100.0);
 
 
-mtest('return record with var', 'return record type with var', 
+mtest('return struct with var', 'return struct type with var', 
 `
-record Point2D = x:mut f64, y:f64
+struct Point2D = x:mut f64, y:f64
 let change z:Point2D = 
     z.x = z.x * 2.0
     z

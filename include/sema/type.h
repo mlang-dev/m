@@ -144,7 +144,7 @@ struct type_item *find_type_item(struct type_item *oper, enum Mut mut);
 #define is_ref_type(node_type) (node_type->type == TYPE_REF)
 #define is_adt(te)    (te->type==TYPE_STRUCT || te->type == TYPE_UNION || te->type == TYPE_TUPLE)
 #define is_adt_or_ref(te) (is_adt(te) || (te->type == TYPE_REF && is_adt(te->val_type)))
-#define is_record_like_type(ti) (ti->type == TYPE_STRUCT || ti->type == TYPE_TUPLE)
+#define is_struct_like_type(ti) (ti->type == TYPE_STRUCT || ti->type == TYPE_TUPLE)
 
 #ifdef __cplusplus
 }

@@ -1,24 +1,24 @@
 "use strict";
 /**
- * record, variant and array are aggregate types in m. Their data are stored on the stack by default. M uses call-by-value convention to pass arguments
- * to the called function. Record type in m is a value type. When the passed argument is record type, the record data is duplicated and
- * its reference/address is passed to the function. This is to prevent the record value is being changed by the callee.
+ * struct, variant and array are aggregate types in m. Their data are stored on the stack by default. M uses call-by-value convention to pass arguments
+ * to the called function. Struct type in m is a value type. When the passed argument is struct type, the struct data is duplicated and
+ * its reference/address is passed to the function. This is to prevent the struct value is being changed by the callee.
  *
  * Array type is a reference type in m. When you assign an array object to a variable, only its address is assigned to the variable. The operation is
- * super efficlient and this is in contrast to record type assignment, where its contents are copied to the assigned variable.
+ * super efficlient and this is in contrast to struct type assignment, where its contents are copied to the assigned variable.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const mtest_1 = require("./mtest");
 (0, mtest_1.mtest)('cf64 re', `
-complex cf64 is a builtin record type defined as "record cf64 = re:f64, im:f64", the example below shows
-how to initialize a record type variable and how to access field of the record type variable.
+complex cf64 is a builtin struct type defined as "struct cf64 = re:f64, im:f64", the example below shows
+how to initialize a struct type variable and how to access field of the struct type variable.
 `, `
 let z = cf64 { 10.0, 20.0 }
 z.re
 `, 10.0);
-(0, mtest_1.mtest)('record with different types', `
-use keyword "record" to define a record type`, `
-record A = x:int, y:f64
+(0, mtest_1.mtest)('struct with different types', `
+use keyword "struct" to define a struct type`, `
+struct A = x:int, y:f64
 let a = A { 10, 20.0 }
 a.y`, 20.0);
 (0, mtest_1.mtest)('variant with different types', `
@@ -26,103 +26,103 @@ use keyword "variant" to define a variant (tagged union) type`, `
 variant A = x:int | y:int
 let a = A { 10 }
 a.y`, 10);
-(0, mtest_1.mtest)('access field no var', `access record initializer's field without using a variable`, `
-record A = x:int, y:f64
+(0, mtest_1.mtest)('access field no var', `access struct initializer's field without using a variable`, `
+struct A = x:int, y:f64
 A { 10, 20.0 }.y
 `, 20.0);
-(0, mtest_1.mtest)('record in record', `
-Struct could be nested. Here we embed record cf64 inside record AB.
+(0, mtest_1.mtest)('struct in struct', `
+Struct could be nested. Here we embed struct cf64 inside struct AB.
 `, `
-record AB = a:cf64, b:cf64
+struct AB = a:cf64, b:cf64
 let ab = AB {cf64{10.0, 20.0}, cf64 { 30.0, 40.0 }}
 ab.b.im
 `, 40.0);
-(0, mtest_1.mtest)('return record in record', `
-return a nesting record from a function
+(0, mtest_1.mtest)('return struct in struct', `
+return a nesting struct from a function
 `, `
-record AB = a:cf64, b:cf64
+struct AB = a:cf64, b:cf64
 let get () = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}
 get().b.im
 `, 40.0);
-(0, mtest_1.mtest)('return field from record', `
-We define record AB as two fields, each of which is also a cf64 record. The following code is 
-initializing a record AB object and return one of field a to the caller.
+(0, mtest_1.mtest)('return field from struct', `
+We define struct AB as two fields, each of which is also a cf64 struct. The following code is 
+initializing a struct AB object and return one of field a to the caller.
 `, `
-record AB = a:cf64, b:cf64
+struct AB = a:cf64, b:cf64
 let get () = 
     let ab = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}
     ab.a
 get().im
 `, 20.0);
-(0, mtest_1.mtest)('return field record', `
+(0, mtest_1.mtest)('return field struct', `
 One more time, but this time we eliminate a variable in the function.
 `, `
-record AB = a:cf64, b:cf64
+struct AB = a:cf64, b:cf64
 let get () = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}.a
 get().re
 `, 10.0);
-(0, mtest_1.mtest)('pass return record', `pass a record and return a new record to the caller then print the field of returned record`, `
+(0, mtest_1.mtest)('pass return struct', `pass a struct and return a new struct to the caller then print the field of returned struct`, `
 let add z:cf64 op:f64 = cf64{z.re + op, z.im + op}
 let x = cf64{10.0, 20.0}
 (add x 10.0).im
 `, 30.0);
-(0, mtest_1.mtest)('pass return record no variable', `pass a record and return a new record the caller without any temp variable`, `
+(0, mtest_1.mtest)('pass return struct no variable', `pass a struct and return a new struct the caller without any temp variable`, `
 let add z:cf64 op:f64 = cf64 { z.re + op, z.im + op }
 (add (cf64 { 10.0, 20.0 }) 10.0).re
 `, 20.0);
-(0, mtest_1.mtest)('record member assign record', 'record member assign record', `
-record xy = x:f64, y:f64
-record wz = w:f64, z:mut xy
+(0, mtest_1.mtest)('struct member assign struct', 'struct member assign struct', `
+struct xy = x:f64, y:f64
+struct wz = w:f64, z:mut xy
 let ab = wz{10.0, xy{20.0, 30.0}}
 ab.z = xy{200.0, 300.0}
 ab.z.y
 `, 300.0);
 (0, mtest_1.mtest)('variable scope', 'variable scope', `
-record wz = w:f64, z:f64
+struct wz = w:f64, z:f64
 let z = wz { 10.0, 20.0 }
 z.z
 `, 20.0);
 (0, mtest_1.mtest)('cf64 expr', `
-use field of record in expression.
+use field of struct in expression.
 `, `
 let z = cf64 { 10.0, 20.0 }
 z.re + z.im
 `, 30.0);
-(0, mtest_1.mtest)('return record', `
-Here we define a function returning a record type cf64 and assign it to variable x.
+(0, mtest_1.mtest)('return struct', `
+Here we define a function returning a struct type cf64 and assign it to variable x.
 `, `
 let z() = cf64 { 10.0, 20.0 }
 let x = z()
 x.re + x.im
 `, 30.0);
-(0, mtest_1.mtest)('return record no var', `
+(0, mtest_1.mtest)('return struct no var', `
 We can directly access return of function call without assigning a variable.
 `, `
 let z() = cf64 { 10.0, 20.0 }
 z().im
 `, 20.0);
-(0, mtest_1.mtest)('pass record', `
-We can pass record argument to a function.
+(0, mtest_1.mtest)('pass struct', `
+We can pass struct argument to a function.
 `, `
 let im z:cf64 = z.im
 let x = cf64 { 10.0, 20.0 }
 im x
 `, 20.0);
-(0, mtest_1.mtest)('pass record no var', `
-We can pass record argument directly without a variable to a function.
+(0, mtest_1.mtest)('pass struct no var', `
+We can pass struct argument directly without a variable to a function.
 `, `
 let im z:cf64 = z.im
 im (cf64 { 10.0, 20.0 })
 `, 20.0);
-(0, mtest_1.mtest)('pass record add one value', `
-Pass the record data, and return with expression using one field
+(0, mtest_1.mtest)('pass struct add one value', `
+Pass the struct data, and return with expression using one field
 `, `
 let im z:cf64 = 
     z.im + 200.0
 im (cf64 { 10.0, 20.0 })
 `, 220.0);
-(0, mtest_1.mtest)('pass record add value', `
-Pass the record data, and return with a record with new value
+(0, mtest_1.mtest)('pass struct add value', `
+Pass the struct data, and return with a struct with new value
 `, `
 let shift z:cf64 = 
     cf64{z.re + 100.0, z.im + 200.0}
@@ -137,8 +137,8 @@ let add_c a:cf64 b:cf64 = cf64 { a.re + b.re, a.im + b.im }
 let sq z:cf64 = cf64 { z.re ** 2.0 - z.im ** 2.0, 2.0 * z.re * z.im }
 (sq (cf64 { 10.0, 20.0 })).im
 `, 400.0, false);
-(0, mtest_1.mtest)('record member assign', 'record member assign', `
-record Point = x:mut f64, y:f64
+(0, mtest_1.mtest)('struct member assign', 'struct member assign', `
+struct Point = x:mut f64, y:f64
 var z = Point { 10.0, 20.0 }
 z.x = 30.0
 z.x

@@ -22,7 +22,7 @@ from math import func log2 x:f64 -> f64\n\
 ";
 
 const char *g_sys = "\n\
-record cf64 = re:f64, im:f64\n\
+struct cf64 = re:f64, im:f64\n\
 ";
 
 struct codegen *_cg_wasm_new(struct sema_context *context)

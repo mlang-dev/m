@@ -130,7 +130,7 @@ struct adt_node {
     symbol name; /*type name*/
 };
 
-/*record or tuple initializer node*/
+/*struct or tuple initializer node*/
 enum ADTInitKind {
     ADTInitRecord = 0,
     ADTInitTuple

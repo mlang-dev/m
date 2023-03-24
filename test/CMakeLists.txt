@@ -25,14 +25,14 @@ add_executable(mtestw
   parser/test_parser_expr.c
   parser/test_parser.c
   parser/test_parser_type.c
-  parser/test_parser_record.c
+  parser/test_parser_struct.c
   parser/test_parser_variant.c
   parser/test_parser_error.c
   parser/test_grammar.c
   sema/test_analyzer.c
   sema/test_analyzer_variant.c
   sema/test_analyzer_pm.c
-  sema/test_analyzer_record.c
+  sema/test_analyzer_struct.c
   sema/test_analyzer_type.c
   sema/test_analyzer_mut.c
   sema/test_analyzer_errors.c
@@ -133,14 +133,14 @@ parser/test_ast.c
 parser/test_parser_expr.c
 parser/test_parser.c
 parser/test_parser_type.c
-parser/test_parser_record.c
+parser/test_parser_struct.c
 parser/test_parser_variant.c
 parser/test_parser_error.c
 parser/test_grammar.c
 sema/test_analyzer.c
 sema/test_analyzer_variant.c
 sema/test_analyzer_pm.c
-sema/test_analyzer_record.c
+sema/test_analyzer_struct.c
 sema/test_analyzer_type.c
 sema/test_analyzer_mut.c
 sema/test_analyzer_errors.c

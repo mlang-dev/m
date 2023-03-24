@@ -26,13 +26,13 @@ var j = &i
 *j = 20
 *j
 `, 20);
-(0, mtest_1.mtest)('record type reference', 'record type reference', `
+(0, mtest_1.mtest)('struct type reference', 'struct type reference', `
 let z = cf64{10.0, 20.0}
 let j = &z
 j.im
 `, 20);
-(0, mtest_1.mtest)('pass record by ref', `pass record data to function by reference`, `
-record Point = x:mut f64, y:f64
+(0, mtest_1.mtest)('pass struct by ref', `pass struct data to function by reference`, `
+struct Point = x:mut f64, y:f64
 let update xy:&Point =
     xy.x = 10.0
 let z = &Point{100.0, 200.0}

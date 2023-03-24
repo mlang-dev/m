@@ -32,12 +32,12 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
             wasm_emit_code(cg, ba, node->var->init_value);
             if(init_vi->var_index != var_index){
                 //set var index address
-                if(is_record_like_type(node->type)){
+                if(is_struct_like_type(node->type)){
                     if(!node->is_ret){
                         //for return value optimization, var_index is parameter
                         wasm_emit_assign_var(ba, var_index, false, WasmInstrNumI32ADD, stack_offset, fc->local_sp->var_index, false);
                     }
-                    wasm_emit_copy_record_value(ba, var_index, 0, node->type, init_vi->var_index, 0);
+                    wasm_emit_copy_struct_value(ba, var_index, 0, node->type, init_vi->var_index, 0);
                 }else{//array type is reference type
                     wasm_emit_assign_var(ba, var_index, false, WasmInstrNumI32ADD, 0, init_vi->var_index, false);
                 }

@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <float.h>
 
-void wasm_emit_store_record_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct struct_layout *sl, struct ast_node *block)
+void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct struct_layout *sl, struct ast_node *block)
 {
     struct ast_node *field;
     u32 field_offset;
@@ -28,10 +28,10 @@ void wasm_emit_store_record_value(struct cg_wasm *cg, struct byte_array *ba, u32
         field = array_get_ptr(&block->block->nodes, i);
         field_offset = *(u64*)array_get(&sl->field_offsets, i) / 8;
         u32 align = get_type_align(field->type);
-        if(is_record_like_type(field->type)){
+        if(is_struct_like_type(field->type)){
             assert(field->node_type == ADT_INIT_NODE);
             struct struct_layout *field_sl = array_get_ptr(&sl->field_layouts, i);
-            wasm_emit_store_record_value(cg, ba, local_address_var_index, offset + field_offset, field_sl, field->adt_init->body);
+            wasm_emit_store_struct_value(cg, ba, local_address_var_index, offset + field_offset, field_sl, field->adt_init->body);
         }else{
             wasm_emit_store_scalar_value_at(cg, ba, local_address_var_index, align, offset + field_offset, field);
         }
@@ -61,13 +61,13 @@ void wasm_emit_adt_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
     if (is_rvo && node->is_ret) {
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
-        wasm_emit_store_record_value(cg, ba, fi->tai.sret_arg_no, 0, tsi.sl, node->adt_init->body);
+        wasm_emit_store_struct_value(cg, ba, fi->tai.sret_arg_no, 0, tsi.sl, node->adt_init->body);
         //no return
     } else {
         struct var_info *vi = fc_get_var_info(fc, node);
         i32 stack_offset = fc_get_stack_offset(fc, node);
         wasm_emit_assign_var(ba, vi->var_index, false, WasmInstrNumI32ADD, stack_offset, fc->local_sp->var_index, false);
-        wasm_emit_store_record_value(cg, ba, vi->var_index, 0, tsi.sl, node->adt_init->body);
+        wasm_emit_store_struct_value(cg, ba, vi->var_index, 0, tsi.sl, node->adt_init->body);
     }
 }
 

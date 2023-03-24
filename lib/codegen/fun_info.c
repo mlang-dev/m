@@ -213,7 +213,7 @@ TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi)
 
 bool check_rvo(struct fun_info *fi)
 {
-    return is_record_like_type(fi->ret.type) && (fi->ret.kind == AK_INDIRECT || fi->ret.kind == AK_INDIRECT_ALIASED);
+    return is_struct_like_type(fi->ret.type) && (fi->ret.kind == AK_INDIRECT || fi->ret.kind == AK_INDIRECT_ALIASED);
 }
 
 bool fi_has_sret(struct fun_info *fi)

@@ -44,7 +44,7 @@ let x:int = \"string\"\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer_error, no_record_type_found)
+TEST(test_analyzer_error, no_struct_type_found)
 {
     char test_code[] = "\n\
 let x = 3\n\
@@ -181,10 +181,10 @@ x ++\n\
     frontend_deinit(fe);
 }
 
-TEST(test_analyzer_error, record_member_immutable)
+TEST(test_analyzer_error, struct_member_immutable)
 {
     char test_code[] = "\n\
-record Point2D = x:f32, y:f32\n\
+struct Point2D = x:f32, y:f32\n\
 var p = Point2D { 1.0, 2.0 }\n\
 p.x = (f32)10.0\n\
 ";
@@ -205,7 +205,7 @@ int test_analyzer_errors()
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_error_fun_no_found);
     RUN_TEST(test_analyzer_error_type_mismatch);
-    RUN_TEST(test_analyzer_error_no_record_type_found);
+    RUN_TEST(test_analyzer_error_no_struct_type_found);
     RUN_TEST(test_analyzer_error_no_array_type_found);
     RUN_TEST(test_analyzer_error_id_not_defined);
     RUN_TEST(test_analyzer_error_id_not_defined_unary);
@@ -213,7 +213,7 @@ int test_analyzer_errors()
     RUN_TEST(test_analyzer_error_id_not_mutable);
     RUN_TEST(test_analyzer_error_id_not_assignable);
     RUN_TEST(test_analyzer_error_id_not_inc);
-    RUN_TEST(test_analyzer_error_record_member_immutable);
+    RUN_TEST(test_analyzer_error_struct_member_immutable);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

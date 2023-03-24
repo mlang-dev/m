@@ -93,7 +93,7 @@ void wasm_emit_array_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_
 void wasm_emit_adt_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node);
 void wasm_emit_store_scalar_value_at(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 align, u32 offset, struct ast_node *node);
 void wasm_emit_store_scalar_value(struct cg_wasm *cg, struct byte_array *ba, u32 align, u32 offset, struct ast_node *node);
-void wasm_emit_store_record_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct struct_layout *sl, struct ast_node *block);
+void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, struct struct_layout *sl, struct ast_node *block);
 void wasm_emit_store_array_value(struct cg_wasm *cg, struct byte_array *ba, u32 local_address_var_index, u32 offset, u32 elm_align, u32 elm_type_size, struct ast_node *array_init);
 void wasm_emit_addr_offset_by_expr(struct cg_wasm *cg, struct byte_array *ba, u32 var_index, bool is_global, struct ast_node *offset_expr);
 
