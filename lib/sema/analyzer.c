@@ -603,7 +603,8 @@ struct type_item *_analyze_assign(struct sema_context *context, struct ast_node 
         symbol var_name = node->binop->lhs->ident->name;
         if(!has_symbol(&context->decl_2_typexprs, var_name)){
             //TODO: error handling, non-defined
-            assert(false);
+            report_error(context, EC_VAR_NOT_DEFINED, node->loc, string_get(var_name));
+            return 0;
         }else{
             struct ast_node *orig_var = symboltable_get(&context->varname_2_asts, var_name);
             if(orig_var->var->mut == Immutable){

@@ -42,7 +42,8 @@ enum error_code {
     EC_IDENT_NOT_DEFINED,
 
     EC_IMMUTABLE_ASSIGNMENT,
-    
+    EC_VAR_NOT_DEFINED,
+
     ALL_ERROR
 };
 
