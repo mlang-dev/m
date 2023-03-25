@@ -38,6 +38,7 @@ const char *err_messages[ALL_ERROR] = {
     "%s is not defined",
 
     "%s is immutable, it can't be mutated",
+    "variable %s is not defined.",
 };
 
 struct hashtable g_error_reports;

@@ -486,14 +486,24 @@ LLVMValueRef _emit_ident_node(struct cg_llvm *cg, struct ast_node *node)
         v = get_global_variable(cg, node->ident->name);
         assert(v);
     }
-    if (node->type->type < TYPE_STRUCT){
-        LLVMTypeRef vt = get_llvm_type(node->type);
-        assert(vt);
-        return LLVMBuildLoad2(cg->builder, vt, v, string_get(node->ident->name));
-    }
-    else{
+    if (node->is_lvalue || is_aggregate_type(node->type)){
         return v;
     }
+    LLVMTypeRef vt = get_llvm_type(node->type);
+    assert(vt);
+    return LLVMBuildLoad2(cg->builder, vt, v, string_get(node->ident->name));
+}
+
+LLVMValueRef _emit_assign_node(struct cg_llvm *cg, struct ast_node *node)
+{
+    LLVMValueRef assignee = 0;
+    if(node->binop->lhs->node_type == IDENT_NODE){
+         assignee = _emit_ident_node(cg, node->binop->lhs);
+    }else{
+        assert(false);
+    }
+    LLVMValueRef expr = emit_ir_code(cg, node->binop->rhs);
+    return LLVMBuildStore(cg->builder, expr, assignee);
 }
 
 LLVMValueRef _emit_unary_node(struct cg_llvm *cg, struct ast_node *node)
@@ -781,6 +791,8 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
             value = _emit_accessor_node(cg, node);
             break;
         case ASSIGN_NODE:
+            value = _emit_assign_node(cg, node);
+            break;
         case BINARY_NODE:
             value = _emit_binary_node(cg, node);
             break;

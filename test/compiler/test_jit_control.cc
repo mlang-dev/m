@@ -42,8 +42,10 @@ TEST(testJITControl, testForLoopFunc)
 {
     char test_code[] = R"(
 let forloop n = 
+    var j = 0
     for i in 1..n
-        i
+        j = i
+    j
 forloop 4
   )";
     struct engine *engine = engine_llvm_new(false);
@@ -55,7 +57,7 @@ forloop 4
     auto node1 = (struct ast_node *)array_back_ptr(&block->block->nodes);
     eval_statement(jit, node);
     eval_result result1 = eval_exp(jit, node1);
-    ASSERT_EQ(0, result1.i_value);
+    ASSERT_EQ(4, result1.i_value);
     node_free(block);
     jit_free(jit);
     engine_free(engine);
