@@ -29,7 +29,7 @@ extern "C" {
     ENUM_ITEM(IDENT_NODE)           \
     ENUM_ITEM(VAR_NODE)             \
     ENUM_ITEM(CAST_NODE)            \
-    ENUM_ITEM(RECORD_NODE)          \
+    ENUM_ITEM(STRUCT_NODE)          \
     ENUM_ITEM(VARIANT_NODE)           \
     ENUM_ITEM(VARIANT_TYPE_ITEM_NODE) \
     ENUM_ITEM(ADT_INIT_NODE)        \

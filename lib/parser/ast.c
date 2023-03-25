@@ -1065,7 +1065,7 @@ struct ast_node *node_copy(struct ast_node *node)
         clone = _copy_variant_type_node(node);
         break;
     case VARIANT_NODE:
-    case RECORD_NODE:
+    case STRUCT_NODE:
         clone = _copy_adt_node(node);
         break;
     case ADT_INIT_NODE:
@@ -1171,7 +1171,7 @@ void node_free(struct ast_node *node)
         _free_variant_type_node(node);
         break;
     case VARIANT_NODE:
-    case RECORD_NODE:
+    case STRUCT_NODE:
         _free_adt_node(node);
         break;
     case ADT_INIT_NODE:
@@ -1273,7 +1273,7 @@ struct module *module_new(const char *mod_name, FILE *file)
 
 int find_member_index(struct ast_node *adt_node, symbol member)
 {
-    if(adt_node->node_type == RECORD_NODE){
+    if(adt_node->node_type == STRUCT_NODE){
         for (int i = 0; i < (int)array_size(&adt_node->adt_type->body->block->nodes); i++) {
             struct ast_node *var = array_get_ptr(&adt_node->adt_type->body->block->nodes, i);
             if (var->var->var->ident->name == member) {

@@ -760,22 +760,6 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case NULL_NODE:
             value = _emit_unk_node(cg, node);
             break;
-        case IMPORT_NODE:
-        case MEMORY_NODE:
-        case RANGE_NODE:
-        case ARRAY_INIT_NODE:
-        case ARRAY_TYPE_NODE:
-        case TYPE_ITEM_NODE:
-        case TYPE_NODE:
-        case WHILE_NODE:
-        case JUMP_NODE:
-        case CAST_NODE:
-        case VARIANT_TYPE_ITEM_NODE:
-        case MATCH_NODE:
-        case MATCH_CASE_NODE:
-        case WILDCARD_NODE:
-        case TYPE_EXPR_ITEM_NODE:
-            break;
         case LITERAL_NODE:
             value = _emit_literal_node(cg, node);
             break;
@@ -785,8 +769,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case VAR_NODE:
             value = emit_var_node(cg, node);
             break;
-        case VARIANT_NODE:
-        case RECORD_NODE:
+        case STRUCT_NODE:
             value = _emit_struct_node(cg, node);
             break;
         case ADT_INIT_NODE:
@@ -821,6 +804,24 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
             break;
         case BLOCK_NODE:
             value = _emit_block_node(cg, node);
+            break;
+        case TYPE_EXPR_ITEM_NODE:
+        case MATCH_CASE_NODE:
+        case WILDCARD_NODE:
+        case VARIANT_NODE:
+        case VARIANT_TYPE_ITEM_NODE:
+        case ARRAY_TYPE_NODE:
+        case TYPE_ITEM_NODE:
+        case TYPE_NODE:
+        case IMPORT_NODE:
+        case MEMORY_NODE:
+        case RANGE_NODE:
+        
+        case ARRAY_INIT_NODE:
+        case WHILE_NODE:
+        case JUMP_NODE:
+        case CAST_NODE:
+        case MATCH_NODE:
             break;
     }
     return value;

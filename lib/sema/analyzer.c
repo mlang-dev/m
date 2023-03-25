@@ -847,7 +847,7 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
         case TYPE_NODE:
             type = _analyze_type(context, node);
             break;
-        case RECORD_NODE:
+        case STRUCT_NODE:
             type = _analyze_struct(context, node);
             break;
         case ADT_INIT_NODE:
