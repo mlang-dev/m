@@ -225,7 +225,7 @@ let loopprint n = \n\
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FOR_NODE, body_node->node_type);
     ASSERT_EQ(0, body_node->forloop->range->range->step);
-    ASSERT_EQ(BINARY_NODE, body_node->forloop->range->range->end->node_type);
+    ASSERT_EQ(IDENT_NODE, body_node->forloop->range->range->end->node_type);
     ASSERT_EQ(3, ((struct ast_node *)body_node->forloop->range->range->start)->liter->int_val);
     node_free(block);
     
@@ -247,7 +247,7 @@ let loopprint n = \n\
     ASSERT_STREQ("loopprint", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(FOR_NODE, body_node->node_type);
     ASSERT_EQ(2, body_node->forloop->range->range->step->liter->int_val);
-    ASSERT_EQ(BINARY_NODE, body_node->forloop->range->range->end->node_type);
+    ASSERT_EQ(IDENT_NODE, body_node->forloop->range->range->end->node_type);
     ASSERT_EQ(3, ((struct ast_node *)body_node->forloop->range->range->start)->liter->int_val);
     node_free(block);
     

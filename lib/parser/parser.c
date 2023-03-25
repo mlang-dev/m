@@ -315,7 +315,6 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             assert(var->node_type == VAR_NODE);
             struct ast_node *range = _take(nodes, rule->action.item_index[1]);
             struct ast_node *body = _take(nodes, rule->action.item_index[2]); 
-            range->range->end = binary_node_new(OP_LT, ident_node_new(var->var->var->ident->name, var->loc), range->range->end, range->range->end->loc);
             ast = for_node_new(var, range, body, var->loc);
             break;
         }

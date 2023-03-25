@@ -389,7 +389,7 @@ let loopprint n = \n\
     ASSERT_EQ(FOR_NODE, forn->node_type);
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->step->type));
     ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->start->type));
-    ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->range->range->end->type));
+    ASSERT_EQ(TYPE_INT, get_type(forn->forloop->range->range->end->type));
     ASSERT_EQ(TYPE_UNIT, get_type(forn->forloop->body->type));
     node_free(block);
     frontend_deinit(fe);
@@ -422,7 +422,7 @@ let loopprint n:f64 =\n\
     ASSERT_EQ(FOR_NODE, forn->node_type);
     ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->step->type));
     ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->start->type));
-    ASSERT_EQ(TYPE_BOOL, get_type(forn->forloop->range->range->end->type));
+    ASSERT_EQ(TYPE_F64, get_type(forn->forloop->range->range->end->type));
     ASSERT_EQ(TYPE_UNIT, get_type(forn->forloop->body->type));
     node_free(block);
     frontend_deinit(fe);

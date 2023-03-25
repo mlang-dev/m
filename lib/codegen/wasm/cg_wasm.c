@@ -882,7 +882,7 @@ void _emit_for_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     assert(node->node_type == FOR_NODE);
     u32 var_index = fc_get_var_info(fc, node->forloop->var)->var_index;
     u32 step_index = fc_get_var_info(fc, node->forloop->range->range->step)->var_index;
-    u32 end_index = fc_get_var_info(fc, node->forloop->range->range->end->binop->rhs)->var_index;
+    u32 end_index = fc_get_var_info(fc, node->forloop->range->range->end)->var_index;
     enum type type = node->forloop->var->type->type;
     //enum type body_type = node->forloop->body->type->type;
     ASSERT_TYPE(type);
@@ -897,8 +897,8 @@ void _emit_for_loop(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     ba_add(ba, WasmInstrVarLocalSet);
     wasm_emit_uint(ba, step_index); //2
     // set end value
-    assert(node->forloop->range->range->end->node_type == BINARY_NODE);
-    wasm_emit_code(cg, ba, node->forloop->range->range->end->binop->rhs);
+    //assert(node->forloop->range->range->end->node_type == BINARY_NODE);
+    wasm_emit_code(cg, ba, node->forloop->range->range->end);
     ba_add(ba, WasmInstrVarLocalSet);
     wasm_emit_uint(ba, end_index);  //3
 

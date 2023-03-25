@@ -695,7 +695,6 @@ struct type_item *_analyze_for(struct sema_context *context, struct ast_node *no
 {
     struct loop_nested_level *bnl = enter_loop(context);
     bnl->block_levels = 1; //body is itself a block
-    struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
     //now we need to know who owns the start node memory
     node->forloop->var->var->init_value = node->forloop->range->range->start;
     node->forloop->var->var->is_init_shared = true;
@@ -712,14 +711,16 @@ struct type_item *_analyze_for(struct sema_context *context, struct ast_node *no
     if(step_type){
         unify(step_type, var_type, &context->nongens);
     }
-    unify(end_type, bool_type, &context->nongens);
+    if(!unify(end_type, var_type, &context->nongens)){
+        printf("failed to unify end type:\n");
+    }
     if(!node->forloop->range->range->step){
         node->forloop->range->range->step = const_one_node_new(var_type->type, node->loc);
         step_type = analyze(context, node->forloop->range->range->step);
     }
     node->forloop->range->range->start->type = start_type;
     node->forloop->range->range->step->type = step_type;
-    node->forloop->range->range->end->type = end_type;
+    node->forloop->range->range->end->type = prune(end_type);
     node->forloop->body->type = body_type;
     leave_loop(context);
     return create_unit_type();
