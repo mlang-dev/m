@@ -704,7 +704,15 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     } else {
         step_v = get_int_one(cg->context);
     }
-    LLVMValueRef end_cond = emit_ir_code(cg, node->forloop->range->range->end);
+
+    struct ast_node *id = ident_node_new(var_name, node->forloop->var->loc);
+    id->type = node->forloop->var->type;
+    struct ast_node *end_cond_node = binary_node_new(OP_LT, 
+        id, 
+        node->forloop->range->range->end, 
+        node->forloop->range->range->end->loc);
+    //TODO: need to free new created binary and id node
+    LLVMValueRef end_cond = emit_ir_code(cg, end_cond_node);
     assert(end_cond);
 
     LLVMValueRef cur_var = LLVMBuildLoad2(cg->builder, at, alloca, string_get(var_name));
