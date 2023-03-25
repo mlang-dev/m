@@ -336,7 +336,7 @@ struct type_item *create_type_oper_tuple(enum Mut mut, struct array *args)
 
 struct type_item *create_type_oper_union(symbol type_name, enum Mut mut, struct array *args)
 {
-    return create_type_oper(KIND_OPER, type_name, TYPE_UNION, mut, args);
+    return create_type_oper(KIND_OPER, type_name, TYPE_VARIANT, mut, args);
 }
 
 struct type_item *create_nullary_type(enum type type)

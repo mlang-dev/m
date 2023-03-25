@@ -42,7 +42,7 @@ extern "C" {
     ENUM_ITEM(TYPE_STRUCT)      \
     ENUM_ITEM(TYPE_TUPLE)       \
     ENUM_ITEM(TYPE_ARRAY)       \
-    ENUM_ITEM(TYPE_UNION)       \
+    ENUM_ITEM(TYPE_VARIANT)       \
     ENUM_ITEM(TYPE_COMPLEX)     \
     ENUM_ITEM(TYPE_REF)         \
     ENUM_ITEM(TYPE_TYPES)
@@ -140,9 +140,9 @@ struct type_item *tep_find_type_item(struct type_item_pair *pair, enum Mut mut, 
 struct type_item *find_type_item(struct type_item *oper, enum Mut mut);
 
 #define is_int_type(type) (type >= TYPE_BOOL && type <= TYPE_INT)
-#define is_aggregate_type(node_type) (node_type->type==TYPE_STRUCT || node_type->type==TYPE_UNION || node_type->type == TYPE_ARRAY || node_type->type == TYPE_TUPLE)
+#define is_aggregate_type(node_type) (node_type->type==TYPE_STRUCT || node_type->type==TYPE_VARIANT || node_type->type == TYPE_ARRAY || node_type->type == TYPE_TUPLE)
 #define is_ref_type(node_type) (node_type->type == TYPE_REF)
-#define is_adt(te)    (te->type==TYPE_STRUCT || te->type == TYPE_UNION || te->type == TYPE_TUPLE)
+#define is_adt(te)    (te->type==TYPE_STRUCT || te->type == TYPE_VARIANT || te->type == TYPE_TUPLE)
 #define is_adt_or_ref(te) (is_adt(te) || (te->type == TYPE_REF && is_adt(te->val_type)))
 #define is_struct_like_type(ti) (ti->type == TYPE_STRUCT || ti->type == TYPE_TUPLE)
 

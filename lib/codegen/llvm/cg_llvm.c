@@ -59,7 +59,7 @@ LLVMTypeRef get_double_type(LLVMContextRef context, struct type_item *type)
 
 LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_item *type_exp)
 {
-    assert(type_exp->type == TYPE_STRUCT);
+    assert(is_aggregate_type(type_exp));
     assert(g_cg);
     LLVMTypeRef struct_type = hashtable_get_p(&g_cg->typename_2_irtypes, type_exp->name);
     if (struct_type)
@@ -316,7 +316,7 @@ struct ops double_ops = {
     LLVMBuildNeg,
 };
 
-struct ops ext_ops = {
+struct ops aggr_ops = {
     get_ext_type,
     get_double_const,
     get_int_zero,
@@ -350,7 +350,10 @@ void _set_bin_ops(struct cg_llvm *cg)
     cg->ops[TYPE_F64] = double_ops;
     cg->ops[TYPE_STRING] = str_ops;
     cg->ops[TYPE_FUNCTION] = double_ops;
-    cg->ops[TYPE_STRUCT] = ext_ops;
+    cg->ops[TYPE_STRUCT] = aggr_ops;
+    cg->ops[TYPE_TUPLE] = aggr_ops;
+    cg->ops[TYPE_VARIANT] = aggr_ops;
+    cg->ops[TYPE_ARRAY] = aggr_ops;
 }
 
 unsigned _get_count_struct_element_types(TargetType type)
@@ -530,9 +533,16 @@ LLVMValueRef _emit_unary_node(struct cg_llvm *cg, struct ast_node *node)
     return LLVMBuildCall2(cg->builder, LLVMGetElementType(LLVMTypeOf(fun)), fun, &operand_v, 1, "unop");
 }
 
-LLVMValueRef _emit_accessor_node(struct cg_llvm *cg, struct ast_node *node)
+LLVMValueRef _emit_array_index(struct cg_llvm *cg, struct ast_node *node)
 {
-    assert(node->node_type == MEMBER_INDEX_NODE);
+    // assert(node->index->object->node_type == IDENT_NODE);
+    // symbol id = node->index->object->ident->name;
+    // LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, id);
+    return 0;
+}
+
+LLVMValueRef _emit_field_access_node(struct cg_llvm *cg, struct ast_node *node)
+{
     assert(node->index->object->node_type == IDENT_NODE);
     assert(node->index->index->node_type == IDENT_NODE);
     symbol id = node->index->object->ident->name;
@@ -779,7 +789,10 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
             value = _emit_unary_node(cg, node);
             break;
         case MEMBER_INDEX_NODE:
-            value = _emit_accessor_node(cg, node);
+            if(node->index->object->type->type == TYPE_ARRAY)
+                value = _emit_array_index(cg, node);
+            else
+                value = _emit_field_access_node(cg, node);
             break;
         case ASSIGN_NODE:
             value = _emit_assign_node(cg, node);
@@ -816,7 +829,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case IMPORT_NODE:
         case MEMORY_NODE:
         case RANGE_NODE:
-        
+
         case ARRAY_INIT_NODE:
         case WHILE_NODE:
         case JUMP_NODE:

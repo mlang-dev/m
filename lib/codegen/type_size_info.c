@@ -152,7 +152,7 @@ struct type_size_info _create_scalar_type_size_info(struct type_item *type)
         break;
     case TYPE_GENERIC:
     case TYPE_FUNCTION:
-    case TYPE_UNION:
+    case TYPE_VARIANT:
     case TYPE_COMPLEX:
     case TYPE_TYPES:
     case TYPE_NULL:
@@ -172,7 +172,7 @@ struct type_size_info get_type_size_info(struct type_item *type)
         ti = _create_array_type_size_info(type);
     } else if (is_struct_like_type(type)) {
         ti = _create_struct_type_size_info(type, Product);
-    } else if (type->type == TYPE_UNION) {
+    } else if (type->type == TYPE_VARIANT) {
         ti = _create_struct_type_size_info(type, Sum);
     } else {
         ti = _create_scalar_type_size_info(type);
