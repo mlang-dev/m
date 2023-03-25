@@ -23,7 +23,7 @@ struct Point2D = x:f64, y:f64\n\
     
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
-    ASSERT_EQ(RECORD_NODE, node->node_type);
+    ASSERT_EQ(STRUCT_NODE, node->node_type);
     string type_str = to_string(node->type);
     ASSERT_EQ(TYPE_STRUCT, node->type->type);
     ASSERT_STREQ("Point2D", string_get(&type_str));

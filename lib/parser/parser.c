@@ -490,7 +490,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             break;
         }
         case VARIANT_NODE:
-        case RECORD_NODE: // new type definition, like struct in C
+        case STRUCT_NODE: // new type definition, like struct in C
         {
             assert(rule->action.item_index_count == 2);
             struct ast_node *struct_name = _take(nodes, rule->action.item_index[0]);

@@ -21,7 +21,7 @@ struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(ident, IDENT),
     NODE_TYPE_NAME(variable, VAR),
     NODE_TYPE_NAME(cast, CAST),
-    NODE_TYPE_NAME(struct_type, RECORD),
+    NODE_TYPE_NAME(struct_type, STRUCT),
     NODE_TYPE_NAME(variant_type, VARIANT),
     NODE_TYPE_NAME(variant_type_item, VARIANT_TYPE_ITEM),
     NODE_TYPE_NAME(adt_initializer, ADT_INIT),
