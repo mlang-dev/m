@@ -57,7 +57,7 @@ LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bo
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
         alloca = LLVMGetParam(fun, fi->tai.sret_arg_no);
-        LLVMTypeRef ret_type = get_llvm_type(fi->ret.type);
+        LLVMTypeRef ret_type = get_backend_type(fi->ret.type);
         assert(ret_type);
         _store_struct_member_values(cg, ret_type, alloca, node);
     } else {
@@ -84,12 +84,12 @@ LLVMValueRef emit_array_init_node(struct cg_llvm *cg, struct ast_node *node, boo
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
         alloca = LLVMGetParam(fun, fi->tai.sret_arg_no);
-        LLVMTypeRef ret_type = get_llvm_type(fi->ret.type);
+        LLVMTypeRef ret_type = get_backend_type(fi->ret.type);
         assert(ret_type);
         _store_array_values(cg, ret_type, alloca, node);
     } else {
         //local stack allocation
-        LLVMTypeRef type = get_llvm_type(te);
+        LLVMTypeRef type = get_backend_type(te);
         alloca = create_alloca(type, tsi.align_bits / 8, fun, name);
         _store_array_values(cg, type, alloca, node);
     }
@@ -128,8 +128,6 @@ LLVMValueRef _emit_local_var_array_node(struct cg_llvm *cg, struct ast_node *nod
         alloca = emit_ir_code(cg, node->var->init_value);
         LLVMSetValueName2(alloca, string_get(var_name), string_size(var_name));
     }
-    if(node->var->init_value)
-        node->type->backend_type = node->var->init_value->type->backend_type;
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     /*TODO: local & global sharing the same hashtable now*/
     hashtable_set_p(&cg->varname_2_typename, var_name, node->type->name);
@@ -222,7 +220,7 @@ LLVMValueRef _emit_global_var_struct_node(struct cg_llvm *cg, struct ast_node *n
     const char *var_name = string_get(node->var->var->ident->name);
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     assert(node->type);
-    LLVMTypeRef type = get_llvm_type(node->type);
+    LLVMTypeRef type = get_backend_type(node->type);
     assert(type);
     if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name) && !gVar && !is_external)
         is_external = true;
@@ -264,8 +262,8 @@ LLVMValueRef _emit_global_var_array_node(struct cg_llvm *cg, struct ast_node *no
     const char *var_name = string_get(node->var->var->ident->name);
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     assert(node->type);
-    LLVMTypeRef elm_type = get_llvm_type(node->type->val_type);
-    LLVMTypeRef type = get_llvm_type(node->type);
+    LLVMTypeRef elm_type = get_backend_type(node->type->val_type);
+    LLVMTypeRef type = get_backend_type(node->type);
     assert(type);
     if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name) && !gVar && !is_external)
         is_external = true;
@@ -362,7 +360,7 @@ LLVMValueRef get_global_variable(struct cg_llvm *cg, symbol gv_name)
         return gv;
     struct ast_node *var = hashtable_get_p(&cg->cg_gvar_name_2_asts, gv_name);
     if (var) {
-        LLVMTypeRef type = get_llvm_type(var->type);
+        LLVMTypeRef type = get_backend_type(var->type);
         gv = LLVMAddGlobal(cg->module, type, name);
         LLVMSetExternallyInitialized(gv, true);
         return gv;

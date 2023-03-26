@@ -41,7 +41,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
     size_t ir_arg_count =  has_sret ? arg_count + 1 : arg_count;
     LLVMValueRef *arg_values;
     MALLOC(arg_values, ir_arg_count * sizeof(LLVMValueRef));
-    LLVMTypeRef sig_ret_type = get_llvm_type(fi->ret.type);
+    LLVMTypeRef sig_ret_type = get_backend_type(fi->ret.type);
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->base.sema_context->func_stack);
     struct ast_node *parent_ft = parent_func->func->func_type;
     struct type_size_info ret_tsi = get_type_size_info(fi->ret.type);
@@ -68,7 +68,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
             if (!aai->target_type)
                 break; //FIXIME: is_variadic arg, no available ir arg
             LLVMTypeKind tk = LLVMGetTypeKind(aai->target_type);
-            if (tk != LLVMStructTypeKind && aai->target_type == get_llvm_type(aai->type) && aai->align.direct_offset == 0) {
+            if (tk != LLVMStructTypeKind && aai->target_type == get_backend_type(aai->type) && aai->align.direct_offset == 0) {
                 break;
             }
             if (tk == LLVMStructTypeKind && aai->kind == AK_DIRECT && aai->can_be_flattened) {

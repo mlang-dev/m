@@ -71,7 +71,7 @@ LLVMTypeRef _create_struct_backend_type(LLVMContextRef context, struct type_item
     MALLOC(members, member_count * sizeof(LLVMTypeRef));
     for (unsigned i = 0; i < member_count; i++) {
         struct type_item *field_type = array_get_ptr(&type_exp->args, i);
-        members[i] = get_llvm_type(field_type);
+        members[i] = get_backend_type(field_type);
     }
     LLVMStructSetBody(struct_type, members, member_count, false);
     hashtable_set_p(&g_cg->typename_2_irtypes, type_exp->name, struct_type);
@@ -377,7 +377,7 @@ TargetType _get_function_type_llvm(TargetType ret_type, TargetType *param_types,
 
 TargetType _get_target_type_llvm(struct type_item *type)
 {
-    return get_llvm_type(type);
+    return get_backend_type(type);
 }
 
 TargetType _get_pointer_type_llvm(TargetType type)
@@ -395,8 +395,8 @@ void _init_target_info_llvm(struct target_info *ti)
 {
     ti->extend_type = LLVMInt8TypeInContext(get_llvm_context()); //would use 32 bits
     ti->get_size_int_type = _get_size_int_type_llvm;//LLVMIntTypeInContext(get_llvm_context(), width)
-    ti->get_pointer_type = _get_pointer_type_llvm; //LLVMPointerType(get_llvm_type(fi->ret.type), 0)
-    ti->get_target_type = _get_target_type_llvm; //get_llvm_type(fi->ret.type)
+    ti->get_pointer_type = _get_pointer_type_llvm; //LLVMPointerType(get_backend_type(fi->ret.type), 0)
+    ti->get_target_type = _get_target_type_llvm; //get_backend_type(fi->ret.type)
     ti->get_function_type = _get_function_type_llvm;
     ti->fill_struct_fields = _fill_struct_fields_llvm;//
     ti->get_count_struct_element_types = _get_count_struct_element_types; //LLVMCountStructElementTypes
@@ -453,10 +453,14 @@ LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_item *type)
     if(is_prime_type(type->type))
         return cg->ops[en_type].get_type(cg->context, type);
     else if(type->type == TYPE_ARRAY){
-        LLVMTypeRef elm_type = get_llvm_type(type->val_type);
+        LLVMTypeRef elm_type = get_backend_type(type->val_type);
         return LLVMArrayType(elm_type, get_array_size(type));
     } else if(type->type == TYPE_STRUCT){
         return _create_struct_backend_type(cg->context, type);
+    } else if(type->type == TYPE_FUNCTION){
+        struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, type);
+        assert(fi);
+        return create_target_fun_type(cg->base.target_info, fi);
     }
     assert(false);
     return 0;
@@ -499,7 +503,7 @@ LLVMValueRef _emit_ident_node(struct cg_llvm *cg, struct ast_node *node)
         v = get_global_variable(cg, node->ident->name);
         assert(v);
     }
-    LLVMTypeRef type = get_llvm_type(node->type);
+    LLVMTypeRef type = get_backend_type(node->type);
     if (node->is_lvalue || is_aggregate_type(node->type)){
         return v;
     }
@@ -544,11 +548,11 @@ LLVMValueRef _emit_array_index(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(cg->context), 0, false);
     LLVMValueRef index_value = LLVMConstInt(LLVMInt32TypeInContext(cg->context), index, false);
     LLVMValueRef indexes[2] = { zero, index_value };
-    LLVMValueRef v = LLVMBuildInBoundsGEP2(cg->builder, get_llvm_type(node->index->object->type), obj, indexes, 2, "");
+    LLVMValueRef v = LLVMBuildInBoundsGEP2(cg->builder, get_backend_type(node->index->object->type), obj, indexes, 2, "");
     if(node->is_lvalue){
         return v;
     }
-    return LLVMBuildLoad2(cg->builder, get_llvm_type(node->type), v, "");
+    return LLVMBuildLoad2(cg->builder, get_backend_type(node->type), v, "");
 }
 
 LLVMValueRef _emit_field_access_node(struct cg_llvm *cg, struct ast_node *node)
@@ -574,7 +578,7 @@ LLVMValueRef _emit_field_access_node(struct cg_llvm *cg, struct ast_node *node)
         string_add(&dot_id, id);
         string_add_chars(&dot_id, ".");
         string_add(&dot_id, attr);
-        LLVMTypeRef vt = get_llvm_type(node->type);
+        LLVMTypeRef vt = get_backend_type(node->type);
         assert(vt);
         return LLVMBuildLoad2(cg->builder, vt, v, string_get(&dot_id));
     }
@@ -864,7 +868,7 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
     return target_machine;
 }
 
-LLVMTypeRef get_llvm_type(struct type_item *type)
+LLVMTypeRef get_backend_type(struct type_item *type)
 {
     if(type->backend_type)
         return type->backend_type;

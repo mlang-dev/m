@@ -67,7 +67,7 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
             LLVMValueRef alloca = 0;
             struct type_size_info tsi = get_type_size_info(aai->type);
             unsigned align = tsi.align_bits / 8;
-            LLVMTypeRef sig_type = get_llvm_type(aai->type);
+            LLVMTypeRef sig_type = get_backend_type(aai->type);
             if (LLVMGetTypeKind(aai->target_type) != LLVMStructTypeKind && aai->align.direct_offset == 0
                 && aai->target_type == sig_type) {
                 alloca = create_alloca(
@@ -114,14 +114,14 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
     if (out_fi)
         *out_fi = fi;
     assert(fi);
-    LLVMTypeRef fun_type = create_target_fun_type(cg->base.target_info, fi);
+    LLVMTypeRef fun_type = get_backend_type(node->type);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(node->ft->name), fun_type);
     if (fi->tai.sret_arg_no != InvalidIndex) {
         LLVMValueRef ai = LLVMGetParam(fun, fi->tai.sret_arg_no);
         const char *sret_var = "agg.result";
         LLVMSetValueName2(ai, sret_var, strlen(sret_var));
         add_fun_param_attribute(cg->context, fun, fi->tai.sret_arg_no, "noalias");
-        add_fun_param_type_attribute(cg->context, fun, fi->tai.sret_arg_no, "sret", get_llvm_type(fi->ret.type));
+        add_fun_param_type_attribute(cg->context, fun, fi->tai.sret_arg_no, "sret", get_backend_type(fi->ret.type));
     }
     unsigned param_count = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < param_count; i++) {
@@ -132,7 +132,6 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
         if (aai->type->type == TYPE_STRUCT)
             hashtable_set_p(&cg->varname_2_typename, fun_param->var->var->ident->name, aai->type->name);
     }
-    node->type->backend_type = fun_type;
     return fun;
 }
 
@@ -146,7 +145,6 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
     hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
     LLVMValueRef fun = emit_func_type_node_fi(cg, node->func->func_type, &fi);
-    node->type->backend_type = node->func->func_type->type->backend_type;
     assert(fun && fi);
 
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
@@ -159,7 +157,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
     // } else if (fi->ret.info.kind == AK_INDIRECT) {
     //     // sret struct type return type
     // } else {
-    //     LLVMTypeRef ret_type = get_llvm_type(fi->ret.type);
+    //     LLVMTypeRef ret_type = get_backend_type(fi->ret.type);
     //     if (ret_type != fi->ret.info.type) {
     //         struct type_size_info tsi = get_type_size_info(fi->ret.type);
     //         unsigned align = tsi.align_bits / 8;

@@ -374,8 +374,8 @@ void _init_target_info(struct target_info *ti)
 {
     ti->extend_type = &type_2_wtype[TYPE_INT]; //would use 32 bits
     ti->get_size_int_type = _get_size_int_type;
-    ti->get_pointer_type = _get_pointer_type; //LLVMPointerType(get_llvm_type(fi->ret.type), 0)
-    ti->get_target_type = _get_target_type; //get_llvm_type(fi->ret.type)
+    ti->get_pointer_type = _get_pointer_type; //LLVMPointerType(get_backend_type(fi->ret.type), 0)
+    ti->get_target_type = _get_target_type; //get_backend_type(fi->ret.type)
     ti->get_function_type = _get_function_type;
     ti->fill_struct_fields = 0;//
     ti->get_count_struct_element_types = 0; //LLVMCountStructElementTypes
