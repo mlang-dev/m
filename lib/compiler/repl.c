@@ -88,6 +88,45 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
     return result;
 }
 
+struct eval_result eval_module(struct JIT *jit, struct ast_node *node)
+{
+    struct cg_llvm *cg = jit->engine->be->cg;
+    analyze(cg->base.sema_context, node);
+    enum node_type node_type = node->node_type;
+    if (!node->type){
+        //analyze(jit->cg->base.sema_context, node);
+        emit_code(jit->engine->be->cg, node);
+    }
+    struct eval_result result = { 0 };
+    struct type_item *type = node->type;
+    emit_code(cg, node);
+    if (node) {
+        void *p_fun = emit_ir_code(cg, node);
+        if (p_fun) {
+            //LLVMDumpModule(jit->env->module);
+            _add_current_module_to_jit(jit);
+            struct fun_pointer fp = find_target_address(jit, "_start");
+            // keep global variables in the jit
+            enum type ret_type = get_return_type(type);
+            if (is_int_type(ret_type)) {
+                result.i_value = fp.fp.i_fp();
+                result.type = ret_type;
+            } else if (ret_type == TYPE_F64 || ret_type == TYPE_STRUCT) {
+                result.d_value = fp.fp.d_fp();
+                result.type = TYPE_F64;
+            } else if (ret_type == TYPE_STRING) {
+                result.s_value = fp.fp.s_fp();
+                result.type = TYPE_STRING;
+            }
+            if (node_type != VAR_NODE) {
+                //jit->mjit->removeModule(mk);
+            }
+            _create_jit_module(jit->engine->be->cg);
+        }
+    }
+    return result;
+}
+
 void eval_node(void *p_jit, struct ast_node *node)
 {
     if(!node) return;

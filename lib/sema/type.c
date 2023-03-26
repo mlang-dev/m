@@ -599,6 +599,16 @@ enum type get_type(struct type_item *type)
     return type->type;
 }
 
+enum type get_return_type(struct type_item *type)
+{
+    type = prune(type);
+    assert(type && type->type >= 0 && type->type < TYPE_TYPES);
+    if (type->type == TYPE_FUNCTION){
+        type = array_back_ptr(&type->args);
+    } 
+    return type->type;
+}
+
 string to_string(struct type_item *type)
 {
     string typestr;

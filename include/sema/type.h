@@ -118,6 +118,7 @@ void push_symbol_type(symboltable *st, symbol name, void *type);
 struct type_item *unify(struct type_item *type1, struct type_item *type2, struct array *nongens);
 string to_string(struct type_item *type);
 enum type get_type(struct type_item *type);
+enum type get_return_type(struct type_item *type);
 struct type_item *prune(struct type_item *type);
 bool is_generic(struct type_item *type);
 bool is_any_generic(struct array *types);

@@ -27,6 +27,21 @@ void _store_struct_member_values(struct cg_llvm *cg, LLVMTypeRef alloca_type, LL
     }
 }
 
+void _store_array_values(struct cg_llvm *cg, LLVMTypeRef alloca_type, LLVMValueRef alloca, struct ast_node *array_values)
+{
+    size_t element_count = array_size(&array_values->array_init->block->nodes);
+    LLVMValueRef elm_value;
+    LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(cg->context), 0, false);
+    LLVMValueRef indexes[2] = { zero, zero };
+    for (size_t i = 0; i < element_count; i++) {
+        struct ast_node *arg = array_get_ptr(&array_values->array_init->block->nodes, i);
+        elm_value = emit_ir_code(cg, arg);
+        indexes[1] = LLVMConstInt(LLVMInt32TypeInContext(cg->context), i, false);
+        LLVMValueRef field = LLVMBuildInBoundsGEP2(cg->builder, alloca_type, alloca, indexes, 2, "");
+        LLVMBuildStore(cg->builder, elm_value, field);
+    }
+}
+
 LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bool is_ret, const char *name)
 {
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->base.sema_context->func_stack);
@@ -54,7 +69,38 @@ LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bo
     return alloca;
 }
 
-LLVMValueRef _emit_local_var_type_node(struct cg_llvm *cg, struct ast_node *node)
+LLVMValueRef emit_array_init_node(struct cg_llvm *cg, struct ast_node *node, bool is_ret, const char *name)
+{
+    struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->base.sema_context->func_stack);
+    struct ast_node *ft_node = parent_func->func->func_type;
+    struct type_item *te = node->type;
+    struct type_size_info tsi = get_type_size_info(te);
+    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node);
+    bool is_rvo = check_rvo(fi);
+    is_ret = is_ret || node->is_ret;
+    LLVMValueRef alloca = 0;
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
+    if (is_rvo && is_ret) {
+        assert(fi->tai.sret_arg_no != InvalidIndex);
+        //function parameter with sret: just directly used the pointer passed
+        alloca = LLVMGetParam(fun, fi->tai.sret_arg_no);
+        LLVMTypeRef ret_type = get_llvm_type(fi->ret.type);
+        assert(ret_type);
+        _store_array_values(cg, ret_type, alloca, node);
+    } else {
+        //local stack allocation
+        LLVMTypeRef elm_type = get_llvm_type(te->val_type);
+        LLVMTypeRef type = LLVMArrayType(elm_type, get_array_size(te));
+        node->be_type = type;
+        // LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
+        // assert(type);
+        alloca = create_alloca(type, tsi.align_bits / 8, fun, name);
+        _store_array_values(cg, type, alloca, node);
+    }
+    return alloca;
+}
+
+LLVMValueRef _emit_local_var_struct_node(struct cg_llvm *cg, struct ast_node *node)
 {
     symbol var_name = node->var->var->ident->name;
     LLVMValueRef alloca = 0;
@@ -73,10 +119,34 @@ LLVMValueRef _emit_local_var_type_node(struct cg_llvm *cg, struct ast_node *node
     // KSDbgInfo.emitLocation(this);
 }
 
+
+LLVMValueRef _emit_local_var_array_node(struct cg_llvm *cg, struct ast_node *node)
+{
+    symbol var_name = node->var->var->ident->name;
+    LLVMValueRef alloca = 0;
+
+    if (node->var->init_value->node_type == ARRAY_INIT_NODE) {
+        assert(node->type->name == node->var->init_value->type->name);
+        alloca = emit_array_init_node(cg, node->var->init_value, node->is_ret, string_get(var_name));
+    } else {
+        alloca = emit_ir_code(cg, node->var->init_value);
+        LLVMSetValueName2(alloca, string_get(var_name), string_size(var_name));
+    }
+    if(node->var->init_value)
+        node->be_type = node->var->init_value->be_type;
+    hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
+    /*TODO: local & global sharing the same hashtable now*/
+    hashtable_set_p(&cg->varname_2_typename, var_name, node->type->name);
+    return 0;
+    // KSDbgInfo.emitLocation(this);
+}
+
 LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
 {
     if (node->type->type == TYPE_STRUCT)
-        return _emit_local_var_type_node(cg, node);
+        return _emit_local_var_struct_node(cg, node);
+    else if (node->type->type == TYPE_ARRAY)
+        return _emit_local_var_array_node(cg, node);
     // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
     // fprintf(stderr, "_emit_var_node:2 %lu!\n", node->var_names.size());

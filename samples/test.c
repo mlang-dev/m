@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 int main() {
-    printf("Hello, World ****\n");
-    return 0;
+    int a[1];
+    a[0] = 10;
+    return a[0];
 }
