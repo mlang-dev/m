@@ -136,20 +136,9 @@ struct type_item *_analyze_liter(struct sema_context *context, struct ast_node *
     return _retrieve_type_with_type_name(context, type_name, Immutable);
 }
 
-u32 _get_array_size(struct type_item *type)
-{
-    u32 size = 1;
-    if(type->type != TYPE_ARRAY)
-        return size;
-    for(u32 i=0; i<array_size(&type->dims); i++){
-        size *= *(u32*)array_get(&type->dims, i);
-    }
-    return size * _get_array_size(type->val_type);
-}
-
 bool _is_array_size_same(struct type_item *type1, struct type_item *type2)
 {
-    return type1->type == type2->type && type2->type == TYPE_ARRAY && _get_array_size(type1) == _get_array_size(type2);
+    return type1->type == type2->type && type2->type == TYPE_ARRAY && get_array_size(type1) == get_array_size(type2);
 }
 
 struct ast_node *_node_copy_with_type(struct ast_node *node)

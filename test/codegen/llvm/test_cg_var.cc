@@ -88,3 +88,14 @@ let point:Point2D = Point2D { 10, 20 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
+
+TEST_F(testCGVar, testGlobalVarArrayInitializer)
+{
+    const char test_code[] = R"(
+var a = [10]
+)";
+    const char *expected_ir = R"(
+@a = global [1 x i32] [i32 10]
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}

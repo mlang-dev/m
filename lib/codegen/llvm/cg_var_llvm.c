@@ -94,7 +94,7 @@ LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
     // KSDbgInfo.emitLocation(this);
 }
 
-LLVMValueRef _get_const_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, struct ast_node *struct_values)
+LLVMValueRef _get_const_value_struct_init(struct cg_llvm *cg, LLVMTypeRef type, struct ast_node *struct_values)
 {
     size_t element_count = array_size(&struct_values->adt_init->body->block->nodes);
     LLVMValueRef *values;
@@ -108,14 +108,13 @@ LLVMValueRef _get_const_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, str
     return value;
 }
 
-LLVMValueRef _get_zero_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, struct type_item *type_ext)
+LLVMValueRef _get_zero_value_struct_type(struct cg_llvm *cg, LLVMTypeRef type, struct type_item *struct_type)
 {
-    size_t element_count = array_size(&type_ext->args);
+    size_t element_count = array_size(&struct_type->args);
     LLVMValueRef *values;
     MALLOC(values, element_count * sizeof(LLVMValueRef));
     for (size_t i = 0; i < element_count; i++) {
-        enum type element_type = get_type(array_get_ptr(&type_ext->args, i));
-        //values[i] = LLVMConstReal(LLVMDoubleTypeInContext(cg->context), 10.0 * (i+1));
+        enum type element_type = get_type(array_get_ptr(&struct_type->args, i));
         values[i] = cg->ops[element_type].get_zero(cg->context, cg->builder);
     }
     LLVMValueRef value = LLVMConstNamedStruct(type, values, (unsigned int)element_count);
@@ -123,13 +122,42 @@ LLVMValueRef _get_zero_value_ext_type(struct cg_llvm *cg, LLVMTypeRef type, stru
     return value;
 }
 
-LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *node,
+LLVMValueRef _get_const_array_value(struct cg_llvm *cg, LLVMTypeRef elm_type, struct ast_node *array_values)
+{
+    size_t element_count = array_size(&array_values->array_init->block->nodes);
+    LLVMValueRef *values;
+    MALLOC(values, element_count * sizeof(LLVMValueRef));
+    for (size_t i = 0; i < element_count; i++) {
+        struct ast_node *arg = array_get_ptr(&array_values->array_init->block->nodes, i);
+        values[i] = emit_ir_code(cg, arg);
+    }
+    LLVMValueRef value = LLVMConstArray(elm_type, values, (unsigned int)element_count);
+    FREE(values);
+    return value;
+}
+
+LLVMValueRef _get_zero_value_array_type(struct cg_llvm *cg, LLVMTypeRef elm_type, struct type_item *array_type)
+{
+    size_t element_count = get_array_size(array_type);
+    LLVMValueRef *values;
+    MALLOC(values, element_count * sizeof(LLVMValueRef));
+    enum type element_type = get_type(array_type->val_type);
+    for (size_t i = 0; i < element_count; i++) {
+        values[i] = cg->ops[element_type].get_zero(cg->context, cg->builder);
+    }
+    LLVMValueRef value = LLVMConstArray(elm_type, values, (unsigned int)element_count);
+    FREE(values);
+    return value;
+}
+
+LLVMValueRef _emit_global_var_struct_node(struct cg_llvm *cg, struct ast_node *node,
     bool is_external)
 {
     const char *var_name = string_get(node->var->var->ident->name);
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     assert(node->type);
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, node->type->name);
+    node->be_type = type;
     assert(type);
     if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name) && !gVar && !is_external)
         is_external = true;
@@ -143,9 +171,9 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
             gVar = LLVMAddGlobal(cg->module, type, var_name);
             LLVMValueRef init_value;
             if (node->var->init_value)
-                init_value = _get_const_value_ext_type(cg, type, node->var->init_value);
+                init_value = _get_const_value_struct_init(cg, type, node->var->init_value);
             else
-                init_value = _get_zero_value_ext_type(cg, type, node->type);
+                init_value = _get_zero_value_struct_type(cg, type, node->type);
             LLVMSetInitializer(gVar, init_value);
         }
     }
@@ -165,11 +193,62 @@ LLVMValueRef _emit_global_var_type_node(struct cg_llvm *cg, struct ast_node *nod
     return 0;
 }
 
+LLVMValueRef _emit_global_var_array_node(struct cg_llvm *cg, struct ast_node *node,
+    bool is_external)
+{
+    const char *var_name = string_get(node->var->var->ident->name);
+    LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
+    assert(node->type);
+    LLVMTypeRef elm_type = get_llvm_type(node->type->val_type);
+    LLVMTypeRef type = LLVMArrayType(elm_type, get_array_size(node->type));
+    node->be_type = type;
+    assert(type);
+    if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name) && !gVar && !is_external)
+        is_external = true;
+    if (!gVar) {
+        if (is_external) {
+            //global variable declare without initialization, initialized elsewhere
+            gVar = LLVMAddGlobal(cg->module, type, var_name);
+        } else {
+            //global variable with initialization
+            hashtable_set_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name, node);
+            gVar = LLVMAddGlobal(cg->module, type, var_name);
+            LLVMValueRef init_value;
+            if (node->var->init_value)
+                init_value = _get_const_array_value(cg, elm_type, node->var->init_value);
+            else
+                init_value = _get_zero_value_array_type(cg, elm_type, node->type);
+            LLVMSetInitializer(gVar, init_value);
+            // LLVMValueRef var = LLVMGetNamedGlobal(cg->module, var_name);
+            // printf("hello: %p\n", (void*)var);
+        }
+    }
+    hashtable_set_p(&cg->varname_2_typename, node->var->var->ident->name, node->type->name);
+    if (!cg->base.sema_context->is_repl)
+        return gVar;
+    //printf("node->init_value node type: %s\n", node_type_strings[node->init_value->node_type]);
+    struct ast_node *values = node->var->init_value;
+    char tempname[64];
+    LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(cg->context), 0, false);
+    LLVMValueRef indexes[2] = { zero, zero };
+    for (size_t i = 0; i < array_size(&values->array_init->block->nodes); i++) {
+        struct ast_node *arg = array_get_ptr(&values->array_init->block->nodes, i);
+        LLVMValueRef expr = emit_ir_code(cg, arg);
+        sprintf_s(tempname, sizeof(tempname), "temp%zu", i);
+        indexes[1] = LLVMConstInt(LLVMInt32TypeInContext(cg->context), i, false);
+        LLVMValueRef to_member = LLVMBuildInBoundsGEP2(cg->builder, type, gVar, indexes, 2, tempname);
+        LLVMBuildStore(cg->builder, expr, to_member);
+    }
+    return 0;
+}
+
 LLVMValueRef _emit_global_var_node(struct cg_llvm *cg, struct ast_node *node,
     bool is_external)
 {
     if (node->type->type == TYPE_STRUCT) {
-        return _emit_global_var_type_node(cg, node, is_external);
+        return _emit_global_var_struct_node(cg, node, is_external);
+    } else if (node->type->type == TYPE_ARRAY){
+        return _emit_global_var_array_node(cg, node, is_external);
     }
     const char *var_name = string_get(node->var->var->ident->name);
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
@@ -219,8 +298,9 @@ LLVMValueRef get_global_variable(struct cg_llvm *cg, symbol gv_name)
         return gv;
     struct ast_node *var = hashtable_get_p(&cg->cg_gvar_name_2_asts, gv_name);
     if (var) {
-        LLVMTypeRef type = get_llvm_type(var->type);
+        LLVMTypeRef type = var->be_type? var->be_type : get_llvm_type(var->type);
         gv = LLVMAddGlobal(cg->module, type, name);
+        LLVMSetExternallyInitialized(gv, true);
         return gv;
     }
     return 0;

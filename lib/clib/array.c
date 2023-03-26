@@ -50,7 +50,7 @@ struct array *array_new(size_t element_size)
 void array_init_size(struct array *arr, size_t element_size, size_t init_size, free_fun fun_free)
 {
     void *p_data;
-    CALLOC(p_data, init_size, element_size);
+    MALLOC(p_data, (init_size * element_size));
     arr->_element_size = element_size;
     arr->base.data.p_data = p_data;
     arr->cap = init_size;

@@ -208,7 +208,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
             break;
         case TYPE_TUPLE:
         case TYPE_STRUCT:
-        case TYPE_UNION:
+        case TYPE_VARIANT:
         case TYPE_ARRAY:
             offset_expr = sc_aggr_get_offset_expr(sc, aggr_type, field_node);
             break;

@@ -83,6 +83,7 @@ add_executable(mtest
   compiler/test_jit_adt.cc
   compiler/test_jit.cc
   compiler/test_jit_error.cc
+  compiler/test_jit_array.cc
   codegen/llvm/test_cg_var.cc
   codegen/llvm/test_cg_fun_call.cc
 )

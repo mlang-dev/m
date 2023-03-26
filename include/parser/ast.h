@@ -259,6 +259,8 @@ struct ast_node {
      * 
      */
     struct ast_node *transformed; 
+    void *be_type;  //backend type of the node, for example for backend LLVM, it's LLVMTypeRef 
+    void *be_value; //backend value of the node, for example for backend LLVM, it's LLVMValueRef
 
     bool is_addressed;   //
     bool is_ret;        //this is expected to be removed from sema analysis
