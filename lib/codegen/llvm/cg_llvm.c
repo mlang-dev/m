@@ -716,6 +716,9 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     } else {
         step_v = get_int_one(cg->context);
     }
+    LLVMValueRef cur_var = LLVMBuildLoad2(cg->builder, at, alloca, string_get(var_name));
+    LLVMValueRef next_var = LLVMBuildAdd(cg->builder, cur_var, step_v, "nextvar");
+    LLVMBuildStore(cg->builder, next_var, alloca);
 
     struct ast_node *id = ident_node_new(var_name, node->forloop->var->loc);
     id->type = node->forloop->var->type;
@@ -727,13 +730,12 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef end_cond = emit_ir_code(cg, end_cond_node);
     assert(end_cond);
 
-    LLVMValueRef cur_var = LLVMBuildLoad2(cg->builder, at, alloca, string_get(var_name));
-    LLVMValueRef next_var = LLVMBuildAdd(cg->builder, cur_var, step_v, "nextvar");
-    LLVMBuildStore(cg->builder, next_var, alloca);
+    //IF Not Equals: end_cond, 0
     end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg->context, cg->builder), "loopcond");
 
     LLVMBasicBlockRef after_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "afterloop");
 
+    //if end_cond (id < end != 0) then loop_bb else after_bb
     LLVMBuildCondBr(cg->builder, end_cond, loop_bb, after_bb);
     LLVMPositionBuilderAtEnd(cg->builder, after_bb);
 

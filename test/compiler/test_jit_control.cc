@@ -44,20 +44,16 @@ TEST(testJITControl, testForLoopFunc)
 let forloop n = 
     var j = 0
     for i in 1..n
-        j = i
+        j += i
     j
-forloop 4
+forloop 5
   )";
     struct engine *engine = engine_llvm_new(false);
-    struct cg_llvm *cg = (struct cg_llvm *)engine->be->cg;
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->base.sema_context, block);
-    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
-    auto node1 = (struct ast_node *)array_back_ptr(&block->block->nodes);
-    eval_statement(jit, node);
-    eval_result result1 = eval_exp(jit, node1);
-    ASSERT_EQ(4, result1.i_value);
+    block = split_ast_nodes_with_start_func(0, block);
+    eval_result result = eval_module(jit, block);
+    ASSERT_EQ(10, result.i_value);
     node_free(block);
     jit_free(jit);
     engine_free(engine);

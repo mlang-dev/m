@@ -1,13 +1,11 @@
 [![CMake m](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml) 
 
 # m (mlang)
-mlang is a succinct & expressive general purpose programming language for WebAssembly. It aims to support imperative and functional programming paradigms and is designed with zero-overhead abstraction. It's a static-typed language with type inference support. 
-
-The mlang is implemented in C and compiled as a WebAssembly module so it can be run in the browser or other wasm runtime like nodejs and wastime etc. It can compile m codes into another wasm module and run it in the same environment. 
+A general purpose static-typed programming language with type inference written in C and can be compiled as a WebAssembly module.
 
 mlang is still in early development phase and subject to significant changes.
  
-MacOS or Linux or WSL is the recommended development OS, and clang/llvm-14 is the compiler for mlang development.
+WSL or Ubuntu 22.04 is the recommended development OS, and clang/llvm-14 is the compiler for mlang development.
 
 ## m code plotting mandelbrot set 
 You can try [mlang](https://mlang.dev) to run the following m code in the browser.

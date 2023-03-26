@@ -587,7 +587,6 @@ struct type_item *_analyze_binary(struct sema_context *context, struct ast_node 
 
 struct type_item *_analyze_assign(struct sema_context *context, struct ast_node *node)
 {
-    set_lvalue(node->binop->lhs);
     if(node->binop->lhs->node_type == IDENT_NODE){
         symbol var_name = node->binop->lhs->ident->name;
         if(!has_symbol(&context->decl_2_typexprs, var_name)){
@@ -624,9 +623,13 @@ struct type_item *_analyze_assign(struct sema_context *context, struct ast_node 
     if(is_assign_op_sugar(node->binop->opcode)){
         enum op_code binop = get_op_code_from_assign_op(node->binop->opcode);
         struct ast_node *new_node = binary_node_new(binop, _node_copy_with_type(node->binop->lhs), _node_copy_with_type(node->binop->rhs), node->loc);
-        node->transformed = assign_node_new(OP_ASSIGN, _node_copy_with_type(node->binop->lhs), new_node, node->loc);
+        struct ast_node *new_lhs = _node_copy_with_type(node->binop->lhs);
+        set_lvalue(new_lhs, true);
+        node->transformed = assign_node_new(OP_ASSIGN, new_lhs, new_node, node->loc);
         node->transformed->type = result;
     }
+    node = node->transformed ? node->transformed : node;
+    set_lvalue(node->binop->lhs, true);
     return result;
 }
 
