@@ -5,14 +5,13 @@
 
 const unsigned ALL_REQUIRED = ~0U;
 
-void fun_info_init(struct fun_info *fi, struct ast_node *func_type)
+void fun_info_init(struct fun_info *fi, struct type_item *fun_type)
 {
-    struct type_item *fun_type = func_type->type;
     unsigned param_num = (unsigned)array_size(&fun_type->args) - 1; //args -> ret type
-    if (func_type->ft->is_variadic)
+    if (fun_type->is_variadic)
         param_num -= 1;
     fi->is_chain_call = false;
-    fi->required_args = func_type->ft->is_variadic ? param_num : ALL_REQUIRED;
+    fi->required_args = fun_type->is_variadic ? param_num : ALL_REQUIRED;
     array_init(&fi->args, sizeof(struct abi_arg_info));
     target_arg_info_init(&fi->tai);
 
@@ -92,10 +91,11 @@ void _map_to_target_arg_info(struct target_info *ti, struct fun_info *fi)
     fi->tai.total_target_args = ir_arg_no;
 }
 
-struct fun_info *compute_target_fun_info(struct target_info *ti, fn_compute_fun_info compute_fun_info, struct ast_node *func_type)
+struct fun_info *compute_target_fun_info(struct target_info *ti, fn_compute_fun_info compute_fun_info, struct type_item *func_type)
 {
     struct hashtable *fun_infos = &ti->fun_infos;
-    struct fun_info *result = hashtable_get_p(fun_infos, func_type->ft->name);
+    symbol ft_name = func_type->name;
+    struct fun_info *result = hashtable_get_p(fun_infos, ft_name);
     if (result)
         return result;
     struct fun_info fi;
@@ -104,8 +104,8 @@ struct fun_info *compute_target_fun_info(struct target_info *ti, fn_compute_fun_
     // direct or extend without a specified coerce type, specify the
     // default now.
     _map_to_target_arg_info(ti, &fi);
-    hashtable_set_p(fun_infos, func_type->ft->name, &fi);
-    return (struct fun_info *)hashtable_get_p(fun_infos, func_type->ft->name);
+    hashtable_set_p(fun_infos, ft_name, &fi);
+    return (struct fun_info *)hashtable_get_p(fun_infos, ft_name);
 }
 
 TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi)

@@ -35,7 +35,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *arg;
     symbol callee = node->call->specialized_callee ? node->call->specialized_callee : node->call->callee;
-    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->call->callee_func_type);
+    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->call->callee_func_type->type);
     struct ast_node *fun_type = hashtable_get_p(&cg->func_name_2_ast, callee);
     u32 param_num = array_size(&fun_type->ft->params->block->nodes);
     u32 func_index = hashtable_get_int(&cg->func_name_2_idx, callee);

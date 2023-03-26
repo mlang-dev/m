@@ -353,7 +353,7 @@ struct type_item *_analyze_func_type(struct sema_context *context, struct ast_no
     assert(node->ft->ret_type_item_node);
     struct type_item *to = create_type_from_type_item_node(context, node->ft->ret_type_item_node->type_item_node, Immutable);
     array_push(&fun_sig, &to);
-    node->type = create_type_fun(&fun_sig);
+    node->type = create_type_fun(node->ft->is_variadic, &fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
     push_symbol_type(&context->decl_2_typexprs, node->ft->name, node->type);
     return node->type;
@@ -385,7 +385,7 @@ struct type_item *_analyze_func(struct sema_context *context, struct ast_node *n
     push_symbol_type(&context->decl_2_typexprs, node->func->func_type->ft->name, fun_type_var);
     struct type_item *ret_type = analyze(context, node->func->body);
     array_push(&fun_sig, &ret_type);
-    struct type_item *result_type = create_type_fun(&fun_sig);
+    struct type_item *result_type = create_type_fun(node->func->func_type->ft->is_variadic, &fun_sig);
     unify(fun_type_var, result_type, &context->nongens);
     struct type_item *result = prune(fun_type_var);
     node->func->func_type->type = result;
@@ -444,7 +444,7 @@ struct type_item *_analyze_call(struct sema_context *context, struct ast_node *n
     }
     struct type_item *result_type = create_type_var(Immutable); //?? immutable result assumed
     array_push(&args, &result_type);
-    struct type_item *call_fun = create_type_fun(&args);
+    struct type_item *call_fun = create_type_fun(fun_type->is_variadic, &args);
     unify(call_fun, fun_type, &context->nongens);
     if(sp_fun){
         fun_type = prune(fun_type);

@@ -215,7 +215,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_it
     case MEMORY:
         return create_indirect_return_result(ti, ret_type);
     case INTEGER:
-        result_type = _get_int_type_at_offset(get_llvm_type(ret_type), 0, ret_type, 0);
+        result_type = _get_int_type_at_offset(get_backend_type(ret_type), 0, ret_type, 0);
         if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
             if (is_promotable_int(ret_type))
                 return create_extend(ti, ret_type);
@@ -224,7 +224,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_it
     // AMD64-ABI 3.2.3p4: Rule 4. If the class is SSE, the next
     // available SSE register of the sequence %xmm0, %xmm1 is used.
     case SSE:
-        result_type = _get_sse_type_at_offset(get_llvm_type(ret_type), 0, ret_type, 0);
+        result_type = _get_sse_type_at_offset(get_backend_type(ret_type), 0, ret_type, 0);
         break;
     // AMD64-ABI 3.2.3p4: Rule 6. If the class is X87, the value is
     // returned on the X87 stack in %st0 as 80-bit x87 number.
@@ -251,12 +251,12 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_it
     case NO_CLASS:
         break;
     case INTEGER:
-        high_part = _get_int_type_at_offset(get_llvm_type(ret_type), 8, ret_type, 8);
+        high_part = _get_int_type_at_offset(get_backend_type(ret_type), 8, ret_type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(ret_type, high_part, 8);
         break;
     case SSE:
-        high_part = _get_sse_type_at_offset(get_llvm_type(ret_type), 8, ret_type, 8);
+        high_part = _get_sse_type_at_offset(get_backend_type(ret_type), 8, ret_type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(ret_type, high_part, 8);
         break;
@@ -265,7 +265,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_it
         break;
     case X87UP:
         if (low != X87) {
-            high_part = _get_sse_type_at_offset(get_llvm_type(ret_type), 8, ret_type, 8);
+            high_part = _get_sse_type_at_offset(get_backend_type(ret_type), 8, ret_type, 8);
             if (low == NO_CLASS)
                 return create_direct_type_offset(ret_type, high_part, 8);
         }
@@ -299,14 +299,14 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
         assert(false);
     case INTEGER:
         ++(*needed_int);
-        result_type = _get_int_type_at_offset(get_llvm_type(type), 0, type, 0);
+        result_type = _get_int_type_at_offset(get_backend_type(type), 0, type, 0);
         if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
             if (is_promotable_int(type))
                 return create_extend(ti, type);
         }
         break;
     case SSE: {
-        LLVMTypeRef ir_type = get_llvm_type(type);
+        LLVMTypeRef ir_type = get_backend_type(type);
         result_type = _get_sse_type_at_offset(ir_type, 0, type, 0);
         ++(*needed_sse);
     }
@@ -322,13 +322,13 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
         break;
     case INTEGER:
         ++(*needed_int);
-        high_part = _get_int_type_at_offset(get_llvm_type(type), 8, type, 8);
+        high_part = _get_int_type_at_offset(get_backend_type(type), 8, type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(type, high_part, 8);
         break;
     case X87UP:
     case SSE:
-        high_part = _get_sse_type_at_offset(get_llvm_type(type), 8, type, 8);
+        high_part = _get_sse_type_at_offset(get_backend_type(type), 8, type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(type, high_part, 8);
         ++(*needed_sse);

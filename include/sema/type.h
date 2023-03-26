@@ -82,6 +82,7 @@ struct type_item {
         struct array args; 
     }; 
     struct array dims;  //dimensions for array type
+    bool is_variadic;   //for function type, indicating whether it's vardiadic function
     void *backend_type;  //backend type of the node, for example for backend LLVM, it's LLVMTypeRef 
 };
 
@@ -104,7 +105,7 @@ struct type_item *create_type_oper_struct(symbol type_name, enum Mut mut, struct
 struct type_item *create_type_oper_tuple(enum Mut mut, struct array *args);
 struct type_item *create_type_oper_union(symbol type_name, enum Mut mut, struct array *args);
 struct type_item *create_nullary_type(enum type type);
-struct type_item *create_type_fun(struct array *args);
+struct type_item *create_type_fun(bool is_variadic, struct array *args);
 struct type_item *create_unit_type();
 struct type_item *wrap_as_fun_type(struct type_item *oper);
 struct type_item *create_ref_type(struct type_item *val_type, enum Mut mut);
@@ -143,6 +144,7 @@ struct type_item_pair *get_type_item_pair(symbol type_name);
 struct type_item *tep_find_type_item(struct type_item_pair *pair, enum Mut mut, bool is_ref, enum Mut referent_mut);
 struct type_item *find_type_item(struct type_item *oper, enum Mut mut);
 
+#define is_prime_type(type) (type < TYPE_FUNCTION)
 #define is_int_type(type) (type >= TYPE_BOOL && type <= TYPE_INT)
 #define is_aggregate_type(node_type) (node_type->type==TYPE_STRUCT || node_type->type==TYPE_VARIANT || node_type->type == TYPE_ARRAY || node_type->type == TYPE_TUPLE)
 #define is_ref_type(node_type) (node_type->type == TYPE_REF)

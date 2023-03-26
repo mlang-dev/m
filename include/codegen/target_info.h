@@ -137,8 +137,8 @@ struct target_info {
     /*type get*/
     TargetType extend_type; //LLVMInt8TypeInContext(get_llvm_context()); //would use 32 bits
     fn_get_size_int_type get_size_int_type;//LLVMIntTypeInContext(get_llvm_context(), width)
-    fn_get_pointer_type get_pointer_type; //LLVMPointerType(get_llvm_type(fi->ret.type), 0)
-    fn_get_target_type get_target_type; //get_llvm_type(fi->ret.type)
+    fn_get_pointer_type get_pointer_type; //LLVMPointerType(get_backend_type(fi->ret.type), 0)
+    fn_get_target_type get_target_type; //get_backend_type(fi->ret.type)
     fn_get_function_type get_function_type;
     fn_fill_struct_fields fill_struct_fields;//
     fn_get_count_struct_element_types get_count_struct_element_types; //LLVMCountStructElementTypes

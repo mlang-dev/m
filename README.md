@@ -3,10 +3,6 @@
 # m (mlang)
 A general purpose static-typed programming language with type inference written in C and can be compiled as a WebAssembly module.
 
-mlang is still in early development phase and subject to significant changes.
- 
-WSL or Ubuntu 22.04 is the recommended development OS, and clang/llvm-14 is the compiler for mlang development.
-
 ## m code plotting mandelbrot set 
 You can try [mlang](https://mlang.dev) to run the following m code in the browser.
 The code will yield the following image:

@@ -493,6 +493,7 @@ let var_func ... = 0\n\
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_STREQ("var_func", string_get(node->func->func_type->ft->name));
     ASSERT_EQ(true, node->func->func_type->ft->is_variadic);
+    ASSERT_EQ(true, node->func->func_type->type->is_variadic);
     ASSERT_EQ(FUNC_NODE, node->node_type);
     struct type_item *var = node->type;
     ASSERT_EQ(TYPE_FUNCTION, var->type);
