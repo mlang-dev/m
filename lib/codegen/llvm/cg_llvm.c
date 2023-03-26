@@ -500,12 +500,7 @@ LLVMValueRef _emit_ident_node(struct cg_llvm *cg, struct ast_node *node)
 
 LLVMValueRef _emit_assign_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    LLVMValueRef assignee = 0;
-    if(node->binop->lhs->node_type == IDENT_NODE){
-         assignee = _emit_ident_node(cg, node->binop->lhs);
-    }else{
-        assert(false);
-    }
+    LLVMValueRef assignee = emit_ir_code(cg, node->binop->lhs);
     LLVMValueRef expr = emit_ir_code(cg, node->binop->rhs);
     return LLVMBuildStore(cg->builder, expr, assignee);
 }
