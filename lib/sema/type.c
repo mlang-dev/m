@@ -231,6 +231,8 @@ struct type_item *_create_type_oper(enum kind kind, symbol canon_name, symbol ty
     oper->canon_name = canon_name;
     oper->val_type = val_type;
     oper->mut = mut;
+    oper->is_variadic = false;
+    oper->backend_type = 0;
     if(kind == KIND_OPER){
         if(args){
             oper->args = *args;
@@ -345,18 +347,20 @@ struct type_item *create_nullary_type(enum type type)
     return create_type_oper(KIND_OPER, type_symbol, type, Immutable, 0);
 }
 
-struct type_item *create_type_fun(struct array *args)
+struct type_item *create_type_fun(bool is_variadic, struct array *args)
 {
     symbol type_name = get_type_symbol(TYPE_FUNCTION);
     symbol fun_type_name = _to_fun_type_name(args);
+    struct type_item *type = 0;
     if(fun_type_name){
-        return create_type_oper(KIND_OPER, fun_type_name, TYPE_FUNCTION, Immutable, args);
+        type = create_type_oper(KIND_OPER, fun_type_name, TYPE_FUNCTION, Immutable, args);
     } else {
         //we still have type variable, could be generic function
-        struct type_item *type_var = _create_type_oper(KIND_OPER, type_name, type_name, TYPE_FUNCTION, Immutable, 0, args);
-        hashtable_set_p(&_type_item_vars, type_var, type_var);
-        return type_var;
+        type = _create_type_oper(KIND_OPER, type_name, type_name, TYPE_FUNCTION, Immutable, 0, args);
+        hashtable_set_p(&_type_item_vars, type, type);
     }
+    type->is_variadic = is_variadic;
+    return type;
 }
 
 struct type_item *create_array_type(struct type_item *element_type, struct array *dims)
@@ -375,7 +379,7 @@ struct type_item *wrap_as_fun_type(struct type_item *oper)
     struct array fun_sig;
     array_init(&fun_sig, sizeof(struct type_item *));
     array_push(&fun_sig, &oper);
-    return create_type_fun(&fun_sig);
+    return create_type_fun(oper->is_variadic, &fun_sig);
 }
 
 void type_item_free(struct type_item *type)

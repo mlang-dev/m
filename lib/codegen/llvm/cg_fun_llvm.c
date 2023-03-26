@@ -110,7 +110,7 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
     assert(node->type);
     struct type_item *proto_type = node->type;
     assert(proto_type->kind == KIND_OPER);
-    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node);
+    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->type);
     if (out_fi)
         *out_fi = fi;
     assert(fi);

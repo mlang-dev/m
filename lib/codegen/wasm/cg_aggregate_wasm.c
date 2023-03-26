@@ -55,7 +55,7 @@ void wasm_emit_adt_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
 {
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *ft_node = fc->fun->func->func_type;
-    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node);
+    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node->type);
     bool is_rvo = check_rvo(fi);
     struct type_size_info tsi = get_type_size_info(node->type);
     if (is_rvo && node->is_ret) {
@@ -76,7 +76,7 @@ void wasm_emit_array_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_
     if (!node->array_init) return; //empty list does nothing
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *ft_node = fc->fun->func->func_type;
-    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node);
+    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node->type);
     bool is_rvo = check_rvo(fi);
     u32 addr_var_index;
     if (is_rvo && node->is_ret) {

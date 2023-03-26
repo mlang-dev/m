@@ -58,7 +58,7 @@ LLVMTypeRef get_double_type(LLVMContextRef context, struct type_item *type)
     return LLVMDoubleTypeInContext(context);
 }
 
-LLVMTypeRef get_ext_type(LLVMContextRef context, struct type_item *type_exp)
+LLVMTypeRef _create_struct_backend_type(LLVMContextRef context, struct type_item *type_exp)
 {
     assert(is_aggregate_type(type_exp));
     assert(g_cg);
@@ -318,7 +318,7 @@ struct ops double_ops = {
 };
 
 struct ops aggr_ops = {
-    get_ext_type,
+    _create_struct_backend_type,
     get_double_const,
     get_int_zero,
     get_int_one,
@@ -450,7 +450,16 @@ void llvm_cg_free(struct cg_llvm *cg)
 LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_item *type)
 {
     enum type en_type = get_type(type);
-    return cg->ops[en_type].get_type(cg->context, type);
+    if(is_prime_type(type->type))
+        return cg->ops[en_type].get_type(cg->context, type);
+    else if(type->type == TYPE_ARRAY){
+        LLVMTypeRef elm_type = get_llvm_type(type->val_type);
+        return LLVMArrayType(elm_type, get_array_size(type));
+    } else if(type->type == TYPE_STRUCT){
+        return _create_struct_backend_type(cg->context, type);
+    }
+    assert(false);
+    return 0;
 }
 
 LLVMValueRef _emit_block_node(struct cg_llvm *cg, struct ast_node *node)
@@ -490,12 +499,11 @@ LLVMValueRef _emit_ident_node(struct cg_llvm *cg, struct ast_node *node)
         v = get_global_variable(cg, node->ident->name);
         assert(v);
     }
-    node->type->backend_type = node->type->type == TYPE_ARRAY ? node->ident->var->type->backend_type : get_llvm_type(node->type);
+    LLVMTypeRef type = get_llvm_type(node->type);
     if (node->is_lvalue || is_aggregate_type(node->type)){
         return v;
     }
-    assert(node->type->backend_type);
-    return LLVMBuildLoad2(cg->builder, node->type->backend_type, v, string_get(node->ident->name));
+    return LLVMBuildLoad2(cg->builder, type, v, string_get(node->ident->name));
 }
 
 LLVMValueRef _emit_assign_node(struct cg_llvm *cg, struct ast_node *node)
@@ -536,7 +544,7 @@ LLVMValueRef _emit_array_index(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(cg->context), 0, false);
     LLVMValueRef index_value = LLVMConstInt(LLVMInt32TypeInContext(cg->context), index, false);
     LLVMValueRef indexes[2] = { zero, index_value };
-    LLVMValueRef v = LLVMBuildInBoundsGEP2(cg->builder, node->index->object->type->backend_type, obj, indexes, 2, "");
+    LLVMValueRef v = LLVMBuildInBoundsGEP2(cg->builder, get_llvm_type(node->index->object->type), obj, indexes, 2, "");
     if(node->is_lvalue){
         return v;
     }
@@ -681,8 +689,7 @@ LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
 LLVMValueRef _emit_struct_node(struct cg_llvm *cg, struct ast_node *node)
 {
     assert(node->type);
-    // TODO: Notes: get_ext_type having set side effects, so can't be removed
-    get_ext_type(cg->context, node->type);
+    _create_struct_backend_type(cg->context, node->type);
     return 0;
 }
 
@@ -859,8 +866,11 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
 
 LLVMTypeRef get_llvm_type(struct type_item *type)
 {
+    if(type->backend_type)
+        return type->backend_type;
     assert(g_cg);
-    return _get_llvm_type(g_cg, type);
+    type->backend_type = _get_llvm_type(g_cg, type);
+    return type->backend_type;
 }
 
 LLVMTargetDataRef get_llvm_data_layout()

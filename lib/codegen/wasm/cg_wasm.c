@@ -1134,7 +1134,7 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
         func_type_node = array_get_ptr(&block->block->nodes, i);
         struct type_item *func_type = func_type_node->type;
         u32 num_params = array_size(&func_type->args) - 1;
-        struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, func_type_node);
+        struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, func_type_node->type);
         bool has_sret = fi_has_sret(fi);
         ba_add(ba, WasmTypeFunc);
         if(has_sret){
