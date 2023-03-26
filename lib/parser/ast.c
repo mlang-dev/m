@@ -42,8 +42,6 @@ struct ast_node *ast_node_new(enum node_type node_type, struct source_location l
     node->is_addressed = false;
     node->is_addressable = false;
     node->transformed = 0;
-    node->be_type = 0;
-    node->be_value = 0;
     return node;
 }
 

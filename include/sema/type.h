@@ -82,6 +82,7 @@ struct type_item {
         struct array args; 
     }; 
     struct array dims;  //dimensions for array type
+    void *backend_type;  //backend type of the node, for example for backend LLVM, it's LLVMTypeRef 
 };
 
 

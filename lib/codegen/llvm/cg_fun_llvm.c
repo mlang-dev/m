@@ -132,7 +132,7 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
         if (aai->type->type == TYPE_STRUCT)
             hashtable_set_p(&cg->varname_2_typename, fun_param->var->var->ident->name, aai->type->name);
     }
-    node->be_type = fun_type;
+    node->type->backend_type = fun_type;
     return fun;
 }
 
@@ -146,7 +146,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
     hashtable_clear(&cg->varname_2_irvalues);
     struct fun_info *fi = 0;
     LLVMValueRef fun = emit_func_type_node_fi(cg, node->func->func_type, &fi);
-    node->be_type = node->func->func_type->be_type;
+    node->type->backend_type = node->func->func_type->type->backend_type;
     assert(fun && fi);
 
     LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(cg->context, fun, "entry");
