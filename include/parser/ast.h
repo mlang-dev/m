@@ -392,7 +392,7 @@ struct ast_node *split_ast_nodes_with_start_func(struct hashtable *symbol_2_int_
 struct ast_node *get_root_object(struct ast_node *node);
 
 bool is_refered_later(struct ast_node *node);
-void set_lvalue(struct ast_node *node);
+void set_lvalue(struct ast_node *node, bool is_lvalue);
 
 #ifdef __cplusplus
 }

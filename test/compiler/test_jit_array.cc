@@ -48,3 +48,22 @@ f()
     engine_free(engine);
 }
 
+TEST(testJITArray, array_local_array_write_read)
+{
+    char test_code[] = R"(
+let f() =
+    var a = [10]
+    a[0] = 20
+    a[0]
+f()
+)";
+    struct engine *engine = engine_llvm_new(false);
+    JIT *jit = build_jit(engine);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    eval_result result = eval_module(jit, block);
+    ASSERT_EQ(20, result.i_value);
+    node_free(block);
+    jit_free(jit);
+    engine_free(engine);
+}

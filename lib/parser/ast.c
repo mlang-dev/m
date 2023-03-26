@@ -1361,12 +1361,12 @@ bool is_refered_later(struct ast_node *node)
     return node->node_type == IDENT_NODE;
 }
 
-void set_lvalue(struct ast_node *node)
+void set_lvalue(struct ast_node *node, bool is_lvalue)
 {
-    node->is_lvalue = true;
+    node->is_lvalue = is_lvalue;
     while(node->node_type == MEMBER_INDEX_NODE){
         node = node->index->object;
-        node->is_lvalue = true;
+        node->is_lvalue = is_lvalue;
     }
 }
 
