@@ -490,12 +490,12 @@ LLVMValueRef _emit_ident_node(struct cg_llvm *cg, struct ast_node *node)
         v = get_global_variable(cg, node->ident->name);
         assert(v);
     }
-    node->be_type = node->type->type == TYPE_ARRAY ? node->ident->var->be_type : get_llvm_type(node->type);
+    node->type->backend_type = node->type->type == TYPE_ARRAY ? node->ident->var->type->backend_type : get_llvm_type(node->type);
     if (node->is_lvalue || is_aggregate_type(node->type)){
         return v;
     }
-    assert(node->be_type);
-    return LLVMBuildLoad2(cg->builder, node->be_type, v, string_get(node->ident->name));
+    assert(node->type->backend_type);
+    return LLVMBuildLoad2(cg->builder, node->type->backend_type, v, string_get(node->ident->name));
 }
 
 LLVMValueRef _emit_assign_node(struct cg_llvm *cg, struct ast_node *node)
@@ -536,7 +536,7 @@ LLVMValueRef _emit_array_index(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(cg->context), 0, false);
     LLVMValueRef index_value = LLVMConstInt(LLVMInt32TypeInContext(cg->context), index, false);
     LLVMValueRef indexes[2] = { zero, index_value };
-    LLVMValueRef v = LLVMBuildInBoundsGEP2(cg->builder, node->index->object->be_type, obj, indexes, 2, "");
+    LLVMValueRef v = LLVMBuildInBoundsGEP2(cg->builder, node->index->object->type->backend_type, obj, indexes, 2, "");
     if(node->is_lvalue){
         return v;
     }
@@ -834,7 +834,6 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case MATCH_NODE:
             break;
     }
-    node->be_value = value;
     return value;
 }
 

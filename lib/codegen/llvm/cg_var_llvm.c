@@ -91,7 +91,7 @@ LLVMValueRef emit_array_init_node(struct cg_llvm *cg, struct ast_node *node, boo
         //local stack allocation
         LLVMTypeRef elm_type = get_llvm_type(te->val_type);
         LLVMTypeRef type = LLVMArrayType(elm_type, get_array_size(te));
-        node->be_type = type;
+        node->type->backend_type = type;
         // LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
         // assert(type);
         alloca = create_alloca(type, tsi.align_bits / 8, fun, name);
@@ -133,7 +133,7 @@ LLVMValueRef _emit_local_var_array_node(struct cg_llvm *cg, struct ast_node *nod
         LLVMSetValueName2(alloca, string_get(var_name), string_size(var_name));
     }
     if(node->var->init_value)
-        node->be_type = node->var->init_value->be_type;
+        node->type->backend_type = node->var->init_value->type->backend_type;
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     /*TODO: local & global sharing the same hashtable now*/
     hashtable_set_p(&cg->varname_2_typename, var_name, node->type->name);
@@ -227,7 +227,7 @@ LLVMValueRef _emit_global_var_struct_node(struct cg_llvm *cg, struct ast_node *n
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     assert(node->type);
     LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, node->type->name);
-    node->be_type = type;
+    node->type->backend_type = type;
     assert(type);
     if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name) && !gVar && !is_external)
         is_external = true;
@@ -271,7 +271,7 @@ LLVMValueRef _emit_global_var_array_node(struct cg_llvm *cg, struct ast_node *no
     assert(node->type);
     LLVMTypeRef elm_type = get_llvm_type(node->type->val_type);
     LLVMTypeRef type = LLVMArrayType(elm_type, get_array_size(node->type));
-    node->be_type = type;
+    node->type->backend_type = type;
     assert(type);
     if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name) && !gVar && !is_external)
         is_external = true;
@@ -368,7 +368,7 @@ LLVMValueRef get_global_variable(struct cg_llvm *cg, symbol gv_name)
         return gv;
     struct ast_node *var = hashtable_get_p(&cg->cg_gvar_name_2_asts, gv_name);
     if (var) {
-        LLVMTypeRef type = var->be_type? var->be_type : get_llvm_type(var->type);
+        LLVMTypeRef type = var->type->backend_type? var->type->backend_type : get_llvm_type(var->type);
         gv = LLVMAddGlobal(cg->module, type, name);
         LLVMSetExternallyInitialized(gv, true);
         return gv;
