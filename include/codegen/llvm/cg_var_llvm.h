@@ -25,6 +25,7 @@ extern "C" {
 LLVMValueRef emit_var_node(struct cg_llvm *cg, struct ast_node *node);
 LLVMValueRef get_global_variable(struct cg_llvm *cg, symbol gv_name);
 LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *member_values, bool is_ret, const char *name);
+LLVMValueRef emit_array_init_node(struct cg_llvm *cg, struct ast_node *init_values, bool is_ret, const char *name);
 
 #ifdef __cplusplus
 }

@@ -67,27 +67,6 @@ struct engine *engine_wasm_new()
     return engine;
 }
 
-
-#define IS_OUT_OF_FUNC(node_type)  (node_type == FUNC_NODE || node_type == WasmImportTypeFunc || node_type == STRUCT_NODE)
-/*
- * collect global statements into _start function
- */
-struct ast_node *_start_func_node(struct cg_wasm *cg, struct hashtable *symbol_2_int_types, struct ast_node *expr_ast, struct ast_node *others)
-{
-    u32 nodes = array_size(&expr_ast->block->nodes);
-    struct ast_node *node;
-    struct ast_node *_start_block = block_node_new_empty();
-    for (u32 i = 0; i < nodes; i++) {
-        node = array_get_ptr(&expr_ast->block->nodes, i);
-        if (IS_OUT_OF_FUNC(node->node_type)){
-            block_node_add(others, node);
-        } else {
-            block_node_add(_start_block, node);
-        }
-    } 
-    return wrap_nodes_as_function(symbol_2_int_types, to_symbol("_start"), _start_block);
-}
-
 struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbol_2_int_types, struct ast_node *block)
 {
     struct ast_node *node, *sp_func;
@@ -136,14 +115,12 @@ u8* compile_to_wasm(struct engine *engine, const char *expr)
     if (!expr_ast){
         return 0;
     }
-    struct ast_node *user_global_block = block_node_new_empty();
-    struct ast_node *user_start_func = _start_func_node(cg, &engine->fe->parser->symbol_2_int_types, expr_ast, user_global_block);
+    struct ast_node *user_global_block = split_ast_nodes_with_start_func(&engine->fe->parser->symbol_2_int_types, expr_ast);
     free_block_node(expr_ast, false);
     struct ast_node *ast_block = block_node_new_empty();
     block_node_add_block(ast_block, cg->sys_block);
     block_node_add_block(ast_block, cg->imports.import_block);
     block_node_add_block(ast_block, user_global_block);
-    block_node_add(ast_block, user_start_func);
     analyze(engine->fe->sema_context, ast_block);
     struct error_report *er = get_last_error_report(engine->fe->sema_context);
     if(er){
@@ -156,6 +133,5 @@ u8* compile_to_wasm(struct engine *engine, const char *expr)
 exit:
     free_block_node(ast_block, false);
     node_free(user_global_block);
-    node_free(user_start_func);
     return cg->ba.data;
 }

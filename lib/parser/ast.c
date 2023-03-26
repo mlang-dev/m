@@ -1319,9 +1319,34 @@ struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, sy
     ARRAY_FUN_PARAM(fun_params);
     struct ast_node *params = block_node_new(&fun_params);
     struct ast_node *func_type = func_type_item_node_default_new(func_name, params, 0, 0, false, false, block->loc);
-    hashtable_set_int(symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
+    if(symbol_2_int_types)
+        hashtable_set_int(symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
     return function_node_new(func_type, block, block->loc);
 }
+
+//TODO: 0 here meaning WasmImportTypeFunc
+#define IS_OUT_OF_FUNC(node_type)  (node_type == FUNC_NODE || node_type == 0 || node_type == STRUCT_NODE)
+/*
+ * collect global statements into _start function
+ */
+struct ast_node *split_ast_nodes_with_start_func(struct hashtable *symbol_2_int_types, struct ast_node *expr_ast)
+{
+    struct ast_node *block = block_node_new_empty();
+    u32 nodes = array_size(&expr_ast->block->nodes);
+    struct ast_node *node;
+    struct ast_node *_start_block = block_node_new_empty();
+    for (u32 i = 0; i < nodes; i++) {
+        node = array_get_ptr(&expr_ast->block->nodes, i);
+        if (IS_OUT_OF_FUNC(node->node_type)){
+            block_node_add(block, node);
+        } else {
+            block_node_add(_start_block, node);
+        }
+    } 
+    block_node_add(block, wrap_nodes_as_function(symbol_2_int_types, to_symbol("_start"), _start_block));
+    return block;
+}
+
 
 struct ast_node *get_root_object(struct ast_node *node)
 {

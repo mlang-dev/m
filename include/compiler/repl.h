@@ -32,6 +32,7 @@ struct JIT *build_jit(struct engine *engine);
 void eval_node(void *p_jit, struct ast_node *node);
 void eval_statement(void *p_jit, struct ast_node *node);
 struct eval_result eval_exp(struct JIT *jit, struct ast_node *node);
+struct eval_result eval_module(struct JIT *jit, struct ast_node *node);
 int run_repl();
 
 #ifdef __cplusplus

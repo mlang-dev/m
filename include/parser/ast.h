@@ -388,7 +388,9 @@ struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name);
 
 struct ast_node *wrap_expr_as_function(struct hashtable *symbol_2_int_types, struct ast_node *exp, symbol fn);
 struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, symbol func_name, struct ast_node *block);
+struct ast_node *split_ast_nodes_with_start_func(struct hashtable *symbol_2_int_types, struct ast_node *expr_ast);
 struct ast_node *get_root_object(struct ast_node *node);
+
 bool is_refered_later(struct ast_node *node);
 void set_lvalue(struct ast_node *node);
 
