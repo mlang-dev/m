@@ -18,6 +18,7 @@
 #include "codegen/llvm/winx86_64_abi.h"
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
+#include "sema/eval.h"
 #include <llvm-c/Support.h>
 #include <llvm-c/TargetMachine.h>
 #include <llvm-c/Core.h>
@@ -489,12 +490,12 @@ LLVMValueRef _emit_ident_node(struct cg_llvm *cg, struct ast_node *node)
         v = get_global_variable(cg, node->ident->name);
         assert(v);
     }
+    node->be_type = node->type->type == TYPE_ARRAY ? node->ident->var->be_type : get_llvm_type(node->type);
     if (node->is_lvalue || is_aggregate_type(node->type)){
         return v;
     }
-    LLVMTypeRef vt = get_llvm_type(node->type);
-    assert(vt);
-    return LLVMBuildLoad2(cg->builder, vt, v, string_get(node->ident->name));
+    assert(node->be_type);
+    return LLVMBuildLoad2(cg->builder, node->be_type, v, string_get(node->ident->name));
 }
 
 LLVMValueRef _emit_assign_node(struct cg_llvm *cg, struct ast_node *node)
@@ -535,10 +536,16 @@ LLVMValueRef _emit_unary_node(struct cg_llvm *cg, struct ast_node *node)
 
 LLVMValueRef _emit_array_index(struct cg_llvm *cg, struct ast_node *node)
 {
-    // assert(node->index->object->node_type == IDENT_NODE);
-    // symbol id = node->index->object->ident->name;
-    // LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, id);
-    return 0;
+    int index = eval(node->index->index);
+    LLVMValueRef obj = emit_ir_code(cg, node->index->object);
+    LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(cg->context), 0, false);
+    LLVMValueRef index_value = LLVMConstInt(LLVMInt32TypeInContext(cg->context), index, false);
+    LLVMValueRef indexes[2] = { zero, index_value };
+    LLVMValueRef v = LLVMBuildInBoundsGEP2(cg->builder, node->index->object->be_type, obj, indexes, 2, "");
+    if(node->is_lvalue){
+        return v;
+    }
+    return LLVMBuildLoad2(cg->builder, get_llvm_type(node->type), v, "");
 }
 
 LLVMValueRef _emit_field_access_node(struct cg_llvm *cg, struct ast_node *node)
@@ -753,23 +760,12 @@ void create_ir_module(struct cg_llvm *cg,
     cg->module = module;
 }
 
-LLVMValueRef _emit_unk_node(struct cg_llvm *cg, struct ast_node *node)
-{
-    if (!cg || !node)
-        return 0;
-    return 0;
-}
-
 LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
 {
     if(node->transformed) 
         node = node->transformed;
     LLVMValueRef value = 0;
     switch(node->node_type){
-        case TOTAL_NODE:
-        case NULL_NODE:
-            value = _emit_unk_node(cg, node);
-            break;
         case LITERAL_NODE:
             value = _emit_literal_node(cg, node);
             break;
@@ -829,6 +825,8 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case IMPORT_NODE:
         case MEMORY_NODE:
         case RANGE_NODE:
+        case TOTAL_NODE:
+        case NULL_NODE:
 
         case ARRAY_INIT_NODE:
         case WHILE_NODE:
@@ -837,6 +835,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case MATCH_NODE:
             break;
     }
+    node->be_value = value;
     return value;
 }
 

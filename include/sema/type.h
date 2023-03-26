@@ -108,6 +108,8 @@ struct type_item *create_unit_type();
 struct type_item *wrap_as_fun_type(struct type_item *oper);
 struct type_item *create_ref_type(struct type_item *val_type, enum Mut mut);
 struct type_item *create_array_type(struct type_item *element_type, struct array *dims);
+u64 get_array_size(struct type_item *type);
+
 void type_item_free(struct type_item *type);
 
 bool occurs_in_type(struct type_item *var, struct type_item *type2);

@@ -22,11 +22,8 @@ a[0]
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
-    auto array_decl = (struct ast_node *)array_front_ptr(&block->block->nodes);
-    //auto array_access = (struct ast_node *)array_back_ptr(&block->block->nodes);
-    eval_statement(jit, array_decl);
-    //eval_result result = eval_exp(jit, array_access);
-    //ASSERT_EQ(10, result.i_value);
+    eval_result result = eval_exp(jit, block);
+    ASSERT_EQ(10, result.i_value);
     node_free(block);
     jit_free(jit);
     engine_free(engine);

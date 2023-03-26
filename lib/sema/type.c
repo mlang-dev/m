@@ -763,3 +763,14 @@ struct type_item_pair *get_type_item_pair(symbol type_name)
 {
     return hashtable_get_p(&_symbol_2_type_items, type_name);
 }
+
+u64 get_array_size(struct type_item *type)
+{
+    u32 size = 1;
+    if(type->type != TYPE_ARRAY)
+        return size;
+    for(u32 i=0; i<array_size(&type->dims); i++){
+        size *= *(u32*)array_get(&type->dims, i);
+    }
+    return size * get_array_size(type->val_type);
+}
