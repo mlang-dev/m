@@ -555,41 +555,29 @@ LLVMValueRef _emit_array_index(struct cg_llvm *cg, struct ast_node *node)
     return LLVMBuildLoad2(cg->builder, get_backend_type(node->type), v, "");
 }
 
+int _get_member_index(struct cg_llvm *cg, symbol struct_name, symbol field_name)
+{
+    struct ast_node *type_item_node = hashtable_get_p(&cg->base.sema_context->struct_typename_2_asts, struct_name);
+    return find_member_index(type_item_node, field_name);
+}
+
 LLVMValueRef _emit_field_access_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    assert(node->index->object->node_type == IDENT_NODE);
-    assert(node->index->index->node_type == IDENT_NODE);
-    symbol id = node->index->object->ident->name;
-    LLVMValueRef v = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, id);
-    if (!v) {
-        v = get_global_variable(cg, id);
-        assert(v);
-    }
-    string *type_name = hashtable_get_p(&cg->varname_2_typename, id);
-    LLVMTypeRef struct_type = hashtable_get_p(&g_cg->typename_2_irtypes, type_name);
-    assert(struct_type);
-    struct ast_node *type_item_node = hashtable_get_p(&cg->base.sema_context->struct_typename_2_asts, type_name);
+    LLVMValueRef v = emit_ir_code(cg, node->index->object);
+    LLVMTypeRef struct_type = get_backend_type(node->index->object->type);
     symbol attr = node->index->index->ident->name;
-    int index = find_member_index(type_item_node, attr);
+    int index = _get_member_index(cg, node->index->object->type->name, attr);
     v = LLVMBuildStructGEP2(cg->builder, struct_type, v, index, string_get(attr));
-    if (node->type->type < TYPE_STRUCT){
-        string dot_id ;
-        string_init(&dot_id);
-        string_add(&dot_id, id);
-        string_add_chars(&dot_id, ".");
-        string_add(&dot_id, attr);
-        LLVMTypeRef vt = get_backend_type(node->type);
-        assert(vt);
-        return LLVMBuildLoad2(cg->builder, vt, v, string_get(&dot_id));
-    }
-    else{
+    if (node->is_lvalue || is_aggregate_type(node->type)) {
         return v;
-    }
+    } 
+    LLVMTypeRef vt = get_backend_type(node->type);
+    assert(vt);
+    return LLVMBuildLoad2(cg->builder, vt, v, "");
 }
 
 LLVMValueRef _emit_binary_node(struct cg_llvm *cg, struct ast_node *node)
 {
-
     LLVMValueRef lv = emit_ir_code(cg, node->binop->lhs);
     LLVMValueRef rv = emit_ir_code(cg, node->binop->rhs);
     // assert(LLVMGetValueKind(lv) == LLVMGetValueKind(rv));
@@ -690,13 +678,6 @@ LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
     return phi_node;
 }
 
-LLVMValueRef _emit_struct_node(struct cg_llvm *cg, struct ast_node *node)
-{
-    assert(node->type);
-    _create_struct_backend_type(cg->context, node->type);
-    return 0;
-}
-
 LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
 {
     symbol var_name = node->forloop->var->var->var->ident->name;
@@ -750,9 +731,7 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMBuildCondBr(cg->builder, end_cond, loop_bb, after_bb);
     LLVMPositionBuilderAtEnd(cg->builder, after_bb);
 
-    if (old_alloca)
-        hashtable_set_p(&cg->varname_2_irvalues, var_name, old_alloca);
-    else
+    if (!old_alloca)
         hashtable_remove_p(&cg->varname_2_irvalues, var_name);
 
     return LLVMConstNull(cg->ops[TYPE_INT].get_type(cg->context, 0));
@@ -782,9 +761,6 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
             break;
         case VAR_NODE:
             value = emit_var_node(cg, node);
-            break;
-        case STRUCT_NODE:
-            value = _emit_struct_node(cg, node);
             break;
         case ADT_INIT_NODE:
             value = emit_struct_init_node(cg, node, false, "tmp");
@@ -828,6 +804,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case TYPE_EXPR_ITEM_NODE:
         case MATCH_CASE_NODE:
         case WILDCARD_NODE:
+        case STRUCT_NODE:
         case VARIANT_NODE:
         case VARIANT_TYPE_ITEM_NODE:
         case ARRAY_TYPE_NODE:
@@ -900,7 +877,6 @@ struct cg_llvm *get_cg()
     assert(g_cg);
     return g_cg;
 }
-
 
 void emit_sp_code(struct cg_llvm *cg)
 {

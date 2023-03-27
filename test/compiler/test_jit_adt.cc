@@ -117,3 +117,19 @@ getx()
     jit_free(jit);
     engine_free(engine);
 }
+
+TEST(testJITAdt, tuple_type)
+{
+    char test_code[] = R"(
+let x = (10, 20)
+x[0]
+)";
+    struct engine *engine = engine_llvm_new(true);
+    JIT *jit = build_jit(engine);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    //ASSERT_EQ(10, eval_module(jit, block).d_value);
+    node_free(block);
+    jit_free(jit);
+    engine_free(engine);
+}
