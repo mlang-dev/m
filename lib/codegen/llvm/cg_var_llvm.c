@@ -137,7 +137,7 @@ LLVMValueRef _emit_local_var_array_node(struct cg_llvm *cg, struct ast_node *nod
 
 LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    if (node->type->type == TYPE_STRUCT)
+    if (is_struct_like_type(node->type))
         return _emit_local_var_struct_node(cg, node);
     else if (node->type->type == TYPE_ARRAY)
         return _emit_local_var_array_node(cg, node);

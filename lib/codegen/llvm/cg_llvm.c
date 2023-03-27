@@ -455,7 +455,7 @@ LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_item *type)
     else if(type->type == TYPE_ARRAY){
         LLVMTypeRef elm_type = get_backend_type(type->val_type);
         return LLVMArrayType(elm_type, get_array_size(type));
-    } else if(type->type == TYPE_STRUCT){
+    } else if(is_struct_like_type(type)){
         return _create_struct_backend_type(cg->context, type);
     } else if(type->type == TYPE_FUNCTION){
         struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, type);
@@ -565,9 +565,13 @@ LLVMValueRef _emit_field_access_node(struct cg_llvm *cg, struct ast_node *node)
 {
     LLVMValueRef v = emit_ir_code(cg, node->index->object);
     LLVMTypeRef struct_type = get_backend_type(node->index->object->type);
-    symbol attr = node->index->index->ident->name;
-    int index = _get_member_index(cg, node->index->object->type->name, attr);
-    v = LLVMBuildStructGEP2(cg->builder, struct_type, v, index, string_get(attr));
+    int index = 0;
+    if(node->index->object->type->type == TYPE_STRUCT){
+        index = _get_member_index(cg, node->index->object->type->name, node->index->index->ident->name);
+    } else {
+        index = eval(node->index->index);
+    }
+    v = LLVMBuildStructGEP2(cg->builder, struct_type, v, index, "");
     if (node->is_lvalue || is_aggregate_type(node->type)) {
         return v;
     } 
@@ -763,7 +767,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
             value = emit_var_node(cg, node);
             break;
         case ADT_INIT_NODE:
-            value = emit_struct_init_node(cg, node, false, "tmp");
+            value = emit_struct_init_node(cg, node, false, "");
             break;
         case ARRAY_INIT_NODE:
             value = emit_array_init_node(cg, node, false, "");
@@ -801,25 +805,26 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case BLOCK_NODE:
             value = _emit_block_node(cg, node);
             break;
+        case WHILE_NODE:
+        case JUMP_NODE:
+        case CAST_NODE:
+        case MATCH_NODE:
+            break;
+
         case TYPE_EXPR_ITEM_NODE:
         case MATCH_CASE_NODE:
         case WILDCARD_NODE:
-        case STRUCT_NODE:
         case VARIANT_NODE:
         case VARIANT_TYPE_ITEM_NODE:
         case ARRAY_TYPE_NODE:
         case TYPE_ITEM_NODE:
         case TYPE_NODE:
+        case STRUCT_NODE:
+        case NULL_NODE:
         case IMPORT_NODE:
         case MEMORY_NODE:
         case RANGE_NODE:
         case TOTAL_NODE:
-        case NULL_NODE:
-
-        case WHILE_NODE:
-        case JUMP_NODE:
-        case CAST_NODE:
-        case MATCH_NODE:
             break;
     }
     return value;

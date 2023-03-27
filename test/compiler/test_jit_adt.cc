@@ -128,7 +128,7 @@ x[0]
     JIT *jit = build_jit(engine);
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    //ASSERT_EQ(10, eval_module(jit, block).d_value);
+    ASSERT_EQ(10, eval_module(jit, block).i_value);
     node_free(block);
     jit_free(jit);
     engine_free(engine);
