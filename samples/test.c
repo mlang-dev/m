@@ -1,7 +1,8 @@
 #include <stdio.h>
 
 int main() {
-    int a[1];
-    a[0] = 10;
-    return a[0];
+    for(int i = 0; i<5; i++){
+        if(i==3) break;
+    }
+    return 0;
 }
