@@ -52,7 +52,7 @@ LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bo
     bool is_rvo = check_rvo(fi);
     is_ret = is_ret || node->is_ret;
     LLVMValueRef alloca = 0;
-    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); 
     if (is_rvo && is_ret) {
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
@@ -61,7 +61,7 @@ LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bo
         assert(ret_type);
         _store_struct_member_values(cg, ret_type, alloca, node);
     } else {
-        LLVMTypeRef type = (LLVMTypeRef)hashtable_get_p(&cg->typename_2_irtypes, te->name);
+        LLVMTypeRef type = get_backend_type(te);
         assert(type);
         alloca = create_alloca(type, tsi.align_bits / 8, fun, name);
         _store_struct_member_values(cg, type, alloca, node);
@@ -79,7 +79,7 @@ LLVMValueRef emit_array_init_node(struct cg_llvm *cg, struct ast_node *node, boo
     bool is_rvo = check_rvo(fi);
     is_ret = is_ret || node->is_ret;
     LLVMValueRef alloca = 0;
-    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); 
     if (is_rvo && is_ret) {
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
@@ -142,7 +142,7 @@ LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
     else if (node->type->type == TYPE_ARRAY)
         return _emit_local_var_array_node(cg, node);
     // fprintf(stderr, "_emit_var_node:1 %lu!, %lu\n", node->var_names.size(),
-    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); // builder->GetInsertBlock()->getParent();
+    LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder)); 
     // fprintf(stderr, "_emit_var_node:2 %lu!\n", node->var_names.size());
     symbol var_name = node->var->var->ident->name;
     // log_info(DEBUG, "local var cg: %s", var_name.c_str());

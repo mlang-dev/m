@@ -98,8 +98,8 @@ entry:
   %1 = bitcast %Point2D* %xy to i64*
   store i64 %0, i64* %1, align 4
   %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-  %xy.x = load i32, i32* %x, align 4
-  ret i32 %xy.x
+  %2 = load i32, i32* %x, align 4
+  ret i32 %2
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
@@ -137,8 +137,8 @@ entry:
   %1 = bitcast %Point2D* %xy to i64*
   store i64 %0, i64* %1, align 4
   %x = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-  %xy.x = load i32, i32* %x, align 4
-  ret i32 %xy.x
+  %2 = load i32, i32* %x, align 4
+  ret i32 %2
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
