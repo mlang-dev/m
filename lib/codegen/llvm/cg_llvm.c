@@ -416,6 +416,7 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
     cg->context = context;
     cg->builder = LLVMCreateBuilderInContext(context);
     cg->module = 0;
+    cg->current_loop_block = -1;
     _set_bin_ops(cg);
     hashtable_init(&cg->cg_gvar_name_2_asts);
     hashtable_init(&cg->varname_2_irvalues);
@@ -653,12 +654,13 @@ LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
     cond_v = LLVMBuildICmp(cg->builder, LLVMIntNE, cond_v, cg->ops[TYPE_INT].get_zero(cg->context, cg->builder), "ifcond");
 
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder));
-
+    bool has_else = node->cond->else_node != 0;
     LLVMBasicBlockRef then_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "then");
-    LLVMBasicBlockRef else_bb = LLVMCreateBasicBlockInContext(cg->context, "else");
+    LLVMBasicBlockRef else_bb = 0;
+    if(has_else) else_bb = LLVMCreateBasicBlockInContext(cg->context, "else");
     LLVMBasicBlockRef merge_bb = LLVMCreateBasicBlockInContext(cg->context, "ifcont");
 
-    LLVMBuildCondBr(cg->builder, cond_v, then_bb, else_bb);
+    LLVMBuildCondBr(cg->builder, cond_v, then_bb, else_bb ? else_bb : merge_bb);
     LLVMPositionBuilderAtEnd(cg->builder, then_bb);
 
     LLVMValueRef then_v = emit_ir_code(cg, node->cond->then_node);
@@ -666,20 +668,39 @@ LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMBuildBr(cg->builder, merge_bb);
     then_bb = LLVMGetInsertBlock(cg->builder);
 
-    LLVMAppendExistingBasicBlock(fun, else_bb);
-    LLVMPositionBuilderAtEnd(cg->builder, else_bb);
-
-    LLVMValueRef else_v = emit_ir_code(cg, node->cond->else_node);
-    assert(else_v);
+    LLVMValueRef else_v = 0;
+    if(has_else){
+        LLVMAppendExistingBasicBlock(fun, else_bb);
+        LLVMPositionBuilderAtEnd(cg->builder, else_bb);
+        else_v = emit_ir_code(cg, node->cond->else_node);
+        assert(else_v);
+    }
     LLVMBuildBr(cg->builder, merge_bb);
     else_bb = LLVMGetInsertBlock(cg->builder);
     LLVMAppendExistingBasicBlock(fun, merge_bb);
     LLVMPositionBuilderAtEnd(cg->builder, merge_bb);
-    enum type type = get_type(node->cond->then_node->type);
-    LLVMValueRef phi_node = LLVMBuildPhi(cg->builder, cg->ops[type].get_type(cg->context, node->cond->then_node->type), "iftmp");
-    LLVMAddIncoming(phi_node, &then_v, &then_bb, 1);
-    LLVMAddIncoming(phi_node, &else_v, &else_bb, 1);
-    return phi_node;
+    if(has_else){
+        enum type type = get_type(node->cond->then_node->type);
+        LLVMValueRef phi_node = LLVMBuildPhi(cg->builder, cg->ops[type].get_type(cg->context, node->cond->then_node->type), "iftmp");
+        LLVMAddIncoming(phi_node, &then_v, &then_bb, 1);
+        LLVMAddIncoming(phi_node, &else_v, &else_bb, 1);
+        return phi_node;
+    }
+    return cond_v;
+}
+
+LLVMValueRef _emit_jump_node(struct cg_llvm *cg, struct ast_node *node)
+{
+    if(node->jump->token_type == TOKEN_BREAK){
+        return LLVMBuildBr(cg->builder, cg->loop_blocks[cg->current_loop_block].end_bb);
+    }
+    else if(node->jump->token_type == TOKEN_CONTINUE){
+        return LLVMBuildBr(cg->builder, cg->loop_blocks[cg->current_loop_block].start_bb);
+    }
+    else if(node->jump->token_type == TOKEN_RETURN){
+        return LLVMBuildRet(cg->builder, emit_ir_code(cg, node->jump->expr));
+    }
+    return 0;
 }
 
 LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
@@ -698,13 +719,18 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     assert(start_v);
 
     LLVMBuildStore(cg->builder, start_v, alloca);
-    LLVMBasicBlockRef loop_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "loop");
-    LLVMBuildBr(cg->builder, loop_bb);
-    LLVMPositionBuilderAtEnd(cg->builder, loop_bb);
+    cg->current_loop_block++;
+    LLVMBasicBlockRef start_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "loop");
+    LLVMBasicBlockRef end_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "afterloop");
+    cg->loop_blocks[cg->current_loop_block].start_bb = start_bb;
+    cg->loop_blocks[cg->current_loop_block].end_bb = end_bb;
+    LLVMBuildBr(cg->builder, start_bb);
+    LLVMPositionBuilderAtEnd(cg->builder, start_bb);
 
     LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, var_name);
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     emit_ir_code(cg, node->forloop->body);
+
     LLVMValueRef step_v;
     if (node->forloop->range->range->step) {
         step_v = emit_ir_code(cg, node->forloop->range->range->step);
@@ -729,15 +755,14 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     //IF Not Equals: end_cond, 0
     end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg->context, cg->builder), "loopcond");
 
-    LLVMBasicBlockRef after_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "afterloop");
-
-    //if end_cond (id < end != 0) then loop_bb else after_bb
-    LLVMBuildCondBr(cg->builder, end_cond, loop_bb, after_bb);
-    LLVMPositionBuilderAtEnd(cg->builder, after_bb);
+    //if end_cond (id < end != 0) then start_bb else end_bb
+    LLVMBuildCondBr(cg->builder, end_cond, start_bb, end_bb);
+    LLVMPositionBuilderAtEnd(cg->builder, end_bb);
 
     if (!old_alloca)
         hashtable_remove_p(&cg->varname_2_irvalues, var_name);
 
+    cg->current_loop_block--;
     return LLVMConstNull(cg->ops[TYPE_INT].get_type(cg->context, 0));
 }
 
@@ -793,6 +818,9 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case FOR_NODE:
             value = _emit_for_node(cg, node);
             break;
+        case JUMP_NODE:
+            value = _emit_jump_node(cg, node);
+            break;
         case CALL_NODE:
             value = emit_call_node(cg, node);
             break;
@@ -806,7 +834,6 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
             value = _emit_block_node(cg, node);
             break;
         case WHILE_NODE:
-        case JUMP_NODE:
         case CAST_NODE:
         case MATCH_NODE:
             break;

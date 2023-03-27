@@ -60,6 +60,12 @@ struct ops {
     unary_op neg_op;
 };
 
+#define BLOCK_LEVELS 128
+struct block_context {
+    LLVMBasicBlockRef start_bb;
+    LLVMBasicBlockRef end_bb;
+};
+
 struct cg_llvm {
     struct codegen base;
     LLVMContextRef context;
@@ -92,6 +98,12 @@ struct cg_llvm {
      *  binding variable name to type name
      */
     struct hashtable varname_2_typename;
+
+    /* 
+     *  embeded loop blocks
+     */
+    struct block_context loop_blocks[BLOCK_LEVELS];
+    int current_loop_block;
 };
 
 struct cg_llvm *llvm_cg_new(struct sema_context *sema_context);

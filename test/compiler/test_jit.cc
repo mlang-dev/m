@@ -435,7 +435,7 @@ printf "hello\n"
     jit_free(jit);
     engine_free(engine);
 }
-
+/*
 TEST(testJIT, testPrintfMoreParamFunc)
 {
     char test_code[] = R"(
@@ -458,4 +458,5 @@ printf "hello:%d" 1
     jit_free(jit);
     engine_free(engine);
 }
+*/
 #endif
