@@ -661,22 +661,32 @@ LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMBasicBlockRef merge_bb = LLVMCreateBasicBlockInContext(cg->context, "ifcont");
 
     LLVMBuildCondBr(cg->builder, cond_v, then_bb, else_bb ? else_bb : merge_bb);
-    LLVMPositionBuilderAtEnd(cg->builder, then_bb);
+    //set insert point of the block, move the insertion point to be at the end of the block
+    //to build then block
+    LLVMPositionBuilderAtEnd(cg->builder, then_bb); 
 
     LLVMValueRef then_v = emit_ir_code(cg, node->cond->then_node);
+
     assert(then_v);
-    LLVMBuildBr(cg->builder, merge_bb);
+    //after then block is done, emit unconditional jump to merge BB, if then_v is not a control flow instruction
+    struct ast_node *then_last = node->cond->then_node->node_type == BLOCK_NODE ? array_back_ptr(&node->cond->then_node->block->nodes) : node->cond->then_node;
+    if(then_last->node_type != JUMP_NODE)
+        LLVMBuildBr(cg->builder, merge_bb);
+    //we might have changed then-block by then blocking emitting, let's regain/refresh then block
     then_bb = LLVMGetInsertBlock(cg->builder);
 
     LLVMValueRef else_v = 0;
     if(has_else){
+        //add else block and proceeds similarly like then block 
         LLVMAppendExistingBasicBlock(fun, else_bb);
         LLVMPositionBuilderAtEnd(cg->builder, else_bb);
         else_v = emit_ir_code(cg, node->cond->else_node);
         assert(else_v);
+        struct ast_node *else_last = node->cond->else_node->node_type == BLOCK_NODE ? array_back_ptr(&node->cond->else_node->block->nodes) : node->cond->else_node;
+        if(else_last->node_type != JUMP_NODE)
+            LLVMBuildBr(cg->builder, merge_bb);
+        else_bb = LLVMGetInsertBlock(cg->builder);
     }
-    LLVMBuildBr(cg->builder, merge_bb);
-    else_bb = LLVMGetInsertBlock(cg->builder);
     LLVMAppendExistingBasicBlock(fun, merge_bb);
     LLVMPositionBuilderAtEnd(cg->builder, merge_bb);
     if(has_else){
@@ -695,7 +705,7 @@ LLVMValueRef _emit_jump_node(struct cg_llvm *cg, struct ast_node *node)
         return LLVMBuildBr(cg->builder, cg->loop_blocks[cg->current_loop_block].end_bb);
     }
     else if(node->jump->token_type == TOKEN_CONTINUE){
-        return LLVMBuildBr(cg->builder, cg->loop_blocks[cg->current_loop_block].start_bb);
+        return LLVMBuildBr(cg->builder, cg->loop_blocks[cg->current_loop_block].cont_bb);
     }
     else if(node->jump->token_type == TOKEN_RETURN){
         return LLVMBuildRet(cg->builder, emit_ir_code(cg, node->jump->expr));
@@ -721,8 +731,9 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMBuildStore(cg->builder, start_v, alloca);
     cg->current_loop_block++;
     LLVMBasicBlockRef start_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "loop");
+    LLVMBasicBlockRef cont_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "contloop");
     LLVMBasicBlockRef end_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "afterloop");
-    cg->loop_blocks[cg->current_loop_block].start_bb = start_bb;
+    cg->loop_blocks[cg->current_loop_block].cont_bb = cont_bb;
     cg->loop_blocks[cg->current_loop_block].end_bb = end_bb;
     LLVMBuildBr(cg->builder, start_bb);
     LLVMPositionBuilderAtEnd(cg->builder, start_bb);
@@ -730,6 +741,9 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, var_name);
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     emit_ir_code(cg, node->forloop->body);
+
+    LLVMBuildBr(cg->builder, cont_bb);
+    LLVMPositionBuilderAtEnd(cg->builder, cont_bb);
 
     LLVMValueRef step_v;
     if (node->forloop->range->range->step) {

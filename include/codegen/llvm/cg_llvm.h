@@ -62,7 +62,7 @@ struct ops {
 
 #define BLOCK_LEVELS 128
 struct block_context {
-    LLVMBasicBlockRef start_bb;
+    LLVMBasicBlockRef cont_bb;
     LLVMBasicBlockRef end_bb;
 };
 
