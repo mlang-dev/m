@@ -705,7 +705,7 @@ LLVMValueRef _emit_jump_node(struct cg_llvm *cg, struct ast_node *node)
         return LLVMBuildBr(cg->builder, cg->loop_blocks[cg->current_loop_block].end_bb);
     }
     else if(node->jump->token_type == TOKEN_CONTINUE){
-        return LLVMBuildBr(cg->builder, cg->loop_blocks[cg->current_loop_block].start_bb);
+        return LLVMBuildBr(cg->builder, cg->loop_blocks[cg->current_loop_block].cont_bb);
     }
     else if(node->jump->token_type == TOKEN_RETURN){
         return LLVMBuildRet(cg->builder, emit_ir_code(cg, node->jump->expr));
@@ -731,8 +731,9 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMBuildStore(cg->builder, start_v, alloca);
     cg->current_loop_block++;
     LLVMBasicBlockRef start_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "loop");
+    LLVMBasicBlockRef cont_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "contloop");
     LLVMBasicBlockRef end_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "afterloop");
-    cg->loop_blocks[cg->current_loop_block].start_bb = start_bb;
+    cg->loop_blocks[cg->current_loop_block].cont_bb = cont_bb;
     cg->loop_blocks[cg->current_loop_block].end_bb = end_bb;
     LLVMBuildBr(cg->builder, start_bb);
     LLVMPositionBuilderAtEnd(cg->builder, start_bb);
@@ -740,6 +741,9 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef old_alloca = (LLVMValueRef)hashtable_get_p(&cg->varname_2_irvalues, var_name);
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);
     emit_ir_code(cg, node->forloop->body);
+
+    LLVMBuildBr(cg->builder, cont_bb);
+    LLVMPositionBuilderAtEnd(cg->builder, cont_bb);
 
     LLVMValueRef step_v;
     if (node->forloop->range->range->step) {

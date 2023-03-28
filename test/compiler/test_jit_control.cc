@@ -81,3 +81,28 @@ forloop 5 3
     jit_free(jit);
     engine_free(engine);
 }
+
+TEST(testJITControl, continueForLoop)
+{
+    char test_code[] = R"(
+let forloop n m = 
+    var j = 0
+    for i in 0..n
+        if i%2 == 0 then
+            continue
+        j += i
+        if i == m then
+            break
+    j
+forloop 5 3
+  )";
+    struct engine *engine = engine_llvm_new(false);
+    JIT *jit = build_jit(engine);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    eval_result result = eval_module(jit, block);
+    ASSERT_EQ(4, result.i_value);
+    node_free(block);
+    jit_free(jit);
+    engine_free(engine);
+}
