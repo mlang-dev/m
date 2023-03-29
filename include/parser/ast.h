@@ -247,6 +247,11 @@ struct match_case_node {
     struct ast_node *expr;
 };
 
+struct token_node {
+    enum token_type token_type; //only used when node_type is TOKEN_NODE
+    enum op_code token_op;
+};
+
 struct ast_node {
     enum node_type node_type;
 
@@ -265,6 +270,7 @@ struct ast_node {
     bool is_addressable;     // is left value
     union{
         void *data; //node data represents any of following pointer
+        struct token_node *token;
         struct literal_node *liter;
         
         struct ident_node *ident;
@@ -367,6 +373,7 @@ struct ast_node *block_node_new_empty();
 struct ast_node *block_node_new(struct array *nodes);
 struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node);
 struct ast_node *block_node_add_block(struct ast_node *block, struct ast_node *node);
+struct ast_node *token_node_new(enum token_type tt, enum op_code token_op, struct source_location loc);
 void free_block_node(struct ast_node *node, bool deep_free);
 struct ast_node *wrap_as_block_node(struct ast_node *node);
 

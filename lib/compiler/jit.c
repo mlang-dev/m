@@ -73,6 +73,7 @@ void add_module(struct JIT *jit, void *module)
 #endif
     LLVMOrcJITDylibAddGenerator(jd, dg);
     LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
+    LLVMOrcDisposeThreadSafeContext(tsc);
 }
 
 struct fun_pointer find_target_address(struct JIT *jit, const char *symbol)

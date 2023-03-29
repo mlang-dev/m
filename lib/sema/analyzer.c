@@ -799,6 +799,7 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
             assert(false);
             break;
         /* intermediate node types */
+        case TOKEN_NODE:
         case TYPE_EXPR_ITEM_NODE:
         case WILDCARD_NODE:
         case RANGE_NODE:

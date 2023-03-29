@@ -16,6 +16,8 @@
 #include "codegen/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
+#include <llvm-c/Analysis.h>
+
 
 struct address emit_address_at_offset(struct cg_llvm *cg, struct address adr, struct abi_arg_info *info)
 {
@@ -191,6 +193,9 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
     }
     struct ast_node *saved_node = stack_pop_ptr(&cg->base.sema_context->func_stack);
     assert(node == saved_node);
+    if(!LLVMVerifyFunction(fun, LLVMPrintMessageAction)){
+        
+    }
     return fun;
 }
 

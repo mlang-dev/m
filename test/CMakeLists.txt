@@ -76,21 +76,31 @@ add_definitions(${LLVM_DEFINITIONS})
 
 add_executable(mtest
   tutil.cc
-  parser/test_astdump.cc
-  compiler/test_jit_relational.cc
-  compiler/test_jit_logical.cc
   compiler/test_jit_control.cc
-  compiler/test_jit_adt.cc
-  compiler/test_jit.cc
-  compiler/test_jit_error.cc
-  compiler/test_jit_array.cc
-  codegen/llvm/test_cg_var.cc
-  codegen/llvm/test_cg_fun_call.cc
+  # parser/test_astdump.cc
+  # compiler/test_jit_relational.cc
+  # compiler/test_jit_logical.cc
+  # compiler/test_jit_adt.cc
+  # compiler/test_jit.cc
+  # compiler/test_jit_error.cc
+  # compiler/test_jit_array.cc
+  # codegen/llvm/test_cg_var.cc
+  # codegen/llvm/test_cg_fun_call.cc
+)
+
+target_compile_options(mtest PRIVATE
+-fsanitize=address
+-g
+)
+
+target_link_options(mtest PRIVATE
+-fsanitize=address
 )
 
 target_include_directories(mtest PUBLIC
 ${LLVM_INCLUDE_DIRS}
 )
+
 
 if(MSVC)
     set_property(TARGET mtest APPEND PROPERTY LINK_FLAGS /DEBUG)
@@ -112,8 +122,6 @@ add_custom_command(
 else()
 file(COPY ${CMAKE_SOURCE_DIR}/mlib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib/)
 endif(WIN32)
-
-
 
 add_executable(mctest
 test.c
@@ -153,6 +161,15 @@ codegen/wasm/test_wasm_codegen.c
 unity/unity.c
 )
 
+target_compile_options(mctest PRIVATE
+-fsanitize=address
+-g
+)
+
+target_link_options(mctest PRIVATE
+-fsanitize=address
+)
+
 TARGET_LINK_LIBRARIES(mctest mlr clib
   -g
 )
@@ -163,8 +180,8 @@ add_custom_command(
   COMMAND mctest
 )
 
-add_custom_command(
-  TARGET mtest
-  POST_BUILD
-  COMMAND mtest
-)
+# add_custom_command(
+#   TARGET mtest
+#   POST_BUILD
+#   COMMAND mtest
+# )

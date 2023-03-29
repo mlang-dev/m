@@ -1111,6 +1111,7 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case RANGE_NODE:
         case FUNC_TYPE_NODE:
         case TOTAL_NODE:
+        case TOKEN_NODE:
             break;
     }
 }
