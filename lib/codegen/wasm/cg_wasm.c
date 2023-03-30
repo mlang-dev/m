@@ -626,6 +626,7 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
             wasm_emit_load_mem(ba, field->align, 0, field->type->type);
         }
     }
+    //array_deinit(&field_infos);
 }
 
 void _emit_assign_value(struct cg_wasm *cg, struct byte_array *ba, u32 addr_var_index, u32 offset, u32 align, struct type_item *type, struct ast_node *rhs)
@@ -665,6 +666,7 @@ void _emit_assign_array_field(struct cg_wasm *cg, struct byte_array *ba, struct 
     struct var_info*vi = fc_get_var_info(fc, field->aggr_root);
     wasm_emit_addr_offset_by_expr(cg, ba, vi->var_index, false, field->offset_expr);
     wasm_emit_store_scalar_value(cg, ba, field->align, 0, rhs);
+    array_deinit(&field_infos);
 }
 
 void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)

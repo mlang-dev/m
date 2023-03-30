@@ -115,7 +115,6 @@ u64 get_array_size(struct type_item *type);
 void type_item_free(struct type_item *type);
 
 bool occurs_in_type(struct type_item *var, struct type_item *type2);
-struct type_item *get_symbol_type(symboltable *st, struct array *nongens, symbol name);
 void push_symbol_type(symboltable *st, symbol name, void *type);
 struct type_item *unify(struct type_item *type1, struct type_item *type2, struct array *nongens);
 string to_string(struct type_item *type);

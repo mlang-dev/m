@@ -81,12 +81,12 @@ EXPORT int ENTRY()
   failures += test_analyzer();
   failures += test_analyzer_struct();
   failures += test_analyzer_type();
-  // failures += test_analyzer_variant();
-  // failures += test_analyzer_pm();
-  // failures += test_analyzer_mut();
-  // failures += test_analyzer_errors();
-  // failures += test_type_size_info();
-  // failures += test_wasm_codegen();
+  failures += test_analyzer_variant();
+  failures += test_analyzer_pm();
+  failures += test_analyzer_mut();
+  failures += test_analyzer_errors();
+  failures += test_type_size_info();
+  failures += test_wasm_codegen();
   if (!failures)
     printf("%d/%d Unit tests passed !\n", test_stats.total_tests - test_stats.total_failures, test_stats.total_tests);
   else

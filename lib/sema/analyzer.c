@@ -31,6 +31,16 @@ struct type_item *_retrieve_type_with_type_name(struct sema_context *context, sy
     return fresh(type, &context->nongens);
 }
 
+struct type_item *retrieve_type_for_var_name(struct sema_context *context, symbol name)
+{
+    struct type_item *type = (struct type_item *)symboltable_get(&context->varname_2_typexprs, name);
+    if (!type){
+        printf("No type is found for the symbol: %s.\n", string_get(name));
+        return 0;
+    }
+    return fresh(type, &context->nongens);
+}
+
 struct type_item *create_type_from_type_item_node(struct sema_context *context, struct type_item_node *type_item_node, enum Mut mut)
 {
     struct type_item *value_type;
@@ -115,11 +125,6 @@ struct ast_node *_get_var_node(struct sema_context *context, struct ast_node *no
    return var;
 }
 
-struct type_item *retrieve_type_for_var_name(struct sema_context *context, symbol name)
-{
-    return get_symbol_type(&context->decl_2_typexprs, &context->nongens, name);
-}
-
 struct type_item *_analyze_ident(struct sema_context *context, struct ast_node *node)
 {
     node->ident->var = _get_var_node(context, node);
@@ -151,7 +156,7 @@ struct ast_node *_node_copy_with_type(struct ast_node *node)
 struct type_item *_analyze_var(struct sema_context *context, struct ast_node *node)
 {
     symbol var_name = node->var->var->ident->name;
-    if(has_symbol(&context->decl_2_typexprs, var_name)){
+    if(has_symbol(&context->varname_2_typexprs, var_name)){
         //TODO: error handling, redefinition
         assert(false);
     }
@@ -173,7 +178,7 @@ struct type_item *_analyze_var(struct sema_context *context, struct ast_node *no
         assert(var_type);
         if(hashtable_in_p(&context->struct_typename_2_asts, var_type->name)||
             !node->var->init_value){
-            push_symbol_type(&context->decl_2_typexprs, var_name, var_type);
+            push_symbol_type(&context->varname_2_typexprs, var_name, var_type);
             push_symbol_type(&context->varname_2_asts, var_name, node);
             if (node->var->init_value){
                 if(!analyze(context, node->var->init_value)){
@@ -183,7 +188,7 @@ struct type_item *_analyze_var(struct sema_context *context, struct ast_node *no
             return var_type;
         }
     }
-    if (!var_type && has_symbol_in_scope(&context->decl_2_typexprs, var_name, context->scope_marker))
+    if (!var_type && has_symbol_in_scope(&context->varname_2_typexprs, var_name, context->scope_marker))
         var_type = retrieve_type_for_var_name(context, var_name);
     struct type_item *type = analyze(context, node->var->init_value);
     if (type && var_type && _is_array_size_same(var_type, type)){
@@ -203,7 +208,7 @@ struct type_item *_analyze_var(struct sema_context *context, struct ast_node *no
         node->var->init_value->transformed = cast_to_node(var_type, node->var->init_value);
     }
     
-    push_symbol_type(&context->decl_2_typexprs, var_name, var_type);
+    push_symbol_type(&context->varname_2_typexprs, var_name, var_type);
     push_symbol_type(&context->varname_2_asts, var_name, node);
     return var_type;
 }
@@ -355,7 +360,7 @@ struct type_item *_analyze_func_type(struct sema_context *context, struct ast_no
     array_push(&fun_sig, &to);
     node->type = create_type_fun(node->ft->is_variadic, &fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
-    push_symbol_type(&context->decl_2_typexprs, node->ft->name, node->type);
+    push_symbol_type(&context->varname_2_typexprs, node->ft->name, node->type);
     return node->type;
 }
 
@@ -377,12 +382,12 @@ struct type_item *_analyze_func(struct sema_context *context, struct ast_node *n
         }
         array_push(&fun_sig, &exp);
         array_push(&context->nongens, &exp);
-        push_symbol_type(&context->decl_2_typexprs, param->var->var->ident->name, exp);
+        push_symbol_type(&context->varname_2_typexprs, param->var->var->ident->name, exp);
         push_symbol_type(&context->varname_2_asts, param->var->var->ident->name, param);
     }
     /*analyze function body*/
     struct type_item *fun_type_var = create_type_var(Immutable); //?
-    push_symbol_type(&context->decl_2_typexprs, node->func->func_type->ft->name, fun_type_var);
+    push_symbol_type(&context->varname_2_typexprs, node->func->func_type->ft->name, fun_type_var);
     struct type_item *ret_type = analyze(context, node->func->body);
     array_push(&fun_sig, &ret_type);
     struct type_item *result_type = create_type_fun(node->func->func_type->ft->is_variadic, &fun_sig);
@@ -423,7 +428,7 @@ struct type_item *_analyze_call(struct sema_context *context, struct ast_node *n
         if (!parent_func || (parent_func->func->func_type->ft->name != node->call->callee)){
             string sp_callee = monomorphize(string_get(node->call->callee), &args);
             node->call->specialized_callee = to_symbol(string_get(&sp_callee));
-            if (has_symbol(&context->decl_2_typexprs, node->call->specialized_callee)) {
+            if (has_symbol(&context->varname_2_typexprs, node->call->specialized_callee)) {
                 fun_type = retrieve_type_for_var_name(context, node->call->specialized_callee);
                 return array_back_ptr(&fun_type->args);
             }
@@ -436,7 +441,7 @@ struct type_item *_analyze_call(struct sema_context *context, struct ast_node *n
             fun_type = analyze(context, sp_fun);
             hashtable_set(&context->specialized_ast, string_get(sp_fun->func->func_type->ft->name), sp_fun);
             array_push(&context->new_specialized_asts, &sp_fun);     
-            push_symbol_type(&context->decl_2_typexprs, node->call->specialized_callee, fun_type);
+            push_symbol_type(&context->varname_2_typexprs, node->call->specialized_callee, fun_type);
             hashtable_set_p(&context->func_types, node->call->specialized_callee, sp_fun->func->func_type);
             hashtable_set_p(&context->calls, node->call->specialized_callee, node);
             node->call->callee_func_type = sp_fun->func->func_type;
@@ -589,7 +594,7 @@ struct type_item *_analyze_assign(struct sema_context *context, struct ast_node 
 {
     if(node->binop->lhs->node_type == IDENT_NODE){
         symbol var_name = node->binop->lhs->ident->name;
-        if(!has_symbol(&context->decl_2_typexprs, var_name)){
+        if(!has_symbol(&context->varname_2_typexprs, var_name)){
             //TODO: error handling, non-defined
             report_error(context, EC_VAR_NOT_DEFINED, node->loc, string_get(var_name));
             return 0;

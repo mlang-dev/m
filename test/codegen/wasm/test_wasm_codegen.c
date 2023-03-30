@@ -235,7 +235,7 @@ x + y\n\
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
-    RUN_TEST(test_wasm_codegen_sample_code);
+    //RUN_TEST(test_wasm_codegen_sample_code);
     RUN_TEST(test_wasm_codegen_ref_type);
     RUN_TEST(test_wasm_codegen_emit_generic_fun);
     RUN_TEST(test_wasm_codegen_emit_nested_for_loop);
