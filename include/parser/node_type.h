@@ -23,6 +23,7 @@ extern "C" {
  */
 #define FOREACH_NODETYPE(ENUM_ITEM) \
     ENUM_ITEM(NULL_NODE)            \
+    ENUM_ITEM(TOKEN_NODE)           \
     ENUM_ITEM(IMPORT_NODE)          \
     ENUM_ITEM(MEMORY_NODE)          \
     ENUM_ITEM(LITERAL_NODE)         \

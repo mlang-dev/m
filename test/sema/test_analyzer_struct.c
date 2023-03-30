@@ -123,7 +123,7 @@ let z = getx()\n\
 
     /*verify variable xy in inner function is out of scope*/
     symbol xy = to_symbol("xy");
-    ASSERT_EQ(false, has_symbol(&fe->sema_context->decl_2_typexprs, xy));
+    ASSERT_EQ(false, has_symbol(&fe->sema_context->varname_2_typexprs, xy));
     node_free(block);
     frontend_deinit(fe);
 }

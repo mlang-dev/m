@@ -15,6 +15,7 @@
 
 struct node_type_name node_type_names[TERMINAL_COUNT] = {
     NODE_TYPE_NAME(null, NULL),
+    NODE_TYPE_NAME(token, TOKEN),
     NODE_TYPE_NAME(import_decl, IMPORT),
     NODE_TYPE_NAME(memory_decl, MEMORY),
     NODE_TYPE_NAME(literal, LITERAL),

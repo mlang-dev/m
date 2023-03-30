@@ -713,6 +713,34 @@ LLVMValueRef _emit_jump_node(struct cg_llvm *cg, struct ast_node *node)
     return 0;
 }
 
+LLVMValueRef _emit_while_node(struct cg_llvm *cg, struct ast_node *node)
+{
+    LLVMBasicBlockRef bb = LLVMGetInsertBlock(cg->builder);
+    LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
+    // KSDbgInfo.emitLocation(this);
+    cg->current_loop_block++;
+    LLVMBasicBlockRef start_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "loop");
+    LLVMBasicBlockRef cont_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "contloop");
+    LLVMBasicBlockRef end_bb = LLVMAppendBasicBlockInContext(cg->context, fun, "afterloop");
+    cg->loop_blocks[cg->current_loop_block].cont_bb = start_bb;
+    cg->loop_blocks[cg->current_loop_block].end_bb = end_bb;
+    LLVMBuildBr(cg->builder, start_bb);
+    LLVMPositionBuilderAtEnd(cg->builder, start_bb);
+
+    LLVMValueRef end_cond = emit_ir_code(cg, node->whileloop->expr);
+    end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg->context, cg->builder), "loopcond");
+    //if end_cond (id < end != 0) then start_bb else end_bb
+    LLVMBuildCondBr(cg->builder, end_cond, cont_bb, end_bb);
+    LLVMPositionBuilderAtEnd(cg->builder, cont_bb);
+
+    emit_ir_code(cg, node->whileloop->body);
+
+    LLVMBuildBr(cg->builder, start_bb);
+    LLVMPositionBuilderAtEnd(cg->builder, end_bb);
+    cg->current_loop_block--;
+    return 0;
+}
+
 LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
 {
     symbol var_name = node->forloop->var->var->var->ident->name;
@@ -829,6 +857,9 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case IF_NODE:
             value = _emit_condition_node(cg, node);
             break;
+        case WHILE_NODE:
+            value = _emit_while_node(cg, node);
+            break;
         case FOR_NODE:
             value = _emit_for_node(cg, node);
             break;
@@ -847,7 +878,6 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case BLOCK_NODE:
             value = _emit_block_node(cg, node);
             break;
-        case WHILE_NODE:
         case CAST_NODE:
         case MATCH_NODE:
             break;
@@ -866,6 +896,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case MEMORY_NODE:
         case RANGE_NODE:
         case TOTAL_NODE:
+        case TOKEN_NODE:
             break;
     }
     return value;

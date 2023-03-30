@@ -74,25 +74,20 @@ void _pop_states(struct parser *parser, u8 symbol_count)
     parser->stack_top -= symbol_count;
 }
 
-#define TOKEN_TO_NODE_TYPE(token_type)  (token_type << 16)
-#define NODE_TO_TOKEN_TYPE(node_type)   (node_type >> 16)
+
 
 struct ast_node *_build_terminal_ast(struct token *tok)
 {
-    enum node_type node_type;
     struct ast_node *ast = 0;
     switch(tok->token_type){
         default:
-            node_type = tok->token_type << 16;
-            ast = ast_node_new(node_type, tok->loc);
+            ast = token_node_new(tok->token_type, tok->opcode, tok->loc);
             break;
         case TOKEN_EOF:
             ast = ast_node_new(NULL_NODE, tok->loc);
             break;
         case TOKEN_OP:
-            //*hacky way to transfer opcode
-            node_type = (tok->token_type << 16) | tok->opcode;
-            ast = ast_node_new(node_type, tok->loc);
+            ast = token_node_new(tok->token_type, tok->opcode, tok->loc);
             break;
         case TOKEN_IDENT:
             ast = ident_node_new(tok->symbol_val, tok->loc);
@@ -181,6 +176,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         case TOTAL_NODE:
         case LITERAL_NODE:
         case IDENT_NODE:
+        case TOKEN_NODE:
             printf("type: %d is not supported for nonterm node.", rule->action.node_type);
             break;
         case IMPORT_NODE:
@@ -206,7 +202,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         {        
             assert(rule->action.item_index_count==2);
             struct ast_node *op = _take(nodes, rule->action.item_index[0]);
-            enum op_code opcode = op->node_type & 0xFFFF;
+            assert(op->node_type == TOKEN_NODE);
+            enum op_code opcode = op->token->token_op;
             struct ast_node *operand = _take(nodes, rule->action.item_index[1]);
             ast = unary_node_new(opcode, operand, rule->action.item_index[0] > rule->action.item_index[1], op->loc);
             node_free(op); 
@@ -328,7 +325,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         case JUMP_NODE:
         {
             struct ast_node *token_node = _take(nodes, rule->action.item_index[0]); //token node
-            enum token_type token_type = NODE_TO_TOKEN_TYPE(token_node->node_type);
+            assert(token_node->node_type == TOKEN_NODE);
+            enum token_type token_type = token_node->token->token_type;
             struct ast_node *expr = 0;
             if (rule->action.item_index_count == 2)
                 expr = _take(nodes, rule->action.item_index[1]); //expr
@@ -378,7 +376,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         case BINARY_NODE:
         {
             struct ast_node *op = _take(nodes, rule->action.item_index[1]);
-            enum op_code opcode = op->node_type & 0xFFFF;
+            assert(op->node_type == TOKEN_NODE);
+            enum op_code opcode = op->token->token_op;
             struct ast_node *lhs = _take(nodes, rule->action.item_index[0]);
             struct ast_node *rhs = _take(nodes, rule->action.item_index[2]);
             ast = binary_node_new(opcode, lhs, rhs, lhs->loc);
@@ -388,7 +387,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
         case ASSIGN_NODE:
         {
             struct ast_node *op = _take(nodes, rule->action.item_index[1]);
-            enum op_code opcode = op->node_type & 0xFFFF;
+            assert(op->node_type == TOKEN_NODE);
+            enum op_code opcode = op->token->token_op;
             struct ast_node *lhs = _take(nodes, rule->action.item_index[0]);
             struct ast_node *rhs = _take(nodes, rule->action.item_index[2]);
             ast = assign_node_new(opcode, lhs, rhs, lhs->loc);
@@ -412,7 +412,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             assert(parameters->node_type == BLOCK_NODE);
             if (array_size(&parameters->block->nodes)) {
                 struct ast_node *last_param = array_back_ptr(&parameters->block->nodes);
-                if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
+                if (last_param->node_type == TOKEN_NODE && (last_param->token->token_type == TOKEN_VARIADIC)) {
                     is_variadic = true;
                     node_free(array_pop_p(&parameters->block->nodes));
                 }
@@ -430,7 +430,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             assert(parameters->node_type == BLOCK_NODE);
             if (array_size(&parameters->block->nodes)) {
                 struct ast_node *last_param = array_back_ptr(&parameters->block->nodes);
-                if (last_param->node_type > TOTAL_NODE && (last_param->node_type >> 16 == TOKEN_VARIADIC)) {
+                if (last_param->node_type == TOKEN_NODE && (last_param->token->token_type == TOKEN_VARIADIC)) {
                     is_variadic = true;
                     node_free(array_pop_p(&parameters->block->nodes));
                 }
@@ -546,7 +546,8 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
             switch(type_item_node_kind){
             case BuiltinType:
             {
-                struct token_pattern *tp = get_token_pattern_by_token_type(node->node_type >> 16);
+                assert(node->node_type == TOKEN_NODE);
+                struct token_pattern *tp = get_token_pattern_by_token_type(node->token->token_type);
                 ast = type_item_node_new_with_builtin_type(tp->symbol_name, Immutable, node->loc);
                 break;
             }
@@ -596,6 +597,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 struct ast_node *node = _take(nodes, rule->action.item_index[1]);
                 if(node->node_type){
                     block_node_add(ast, node);
+                    if(node->node_type == BLOCK_NODE){
+                        free_block_node(node, false); //we shallow release the shell block node
+                    }
                 }
             }
             break;

@@ -77,6 +77,25 @@ struct type_item *get_ret_type(struct ast_node *fun_node)
     return array_back_ptr(&fun_node->type->args);
 }
 
+struct ast_node *token_node_new(enum token_type tt, enum op_code token_op, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(TOKEN_NODE, loc);
+    MALLOC(node->token, sizeof(*node->token));
+    node->token->token_type = tt;
+    node->token->token_op = token_op;
+    return node;
+}
+
+struct ast_node *_copy_token_node(struct ast_node *orig_node)
+{
+    return token_node_new(orig_node->token->token_type, orig_node->token->token_op, orig_node->loc);
+}
+
+void _free_token_node(struct ast_node *node)
+{
+    ast_node_free(node);
+}
+
 struct ast_node *_copy_block_node(struct ast_node *orig_node)
 {
     struct array nodes;
@@ -216,6 +235,8 @@ void _free_real_type_item_node(struct type_item_node *type_item_node)
     } else if(type_item_node->kind == RefType){
         _free_real_type_item_node(type_item_node->val_node);
         FREE(type_item_node->val_node);
+    } else if(type_item_node->kind == TupleType){
+        node_free(type_item_node->tuple_block);
     }
 }
 
@@ -451,7 +472,7 @@ struct ast_node *_copy_adt_init_node(struct ast_node *orig_node)
 
 void _free_adt_init_node(struct ast_node *node)
 {
-    _free_block_node(node->adt_init->body);
+    node_free(node->adt_init->body);
     node_free(node->adt_init->is_of_type);
     ast_node_free(node);
 }
@@ -783,6 +804,7 @@ void _free_match_node(struct ast_node *node)
 {
     node_free(node->match->test_expr);
     node_free(node->match->match_cases);
+    ast_node_free(node);
 }
 
 struct ast_node *match_item_node_new(struct ast_node *pattern, struct ast_node *cond_expr, struct ast_node *expr,
@@ -808,6 +830,7 @@ void _free_match_item_node(struct ast_node *node)
     node_free(node->match_case->pattern);
     node_free(node->match_case->guard);
     node_free(node->match_case->expr);
+    ast_node_free(node);
 }
 
 struct ast_node *unary_node_new(enum op_code opcode, struct ast_node *operand, bool is_postfix, struct source_location loc)
@@ -1046,6 +1069,9 @@ struct ast_node *node_copy(struct ast_node *node)
     if (!node) return node;
     struct ast_node *clone = 0;
     switch (node->node_type) {
+    case TOKEN_NODE:
+        clone = _copy_token_node(node);
+        break;
     case BLOCK_NODE:
         clone = _copy_block_node(node);
         break;
@@ -1143,14 +1169,12 @@ struct ast_node *node_copy(struct ast_node *node)
 void node_free(struct ast_node *node)
 {
     if (!node) return;
-    if(node->node_type > TOTAL_NODE){
-        //hacked token node
-        ast_node_free(node);
-        return;
-    }
     switch (node->node_type) {
     case NULL_NODE:
         FREE(node);
+        break;
+    case TOKEN_NODE:
+        _free_token_node(node);
         break;
     case IMPORT_NODE:
         _free_import_node(node);

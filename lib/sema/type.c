@@ -148,6 +148,8 @@ symbol to_array_type_name(symbol element_type_name, struct array *dims)
 struct hashtable _symbol_2_type_items; 
 /*type variables: collect type variables*/
 struct hashtable _type_item_vars; 
+/*refreshed type items*/
+struct hashtable _freshed_type_items; 
 
 void _free_type_pair(void *type)
 {
@@ -175,6 +177,18 @@ void _free_type_item_var(void *elm)
     type_item_free(elm);
 }
 
+void type_item_free(struct type_item *type)
+{
+    if(!type) return;
+    if(type->kind == KIND_OPER){
+        array_deinit(&type->args);
+    }
+    if(type->type == TYPE_ARRAY){
+        array_deinit(&type->dims);
+    }
+    FREE(type);
+}
+
 void types_init()
 {
     for(int i = 0; i < TYPE_TYPES; i++){
@@ -191,12 +205,14 @@ void types_init()
     }
     hashtable_init_with_value_size(&_symbol_2_type_items, sizeof(struct type_item_pair), _free_type_pair);
     hashtable_init_with_value_size(&_type_item_vars, 0, _free_type_item_var);
+    hashtable_init_with_value_size(&_freshed_type_items, 0, _free_type_item_var);
 }
 
 void types_deinit()
 {
     hashtable_deinit(&_symbol_2_type_items);
     hashtable_deinit(&_type_item_vars);
+    hashtable_deinit(&_freshed_type_items);
 }
 
 void struct_type_init(struct type_item *struct_type)
@@ -333,6 +349,7 @@ struct type_item *create_type_oper_tuple(enum Mut mut, struct array *args)
     ti->name = string_2_symbol(&type_name);
     ti->canon_name = ti->name;
     string_deinit(&type_name);
+    hashtable_set_p(&_freshed_type_items, ti, ti);
     return ti;
 }
 
@@ -380,18 +397,6 @@ struct type_item *wrap_as_fun_type(struct type_item *oper)
     array_init(&fun_sig, sizeof(struct type_item *));
     array_push(&fun_sig, &oper);
     return create_type_fun(oper->is_variadic, &fun_sig);
-}
-
-void type_item_free(struct type_item *type)
-{
-    if(!type) return;
-    if(type->kind == KIND_OPER){
-        array_deinit(&type->args);
-    }
-    if(type->type == TYPE_ARRAY){
-        array_deinit(&type->dims);
-    }
-    FREE(type);
 }
 
 struct type_item *tep_find_type_item(struct type_item_pair *pair, enum Mut mut, bool is_ref, enum Mut referent_mut)
@@ -539,7 +544,13 @@ bool _all_is_oper(struct array *arr)
     return true;
 }
 
-/*for any generic type in the type, create a a type variable thunk for it*/
+/* 
+    for any generic type in the type, create a type variable thunk for it
+    we must share non-generic types.
+    A type variable occurring in the type of an expression e is generic WRT e iff it does not occur in 
+    the type of the binder of any fun expression enclosing e.
+    A (type) variable is generic if it does not appear in the type of the variables of any enclosing fun binder. 
+*/
 struct type_item *_freshrec(struct type_item *type, struct array *nongens, struct hashtable *type_vars)
 {
     type = prune(type);
@@ -552,6 +563,7 @@ struct type_item *_freshrec(struct type_item *type, struct array *nongens, struc
             }
             return temp;
         } else {
+            //non-generic returning shared one
             return type;
         }
     }
@@ -559,17 +571,21 @@ struct type_item *_freshrec(struct type_item *type, struct array *nongens, struc
         return type;
     struct array refreshed;
     array_init(&refreshed, sizeof(struct type_item *));
+    //refresh each components
     for (size_t i = 0; i < array_size(&type->args); i++) {
         struct type_item *arg_type = array_get_ptr(&type->args, i);
         struct type_item *new_arg_type = _freshrec(arg_type, nongens, type_vars);
         array_push(&refreshed, &new_arg_type);
     }
+    struct type_item *new_type = 0;
     if (type->type == TYPE_STRUCT) {
-        return create_type_oper_struct(type->name, type->mut, &refreshed);
+        new_type = create_type_oper_struct(type->name, type->mut, &refreshed);
     } else if (type->type == TYPE_TUPLE){
-        return create_type_oper_tuple(type->mut, &refreshed);
+        new_type = create_type_oper_tuple(type->mut, &refreshed);
+    } else {
+        new_type = create_type_oper_var(KIND_OPER, type->name, type->type, 0, &refreshed);
     }
-    return create_type_oper_var(KIND_OPER, type->name, type->type, 0, &refreshed);
+    return new_type;
 }
 
 struct type_item *fresh(struct type_item *type, struct array *nongens)
@@ -581,15 +597,6 @@ struct type_item *fresh(struct type_item *type, struct array *nongens)
     return result;
 }
 
-struct type_item *get_symbol_type(symboltable *st, struct array *nongens, symbol name)
-{
-    struct type_item *exp = (struct type_item *)symboltable_get(st, name);
-    if (!exp){
-        printf("No type is found for the symbol: %s.\n", string_get(name));
-        return 0;
-    }
-    return fresh(exp, nongens);
-}
 
 void push_symbol_type(symboltable *st, symbol name, void *type)
 {
