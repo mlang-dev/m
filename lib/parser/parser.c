@@ -597,6 +597,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 struct ast_node *node = _take(nodes, rule->action.item_index[1]);
                 if(node->node_type){
                     block_node_add(ast, node);
+                    if(node->node_type == BLOCK_NODE){
+                        free_block_node(node, false); //we shallow release the shell block node
+                    }
                 }
             }
             break;
