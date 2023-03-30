@@ -676,7 +676,7 @@ struct ast_node *func_type_item_node_new(symbol name,
         struct ast_node *is_of_type = type_item_node_new_with_type_name(symbol_name, Immutable, loc);
         struct ast_node *fun_param = var_node_new(ident_node_new(symbol_name, loc), is_of_type, 0, false, true, loc);
         fun_param->type = create_nullary_type(TYPE_GENERIC);
-        array_push(&node->ft->params->block->nodes, &fun_param);
+        block_node_add(node->ft->params, fun_param);
     }
     return node;
 }
@@ -1163,6 +1163,8 @@ struct ast_node *node_copy(struct ast_node *node)
     case TOTAL_NODE:
         break;
     }
+    if(node->type && !is_generic(node->type))
+        clone->type = node->type;
     return clone;
 }
 

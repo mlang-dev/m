@@ -232,10 +232,23 @@ x + y\n\
     free(wasm);
 }
 
+TEST(test_wasm_codegen, array_access)
+{
+    char test_code[] = "\n\
+var a:u8[2] = [10, 20]\n\
+a[0] = 30\n\
+a[1] = 40\n\
+a[0] + a[1]\n\
+";
+    u8 *wasm = _compile_code(test_code);
+    ASSERT_TRUE(wasm);
+    free(wasm);
+}
+
 int test_wasm_codegen()
 {
     UNITY_BEGIN();
-    //RUN_TEST(test_wasm_codegen_sample_code);
+    RUN_TEST(test_wasm_codegen_sample_code);
     RUN_TEST(test_wasm_codegen_ref_type);
     RUN_TEST(test_wasm_codegen_emit_generic_fun);
     RUN_TEST(test_wasm_codegen_emit_nested_for_loop);
@@ -249,6 +262,7 @@ int test_wasm_codegen()
     RUN_TEST(test_wasm_codegen_tuple);
     RUN_TEST(test_wasm_codegen_return_tuple);
     RUN_TEST(test_wasm_codegen_tuple_param);
+    RUN_TEST(test_wasm_codegen_array_access);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

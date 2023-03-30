@@ -626,7 +626,7 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
             wasm_emit_load_mem(ba, field->align, 0, field->type->type);
         }
     }
-    //array_deinit(&field_infos);
+    array_deinit(&field_infos);
 }
 
 void _emit_assign_value(struct cg_wasm *cg, struct byte_array *ba, u32 addr_var_index, u32 offset, u32 align, struct type_item *type, struct ast_node *rhs)

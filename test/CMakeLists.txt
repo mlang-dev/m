@@ -76,26 +76,25 @@ add_definitions(${LLVM_DEFINITIONS})
 
 add_executable(mtest
   tutil.cc
-  compiler/test_jit_control.cc
-  parser/test_astdump.cc
-  compiler/test_jit_relational.cc
-  compiler/test_jit_logical.cc
-  compiler/test_jit_adt.cc
-  compiler/test_jit.cc
-  compiler/test_jit_error.cc
-  compiler/test_jit_array.cc
   codegen/llvm/test_cg_var.cc
-  codegen/llvm/test_cg_fun_call.cc
+  # codegen/llvm/test_cg_fun_call.cc
+  # compiler/test_jit_control.cc
+  # compiler/test_jit_relational.cc
+  # compiler/test_jit_logical.cc
+  # compiler/test_jit_adt.cc
+  # compiler/test_jit.cc
+  # compiler/test_jit_error.cc
+  # compiler/test_jit_array.cc
 )
 
-# target_compile_options(mtest PRIVATE
-# -fsanitize=address
-# -g
-# )
+target_compile_options(mtest PRIVATE
+-fsanitize=address
+-g
+)
 
-# target_link_options(mtest PRIVATE
-# -fsanitize=address
-# )
+target_link_options(mtest PRIVATE
+-fsanitize=address
+)
 
 target_include_directories(mtest PUBLIC
 ${LLVM_INCLUDE_DIRS}

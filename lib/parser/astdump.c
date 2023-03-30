@@ -60,6 +60,7 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
         string_add_chars(&result, " -> ");
         string_add(&result, &var_str);
     }
+    array_deinit(&args);
     return result;
 }
 
