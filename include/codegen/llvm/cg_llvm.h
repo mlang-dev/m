@@ -71,7 +71,8 @@ struct cg_llvm {
     LLVMContextRef context;
     LLVMBuilderRef builder;
     LLVMModuleRef module;
-
+    LLVMTargetMachineRef target_machine;
+    LLVMTargetDataRef target_data;
     /* 
      *  symboltable of <symbol, LLVMTypeRef>
      *  binding type name to IR Type
@@ -113,7 +114,7 @@ void emit_code(struct cg_llvm *cg, struct ast_node *node);
 void emit_sp_code(struct cg_llvm *cg);
 void create_ir_module(struct cg_llvm *cg, const char *module_name);
 LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node);
-LLVMTargetMachineRef create_target_machine(LLVMModuleRef module);
+LLVMTargetMachineRef create_target_machine(LLVMModuleRef module, LLVMTargetDataRef* target_data_out);
 LLVMContextRef get_llvm_context();
 LLVMTypeRef get_backend_type(struct type_item *type);
 LLVMTargetDataRef get_llvm_data_layout();
