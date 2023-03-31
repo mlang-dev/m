@@ -108,9 +108,12 @@ bool _bits_contain_no_user_data(struct type_item *type, unsigned start_bit, unsi
             if (field_offset >= end_bit)
                 break;
             unsigned field_start = field_offset < start_bit ? start_bit - field_offset : 0;
-            if (_bits_contain_no_user_data(array_get(&type->args, i), field_start, end_bit - field_offset))
+            if (_bits_contain_no_user_data(array_get(&type->args, i), field_start, end_bit - field_offset)){
+                sl_free(sl);
                 return false;
+            }
         }
+        sl_free(sl);
         return true;
     }
     return false;

@@ -36,11 +36,6 @@ void _free_nested_levels(void *arr)
     array_deinit(array);
 }
 
-void _free_builtin_node(void *node)
-{
-    node_free(node);
-}
-
 struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, struct ast_node *stdio, struct ast_node *math, bool is_repl)
 {
     struct sema_context *context;
@@ -55,7 +50,7 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
     hashtable_init(&context->gvar_name_2_ast);
     stack_init(&context->func_stack, sizeof(struct ast_node *));
     hashtable_init(&context->struct_typename_2_asts);
-    hashtable_init_with_value_size(&context->builtin_ast, 0, _free_builtin_node);
+    hashtable_init(&context->builtin_ast);
     hashtable_init(&context->generic_ast);
     hashtable_init(&context->specialized_ast);
     array_init(&context->new_specialized_asts, sizeof(struct ast_node *));
@@ -97,10 +92,9 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
         analyze(context, node);
         push_symbol_type(&context->varname_2_typexprs, node->ft->name, node->type);
         hashtable_set_p(&context->builtin_ast, node->ft->name, node);
-        //string type = to_string(func_type->base.type);
     }
     array_init_free(&context->nested_levels, sizeof(struct array), _free_nested_levels);
-    array_deinit(&builtins);
+    context->builtin_ast_block = block_node_new(&builtins);
     return context;
 }
 
@@ -122,6 +116,7 @@ void sema_context_free(struct sema_context *context)
     array_deinit(&context->used_builtin_names);
     array_deinit(&context->nongens);
     array_deinit(&context->new_specialized_asts);
+    node_free(context->builtin_ast_block);
     FREE(context);
 }
 
