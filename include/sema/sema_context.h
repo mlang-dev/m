@@ -77,6 +77,7 @@ struct sema_context {
      *  builtin ASTs: symbol to ast_node*, only used for codegen
      */
     struct hashtable builtin_ast;
+    struct ast_node *builtin_ast_block;
 
     /* 
      *  generic value ASTs: hashtable of <symbol, struct ast_node*>
