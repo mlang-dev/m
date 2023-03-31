@@ -42,10 +42,14 @@ int gof_initialize()
 int generate_object_file(LLVMModuleRef module, const char *filename)
 {
     gof_initialize();
-    LLVMTargetMachineRef target_machine = create_target_machine(module);
+    LLVMTargetDataRef target_data = 0;
+    LLVMTargetMachineRef target_machine = create_target_machine(module, &target_data);
     if (!target_machine)
         return 1;
-    return gof_emit_file(module, target_machine, filename);
+    int result = gof_emit_file(module, target_machine, filename);
+    LLVMDisposeTargetMachine(target_machine);
+    LLVMDisposeTargetData(target_data);
+    return result;
 }
 
 int generate_bitcode_file(LLVMModuleRef module, const char *filename)

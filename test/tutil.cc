@@ -26,12 +26,14 @@ FILE *open_file_from_string(const char *code)
 void make_module_ir(void* mod, const char *module_name, const char *ir_string, char *module_ir)
 {
     LLVMModuleRef module = (LLVMModuleRef)mod;
+    const char *target_triple = LLVMGetDefaultTargetTriple();
     sprintf(module_ir, R"(; ModuleID = '%s'
 source_filename = "%s"
 target datalayout = "%s"
 target triple = "%s"
 %s)",
-        module_name, module_name, LLVMGetDataLayoutStr(module), LLVMGetDefaultTargetTriple(), ir_string);
+        module_name, module_name, LLVMGetDataLayoutStr(module), target_triple, ir_string);
+    free((void*)target_triple);
 }
 
 void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)

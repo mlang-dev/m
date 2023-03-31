@@ -422,7 +422,9 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
     hashtable_init(&cg->varname_2_irvalues);
     hashtable_init(&cg->typename_2_irtypes);
     hashtable_init(&cg->varname_2_typename);
-    cg->base.target_info = ti_new(LLVMGetDefaultTargetTriple());
+    const char *target_triple = LLVMGetDefaultTargetTriple();
+    cg->base.target_info = ti_new(target_triple);
+    free((void*)target_triple);
     g_cg = cg;
     _init_target_info_llvm(cg->base.target_info);
     if (get_os() == OS_WIN32){
@@ -435,9 +437,16 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
 
 void llvm_cg_free(struct cg_llvm *cg)
 {
-    LLVMDisposeBuilder(cg->builder);
-    if (cg->module)
+    if (cg->module){
         LLVMDisposeModule(cg->module);
+    }
+    if (cg->target_machine){
+        LLVMDisposeTargetMachine(cg->target_machine);
+    }
+    if (cg->target_data){
+        LLVMDisposeTargetData(cg->target_data);
+    }
+    LLVMDisposeBuilder(cg->builder);
     LLVMContextDispose(cg->context);
     ti_free(cg->base.target_info);
     hashtable_deinit(&cg->cg_gvar_name_2_asts);
@@ -811,11 +820,8 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
 void create_ir_module(struct cg_llvm *cg,
     const char *module_name)
 {
-    LLVMModuleRef module = LLVMModuleCreateWithNameInContext(module_name, cg->context);
-    LLVMTargetMachineRef target_marchine = create_target_machine(module);
-    LLVMTargetDataRef data_layout = LLVMCreateTargetDataLayout(target_marchine);
-    LLVMSetModuleDataLayout(module, data_layout);
-    cg->module = module;
+    cg->module = LLVMModuleCreateWithNameInContext(module_name, cg->context);
+    cg->target_machine = create_target_machine(cg->module, &cg->target_data);
 }
 
 LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
@@ -902,7 +908,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
     return value;
 }
 
-LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
+LLVMTargetMachineRef create_target_machine(LLVMModuleRef module, LLVMTargetDataRef* target_data_out)
 {
     char *target_triple = LLVMGetDefaultTargetTriple();
     LLVMSetTarget(module, target_triple);
@@ -910,6 +916,7 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
     LLVMTargetRef target;
     if (LLVMGetTargetFromTriple(target_triple, &target, &error)) {
         log_info(ERROR, "error in creating target machine: %s", error);
+        free(target_triple);
         return 0;
     }
     const char *cpu = "generic";
@@ -918,7 +925,10 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module)
     LLVMRelocMode rm = LLVMRelocPIC; // LLVMRelocDefault;
     LLVMCodeModel cm = LLVMCodeModelDefault;
     LLVMTargetMachineRef target_machine = LLVMCreateTargetMachine(target, target_triple, cpu, features, opt, rm, cm);
-    LLVMSetModuleDataLayout(module, LLVMCreateTargetDataLayout(target_machine));
+    LLVMTargetDataRef target_data = LLVMCreateTargetDataLayout(target_machine);
+    LLVMSetModuleDataLayout(module, target_data);
+    *target_data_out = target_data;
+    free(target_triple);
     return target_machine;
 }
 

@@ -119,7 +119,7 @@ struct target_info *ti_new(const char *target_triple)
 {
     struct target_info *ti;
     MALLOC(ti, sizeof(struct target_info));
-    ti->target_triple = target_triple;
+    ti->target_triple = strdup(target_triple);
     _parse_triple(ti);
     bool is64 = ti->arch == ARCH_X86_64;
     ti->unit_width = 0;
@@ -142,6 +142,7 @@ struct target_info *ti_new(const char *target_triple)
 
 void ti_free(struct target_info *ti)
 {
+    FREE((void*)ti->target_triple);
     hashtable_deinit(&ti->fun_infos);
     FREE(ti);
 }
