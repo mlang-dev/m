@@ -51,6 +51,7 @@ void _create_new_module(struct cg_llvm *cg)
 struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
 {
     struct cg_llvm *cg = jit->engine->be->cg;
+    struct type_context *tc = cg->base.sema_context->tc;
     string fn = make_unique_name("main-fn");
     symbol fn_symbol = string_2_symbol(&fn);
     enum node_type node_type = node->node_type;
@@ -60,7 +61,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
     }
     struct type_item *type = node->type;
     struct eval_result result = { 0 };
-    node = wrap_expr_as_function(&jit->engine->fe->parser->symbol_2_int_types, node, fn_symbol);
+    node = wrap_expr_as_function(jit->engine->fe->parser->tc, node, fn_symbol);
     analyze(cg->base.sema_context, node);
     _create_new_module(cg);
     emit_code(cg, node);
@@ -72,7 +73,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
             cg->module = 0;
             struct fun_pointer fp = jit_find_symbol(jit, string_get(&fn));
             // keep global variables in the jit
-            enum type ret_type = get_type(type);
+            enum type ret_type = get_type(tc, type);
             if (is_int_type(ret_type)) {
                 result.i_value = fp.fp.i_fp();
                 result.type = ret_type;
@@ -96,6 +97,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
 struct eval_result eval_module(struct JIT *jit, struct ast_node *node)
 {
     struct cg_llvm *cg = jit->engine->be->cg;
+    struct type_context *tc = cg->base.sema_context->tc;
     analyze(cg->base.sema_context, node);
     _create_new_module(cg);
     enum node_type node_type = node->node_type;
@@ -114,7 +116,7 @@ struct eval_result eval_module(struct JIT *jit, struct ast_node *node)
             cg->module = 0;
             struct fun_pointer fp = jit_find_symbol(jit, "_start");
             // keep global variables in the jit
-            enum type ret_type = get_return_type(type);
+            enum type ret_type = get_return_type(tc, type);
             if (is_int_type(ret_type)) {
                 result.i_value = fp.fp.i_fp();
                 result.type = ret_type;
@@ -150,9 +152,10 @@ void eval_statement(void *p_jit, struct ast_node *node)
     //printf("node->type: %s\n", node_type_strings[node->node_type]);
     struct JIT *jit = (struct JIT *)p_jit;
     struct cg_llvm *cg = jit->engine->be->cg;
+    struct type_context *tc = cg->base.sema_context->tc;
     _create_new_module(cg);
     emit_code(cg, node);
-    string type_node_str = to_string(node->type);
+    string type_node_str = to_string(tc, node->type);
     if (!node->type)
         goto exit;
     if (node->node_type == FUNC_TYPE_NODE) {

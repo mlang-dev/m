@@ -1,5 +1,5 @@
 /*
- * source_location.h
+ * error.h
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
@@ -11,6 +11,7 @@
 
 #include "lexer/source_location.h"
 #include "clib/typedef.h"
+#include "clib/hashtable.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,8 +64,8 @@ struct error_reports {
 
 typedef void *ErrorHandle;
 
-void error_init();
-void error_deinit();
+void error_init(struct hashtable *error_reports);
+void error_deinit(struct hashtable *error_reports);
 struct error_reports get_error_reports(ErrorHandle handle);
 struct error_report *get_last_error_report(ErrorHandle handle);
 void report_error(ErrorHandle handle, enum error_code error_code, struct source_location loc, ...);

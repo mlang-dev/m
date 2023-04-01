@@ -28,7 +28,7 @@ struct loop_nested_level{
 
 struct sema_context {
     /* mapping type string into type enum: hashtable of (symbol, int) */
-    struct hashtable *symbol_2_int_types;
+    struct type_context *tc;
 
     /* 
      *  value type env: symboltable of <symbol, struct type_item>*>
@@ -135,7 +135,7 @@ struct field_info{
     struct ast_node *aggr_root; //root 
 };
 
-struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, struct ast_node *stdio, struct ast_node *math, bool is_repl);
+struct sema_context *sema_context_new(struct type_context *tc, struct ast_node *stdio, struct ast_node *math, bool is_repl);
 void sema_context_free(struct sema_context *env);
 size_t enter_scope(struct sema_context *env);
 size_t leave_scope(struct sema_context *env);

@@ -2,6 +2,7 @@
 #include "compiler/engine.h"
 #include "codegen/llvm/cg_llvm.h"
 #include "gtest/gtest.h"
+#include "app/app.h"
 
 class Environment : public testing::Environment {
     struct engine *m_engine = 0;
@@ -9,6 +10,7 @@ class Environment : public testing::Environment {
 
  public:
   virtual void SetUp() {
+    app_init();
     m_engine = engine_llvm_new(true);
     m_jit = jit_new(m_engine);
     printf("Global SetUp\n");
@@ -20,6 +22,7 @@ class Environment : public testing::Environment {
         jit_free(m_jit);
     if (m_engine)
         engine_free(m_engine);
+    app_deinit();
   }
 
     struct engine *engine() { return m_engine; }

@@ -20,18 +20,19 @@ let xy = XorY{0.0}\n\
 xy.x\n\
 ";
     struct frontend *fe = frontend_init();
+    struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
-    string type_str = to_string(node->type);
+    string type_str = to_string(tc, node->type);
     ASSERT_STREQ("XorY", string_get(&type_str));
     node = array_get_ptr(&block->block->nodes, 1);
-    type_str = to_string(node->type);
+    type_str = to_string(tc, node->type);
     ASSERT_STREQ("XorY", string_get(&type_str));
     node = array_get_ptr(&block->block->nodes, 2);
     ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
-    type_str = to_string(node->type);
+    type_str = to_string(tc, node->type);
     ASSERT_STREQ("f64", string_get(&type_str));
     node_free(block);
     frontend_deinit(fe);
@@ -45,18 +46,19 @@ let xy:XorY = {0.0}\n\
 xy.y\n\
 ";
     struct frontend *fe = frontend_init();
+    struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(3, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
-    string type_str = to_string(node->type);
+    string type_str = to_string(tc, node->type);
     ASSERT_STREQ("XorY", string_get(&type_str));
     node = array_get_ptr(&block->block->nodes, 1);
-    type_str = to_string(node->type);
+    type_str = to_string(tc, node->type);
     ASSERT_STREQ("XorY", string_get(&type_str));
     node = array_get_ptr(&block->block->nodes, 2);
     ASSERT_EQ(MEMBER_INDEX_NODE, node->node_type);
-    type_str = to_string(node->type);
+    type_str = to_string(tc, node->type);
     ASSERT_STREQ("int", string_get(&type_str));
     node_free(block);
     frontend_deinit(fe);
@@ -68,11 +70,12 @@ TEST(test_analyzer_variant, enum_type_int)
 variant Color = Red | Green | Blue\n\
 ";
     struct frontend *fe = frontend_init();
+    struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     struct ast_node *union_node = array_front_ptr(&block->block->nodes);
-    string type_str = to_string(union_node->type);
+    string type_str = to_string(tc, union_node->type);
     ASSERT_STREQ("Color", string_get(&type_str));
     ASSERT_EQ(VARIANT_NODE, union_node->node_type);
     ASSERT_EQ(3, array_size(&union_node->adt_type->body->block->nodes));
@@ -95,11 +98,12 @@ TEST(test_analyzer_variant, enum_type_int_manual_set)
 variant Color = Red | Green = 10 | Blue\n\
 ";
     struct frontend *fe = frontend_init();
+    struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
     struct ast_node *union_node = array_front_ptr(&block->block->nodes);
-    string type_str = to_string(union_node->type);
+    string type_str = to_string(tc, union_node->type);
     ASSERT_STREQ("Color", string_get(&type_str));
     ASSERT_EQ(VARIANT_NODE, union_node->node_type);
     ASSERT_EQ(3, array_size(&union_node->adt_type->body->block->nodes));

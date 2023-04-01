@@ -305,9 +305,6 @@ struct ast_node {
     };
 };
 
-void ast_init();
-void ast_deinit();  
-struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
 /*
  * if node type order is changed here, the corresponding order of function pointer
  * in codegen.c & analyzer.c shall be changed accordingly.
@@ -326,19 +323,20 @@ struct ast_node *type_item_node_new_with_tuple_type(struct ast_node *tuple_block
 struct ast_node *type_item_node_new_with_builtin_type(symbol type_name, enum Mut mut, struct source_location loc);
 struct ast_node *type_item_node_new_with_ref_type(struct type_item_node *val_node, enum Mut mut, struct source_location loc);
 struct ast_node *type_node_new(symbol type_name, struct ast_node *type_body, struct source_location loc);
-struct ast_node *double_node_new(f64 val, struct source_location loc);
-struct ast_node *int_node_new(int val, struct source_location loc);
-struct ast_node *bool_node_new(bool val, struct source_location loc);
-struct ast_node *char_node_new(char val, struct source_location loc);
-struct ast_node *unit_node_new(struct source_location loc);
-struct ast_node *string_node_new(const char *val, struct source_location loc);
-struct ast_node *const_one_node_new(enum type type, struct source_location loc);
+struct ast_node *double_node_new(struct type_context *tc, f64 val, struct source_location loc);
+struct ast_node *int_node_new(struct type_context *tc, int val, struct source_location loc);
+struct ast_node *bool_node_new(struct type_context *tc, bool val, struct source_location loc);
+struct ast_node *char_node_new(struct type_context *tc, char val, struct source_location loc);
+struct ast_node *unit_node_new(struct type_context *tc, struct source_location loc);
+struct ast_node *string_node_new(struct type_context *tc, const char *val, struct source_location loc);
+struct ast_node *const_one_node_new(struct type_context *tc, enum type type, struct source_location loc);
 struct ast_node *var_node_new(struct ast_node *var, struct ast_node *is_of_type, struct ast_node *init_value, bool is_global, enum Mut mut, struct source_location loc);
 struct ast_node *call_node_new(symbol callee,
     struct ast_node *arg_block, struct source_location loc);
 struct ast_node *import_node_new(symbol from_module, struct ast_node *node, struct source_location loc);
 struct ast_node *memory_node_new(struct ast_node *initial, struct ast_node *max, struct source_location loc);
 struct ast_node *func_type_item_node_new(
+    struct type_context *tc, 
     symbol name,
     struct ast_node *params, 
     symbol ret_type,
@@ -352,6 +350,7 @@ struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node 
 struct ast_node *type_expr_item_node_new(struct ast_node *ident, struct ast_node *is_of_type, struct source_location loc);
 struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, struct ast_node *step, struct source_location loc);
 struct ast_node *func_type_item_node_default_new(
+    struct type_context *tc, 
     symbol name,
     struct ast_node *arg_block, symbol ret_type, struct ast_node *ret_type_item_node, bool is_variadic, bool is_external, struct source_location loc);
 
@@ -377,7 +376,7 @@ struct ast_node *token_node_new(enum token_type tt, enum op_code token_op, struc
 void free_block_node(struct ast_node *node, bool deep_free);
 struct ast_node *wrap_as_block_node(struct ast_node *node);
 
-struct ast_node *node_copy(struct ast_node *node);
+struct ast_node *node_copy(struct type_context *tc, struct ast_node *node);
 struct module *module_new(const char *mod_name, FILE *file);
 void node_free(struct ast_node *node);
 
@@ -390,9 +389,9 @@ int find_field_index(struct ast_node *type_item_node, struct ast_node *index);
 
 struct ast_node *find_sp_fun(struct ast_node *generic_fun, symbol sp_fun_name);
 
-struct ast_node *wrap_expr_as_function(struct hashtable *symbol_2_int_types, struct ast_node *exp, symbol fn);
-struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, symbol func_name, struct ast_node *block);
-struct ast_node *split_ast_nodes_with_start_func(struct hashtable *symbol_2_int_types, struct ast_node *expr_ast);
+struct ast_node *wrap_expr_as_function(struct type_context *tc, struct ast_node *exp, symbol fn);
+struct ast_node *wrap_nodes_as_function(struct type_context *tc, symbol func_name, struct ast_node *block);
+struct ast_node *split_ast_nodes_with_start_func(struct type_context *tc, struct ast_node *expr_ast);
 struct ast_node *get_root_object(struct ast_node *node);
 
 bool is_refered_later(struct ast_node *node);

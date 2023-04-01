@@ -1,5 +1,6 @@
 #include "test.h"
 #include <stdio.h>
+#include "app/app.h"
 
 #ifdef WASM
 #define ENTRY _start
@@ -53,6 +54,7 @@ void tearDown(){}
 EXPORT int ENTRY()
 {
   int failures = 0;
+  app_init();
   failures += test_array();
   failures += test_byte_array();
   failures += test_hashset();
@@ -91,5 +93,7 @@ EXPORT int ENTRY()
     printf("%d/%d Unit tests passed !\n", test_stats.total_tests - test_stats.total_failures, test_stats.total_tests);
   else
     printf("Unit tests failures: %d\n", failures);
+    
+  app_deinit();
   return failures;
 }

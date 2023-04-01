@@ -10,7 +10,7 @@
 #include <string.h>
 #include "clib/regex.h"
 #include "clib/win/libfmemopen.h"
-#include "error/error.h"
+#include "app/error.h"
 
 
 char escape_2_char[128];

@@ -6,7 +6,8 @@
 #include "parser/node_type.h"
 #include "sema/type.h"
 #include "clib/util.h"
-#include "error/error.h"
+#include "app/error.h"
+#include "app/app.h"
 
 
 #define header_comment_template  "/*\n"\
@@ -190,18 +191,16 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
 
 void pgen_init()
 {
-    error_init();
-    symbols_init();
-    pgen_token_init();
+    app_init();
     node_type_init();
+    pgen_token_init();
 }
 
 void pgen_deinit()
 {
-    node_type_deinit();
     pgen_token_deinit();
-    symbols_deinit();
-    error_deinit();
+    node_type_deinit();
+    app_deinit();
 }
 
 int generate_files(const char *grammar_path, const char *header_path, const char *source_path)

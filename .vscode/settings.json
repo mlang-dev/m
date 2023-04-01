@@ -172,7 +172,8 @@
         "terminal.h": "c",
         "symbol.h": "c",
         "engine.h": "c",
-        "mw.h": "c"
+        "mw.h": "c",
+        "app.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

@@ -15,16 +15,6 @@
 
 struct source_location default_loc = {0, 0, 0, 0};
 
-void ast_init()
-{
-    node_type_init();
-}
-
-void ast_deinit()
-{
-    node_type_deinit();
-}
-
 //forward decl
 void nodes_free(struct array *nodes);
 
@@ -96,12 +86,12 @@ void _free_token_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *_copy_block_node(struct ast_node *orig_node)
+struct ast_node *_copy_block_node(struct type_context *tc, struct ast_node *orig_node)
 {
     struct array nodes;
     array_init(&nodes, sizeof(struct ast_node *));
     for (size_t i = 0; i < array_size(&orig_node->block->nodes); i++) {
-        struct ast_node *node = node_copy(array_get_ptr(&orig_node->block->nodes, i));
+        struct ast_node *node = node_copy(tc, array_get_ptr(&orig_node->block->nodes, i));
         array_push(&nodes, &node);
     }
     return block_node_new(&nodes);
@@ -266,11 +256,11 @@ void _free_type_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *_create_literal_int_node(int val, enum type type, struct source_location loc)
+struct ast_node *_create_literal_int_node(struct type_context *tc, int val, enum type type, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(LITERAL_NODE, loc);
     MALLOC(node->liter, sizeof(*node->liter));
-    node->type = create_nullary_type(type);
+    node->type = create_nullary_type(tc, type);
     node->liter->type = type;
     switch (type){ 
         case TYPE_INT:
@@ -289,11 +279,11 @@ struct ast_node *_create_literal_int_node(int val, enum type type, struct source
     return node;
 }
 
-struct ast_node *_create_literal_node(void *val, enum type type, struct source_location loc)
+struct ast_node *_create_literal_node(struct type_context *tc, void *val, enum type type, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(LITERAL_NODE, loc);
     MALLOC(node->liter, sizeof(*node->liter));
-    node->type = create_nullary_type(type);
+    node->type = create_nullary_type(tc, type);
     node->liter->type = type;
     switch (type){ 
         case TYPE_INT:
@@ -332,47 +322,47 @@ void _free_literal_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *double_node_new(f64 val, struct source_location loc)
+struct ast_node *double_node_new(struct type_context *tc, f64 val, struct source_location loc)
 {
-    return _create_literal_node(&val, TYPE_F64, loc);
+    return _create_literal_node(tc, &val, TYPE_F64, loc);
 }
 
-struct ast_node *int_node_new(int val, struct source_location loc)
+struct ast_node *int_node_new(struct type_context *tc, int val, struct source_location loc)
 {
-    return _create_literal_int_node(val, TYPE_INT, loc);
+    return _create_literal_int_node(tc, val, TYPE_INT, loc);
 }
 
-struct ast_node *bool_node_new(bool val, struct source_location loc)
+struct ast_node *bool_node_new(struct type_context *tc, bool val, struct source_location loc)
 {
-    return _create_literal_int_node((int)val, TYPE_BOOL, loc);
+    return _create_literal_int_node(tc, (int)val, TYPE_BOOL, loc);
 }
 
-struct ast_node *const_one_node_new(enum type type, struct source_location loc)
+struct ast_node *const_one_node_new(struct type_context *tc, enum type type, struct source_location loc)
 {
     if(type == TYPE_F64){
-        return double_node_new(1.0, loc);
+        return double_node_new(tc, 1.0, loc);
     }
-    return int_node_new(1, loc);
+    return int_node_new(tc, 1, loc);
 }
 
-struct ast_node *char_node_new(char val, struct source_location loc)
+struct ast_node *char_node_new(struct type_context *tc, char val, struct source_location loc)
 {
-    return _create_literal_int_node((int)val, TYPE_CHAR, loc);
+    return _create_literal_int_node(tc, (int)val, TYPE_CHAR, loc);
 }
 
-struct ast_node *unit_node_new(struct source_location loc)
+struct ast_node *unit_node_new(struct type_context *tc, struct source_location loc)
 {
-    return _create_literal_node(0, TYPE_UNIT, loc);
+    return _create_literal_node(tc, 0, TYPE_UNIT, loc);
 }
 
-struct ast_node *string_node_new(const char *val, struct source_location loc)
+struct ast_node *string_node_new(struct type_context *tc, const char *val, struct source_location loc)
 {
-    return _create_literal_node((void *)val, TYPE_STRING, loc);
+    return _create_literal_node(tc, (void *)val, TYPE_STRING, loc);
 }
 
-struct ast_node *_copy_literal_node(struct ast_node *orig_node)
+struct ast_node *_copy_literal_node(struct type_context *tc, struct ast_node *orig_node)
 {
-    return _create_literal_node(&orig_node->liter->int_val,
+    return _create_literal_node(tc, &orig_node->liter->int_val,
         orig_node->liter->type, orig_node->loc);
 }
 
@@ -391,11 +381,11 @@ struct ast_node *var_node_new(struct ast_node *var, struct ast_node *is_of_type,
     return node;
 }
 
-struct ast_node *_copy_var_node(struct ast_node *orig_node)
+struct ast_node *_copy_var_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return var_node_new(
-        node_copy(orig_node->var->var), node_copy(orig_node->var->is_of_type),
-        node_copy(orig_node->var->init_value), orig_node->var->is_global, orig_node->var->mut, 
+        node_copy(tc, orig_node->var->var), node_copy(tc, orig_node->var->is_of_type),
+        node_copy(tc, orig_node->var->init_value), orig_node->var->is_global, orig_node->var->mut, 
         orig_node->loc);
 }
 
@@ -420,10 +410,10 @@ struct ast_node *adt_node_new(enum node_type node_type, symbol name, struct ast_
     return node;
 }
 
-struct ast_node *_copy_adt_node(struct ast_node *orig_node)
+struct ast_node *_copy_adt_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return adt_node_new(orig_node->node_type,
-        orig_node->adt_type->name, _copy_block_node(orig_node->adt_type->body), orig_node->loc);
+        orig_node->adt_type->name, _copy_block_node(tc, orig_node->adt_type->body), orig_node->loc);
 }
 
 void _free_adt_node(struct ast_node *node)
@@ -442,10 +432,10 @@ struct ast_node *variant_type_node_new(enum UnionKind kind, symbol tag, struct a
     return node;
 }
 
-struct ast_node *_copy_variant_type_node(struct ast_node *orig_node)
+struct ast_node *_copy_variant_type_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return variant_type_node_new(orig_node->variant_type_node->kind, orig_node->variant_type_node->tag,
-        _copy_block_node(orig_node->variant_type_node->tag_value), orig_node->loc);
+        _copy_block_node(tc, orig_node->variant_type_node->tag_value), orig_node->loc);
 }
 
 void _free_variant_type_node(struct ast_node *node)
@@ -464,10 +454,10 @@ struct ast_node *adt_init_node_new(enum ADTInitKind kind, struct ast_node *body,
     return node;
 }
 
-struct ast_node *_copy_adt_init_node(struct ast_node *orig_node)
+struct ast_node *_copy_adt_init_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return adt_init_node_new(orig_node->adt_init->kind, 
-        _copy_block_node(orig_node->adt_init->body), orig_node->adt_init->is_of_type, orig_node->loc);
+        _copy_block_node(tc, orig_node->adt_init->body), orig_node->adt_init->is_of_type, orig_node->loc);
 }
 
 void _free_adt_init_node(struct ast_node *node)
@@ -488,11 +478,11 @@ struct ast_node *range_node_new(struct ast_node *start, struct ast_node *end, st
     return node;
 }
 
-struct ast_node *_copy_range_node(struct ast_node *orig_node)
+struct ast_node *_copy_range_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return range_node_new(
-        node_copy(orig_node->range->start), node_copy(orig_node->range->end), 
-        node_copy(orig_node->range->step), orig_node->loc);
+        node_copy(tc, orig_node->range->start), node_copy(tc, orig_node->range->end), 
+        node_copy(tc, orig_node->range->step), orig_node->loc);
 }
 
 void _free_range_node(struct ast_node *node)
@@ -510,10 +500,10 @@ struct ast_node *array_init_node_new(struct ast_node *comp, struct source_locati
     return node;
 }
 
-struct ast_node *_copy_array_init_node(struct ast_node *orig_node)
+struct ast_node *_copy_array_init_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return array_init_node_new(
-        node_copy(orig_node->array_init), orig_node->loc);
+        node_copy(tc, orig_node->array_init), orig_node->loc);
 }
 
 void _free_array_init_node(struct ast_node *node)
@@ -533,10 +523,10 @@ struct ast_node *array_type_node_new(struct ast_node *elm_type, struct ast_node 
     return node;
 }
 
-struct ast_node *_copy_array_type_node(struct ast_node *orig_node)
+struct ast_node *_copy_array_type_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return array_type_node_new(
-        node_copy(orig_node->array_type->elm_type), node_copy(orig_node->array_type->dims), orig_node->loc);
+        node_copy(tc, orig_node->array_type->elm_type), node_copy(tc, orig_node->array_type->dims), orig_node->loc);
 }
 
 void _free_array_type_node(struct ast_node *node)
@@ -558,10 +548,10 @@ struct ast_node *type_expr_item_node_new(struct ast_node *ident, struct ast_node
     return node;
 }
 
-struct ast_node *_copy_type_expr_item_node(struct ast_node *orig_node)
+struct ast_node *_copy_type_expr_item_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return type_expr_item_node_new(
-        node_copy(orig_node->type_expr_item->ident), node_copy(orig_node->type_expr_item->is_of_type), orig_node->loc);
+        node_copy(tc, orig_node->type_expr_item->ident), node_copy(tc, orig_node->type_expr_item->is_of_type), orig_node->loc);
 }
 
 void _free_type_expr_item_node(struct ast_node *node)
@@ -581,10 +571,10 @@ struct ast_node *import_node_new(symbol from_module, struct ast_node *imported, 
     return node;
 }
 
-struct ast_node *_copy_import_node(struct ast_node *orig_node)
+struct ast_node *_copy_import_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return import_node_new(orig_node->import->from_module,
-        node_copy(orig_node->import->import), orig_node->loc);
+        node_copy(tc, orig_node->import->import), orig_node->loc);
 }
 
 void _free_import_node(struct ast_node *node)
@@ -603,11 +593,11 @@ struct ast_node *memory_node_new(struct ast_node *initial, struct ast_node *max,
     return node;
 }
 
-struct ast_node *_copy_memory_node(struct ast_node *orig_node)
+struct ast_node *_copy_memory_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return memory_node_new(
-        node_copy(orig_node->memory->initial),
-        orig_node->memory->max? node_copy(orig_node->memory->max) : 0,
+        node_copy(tc, orig_node->memory->initial),
+        orig_node->memory->max? node_copy(tc, orig_node->memory->max) : 0,
         orig_node->loc);
 }
 
@@ -632,10 +622,10 @@ struct ast_node *call_node_new(symbol callee,
     return node;
 }
 
-struct ast_node *_copy_call_node(struct ast_node *orig_node)
+struct ast_node *_copy_call_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return call_node_new(orig_node->call->callee,
-        _copy_block_node(orig_node->call->arg_block), orig_node->loc);
+        _copy_block_node(tc, orig_node->call->arg_block), orig_node->loc);
 }
 
 void _free_call_node(struct ast_node *node)
@@ -649,13 +639,14 @@ symbol get_callee(struct ast_node *call)
     return call->call->specialized_callee ? call->call->specialized_callee : call->call->callee;
 }
 
-struct ast_node *func_type_item_node_default_new(symbol name, struct ast_node *arg_block,
+struct ast_node *func_type_item_node_default_new(struct type_context *tc, symbol name, struct ast_node *arg_block,
     symbol ret_type, struct ast_node *ret_type_item_node, bool is_variadic, bool is_external, struct source_location loc)
 {
-    return func_type_item_node_new(name, arg_block, ret_type, ret_type_item_node, is_variadic, is_external, loc);
+    return func_type_item_node_new(tc, name, arg_block, ret_type, ret_type_item_node, is_variadic, is_external, loc);
 }
 
-struct ast_node *func_type_item_node_new(symbol name,
+struct ast_node *func_type_item_node_new(struct type_context *tc, 
+    symbol name,
     struct ast_node *params, /*params block ast node*/
     symbol ret_type,
     struct ast_node *ret_type_item_node, 
@@ -675,23 +666,23 @@ struct ast_node *func_type_item_node_new(symbol name,
         symbol symbol_name = get_type_symbol(TYPE_GENERIC);
         struct ast_node *is_of_type = type_item_node_new_with_type_name(symbol_name, Immutable, loc);
         struct ast_node *fun_param = var_node_new(ident_node_new(symbol_name, loc), is_of_type, 0, false, true, loc);
-        fun_param->type = create_nullary_type(TYPE_GENERIC);
+        fun_param->type = create_nullary_type(tc, TYPE_GENERIC);
         block_node_add(node->ft->params, fun_param);
     }
     return node;
 }
 
-struct ast_node *_copy_func_type_node(struct ast_node *func_type)
+struct ast_node *_copy_func_type_node(struct type_context *tc, struct ast_node *func_type)
 {
     struct ast_node *node = ast_node_new(func_type->node_type, func_type->loc);
     MALLOC(node->ft, sizeof(*node->ft));
     node->ft->name = func_type->ft->name;
-    node->ft->params = _copy_block_node(func_type->ft->params);
+    node->ft->params = _copy_block_node(tc, func_type->ft->params);
     node->ft->is_operator = func_type->ft->is_operator;
     node->ft->precedence = func_type->ft->precedence;
     node->ft->is_variadic = func_type->ft->is_variadic;
     node->ft->is_extern = func_type->ft->is_extern;
-    node->ft->ret_type_item_node = node_copy(func_type->ft->ret_type_item_node);
+    node->ft->ret_type_item_node = node_copy(tc, func_type->ft->ret_type_item_node);
     node->ft->op = func_type->ft->op;
     if (func_type->ft->is_variadic) {
         symbol var_name = get_type_symbol(TYPE_GENERIC);
@@ -725,10 +716,10 @@ struct ast_node *function_node_new(struct ast_node *func_type,
     return node;
 }
 
-struct ast_node *_copy_function_node(struct ast_node *orig_node)
+struct ast_node *_copy_function_node(struct type_context *tc, struct ast_node *orig_node)
 {
-    struct ast_node *func_type = _copy_func_type_node(orig_node->func->func_type);
-    struct ast_node *block = _copy_block_node(orig_node->func->body);
+    struct ast_node *func_type = _copy_func_type_node(tc, orig_node->func->func_type);
+    struct ast_node *block = _copy_block_node(tc, orig_node->func->body);
     return function_node_new(func_type, block, orig_node->loc);
 }
 
@@ -792,11 +783,11 @@ struct ast_node *match_node_new(struct ast_node *test_expr, struct ast_node *mat
     return node;
 }
 
-struct ast_node *_copy_match_node(struct ast_node *orig_node)
+struct ast_node *_copy_match_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return match_node_new(
-        node_copy(orig_node->match->test_expr), 
-        node_copy(orig_node->match->match_cases),
+        node_copy(tc, orig_node->match->test_expr), 
+        node_copy(tc, orig_node->match->match_cases),
         orig_node->loc);
 }
 
@@ -818,11 +809,11 @@ struct ast_node *match_item_node_new(struct ast_node *pattern, struct ast_node *
     return node;
 }
 
-struct ast_node *_copy_match_item_node(struct ast_node *orig_node)
+struct ast_node *_copy_match_item_node(struct type_context *tc, struct ast_node *orig_node)
 {
-    return match_item_node_new(node_copy(orig_node->match_case->pattern), 
-        node_copy(orig_node->match_case->guard),
-        node_copy(orig_node->match_case->expr), orig_node->loc);
+    return match_item_node_new(node_copy(tc, orig_node->match_case->pattern), 
+        node_copy(tc, orig_node->match_case->guard),
+        node_copy(tc, orig_node->match_case->expr), orig_node->loc);
 }
 
 void _free_match_item_node(struct ast_node *node)
@@ -868,10 +859,10 @@ struct ast_node *binary_node_new(enum op_code opcode, struct ast_node *lhs, stru
     return node;
 }
 
-struct ast_node *_copy_binary_node(struct ast_node *orig_node)
+struct ast_node *_copy_binary_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return binary_node_new(orig_node->binop->opcode,
-        node_copy(orig_node->binop->lhs), node_copy(orig_node->binop->rhs), orig_node->loc);
+        node_copy(tc, orig_node->binop->lhs), node_copy(tc, orig_node->binop->rhs), orig_node->loc);
 }
 
 void _free_binary_node(struct ast_node *node)
@@ -999,10 +990,10 @@ struct ast_node *while_node_new(struct ast_node *expr, struct ast_node *body, st
     return node;
 }
 
-struct ast_node *_copy_while_node(struct ast_node *orig_node)
+struct ast_node *_copy_while_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return while_node_new(
-        node_copy(orig_node->whileloop->expr), node_copy(orig_node->whileloop->body), 
+        node_copy(tc, orig_node->whileloop->expr), node_copy(tc, orig_node->whileloop->body), 
         orig_node->loc);
 }
 
@@ -1023,10 +1014,10 @@ struct ast_node *jump_node_new(enum token_type token_type, struct ast_node *expr
     return node;
 }
 
-struct ast_node *_copy_jump_node(struct ast_node *orig_node)
+struct ast_node *_copy_jump_node(struct type_context *tc, struct ast_node *orig_node)
 {
     return jump_node_new(
-        orig_node->jump->token_type, node_copy(orig_node->jump->expr), 
+        orig_node->jump->token_type, node_copy(tc, orig_node->jump->expr), 
         orig_node->loc);
 }
 
@@ -1064,7 +1055,7 @@ struct ast_node *block_node_add_block(struct ast_node *block, struct ast_node *n
     return block;
 }
 
-struct ast_node *node_copy(struct ast_node *node)
+struct ast_node *node_copy(struct type_context *tc, struct ast_node *node)
 {
     if (!node) return node;
     struct ast_node *clone = 0;
@@ -1073,47 +1064,47 @@ struct ast_node *node_copy(struct ast_node *node)
         clone = _copy_token_node(node);
         break;
     case BLOCK_NODE:
-        clone = _copy_block_node(node);
+        clone = _copy_block_node(tc, node);
         break;
     case IMPORT_NODE:
-        clone = _copy_import_node(node);
+        clone = _copy_import_node(tc, node);
         break;
     case FUNC_TYPE_NODE:
-        clone = _copy_func_type_node(node);
+        clone = _copy_func_type_node(tc, node);
         break;
     case FUNC_NODE:
-        clone = _copy_function_node(node);
+        clone = _copy_function_node(tc, node);
         break;
     case VAR_NODE:
-        clone = _copy_var_node(node);
+        clone = _copy_var_node(tc, node);
         break;
     case VARIANT_TYPE_ITEM_NODE:
-        clone = _copy_variant_type_node(node);
+        clone = _copy_variant_type_node(tc, node);
         break;
     case VARIANT_NODE:
     case STRUCT_NODE:
-        clone = _copy_adt_node(node);
+        clone = _copy_adt_node(tc, node);
         break;
     case ADT_INIT_NODE:
-        clone = _copy_adt_init_node(node);
+        clone = _copy_adt_init_node(tc, node);
         break;
     case IDENT_NODE:
         clone = _copy_ident_node(node);
         break;
     case LITERAL_NODE:
-        clone = _copy_literal_node(node);
+        clone = _copy_literal_node(tc, node);
         break;
     case CALL_NODE:
-        clone = _copy_call_node(node);
+        clone = _copy_call_node(tc, node);
         break;
     case IF_NODE:
         clone = _copy_if_node(node);
         break;
     case MATCH_NODE:
-        clone = _copy_match_node(node);
+        clone = _copy_match_node(tc, node);
         break;
     case MATCH_CASE_NODE:
-        clone = _copy_match_item_node(node);
+        clone = _copy_match_item_node(tc, node);
         break;
     case FOR_NODE:
         clone = _copy_for_node(node);
@@ -1122,22 +1113,22 @@ struct ast_node *node_copy(struct ast_node *node)
         clone = _copy_unary_node(node);
         break;
     case BINARY_NODE:
-        clone = _copy_binary_node(node);
+        clone = _copy_binary_node(tc, node);
         break;
     case ASSIGN_NODE:
         clone = _copy_assign_node(node);
         break;
     case RANGE_NODE:
-        clone = _copy_range_node(node);
+        clone = _copy_range_node(tc, node);
         break;
     case ARRAY_INIT_NODE:
-        clone = _copy_array_init_node(node);
+        clone = _copy_array_init_node(tc, node);
         break;
     case ARRAY_TYPE_NODE:
-        clone = _copy_array_type_node(node);
+        clone = _copy_array_type_node(tc, node);
         break;
     case TYPE_EXPR_ITEM_NODE:
-        clone = _copy_type_expr_item_node(node);
+        clone = _copy_type_expr_item_node(tc, node);
         break;
     case TYPE_ITEM_NODE:
         clone = _copy_type_item_node(node);
@@ -1146,10 +1137,10 @@ struct ast_node *node_copy(struct ast_node *node)
         clone = _copy_type_node(node);
         break;
     case WHILE_NODE:
-        clone = _copy_while_node(node);
+        clone = _copy_while_node(tc, node);
         break;
     case JUMP_NODE:
-        clone = _copy_jump_node(node);
+        clone = _copy_jump_node(tc, node);
         break;
     case CAST_NODE:
         clone = _copy_cast_node(node);
@@ -1163,7 +1154,7 @@ struct ast_node *node_copy(struct ast_node *node)
     case TOTAL_NODE:
         break;
     }
-    if(node->type && !is_generic(node->type))
+    if(node->type && !is_generic(tc, node->type))
         clone->type = node->type;
     return clone;
 }
@@ -1329,22 +1320,22 @@ struct ast_node *block_node_new_empty()
     return block_node_new(&nodes);
 }
 
-struct ast_node *wrap_expr_as_function(struct hashtable *symbol_2_int_types, struct ast_node *exp, symbol fn)
+struct ast_node *wrap_expr_as_function(struct type_context *tc, struct ast_node *exp, symbol fn)
 {
     struct array nodes;
     array_init(&nodes, sizeof(struct ast_node *));
     array_push(&nodes, &exp);
     struct ast_node *body_block = block_node_new(&nodes);
-    return wrap_nodes_as_function(symbol_2_int_types, fn, body_block);
+    return wrap_nodes_as_function(tc, fn, body_block);
 }
 
-struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, symbol func_name, struct ast_node *block)
+struct ast_node *wrap_nodes_as_function(struct type_context *tc, symbol func_name, struct ast_node *block)
 {
     ARRAY_FUN_PARAM(fun_params);
     struct ast_node *params = block_node_new(&fun_params);
-    struct ast_node *func_type = func_type_item_node_default_new(func_name, params, 0, 0, false, false, block->loc);
-    if(symbol_2_int_types)
-        hashtable_set_int(symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
+    struct ast_node *func_type = func_type_item_node_default_new(tc, func_name, params, 0, 0, false, false, block->loc);
+    //if(symbol_2_int_types)
+        hashtable_set_int(&tc->symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
     return function_node_new(func_type, block, block->loc);
 }
 
@@ -1353,7 +1344,7 @@ struct ast_node *wrap_nodes_as_function(struct hashtable *symbol_2_int_types, sy
 /*
  * collect global statements into _start function
  */
-struct ast_node *split_ast_nodes_with_start_func(struct hashtable *symbol_2_int_types, struct ast_node *expr_ast)
+struct ast_node *split_ast_nodes_with_start_func(struct type_context *tc, struct ast_node *expr_ast)
 {
     struct ast_node *block = block_node_new_empty();
     u32 nodes = array_size(&expr_ast->block->nodes);
@@ -1367,7 +1358,7 @@ struct ast_node *split_ast_nodes_with_start_func(struct hashtable *symbol_2_int_
             block_node_add(_start_block, node);
         }
     } 
-    block_node_add(block, wrap_nodes_as_function(symbol_2_int_types, to_symbol("_start"), _start_block));
+    block_node_add(block, wrap_nodes_as_function(tc, to_symbol("_start"), _start_block));
     free_block_node(expr_ast, false);
     return block;
 }

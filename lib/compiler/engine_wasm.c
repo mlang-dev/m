@@ -6,7 +6,7 @@
 #include "compiler/engine.h"
 #include "codegen/wasm/cg_wasm.h"
 #include "sema/analyzer.h"
-#include "error/error.h"
+#include "app/error.h"
 #include <assert.h>
 
 const char *g_imports = "\n\
@@ -67,16 +67,17 @@ struct engine *engine_wasm_new()
     return engine;
 }
 
-struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct hashtable *symbol_2_int_types, struct ast_node *block)
+struct ast_node *_decorate_as_module(struct cg_wasm *cg, struct ast_node *block)
 {
     struct ast_node *node, *sp_func;
+    struct type_context *tc = cg->base.sema_context->tc;
     assert(block->node_type == BLOCK_NODE);
     u32 nodes = array_size(&block->block->nodes);
     struct ast_node *wmodule = block_node_new_empty();
     for (u32 i = 0; i < nodes; i++) {
         node = array_get_ptr(&block->block->nodes, i);
         if (node->node_type == FUNC_NODE){
-            if (is_generic(node->type)){
+            if (is_generic(tc, node->type)){
                 for(u32 j = 0; j < array_size(&node->func->sp_funs); j++){
                     sp_func = array_get_ptr(&node->func->sp_funs, j);
                     block_node_add(wmodule, sp_func);
@@ -115,7 +116,7 @@ u8* compile_to_wasm(struct engine *engine, const char *expr)
     if (!expr_ast){
         return 0;
     }
-    struct ast_node *user_global_block = split_ast_nodes_with_start_func(&engine->fe->parser->symbol_2_int_types, expr_ast);
+    struct ast_node *user_global_block = split_ast_nodes_with_start_func(engine->fe->parser->tc, expr_ast);
     struct ast_node *ast_block = block_node_new_empty();
     block_node_add_block(ast_block, cg->sys_block);
     block_node_add_block(ast_block, cg->imports.import_block);
@@ -126,7 +127,7 @@ u8* compile_to_wasm(struct engine *engine, const char *expr)
         printf("%s loc (line, col): (%d, %d)\n", er->error_msg, er->loc.line, er->loc.col);
         goto exit;
     }
-    struct ast_node *ast = _decorate_as_module(cg, &engine->fe->parser->symbol_2_int_types, ast_block);
+    struct ast_node *ast = _decorate_as_module(cg, ast_block);
     wasm_emit_module(cg, ast);
     free_block_node(ast, false);
 exit:

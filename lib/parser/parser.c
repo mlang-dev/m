@@ -12,7 +12,7 @@
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
-#include "error/error.h"
+#include "app/error.h"
 #include "parser/ast.h"
 #include "sema/type.h"
 #include <assert.h>
@@ -27,10 +27,7 @@ struct parser *_parser_new(parsing_table *pt, parsing_rules *pr, parsing_symbols
     parser->pr = pr;
     parser->psd = psd;
     parser->pstd = pstd;
-    hashtable_init_with_value_size(&parser->symbol_2_int_types, sizeof(int), 0);
-    for (int i = 0; i < TYPE_TYPES; i++) {
-        hashtable_set_int(&parser->symbol_2_int_types, get_type_symbol(i), i);
-    }
+    parser->tc = type_context_new();
     return parser;
 }
 
@@ -41,7 +38,7 @@ struct parser *parser_new()
 
 void parser_free(struct parser *parser)
 {
-    hashtable_deinit(&parser->symbol_2_int_types);
+    type_context_free(parser->tc);
     FREE(parser);
 }
 
@@ -76,7 +73,7 @@ void _pop_states(struct parser *parser, u8 symbol_count)
 
 
 
-struct ast_node *_build_terminal_ast(struct token *tok)
+struct ast_node *_build_terminal_ast(struct type_context *tc, struct token *tok)
 {
     struct ast_node *ast = 0;
     switch(tok->token_type){
@@ -93,22 +90,22 @@ struct ast_node *_build_terminal_ast(struct token *tok)
             ast = ident_node_new(tok->symbol_val, tok->loc);
             break;
         case TOKEN_LITERAL_INT:
-            ast = int_node_new(tok->int_val, tok->loc);
+            ast = int_node_new(tc, tok->int_val, tok->loc);
             break;
         case TOKEN_LITERAL_FLOAT:
-            ast = double_node_new(tok->double_val,tok->loc);
+            ast = double_node_new(tc, tok->double_val,tok->loc);
             break;
         case TOKEN_TRUE:
-            ast = bool_node_new(true, tok->loc);
+            ast = bool_node_new(tc, true, tok->loc);
             break;
         case TOKEN_FALSE:
-            ast = bool_node_new(false, tok->loc);
+            ast = bool_node_new(tc, false, tok->loc);
             break;
         case TOKEN_LITERAL_CHAR:
-            ast = char_node_new(tok->int_val, tok->loc);
+            ast = char_node_new(tc, tok->int_val, tok->loc);
             break;
         case TOKEN_LITERAL_STRING:
-            ast = string_node_new(tok->str_val, tok->loc);
+            ast = string_node_new(tc, tok->str_val, tok->loc);
             tok->str_val = 0; //ownership moved 
             break;
         }
@@ -151,7 +148,7 @@ struct ast_node *_take(struct ast_node *nodes[], u8 index)
     return node;
 }
 
-struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct parse_rule *rule, struct stack_item *items)
+struct ast_node *_build_nonterm_ast(struct type_context *tc, struct parse_rule *rule, struct stack_item *items)
 {
     struct ast_node *ast = 0;
     bool is_variadic = false;
@@ -271,9 +268,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                     for(size_t i = 0; i < array_size(&node->block->nodes); i++){
                         struct ast_node *n = array_get_ptr(&node->block->nodes, i);
                         assert(n->node_type == VAR_NODE);
-                        n->var->init_value = member_index_node_new(IndexTypeInteger, init_value, int_node_new(i, init_value->loc), init_value->loc);
+                        n->var->init_value = member_index_node_new(IndexTypeInteger, init_value, int_node_new(tc, i, init_value->loc), init_value->loc);
                         if(i < array_size(&node->block->nodes) - 1){
-                            init_value = node_copy(init_value);
+                            init_value = node_copy(tc, init_value);
                         }
                     }
                     if(temp_var_node){
@@ -418,7 +415,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 }
             }
             struct ast_node *ret_type_name = _take(nodes, rule->action.item_index[1]); //return type name
-            ast = func_type_item_node_default_new(ft_name->ident->name, parameters, 0, ret_type_name, is_variadic, true, ft_name->loc);
+            ast = func_type_item_node_default_new(tc, ft_name->ident->name, parameters, 0, ret_type_name, is_variadic, true, ft_name->loc);
             node_free(ft_name);
             break;
         }
@@ -445,9 +442,9 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 //has return type
                 ret_type_item_node = _take(nodes, rule->action.item_index[3]);
             }
-            struct ast_node *ft = func_type_item_node_default_new(func_name->ident->name, parameters, 0, ret_type_item_node, is_variadic, false, func_name->loc);
+            struct ast_node *ft = func_type_item_node_default_new(tc, func_name->ident->name, parameters, 0, ret_type_item_node, is_variadic, false, func_name->loc);
             ast = function_node_new(ft, func_body, func_name->loc);
-            hashtable_set_int(symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
+            hashtable_set_int(&tc->symbol_2_int_types, ft->ft->name, TYPE_FUNCTION);
             node_free(func_name);
             break;
         }
@@ -500,7 +497,7 @@ struct ast_node *_build_nonterm_ast(struct hashtable *symbol_2_int_types, struct
                 struct_body = wrap_as_block_node(struct_body);
             }
             ast = adt_node_new(rule->action.node_type, struct_name->ident->name, struct_body, struct_name->loc);
-            hashtable_set_int(symbol_2_int_types, struct_name->ident->name, TYPE_STRUCT);
+            hashtable_set_int(&tc->symbol_2_int_types, struct_name->ident->name, TYPE_STRUCT);
             node_free(struct_name);
             break;
         }
@@ -632,7 +629,7 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
         si = _get_top_state(parser)->state_index;
         pa = &(*parser->pt)[si][ti];
         if(pa->code == S){
-            ast = _build_terminal_ast(tok);
+            ast = _build_terminal_ast(parser->tc, tok);
             _push_state(parser, pa->state_index, ast);
             tok = get_tok(lexer);
             ti = get_terminal_token_index(tok->token_type, tok->opcode);
@@ -640,7 +637,7 @@ struct ast_node *parse_code(struct parser *parser, const char *code)
             //do reduce action and build ast node
             rule = &(*parser->pr)[pa->rule_index];
             s_item = _get_start_item(parser, rule->symbol_count);
-            ast = _build_nonterm_ast(&parser->symbol_2_int_types, rule, s_item); //build ast according to the rule 
+            ast = _build_nonterm_ast(parser->tc, rule, s_item); //build ast according to the rule 
             _pop_states(parser, rule->symbol_count);
             tsi = _get_top_state(parser)->state_index;
             assert((*parser->pt)[tsi][rule->lhs].code == G);

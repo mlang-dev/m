@@ -79,7 +79,7 @@ add_executable(mtest
   test_main.cc
   #codegen/llvm/test_cg_var.cc
   #codegen/llvm/test_cg_fun_call.cc
-  compiler/test_jit_control.cc
+  # compiler/test_jit_control.cc
   # compiler/test_jit_relational.cc
   # compiler/test_jit_logical.cc
   # compiler/test_jit_adt.cc

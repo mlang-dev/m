@@ -10,14 +10,14 @@
 #include "clib/symboltable.h"
 #include "clib/util.h"
 #include "sema/eval.h"
-#include "error/error.h"
+#include "app/error.h"
 #include "parser/astdump.h"
 #include <assert.h>
 #include <limits.h>
 
 enum type _get_type_enum(struct sema_context *context, symbol type_name)
 {
-    return hashtable_get_int(context->symbol_2_int_types, type_name);
+    return hashtable_get_int(&context->tc->symbol_2_int_types, type_name);
 }
 
 struct type_item *_retrieve_type_with_type_name(struct sema_context *context, symbol name, enum Mut mut)
@@ -28,7 +28,7 @@ struct type_item *_retrieve_type_with_type_name(struct sema_context *context, sy
         return 0;
     }
     struct type_item *type = tep_find_type_item(tep, mut, false, mut);
-    return fresh(type, &context->nongens);
+    return fresh(context->tc, type, &context->nongens);
 }
 
 struct type_item *retrieve_type_for_var_name(struct sema_context *context, symbol name)
@@ -38,7 +38,7 @@ struct type_item *retrieve_type_for_var_name(struct sema_context *context, symbo
         printf("No type is found for the symbol: %s.\n", string_get(name));
         return 0;
     }
-    return fresh(type, &context->nongens);
+    return fresh(context->tc, type, &context->nongens);
 }
 
 struct type_item *create_type_from_type_item_node(struct sema_context *context, struct type_item_node *type_item_node, enum Mut mut)
@@ -58,7 +58,7 @@ struct type_item *create_type_from_type_item_node(struct sema_context *context, 
             u32 dim_size = eval(elm_size_node);
             array_push_u32(&dims, dim_size);
         }
-        return create_array_type(value_type, &dims);
+        return create_array_type(context->tc, value_type, &dims);
     }
     case TupleType:
     {
@@ -71,13 +71,13 @@ struct type_item *create_type_from_type_item_node(struct sema_context *context, 
             struct type_item *te = create_type_from_type_item_node(context, tn, mut);
             array_push(&args, &te);
         }
-        return create_type_oper_tuple(mut, &args);
+        return create_type_oper_tuple(context->tc, mut, &args);
     }
     case BuiltinType:
         return _retrieve_type_with_type_name(context, type_item_node->type_name, mut); // example like int
     case RefType:
         value_type = create_type_from_type_item_node(context, type_item_node->val_node, mut);
-        return create_ref_type(value_type, Immutable);
+        return create_ref_type(context->tc, value_type, Immutable);
     }
 }
 
@@ -92,15 +92,15 @@ struct type_item *create_tuple_type_from_adt_init_body(struct sema_context *cont
         assert(field_expr->type);
         array_push(&args, &field_expr->type);
     }
-    return create_type_oper_tuple(mut, &args);
+    return create_type_oper_tuple(context->tc, mut, &args);
 }
 
-struct ast_node *cast_to_node(struct type_item *to_type, struct ast_node *node)
+struct ast_node *cast_to_node(struct type_context *tc, struct type_item *to_type, struct ast_node *node)
 {
     struct ast_node *type_name = ident_node_new(get_type_symbol(to_type->type), node->loc);
     //we have to make a copy of init_value node, otherwise it's endlessly calling cast node
     //TODO: remove the copy
-    struct ast_node *copy_node = node_copy(node);
+    struct ast_node *copy_node = node_copy(tc, node);
     copy_node->type = node->type;
     struct ast_node *cast = cast_node_new(type_name, copy_node, node->loc);
     cast->type = to_type;
@@ -146,9 +146,9 @@ bool _is_array_size_same(struct type_item *type1, struct type_item *type2)
     return type1->type == type2->type && type2->type == TYPE_ARRAY && get_array_size(type1) == get_array_size(type2);
 }
 
-struct ast_node *_node_copy_with_type(struct ast_node *node)
+struct ast_node *_node_copy_with_type(struct type_context *tc, struct ast_node *node)
 {
-    struct ast_node *copy = node_copy(node);
+    struct ast_node *copy = node_copy(tc, node);
     copy->type = node->type;
     return copy;
 }
@@ -198,14 +198,14 @@ struct type_item *_analyze_var(struct sema_context *context, struct ast_node *no
     if (!type)
         return 0;
     if(!var_type)
-        var_type = create_type_var(node->var->mut);
-    struct type_item *result_type = unify(var_type, type, &context->nongens);
+        var_type = create_type_var(context->tc, node->var->mut);
+    struct type_item *result_type = unify(context->tc, var_type, type, &context->nongens);
     if (!result_type) {
         report_error(context, EC_VAR_TYPE_NO_MATCH_LITERAL, node->loc);
         return 0;
     }
     if(node->var->is_of_type && result_type->type != var_type->type && node->var->init_value){
-        node->var->init_value->transformed = cast_to_node(var_type, node->var->init_value);
+        node->var->init_value->transformed = cast_to_node(context->tc, var_type, node->var->init_value);
     }
     
     push_symbol_type(&context->varname_2_typexprs, var_name, var_type);
@@ -251,11 +251,11 @@ struct type_item *_analyze_adt(struct sema_context *context, enum ADTKind kind, 
     }
     struct type_item *result_type;
     if(kind == Product)
-        result_type = create_type_oper_struct(name, Immutable, &args);
+        result_type = create_type_oper_struct(context->tc, name, Immutable, &args);
     else 
-        result_type = create_type_oper_union(name, Immutable, &args);
+        result_type = create_type_oper_union(context->tc, name, Immutable, &args);
     //assert(node->adt_type->name == result_type->name);
-    struct type_item_pair * tep = get_type_item_pair(name);
+    struct type_item_pair * tep = get_type_item_pair(context->tc, name);
     push_symbol_type(&context->typename_2_typexpr_pairs, name, tep);
     return result_type;
 }
@@ -306,8 +306,8 @@ struct type_item *_analyze_array_init(struct sema_context *context, struct ast_n
     struct array dims;
     array_init(&dims, sizeof(u32));
     if (!node->array_init){
-        element_type = create_unit_type();
-        type = create_array_type(element_type, &dims);
+        element_type = create_unit_type(context->tc);
+        type = create_array_type(context->tc, element_type, &dims);
     }else if(node->array_init->node_type == BLOCK_NODE){
         u32 size = array_size(&node->array_init->block->nodes);
         array_push_u32(&dims, size);
@@ -317,7 +317,7 @@ struct type_item *_analyze_array_init(struct sema_context *context, struct ast_n
                 element_type = analyze(context, element);
             }
         }
-        type = create_array_type(element_type, &dims);
+        type = create_array_type(context->tc, element_type, &dims);
     }
     //we can't deinit dims, the memory is owned by type->dims
     return type;
@@ -326,8 +326,8 @@ struct type_item *_analyze_array_init(struct sema_context *context, struct ast_n
 struct type_item *_analyze_array_type(struct sema_context *context, struct ast_node *node)
 {
     symbol elm_type_name = node->array_type->elm_type->ident->name;
-    enum type elm_type_enum = get_type_enum_from_symbol(elm_type_name);
-    struct type_item *elm_type = create_nullary_type(elm_type_enum);
+    enum type elm_type_enum = get_type_enum_from_symbol(context->tc, elm_type_name);
+    struct type_item *elm_type = create_nullary_type(context->tc, elm_type_enum);
     struct array dims;
     array_init(&dims, sizeof(u32));
     for(u32 i = 0; i < array_size(&node->array_init->block->nodes); i++){
@@ -336,7 +336,7 @@ struct type_item *_analyze_array_type(struct sema_context *context, struct ast_n
         u32 dim = eval(dim_node);
         array_push_u32(&dims, dim);
     }
-    return create_array_type(elm_type, &dims);
+    return create_array_type(context->tc, elm_type, &dims);
 }
 
 struct type_item *_analyze_type_item_node(struct sema_context *context, struct ast_node *node)
@@ -358,7 +358,7 @@ struct type_item *_analyze_func_type(struct sema_context *context, struct ast_no
     assert(node->ft->ret_type_item_node);
     struct type_item *to = create_type_from_type_item_node(context, node->ft->ret_type_item_node->type_item_node, Immutable);
     array_push(&fun_sig, &to);
-    node->type = create_type_fun(node->ft->is_variadic, &fun_sig);
+    node->type = create_type_fun(context->tc, node->ft->is_variadic, &fun_sig);
     hashtable_set_p(&context->func_types, node->ft->name, node);
     push_symbol_type(&context->varname_2_typexprs, node->ft->name, node->type);
     return node->type;
@@ -378,7 +378,7 @@ struct type_item *_analyze_func(struct sema_context *context, struct ast_node *n
         if (param->var->is_of_type) {
            exp = create_type_from_type_item_node(context, param->var->is_of_type->type_item_node, Immutable);
         } else{
-            exp = create_type_var(param->var->mut);
+            exp = create_type_var(context->tc, param->var->mut);
         }
         array_push(&fun_sig, &exp);
         array_push(&context->nongens, &exp);
@@ -386,15 +386,15 @@ struct type_item *_analyze_func(struct sema_context *context, struct ast_node *n
         push_symbol_type(&context->varname_2_asts, param->var->var->ident->name, param);
     }
     /*analyze function body*/
-    struct type_item *fun_type_var = create_type_var(Immutable); //?
+    struct type_item *fun_type_var = create_type_var(context->tc, Immutable); //?
     push_symbol_type(&context->varname_2_typexprs, node->func->func_type->ft->name, fun_type_var);
     struct type_item *ret_type = analyze(context, node->func->body);
     array_push(&fun_sig, &ret_type);
-    struct type_item *result_type = create_type_fun(node->func->func_type->ft->is_variadic, &fun_sig);
-    unify(fun_type_var, result_type, &context->nongens);
-    struct type_item *result = prune(fun_type_var);
+    struct type_item *result_type = create_type_fun(context->tc, node->func->func_type->ft->is_variadic, &fun_sig);
+    unify(context->tc, fun_type_var, result_type, &context->nongens);
+    struct type_item *result = prune(context->tc, fun_type_var);
     node->func->func_type->type = result;
-    if (is_generic(result)) {
+    if (is_generic(context->tc, result)) {
         hashtable_set(&context->generic_ast, string_get(node->func->func_type->ft->name), node);
     }
     struct ast_node *saved_node = stack_pop_ptr(&context->func_stack);
@@ -407,6 +407,7 @@ struct type_item *_analyze_func(struct sema_context *context, struct ast_node *n
 
 struct type_item *_analyze_call(struct sema_context *context, struct ast_node *node)
 {
+    struct type_context *tc = context->tc;
     struct type_item *fun_type = retrieve_type_for_var_name(context, node->call->callee);
     if (!fun_type) {
         struct source_location loc = { 1, 1, 0, 0 };
@@ -423,10 +424,10 @@ struct type_item *_analyze_call(struct sema_context *context, struct ast_node *n
     }
     struct ast_node *sp_fun = 0;
     /* monomorphization of generic */
-    if (is_generic(fun_type) && (!is_any_generic(&args) && array_size(&args))) {
+    if (is_generic(tc, fun_type) && (!is_any_generic(tc, &args) && array_size(&args))) {
         struct ast_node *parent_func = stack_size(&context->func_stack) ? *(struct ast_node**)stack_top(&context->func_stack) : 0;
         if (!parent_func || (parent_func->func->func_type->ft->name != node->call->callee)){
-            string sp_callee = monomorphize(string_get(node->call->callee), &args);
+            string sp_callee = monomorphize(tc, string_get(node->call->callee), &args);
             node->call->specialized_callee = to_symbol(string_get(&sp_callee));
             if (has_symbol(&context->varname_2_typexprs, node->call->specialized_callee)) {
                 fun_type = retrieve_type_for_var_name(context, node->call->specialized_callee);
@@ -434,7 +435,7 @@ struct type_item *_analyze_call(struct sema_context *context, struct ast_node *n
             }
             /* specialized callee */
             struct ast_node *generic_fun = hashtable_get(&context->generic_ast, string_get(node->call->callee));
-            sp_fun = node_copy(generic_fun);
+            sp_fun = node_copy(tc, generic_fun);
             array_push(&generic_fun->func->sp_funs, &sp_fun);
 
             sp_fun->func->func_type->ft->name = node->call->specialized_callee;
@@ -447,12 +448,12 @@ struct type_item *_analyze_call(struct sema_context *context, struct ast_node *n
             node->call->callee_func_type = sp_fun->func->func_type;
         }
     }
-    struct type_item *result_type = create_type_var(Immutable); //?? immutable result assumed
+    struct type_item *result_type = create_type_var(tc, Immutable); //?? immutable result assumed
     array_push(&args, &result_type);
-    struct type_item *call_fun = create_type_fun(fun_type->is_variadic, &args);
-    unify(call_fun, fun_type, &context->nongens);
+    struct type_item *call_fun = create_type_fun(tc, fun_type->is_variadic, &args);
+    unify(tc, call_fun, fun_type, &context->nongens);
     if(sp_fun){
-        fun_type = prune(fun_type);
+        fun_type = prune(tc, fun_type);
         sp_fun->type = fun_type;
         sp_fun->func->func_type->type = fun_type;
     }
@@ -472,8 +473,8 @@ struct type_item *_analyze_unary(struct sema_context *context, struct ast_node *
     struct type_item *op_type = analyze(context, node->unop->operand);
     if(!op_type) return 0;
     if (node->unop->opcode == OP_NOT) {
-        struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
-        unify(op_type, bool_type, &context->nongens);
+        struct type_item *bool_type = create_nullary_type(context->tc, TYPE_BOOL);
+        unify(context->tc, op_type, bool_type, &context->nongens);
         node->unop->operand->type = op_type;
     }
     else if(node->unop->opcode == OP_BAND){ //'&'
@@ -486,7 +487,7 @@ struct type_item *_analyze_unary(struct sema_context *context, struct ast_node *
             node->unop->operand->ident->var->is_addressed = true;
         }
         node->unop->operand->is_addressed = true;
-        op_type = create_ref_type(op_type, Immutable);
+        op_type = create_ref_type(context->tc, op_type, Immutable);
     }
     else if(node->unop->opcode == OP_STAR){
         //dereference-of
@@ -497,8 +498,8 @@ struct type_item *_analyze_unary(struct sema_context *context, struct ast_node *
         op_type = node->unop->operand->type->val_type;
     }
     else if(node->unop->opcode == OP_INC || node->unop->opcode == OP_DEC){
-        struct ast_node *new_node = binary_node_new(node->unop->opcode == OP_INC ? OP_PLUS : OP_MINUS, _node_copy_with_type(node->unop->operand), int_node_new(1, node->loc), node->loc);
-        node->transformed = assign_node_new(OP_ASSIGN, _node_copy_with_type(node->unop->operand), new_node, node->loc);
+        struct ast_node *new_node = binary_node_new(node->unop->opcode == OP_INC ? OP_PLUS : OP_MINUS, _node_copy_with_type(context->tc, node->unop->operand), int_node_new(context->tc, 1, node->loc), node->loc);
+        node->transformed = assign_node_new(OP_ASSIGN, _node_copy_with_type(context->tc, node->unop->operand), new_node, node->loc);
         node->transformed->type = analyze(context, node->transformed);
     }
     return op_type;
@@ -548,7 +549,7 @@ struct type_item *_analyze_array_member_accessor(struct sema_context *context, s
 
     //TYPE_ARRAY or TYPE_REF to TYPE_ARRAY
     if(array_size(&type->dims) == 1){
-        return find_type_item(type->val_type, type->mut);
+        return find_type_item(context->tc, type->val_type, type->mut);
     }else{
         //remove one dimension
         struct array dims;
@@ -557,7 +558,7 @@ struct type_item *_analyze_array_member_accessor(struct sema_context *context, s
             u32 size = *(u32*)array_get(&type->dims, i);
             array_push_u32(&dims, size);
         }
-        return create_array_type(type->val_type, &dims);
+        return create_array_type(context->tc, type->val_type, &dims);
     }
 }
 
@@ -566,21 +567,21 @@ struct type_item *_analyze_binary(struct sema_context *context, struct ast_node 
     struct type_item *lhs_type = analyze(context, node->binop->lhs);
     struct type_item *rhs_type = analyze(context, node->binop->rhs);
     if(!lhs_type || !rhs_type) return 0;
-    struct type_item *result_type = unify(lhs_type, rhs_type, &context->nongens);
+    struct type_item *result_type = unify(context->tc, lhs_type, rhs_type, &context->nongens);
     if (result_type) {
         if (is_relational_op(node->binop->opcode))
-            result_type = create_nullary_type(TYPE_BOOL);
+            result_type = create_nullary_type(context->tc, TYPE_BOOL);
         else{    
-            lhs_type = prune(lhs_type);
-            rhs_type = prune(rhs_type);
-            result_type = prune(result_type);
+            lhs_type = prune(context->tc, lhs_type);
+            rhs_type = prune(context->tc, rhs_type);
+            result_type = prune(context->tc, result_type);
             if(lhs_type != result_type){
-                node->binop->lhs->transformed = cast_to_node(result_type, node->binop->lhs);
+                node->binop->lhs->transformed = cast_to_node(context->tc, result_type, node->binop->lhs);
             }
             if(rhs_type->type != result_type->type){ 
                 //TODO: we can't just use rhs_type != result_type, due to immutability of 
                 //nested loop unit test
-                node->binop->rhs->transformed =  cast_to_node(result_type, node->binop->rhs);
+                node->binop->rhs->transformed =  cast_to_node(context->tc, result_type, node->binop->rhs);
             }
         }
         return result_type;
@@ -615,9 +616,9 @@ struct type_item *_analyze_assign(struct sema_context *context, struct ast_node 
     }  
     struct type_item *rhs_type = analyze(context, node->binop->rhs);
     struct type_item *result = 0;
-    struct type_item *unified = unify(lhs_type, rhs_type, &context->nongens);
+    struct type_item *unified = unify(context->tc, lhs_type, rhs_type, &context->nongens);
     if (unified == lhs_type) {
-        result = create_unit_type();
+        result = create_unit_type(context->tc);
     } else {
         if(is_int_type(lhs_type->type) && is_int_type(rhs_type->type)){
             node->binop->rhs->type = lhs_type;
@@ -627,8 +628,8 @@ struct type_item *_analyze_assign(struct sema_context *context, struct ast_node 
     }
     if(is_assign_op_sugar(node->binop->opcode)){
         enum op_code binop = get_op_code_from_assign_op(node->binop->opcode);
-        struct ast_node *new_node = binary_node_new(binop, _node_copy_with_type(node->binop->lhs), _node_copy_with_type(node->binop->rhs), node->loc);
-        struct ast_node *new_lhs = _node_copy_with_type(node->binop->lhs);
+        struct ast_node *new_node = binary_node_new(binop, _node_copy_with_type(context->tc, node->binop->lhs), _node_copy_with_type(context->tc, node->binop->rhs), node->loc);
+        struct ast_node *new_lhs = _node_copy_with_type(context->tc, node->binop->lhs);
         set_lvalue(new_lhs, true);
         node->transformed = assign_node_new(OP_ASSIGN, new_lhs, new_node, node->loc);
         node->transformed->type = result;
@@ -643,12 +644,12 @@ struct type_item *_analyze_if(struct sema_context *context, struct ast_node *nod
     struct loop_nested_level *lnl = get_current_block_level(context);
     if(lnl) lnl->block_levels++;
     struct type_item *cond_type = analyze(context, node->cond->if_node);
-    struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
-    unify(cond_type, bool_type, &context->nongens);
+    struct type_item *bool_type = create_nullary_type(context->tc, TYPE_BOOL);
+    unify(context->tc, cond_type, bool_type, &context->nongens);
     struct type_item *then_type = analyze(context, node->cond->then_node);
     if(node->cond->else_node){
         struct type_item *else_type = analyze(context, node->cond->else_node);
-        unify(then_type, else_type, &context->nongens);
+        unify(context->tc, then_type, else_type, &context->nongens);
     }
     if(lnl) lnl->block_levels--;
     return then_type;
@@ -664,15 +665,15 @@ struct type_item *_analyze_match(struct sema_context *context, struct ast_node *
             //transformed to wildcard
             struct ast_node *expr = case_node->match_case->expr;
             pattern->transformed = ast_node_new(WILDCARD_NODE, pattern->loc);
-            struct ast_node *block = wrap_as_block_node(var_node_new(node_copy(pattern), 0, node_copy(node->match->test_expr), false, false, pattern->loc));
-            block_node_add(block, node_copy(expr));
+            struct ast_node *block = wrap_as_block_node(var_node_new(node_copy(context->tc, pattern), 0, node_copy(context->tc, node->match->test_expr), false, false, pattern->loc));
+            block_node_add(block, node_copy(context->tc, expr));
             analyze(context, block);
             expr->transformed = block;
             expr->type = block->type;
         }
         struct type_item *pattern_type = analyze(context, pattern->transformed ? pattern->transformed : pattern);
         if(pattern_type){
-            unify(test_type, pattern_type, &context->nongens);
+            unify(context->tc, test_type, pattern_type, &context->nongens);
         }
     }
     return analyze(context, node->match->match_cases);
@@ -682,8 +683,8 @@ struct type_item *_analyze_match_item(struct sema_context *context, struct ast_n
 {
     if(node->match_case->guard){
         struct type_item *cond_type = analyze(context, node->match_case->guard);
-        struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
-        unify(cond_type, bool_type, &context->nongens);
+        struct type_item *bool_type = create_nullary_type(context->tc, TYPE_BOOL);
+        unify(context->tc, cond_type, bool_type, &context->nongens);
     }
     return analyze(context, node->match_case->expr);
 }
@@ -702,41 +703,41 @@ struct type_item *_analyze_for(struct sema_context *context, struct ast_node *no
         step_type = analyze(context, node->forloop->range->range->step);
     struct type_item *end_type = analyze(context, node->forloop->range->range->end);
     struct type_item *body_type = analyze(context, node->forloop->body);
-    if (!unify(start_type, var_type, &context->nongens)) {
+    if (!unify(context->tc, start_type, var_type, &context->nongens)) {
         printf("failed to unify start type as int: %s, %s\n", kind_strings[start_type->kind], node_type_strings[node->forloop->range->range->start->node_type]);
     }
     if(step_type){
-        unify(step_type, var_type, &context->nongens);
+        unify(context->tc, step_type, var_type, &context->nongens);
     }
-    if(!unify(end_type, var_type, &context->nongens)){
+    if(!unify(context->tc, end_type, var_type, &context->nongens)){
         printf("failed to unify end type:\n");
     }
     if(!node->forloop->range->range->step){
-        node->forloop->range->range->step = const_one_node_new(var_type->type, node->loc);
+        node->forloop->range->range->step = const_one_node_new(context->tc, var_type->type, node->loc);
         step_type = analyze(context, node->forloop->range->range->step);
     }
     node->forloop->range->range->start->type = start_type;
     node->forloop->range->range->step->type = step_type;
-    node->forloop->range->range->end->type = prune(end_type);
+    node->forloop->range->range->end->type = prune(context->tc, end_type);
     node->forloop->body->type = body_type;
     leave_loop(context);
-    return create_unit_type();
+    return create_unit_type(context->tc);
 }
 
 struct type_item *_analyze_while(struct sema_context *context, struct ast_node *node)
 {
     struct loop_nested_level *bnl = enter_loop(context);
     bnl->block_levels = 1; 
-    struct type_item *bool_type = create_nullary_type(TYPE_BOOL);
+    struct type_item *bool_type = create_nullary_type(context->tc, TYPE_BOOL);
     struct type_item *expr_type = analyze(context, node->whileloop->expr);
     struct type_item *body_type = analyze(context, node->whileloop->body);
     leave_loop(context);
-    if (!unify(bool_type, expr_type, &context->nongens)) {
+    if (!unify(context->tc, bool_type, expr_type, &context->nongens)) {
         printf("failed to unify expr type as bool.\n");
         return 0;
     }
     node->whileloop->body->type = body_type;
-    return create_nullary_type(TYPE_UNIT);
+    return create_nullary_type(context->tc, TYPE_UNIT);
 }
 
 struct type_item *_analyze_jump(struct sema_context *context, struct ast_node *node)
@@ -748,7 +749,7 @@ struct type_item *_analyze_jump(struct sema_context *context, struct ast_node *n
         struct loop_nested_level *bnl = get_current_block_level(context);
         assert(bnl);
         node->jump->nested_block_levels = bnl->block_levels;
-        type = create_unit_type();
+        type = create_unit_type(context->tc);
     }
     return type;
 }
@@ -786,7 +787,7 @@ struct type_item *_analyze_union_type_item_node(struct sema_context *context, st
             break;
         case EnumTagValue:
         case EnumTagOnly:
-            type = create_nullary_type(TYPE_INT);
+            type = create_nullary_type(context->tc, TYPE_INT);
             break;
     }
     return type;
@@ -903,7 +904,7 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
             type = _analyze_block(context, node);
             break;
     }
-    type = prune(type);
+    type = prune(context->tc, type);
     node->type = type;
     return type;
 }

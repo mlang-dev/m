@@ -24,7 +24,8 @@ clib/regex.c
 target_link_libraries(clibw PRIVATE wasm_options)
 
 add_library(mlrw
-error/error.c
+app/app.c
+app/error.c
 lexer/terminal.c
 lexer/lexer.c
 parser/node_type.c
@@ -88,7 +89,8 @@ target_include_directories(clib PUBLIC
 )
 
 add_executable(pgen
-  error/error.c
+  app/app.c
+  app/error.c
   lexer/lexer.c
   lexer/terminal.c
   lexer/pgen_token.c
@@ -117,7 +119,8 @@ if(REGEN_PARSER)
 endif()
 
 add_library(mlr
-  error/error.c
+  app/app.c
+  app/error.c
   lexer/terminal.c
   lexer/lexer.c
   parser/node_type.c
@@ -155,7 +158,8 @@ target_include_directories(mlr PUBLIC
 )
 
 add_library(mlrl
-  error/error.c
+  app/app.c
+  app/error.c
   lexer/terminal.c
   lexer/lexer.c
   parser/node_type.c

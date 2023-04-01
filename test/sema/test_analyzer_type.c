@@ -18,12 +18,13 @@ TEST(test_analyzer_type, tuple_type)
 type RGB = (u8, u8, u8)\n\
 ";
     struct frontend *fe = frontend_init();
+    struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     ASSERT_EQ(TYPE_NODE, node->node_type);
-    string type_str = to_string(node->type);
+    string type_str = to_string(tc, node->type);
     ASSERT_EQ(TYPE_STRUCT, node->type->type);
     ASSERT_STREQ("RGB", string_get(&type_str));
     node_free(block);
@@ -37,18 +38,19 @@ let x = (100, 200)\n\
 let y = x[0]\n\
 ";
     struct frontend *fe = frontend_init();
+    struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
     struct ast_node *node1 = array_front_ptr(&block->block->nodes);
     struct ast_node *node2 = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(2, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node1->node_type);
-    string type_str = to_string(node1->type);
+    string type_str = to_string(tc, node1->type);
     ASSERT_EQ(TYPE_TUPLE, node1->type->type);
     ASSERT_STREQ("int * int", string_get(&type_str));
 
     ASSERT_EQ(VAR_NODE, node2->node_type);
-    type_str = to_string(node2->type);
+    type_str = to_string(tc, node2->type);
     ASSERT_EQ(TYPE_INT, node2->type->type);
     ASSERT_STREQ("int", string_get(&type_str));
     node_free(block);
@@ -63,19 +65,20 @@ let y, z = x\n\
 let a = y\n\
 ";
     struct frontend *fe = frontend_init();
+    struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
     analyze(fe->sema_context, block);
     struct ast_node *node1 = array_front_ptr(&block->block->nodes);
     struct ast_node *node2 = array_back_ptr(&block->block->nodes);
     ASSERT_EQ(4, array_size(&block->block->nodes));
     ASSERT_EQ(VAR_NODE, node1->node_type);
-    string type_str = to_string(node1->type);
+    string type_str = to_string(tc, node1->type);
     ASSERT_EQ(TYPE_TUPLE, node1->type->type);
     ASSERT_STREQ("int * int", string_get(node1->type->name));
     ASSERT_STREQ("int * int", string_get(&type_str));
     string_deinit(&type_str);
     ASSERT_EQ(VAR_NODE, node2->node_type);
-    type_str = to_string(node2->type);
+    type_str = to_string(tc, node2->type);
     ASSERT_EQ(TYPE_INT, node2->type->type);
     ASSERT_STREQ("int", string_get(&type_str));
     string_deinit(&type_str);
