@@ -57,7 +57,6 @@ TEST(test_hashtable, str_int)
 TEST(test_hashtable, symbol_int)
 {
     struct hashtable ht;
-    symbols_init();
     hashtable_init_with_value_size(&ht, sizeof(int), 0);
     symbol str1 = to_symbol("hello");
     symbol str2 = to_symbol("world");
@@ -72,13 +71,11 @@ TEST(test_hashtable, symbol_int)
     ASSERT_FALSE(hashtable_in_p(&ht, str3));
     ASSERT_EQ(-1, hashtable_get_int(&ht, str3));
     hashtable_deinit(&ht);
-    symbols_deinit();
 }
 
 TEST(test_hashtable, int_int)
 {
     struct hashtable ht;
-    symbols_init();
     hashtable_init_with_size(&ht, sizeof(int), sizeof(int));
     int key1 = 1000;
     int data1 = 100;
@@ -92,7 +89,6 @@ TEST(test_hashtable, int_int)
     ASSERT_EQ(100, *(int*)hashtable_get_v(&ht, &key1));
     ASSERT_EQ(200, *(int*)hashtable_get_v(&ht, &key2));
     hashtable_deinit(&ht);
-    symbols_deinit();
 }
 
 TEST(test_hashtable, remove)
@@ -197,7 +193,6 @@ TEST(testHashtable, TestHashtablePointerKey)
 
 TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
 {
-    symbols_init();
     hashtable ht;
     hashtable_init_with_value_size(&ht, sizeof(struct type_size_info), 0);
     struct type_size_info tsi;
@@ -209,7 +204,6 @@ TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
     ASSERT_EQ(64, result->width_bits);
     ASSERT_EQ(64, result->align_bits);
     hashtable_deinit(&ht);
-    symbols_deinit();
 }
 */
 

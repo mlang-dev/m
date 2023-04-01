@@ -305,9 +305,6 @@ struct ast_node {
     };
 };
 
-void ast_init();
-void ast_deinit();  
-struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
 /*
  * if node type order is changed here, the corresponding order of function pointer
  * in codegen.c & analyzer.c shall be changed accordingly.

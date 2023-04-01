@@ -15,16 +15,6 @@
 
 struct source_location default_loc = {0, 0, 0, 0};
 
-void ast_init()
-{
-    node_type_init();
-}
-
-void ast_deinit()
-{
-    node_type_deinit();
-}
-
 //forward decl
 void nodes_free(struct array *nodes);
 

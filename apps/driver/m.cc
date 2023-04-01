@@ -10,6 +10,7 @@
 #include "compiler/compiler.h"
 #include "compiler/ld.h"
 #include "compiler/repl.h"
+#include "app/app.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -102,6 +103,7 @@ int main(int argc, char *argv[])
     } else {
         if (!file_type)
             file_type = FT_OBJECT;
+        app_init();
         for (size_t i = 0; i < array_size(&src_files); i++) {
             const char *fn = (const char *)array_get_ptr(&src_files, i);
             if (access(fn, F_OK) == -1) {
@@ -115,6 +117,7 @@ int main(int argc, char *argv[])
             string_add_chars(&link_cmd, " ");
             string_add_chars(&link_cmd, obj_name);
         }
+        app_deinit();
     }
     // do linker
     if (file_type == FT_OBJECT && !is_compiler_front_end) {

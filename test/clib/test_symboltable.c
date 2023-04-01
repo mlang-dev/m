@@ -17,7 +17,6 @@
 /*
 TEST(test_symboltable, same_key_multiple_values)
 {
-    symbols_init();
     symboltable st;
     symboltable_init(&st);
     symbol s = to_symbol("hello");
@@ -40,12 +39,10 @@ TEST(test_symboltable, same_key_multiple_values)
     symboltable_deinit(&st);
     type_item_free((struct type_item *)op1);
     type_item_free((struct type_item *)op2);
-    symbols_deinit();
 }
 
 TEST(test_symboltable, multiple_keys)
 {
-    symbols_init();
     symboltable st;
     symboltable_init(&st);
     symbol s1 = to_symbol("hello");
@@ -70,7 +67,6 @@ TEST(test_symboltable, multiple_keys)
     symboltable_deinit(&st);
     type_item_free((struct type_item *)op1);
     type_item_free((struct type_item *)op2);
-    symbols_deinit();
 }
 */
 

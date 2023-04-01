@@ -12,9 +12,6 @@
 
 struct frontend *frontend_llvm_init(const char *stdio_filepath, const char *math_filepath, bool is_repl)
 {
-    symbols_init();
-    terminal_init();
-    ast_init();
     struct frontend*fe;
     MALLOC(fe, sizeof(*fe));
     fe->parser = parser_new();

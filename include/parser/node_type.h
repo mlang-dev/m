@@ -67,8 +67,6 @@ struct node_type_name{
 
 extern const char *node_type_strings[];
 
-struct node_type_name *get_node_type_name_by_symbol(symbol symbol);
-
 struct node_type_name *get_node_type_names();
 
 enum node_type symbol_to_node_type(symbol action_name);

@@ -16,22 +16,18 @@
 
 TEST(test_symbol, equals_to_same_string_key)
 {
-    symbols_init();
     char str1[] = "hello";
     char str2[] = "world";
     symbol symbol1 = to_symbol(str1);
     symbol symbol2 = to_symbol(str2);
     ASSERT_EQ(symbol1, to_symbol("hello"));
     ASSERT_EQ(symbol2, to_symbol("world"));
-    symbols_deinit();
 }
 
 TEST(test_symbol, support_multiple_values_for_same_key)
 {
-    symbols_init();
     symbol symbol1 = to_symbol("hello");
     ASSERT_EQ(symbol1, to_symbol("hello"));
-    symbols_deinit();
 }
 
 int test_symbol()

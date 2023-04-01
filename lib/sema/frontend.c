@@ -12,9 +12,6 @@
 
 struct frontend *frontend_init()
 {
-    symbols_init();
-    terminal_init();
-    ast_init();
     struct frontend*fe;
     MALLOC(fe, sizeof(*fe));
     fe->parser = parser_new();
@@ -24,10 +21,7 @@ struct frontend *frontend_init()
 
 void frontend_deinit(struct frontend *fe)
 {
-    ast_deinit();
-    terminal_deinit();
     sema_context_free(fe->sema_context);
     parser_free(fe->parser);
     free(fe);
-    symbols_deinit();
 }

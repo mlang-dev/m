@@ -192,16 +192,14 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
 void pgen_init()
 {
     app_init();
-    symbols_init();
-    pgen_token_init();
     node_type_init();
+    pgen_token_init();
 }
 
 void pgen_deinit()
 {
-    node_type_deinit();
     pgen_token_deinit();
-    symbols_deinit();
+    node_type_deinit();
     app_deinit();
 }
 
