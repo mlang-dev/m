@@ -8,12 +8,11 @@
 #include "sema/type.h"
 #include "sema/frontend.h"
 #include "clib/util.h"
-#include "error/error.h"
+#include "app/error.h"
 
 struct frontend *frontend_init()
 {
     symbols_init();
-    error_init();
     terminal_init();
     ast_init();
     struct frontend*fe;
@@ -30,6 +29,5 @@ void frontend_deinit(struct frontend *fe)
     sema_context_free(fe->sema_context);
     parser_free(fe->parser);
     free(fe);
-    error_deinit();
     symbols_deinit();
 }

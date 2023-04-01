@@ -6,7 +6,7 @@
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
 #include "sema/frontend.h"
-#include "error/error.h"
+#include "app/error.h"
 #include "compiler/engine.h"
 #include "tutil.h"
 #include <stdio.h>

@@ -10,7 +10,7 @@
 #include "clib/symboltable.h"
 #include "clib/util.h"
 #include "sema/eval.h"
-#include "error/error.h"
+#include "app/error.h"
 #include "parser/astdump.h"
 #include <assert.h>
 #include <limits.h>

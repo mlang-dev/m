@@ -6,7 +6,7 @@
 #include "compiler/engine.h"
 #include "codegen/wasm/cg_wasm.h"
 #include "sema/analyzer.h"
-#include "error/error.h"
+#include "app/error.h"
 #include <assert.h>
 
 const char *g_imports = "\n\

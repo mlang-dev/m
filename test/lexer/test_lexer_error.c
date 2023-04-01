@@ -6,7 +6,7 @@
 #include "parser/grammar.h"
 #include "lexer/lexer.h"
 #include "sema/frontend.h"
-#include "error/error.h"
+#include "app/error.h"
 #include "test.h"
 #include <stdio.h>
 

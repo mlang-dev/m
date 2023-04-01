@@ -12,7 +12,7 @@
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "parser/grammar.h"
-#include "error/error.h"
+#include "app/error.h"
 #include "parser/ast.h"
 #include "sema/type.h"
 #include <assert.h>

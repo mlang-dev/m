@@ -8,11 +8,10 @@
 #include "sema/type.h"
 #include "sema/frontend.h"
 #include "clib/util.h"
-#include "error/error.h"
+#include "app/error.h"
 
 struct frontend *frontend_llvm_init(const char *stdio_filepath, const char *math_filepath, bool is_repl)
 {
-    error_init();
     symbols_init();
     terminal_init();
     ast_init();

@@ -8,7 +8,7 @@
 #include "tutil.h"
 #include "test.h"
 #include "sema/frontend.h"
-#include "error/error.h"
+#include "app/error.h"
 #include <stdio.h>
 
 TEST(test_parser_error, char_literal)

@@ -9,7 +9,7 @@
 #include "sema/analyzer.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
-#include "error/error.h"
+#include "app/error.h"
 #include <stdio.h>
 
 TEST(testJITError, test_var_def_error)

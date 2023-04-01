@@ -17,12 +17,6 @@
 
 void *_create_jit_instance()
 {
-    // LLVMInitializeCore(LLVMGetGlobalPassRegistry());
-
-    // // Initialize native target codegen and asm printer.
-    // LLVMInitializeNativeTarget();
-    // LLVMInitializeNativeAsmPrinter();
-
     // Create the JIT instance.
     LLVMOrcLLJITRef jit;
 
