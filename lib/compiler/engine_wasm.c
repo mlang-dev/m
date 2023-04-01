@@ -116,7 +116,6 @@ u8* compile_to_wasm(struct engine *engine, const char *expr)
         return 0;
     }
     struct ast_node *user_global_block = split_ast_nodes_with_start_func(&engine->fe->parser->symbol_2_int_types, expr_ast);
-    free_block_node(expr_ast, false);
     struct ast_node *ast_block = block_node_new_empty();
     block_node_add_block(ast_block, cg->sys_block);
     block_node_add_block(ast_block, cg->imports.import_block);

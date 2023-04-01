@@ -1368,6 +1368,7 @@ struct ast_node *split_ast_nodes_with_start_func(struct hashtable *symbol_2_int_
         }
     } 
     block_node_add(block, wrap_nodes_as_function(symbol_2_int_types, to_symbol("_start"), _start_block));
+    free_block_node(expr_ast, false);
     return block;
 }
 

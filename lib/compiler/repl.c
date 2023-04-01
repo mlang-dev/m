@@ -31,14 +31,17 @@ void _print(struct eval_result result)
     }
 }
 
-void _add_current_module_to_jit(struct JIT *jit)
+void* _add_current_module_to_jit(struct JIT *jit)
 {
     struct cg_llvm *cg = jit->engine->be->cg;
-    add_module(jit, cg->module);
+    assert(cg->module);
+    //the function takes the ownership of the module.
+    void *result = jit_add_module(jit, cg->module);
     cg->module = 0;
+    return result;
 }
 
-void _create_jit_module(struct cg_llvm *cg)
+void _create_new_module(struct cg_llvm *cg)
 {
     string mod_name = make_unique_name("mjit");
     create_ir_module(cg, string_get(&mod_name));
@@ -59,13 +62,15 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
     struct eval_result result = { 0 };
     node = wrap_expr_as_function(&jit->engine->fe->parser->symbol_2_int_types, node, fn_symbol);
     analyze(cg->base.sema_context, node);
+    _create_new_module(cg);
     emit_code(cg, node);
     if (node) {
         void *p_fun = emit_ir_code(cg, node);
         if (p_fun) {
             //LLVMDumpModule(jit->env->module);
-            _add_current_module_to_jit(jit);
-            struct fun_pointer fp = find_target_address(jit, string_get(&fn));
+            void *resource_tracker = jit_add_module(jit, cg->module);
+            cg->module = 0;
+            struct fun_pointer fp = jit_find_symbol(jit, string_get(&fn));
             // keep global variables in the jit
             enum type ret_type = get_type(type);
             if (is_int_type(ret_type)) {
@@ -81,7 +86,7 @@ struct eval_result eval_exp(struct JIT *jit, struct ast_node *node)
             if (node_type != VAR_NODE) {
                 //jit->mjit->removeModule(mk);
             }
-            _create_jit_module(jit->engine->be->cg);
+            jit_remove_module(resource_tracker);
         }
     }
     string_deinit(&fn);
@@ -92,6 +97,7 @@ struct eval_result eval_module(struct JIT *jit, struct ast_node *node)
 {
     struct cg_llvm *cg = jit->engine->be->cg;
     analyze(cg->base.sema_context, node);
+    _create_new_module(cg);
     enum node_type node_type = node->node_type;
     if (!node->type){
         //analyze(jit->cg->base.sema_context, node);
@@ -104,8 +110,9 @@ struct eval_result eval_module(struct JIT *jit, struct ast_node *node)
         void *p_fun = emit_ir_code(cg, node);
         if (p_fun) {
             //LLVMDumpModule(jit->env->module);
-            _add_current_module_to_jit(jit);
-            struct fun_pointer fp = find_target_address(jit, "_start");
+            void *resource_tracker = jit_add_module(jit, cg->module);
+            cg->module = 0;
+            struct fun_pointer fp = jit_find_symbol(jit, "_start");
             // keep global variables in the jit
             enum type ret_type = get_return_type(type);
             if (is_int_type(ret_type)) {
@@ -121,7 +128,7 @@ struct eval_result eval_module(struct JIT *jit, struct ast_node *node)
             if (node_type != VAR_NODE) {
                 //jit->mjit->removeModule(mk);
             }
-            _create_jit_module(jit->engine->be->cg);
+            jit_remove_module(resource_tracker);
         }
     }
     return result;
@@ -143,6 +150,7 @@ void eval_statement(void *p_jit, struct ast_node *node)
     //printf("node->type: %s\n", node_type_strings[node->node_type]);
     struct JIT *jit = (struct JIT *)p_jit;
     struct cg_llvm *cg = jit->engine->be->cg;
+    _create_new_module(cg);
     emit_code(cg, node);
     string type_node_str = to_string(node->type);
     if (!node->type)
@@ -154,7 +162,6 @@ void eval_statement(void *p_jit, struct ast_node *node)
         emit_ir_code(cg, node);
         //LLVMDumpModule(jit->env->module);
         _add_current_module_to_jit(jit);
-        _create_jit_module(jit->engine->be->cg);
     } else {
         /*
             * evaluate an expression
@@ -169,20 +176,10 @@ exit:
     fprintf(stderr, "m> ");
 }
 
-struct JIT *build_jit(struct engine *engine)
-{
-    struct JIT *jit = jit_new(engine);
-    _create_jit_module(engine->be->cg);
-    _add_current_module_to_jit(jit);
-    _create_jit_module(engine->be->cg);
-    return jit;
-}
-
-
 int run_repl()
 {
     struct engine *engine = engine_llvm_new(true);
-    struct JIT *jit = build_jit(engine);
+    struct JIT *jit = jit_new(engine);
     printf("m> ");
     parse_repl_code(engine->fe->parser, &eval_node, jit);
     printf("bye !\n");
