@@ -51,8 +51,8 @@ struct JIT *jit_new(struct engine *engine)
 void jit_free(struct JIT *jit)
 {
     if (jit->instance) {
-        //_destroy_jit_instance(jit->jit);
-        //LLVMShutdown();
+        _destroy_jit_instance(jit->instance);
+        LLVMShutdown();
     }
     FREE(jit);
 }

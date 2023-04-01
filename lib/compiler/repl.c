@@ -92,6 +92,7 @@ struct eval_result eval_module(struct JIT *jit, struct ast_node *node)
 {
     struct cg_llvm *cg = jit->engine->be->cg;
     analyze(cg->base.sema_context, node);
+    _create_jit_module(cg);
     enum node_type node_type = node->node_type;
     if (!node->type){
         //analyze(jit->cg->base.sema_context, node);
@@ -121,7 +122,7 @@ struct eval_result eval_module(struct JIT *jit, struct ast_node *node)
             if (node_type != VAR_NODE) {
                 //jit->mjit->removeModule(mk);
             }
-            _create_jit_module(jit->engine->be->cg);
+            //_create_jit_module(jit->engine->be->cg);
         }
     }
     return result;
@@ -172,9 +173,6 @@ exit:
 struct JIT *build_jit(struct engine *engine)
 {
     struct JIT *jit = jit_new(engine);
-    _create_jit_module(engine->be->cg);
-    _add_current_module_to_jit(jit);
-    _create_jit_module(engine->be->cg);
     return jit;
 }
 

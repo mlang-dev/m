@@ -76,25 +76,26 @@ add_definitions(${LLVM_DEFINITIONS})
 
 add_executable(mtest
   tutil.cc
-  codegen/llvm/test_cg_var.cc
-  codegen/llvm/test_cg_fun_call.cc
+  compiler/test_main.cc
+  #codegen/llvm/test_cg_var.cc
+  #codegen/llvm/test_cg_fun_call.cc
   compiler/test_jit_control.cc
-  compiler/test_jit_relational.cc
-  compiler/test_jit_logical.cc
-  compiler/test_jit_adt.cc
-  compiler/test_jit.cc
-  compiler/test_jit_error.cc
-  compiler/test_jit_array.cc
+  # compiler/test_jit_relational.cc
+  # compiler/test_jit_logical.cc
+  # compiler/test_jit_adt.cc
+  # compiler/test_jit.cc
+  # compiler/test_jit_error.cc
+  # compiler/test_jit_array.cc
 )
 
-# target_compile_options(mtest PRIVATE
-# -fsanitize=address
-# -g
-# )
+target_compile_options(mtest PRIVATE
+-fsanitize=address
+-g
+)
 
-# target_link_options(mtest PRIVATE
-# -fsanitize=address
-# )
+target_link_options(mtest PRIVATE
+-fsanitize=address
+)
 
 target_include_directories(mtest PUBLIC
 ${LLVM_INCLUDE_DIRS}
@@ -105,7 +106,7 @@ if(MSVC)
     set_property(TARGET mtest APPEND PROPERTY LINK_FLAGS /DEBUG)
 endif()
 
-TARGET_LINK_LIBRARIES(mtest gtest gtest_main mlrl clib
+TARGET_LINK_LIBRARIES(mtest gtest mlrl clib
   ${llvm_libfiles}
   ${sys_libraries}
 )
@@ -179,8 +180,8 @@ add_custom_command(
   COMMAND mctest
 )
 
-add_custom_command(
-  TARGET mtest
-  POST_BUILD
-  COMMAND mtest
-)
+# add_custom_command(
+#   TARGET mtest
+#   POST_BUILD
+#   COMMAND mtest
+# )

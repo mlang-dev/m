@@ -47,8 +47,8 @@ TEST(testJIT, testNegNumber)
 -10
   )";
     struct engine *engine = engine_llvm_new(true);
-    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     JIT *jit = build_jit(engine);
+    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(cg->base.sema_context, block);
     auto node1 = (struct ast_node *)array_front_ptr(&block->block->nodes);

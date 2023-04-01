@@ -416,6 +416,8 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
     cg->context = context;
     cg->builder = LLVMCreateBuilderInContext(context);
     cg->module = 0;
+    cg->target_machine = 0;
+    cg->target_data = 0;
     cg->current_loop_block = -1;
     _set_bin_ops(cg);
     hashtable_init(&cg->cg_gvar_name_2_asts);
@@ -455,6 +457,22 @@ void llvm_cg_free(struct cg_llvm *cg)
     hashtable_deinit(&cg->varname_2_typename);
     FREE(cg);
     g_cg = 0;
+}
+
+void delete_curent_module(struct cg_llvm *cg)
+{
+    if (cg->module){
+        LLVMDisposeModule(cg->module);
+        cg->module = 0;
+    }
+    if (cg->target_machine){
+        LLVMDisposeTargetMachine(cg->target_machine);
+        cg->target_machine = 0;
+    }
+    if (cg->target_data){
+        LLVMDisposeTargetData(cg->target_data);
+        cg->target_data = 0;
+    }
 }
 
 LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_item *type)
@@ -820,6 +838,7 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
 void create_ir_module(struct cg_llvm *cg,
     const char *module_name)
 {
+    delete_curent_module(cg);
     cg->module = LLVMModuleCreateWithNameInContext(module_name, cg->context);
     cg->target_machine = create_target_machine(cg->module, &cg->target_data);
 }

@@ -9,6 +9,7 @@
 #include "sema/analyzer.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
+#include "test_main.h"
 #include <stdio.h>
 
 // TEST(testJITControl, testIfFunc)
@@ -160,13 +161,10 @@ TEST(testJITControl, whilebreakLoop)
     char test_code[] = R"(
 4
 )";
-    struct engine *engine = engine_llvm_new(false);
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
+    Environment *env = get_env();
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    eval_result result = eval_module(jit, block);
+    eval_result result = eval_module(env->jit(), block);
     ASSERT_EQ(4, result.i_value);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }
