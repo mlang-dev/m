@@ -10,7 +10,7 @@
 #include "clib/util.h"
 #include "clib/array.h"
 #include "sema/analyzer.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include <assert.h>
 #include <limits.h>
 
@@ -142,7 +142,7 @@ struct ast_node *_sc_struct_get_offset_expr(struct sema_context *sc, struct type
     struct ast_node *struct_node = hashtable_get_p(&sc->struct_typename_2_asts, aggr_type->name);
     assert(struct_node->type->kind == KIND_OPER);
     int index = find_field_index(struct_node, field_node);
-    struct struct_layout *sl = get_type_size_info(struct_node->type).sl;
+    struct struct_layout *sl = get_type_size_info(sc->tc, struct_node->type).sl;
     u32 offset = *(u64 *)array_get(&sl->field_offsets, index) / 8;
     return int_node_new(sc->tc, offset, zero_loc);
 }
@@ -156,7 +156,7 @@ struct ast_node *_binary_node_new(enum op_code opcode, struct ast_node *lhs, str
 
 struct ast_node *_sc_array_get_offset_expr(struct sema_context *sc, struct type_item *aggr_type, struct ast_node *field_expr)
 {
-    u32 subarray_size = get_type_size(aggr_type->val_type) / 8;
+    u32 subarray_size = get_type_size(sc->tc, aggr_type->val_type) / 8;
     for(u32 i = 1; i < array_size(&aggr_type->dims); i++){
         subarray_size *= *(u32*)array_get(&aggr_type->dims, i);
     }
@@ -220,7 +220,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
             }
         }
         rfi->offset_expr = _binary_node_new(OP_PLUS, rfi->offset_expr, offset_expr, offset_expr->type, zero_loc);
-        rfi->align = get_type_align(field_accessor->type);//fi.align;
+        rfi->align = get_type_align(sc->tc, field_accessor->type);//fi.align;
         rfi->type = field_accessor->type;// fi.type;
     }
     array_deinit(&field_accessors);

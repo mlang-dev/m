@@ -256,7 +256,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         func_register_local_variable(cg, param, false);
     }
     collect_local_variables(cg, node->func->body);
-    u32 stack_size = fc_get_stack_size(fc);
+    u32 stack_size = fc_get_stack_size(tc, fc);
     if(stack_size){
         //TODO: make builtin type as constant
         struct type_item *to_sp = create_nullary_type(tc, TYPE_INT);

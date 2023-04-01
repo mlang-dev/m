@@ -13,7 +13,7 @@
 #include "clib/array.h"
 #include "parser/ast.h"
 #include "sema/type.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,7 +73,7 @@ struct var_info *fc_get_var_info(struct fun_context *fc, struct ast_node *node);
 i32 fc_get_stack_offset(struct fun_context *fc, struct ast_node *node);
 struct struct_layout *fc_get_stack_sl(struct fun_context *fc, struct ast_node *node);
 
-u32 fc_get_stack_size(struct fun_context *fc);
+u32 fc_get_stack_size(struct type_context *tc, struct fun_context *fc);
 
 #ifdef __cplusplus
 }

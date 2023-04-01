@@ -39,8 +39,8 @@ sema/sema_context.c
 sema/analyzer.c
 sema/eval.c
 sema/frontend.c
+sema/type_size_info.c
 codegen/backend.c
-codegen/type_size_info.c
 codegen/abi_arg_info.c
 codegen/fun_info.c
 codegen/fun_context.c
@@ -98,7 +98,7 @@ add_executable(pgen
   parser/grammar.c
   parser/m_parsing_table.c
   parser/lalr_parser_generator.c
-  codegen/type_size_info.c
+  sema/type_size_info.c
   pgen/pgen.c
 )
 
@@ -135,8 +135,8 @@ add_library(mlr
   sema/sema_context.c
   sema/frontend.c
   sema/frontend_llvm.c
+  sema/type_size_info.c
   codegen/backend.c
-  codegen/type_size_info.c
   codegen/abi_arg_info.c
   codegen/fun_info.c
   codegen/fun_context.c
@@ -174,8 +174,8 @@ add_library(mlrl
   sema/sema_context.c
   sema/frontend.c
   sema/frontend_llvm.c
+  sema/type_size_info.c
   codegen/backend.c
-  codegen/type_size_info.c
   codegen/abi_arg_info.c
   codegen/fun_info.c
   codegen/fun_context.c

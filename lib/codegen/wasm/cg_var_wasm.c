@@ -15,7 +15,7 @@
 #include "sema/analyzer.h"
 #include "sema/type.h"
 #include "sema/frontend.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include <assert.h>
 #include <stdint.h>
 #include <float.h>
@@ -23,6 +23,7 @@
 void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == VAR_NODE);
+    struct type_context *tc = cg->base.sema_context->tc;
     struct fun_context *fc = cg_get_top_fun_context(cg);
     u32 var_index = fc_get_var_info(fc, node)->var_index;
     i32 stack_offset = fc_get_stack_offset(fc, node);
@@ -37,7 +38,7 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
                         //for return value optimization, var_index is parameter
                         wasm_emit_assign_var(ba, var_index, false, WasmInstrNumI32ADD, stack_offset, fc->local_sp->var_index, false);
                     }
-                    wasm_emit_copy_struct_value(ba, var_index, 0, node->type, init_vi->var_index, 0);
+                    wasm_emit_copy_struct_value(tc, ba, var_index, 0, node->type, init_vi->var_index, 0);
                 }else{//array type is reference type
                     wasm_emit_assign_var(ba, var_index, false, WasmInstrNumI32ADD, 0, init_vi->var_index, false);
                 }
@@ -45,7 +46,7 @@ void wasm_emit_var(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
         }else{//scalar value
             if(node->is_addressed){
                 //store to stack memory
-                u32 align = get_type_align(node->type);
+                u32 align = get_type_align(tc, node->type);
                 wasm_emit_store_scalar_value_at(cg, ba, var_index, align, stack_offset, node->var->init_value);
             }else{
                 wasm_emit_code(cg, ba, node->var->init_value);

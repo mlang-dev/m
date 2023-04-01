@@ -15,7 +15,7 @@
 #include "sema/analyzer.h"
 #include "sema/type.h"
 #include "sema/frontend.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include <assert.h>
 #include <stdint.h>
 #include <float.h>
@@ -24,10 +24,11 @@ void wasm_emit_store_struct_value(struct cg_wasm *cg, struct byte_array *ba, u32
 {
     struct ast_node *field;
     u32 field_offset;
+    struct type_context *tc = cg->base.sema_context->tc;
     for (u32 i = 0; i < array_size(&block->block->nodes); i++) {
         field = array_get_ptr(&block->block->nodes, i);
         field_offset = *(u64*)array_get(&sl->field_offsets, i) / 8;
-        u32 align = get_type_align(field->type);
+        u32 align = get_type_align(tc, field->type);
         if(is_struct_like_type(field->type)){
             assert(field->node_type == ADT_INIT_NODE);
             struct struct_layout *field_sl = array_get_ptr(&sl->field_layouts, i);
@@ -53,11 +54,12 @@ void wasm_emit_store_array_value(struct cg_wasm *cg, struct byte_array *ba, u32 
 
 void wasm_emit_adt_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *ft_node = fc->fun->func->func_type;
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node->type);
     bool is_rvo = check_rvo(fi);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     if (is_rvo && node->is_ret) {
         assert(fi->tai.sret_arg_no != InvalidIndex);
         //function parameter with sret: just directly used the pointer passed
@@ -74,6 +76,7 @@ void wasm_emit_adt_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
 void wasm_emit_array_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     if (!node->array_init) return; //empty list does nothing
+    struct type_context *tc = cg->base.sema_context->tc;
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *ft_node = fc->fun->func->func_type;
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node->type);
@@ -91,6 +94,6 @@ void wasm_emit_array_init(struct cg_wasm *cg, struct byte_array *ba, struct ast_
         wasm_emit_assign_var(ba, vi->var_index, false, WasmInstrNumI32ADD, stack_offset, fc->local_sp->var_index, false);
         addr_var_index = vi->var_index;
     }
-    struct type_size_info tsi = get_type_size_info(node->type->val_type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type->val_type);
     wasm_emit_store_array_value(cg, ba, addr_var_index, 0, tsi.align_bits/8, tsi.width_bits / 8, node->array_init);
 }

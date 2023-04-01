@@ -16,7 +16,7 @@
 #include "codegen/llvm/llvm_api.h"
 #include "codegen/llvm/x86_64_abi.h"
 #include "codegen/llvm/winx86_64_abi.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include "sema/type.h"
 #include "sema/eval.h"
 #include <llvm-c/Support.h>
@@ -425,7 +425,7 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
     hashtable_init(&cg->typename_2_irtypes);
     hashtable_init(&cg->varname_2_typename);
     const char *target_triple = LLVMGetDefaultTargetTriple();
-    cg->base.target_info = ti_new(target_triple);
+    cg->base.target_info = ti_new(sema_context->tc, target_triple);
     free((void*)target_triple);
     g_cg = cg;
     _init_target_info_llvm(cg->base.target_info);

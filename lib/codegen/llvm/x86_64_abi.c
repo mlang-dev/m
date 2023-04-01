@@ -1,7 +1,7 @@
 #include "codegen/abi_arg_info.h"
 #include "codegen/llvm/cg_llvm.h"
 #include "codegen/fun_info.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include <assert.h>
 #include <llvm-c/Core.h>
 
@@ -41,7 +41,7 @@ enum Class _merge(enum Class accum, enum Class field)
     return SSE;
 }
 
-void _classify(struct type_item *te, uint64_t offset_base, enum Class *low, enum Class *high)
+void _classify(struct type_context *tc, struct type_item *te, uint64_t offset_base, enum Class *low, enum Class *high)
 {
     enum Class *current;
     *low = *high = NO_CLASS;
@@ -60,16 +60,16 @@ void _classify(struct type_item *te, uint64_t offset_base, enum Class *low, enum
     } /*else if pointer then make current pointing to INTEGER*/
     //TODO: vector, complex, int type with specified bitwidth, constant array
     else if (te->type == TYPE_STRUCT) {
-        struct type_size_info tsi = get_type_size_info(te);
+        struct type_size_info tsi = get_type_size_info(tc, te);
         uint64_t size = tsi.width_bits;
         if (size > 512)
             return;
-        struct struct_layout *sl = layout_struct(te, Product);
+        struct struct_layout *sl = layout_struct(tc, te, Product);
         *current = NO_CLASS;
         for (size_t i = 0; i < array_size(&sl->field_offsets); i++) {
             uint64_t offset = offset_base + *(uint64_t *)array_get(&sl->field_offsets, i);
             struct type_item *field_type = array_get_ptr(&te->args, i);
-            uint64_t field_type_size = get_type_size(field_type);
+            uint64_t field_type_size = get_type_size(tc, field_type);
             assert(field_type_size);
             if (size > 128 && size != field_type_size) {
                 *low = MEMORY;
@@ -82,7 +82,7 @@ void _classify(struct type_item *te, uint64_t offset_base, enum Class *low, enum
                 return;
             }
             enum Class field_low, field_high;
-            _classify(field_type, offset, &field_low, &field_high);
+            _classify(tc, field_type, offset, &field_low, &field_high);
             *low = _merge(*low, field_low);
             *high = _merge(*high, field_high);
             if (*low == MEMORY || *high == MEMORY)
@@ -93,22 +93,22 @@ void _classify(struct type_item *te, uint64_t offset_base, enum Class *low, enum
     }
 }
 
-bool _bits_contain_no_user_data(struct type_item *type, unsigned start_bit, unsigned end_bit)
+bool _bits_contain_no_user_data(struct type_context *tc, struct type_item *type, unsigned start_bit, unsigned end_bit)
 {
-    uint64_t type_size_bits = get_type_size(type);
+    uint64_t type_size_bits = get_type_size(tc, type);
     if (type_size_bits <= start_bit)
         return true;
 
     //TODO: for array type
     //struct type
     if (type->type == TYPE_STRUCT) {
-        struct struct_layout *sl = layout_struct(type, Product);
+        struct struct_layout *sl = layout_struct(tc, type, Product);
         for (unsigned i = 0; i < array_size(&type->args); i++) {
             unsigned field_offset = (unsigned)*(uint64_t *)array_get(&sl->field_offsets, i);
             if (field_offset >= end_bit)
                 break;
             unsigned field_start = field_offset < start_bit ? start_bit - field_offset : 0;
-            if (_bits_contain_no_user_data(array_get(&type->args, i), field_start, end_bit - field_offset)){
+            if (_bits_contain_no_user_data(tc, array_get(&type->args, i), field_start, end_bit - field_offset)){
                 sl_free(sl);
                 return false;
             }
@@ -139,9 +139,9 @@ bool _contains_float_at_offset(LLVMTypeRef ir_type, unsigned ir_offset)
     return false;
 }
 
-LLVMTypeRef _get_sse_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, struct type_item *source_type, unsigned source_offset)
+LLVMTypeRef _get_sse_type_at_offset(struct type_context *tc, LLVMTypeRef ir_type, unsigned ir_offset, struct type_item *source_type, unsigned source_offset)
 {
-    if (_bits_contain_no_user_data(source_type, source_offset * 8 + 32, source_offset * 8 + 64))
+    if (_bits_contain_no_user_data(tc, source_type, source_offset * 8 + 32, source_offset * 8 + 64))
         return LLVMFloatTypeInContext(get_llvm_context());
 
     if (_contains_float_at_offset(ir_type, ir_offset) && _contains_float_at_offset(ir_type, ir_offset + 4))
@@ -149,7 +149,7 @@ LLVMTypeRef _get_sse_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
     return LLVMDoubleTypeInContext(get_llvm_context());
 }
 
-LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, struct type_item *source_type, unsigned source_offset)
+LLVMTypeRef _get_int_type_at_offset(struct type_context *tc, LLVMTypeRef ir_type, unsigned ir_offset, struct type_item *source_type, unsigned source_offset)
 {
     LLVMTargetDataRef dl = get_llvm_data_layout();
     LLVMTypeKind tk = LLVMGetTypeKind(ir_type);
@@ -162,7 +162,7 @@ LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
 
         if (int_width == 8 || int_width == 16 || int_width == 32 || (tk == LLVMPointerTypeKind && LLVMPointerSize(dl) != 8)) {
             unsigned bit_width = tk == LLVMPointerTypeKind ? 32 : int_width;
-            if (_bits_contain_no_user_data(source_type, source_offset * 8 + bit_width, source_offset * 8 + 64))
+            if (_bits_contain_no_user_data(tc, source_type, source_offset * 8 + bit_width, source_offset * 8 + 64))
                 return ir_type;
         }
     }
@@ -170,13 +170,13 @@ LLVMTypeRef _get_int_type_at_offset(LLVMTypeRef ir_type, unsigned ir_offset, str
         if (ir_offset < LLVMSizeOfTypeInBits(dl, ir_type) / 8) {
             unsigned field_index = LLVMElementAtOffset(dl, ir_type, ir_offset);
             ir_offset -= (unsigned)LLVMOffsetOfElement(dl, ir_type, field_index);
-            return _get_int_type_at_offset(LLVMStructGetTypeAtIndex(ir_type, field_index), ir_offset, source_type, source_offset);
+            return _get_int_type_at_offset(tc, LLVMStructGetTypeAtIndex(ir_type, field_index), ir_offset, source_type, source_offset);
         }
     }
     //TODO: array type
 
     //
-    uint64_t type_size_bytes = get_type_size(source_type) / 8;
+    uint64_t type_size_bytes = get_type_size(tc, source_type) / 8;
     uint64_t bit_width = ((type_size_bytes - source_offset) < 8 ? type_size_bytes - source_offset : 8) * 8;
     return LLVMIntTypeInContext(get_llvm_context(), (unsigned)bit_width);
 }
@@ -204,7 +204,7 @@ LLVMTypeRef _get_x86_64_byval_arg_pair(LLVMTypeRef low, LLVMTypeRef high, LLVMTa
 struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_item *ret_type)
 {
     enum Class low, high;
-    _classify(ret_type, 0, &low, &high);
+    _classify(ti->tc, ret_type, 0, &low, &high);
     LLVMTypeRef result_type = 0;
     LLVMTypeRef complex[2];
     switch (low) {
@@ -218,7 +218,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_it
     case MEMORY:
         return create_indirect_return_result(ti, ret_type);
     case INTEGER:
-        result_type = _get_int_type_at_offset(get_backend_type(ret_type), 0, ret_type, 0);
+        result_type = _get_int_type_at_offset(ti->tc, get_backend_type(ret_type), 0, ret_type, 0);
         if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
             if (is_promotable_int(ret_type))
                 return create_extend(ti, ret_type);
@@ -227,7 +227,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_it
     // AMD64-ABI 3.2.3p4: Rule 4. If the class is SSE, the next
     // available SSE register of the sequence %xmm0, %xmm1 is used.
     case SSE:
-        result_type = _get_sse_type_at_offset(get_backend_type(ret_type), 0, ret_type, 0);
+        result_type = _get_sse_type_at_offset(ti->tc, get_backend_type(ret_type), 0, ret_type, 0);
         break;
     // AMD64-ABI 3.2.3p4: Rule 6. If the class is X87, the value is
     // returned on the X87 stack in %st0 as 80-bit x87 number.
@@ -254,12 +254,12 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_it
     case NO_CLASS:
         break;
     case INTEGER:
-        high_part = _get_int_type_at_offset(get_backend_type(ret_type), 8, ret_type, 8);
+        high_part = _get_int_type_at_offset(ti->tc, get_backend_type(ret_type), 8, ret_type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(ret_type, high_part, 8);
         break;
     case SSE:
-        high_part = _get_sse_type_at_offset(get_backend_type(ret_type), 8, ret_type, 8);
+        high_part = _get_sse_type_at_offset(ti->tc, get_backend_type(ret_type), 8, ret_type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(ret_type, high_part, 8);
         break;
@@ -268,7 +268,7 @@ struct abi_arg_info _classify_return_type(struct target_info *ti, struct type_it
         break;
     case X87UP:
         if (low != X87) {
-            high_part = _get_sse_type_at_offset(get_backend_type(ret_type), 8, ret_type, 8);
+            high_part = _get_sse_type_at_offset(ti->tc, get_backend_type(ret_type), 8, ret_type, 8);
             if (low == NO_CLASS)
                 return create_direct_type_offset(ret_type, high_part, 8);
         }
@@ -284,7 +284,7 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
 {
     //struct abi_arg_info aa;
     enum Class low, high;
-    _classify(type, 0, &low, &high);
+    _classify(ti->tc, type, 0, &low, &high);
     *needed_int = 0;
     *needed_sse = 0;
     LLVMTypeRef result_type = 0;
@@ -302,7 +302,7 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
         assert(false);
     case INTEGER:
         ++(*needed_int);
-        result_type = _get_int_type_at_offset(get_backend_type(type), 0, type, 0);
+        result_type = _get_int_type_at_offset(ti->tc, get_backend_type(type), 0, type, 0);
         if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
             if (is_promotable_int(type))
                 return create_extend(ti, type);
@@ -310,7 +310,7 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
         break;
     case SSE: {
         LLVMTypeRef ir_type = get_backend_type(type);
-        result_type = _get_sse_type_at_offset(ir_type, 0, type, 0);
+        result_type = _get_sse_type_at_offset(ti->tc, ir_type, 0, type, 0);
         ++(*needed_sse);
     }
     }
@@ -325,13 +325,13 @@ struct abi_arg_info _classify_argument_type(struct target_info *ti, struct type_
         break;
     case INTEGER:
         ++(*needed_int);
-        high_part = _get_int_type_at_offset(get_backend_type(type), 8, type, 8);
+        high_part = _get_int_type_at_offset(ti->tc, get_backend_type(type), 8, type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(type, high_part, 8);
         break;
     case X87UP:
     case SSE:
-        high_part = _get_sse_type_at_offset(get_backend_type(type), 8, type, 8);
+        high_part = _get_sse_type_at_offset(ti->tc, get_backend_type(type), 8, type, 8);
         if (low == NO_CLASS)
             return create_direct_type_offset(type, high_part, 8);
         ++(*needed_sse);
