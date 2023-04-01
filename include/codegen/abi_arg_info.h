@@ -53,7 +53,7 @@ struct abi_arg_info create_direct(struct type_item *type);
 struct abi_arg_info create_extend(struct target_info *ti, struct type_item *ret_type);
 struct abi_arg_info create_indirect_return_result(struct target_info *ti, struct type_item *ret_type);
 struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_item *ret_type, unsigned free_int_regs);
-struct abi_arg_info create_natural_align_indirect(struct type_item *ret_type, bool indirect_byval);
+struct abi_arg_info create_natural_align_indirect(struct type_context *tc, struct type_item *ret_type, bool indirect_byval);
 struct abi_arg_info create_ignore(struct type_item *type);
 
 bool can_have_padding_type(struct abi_arg_info *aai);

@@ -17,7 +17,7 @@
 #include "sema/analyzer.h"
 #include "sema/type.h"
 #include "sema/frontend.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include <assert.h>
 #include <stdint.h>
 #include <float.h>
@@ -32,6 +32,7 @@ bool _is_indirect(struct type_item *type)
 void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == CALL_NODE);
+    struct type_context *tc = cg->base.sema_context->tc;
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct ast_node *arg;
     symbol callee = node->call->specialized_callee ? node->call->specialized_callee : node->call->callee;
@@ -68,7 +69,7 @@ void wasm_emit_call(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
                     u32 temp_var_index = vi->var_index + 1; //TODO: we should do it explicity in collect_local_variables
                     u32 field_offset = *(u64*)array_get(&fc->stack_size_info.sl->field_offsets, temp_var_index) / 8;
                     wasm_emit_assign_var(ba, temp_var_index, false, WasmInstrNumI32ADD, field_offset, fc->local_sp->var_index, false);
-                    wasm_emit_copy_struct_value(ba, temp_var_index, 0, arg->type, vi->var_index, 0);
+                    wasm_emit_copy_struct_value(tc, ba, temp_var_index, 0, arg->type, vi->var_index, 0);
                     wasm_emit_get_var(ba, temp_var_index, false);
                 }
             }

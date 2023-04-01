@@ -149,9 +149,11 @@ struct target_info {
      *  binding fun name to struct fun_info
      */
     struct hashtable fun_infos;
+
+    struct type_context *tc;
 };
 
-struct target_info *ti_new(const char *target_triple);
+struct target_info *ti_new(struct type_context *tc, const char *target_triple);
 void ti_free(struct target_info *ti);
 struct hashtable *get_fun_infos();
 

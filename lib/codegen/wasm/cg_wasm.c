@@ -391,7 +391,7 @@ struct cg_wasm *cg_wasm_new(struct sema_context *context)
     POW_FUN_NAME = to_symbol("pow");
     cg->base.compute_fun_info = wasm_compute_fun_info;
     cg->base.sema_context = context;
-    cg->base.target_info = ti_new("wasm32");
+    cg->base.target_info = ti_new(context->tc, "wasm32");
     _init_target_info(cg->base.target_info);
     return cg;
 }
@@ -473,7 +473,7 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
                     //read from memory
                     assert(node->unop->operand->node_type == IDENT_NODE);
                     vi = fc_get_var_info(fc, node->unop->operand->ident->var);
-                    u32 align = get_type_align(node->type);
+                    u32 align = get_type_align(tc, node->type);
                     wasm_emit_load_mem_from(ba, vi->var_index, false, align, 0, node->type->type);
                 }
             }else{
@@ -569,6 +569,7 @@ void _free_field_info(void *fi)
 void _emit_struct_field_accessor(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     //lhs is struct var, rhs is field var name
+    struct type_context *tc = cg->base.sema_context->tc;
     struct fun_context *fc = cg_get_top_fun_context(cg);
     struct array field_infos;
     array_init_free(&field_infos, sizeof(struct field_info), _free_field_info);
@@ -581,7 +582,7 @@ void _emit_struct_field_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
         if(node->is_ret){
             //copy result into variable index 0
             //for sret
-            wasm_emit_copy_struct_value(ba, 0, 0, field->type, root_vi->var_index, offset);
+            wasm_emit_copy_struct_value(tc, ba, 0, 0, field->type, root_vi->var_index, offset);
         }
         //calculate new address and push it to stack
         //wasm_emit_change_var(ba, WasmInstrNumI32ADD, field.offset, root_vi->var_index, false);
@@ -632,12 +633,13 @@ void _emit_array_member_accessor(struct cg_wasm *cg, struct byte_array *ba, stru
 
 void _emit_assign_value(struct cg_wasm *cg, struct byte_array *ba, u32 addr_var_index, u32 offset, u32 align, struct type_item *type, struct ast_node *rhs)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     struct fun_context *fc = cg_get_top_fun_context(cg);
     if(is_struct_like_type(type)){
         //struct assignment/copy
         struct var_info *rhs_vi = fc_get_var_info(fc, rhs);
         wasm_emit_code(cg, ba, rhs); 
-        wasm_emit_copy_struct_value(ba, addr_var_index, offset, rhs->type, rhs_vi->var_index, 0);
+        wasm_emit_copy_struct_value(tc, ba, addr_var_index, offset, rhs->type, rhs_vi->var_index, 0);
     } else {
         //scalar version
         wasm_emit_store_scalar_value_at(cg, ba, addr_var_index, align, offset, rhs);
@@ -672,6 +674,7 @@ void _emit_assign_array_field(struct cg_wasm *cg, struct byte_array *ba, struct 
 
 void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     struct ast_node *lhs = node->binop->lhs;
     struct fun_context *fc = cg_get_top_fun_context(cg);
     
@@ -692,7 +695,7 @@ void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
         }
     }else{
         struct var_info*vi = fc_get_var_info(fc, lhs);
-        u32 align = get_type_align(lhs->type);
+        u32 align = get_type_align(tc, lhs->type);
         _emit_assign_value(cg, ba, vi->var_index, 0, align, lhs->type, node->binop->rhs);
     }
 }
@@ -1006,6 +1009,7 @@ void _emit_jump(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node
 void _emit_ident(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->node_type == IDENT_NODE);
+    struct type_context *tc = cg->base.sema_context->tc;
     struct fun_context *fc = cg_get_top_fun_context(cg);
     u32 var_index = fc_get_var_info(fc, node)->var_index;
     if (is_ref_type(node->type) && is_aggregate_type(node->type->val_type)){
@@ -1016,12 +1020,12 @@ void _emit_ident(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     }else if(is_aggregate_type(node->type)){
         //for aggregate data
         if(node->is_ret){
-            wasm_emit_copy_struct_value(ba, 0, 0, node->type, var_index, 0);
+            wasm_emit_copy_struct_value(tc, ba, 0, 0, node->type, var_index, 0);
         }
     }else{
         if(node->ident->var->is_addressed){
             //read value from memory
-            u32 align = get_type_align(node->type);
+            u32 align = get_type_align(tc, node->type);
             wasm_emit_load_mem_from(ba, var_index, false, align, 0, node->type->type);
         }else{
             wasm_emit_get_var(ba, var_index, false);

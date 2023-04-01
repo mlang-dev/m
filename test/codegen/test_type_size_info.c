@@ -3,7 +3,7 @@
  *
  * Unit tests for calculating type size info
  */
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include "codegen/backend.h"
 #include "sema/analyzer.h"
 #include "parser/parser.h"
@@ -16,10 +16,11 @@ TEST(test_type_size_info, struct_double_double)
 {
     char test_code[] = "struct Point2D = x:f64, y:f64";
     struct engine *engine = engine_wasm_new();
+    struct type_context *tc = engine->fe->sema_context->tc;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     analyze(engine->fe->sema_context, node);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
     node_free(block);
@@ -33,14 +34,15 @@ struct Point2D = x:f64, y:f64\n\
 struct Contains = xy:Point2D\n\
 ";
     struct engine *engine = engine_wasm_new();
+    struct type_context *tc = engine->fe->sema_context->tc;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(engine->fe->sema_context, block);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
     node = array_back_ptr(&block->block->nodes);
-    tsi = get_type_size_info(node->type);
+    tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
 
@@ -55,14 +57,15 @@ struct Point2D = x:f64, y:f64\n\
 struct Contains = xy:&Point2D\n\
 ";
     struct engine *engine = engine_wasm_new();
+    struct type_context *tc = engine->fe->sema_context->tc;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     analyze(engine->fe->sema_context, block);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
     node = array_back_ptr(&block->block->nodes);
-    tsi = get_type_size_info(node->type);
+    tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(32, tsi.width_bits);
     ASSERT_EQ(32, tsi.align_bits);
 
@@ -74,10 +77,11 @@ TEST(test_type_size_info, struct_char_double)
 {
     char test_code[] = "struct Point2D = x:char, y:f64";
     struct engine *engine = engine_wasm_new();
+    struct type_context *tc = engine->fe->sema_context->tc;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     analyze(engine->fe->sema_context, node);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(128, tsi.width_bits);
     ASSERT_EQ(64, tsi.align_bits);
     node_free(block);
@@ -88,10 +92,11 @@ TEST(test_type_size_info, struct_char_char)
 {
     char test_code[] = "struct Point2D = x:char, y:char";
     struct engine *engine = engine_wasm_new();
+    struct type_context *tc = engine->fe->sema_context->tc;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     analyze(engine->fe->sema_context, node);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(16, tsi.width_bits);
     ASSERT_EQ(8, tsi.align_bits);
     node_free(block);
@@ -102,10 +107,11 @@ TEST(test_type_size_info, struct_bool_char)
 {
     char test_code[] = "struct Point2D = x:bool, y:char";
     struct engine *engine = engine_wasm_new();
+    struct type_context *tc = engine->fe->sema_context->tc;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     analyze(engine->fe->sema_context, node);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(16, tsi.width_bits);
     ASSERT_EQ(8, tsi.align_bits);
     node_free(block);
@@ -116,10 +122,11 @@ TEST(test_type_size_info, struct_char_int)
 {
     char test_code[] = "struct Point2D = x:char, y:int";
     struct engine *engine = engine_wasm_new();
+    struct type_context *tc = engine->fe->sema_context->tc;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     analyze(engine->fe->sema_context, node);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(64, tsi.width_bits);
     ASSERT_EQ(32, tsi.align_bits);
     node_free(block);
@@ -130,10 +137,11 @@ TEST(test_type_size_info, variant_int)
 {
     char test_code[] = "variant Point2D = x:char | y:int";
     struct engine *engine = engine_wasm_new();
+    struct type_context *tc = engine->fe->sema_context->tc;
     struct ast_node *block = parse_code(engine->fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     analyze(engine->fe->sema_context, node);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     ASSERT_EQ(32, tsi.width_bits);
     ASSERT_EQ(32, tsi.align_bits);
     node_free(block);

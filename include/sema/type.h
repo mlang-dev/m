@@ -106,6 +106,14 @@ struct type_context {
 
     /* mapping type string into type enum: hashtable of (symbol, int) */
     struct hashtable symbol_2_int_types;
+
+    /* 
+        *  symboltable of <symbol, struct type_size_info>
+        *  binding type name to type size, alignment and offset
+        *  useful for backend code generation
+        */
+    struct hashtable ts_infos;
+
 };
 
 struct type_context* type_context_new();

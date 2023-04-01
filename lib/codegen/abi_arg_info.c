@@ -1,5 +1,5 @@
 #include "codegen/abi_arg_info.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include <assert.h>
 
 struct abi_arg_info _create_direct(struct type_item *type, TargetType target_type, unsigned direct_offset, TargetType padding_type, bool can_be_flattened)
@@ -63,9 +63,9 @@ struct abi_arg_info create_extend(struct target_info *ti, struct type_item *ret_
     return aai;
 }
 
-struct abi_arg_info create_natural_align_indirect(struct type_item *ret_type, bool indirect_byval)
+struct abi_arg_info create_natural_align_indirect(struct type_context *tc, struct type_item *ret_type, bool indirect_byval)
 {
-    uint64_t align_bytes = get_type_align(ret_type);
+    uint64_t align_bytes = get_type_align(tc, ret_type);
     return _create_indirect(ret_type, (unsigned)align_bytes, indirect_byval, false, 0);
 }
 
@@ -77,7 +77,7 @@ struct abi_arg_info create_indirect_return_result(struct target_info *ti, struct
         else
             return create_direct(ret_type);
     }
-    return create_natural_align_indirect(ret_type, false);
+    return create_natural_align_indirect(ti->tc, ret_type, false);
 }
 
 struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_item *type, unsigned free_int_regs)
@@ -88,11 +88,11 @@ struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_i
         else
             return create_direct(type);
     }
-    unsigned align_bytes = (unsigned)get_type_align(type);
+    unsigned align_bytes = (unsigned)get_type_align(ti->tc, type);
     if (align_bytes < 8)
         align_bytes = 8;
     if (free_int_regs == 0) {
-        uint64_t size = get_type_size(type);
+        uint64_t size = get_type_size(ti->tc, type);
         if (align_bytes == 8 && size <= 64){
             return _create_direct(type, ti->get_size_int_type((unsigned)size), 0, 0, true);
         }

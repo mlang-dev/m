@@ -13,7 +13,7 @@
 #include "codegen/llvm/cg_llvm.h"
 #include "codegen/fun_info.h"
 #include "codegen/llvm/llvm_api.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 
@@ -44,10 +44,11 @@ void _store_array_values(struct cg_llvm *cg, LLVMTypeRef alloca_type, LLVMValueR
 
 LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bool is_ret, const char *name)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->base.sema_context->func_stack);
     struct ast_node *ft_node = parent_func->func->func_type;
     struct type_item *te = node->type;
-    struct type_size_info tsi = get_type_size_info(te);
+    struct type_size_info tsi = get_type_size_info(tc, te);
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node->type);
     bool is_rvo = check_rvo(fi);
     is_ret = is_ret || node->is_ret;
@@ -71,10 +72,11 @@ LLVMValueRef emit_struct_init_node(struct cg_llvm *cg, struct ast_node *node, bo
 
 LLVMValueRef emit_array_init_node(struct cg_llvm *cg, struct ast_node *node, bool is_ret, const char *name)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->base.sema_context->func_stack);
     struct ast_node *ft_node = parent_func->func->func_type;
     struct type_item *te = node->type;
-    struct type_size_info tsi = get_type_size_info(te);
+    struct type_size_info tsi = get_type_size_info(tc, te);
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, ft_node->type);
     bool is_rvo = check_rvo(fi);
     is_ret = is_ret || node->is_ret;
@@ -151,7 +153,7 @@ LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef init_val = emit_ir_code(cg, node->var->init_value);
     assert(init_val);
     enum type type = get_type(tc, node->type);
-    struct type_size_info tsi = get_type_size_info(node->type);
+    struct type_size_info tsi = get_type_size_info(tc, node->type);
     LLVMValueRef alloca = create_alloca(cg->ops[type].get_type(cg->context, node->type), tsi.align_bits / 8, fun, string_get(var_name));
     LLVMBuildStore(cg->builder, init_val, alloca);
     hashtable_set_p(&cg->varname_2_irvalues, var_name, alloca);

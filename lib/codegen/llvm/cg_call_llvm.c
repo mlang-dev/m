@@ -9,7 +9,7 @@
 #include "codegen/fun_info.h"
 #include "codegen/llvm/llvm_api.h"
 #include "codegen/target_arg_info.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include <assert.h>
 
 
@@ -31,6 +31,7 @@ LLVMValueRef _get_parent_call_sret_pointer(struct cg_llvm *cg, struct ast_node *
 LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
 {
     assert(node->call->callee_func_type);
+    struct type_context *tc = cg->base.sema_context->tc;
     symbol callee_name = get_callee(node);
     LLVMValueRef callee = get_llvm_function(cg, callee_name);
     assert(callee);
@@ -44,7 +45,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMTypeRef sig_ret_type = get_backend_type(fi->ret.type);
     struct ast_node *parent_func = *(struct ast_node**)stack_top(&cg->base.sema_context->func_stack);
     struct ast_node *parent_ft = parent_func->func->func_type;
-    struct type_size_info ret_tsi = get_type_size_info(fi->ret.type);
+    struct type_size_info ret_tsi = get_type_size_info(tc, fi->ret.type);
     LLVMValueRef ret_alloca = 0;
     LLVMValueRef parent_fun = 0;
     if (parent_ft) { //TODO: JIT call code in global scope, no parent
@@ -61,7 +62,7 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
         struct abi_arg_info *aai = array_get(&fi->args, i);
         struct target_arg_range *tar = array_get(&fi->tai.args, i);
         struct ast_node *arg = array_get_ptr(&node->call->arg_block->block->nodes, i);
-        struct type_size_info tsi = get_type_size_info(arg->type);
+        struct type_size_info tsi = get_type_size_info(tc, arg->type);
         LLVMValueRef arg_value = emit_ir_code(cg, arg);
         switch (aai->kind) {
         case AK_DIRECT: {

@@ -5,6 +5,7 @@
  * references: http://lucacardelli.name/Papers/BasicTypechecking.pdf
  */
 #include "sema/type.h"
+#include "sema/type_size_info.h"
 #include "clib/hashtable.h"
 #include "clib/symboltable.h"
 #include <assert.h>
@@ -206,6 +207,7 @@ struct type_context *type_context_new()
     for (int i = 0; i < TYPE_TYPES; i++) {
         hashtable_set_int(&tc->symbol_2_int_types, get_type_symbol(i), i);
     }
+    hashtable_init_with_value_size(&tc->ts_infos, sizeof(struct type_size_info), tsi_free);
     return tc;
 }
 
@@ -215,6 +217,7 @@ void type_context_free(struct type_context *tc)
     hashtable_deinit(&tc->type_item_vars);
     hashtable_deinit(&tc->freshed_type_items);
     hashtable_deinit(&tc->symbol_2_int_types);
+    hashtable_deinit(&tc->ts_infos);
     FREE(tc);
 }
 

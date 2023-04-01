@@ -1,5 +1,5 @@
 #include "codegen/fun_context.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include <assert.h>
 
 
@@ -73,10 +73,10 @@ int fc_register_alloc(struct fun_context *fc, struct type_item *type)
     return array_size(&fc->stack_type.args) - 1;
 }
 
-u32 fc_get_stack_size(struct fun_context *fc)
+u32 fc_get_stack_size(struct type_context *tc, struct fun_context *fc)
 {
     
-    fc->stack_size_info = get_type_size_info(&fc->stack_type);
+    fc->stack_size_info = get_type_size_info(tc, &fc->stack_type);
     u32 stack_size = fc->stack_size_info.width_bits / 8;
     //clang-wasm ABI always uses 16 bytes alignment
     stack_size = align_to(stack_size, 16);

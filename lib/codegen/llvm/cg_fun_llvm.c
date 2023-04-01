@@ -13,7 +13,7 @@
 #include "codegen/llvm/cg_llvm.h"
 #include "codegen/fun_info.h"
 #include "codegen/llvm/llvm_api.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include "sema/type.h"
 #include <llvm-c/Support.h>
 #include <llvm-c/Analysis.h>
@@ -31,6 +31,7 @@ struct address emit_address_at_offset(struct cg_llvm *cg, struct address adr, st
 void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
     struct fun_info *fi, LLVMValueRef fun)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     struct type_item *proto_type = node->type;
     //assert (LLVMCountParams(fun) == array_size(&proto_type->args) - 1);
     unsigned param_count = (unsigned)array_size(&fi->args);
@@ -67,7 +68,7 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
         }
         case AK_DIRECT: {
             LLVMValueRef alloca = 0;
-            struct type_size_info tsi = get_type_size_info(aai->type);
+            struct type_size_info tsi = get_type_size_info(tc, aai->type);
             unsigned align = tsi.align_bits / 8;
             LLVMTypeRef sig_type = get_backend_type(aai->type);
             if (LLVMGetTypeKind(aai->target_type) != LLVMStructTypeKind && aai->align.direct_offset == 0
@@ -181,7 +182,7 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
         LLVMTypeRef ret_type = LLVMTypeOf(ret_val);
         if (LLVMGetTypeKind(ret_type) != LLVMGetTypeKind(fi->ret.target_type)) {
             // assuming cast struct to
-            struct type_size_info tsi = get_type_size_info(fi->ret.type);
+            struct type_size_info tsi = get_type_size_info(tc, fi->ret.type);
             LLVMTypeRef ret_ptr = LLVMPointerType(fi->ret.target_type, 0);
             assert(LLVMGetTypeKind(ret_type) == LLVMGetTypeKind(ret_ptr));
             //cast struct pointer to int pointer

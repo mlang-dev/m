@@ -7,7 +7,7 @@
 #include "codegen/wasm/wasm_abi.h"
 #include "codegen/abi_arg_info.h"
 #include "codegen/fun_info.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include "sema/type.h"
 #include <assert.h>
 
@@ -17,7 +17,7 @@ struct abi_arg_info _classify_return_type_wasm(struct target_info *ti, struct ty
         return create_ignore(ret_type);
     }
     else if (is_aggregate_type(ret_type)){ //aggregate type or is member function pointer
-        return create_natural_align_indirect(ret_type, false);
+        return create_natural_align_indirect(ti->tc, ret_type, false);
     }
     //TODO: enum types as underlying int type
     //TODO: bits int type
@@ -32,7 +32,7 @@ struct abi_arg_info _classify_argument_type_wasm(struct target_info *ti, struct 
 {
     //TODO: use first field if transparent union
     if(is_aggregate_type(type)){
-        return create_natural_align_indirect(type, false);
+        return create_natural_align_indirect(ti->tc, type, false);
     }
     //TODO: enum
     //TODO: bit int types

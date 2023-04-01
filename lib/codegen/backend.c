@@ -9,7 +9,7 @@
 #include "sema/sema_context.h"
 #include "clib/util.h"
 #include "codegen/backend.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 #include <assert.h>
 
 struct backend *g_backend = 0;
@@ -21,13 +21,11 @@ struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_
     be->cg = cg_alloc(sema_context);
     be->cg_free = cg_free;
     g_backend = be;
-    tsi_init();
     return be;
 }
 
 void backend_deinit(struct backend *be)
 {
-    tsi_deinit();
     be->cg_free(be->cg);
     free(be);
 }

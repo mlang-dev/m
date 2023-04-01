@@ -2,7 +2,7 @@
 #include "codegen/abi_arg_info.h"
 #include "codegen/llvm/cg_llvm.h"
 #include "codegen/fun_info.h"
-#include "codegen/type_size_info.h"
+#include "sema/type_size_info.h"
 
 struct abi_arg_info _winx86_64_classify(struct target_info *ti, struct type_item *type, unsigned *free_sse_regs, bool is_return_type, bool is_vector_call, bool is_reg_call)
 {
@@ -11,7 +11,7 @@ struct abi_arg_info _winx86_64_classify(struct target_info *ti, struct type_item
     (void)is_reg_call;
     if (type->type == TYPE_UNIT)
         return create_ignore(type);
-    struct type_size_info tsi = get_type_size_info(type);
+    struct type_size_info tsi = get_type_size_info(ti->tc, type);
     unsigned width = (unsigned)tsi.width_bits;
     //uint64_t align = tsi.align_bits / 8;
     if (type->type == TYPE_STRUCT) {
@@ -22,7 +22,7 @@ struct abi_arg_info _winx86_64_classify(struct target_info *ti, struct type_item
         // MS x64 ABI requirement: "Any argument that doesn't fit in 8 bytes, or is
         // not 1, 2, 4, or 8 bytes, must be passed by reference."
         if (width > 64 || !is_power_of2_64(width)) {
-            return create_natural_align_indirect(type, false);
+            return create_natural_align_indirect(ti->tc, type, false);
         }
         //coerce it into the small integer type
         return create_direct_type(type, LLVMIntTypeInContext(get_llvm_context(), width));
