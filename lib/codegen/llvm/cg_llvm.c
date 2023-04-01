@@ -457,9 +457,10 @@ void llvm_cg_free(struct cg_llvm *cg)
     hashtable_deinit(&cg->varname_2_typename);
     FREE(cg);
     g_cg = 0;
+    LLVMShutdown();
 }
 
-void delete_curent_module(struct cg_llvm *cg)
+void delete_current_module(struct cg_llvm *cg)
 {
     if (cg->module){
         LLVMDisposeModule(cg->module);
@@ -815,12 +816,12 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     id->type = node->forloop->var->type;
     struct ast_node *end_cond_node = binary_node_new(OP_LT, 
         id, 
-        node->forloop->range->range->end, 
+        node_copy(node->forloop->range->range->end), 
         node->forloop->range->range->end->loc);
     //TODO: need to free new created binary and id node
     LLVMValueRef end_cond = emit_ir_code(cg, end_cond_node);
     assert(end_cond);
-
+    node_free(end_cond_node);
     //IF Not Equals: end_cond, 0
     end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg->context, cg->builder), "loopcond");
 
@@ -838,7 +839,7 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
 void create_ir_module(struct cg_llvm *cg,
     const char *module_name)
 {
-    delete_curent_module(cg);
+    delete_current_module(cg);
     cg->module = LLVMModuleCreateWithNameInContext(module_name, cg->context);
     cg->target_machine = create_target_machine(cg->module, &cg->target_data);
 }

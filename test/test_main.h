@@ -10,7 +10,7 @@ class Environment : public testing::Environment {
  public:
   virtual void SetUp() {
     m_engine = engine_llvm_new(true);
-    m_jit = build_jit(m_engine);
+    m_jit = jit_new(m_engine);
     printf("Global SetUp\n");
   }
 

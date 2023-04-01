@@ -10,21 +10,24 @@
 #include <llvm-c/Initialization.h>
 #include <llvm-c/LLJIT.h>
 #include <llvm-c/Support.h>
+#include <llvm-c/Analysis.h>
+#include <llvm-c/Target.h>
+#include <llvm-c/Error.h>
+#include <assert.h>
 
 void *_create_jit_instance()
 {
-    LLVMInitializeCore(LLVMGetGlobalPassRegistry());
+    // LLVMInitializeCore(LLVMGetGlobalPassRegistry());
 
-    // Initialize native target codegen and asm printer.
-    LLVMInitializeNativeTarget();
-    LLVMInitializeNativeAsmPrinter();
+    // // Initialize native target codegen and asm printer.
+    // LLVMInitializeNativeTarget();
+    // LLVMInitializeNativeAsmPrinter();
 
     // Create the JIT instance.
     LLVMOrcLLJITRef jit;
 
     LLVMErrorRef err = LLVMOrcCreateLLJIT(&jit, 0);
     if (err) {
-        LLVMShutdown();
         return 0;
     }
     return jit;
@@ -52,31 +55,59 @@ void jit_free(struct JIT *jit)
 {
     if (jit->instance) {
         _destroy_jit_instance(jit->instance);
-        LLVMShutdown();
     }
     FREE(jit);
 }
 
-void add_module(struct JIT *jit, void *module)
+int _handle_error(LLVMErrorRef Err) {
+  char *err_msg = LLVMGetErrorMessage(Err);
+  fprintf(stderr, "Error: %s\n", err_msg);
+  LLVMDisposeErrorMessage(err_msg);
+  return 1;
+}
+
+void* jit_add_module(struct JIT *jit, void *module)
 {
+    char *message = 0;
+    if(LLVMVerifyModule((LLVMModuleRef)module, LLVMPrintMessageAction, &message)) {
+        assert(false); //something bad
+    }
+    if(message) {
+        LLVMDisposeMessage(message);
+    }
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
-    LLVMOrcJITDylibRef jd = LLVMOrcLLJITGetMainJITDylib(j);
     LLVMOrcThreadSafeContextRef tsc = LLVMOrcCreateNewThreadSafeContext();
     LLVMOrcThreadSafeModuleRef tsm = LLVMOrcCreateNewThreadSafeModule((LLVMModuleRef)module, tsc);
-    LLVMOrcDefinitionGeneratorRef dg;
+    LLVMOrcDisposeThreadSafeContext(tsc);
+    LLVMOrcJITDylibRef jd = LLVMOrcLLJITGetMainJITDylib(j);
+    LLVMOrcResourceTrackerRef rt = LLVMOrcJITDylibCreateResourceTracker(jd);
+    //LLVMOrcDefinitionGeneratorRef dg;
 #ifdef __APPLE__ //MacOS
     LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, '_', 0, 0);
     LLVMLoadLibraryPermanently("/usr/lib/libstdc++.so");
 #else //Linux
-    LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, 0, 0, 0);
-    LLVMLoadLibraryPermanently("/usr/lib/x86_64-linux-gnu/libstdc++.so.6");
+    // if(LLVMOrcCreateDynamicLibrarySearchGeneratorForProcess(&dg, 0, 0, 0)) {
+    //     assert(false); //something bad
+    // }
+    //LLVMLoadLibraryPermanently("/usr/lib/x86_64-linux-gnu/libstdc++.so.6");
 #endif
-    LLVMOrcJITDylibAddGenerator(jd, dg);
-    LLVMOrcLLJITAddLLVMIRModule(j, jd, tsm);
-    LLVMOrcDisposeThreadSafeContext(tsc);
+    //LLVMOrcJITDylibAddGenerator(jd, dg);
+    LLVMErrorRef err;
+    if((err = LLVMOrcLLJITAddLLVMIRModuleWithRT(j, rt, tsm))){
+        _handle_error(err);
+        LLVMOrcDisposeThreadSafeModule(tsm);
+        assert(false); //something bad
+    };
+    return rt;
 }
 
-struct fun_pointer find_target_address(struct JIT *jit, const char *symbol)
+void jit_remove_module(void *resource_tracker)
+{
+    LLVMOrcResourceTrackerRemove(resource_tracker);
+    LLVMOrcReleaseResourceTracker(resource_tracker);
+}
+
+struct fun_pointer jit_find_symbol(struct JIT *jit, const char *symbol)
 {
     LLVMOrcLLJITRef j = (LLVMOrcLLJITRef)jit->instance;
     LLVMOrcExecutorAddress addr;

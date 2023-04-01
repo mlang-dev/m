@@ -34,10 +34,11 @@ struct fun_pointer
 
 struct JIT *jit_new(struct engine *engine);
 void jit_free(struct JIT *jit);
-void add_module(struct JIT *jit, void *module);
+void *jit_add_module(struct JIT *jit, void *module);
+void jit_remove_module(void *resource_tracker);
 typedef f64 (*target_address_double)();
 typedef int (*target_address_int)();
-struct fun_pointer find_target_address(struct JIT *jit, const char *symbol);
+struct fun_pointer jit_find_symbol(struct JIT *jit, const char *symbol);
 
 #ifdef __cplusplus
 }

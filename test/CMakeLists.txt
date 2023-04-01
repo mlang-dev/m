@@ -76,7 +76,7 @@ add_definitions(${LLVM_DEFINITIONS})
 
 add_executable(mtest
   tutil.cc
-  compiler/test_main.cc
+  test_main.cc
   #codegen/llvm/test_cg_var.cc
   #codegen/llvm/test_cg_fun_call.cc
   compiler/test_jit_control.cc
@@ -180,8 +180,8 @@ add_custom_command(
   COMMAND mctest
 )
 
-# add_custom_command(
-#   TARGET mtest
-#   POST_BUILD
-#   COMMAND mtest
-# )
+add_custom_command(
+  TARGET mtest
+  POST_BUILD
+  COMMAND mtest
+)
