@@ -97,10 +97,10 @@ enum ObjectFormatType {
     OFT_XCOFF
 };
 
-
-typedef TargetType (*fn_get_size_int_type)(unsigned size);
+struct codegen;
+typedef TargetType (*fn_get_size_int_type)(struct codegen *cg, unsigned size);
 typedef TargetType (*fn_get_pointer_type)(TargetType target_type);
-typedef TargetType (*fn_get_target_type)(struct type_item *type);
+typedef TargetType (*fn_get_target_type)(struct codegen *cg, struct type_item *type);
 typedef TargetType (*fn_get_function_type)(TargetType ret_type, TargetType *param_types, unsigned param_count, bool is_var_arg);
 typedef unsigned (*fn_get_count_struct_element_types)(TargetType struct_type);
 /*

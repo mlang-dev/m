@@ -1,4 +1,5 @@
 #include "codegen/fun_info.h"
+#include "codegen/codegen.h"
 #include "clib/util.h"
 #include "codegen/target_arg_info.h"
 #include <assert.h>
@@ -34,15 +35,16 @@ bool is_variadic(struct fun_info *fi)
     return fi->required_args != ALL_REQUIRED;
 }
 
-void _map_to_target_arg_info(struct target_info *ti, struct fun_info *fi)
+void _map_to_target_arg_info(struct codegen *cg, struct fun_info *fi)
 {
+    struct target_info *ti = cg->target_info;
     if (can_have_coerce_to_type(&fi->ret) && !fi->ret.target_type)
-        fi->ret.target_type = ti->get_target_type(fi->ret.type);
+        fi->ret.target_type = ti->get_target_type(cg, fi->ret.type);
     unsigned arg_num = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < arg_num; i++) {
         struct abi_arg_info *aai = array_get(&fi->args, i);
         if (can_have_coerce_to_type(aai) && !aai->target_type)
-            aai->target_type = ti->get_target_type(aai->type);
+            aai->target_type = ti->get_target_type(cg, aai->type);
     }
 
     unsigned ir_arg_no = 0;
@@ -91,26 +93,27 @@ void _map_to_target_arg_info(struct target_info *ti, struct fun_info *fi)
     fi->tai.total_target_args = ir_arg_no;
 }
 
-struct fun_info *compute_target_fun_info(struct target_info *ti, fn_compute_fun_info compute_fun_info, struct type_item *func_type)
+struct fun_info *compute_target_fun_info(struct codegen *cg, fn_compute_fun_info compute_fun_info, struct type_item *func_type)
 {
-    struct hashtable *fun_infos = &ti->fun_infos;
+    struct hashtable *fun_infos = &cg->target_info->fun_infos;
     symbol ft_name = func_type->name;
     struct fun_info *result = hashtable_get_p(fun_infos, ft_name);
     if (result)
         return result;
     struct fun_info fi;
     fun_info_init(&fi, func_type);
-    compute_fun_info(ti, &fi);
+    compute_fun_info(cg, &fi);
     // direct or extend without a specified coerce type, specify the
     // default now.
-    _map_to_target_arg_info(ti, &fi);
+    _map_to_target_arg_info(cg, &fi);
     hashtable_set_p(fun_infos, ft_name, &fi);
     return (struct fun_info *)hashtable_get_p(fun_infos, ft_name);
 }
 
-TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi)
+TargetType create_target_fun_type(struct codegen *cg, struct fun_info *fi)
 {
-    TargetType ret_type = 0;
+    struct target_info *ti = cg->target_info;
+    TargetType ret_type = 0;    
     switch (fi->ret.kind) {
     case AK_EXPAND:
     case AK_INDIRECT_ALIASED:
@@ -136,7 +139,7 @@ TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi)
     if (fi->tai.sret_arg_no != InvalidIndex) {
         assert(fi->tai.sret_arg_no == 0);
         //TODO: fixme address space
-        TargetType ret_type_as_arg = ti->get_pointer_type(ti->get_target_type(fi->ret.type));
+        TargetType ret_type_as_arg = ti->get_pointer_type(ti->get_target_type(cg, fi->ret.type));
         array_push(&arg_types, &ret_type_as_arg);
     }
     //TODO: inalloca
@@ -156,14 +159,14 @@ TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi)
         case AK_INDIRECT: {
             assert(tar->target_arg_num == 1);
             assert(tar->first_arg_index == array_size(&arg_types));
-            TargetType pointer_type = ti->get_pointer_type(ti->get_target_type(aai->type));
+            TargetType pointer_type = ti->get_pointer_type(ti->get_target_type(cg, aai->type));
             array_push(&arg_types, &pointer_type);
             break;
         }
         case AK_INDIRECT_ALIASED: {
             assert(tar->target_arg_num == 1);
             assert(tar->first_arg_index == array_size(&arg_types));
-            TargetType pointer_type = ti->get_pointer_type(ti->get_target_type(aai->type));
+            TargetType pointer_type = ti->get_pointer_type(ti->get_target_type(cg, aai->type));
             array_push(&arg_types, &pointer_type);
             break;
         }
@@ -200,7 +203,7 @@ TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi)
         }
         case AK_EXPAND:
             assert(tar->first_arg_index == array_size(&arg_types));
-            get_expanded_types(ti, aai->type, &arg_types);
+            get_expanded_types(cg, aai->type, &arg_types);
             break;
         }
     }

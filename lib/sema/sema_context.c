@@ -61,7 +61,7 @@ struct sema_context *sema_context_new(struct type_context *tc, struct ast_node *
     context->scope_marker = to_symbol("<enter_scope_marker>");
     /*nullary type: builtin default types*/
     for (size_t i = 0; i < TYPE_TYPES; i++) {
-        symbol type_name = get_type_symbol(i);
+        symbol type_name = get_type_symbol(tc, i);
         struct type_item *te;
         if(i != TYPE_ARRAY){
             te = create_nullary_type(tc, i);

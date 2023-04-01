@@ -9,12 +9,13 @@
 #define __WASM_ABI_H__
 
 #include "codegen/fun_info.h"
+#include "codegen/codegen.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void wasm_compute_fun_info(struct target_info *ti, struct fun_info *fi);
+void wasm_compute_fun_info(struct codegen *ti, struct fun_info *fi);
 
 
 #ifdef __cplusplus

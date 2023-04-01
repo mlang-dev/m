@@ -1,4 +1,5 @@
 #include "codegen/abi_arg_info.h"
+#include "codegen/codegen.h"
 #include "sema/type_size_info.h"
 #include <assert.h>
 
@@ -80,8 +81,9 @@ struct abi_arg_info create_indirect_return_result(struct target_info *ti, struct
     return create_natural_align_indirect(ti->tc, ret_type, false);
 }
 
-struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_item *type, unsigned free_int_regs)
+struct abi_arg_info create_indirect_result(struct codegen *cg, struct type_item *type, unsigned free_int_regs)
 {
+    struct target_info *ti = cg->target_info;
     if (type->type < TYPE_STRUCT) {
         if (is_promotable_int(type))
             return create_extend(ti, type);
@@ -94,7 +96,7 @@ struct abi_arg_info create_indirect_result(struct target_info *ti, struct type_i
     if (free_int_regs == 0) {
         uint64_t size = get_type_size(ti->tc, type);
         if (align_bytes == 8 && size <= 64){
-            return _create_direct(type, ti->get_size_int_type((unsigned)size), 0, 0, true);
+            return _create_direct(type, ti->get_size_int_type(cg, (unsigned)size), 0, 0, true);
         }
     }
     return _create_indirect(type, align_bytes, true, false, 0);

@@ -273,7 +273,7 @@ struct ast_node *_create_literal_int_node(struct type_context *tc, int val, enum
             node->liter->int_val = val;
             break;
         default:
-            printf("doesn't support the type %s for int literal.\n", string_get(get_type_symbol(type)));
+            printf("doesn't support the type %s for int literal.\n", string_get(get_type_symbol(tc, type)));
             break;
     }
     return node;
@@ -307,7 +307,7 @@ struct ast_node *_create_literal_node(struct type_context *tc, void *val, enum t
             node->liter->str_val = val;
             break;
         default:
-            printf("doesn't support the type %s for literal.\n", string_get(get_type_symbol(type)));
+            printf("doesn't support the type %s for literal.\n", string_get(get_type_symbol(tc, type)));
             break;
     }
     return node;
@@ -663,7 +663,7 @@ struct ast_node *func_type_item_node_new(struct type_context *tc,
     node->ft->is_extern = is_external;
     node->ft->op = 0;
     if (is_variadic) {
-        symbol symbol_name = get_type_symbol(TYPE_GENERIC);
+        symbol symbol_name = get_type_symbol(tc, TYPE_GENERIC);
         struct ast_node *is_of_type = type_item_node_new_with_type_name(symbol_name, Immutable, loc);
         struct ast_node *fun_param = var_node_new(ident_node_new(symbol_name, loc), is_of_type, 0, false, true, loc);
         fun_param->type = create_nullary_type(tc, TYPE_GENERIC);
@@ -685,7 +685,7 @@ struct ast_node *_copy_func_type_node(struct type_context *tc, struct ast_node *
     node->ft->ret_type_item_node = node_copy(tc, func_type->ft->ret_type_item_node);
     node->ft->op = func_type->ft->op;
     if (func_type->ft->is_variadic) {
-        symbol var_name = get_type_symbol(TYPE_GENERIC);
+        symbol var_name = get_type_symbol(tc, TYPE_GENERIC);
         struct ast_node *is_of_type = type_item_node_new_with_type_name(var_name, Immutable, node->loc);
         struct ast_node *fun_param = var_node_new(ident_node_new(var_name, node->loc), is_of_type, 0, false, true, node->loc);
         array_push(&node->ft->params->block->nodes, &fun_param);
@@ -1334,7 +1334,7 @@ struct ast_node *wrap_nodes_as_function(struct type_context *tc, symbol func_nam
     ARRAY_FUN_PARAM(fun_params);
     struct ast_node *params = block_node_new(&fun_params);
     struct ast_node *func_type = func_type_item_node_default_new(tc, func_name, params, 0, 0, false, false, block->loc);
-    //if(symbol_2_int_types)
+    if(tc)
         hashtable_set_int(&tc->symbol_2_int_types, func_type->ft->name, TYPE_FUNCTION);
     return function_node_new(func_type, block, block->loc);
 }

@@ -37,7 +37,7 @@ void target_arg_range_init(struct target_arg_range *tar);
 void target_arg_info_init(struct target_arg_info *tai);
 void target_arg_info_deinit(struct target_arg_info *tai);
 struct target_arg_range *get_target_arg_range(struct target_arg_info *tai, unsigned arg_no);
-void get_expanded_types(struct target_info *ti, struct type_item *type, struct array *types);
+void get_expanded_types(struct codegen *cg, struct type_item *type, struct array *types);
 int get_expansion_size(struct type_item *type);
 
 #ifdef __cplusplus

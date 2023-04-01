@@ -27,15 +27,16 @@
 extern "C" {
 #endif
 
+struct cg_llvm;
 typedef LLVMValueRef (*binary_op)(LLVMBuilderRef builder, LLVMValueRef lhs, LLVMValueRef rhs,
     const char *name);
 typedef LLVMValueRef (*unary_op)(LLVMBuilderRef builder, LLVMValueRef v, const char *name);
 typedef LLVMValueRef (*cmp_op)(LLVMBuilderRef builder, int op,
     LLVMValueRef lhs, LLVMValueRef rhs, const char *name);
-typedef LLVMTypeRef (*get_ir_type_func)(LLVMContextRef context, struct type_item *type);
-typedef LLVMValueRef (*get_const_func)(LLVMContextRef context, LLVMBuilderRef builder, void *value);
-typedef LLVMValueRef (*get_zero_func)(LLVMContextRef context, LLVMBuilderRef builder);
-typedef LLVMValueRef (*get_one_func)(LLVMContextRef context);
+typedef LLVMTypeRef (*get_ir_type_func)(struct cg_llvm *cg, LLVMContextRef context, struct type_item *type);
+typedef LLVMValueRef (*get_const_func)(struct cg_llvm *cg, LLVMContextRef context, LLVMBuilderRef builder, void *value);
+typedef LLVMValueRef (*get_zero_func)(struct cg_llvm *cg, LLVMContextRef context, LLVMBuilderRef builder);
+typedef LLVMValueRef (*get_one_func)(struct cg_llvm *cg, LLVMContextRef context);
 
 struct ops {
     get_ir_type_func get_type;
@@ -115,12 +116,7 @@ void emit_sp_code(struct cg_llvm *cg);
 void create_ir_module(struct cg_llvm *cg, const char *module_name);
 LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module, LLVMTargetDataRef* target_data_out);
-LLVMContextRef get_llvm_context();
-LLVMTypeRef get_backend_type(struct type_item *type);
-LLVMTargetDataRef get_llvm_data_layout();
-enum OS get_os();
-LLVMModuleRef get_llvm_module();
-struct cg_llvm *get_cg();
+LLVMTypeRef get_backend_type(struct cg_llvm *cg, struct type_item *type);
 
 #ifdef __cplusplus
 }

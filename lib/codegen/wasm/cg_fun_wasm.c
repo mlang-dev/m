@@ -217,7 +217,7 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
     case CALL_NODE:
         /*TODO: call node doesn't support both sret and varidic parameter*/
         /*for variadic function call, we might need one local variable*/
-        fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->call->callee_func_type->type);
+        fi = compute_target_fun_info(&cg->base, cg->base.compute_fun_info, node->call->callee_func_type->type);
         bool has_optional_args = is_variadic_call_with_optional_arguments(cg, node);
         struct type_item *te = 0;
         if(has_optional_args || fi_has_sret(fi)){
@@ -241,7 +241,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     struct type_item *to = node->type;
     assert(!is_generic(tc, node->type));
     struct fun_context *fc = _func_enter(cg, node);
-    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->func->func_type->type);
+    struct fun_info *fi = compute_target_fun_info(&cg->base, cg->base.compute_fun_info, node->func->func_type->type);
     bool has_sret = fi_has_sret(fi);
     struct ast_node *p0 = 0;
     if(has_sret){
