@@ -456,6 +456,7 @@ void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *n
 
 void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     struct ast_node *new_node = 0;
     symbol s = 0;
     struct fun_context *fc = cg_get_top_fun_context(cg);
@@ -492,30 +493,30 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
             break;
         case OP_SQRT:
         {
-            enum type type_index = prune(node->unop->operand->type)->type;
+            enum type type_index = prune(tc, node->unop->operand->type)->type;
             wasm_emit_code(cg, ba, node->unop->operand);
             ba_add(ba, op_maps[node->unop->opcode][type_index]);
             break;
         }
         case OP_MINUS:
-            new_node = int_node_new(0, node->loc);
+            new_node = int_node_new(tc, 0, node->loc);
             new_node->type = node->type;
             wasm_emit_code(cg, ba, new_node);
             break;
         case OP_NOT:
-            new_node = int_node_new(1, node->loc);
+            new_node = int_node_new(tc, 1, node->loc);
             new_node->type = node->type;
             wasm_emit_code(cg, ba, new_node);
             break;
         case OP_BITNOT:
-            new_node = int_node_new(-1, node->loc);
+            new_node = int_node_new(tc, -1, node->loc);
             new_node->type = node->type;
             wasm_emit_code(cg, ba, new_node);
             break;
         }
     if (new_node) {
         wasm_emit_code(cg, ba, node->unop->operand);
-        enum type type_index = prune(node->unop->operand->type)->type;
+        enum type type_index = prune(tc, node->unop->operand->type)->type;
         assert(type_index >= 0 && type_index < TYPE_TYPES);
         assert(node->unop->opcode >= 0 && node->unop->opcode < OP_TOTAL);
         u8 opcode = op_maps[node->unop->opcode][type_index];
@@ -698,10 +699,11 @@ void _emit_assignment(struct cg_wasm *cg, struct byte_array *ba, struct ast_node
 
 void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     wasm_emit_code(cg, ba, node->binop->lhs); 
     wasm_emit_code(cg, ba, node->binop->rhs); 
     struct type_item *lhs_type = node->binop->lhs->transformed ? node->binop->lhs->transformed->type : node->binop->lhs->type;
-    enum type type_index = prune(lhs_type)->type;
+    enum type type_index = prune(tc, lhs_type)->type;
     assert(type_index >= 0 && type_index < TYPE_TYPES);
     assert(node->binop->opcode >= 0 && node->binop->opcode < OP_TOTAL);
     //if left side is aggregate type, then it is to store the right value to the left address
@@ -809,6 +811,7 @@ void _build_index_vector(u32 default_index, struct array *nodes, struct array *i
 
 void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     struct ast_node *default_node = 0;
     struct array nodes;
     array_init(&nodes, sizeof(struct ast_node *));
@@ -849,7 +852,7 @@ void _emit_match(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     }
     
     if(!default_node){
-        default_node = int_node_new(0, node->loc);
+        default_node = int_node_new(tc, 0, node->loc);
     }
     {
         ba_reset(&case_ba);

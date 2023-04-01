@@ -11,6 +11,7 @@
 #include "clib/hashtable.h"
 #include "parser/parser_def.h"
 #include "parser/m_parsing_table.h"
+#include "sema/type.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -24,9 +25,7 @@ struct stack_item{
 
 struct parser{
     /*parser states*/
-    /* mapping type string into type enum: hashtable of (symbol, int) */
-    struct hashtable symbol_2_int_types;
-
+    struct type_context *tc;
     //  parser implementation
     //  state stack
     struct stack_item stack[MAX_STATES];

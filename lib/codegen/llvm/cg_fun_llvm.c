@@ -139,7 +139,8 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
 
 LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    if (is_generic(node->type)) {
+    struct type_context *tc = cg->base.sema_context->tc;
+    if (is_generic(tc, node->type)) {
         return 0;
     }
     stack_push(&cg->base.sema_context->func_stack, &node);

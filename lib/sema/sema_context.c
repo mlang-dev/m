@@ -36,11 +36,11 @@ void _free_nested_levels(void *arr)
     array_deinit(array);
 }
 
-struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, struct ast_node *stdio, struct ast_node *math, bool is_repl)
+struct sema_context *sema_context_new(struct type_context *tc, struct ast_node *stdio, struct ast_node *math, bool is_repl)
 {
     struct sema_context *context;
     CALLOC(context, 1, sizeof(*context));
-    context->symbol_2_int_types = symbol_2_int_types;
+    context->tc = tc;
     context->is_repl = is_repl;
     array_init(&context->nongens, sizeof(struct type_item *));
     array_init(&context->used_builtin_names, sizeof(symbol));
@@ -64,13 +64,13 @@ struct sema_context *sema_context_new(struct hashtable *symbol_2_int_types, stru
         symbol type_name = get_type_symbol(i);
         struct type_item *te;
         if(i != TYPE_ARRAY){
-            te = create_nullary_type(i);
+            te = create_nullary_type(tc, i);
         } else {
             struct array dims;
             array_init(&dims, sizeof(u32));
-            te = create_array_type(create_unit_type(), &dims);
+            te = create_array_type(tc, create_unit_type(tc), &dims);
         }
-        struct type_item_pair *tep = get_type_item_pair(te->name);
+        struct type_item_pair *tep = get_type_item_pair(tc, te->name);
         push_symbol_type(&context->typename_2_typexpr_pairs, type_name, tep);
         hashtable_set_p(&context->type_2_ref_symbol, type_name, to_ref_symbol(type_name));
     }
@@ -144,7 +144,7 @@ struct ast_node *_sc_struct_get_offset_expr(struct sema_context *sc, struct type
     int index = find_field_index(struct_node, field_node);
     struct struct_layout *sl = get_type_size_info(struct_node->type).sl;
     u32 offset = *(u64 *)array_get(&sl->field_offsets, index) / 8;
-    return int_node_new(offset, zero_loc);
+    return int_node_new(sc->tc, offset, zero_loc);
 }
 
 struct ast_node *_binary_node_new(enum op_code opcode, struct ast_node *lhs, struct ast_node *rhs, struct type_item *type, struct source_location loc)
@@ -160,7 +160,7 @@ struct ast_node *_sc_array_get_offset_expr(struct sema_context *sc, struct type_
     for(u32 i = 1; i < array_size(&aggr_type->dims); i++){
         subarray_size *= *(u32*)array_get(&aggr_type->dims, i);
     }
-    return _binary_node_new(OP_STAR, int_node_new(subarray_size, zero_loc), field_expr, field_expr->type, zero_loc);
+    return _binary_node_new(OP_STAR, int_node_new(sc->tc, subarray_size, zero_loc), field_expr, field_expr->type, zero_loc);
 }
 
 struct ast_node *sc_aggr_get_offset_expr(struct sema_context *sc, struct type_item *aggr_type, struct ast_node *field_node)
@@ -195,7 +195,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
             struct field_info root_fi;
             array_push(field_infos, &root_fi);
             rfi = (struct field_info *)array_back(field_infos);
-            rfi->offset_expr = int_node_new(0, zero_loc);
+            rfi->offset_expr = int_node_new(sc->tc, 0, zero_loc);
             rfi->aggr_root = aggr_node;
             if(aggr_type->type == TYPE_REF){
                 aggr_type = aggr_type->val_type;
@@ -215,7 +215,7 @@ void sc_get_field_infos_from_root(struct sema_context *sc, struct ast_node* inde
             }
         case TYPE_ARRAY:
             {
-                offset_expr = sc_aggr_get_offset_expr(sc, aggr_type, node_copy(field_node));
+                offset_expr = sc_aggr_get_offset_expr(sc, aggr_type, node_copy(sc->tc, field_node));
                 break;
             }
         }

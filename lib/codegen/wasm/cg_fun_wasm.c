@@ -153,6 +153,7 @@ u32 _func_get_local_var_nums(struct cg_wasm *cg)
 
 struct type_item *_create_type_for_call_with_optional_parameters(struct cg_wasm*cg, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     symbol callee = node->call->specialized_callee ? node->call->specialized_callee : node->call->callee;
     struct ast_node *fun_type = hashtable_get_p(&cg->func_name_2_ast, callee);
     u32 param_num = array_size(&fun_type->ft->params->block->nodes);
@@ -165,7 +166,7 @@ struct type_item *_create_type_for_call_with_optional_parameters(struct cg_wasm*
         }
         array_push(&arg_types, &arg->type);
     }
-    return create_type_oper_struct(0, Immutable, &arg_types);
+    return create_type_oper_struct(tc, 0, Immutable, &arg_types);
 }
 /*
  * register local variable & stack space
@@ -234,10 +235,11 @@ void func_register_local_variable(struct cg_wasm *cg, struct ast_node *node, boo
 
 void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     assert(node->node_type == FUNC_NODE);
     assert(node->type->kind == KIND_OPER);
     struct type_item *to = node->type;
-    assert(!is_generic(node->type));
+    assert(!is_generic(tc, node->type));
     struct fun_context *fc = _func_enter(cg, node);
     struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->func->func_type->type);
     bool has_sret = fi_has_sret(fi);
@@ -257,7 +259,7 @@ void wasm_emit_func(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
     u32 stack_size = fc_get_stack_size(fc);
     if(stack_size){
         //TODO: make builtin type as constant
-        struct type_item *to_sp = create_nullary_type(TYPE_INT);
+        struct type_item *to_sp = create_nullary_type(tc, TYPE_INT);
         fc->local_sp = _req_new_local_var(cg, to_sp, true, false, false);
     }
     

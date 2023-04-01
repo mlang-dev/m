@@ -14,7 +14,6 @@ struct frontend *frontend_llvm_init(const char *stdio_filepath, const char *math
 {
     error_init();
     symbols_init();
-    types_init();
     terminal_init();
     ast_init();
     struct frontend*fe;
@@ -28,7 +27,7 @@ struct frontend *frontend_llvm_init(const char *stdio_filepath, const char *math
     stdio = parse_file(fe->parser, libpath);
     join_path(libpath, sizeof(libpath), mpath, math_filepath);
     math = parse_file(fe->parser, libpath);
-    fe->sema_context = sema_context_new(&fe->parser->symbol_2_int_types, stdio, math, is_repl);
+    fe->sema_context = sema_context_new(fe->parser->tc, stdio, math, is_repl);
     free_block_node(stdio, false);
     free_block_node(math, false);
     return fe;

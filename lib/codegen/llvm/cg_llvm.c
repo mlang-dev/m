@@ -478,7 +478,8 @@ void delete_current_module(struct cg_llvm *cg)
 
 LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_item *type)
 {
-    enum type en_type = get_type(type);
+    struct type_context *tc = cg->base.sema_context->tc;
+    enum type en_type = get_type(tc, type);
     if(is_prime_type(type->type))
         return cg->ops[en_type].get_type(cg->context, type);
     else if(type->type == TYPE_ARRAY){
@@ -509,7 +510,8 @@ LLVMValueRef _emit_literal_node(struct cg_llvm *cg, struct ast_node *node)
 {
     assert(node->type);
     assert(node->node_type == LITERAL_NODE);
-    enum type type = get_type(node->type);
+    struct type_context *tc = cg->base.sema_context->tc;
+    enum type type = get_type(tc, node->type);
     void *value = 0;
     if (type == TYPE_CHAR)
         value = &node->liter->int_val;
@@ -611,13 +613,14 @@ LLVMValueRef _emit_field_access_node(struct cg_llvm *cg, struct ast_node *node)
 
 LLVMValueRef _emit_binary_node(struct cg_llvm *cg, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     LLVMValueRef lv = emit_ir_code(cg, node->binop->lhs);
     LLVMValueRef rv = emit_ir_code(cg, node->binop->rhs);
     // assert(LLVMGetValueKind(lv) == LLVMGetValueKind(rv));
-    assert(node->binop->lhs->type && prune(node->binop->lhs->type)->type == prune(node->binop->rhs->type)->type);
+    assert(node->binop->lhs->type && prune(tc, node->binop->lhs->type)->type == prune(tc, node->binop->rhs->type)->type);
     assert(lv && rv);
     assert(LLVMTypeOf(lv) == LLVMTypeOf(rv));
-    struct ops *ops = &cg->ops[prune(node->binop->lhs->type)->type];
+    struct ops *ops = &cg->ops[prune(tc, node->binop->lhs->type)->type];
     string f_name;
     switch(node->binop->opcode){
         case OP_PLUS:
@@ -675,6 +678,7 @@ LLVMValueRef _emit_binary_node(struct cg_llvm *cg, struct ast_node *node)
 
 LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     // KSDbgInfo.emitLocation(this);
     LLVMValueRef cond_v = emit_ir_code(cg, node->cond->if_node);
     assert(cond_v);
@@ -718,7 +722,7 @@ LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMAppendExistingBasicBlock(fun, merge_bb);
     LLVMPositionBuilderAtEnd(cg->builder, merge_bb);
     if(has_else){
-        enum type type = get_type(node->cond->then_node->type);
+        enum type type = get_type(tc, node->cond->then_node->type);
         LLVMValueRef phi_node = LLVMBuildPhi(cg->builder, cg->ops[type].get_type(cg->context, node->cond->then_node->type), "iftmp");
         LLVMAddIncoming(phi_node, &then_v, &then_bb, 1);
         LLVMAddIncoming(phi_node, &else_v, &else_bb, 1);
@@ -771,6 +775,7 @@ LLVMValueRef _emit_while_node(struct cg_llvm *cg, struct ast_node *node)
 
 LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     symbol var_name = node->forloop->var->var->var->ident->name;
     LLVMBasicBlockRef bb = LLVMGetInsertBlock(cg->builder);
     LLVMValueRef fun = LLVMGetBasicBlockParent(bb);
@@ -816,7 +821,7 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     id->type = node->forloop->var->type;
     struct ast_node *end_cond_node = binary_node_new(OP_LT, 
         id, 
-        node_copy(node->forloop->range->range->end), 
+        node_copy(tc, node->forloop->range->range->end), 
         node->forloop->range->range->end->loc);
     //TODO: need to free new created binary and id node
     LLVMValueRef end_cond = emit_ir_code(cg, end_cond_node);

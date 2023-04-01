@@ -36,7 +36,7 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
         string_copy(&var_str, var->var->var->ident->name);
         if (var->var->is_of_type && (var->var->is_of_type->type_item_node->kind == TypeName || var->var->is_of_type->type_item_node->kind == BuiltinType) 
             &&var->var->is_of_type->type_item_node->type_name) {
-            enum type type_enum = get_type_enum_from_symbol(var->var->is_of_type->type_item_node->type_name);
+            enum type type_enum = get_type_enum_from_symbol(context->tc, var->var->is_of_type->type_item_node->type_name);
             if(type_enum != TYPE_GENERIC){
                 string var_type;
                 string_init_chars(&var_type, string_get(var->var->is_of_type->type_item_node->type_name));

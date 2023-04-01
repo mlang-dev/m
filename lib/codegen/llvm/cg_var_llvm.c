@@ -137,6 +137,7 @@ LLVMValueRef _emit_local_var_array_node(struct cg_llvm *cg, struct ast_node *nod
 
 LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     if (is_struct_like_type(node->type))
         return _emit_local_var_struct_node(cg, node);
     else if (node->type->type == TYPE_ARRAY)
@@ -149,7 +150,7 @@ LLVMValueRef _emit_local_var_node(struct cg_llvm *cg, struct ast_node *node)
     assert(node->var->init_value);
     LLVMValueRef init_val = emit_ir_code(cg, node->var->init_value);
     assert(init_val);
-    enum type type = get_type(node->type);
+    enum type type = get_type(tc, node->type);
     struct type_size_info tsi = get_type_size_info(node->type);
     LLVMValueRef alloca = create_alloca(cg->ops[type].get_type(cg->context, node->type), tsi.align_bits / 8, fun, string_get(var_name));
     LLVMBuildStore(cg->builder, init_val, alloca);
@@ -174,11 +175,12 @@ LLVMValueRef _get_const_value_struct_init(struct cg_llvm *cg, LLVMTypeRef type, 
 
 LLVMValueRef _get_zero_value_struct_type(struct cg_llvm *cg, LLVMTypeRef type, struct type_item *struct_type)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     size_t element_count = array_size(&struct_type->args);
     LLVMValueRef *values;
     MALLOC(values, element_count * sizeof(LLVMValueRef));
     for (size_t i = 0; i < element_count; i++) {
-        enum type element_type = get_type(array_get_ptr(&struct_type->args, i));
+        enum type element_type = get_type(tc, array_get_ptr(&struct_type->args, i));
         values[i] = cg->ops[element_type].get_zero(cg->context, cg->builder);
     }
     LLVMValueRef value = LLVMConstNamedStruct(type, values, (unsigned int)element_count);
@@ -202,10 +204,11 @@ LLVMValueRef _get_const_array_value(struct cg_llvm *cg, LLVMTypeRef elm_type, st
 
 LLVMValueRef _get_zero_value_array_type(struct cg_llvm *cg, LLVMTypeRef elm_type, struct type_item *array_type)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     size_t element_count = get_array_size(array_type);
     LLVMValueRef *values;
     MALLOC(values, element_count * sizeof(LLVMValueRef));
-    enum type element_type = get_type(array_type->val_type);
+    enum type element_type = get_type(tc, array_type->val_type);
     for (size_t i = 0; i < element_count; i++) {
         values[i] = cg->ops[element_type].get_zero(cg->context, cg->builder);
     }
@@ -307,6 +310,7 @@ LLVMValueRef _emit_global_var_array_node(struct cg_llvm *cg, struct ast_node *no
 LLVMValueRef _emit_global_var_node(struct cg_llvm *cg, struct ast_node *node,
     bool is_external)
 {
+    struct type_context *tc = cg->base.sema_context->tc;
     if (node->type->type == TYPE_STRUCT) {
         return _emit_global_var_struct_node(cg, node, is_external);
     } else if (node->type->type == TYPE_ARRAY){
@@ -316,7 +320,7 @@ LLVMValueRef _emit_global_var_node(struct cg_llvm *cg, struct ast_node *node,
     LLVMValueRef gVar = LLVMGetNamedGlobal(cg->module, var_name);
     LLVMValueRef exp = emit_ir_code(cg, node->var->init_value);
     assert(node->type && cg->module);
-    enum type type = get_type(node->type);
+    enum type type = get_type(tc, node->type);
     if (hashtable_in_p(&cg->cg_gvar_name_2_asts, node->var->var->ident->name) && !gVar && !is_external)
         is_external = true;
     if (!gVar) {

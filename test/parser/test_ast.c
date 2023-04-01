@@ -26,7 +26,7 @@ TEST(test_ast_dump, prototype)
 {
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
-    struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, false);
+    struct sema_context *context = sema_context_new(parser->tc, 0, 0, false);
     char test_code[] = "func printf format:string ... -> int";
     struct ast_node *block = parse_code(parser, test_code);
     analyze(context, block);
@@ -47,7 +47,7 @@ TEST(test_ast_dump, func_type_no_parameter)
 {
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
-    struct sema_context *context = sema_context_new(&parser->symbol_2_int_types, 0, 0, false);
+    struct sema_context *context = sema_context_new(parser->tc, 0, 0, false);
     char test_code[] = "func printf () -> int";
     struct ast_node *block = parse_code(parser, test_code);
     analyze(context, block);

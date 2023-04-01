@@ -14,13 +14,12 @@ struct frontend *frontend_init()
 {
     symbols_init();
     error_init();
-    types_init();
     terminal_init();
     ast_init();
     struct frontend*fe;
     MALLOC(fe, sizeof(*fe));
     fe->parser = parser_new();
-    fe->sema_context = sema_context_new(&fe->parser->symbol_2_int_types, 0, 0, false);
+    fe->sema_context = sema_context_new(fe->parser->tc, 0, 0, false);
     return fe;
 }
 
@@ -28,7 +27,6 @@ void frontend_deinit(struct frontend *fe)
 {
     ast_deinit();
     terminal_deinit();
-    types_deinit();
     sema_context_free(fe->sema_context);
     parser_free(fe->parser);
     free(fe);
