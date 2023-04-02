@@ -40,8 +40,8 @@ target triple = "%s"
 void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)
 {
     char module_ir[1024 * 4];
-    struct engine *engine = engine_llvm_new(false);
-    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
+    struct engine *engine = get_env()->engine();
+    struct cg_llvm *cg = (struct cg_llvm *)engine->be->cg;
     create_ir_module(cg, module_name);
     make_module_ir(cg->module, module_name, ir_code, module_ir);
     struct ast_node *block = parse_code(engine->fe->parser, m_code);
@@ -49,5 +49,5 @@ void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)
     ASSERT_STREQ(module_ir, ir_string);
     node_free(block);
     free_ir_string(ir_string);
-    engine_free(engine);
+    //engine_free(engine);
 }
