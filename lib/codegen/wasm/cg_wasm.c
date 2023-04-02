@@ -391,7 +391,7 @@ struct cg_wasm *cg_wasm_new(struct sema_context *context)
     POW_FUN_NAME = to_symbol("pow");
     cg->base.compute_fun_info = wasm_compute_fun_info;
     cg->base.sema_context = context;
-    cg->base.target_info = ti_new(context->tc, "wasm32");
+    cg->base.target_info = ti_new("wasm32");
     _init_target_info(cg->base.target_info);
     return cg;
 }

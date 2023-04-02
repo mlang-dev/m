@@ -12,7 +12,7 @@ struct abi_arg_info _winx86_64_classify(struct cg_llvm *cg, struct type_item *ty
     if (type->type == TYPE_UNIT)
         return create_ignore(type);
     struct target_info *ti = cg->base.target_info;
-    struct type_size_info tsi = get_type_size_info(ti->tc, type);
+    struct type_size_info tsi = get_type_size_info(cg->base.sema_context->tc, type);
     unsigned width = (unsigned)tsi.width_bits;
     //uint64_t align = tsi.align_bits / 8;
     if (type->type == TYPE_STRUCT) {
@@ -23,7 +23,7 @@ struct abi_arg_info _winx86_64_classify(struct cg_llvm *cg, struct type_item *ty
         // MS x64 ABI requirement: "Any argument that doesn't fit in 8 bytes, or is
         // not 1, 2, 4, or 8 bytes, must be passed by reference."
         if (width > 64 || !is_power_of2_64(width)) {
-            return create_natural_align_indirect(ti->tc, type, false);
+            return create_natural_align_indirect(cg->base.sema_context->tc, type, false);
         }
         //coerce it into the small integer type
         return create_direct_type(type, LLVMIntTypeInContext(cg->context, width));

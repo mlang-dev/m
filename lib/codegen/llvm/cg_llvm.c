@@ -381,17 +381,20 @@ TargetType _get_size_int_type_llvm(struct codegen *cg, unsigned width)
 }
 
 
-void _init_target_info_llvm(struct cg_llvm *cg)
+struct target_info *_init_target_info_llvm(LLVMContextRef context)
 {
-    struct target_info *ti = cg->base.target_info;
-    ti->extend_type = LLVMInt8TypeInContext(cg->context); //would use 32 bits
+    const char *target_triple = LLVMGetDefaultTargetTriple();
+    struct target_info *ti = ti_new(target_triple);
+    free((void*)target_triple);
+    ti->extend_type = LLVMInt8TypeInContext(context); //would use 32 bits
     ti->get_size_int_type = _get_size_int_type_llvm;//LLVMIntTypeInContext(get_llvm_context(), width)
     ti->get_pointer_type = _get_pointer_type_llvm; //LLVMPointerType(get_backend_type(fi->ret.type), 0)
     ti->get_target_type = _get_target_type_llvm; //get_backend_type(fi->ret.type)
     ti->get_function_type = _get_function_type_llvm;
     ti->fill_struct_fields = _fill_struct_fields_llvm;//
     ti->get_count_struct_element_types = _get_count_struct_element_types; //LLVMCountStructElementTypes
-    ti->void_type = LLVMVoidTypeInContext(cg->context);
+    ti->void_type = LLVMVoidTypeInContext(context);
+    return ti;
 }
 
 void _llvm_cg_init_state(struct cg_llvm *cg)
@@ -400,17 +403,19 @@ void _llvm_cg_init_state(struct cg_llvm *cg)
     hashtable_init(&cg->varname_2_irvalues);
     hashtable_init(&cg->typename_2_irtypes);
     hashtable_init(&cg->varname_2_typename);
+    cg->base.target_info = _init_target_info_llvm(cg->context);
 }
 
 void _llvm_cg_deinit_state(struct cg_llvm *cg)
 {
+    ti_free(cg->base.target_info);
     hashtable_deinit(&cg->cg_gvar_name_2_asts);
     hashtable_deinit(&cg->varname_2_irvalues);
     hashtable_deinit(&cg->typename_2_irtypes);
     hashtable_deinit(&cg->varname_2_typename);
 }
 
-struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
+struct cg_llvm *cg_llvm_new(struct sema_context *sema_context)
 {
     LLVMContextRef context = LLVMContextCreate();
     LLVMInitializeCore(LLVMGetGlobalPassRegistry());
@@ -428,10 +433,6 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
     cg->current_loop_block = -1;
     _set_bin_ops(cg);
     _llvm_cg_init_state(cg);
-    const char *target_triple = LLVMGetDefaultTargetTriple();
-    cg->base.target_info = ti_new(sema_context->tc, target_triple);
-    free((void*)target_triple);
-    _init_target_info_llvm(cg);
     if (cg->base.target_info->os == OS_WIN32){
         cg->base.compute_fun_info = winx86_64_compute_fun_info;
     }else{
@@ -440,13 +441,22 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
     return cg;
 }
 
-void llvm_cg_reset_state(struct cg_llvm *cg)
+void cg_llvm_reset(struct cg_llvm *cg, struct sema_context *sema_context)
 {
+    if(cg->module){
+        LLVMDisposeModule(cg->module);
+        cg->module = 0;
+    }
+    LLVMDisposeBuilder(cg->builder);
+    LLVMContextDispose(cg->context);
+    cg->context = LLVMContextCreate();
+    cg->builder = LLVMCreateBuilderInContext(cg->context);
+    cg->base.sema_context = sema_context;
     _llvm_cg_deinit_state(cg);
     _llvm_cg_init_state(cg);
 }
 
-void llvm_cg_free(struct cg_llvm *cg)
+void cg_llvm_free(struct cg_llvm *cg)
 {
     if (cg->module){
         LLVMDisposeModule(cg->module);
@@ -459,7 +469,6 @@ void llvm_cg_free(struct cg_llvm *cg)
     }
     LLVMDisposeBuilder(cg->builder);
     LLVMContextDispose(cg->context);
-    ti_free(cg->base.target_info);
     _llvm_cg_deinit_state(cg);
     FREE(cg);
     LLVMShutdown();

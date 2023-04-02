@@ -70,31 +70,33 @@ struct abi_arg_info create_natural_align_indirect(struct type_context *tc, struc
     return _create_indirect(ret_type, (unsigned)align_bytes, indirect_byval, false, 0);
 }
 
-struct abi_arg_info create_indirect_return_result(struct target_info *ti, struct type_item *ret_type)
+struct abi_arg_info create_indirect_return_result(struct codegen *cg, struct type_item *ret_type)
 {
+    struct type_context *tc = cg->sema_context->tc;
     if (ret_type->type < TYPE_STRUCT) {
         if (is_promotable_int(ret_type))
-            return create_extend(ti, ret_type);
+            return create_extend(cg->target_info, ret_type);
         else
             return create_direct(ret_type);
     }
-    return create_natural_align_indirect(ti->tc, ret_type, false);
+    return create_natural_align_indirect(tc, ret_type, false);
 }
 
 struct abi_arg_info create_indirect_result(struct codegen *cg, struct type_item *type, unsigned free_int_regs)
 {
     struct target_info *ti = cg->target_info;
+    struct type_context *tc = cg->sema_context->tc;
     if (type->type < TYPE_STRUCT) {
         if (is_promotable_int(type))
             return create_extend(ti, type);
         else
             return create_direct(type);
     }
-    unsigned align_bytes = (unsigned)get_type_align(ti->tc, type);
+    unsigned align_bytes = (unsigned)get_type_align(tc, type);
     if (align_bytes < 8)
         align_bytes = 8;
     if (free_int_regs == 0) {
-        uint64_t size = get_type_size(ti->tc, type);
+        uint64_t size = get_type_size(tc, type);
         if (align_bytes == 8 && size <= 64){
             return _create_direct(type, ti->get_size_int_type(cg, (unsigned)size), 0, 0, true);
         }

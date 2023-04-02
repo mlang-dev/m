@@ -108,10 +108,10 @@ struct cg_llvm {
     int current_loop_block;
 };
 
-struct cg_llvm *llvm_cg_new(struct sema_context *sema_context);
-void llvm_cg_free(struct cg_llvm *cg);
+struct cg_llvm *cg_llvm_new(struct sema_context *sema_context);
+void cg_llvm_free(struct cg_llvm *cg);
 
-void llvm_cg_reset_state(struct cg_llvm *cg);
+void cg_llvm_reset(struct cg_llvm *cg, struct sema_context *sema_context);
 
 void emit_code(struct cg_llvm *cg, struct ast_node *node);
 void emit_sp_code(struct cg_llvm *cg);

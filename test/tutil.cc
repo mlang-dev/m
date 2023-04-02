@@ -41,8 +41,8 @@ void validate_m_code_with_ir_code(const char *m_code, const char *ir_code)
 {
     char module_ir[1024 * 4];
     struct engine *engine = get_env()->engine();
+    engine_reset(engine);
     struct cg_llvm *cg = (struct cg_llvm *)engine->be->cg;
-    llvm_cg_reset_state(cg);
     create_ir_module(cg, module_name);
     make_module_ir(cg->module, module_name, ir_code, module_ir);
     struct ast_node *block = parse_code(engine->fe->parser, m_code);

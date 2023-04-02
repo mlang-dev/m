@@ -97,10 +97,6 @@ target_link_options(mtest PRIVATE
 -fsanitize=address
 )
 
-target_include_directories(mtest PUBLIC
-${LLVM_INCLUDE_DIRS}
-)
-
 
 if(MSVC)
     set_property(TARGET mtest APPEND PROPERTY LINK_FLAGS /DEBUG)

@@ -41,7 +41,7 @@ enum Class _merge(enum Class accum, enum Class field)
     return SSE;
 }
 
-void _classify(struct target_info *ti, struct type_item *te, uint64_t offset_base, enum Class *low, enum Class *high)
+void _classify(struct codegen *cg, struct type_item *te, uint64_t offset_base, enum Class *low, enum Class *high)
 {
     enum Class *current;
     *low = *high = NO_CLASS;
@@ -60,36 +60,36 @@ void _classify(struct target_info *ti, struct type_item *te, uint64_t offset_bas
     } /*else if pointer then make current pointing to INTEGER*/
     //TODO: vector, complex, int type with specified bitwidth, constant array
     else if (te->type == TYPE_STRUCT) {
-        struct type_size_info tsi = get_type_size_info(ti->tc, te);
+        struct type_size_info tsi = get_type_size_info(cg->sema_context->tc, te);
         uint64_t size = tsi.width_bits;
         if (size > 512)
             return;
-        struct struct_layout *sl = layout_struct(ti->tc, te, Product);
+        struct struct_layout *sl = layout_struct(cg->sema_context->tc, te, Product);
         *current = NO_CLASS;
         for (size_t i = 0; i < array_size(&sl->field_offsets); i++) {
             uint64_t offset = offset_base + *(uint64_t *)array_get(&sl->field_offsets, i);
             struct type_item *field_type = array_get_ptr(&te->args, i);
-            uint64_t field_type_size = get_type_size(ti->tc, field_type);
+            uint64_t field_type_size = get_type_size(cg->sema_context->tc, field_type);
             assert(field_type_size);
             if (size > 128 && size != field_type_size) {
                 *low = MEMORY;
-                _post_merge(ti, size, low, high);
+                _post_merge(cg->target_info, size, low, high);
                 return;
             }
             if (offset % field_type_size) {
                 *low = MEMORY;
-                _post_merge(ti, size, low, high);
+                _post_merge(cg->target_info, size, low, high);
                 return;
             }
             enum Class field_low, field_high;
-            _classify(ti, field_type, offset, &field_low, &field_high);
+            _classify(cg, field_type, offset, &field_low, &field_high);
             *low = _merge(*low, field_low);
             *high = _merge(*high, field_high);
             if (*low == MEMORY || *high == MEMORY)
                 break;
         }
         sl_free(sl);
-        _post_merge(ti, size, low, high);
+        _post_merge(cg->target_info, size, low, high);
     }
 }
 
@@ -207,7 +207,7 @@ struct abi_arg_info _classify_return_type(struct cg_llvm *cg, struct type_item *
 {
     enum Class low, high;
     struct target_info *ti = cg->base.target_info;
-    _classify(ti, ret_type, 0, &low, &high);
+    _classify(&cg->base, ret_type, 0, &low, &high);
     LLVMTypeRef result_type = 0;
     LLVMTypeRef complex[2];
     switch (low) {
@@ -219,7 +219,7 @@ struct abi_arg_info _classify_return_type(struct cg_llvm *cg, struct type_item *
     case X87UP:
         assert(false);
     case MEMORY:
-        return create_indirect_return_result(ti, ret_type);
+        return create_indirect_return_result(&cg->base, ret_type);
     case INTEGER:
         result_type = _get_int_type_at_offset(cg, get_backend_type(cg, ret_type), 0, ret_type, 0);
         if (high == NO_CLASS && LLVMGetTypeKind(result_type) == LLVMIntegerTypeKind) {
@@ -292,7 +292,7 @@ struct abi_arg_info _classify_argument_type(struct cg_llvm *cg, struct type_item
     LLVMTargetDataRef dl = LLVMGetModuleDataLayout(cg->module);
 
     enum Class low, high;
-    _classify(ti, type, 0, &low, &high);
+    _classify(&cg->base, type, 0, &low, &high);
     *needed_int = 0;
     *needed_sse = 0;
     LLVMTypeRef result_type = 0;
