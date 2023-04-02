@@ -99,7 +99,6 @@ target_link_options(mtest PRIVATE
 -fsanitize=address
 )
 
-
 if(MSVC)
     set_property(TARGET mtest APPEND PROPERTY LINK_FLAGS /DEBUG)
 endif()
