@@ -117,24 +117,50 @@ forloop 5 3
     node_free(block);
 }
 
-// TEST(testJITControl, whileLoop)
-// {
-//     char test_code[] = R"(
-// let loopfunc n m = 
-//     var j = 0
-//     var i = 0
-//     while i < m
-//         i++
-//         if i%2 == 0 then
-//             continue
-//         j = j + i
-//     j
-// loopfunc 5 3
-//   )";
-//     Environment *env = get_env();
-//     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
-//     block = split_ast_nodes_with_start_func(0, block);
-//     eval_result result = eval_module(env->jit(), block);
-//     ASSERT_EQ(4, result.i_value);
-//     node_free(block);
-// }
+TEST(testJITControl, whileLoop)
+{
+    char test_code[] = R"(
+let loopfunc m = 
+    var i = 0
+    var j = 0
+    while i < m
+        if i%2 == 0 then
+            i++
+            continue
+        j += i
+        i++
+    j
+loopfunc 5
+  )";
+    Environment *env = get_env();
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    eval_result result = eval_module(env->jit(), block);
+    ASSERT_EQ(4, result.i_value);
+    node_free(block);
+}
+
+TEST(testJITControl, while_break_Loop)
+{
+    char test_code[] = R"(
+let loopfunc m = 
+    var i = 0
+    var j = 0
+    while true
+        if i%2 == 0 then
+            i++
+            continue
+        if i >= m then
+            break
+        j += i
+        i++
+    j
+loopfunc 5
+  )";
+    Environment *env = get_env();
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    eval_result result = eval_module(env->jit(), block);
+    ASSERT_EQ(4, result.i_value);
+    node_free(block);
+}

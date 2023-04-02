@@ -779,7 +779,7 @@ LLVMValueRef _emit_while_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMPositionBuilderAtEnd(cg->builder, start_bb);
 
     LLVMValueRef end_cond = emit_ir_code(cg, node->whileloop->expr);
-    end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg, cg->context, cg->builder), "loopcond");
+    end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_bool_zero(cg, cg->context, cg->builder), "loopcond");
     //if end_cond (id < end != 0) then start_bb else end_bb
     LLVMBuildCondBr(cg->builder, end_cond, cont_bb, end_bb);
     LLVMPositionBuilderAtEnd(cg->builder, cont_bb);
