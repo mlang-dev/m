@@ -20,7 +20,7 @@ if x then 100 else 10
 
 mtest('if but no else', 'only if but no else branch', 
 `
-var x = 10
+let mut x = 10
 if x==10 then 
     x = 100
 x
@@ -94,7 +94,7 @@ choice 24
 
 mtest('for loop statement', 'for loop statement', 
 `
-var sum = 0
+let mut sum = 0
 for i in 0..5
     sum = sum + i
 sum
@@ -102,7 +102,7 @@ sum
 
 mtest('for loop statement float', 'for loop statement using float type', 
 `
-var sum = 0.0
+let mut sum = 0.0
 for i in 0.0..5.0
     sum = sum + i
 sum
@@ -111,7 +111,7 @@ sum
 mtest('for loop with step', 'for loop statement with step variable', 
 `
 let step = 2
-var sum = 0
+let mut sum = 0
 for i in 2..step..10
     sum = sum + i
 sum
@@ -119,7 +119,7 @@ sum
 
 mtest('nest for loop', 'nest for loop statement', 
 `
-var sum = 0
+let mut sum = 0
 for i in 1..3
     for j in 1..3
         sum = sum + i * j
@@ -134,7 +134,7 @@ factorial 5
 mtest('for loop factorial', 'implement factorial using for loop', 
 `
 let factorial n = 
-    var p = 1
+    let mut p = 1
     for i in 2..n+1
         p = p * i
     p
@@ -165,7 +165,7 @@ i
 
 mtest('while loop', 'use while loop', 
 `
-var i = 0
+let mut i = 0
 while i < 10
     i = i + 1
 i
@@ -173,7 +173,7 @@ i
 
 mtest('while loop break', 'break while loop', 
 `
-var i = 0
+let mut i = 0
 while i < 10
     if i == 5 then
         break
@@ -183,8 +183,8 @@ i
 
 mtest('while loop continue', 'use continue in while loop', 
 `
-var i = 0
-var n = 0
+let mut i = 0
+let mut n = 0
 while i < 5
     i = i + 1
     if i == 3 then
@@ -195,7 +195,7 @@ n
 
 mtest('for loop continue', 'use continue in for loop', 
 `
-var n = 0
+let mut n = 0
 for i in 0..5
     if i == 3 then
         continue
@@ -205,14 +205,14 @@ n
 
 mtest("mandelbrot set function", "various control block to show program structure",
 `
-var a:u8[200][300 * 4]
+let mut a:u8[200][300 * 4]
 let scale = 0.01
 for x in 0..300
     for y in 0..200
         let cx = -2.0 + scale*(f64)x
         let cy = -1.0 + scale*(f64)y
-        var zx = 0.0, zy = 0.0
-        var zx2 = 0.0, zy2 = 0.0
+        let mut zx = 0.0, zy = 0.0
+        let mut zx2 = 0.0, zy2 = 0.0
         for n in 0..255
             if (zx2 + zy2) > 4.0 then
                 break
@@ -230,15 +230,15 @@ setImageData a 300 200
 
 mtest("mandelbrot set function using while loop", "inner loop using while block to show program structure",
 `
-var a:u8[200][300 * 4]
+let mut a:u8[200][300 * 4]
 let scale = 0.01
 for x in 0..300
     for y in 0..200
         let cx = -2.0 + scale*(f64)x
         let cy = -1.0 + scale*(f64)y
-        var zx = 0.0, zy = 0.0
-        var zx2 = 0.0, zy2 = 0.0
-        var n = 0
+        let mut zx = 0.0, zy = 0.0
+        let mut zx2 = 0.0, zy2 = 0.0
+        let mut n = 0
         while n<255 && (zx2 + zy2) < 4.0
             zy = 2.0 * zx * zy + cy
             zx = zx2  - zy2 + cx

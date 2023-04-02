@@ -13,7 +13,7 @@
 TEST(test_parser, int_type)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "var x:int";
+    char test_code[] = "let x:int";
     
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(BLOCK_NODE, block->node_type);
@@ -608,7 +608,7 @@ TEST(test_parser, import_global)
 
 TEST(test_parser, ref_type)
 {
-    char test_code[] = "var ri:&int";
+    char test_code[] = "let ri:&int";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -656,7 +656,7 @@ TEST(test_parser, create_deref_variable)
 
 TEST(test_parser, array_variable)
 {
-    char test_code[] = "var a = [10,20]";
+    char test_code[] = "let a = [10,20]";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
@@ -669,7 +669,7 @@ TEST(test_parser, array_variable)
 
 TEST(test_parser, onebytwo_array_variable)
 {
-    char test_code[] = "var a = [[10,20]]";
+    char test_code[] = "let a = [[10,20]]";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
@@ -692,7 +692,7 @@ TEST(test_parser, onebytwo_array_variable)
 
 TEST(test_parser, twobytwo_array_variable)
 {
-    char test_code[] = "var a = [[10,20], [30, 40]]";
+    char test_code[] = "let a = [[10,20], [30, 40]]";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
@@ -727,7 +727,7 @@ TEST(test_parser, twobytwo_array_variable)
 
 TEST(test_parser, multiple_statements_on_one_line)
 {
-    char test_code[] = "var a = 10; var b = 20";
+    char test_code[] = "let a = 10; let b = 20";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));

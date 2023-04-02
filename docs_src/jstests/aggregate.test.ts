@@ -193,7 +193,7 @@ let sq z:cf64 = cf64 { z.re ** 2.0 - z.im ** 2.0, 2.0 * z.re * z.im }
 mtest('struct member assign', 'struct member assign',
 `
 struct Point = x:mut f64, y:f64
-var z = Point { 10.0, 20.0 }
+let mut z = Point { 10.0, 20.0 }
 z.x = 30.0
 z.x
 `, 30.0);
@@ -204,7 +204,7 @@ mtest('one element array init',
 initialize a 1 length of int array
 `, 
 `
-var a = [10]
+let a = [10]
 a[0]
 `, 10);
 
@@ -213,7 +213,7 @@ mtest('more array element',
 initialize a two elements of int array
 `, 
 `
-var a = [10, 20]
+let a = [10, 20]
 a[0]
 `, 10);
 
@@ -222,7 +222,7 @@ mtest('sum of elements',
 sum a two elements of int array
 `, 
 `
-var a = [10, 20]
+let a = [10, 20]
 a[0] + a[1]
 `, 30);
 
@@ -231,7 +231,7 @@ mtest('update array element',
 update the first element of an array
 `, 
 `
-var a = [10]
+let mut a = [10]
 a[0] = 20
 a[0]
 `, 20);
@@ -241,7 +241,7 @@ mtest('update second element',
 update the second element of an array
 `, 
 `
-var a = [10,20]
+let mut a = [10,20]
 a[1] = 200
 a[0] + a[1]
 `, 210);
@@ -251,7 +251,7 @@ mtest('u8 array',
 declare a u8 array
 `, 
 `
-var a:u8[2] = [10, 20]
+let a:u8[2] = [10, 20]
 a[0] + a[1]
 `, 30);
 
@@ -260,7 +260,7 @@ mtest('u8 array update',
 declare a u8 array
 `, 
 `
-var a:u8[2] = [10, 20]
+let mut a:u8[2] = [10, 20]
 a[0] = 30
 a[1] = 40
 a[0] + a[1]
@@ -271,7 +271,7 @@ mtest('u8 two dimension array',
 declare a u8 two dimensions array
 `, 
 `
-var a:u8[2][2] = [10, 20, 30, 40]
+let a:u8[2][2] = [10, 20, 30, 40]
 a[1][1]
 `, 40);
 
@@ -280,7 +280,7 @@ mtest('u8 two dimen update',
 update two dimensions array
 `, 
 `
-var a:u8[2][2] = [10, 20, 30, 40]
+let mut a:u8[2][2] = [10, 20, 30, 40]
 a[1][1] = 100
 a[1][1]
 `, 100);
@@ -290,7 +290,7 @@ mtest('u8 access via var',
 update two dimensions array using variable
 `, 
 `
-var a:u8[10][10]
+let mut a:u8[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j
@@ -302,7 +302,7 @@ mtest('u32 access via var',
 update two dimensions int array using variable
 `, 
 `
-var a:u32[10][10]
+let mut a:u32[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j
@@ -314,7 +314,7 @@ mtest('pass array to a function',
 pass array variable to a function.
 `, 
 `
-var a:u8[10][10]
+let mut a:u8[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j
@@ -327,7 +327,7 @@ mtest('use tuple',
 define a tuple, and access like array
 `, 
 `
-var a = (10, 20)
+let a = (10, 20)
 a[0] + a[1]
 `, 30);
 

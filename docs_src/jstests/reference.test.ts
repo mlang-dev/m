@@ -19,16 +19,16 @@ let j = &i
 
 mtest('change via ref', 'change original value by its reference.',
 `
-var i = 10
-var j = &i
+let mut i = 10
+let mut j = &i
 *j = 20
 i
 `, 20);
 
 mtest('change via ref 2', 'change original value by its reference. print reference', 
 `
-var i = 10
-var j = &i
+let mut i = 10
+let mut j = &i
 *j = 20
 *j
 `, 20);

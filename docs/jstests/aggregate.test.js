@@ -139,26 +139,26 @@ let sq z:cf64 = cf64 { z.re ** 2.0 - z.im ** 2.0, 2.0 * z.re * z.im }
 `, 400.0, false);
 (0, mtest_1.mtest)('struct member assign', 'struct member assign', `
 struct Point = x:mut f64, y:f64
-var z = Point { 10.0, 20.0 }
+let mut z = Point { 10.0, 20.0 }
 z.x = 30.0
 z.x
 `, 30.0);
 (0, mtest_1.mtest)('one element array init', `
 initialize a 1 length of int array
 `, `
-var a = [10]
+let a = [10]
 a[0]
 `, 10);
 (0, mtest_1.mtest)('more array element', `
 initialize a two elements of int array
 `, `
-var a = [10, 20]
+let a = [10, 20]
 a[0]
 `, 10);
 (0, mtest_1.mtest)('sum of elements', `
 sum a two elements of int array
 `, `
-var a = [10, 20]
+let a = [10, 20]
 a[0] + a[1]
 `, 30);
 (0, mtest_1.mtest)('update array element', `

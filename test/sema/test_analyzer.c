@@ -621,7 +621,7 @@ x\n\
 TEST(test_analyzer, array_type_decl)
 {
     char test_code[] = "\n\
-var a:u8[2]\n\
+let a:u8[2]\n\
 ";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
@@ -640,7 +640,7 @@ TEST(test_analyzer, array_type_decl_use_const_value)
 {
     char test_code[] = "\n\
 let size = 2\n\
-var a:u8[size]\n\
+let a:u8[size]\n\
 ";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;

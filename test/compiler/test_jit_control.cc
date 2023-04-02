@@ -41,7 +41,7 @@ TEST(testJITControl, testForLoopFunc)
 {
     char test_code[] = R"(
 let forloop n = 
-    var j = 0
+    let mut j = 0
     for i in 1..n
         j += i
     j
@@ -59,7 +59,7 @@ TEST(testJITControl, breakForLoop)
 {
     char test_code[] = R"(
 let forloop n m = 
-    var j = 0
+    let mut j = 0
     for i in 1..n
         j += i
         if i == m then
@@ -79,7 +79,7 @@ TEST(testJITControl, continueForLoop)
 {
     char test_code[] = R"(
 let forloop n m = 
-    var j = 0
+    let mut j = 0
     for i in 0..n
         if i%2 == 0 then
             continue
@@ -101,7 +101,7 @@ TEST(testJITControl, returnForLoop)
 {
     char test_code[] = R"(
 let forloop n m = 
-    var j = 0
+    let mut j = 0
     for i in 0..n
         j += i
         if i == m then
@@ -121,8 +121,8 @@ TEST(testJITControl, whileLoop)
 {
     char test_code[] = R"(
 let loopfunc m = 
-    var i = 0
-    var j = 0
+    let mut i = 0
+    let mut j = 0
     while i < m
         if i%2 == 0 then
             i++
@@ -144,8 +144,8 @@ TEST(testJITControl, while_break_Loop)
 {
     char test_code[] = R"(
 let loopfunc m = 
-    var i = 0
-    var j = 0
+    let mut i = 0
+    let mut j = 0
     while true
         if i%2 == 0 then
             i++

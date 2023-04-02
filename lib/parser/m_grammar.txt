@@ -272,9 +272,9 @@ param_decl      = var_decl
 
 //first 0 indicating to mark variable, second value indicate mutablility
 var_decls       = "let" var_decl_inits                                                      { mark_mut 0 0 1 }
+                | "let" var_type_list                                                       { mark_mut 0 0 1 }
                 | "let" "mut" var_decl_inits                                                { mark_mut 0 1 2 }
-                | "var" var_decl_inits                                                      { mark_mut 0 1 1 }
-                | "var" var_type_list                                                       { mark_mut 0 1 1 }
+                | "let" "mut" var_type_list                                                 { mark_mut 0 1 2 }
 
 var_decl_inits  = var_decl_inits ',' var_decl_init                                          { block 0 2 }
                 | var_decl_init

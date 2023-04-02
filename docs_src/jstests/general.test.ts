@@ -98,7 +98,7 @@ print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)
 // let change z:Point2D = 
 //     z.x = z.x * 10.0
 //     z
-// var old_z = Point2D { 10.0, 20.0 }
+// let old_z = Point2D { 10.0, 20.0 }
 // let new_z = change old_z
 // new_z.x
 // `, 100.00);
@@ -106,31 +106,31 @@ print "p.x: %.1f, p.y: %.1f" (p.x) (p.y)
 
 mtest('more assign op', 'more assignment operators', 
 `
-var x = 1000
+let mut x = 1000
 x += 1
 x`, 1001, false);
 
 mtest('inc op postfix', 'inc assignment operator, postfix', 
 `
-var x = 1000
+let mut x = 1000
 x++
 x`, 1001, false);
 
 mtest('inc op', 'inc assignment operator', 
 `
-var x = 1000
+let mut x = 1000
 ++x
 x`, 1001, false);
 
 mtest('dec op postfix', 'dec assignment operator, postfix', 
 `
-var x = 1000
+let mut x = 1000
 x--
 x`, 999, false);
 
 mtest('dec op', 'dec assignment operator', 
 `
-var x = 1000
+let mut x = 1000
 --x
 x`, 999, false);
 
