@@ -82,7 +82,6 @@ enum token_type{
     TOKEN_DEFAULT,
 
     TOKEN_LET,
-    TOKEN_VAR,
     TOKEN_MUT,
     TOKEN_MAPTO,
     TOKEN_IF,

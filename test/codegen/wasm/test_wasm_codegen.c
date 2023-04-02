@@ -25,7 +25,7 @@ TEST(test_wasm_codegen, sample_code)
 {
     char test_code[] = "\n\
 let color_func iter_count iter_max sq_dist =\n\
-    var v = 0.0, r = 0.0, g = 0.0, b = 0.0\n\
+    let mut v = 0.0, r = 0.0, g = 0.0, b = 0.0\n\
     if iter_count < iter_max then\n\
         v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4\n\
         if v < 1.0 then \n\
@@ -37,15 +37,15 @@ let color_func iter_count iter_max sq_dist =\n\
 \n\
 let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =\n\
     let width = 400, height = 300\n\
-    var a:u8[height][width * 4]\n\
+    let mut a:u8[height][width * 4]\n\
     let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510\n\
     for x in 0..width\n\
         for y in 0..height\n\
             let cx = x0 + scalex*x\n\
             let cy = y0 + scaley*y\n\
-            var zx = 0.0, zy = 0.0\n\
-            var zx2 = 0.0, zy2 = 0.0\n\
-            var n = 0\n\
+            let mut zx = 0.0, zy = 0.0\n\
+            let mut zx2 = 0.0, zy2 = 0.0\n\
+            let mut n = 0\n\
             while n<max_iter && (zx2 + zy2) < 4.0\n\
                 zy = 2.0 * zx * zy + cy\n\
                 zx = zx2  - zy2 + cx\n\
@@ -93,7 +93,7 @@ sq 10.0\n\
 TEST(test_wasm_codegen, emit_nested_for_loop)
 {
     char test_code[] = "\n\
-var sum = 0\n\
+let mut sum = 0\n\
 for i in 1..3\n\
     for j in 1..3\n\
         sum = sum + i * j\n\
@@ -110,7 +110,7 @@ struct Point2D = x:mut f64, y:f64\n\
 let change z:Point2D = \n\
     z.x = z.x * 10.0\n\
     z\n\
-var old_z = Point2D{10.0, 20.0}\n\
+let mut old_z = Point2D{10.0, 20.0}\n\
 let new_z = change old_z\n\
 ";
     u8 *wasm = _compile_code(test_code);
@@ -235,7 +235,7 @@ x + y\n\
 TEST(test_wasm_codegen, array_access)
 {
     char test_code[] = "\n\
-var a:u8[2] = [10, 20]\n\
+let mut a:u8[2] = [10, 20]\n\
 a[0] = 30\n\
 a[1] = 40\n\
 a[0] + a[1]\n\

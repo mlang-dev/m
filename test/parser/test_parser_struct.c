@@ -14,7 +14,7 @@ TEST(test_parser_struct, type_decl)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
-var point:Point2D";
+let point:Point2D";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -160,7 +160,7 @@ TEST(test_parser_struct, member_field_assignment)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
-var xy:Point2D = Point2D{0.0, 0.0} \n\
+let mut xy:Point2D = Point2D{0.0, 0.0} \n\
 xy.x = 10.0";
     struct frontend *fe = frontend_init();
     

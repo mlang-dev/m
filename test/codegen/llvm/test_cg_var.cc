@@ -61,7 +61,7 @@ TEST(testCGVar, testGlobalVarStruct)
 {
     const char test_code[] = R"(
 struct Point2D = x:f64, y:f64
-var point:Point2D
+let point:Point2D
 )";
     const char *expected_ir = R"(
 %Point2D = type { double, double }
@@ -89,7 +89,7 @@ let point:Point2D = Point2D { 10, 20 }
 TEST(testCGVar, testGlobalVarArrayInitializer)
 {
     const char test_code[] = R"(
-var a = [10]
+let a = [10]
 )";
     const char *expected_ir = R"(
 @a = global [1 x i32] [i32 10]

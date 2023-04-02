@@ -15,7 +15,7 @@
 TEST(testJITArray, array_global_array_access)
 {
     char test_code[] = R"(
-var a = [10]
+let a = [10]
 a[0]
 )";
     Environment *env = get_env();
@@ -30,7 +30,7 @@ TEST(testJITArray, array_local_array_access)
 {
     char test_code[] = R"(
 let f() =
-    var a = [10]
+    let a = [10]
     a[0]
 f()
 )";
@@ -46,7 +46,7 @@ TEST(testJITArray, array_local_array_write_read)
 {
     char test_code[] = R"(
 let f() =
-    var a = [10]
+    let mut a = [10]
     a[0] = 20
     a[0]
 f()
