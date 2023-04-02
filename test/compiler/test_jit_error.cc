@@ -8,6 +8,7 @@
 #include "compiler/repl.h"
 #include "sema/analyzer.h"
 #include "tutil.h"
+#include "test_main.h"
 #include "gtest/gtest.h"
 #include "app/error.h"
 #include <stdio.h>
@@ -17,16 +18,12 @@ TEST(testJITError, test_var_def_error)
     char test_code[] = R"(
 i = 0
 )";
-    struct engine *engine = engine_llvm_new(false);
-    struct cg_llvm *cg = (struct cg_llvm *)engine->be->cg;
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->base.sema_context, block);
-    auto node = (struct ast_node *)array_front_ptr(&block->block->nodes);
-    eval_statement(jit, node);
-    struct error_report *er = get_last_error_report(engine->fe->sema_context);
+    Environment *env = get_env();
+    engine_reset(env->engine());
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    eval_module(env->jit(), block);
+    struct error_report *er = get_last_error_report(env->engine()->fe->sema_context);
     ASSERT_STREQ("variable i is not defined.", er->error_msg);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }
