@@ -86,7 +86,7 @@ add_executable(mtest
   compiler/test_jit_logical.cc
   compiler/test_jit_adt.cc
   compiler/test_jit.cc
-  #compiler/test_jit_error.cc
+  compiler/test_jit_error.cc
   compiler/test_jit_array.cc
 )
 

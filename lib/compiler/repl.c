@@ -9,6 +9,7 @@
 #include "compiler/repl.h"
 #include "sema/analyzer.h"
 #include "sema/sema_context.h"
+#include "app/error.h"
 #include "codegen/llvm/cg_llvm.h"
 
 const char *boolean_values[2] = {
@@ -98,14 +99,18 @@ struct eval_result eval_module(struct JIT *jit, struct ast_node *node)
 {
     struct cg_llvm *cg = jit->engine->be->cg;
     struct type_context *tc = cg->base.sema_context->tc;
+    struct eval_result result = { 0 };
     analyze(cg->base.sema_context, node);
+    struct error_report *er = get_last_error_report(jit->engine->fe->sema_context);
+    if(er){
+        return result;
+    }
     _create_new_module(cg);
     enum node_type node_type = node->node_type;
     if (!node->type){
         //analyze(jit->cg->base.sema_context, node);
         emit_code(jit->engine->be->cg, node);
     }
-    struct eval_result result = { 0 };
     struct type_item *type = node->type;
     emit_code(cg, node);
     if (node) {

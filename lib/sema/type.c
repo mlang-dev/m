@@ -63,6 +63,7 @@ symbol _to_fun_type_name(struct type_context *tc, struct array *types)
         return 0;
     }
     struct type_item *result_type = array_back_ptr(types);
+    if (!result_type) return 0;
     if (result_type->kind == KIND_VAR) return 0;
     string str;
     string_init(&str);
@@ -401,6 +402,7 @@ struct type_item *_prune(struct type_context *tc, struct type_item *type, enum M
         struct type_item *argt;
         for (unsigned i = 0; i < array_size(&type->args); ++i) {
             argt = array_get_ptr(&type->args, i);
+            if(!argt) continue;
             struct type_item *element_type = _prune(tc, argt, argt->mut);
             array_set(&type->args, i, &element_type);
         }
@@ -433,6 +435,7 @@ bool _occurs_in_type_list(struct type_context *tc, struct type_item *var, struct
 bool occurs_in_type(struct type_context *tc, struct type_item *var, struct type_item *type2)
 {
     type2 = prune(tc, type2);
+    if(!type2) return false;
     if (type2->kind == KIND_VAR) {
         return var == type2;
     }
@@ -463,7 +466,7 @@ struct type_item *unify(struct type_context *tc, struct type_item *type1, struct
 {
     type1 = prune(tc, type1);
     type2 = prune(tc, type2);
-    assert(type1 && type2);
+    if(!type1 || !type2) return 0;
     /*type1 and type2 are the same one*/
     if (type1 == type2)
         return type1;
@@ -650,6 +653,8 @@ bool is_generic(struct type_context *tc, struct type_item *type)
     for (size_t i = 0; i < array_size(&type->args); i++) {
         argt = array_get_ptr(&type->args, i);
         type = prune(tc, argt);
+        if (!type)
+            return false;
         if (type->kind == KIND_VAR)
             return true;
     }
