@@ -394,6 +394,22 @@ void _init_target_info_llvm(struct cg_llvm *cg)
     ti->void_type = LLVMVoidTypeInContext(cg->context);
 }
 
+void _llvm_cg_init_state(struct cg_llvm *cg)
+{
+    hashtable_init(&cg->cg_gvar_name_2_asts);
+    hashtable_init(&cg->varname_2_irvalues);
+    hashtable_init(&cg->typename_2_irtypes);
+    hashtable_init(&cg->varname_2_typename);
+}
+
+void _llvm_cg_deinit_state(struct cg_llvm *cg)
+{
+    hashtable_deinit(&cg->cg_gvar_name_2_asts);
+    hashtable_deinit(&cg->varname_2_irvalues);
+    hashtable_deinit(&cg->typename_2_irtypes);
+    hashtable_deinit(&cg->varname_2_typename);
+}
+
 struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
 {
     LLVMContextRef context = LLVMContextCreate();
@@ -411,10 +427,7 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
     cg->target_data = 0;
     cg->current_loop_block = -1;
     _set_bin_ops(cg);
-    hashtable_init(&cg->cg_gvar_name_2_asts);
-    hashtable_init(&cg->varname_2_irvalues);
-    hashtable_init(&cg->typename_2_irtypes);
-    hashtable_init(&cg->varname_2_typename);
+    _llvm_cg_init_state(cg);
     const char *target_triple = LLVMGetDefaultTargetTriple();
     cg->base.target_info = ti_new(sema_context->tc, target_triple);
     free((void*)target_triple);
@@ -425,6 +438,12 @@ struct cg_llvm *llvm_cg_new(struct sema_context *sema_context)
         cg->base.compute_fun_info = x86_64_compute_fun_info;
     }
     return cg;
+}
+
+void llvm_cg_reset_state(struct cg_llvm *cg)
+{
+    _llvm_cg_deinit_state(cg);
+    _llvm_cg_init_state(cg);
 }
 
 void llvm_cg_free(struct cg_llvm *cg)
@@ -441,10 +460,7 @@ void llvm_cg_free(struct cg_llvm *cg)
     LLVMDisposeBuilder(cg->builder);
     LLVMContextDispose(cg->context);
     ti_free(cg->base.target_info);
-    hashtable_deinit(&cg->cg_gvar_name_2_asts);
-    hashtable_deinit(&cg->varname_2_irvalues);
-    hashtable_deinit(&cg->typename_2_irtypes);
-    hashtable_deinit(&cg->varname_2_typename);
+    _llvm_cg_deinit_state(cg);
     FREE(cg);
     LLVMShutdown();
 }
@@ -487,12 +503,12 @@ LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_item *type)
 
 LLVMValueRef _emit_block_node(struct cg_llvm *cg, struct ast_node *node)
 {
-    LLVMValueRef codegen = 0;
+    LLVMValueRef value = 0;
     for (size_t i = 0; i < array_size(&node->block->nodes); i++) {
         struct ast_node *exp = array_get_ptr(&node->block->nodes, i);
-        codegen = emit_ir_code(cg, exp);
+        value = emit_ir_code(cg, exp);
     }
-    return codegen;
+    return value;
 }
 
 LLVMValueRef _emit_literal_node(struct cg_llvm *cg, struct ast_node *node)
