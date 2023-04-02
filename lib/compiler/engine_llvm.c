@@ -9,12 +9,17 @@
 
 struct codegen *_cg_llvm_new(struct sema_context *context)
 {
-    return (struct codegen *)llvm_cg_new(context);
+    return (struct codegen *)cg_llvm_new(context);
 }
 
 void _cg_llvm_free(struct codegen *cg)
 {
-    llvm_cg_free((struct cg_llvm*)cg);
+    cg_llvm_free((struct cg_llvm*)cg);
+}
+
+void _cg_llvm_reset(struct codegen *cg, struct sema_context *context)
+{
+    cg_llvm_reset((struct cg_llvm*)cg, context);
 }
 
 struct engine *engine_llvm_new(bool is_repl)
@@ -22,6 +27,6 @@ struct engine *engine_llvm_new(bool is_repl)
     struct engine *engine;
     MALLOC(engine, sizeof(*engine));
     engine->fe = frontend_llvm_init("mlib/stdio.m", "mlib/math.m", is_repl);
-    engine->be = backend_init(engine->fe->sema_context, _cg_llvm_new, _cg_llvm_free);
+    engine->be = backend_init(engine->fe->sema_context, _cg_llvm_new, _cg_llvm_free, _cg_llvm_reset);
     return engine;
 }

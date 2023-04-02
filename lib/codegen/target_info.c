@@ -115,7 +115,7 @@ void _parse_triple(struct target_info *ti)
     array_deinit(&ar);
 }
 
-struct target_info *ti_new(struct type_context *tc, const char *target_triple)
+struct target_info *ti_new(const char *target_triple)
 {
     struct target_info *ti;
     MALLOC(ti, sizeof(struct target_info));
@@ -137,7 +137,6 @@ struct target_info *ti_new(struct type_context *tc, const char *target_triple)
     ti->pointer_width = is64 ? 64 : 32;
     ti->pointer_align = is64 ? 64 : 32;
     hashtable_init_with_value_size(&ti->fun_infos, sizeof(struct fun_info), (free_fun)fun_info_deinit);
-    ti->tc = tc;
     return ti;
 }
 

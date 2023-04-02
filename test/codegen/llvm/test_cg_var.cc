@@ -57,42 +57,42 @@ TEST(testCGVar, testGlobalVarString)
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
-// TEST(testCGVar, testGlobalVarStruct)
-// {
-//     const char test_code[] = R"(
-// struct Point2D = x:f64, y:f64
-// var point:Point2D
-// )";
-//     const char *expected_ir = R"(
-// %Point2D = type { double, double }
+TEST(testCGVar, testGlobalVarStruct)
+{
+    const char test_code[] = R"(
+struct Point2D = x:f64, y:f64
+var point:Point2D
+)";
+    const char *expected_ir = R"(
+%Point2D = type { double, double }
 
-// @point = global %Point2D zeroinitializer
-// )";
-//     validate_m_code_with_ir_code(test_code, expected_ir);
-// }
+@point = global %Point2D zeroinitializer
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}
 
 
-// TEST(testCGVar, testGlobalVarStructInitializer)
-// {
-//     const char test_code[] = R"(
-// struct Point2D = x:int, y:int
-// let point:Point2D = Point2D { 10, 20 }
-// )";
-//     const char *expected_ir = R"(
-// %Point2D = type { i32, i32 }
+TEST(testCGVar, testGlobalVarStructInitializer)
+{
+    const char test_code[] = R"(
+struct Point2D = x:int, y:int
+let point:Point2D = Point2D { 10, 20 }
+)";
+    const char *expected_ir = R"(
+%Point2D = type { i32, i32 }
 
-// @point = global %Point2D { i32 10, i32 20 }
-// )";
-//     validate_m_code_with_ir_code(test_code, expected_ir);
-// }
+@point = global %Point2D { i32 10, i32 20 }
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}
 
-// TEST(testCGVar, testGlobalVarArrayInitializer)
-// {
-//     const char test_code[] = R"(
-// var a = [10]
-// )";
-//     const char *expected_ir = R"(
-// @a = global [1 x i32] [i32 10]
-// )";
-//     validate_m_code_with_ir_code(test_code, expected_ir);
-// }
+TEST(testCGVar, testGlobalVarArrayInitializer)
+{
+    const char test_code[] = R"(
+var a = [10]
+)";
+    const char *expected_ir = R"(
+@a = global [1 x i32] [i32 10]
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}

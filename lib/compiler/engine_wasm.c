@@ -59,7 +59,7 @@ struct engine *engine_wasm_new()
     struct engine *engine;
     MALLOC(engine, sizeof(*engine));
     engine->fe = frontend_init();
-    engine->be = backend_init(engine->fe->sema_context, _cg_wasm_new, _cg_wasm_free);
+    engine->be = backend_init(engine->fe->sema_context, _cg_wasm_new, _cg_wasm_free, 0);
     struct cg_wasm *cg = engine->be->cg;
     cg->imports.import_block = parse_code(engine->fe->parser, g_imports);
     cg->sys_block = parse_code(engine->fe->parser, g_sys);

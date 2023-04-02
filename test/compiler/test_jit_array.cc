@@ -8,6 +8,7 @@
 #include "compiler/repl.h"
 #include "sema/analyzer.h"
 #include "tutil.h"
+#include "test_main.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 
@@ -17,16 +18,12 @@ TEST(testJITArray, array_global_array_access)
 var a = [10]
 a[0]
 )";
-    struct engine *engine = engine_llvm_new(false);
-    struct cg_llvm *cg = (struct cg_llvm *)engine->be->cg;
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->base.sema_context, block);
-    eval_result result = eval_exp(jit, block);
-    ASSERT_EQ(10, result.i_value);
+    Environment *env = get_env();
+    engine_reset(env->engine());
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    ASSERT_EQ(10, eval_module(env->jit(), block).i_value);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }
 
 TEST(testJITArray, array_local_array_access)
@@ -37,15 +34,12 @@ let f() =
     a[0]
 f()
 )";
-    struct engine *engine = engine_llvm_new(false);
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    block = split_ast_nodes_with_start_func(0, block, 0);
-    eval_result result = eval_module(jit, block);
-    ASSERT_EQ(10, result.i_value);
+    Environment *env = get_env();
+    engine_reset(env->engine());
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    ASSERT_EQ(10, eval_module(env->jit(), block).i_value);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }
 
 TEST(testJITArray, array_local_array_write_read)
@@ -57,13 +51,10 @@ let f() =
     a[0]
 f()
 )";
-    struct engine *engine = engine_llvm_new(false);
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    block = split_ast_nodes_with_start_func(0, block, 0);
-    eval_result result = eval_module(jit, block);
-    ASSERT_EQ(20, result.i_value);
+    Environment *env = get_env();
+    engine_reset(env->engine());
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    ASSERT_EQ(20, eval_module(env->jit(), block).i_value);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }

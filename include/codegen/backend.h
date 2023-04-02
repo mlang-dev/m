@@ -23,9 +23,11 @@ struct backend{
      */
     void *cg;
     cg_free_fun cg_free;
+    cg_reset_fun cg_reset;
 };
 
-struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_alloc, cg_free_fun cg_free);
+struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_alloc, cg_free_fun cg_free, cg_reset_fun cg_reset);
+void backend_reset(struct backend *be, struct sema_context *sema_context);
 void backend_deinit(struct backend *be);
 
 #ifdef __cplusplus

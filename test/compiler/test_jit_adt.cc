@@ -8,6 +8,7 @@
 #include "compiler/repl.h"
 #include "sema/analyzer.h"
 #include "tutil.h"
+#include "test_main.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 
@@ -19,23 +20,12 @@ let xy:Point2D = Point2D { 10.0, 20.0 }
 xy.x
 xy.y
 )";
-    struct engine *engine = engine_llvm_new(true);
-    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->base.sema_context, block);
-    auto end = 2;
-    for (int i = 0; i < end; i++) {
-        auto node = (struct ast_node *)array_get_ptr(&block->block->nodes, i);
-        eval_statement(jit, node);
-    }
-    auto node3 = (struct ast_node *)array_get_ptr(&block->block->nodes, 2);
-    ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
-    auto node4 = (struct ast_node *)array_get_ptr(&block->block->nodes, 3);
-    ASSERT_EQ(20.0, eval_exp(jit, node4).d_value);
+    Environment *env = get_env();
+    engine_reset(env->engine());
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    ASSERT_EQ(20.0, eval_module(env->jit(), block).d_value);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }
 
 TEST(testJITAdt, testProductTypeIntType)
@@ -46,23 +36,12 @@ let xy:Point2D = Point2D { 10, 20 }
 xy.x
 xy.y
 )";
-    struct engine *engine = engine_llvm_new(true);
-    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->base.sema_context, block);
-    auto end = 2;
-    for (int i = 0; i < end; i++) {
-        auto node = (struct ast_node *)array_get_ptr(&block->block->nodes, i);
-        eval_statement(jit, node);
-    }
-    auto node3 = (struct ast_node *)array_get_ptr(&block->block->nodes, 2);
-    ASSERT_EQ(10, eval_exp(jit, node3).i_value);
-    auto node4 = (struct ast_node *)array_get_ptr(&block->block->nodes, 3);
-    ASSERT_EQ(20, eval_exp(jit, node4).i_value);
+    Environment *env = get_env();
+    engine_reset(env->engine());
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    ASSERT_EQ(20, eval_module(env->jit(), block).i_value);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }
 
 TEST(testJITAdt, testProductTypeMixedType)
@@ -73,23 +52,12 @@ let xy:Point2D = Point2D { 10.0, 20 }
 xy.x
 xy.y
 )";
-    struct engine *engine = engine_llvm_new(true);
-    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->base.sema_context, block);
-    auto end = 2;
-    for (int i = 0; i < end; i++) {
-        auto node = (struct ast_node *)array_get_ptr(&block->block->nodes, i);
-        eval_statement(jit, node);
-    }
-    auto node3 = (struct ast_node *)array_get_ptr(&block->block->nodes, 2);
-    ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
-    auto node4 = (struct ast_node *)array_get_ptr(&block->block->nodes, 3);
-    ASSERT_EQ(20, eval_exp(jit, node4).i_value);
+    Environment *env = get_env();
+    engine_reset(env->engine());
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    ASSERT_EQ(20, eval_module(env->jit(), block).i_value);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }
 
 TEST(testJITAdt, testStructTypeMixedTypeLocalVariable)
@@ -101,21 +69,12 @@ let getx()=
     xy.x
 getx()
 )";
-    struct engine *engine = engine_llvm_new(true);
-    struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    analyze(cg->base.sema_context, block);
-    auto end = 2;
-    for (int i = 0; i < end; i++) {
-        auto node = (struct ast_node *)array_get_ptr(&block->block->nodes, i);
-        eval_statement(jit, node);
-    }
-    auto node3 = (struct ast_node *)array_get_ptr(&block->block->nodes, 2);
-    ASSERT_EQ(10.0, eval_exp(jit, node3).d_value);
+    Environment *env = get_env();
+    engine_reset(env->engine());
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    ASSERT_EQ(10.0, eval_module(env->jit(), block).d_value);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }
 
 TEST(testJITAdt, tuple_type)
@@ -124,12 +83,10 @@ TEST(testJITAdt, tuple_type)
 let x = (10, 20)
 x[0]
 )";
-    struct engine *engine = engine_llvm_new(true);
-    JIT *jit = build_jit(engine);
-    struct ast_node *block = parse_code(engine->fe->parser, test_code);
-    block = split_ast_nodes_with_start_func(0, block, 0);
-    ASSERT_EQ(10, eval_module(jit, block).i_value);
+    Environment *env = get_env();
+    engine_reset(env->engine());
+    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    block = split_ast_nodes_with_start_func(0, block);
+    ASSERT_EQ(10, eval_module(env->jit(), block).i_value);
     node_free(block);
-    jit_free(jit);
-    engine_free(engine);
 }
