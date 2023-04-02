@@ -40,7 +40,7 @@ LLVMTypeRef get_char_type(struct cg_llvm *cg, LLVMContextRef context, struct typ
 LLVMTypeRef get_bool_type(struct cg_llvm *cg, LLVMContextRef context, struct type_item *type)
 {
     (void)type;
-    return LLVMInt1TypeInContext(context);
+    return LLVMInt8TypeInContext(context);
 }
 
 LLVMTypeRef get_double_type(struct cg_llvm *cg, LLVMContextRef context, struct type_item *type)
@@ -571,8 +571,12 @@ LLVMValueRef _emit_unary_node(struct cg_llvm *cg, struct ast_node *node)
     else if (node->unop->opcode == OP_MINUS) {
         return cg->ops->neg_op(cg->builder, operand_v, "negtmp");
     } else if (node->unop->opcode == OP_NOT) {
+        if(node->type->type == TYPE_BOOL){
+            //downcast to 1 bit bool
+            operand_v = LLVMBuildTrunc(cg->builder, operand_v, LLVMInt1TypeInContext(cg->context), "ret_val_bool");
+        }
         LLVMValueRef ret = cg->ops->not_op(cg->builder, operand_v, "nottmp");
-        return LLVMBuildZExt(cg->builder, ret, cg->ops[TYPE_INT].get_type(cg, cg->context, 0), "ret_val_int");
+        return LLVMBuildZExt(cg->builder, ret, cg->ops[TYPE_BOOL].get_type(cg, cg->context, 0), "ret_val_int");
     }
     string fname;
     string_init_chars(&fname, "unary");
@@ -636,6 +640,7 @@ LLVMValueRef _emit_binary_node(struct cg_llvm *cg, struct ast_node *node)
     assert(LLVMTypeOf(lv) == LLVMTypeOf(rv));
     struct ops *ops = &cg->ops[prune(tc, node->binop->lhs->type)->type];
     string f_name;
+    enum type type = TYPE_BOOL;    
     switch(node->binop->opcode){
         case OP_PLUS:
             return ops->add(cg->builder, lv, rv, "");
@@ -649,35 +654,35 @@ LLVMValueRef _emit_binary_node(struct cg_llvm *cg, struct ast_node *node)
             return ops->rem(cg->builder, lv, rv, "");
         case OP_LT:
             lv = ops->cmp(cg->builder, ops->cmp_lt, lv, rv, "cmplttmp");
-            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg, cg->context, 0), "ret_val_int");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[type].get_type(cg, cg->context, 0), "ret_val_int");
             return lv;
         case OP_GT:
             lv = ops->cmp(cg->builder, ops->cmp_gt, lv, rv, "cmpgttmp");
-            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg, cg->context, 0), "ret_val_int");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[type].get_type(cg, cg->context, 0), "ret_val_int");
             return lv;
         case OP_EQ:
             lv = ops->cmp(cg->builder, ops->cmp_eq, lv, rv, "cmpeqtmp");
-            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg, cg->context, 0), "ret_val_int");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[type].get_type(cg, cg->context, 0), "ret_val_int");
             return lv;
         case OP_NE:
             lv = ops->cmp(cg->builder, ops->cmp_neq, lv, rv, "cmpneqtmp");
-            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg, cg->context, 0), "ret_val_int");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[type].get_type(cg, cg->context, 0), "ret_val_int");
             return lv;
         case OP_LE:
             lv = ops->cmp(cg->builder, ops->cmp_le, lv, rv, "cmpletmp");
-            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg, cg->context, 0), "ret_val_int");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[type].get_type(cg, cg->context, 0), "ret_val_int");
             return lv;
         case OP_GE:
             lv = ops->cmp(cg->builder, ops->cmp_ge, lv, rv, "cmpgetmp");
-            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg, cg->context, 0), "ret_val_int");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[type].get_type(cg, cg->context, 0), "ret_val_int");
             return lv;
         case OP_OR:
             lv = ops->or_op(cg->builder, lv, rv, "ortmp");
-            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg, cg->context, 0), "ret_val_int");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[type].get_type(cg, cg->context, 0), "ret_val_int");
             return lv;
         case OP_AND:
             lv = ops->and_op(cg->builder, lv, rv, "andtmp");
-            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[TYPE_INT].get_type(cg, cg->context, 0), "ret_val_int");
+            lv = LLVMBuildZExt(cg->builder, lv, cg->ops[type].get_type(cg, cg->context, 0), "ret_val_int");
             return lv;
         default:
             string_init_chars(&f_name, "binary");
@@ -697,7 +702,7 @@ LLVMValueRef _emit_condition_node(struct cg_llvm *cg, struct ast_node *node)
     LLVMValueRef cond_v = emit_ir_code(cg, node->cond->if_node);
     assert(cond_v);
 
-    cond_v = LLVMBuildICmp(cg->builder, LLVMIntNE, cond_v, cg->ops[TYPE_INT].get_zero(cg, cg->context, cg->builder), "ifcond");
+    cond_v = LLVMBuildICmp(cg->builder, LLVMIntNE, cond_v, cg->ops[TYPE_BOOL].get_zero(cg, cg->context, cg->builder), "ifcond");
 
     LLVMValueRef fun = LLVMGetBasicBlockParent(LLVMGetInsertBlock(cg->builder));
     bool has_else = node->cond->else_node != 0;
@@ -842,7 +847,7 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     assert(end_cond);
     node_free(end_cond_node);
     //IF Not Equals: end_cond, 0
-    end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_int_zero(cg, cg->context, cg->builder), "loopcond");
+    end_cond = LLVMBuildICmp(cg->builder, LLVMIntNE, end_cond, get_bool_zero(cg, cg->context, cg->builder), "loopcond");
 
     //if end_cond (id < end != 0) then start_bb else end_bb
     LLVMBuildCondBr(cg->builder, end_cond, start_bb, end_bb);
