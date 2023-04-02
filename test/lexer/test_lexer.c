@@ -55,7 +55,7 @@ TEST(test_lexer, skip_comment_in_func)
     ASSERT_EQ(TOKEN_EOF, get_tok(lexer)->token_type);
     lexer_free(lexer);
     frontend_deinit(fe);
- }
+}
 
 TEST(test_lexer, token_char)
 {
@@ -606,6 +606,21 @@ TEST(test_lexer, highlight_code_multi_lines)
     frontend_deinit(fe);
 }
 
+TEST(test_lexer, mut_let_variable)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "let mut x = 10";
+    struct lexer *lexer;
+    lexer = lexer_new_for_string(test_code);
+    ASSERT_EQ(TOKEN_LET, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_MUT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_IDENT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_OP, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_LITERAL_INT, get_tok(lexer)->token_type);
+    lexer_free(lexer);
+    frontend_deinit(fe);
+}
+
 int test_lexer()
 {
     UNITY_BEGIN();
@@ -640,6 +655,7 @@ int test_lexer()
     RUN_TEST(test_lexer_highlight_comment);
     RUN_TEST(test_lexer_highlight_block_comment);
     RUN_TEST(test_lexer_highlight_code_multi_lines);
+    RUN_TEST(test_lexer_mut_let_variable);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

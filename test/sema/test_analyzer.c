@@ -92,7 +92,7 @@ TEST(test_analyzer, array_variable)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-var a = [10, 20, 30]\n\
+let mut a = [10, 20, 30]\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
@@ -108,7 +108,7 @@ TEST(test_analyzer, empty_array)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-var a = []\n\
+let a = []\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
@@ -380,7 +380,7 @@ TEST(test_analyzer, for_loop_fun)
     char test_code[] = "\n\
 // using for loop\n\
 let loopprint n = \n\
-  var sum = 0\n\
+  let mut sum = 0\n\
   for i in 0..n\n\
     sum += i\n\
   sum\n\
@@ -413,7 +413,7 @@ TEST(test_analyzer, float_var_loop)
     char test_code[] = "\n\
 // using for loop\n\
 let loopprint n:f64 =\n\
-  var sum = 0.0\n\
+  let mut sum = 0.0\n\
   for i in 0.0..1.0..n\n\
     sum += i\n\
   sum\n\

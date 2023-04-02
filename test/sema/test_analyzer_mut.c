@@ -34,7 +34,7 @@ TEST(test_analyzer, mutable_type)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-var x = 10\n\
+let mut x = 10\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
@@ -95,7 +95,7 @@ TEST(test_analyzer, mutable_array_member_type)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
-var a = [10]\n\
+let a = [10]\n\
 a[0]\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
