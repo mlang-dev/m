@@ -111,6 +111,8 @@ struct cg_llvm {
 struct cg_llvm *llvm_cg_new(struct sema_context *sema_context);
 void llvm_cg_free(struct cg_llvm *cg);
 
+void llvm_cg_reset_state(struct cg_llvm *cg);
+
 void emit_code(struct cg_llvm *cg, struct ast_node *node);
 void emit_sp_code(struct cg_llvm *cg);
 void create_ir_module(struct cg_llvm *cg, const char *module_name);
