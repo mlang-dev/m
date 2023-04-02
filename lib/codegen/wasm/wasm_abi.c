@@ -7,6 +7,7 @@
 #include "codegen/wasm/wasm_abi.h"
 #include "codegen/abi_arg_info.h"
 #include "codegen/fun_info.h"
+#include "codegen/codegen.h"
 #include "sema/type_size_info.h"
 #include "sema/type.h"
 #include <assert.h>
@@ -44,11 +45,11 @@ struct abi_arg_info _classify_argument_type_wasm(struct target_info *ti, struct 
 }
 
 ///compute abi info
-void wasm_compute_fun_info(struct target_info *ti, struct fun_info *fi)
+void wasm_compute_fun_info(struct codegen *cg, struct fun_info *fi)
 {
-    fi->ret = _classify_return_type_wasm(ti, fi->ret.type);
+    fi->ret = _classify_return_type_wasm(cg->target_info, fi->ret.type);
     for (unsigned arg_no = 0; arg_no < array_size(&fi->args); arg_no++) {
         struct abi_arg_info *aai = array_get(&fi->args, arg_no);
-        *aai = _classify_argument_type_wasm(ti, aai->type);
+        *aai = _classify_argument_type_wasm(cg->target_info, aai->type);
     }
 }

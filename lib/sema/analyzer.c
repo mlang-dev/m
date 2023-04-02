@@ -97,7 +97,7 @@ struct type_item *create_tuple_type_from_adt_init_body(struct sema_context *cont
 
 struct ast_node *cast_to_node(struct type_context *tc, struct type_item *to_type, struct ast_node *node)
 {
-    struct ast_node *type_name = ident_node_new(get_type_symbol(to_type->type), node->loc);
+    struct ast_node *type_name = ident_node_new(get_type_symbol(tc, to_type->type), node->loc);
     //we have to make a copy of init_value node, otherwise it's endlessly calling cast node
     //TODO: remove the copy
     struct ast_node *copy_node = node_copy(tc, node);
@@ -137,7 +137,7 @@ struct type_item *_analyze_ident(struct sema_context *context, struct ast_node *
 
 struct type_item *_analyze_liter(struct sema_context *context, struct ast_node *node)
 {
-    symbol type_name = get_type_symbol(node->liter->type);
+    symbol type_name = get_type_symbol(context->tc, node->liter->type);
     return _retrieve_type_with_type_name(context, type_name, Immutable);
 }
 

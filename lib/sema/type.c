@@ -46,42 +46,6 @@ const char *const _type_strings[TYPE_TYPES] = {
 
 #define IS_TYPE_CONVERTIBLE(type)  (type > TYPE_UNIT && type < TYPE_STRING)
 
-
-struct symbol_ref_pair{
-    symbol type_symbols[2];  //0: immutable, 1 is mutable
-    symbol ref_type_symbols[2][2];
-};
-
-struct symbol_ref_pair _type_symbols[TYPE_TYPES] = {
-    {0},
-    {0},
-    {0},
-    {0},
-    {0},
-
-    {0},
-    {0},
-    {0},
-    {0},
-    {0},
-    {0},
-    {0},
-    {0},
-
-    {0},
-    {0},
-    {0},
-    {0},
-    {0},
-    {0},
-
-    {0},
-    {0},
-    {0},
-    {0},
-    {0},
-};
-
 symbol to_ref_symbol(symbol type_symbol)
 {
     symbol ref_symbol;
@@ -93,7 +57,7 @@ symbol to_ref_symbol(symbol type_symbol)
     return ref_symbol;
 }
 
-symbol _to_fun_type_name(struct array *types)
+symbol _to_fun_type_name(struct type_context *tc, struct array *types)
 {
     if(!array_size(types)){
         return 0;
@@ -113,10 +77,10 @@ symbol _to_fun_type_name(struct array *types)
         string_add_chars(&str, " ");
     }
     if(string_size(&str) == 0){
-        string_add(&str, get_type_symbol(TYPE_UNIT));
+        string_add(&str, get_type_symbol(tc, TYPE_UNIT));
         string_add_chars(&str, " ");
     }
-    string_add(&str, get_type_symbol(TYPE_FUNCTION));
+    string_add(&str, get_type_symbol(tc, TYPE_FUNCTION));
     string_add_chars(&str, " ");
     string_add(&str, result_type->name);
     symbol fun_type_symbol = to_symbol(string_get(&str));
@@ -193,19 +157,19 @@ struct type_context *type_context_new()
         symbol mut_type_symbol = _merge_string("mut ", type_symbol);
         symbol ref_type_symbol = _merge_string("&", type_symbol);
         symbol ref_mut_type_symbol = _merge_string("&", mut_type_symbol);
-        _type_symbols[i].type_symbols[0] = type_symbol;
-        _type_symbols[i].type_symbols[1] = mut_type_symbol;
-        _type_symbols[i].ref_type_symbols[0][0] = ref_type_symbol;
-        _type_symbols[i].ref_type_symbols[0][1] = ref_mut_type_symbol;
-        _type_symbols[i].ref_type_symbols[1][0] = _merge_string("mut ", ref_type_symbol);
-        _type_symbols[i].ref_type_symbols[1][1] = _merge_string("mut ", ref_mut_type_symbol);
+        tc->type_symbols[i].type_symbols[0] = type_symbol;
+        tc->type_symbols[i].type_symbols[1] = mut_type_symbol;
+        tc->type_symbols[i].ref_type_symbols[0][0] = ref_type_symbol;
+        tc->type_symbols[i].ref_type_symbols[0][1] = ref_mut_type_symbol;
+        tc->type_symbols[i].ref_type_symbols[1][0] = _merge_string("mut ", ref_type_symbol);
+        tc->type_symbols[i].ref_type_symbols[1][1] = _merge_string("mut ", ref_mut_type_symbol);
     }
     hashtable_init_with_value_size(&tc->symbol_2_type_items, sizeof(struct type_item_pair), _free_type_pair);
     hashtable_init_with_value_size(&tc->type_item_vars, 0, _free_type_item_var);
     hashtable_init_with_value_size(&tc->freshed_type_items, 0, _free_type_item_var);
     hashtable_init_with_value_size(&tc->symbol_2_int_types, sizeof(int), 0);
     for (int i = 0; i < TYPE_TYPES; i++) {
-        hashtable_set_int(&tc->symbol_2_int_types, get_type_symbol(i), i);
+        hashtable_set_int(&tc->symbol_2_int_types, get_type_symbol(tc, i), i);
     }
     hashtable_init_with_value_size(&tc->ts_infos, sizeof(struct type_size_info), tsi_free);
     return tc;
@@ -339,7 +303,7 @@ struct type_item *copy_type_var(struct type_item *var)
 
 struct type_item *create_unit_type(struct type_context *tc)
 {
-    symbol type_name = get_type_symbol(TYPE_UNIT);
+    symbol type_name = get_type_symbol(tc, TYPE_UNIT);
     return create_type_oper(tc, KIND_OPER, type_name, TYPE_UNIT, Immutable, 0);
 }
 
@@ -366,14 +330,14 @@ struct type_item *create_type_oper_union(struct type_context *tc, symbol type_na
 
 struct type_item *create_nullary_type(struct type_context *tc, enum type type)
 {
-    symbol type_symbol = get_type_symbol(type);
+    symbol type_symbol = get_type_symbol(tc, type);
     return create_type_oper(tc, KIND_OPER, type_symbol, type, Immutable, 0);
 }
 
 struct type_item *create_type_fun(struct type_context *tc, bool is_variadic, struct array *args)
 {
-    symbol type_name = get_type_symbol(TYPE_FUNCTION);
-    symbol fun_type_name = _to_fun_type_name(args);
+    symbol type_name = get_type_symbol(tc, TYPE_FUNCTION);
+    symbol fun_type_name = _to_fun_type_name(tc, args);
     struct type_item *type = 0;
     if(fun_type_name){
         type = create_type_oper(tc, KIND_OPER, fun_type_name, TYPE_FUNCTION, Immutable, args);
@@ -443,7 +407,7 @@ struct type_item *_prune(struct type_context *tc, struct type_item *type, enum M
         /*after pruned all vars*/
         type = find_type_item(tc, type, mut);
         if(type->type == TYPE_FUNCTION){
-            type->name = _to_fun_type_name(&type->args);
+            type->name = _to_fun_type_name(tc, &type->args);
         }
     }
     return type;
@@ -767,9 +731,9 @@ struct type_item *is_single_element_struct(struct type_item *type)
 
 }
 
-symbol get_type_symbol(enum type type_enum)
+symbol get_type_symbol(struct type_context *tc, enum type type_enum)
 {
-    return _type_symbols[type_enum].type_symbols[0];
+    return tc->type_symbols[type_enum].type_symbols[0];
 }
 
 enum type get_type_enum_from_symbol(struct type_context *tc, symbol type_name)

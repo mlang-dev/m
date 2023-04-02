@@ -96,7 +96,15 @@ struct type_expr_item {
     struct type_item *type; 
 };
 
+struct symbol_ref_pair{
+    symbol type_symbols[2];  //0: immutable, 1 is mutable
+    symbol ref_type_symbols[2][2];
+};
+
 struct type_context {
+
+    struct symbol_ref_pair type_symbols[TYPE_TYPES];
+
     /*symbol 2 type expr pairs*/
     struct hashtable symbol_2_type_items; 
     /*type variables: collect type variables*/
@@ -147,7 +155,7 @@ bool is_promotable_int(struct type_item *type);
 u8 type_size(enum type type);
 bool is_empty_struct(struct type_item *type);
 struct type_item *is_single_element_struct(struct type_item *type);
-symbol get_type_symbol(enum type type_enum);
+symbol get_type_symbol(struct type_context *tc, enum type type_enum);
 enum type get_type_enum_from_symbol(struct type_context *tc, symbol type_name);
 symbol to_ref_symbol(symbol type_symbol);
 symbol get_ref_symbol(struct type_context *tc, symbol type_name);

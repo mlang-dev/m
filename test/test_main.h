@@ -11,7 +11,7 @@ class Environment : public testing::Environment {
  public:
   virtual void SetUp() {
     app_init();
-    m_engine = engine_llvm_new(true);
+    m_engine = engine_llvm_new(false);
     m_jit = jit_new(m_engine);
     printf("Global SetUp\n");
   }

@@ -354,7 +354,7 @@ TargetType _get_function_type(TargetType ret_type, TargetType *param_types, unsi
     return 0;
 }
 
-TargetType _get_target_type(struct type_item *type)
+TargetType _get_target_type(struct codegen *cg, struct type_item *type)
 {
     return &type_2_wtype[type->type];
 }
@@ -364,7 +364,7 @@ TargetType _get_pointer_type(TargetType type)
     return &type_2_wtype[TYPE_INT];
 }
 
-TargetType _get_size_int_type(unsigned width)
+TargetType _get_size_int_type(struct codegen *cg, unsigned width)
 {
     return &type_2_wtype[TYPE_INT];
 }
@@ -411,10 +411,11 @@ struct fun_context *cg_get_top_fun_context(struct cg_wasm *cg)
 void _emit_literal(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     assert(node->type && node->type->type < TYPE_TYPES && node->type->type >= 0);
+    struct type_context *tc = cg->base.sema_context->tc;
     u32 len;
     switch(node->type->type){
         default:
-            printf("unknown type: %s\n", string_get(get_type_symbol(node->type->type)));
+            printf("unknown type: %s\n", string_get(get_type_symbol(tc, node->type->type)));
             break;
         case TYPE_BOOL:
         case TYPE_CHAR:
@@ -522,7 +523,7 @@ void _emit_unary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
         u8 opcode = op_maps[node->unop->opcode][type_index];
         if(!opcode){
             symbol s = get_terminal_symbol_by_token_opcode(TOKEN_OP, node->unop->opcode);
-            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(get_type_symbol(type_index)));
+            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(get_type_symbol(tc, type_index)));
         }else{
             ba_add(ba, opcode);
             ast_node_free(new_node);
@@ -714,7 +715,7 @@ void _emit_binary(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *no
         u8 opcode = op_maps[node->binop->opcode][type_index];
         if(!opcode){
             symbol s = get_terminal_symbol_by_token_opcode(TOKEN_OP, node->binop->opcode);
-            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(get_type_symbol(type_index)));
+            printf("No opcode found for op: %s, type: %s\n", string_get(s), string_get(get_type_symbol(tc, type_index)));
         }else{
             ba_add(ba, opcode);
         }
@@ -1144,7 +1145,7 @@ void _emit_type_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_no
         func_type_node = array_get_ptr(&block->block->nodes, i);
         struct type_item *func_type = func_type_node->type;
         u32 num_params = array_size(&func_type->args) - 1;
-        struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, func_type_node->type);
+        struct fun_info *fi = compute_target_fun_info(&cg->base, cg->base.compute_fun_info, func_type_node->type);
         bool has_sret = fi_has_sret(fi);
         ba_add(ba, WasmTypeFunc);
         if(has_sret){

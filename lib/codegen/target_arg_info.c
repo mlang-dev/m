@@ -1,5 +1,6 @@
 #include "codegen/target_arg_info.h"
 #include "codegen/fun_info.h"
+#include "codegen/codegen.h"
 
 const unsigned InvalidIndex = ~0U;
 
@@ -36,16 +37,17 @@ int get_expansion_size(struct type_item *type)
     return 1;
 }
 
-void get_expanded_types(struct target_info *ti, struct type_item *type, struct array *types)
+void get_expanded_types(struct codegen *cg, struct type_item *type, struct array *types)
 {
+    struct target_info *ti = cg->target_info;
     if (type->type == TYPE_STRUCT) {
         size_t member_count = array_size(&type->args);
         for (size_t i = 0; i < member_count; i++) {
             struct type_item *field_type = array_get(&type->args, i);
-            get_expanded_types(ti, field_type, types);
+            get_expanded_types(cg, field_type, types);
         }
     } else {
-        TargetType var_type = ti->get_target_type(type);
+        TargetType var_type = ti->get_target_type(cg, type);
         array_push(types, &var_type);
     }
 }

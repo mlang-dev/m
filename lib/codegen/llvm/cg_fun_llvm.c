@@ -70,7 +70,7 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
             LLVMValueRef alloca = 0;
             struct type_size_info tsi = get_type_size_info(tc, aai->type);
             unsigned align = tsi.align_bits / 8;
-            LLVMTypeRef sig_type = get_backend_type(aai->type);
+            LLVMTypeRef sig_type = get_backend_type(cg, aai->type);
             if (LLVMGetTypeKind(aai->target_type) != LLVMStructTypeKind && aai->align.direct_offset == 0
                 && aai->target_type == sig_type) {
                 alloca = create_alloca(
@@ -86,7 +86,7 @@ void _emit_argument_allocas(struct cg_llvm *cg, struct ast_node *node,
                 LLVMSetValueName2(arg_value, string_get(&arg_name), string_size(&arg_name));
                 alloca = create_alloca(
                     sig_type, align, fun, string_get(param->var->var->ident->name));
-                create_coerced_store(cg->builder, arg_value, alloca, align);
+                create_coerced_store(cg, cg->builder, arg_value, alloca, align);
             }
             hashtable_set_p(&cg->varname_2_irvalues, param->var->var->ident->name, alloca);
             break;
@@ -113,18 +113,18 @@ LLVMValueRef emit_func_type_node_fi(struct cg_llvm *cg, struct ast_node *node, s
     assert(node->type);
     struct type_item *proto_type = node->type;
     assert(proto_type->kind == KIND_OPER);
-    struct fun_info *fi = compute_target_fun_info(cg->base.target_info, cg->base.compute_fun_info, node->type);
+    struct fun_info *fi = compute_target_fun_info(&cg->base, cg->base.compute_fun_info, node->type);
     if (out_fi)
         *out_fi = fi;
     assert(fi);
-    LLVMTypeRef fun_type = get_backend_type(node->type);
+    LLVMTypeRef fun_type = get_backend_type(cg, node->type);
     LLVMValueRef fun = LLVMAddFunction(cg->module, string_get(node->ft->name), fun_type);
     if (fi->tai.sret_arg_no != InvalidIndex) {
         LLVMValueRef ai = LLVMGetParam(fun, fi->tai.sret_arg_no);
         const char *sret_var = "agg.result";
         LLVMSetValueName2(ai, sret_var, strlen(sret_var));
         add_fun_param_attribute(cg->context, fun, fi->tai.sret_arg_no, "noalias");
-        add_fun_param_type_attribute(cg->context, fun, fi->tai.sret_arg_no, "sret", get_backend_type(fi->ret.type));
+        add_fun_param_type_attribute(cg->context, fun, fi->tai.sret_arg_no, "sret", get_backend_type(cg, fi->ret.type));
     }
     unsigned param_count = (unsigned)array_size(&fi->args);
     for (unsigned i = 0; i < param_count; i++) {

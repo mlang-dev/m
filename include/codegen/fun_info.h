@@ -33,9 +33,10 @@ struct fun_info {
 bool is_variadic(struct fun_info *fi);
 void fun_info_init(struct fun_info *fi, struct type_item *fun_type);
 void fun_info_deinit(struct fun_info *fi);
-typedef void (*fn_compute_fun_info)(struct target_info* ti, struct fun_info *fi);
-struct fun_info *compute_target_fun_info(struct target_info *ti, fn_compute_fun_info compute_fun_info, struct type_item *func_type);
-TargetType create_target_fun_type(struct target_info *ti, struct fun_info *fi);
+struct codegen;
+typedef void (*fn_compute_fun_info)(struct codegen* cg, struct fun_info *fi);
+struct fun_info *compute_target_fun_info(struct codegen *cg, fn_compute_fun_info compute_fun_info, struct type_item *func_type);
+TargetType create_target_fun_type(struct codegen *cg, struct fun_info *fi);
 bool check_rvo(struct fun_info *fi);
 bool fi_has_sret(struct fun_info *fi);
 
