@@ -113,7 +113,7 @@ TEST(test_analyzer_error, id_not_defined_unary)
 TEST(test_analyzer_error, int_to_float_mismatch)
 {
     char test_code[] = "\n\
-var x = 10\n\
+let mut x = 10\n\
 x = 10.0\n\
 ";
     struct frontend *fe = frontend_init();

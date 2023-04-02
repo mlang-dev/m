@@ -46,6 +46,44 @@ TEST(test_parser, var_init)
     frontend_deinit(fe);
 }
 
+TEST(test_parser, mut_var_init)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "let mut x = 11";
+    
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("x", string_get(node->var->var->ident->name));
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    ASSERT_EQ(Mutable, node->var->mut);
+    ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
+    struct ast_node *literal = node->var->init_value;
+    ASSERT_EQ(11, literal->liter->int_val);
+    node_free(block);
+    
+    frontend_deinit(fe);
+}
+
+TEST(test_parser, immut_var_init)
+{
+    struct frontend *fe = frontend_init();
+    char test_code[] = "let x = 11";
+    
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("x", string_get(node->var->var->ident->name));
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    ASSERT_EQ(Immutable, node->var->mut);
+    ASSERT_EQ(LITERAL_NODE, node->var->init_value->node_type);
+    struct ast_node *literal = node->var->init_value;
+    ASSERT_EQ(11, literal->liter->int_val);
+    node_free(block);
+    
+    frontend_deinit(fe);
+}
+
 TEST(test_parser, var_init_name_with_underlying)
 {
     char test_code[] = "let m_x = 11";
@@ -709,6 +747,8 @@ int test_parser()
     UNITY_BEGIN();
     RUN_TEST(test_parser_int_type);
     RUN_TEST(test_parser_var_init);
+    RUN_TEST(test_parser_mut_var_init);
+    RUN_TEST(test_parser_immut_var_init);
     RUN_TEST(test_parser_var_init_name_with_underlying);
     RUN_TEST(test_parser_int_init);
     RUN_TEST(test_parser_bool_init);
