@@ -64,7 +64,8 @@ void* jit_add_module(struct JIT *jit, void *module)
 {
     char *message = 0;
     if(LLVMVerifyModule((LLVMModuleRef)module, LLVMPrintMessageAction, &message)) {
-        assert(false); //something bad
+        printf("error: %s\n", message);
+        exit(1);
     }
     if(message) {
         LLVMDisposeMessage(message);

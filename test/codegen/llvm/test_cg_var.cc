@@ -33,7 +33,7 @@ TEST(testCGVar, testGlobalVarBool)
 {
     const char test_code[] = "let m = true";
     const char *expected_ir = R"(
-@m = global i1 true
+@m = global i8 1
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
