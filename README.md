@@ -16,7 +16,7 @@ You can zoom in to see more details at [https://mlang.dev](https://mlang.dev).
 ```
 //color function returns (r, g, b) tuple based on iteration count and distance
 let color iter_count:int iter_max:int sq_dist:f64 =
-    var v = 0.0, r = 0.0, g = 0.0, b = 0.0
+    let mut v = 0.0, r = 0.0, g = 0.0, b = 0.0
     if iter_count < iter_max then
         v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4
         if v < 1.0 then 
@@ -31,17 +31,17 @@ x0, y0: coordinate value of top left
 x1, y1: coordinate value of bottom right
 */
 let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
-    print "plot area: x0:%f y0:%f x1:%f y1:%f\\n" x0 y0 x1 y1
+    print "plot area: x0:%f y0:%f x1:%f y1:%f\n" x0 y0 x1 y1
     let width = 400, height = 300
-    var img:u8[height][width * 4]
+    let mut img:u8[height][width * 4]
     let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510
     for x in 0..width
         for y in 0..height
             let cx = x0 + scalex*x
             let cy = y0 + scaley*y
-            var zx = 0.0, zy = 0.0
-            var zx2 = 0.0, zy2 = 0.0
-            var n = 0
+            let mut zx = 0.0, zy = 0.0
+            let mut zx2 = 0.0, zy2 = 0.0
+            let mut n = 0
             while n<max_iter && (zx2 + zy2) < 4.0
                 zy = 2.0 * zx * zy + cy
                 zx = zx2  - zy2 + cx
