@@ -108,6 +108,8 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
 
     KEYWORD_PATTERN("match", MATCH, NULL, "keyword"),
     KEYWORD_PATTERN("with", WITH, NULL, "keyword"),
+    KEYWORD_PATTERN("when", WHEN, NULL, "keyword"),
+    
     KEYWORD_PATTERN("new", NEW, NULL, "keyword"),
     KEYWORD_PATTERN("del", DEL, NULL, "keyword"),
 
@@ -115,7 +117,6 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("yield", YIELD, NULL, "keyword"),
     KEYWORD_PATTERN("async", ASYNC, NULL, "keyword"),
     KEYWORD_PATTERN("await", AWAIT, NULL, "keyword"),
-    KEYWORD_PATTERN("when", WHEN, NULL, "keyword"),
 
     TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL, 0), //
     

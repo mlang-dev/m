@@ -113,13 +113,13 @@ enum token_type{
 
     TOKEN_MATCH,
     TOKEN_WITH,
+    TOKEN_WHEN,
     TOKEN_NEW,
     TOKEN_DEL,
     
     TOKEN_YIELD,
     TOKEN_ASYNC,
     TOKEN_AWAIT,
-    TOKEN_WHEN,
 
     /*IDENT token has to been at the end of keyword list, so that exact keyword match 
       always happens before identifier match
