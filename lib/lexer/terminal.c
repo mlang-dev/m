@@ -88,6 +88,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("while", WHILE, NULL, "keyword"),
     KEYWORD_PATTERN("break", BREAK, NULL, "keyword"),
     KEYWORD_PATTERN("continue", CONTINUE, NULL, "keyword"),
+    KEYWORD_PATTERN("return", RETURN, NULL, "keyword"),
 
 
     NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL, "operator"),
@@ -105,16 +106,15 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     NAME_KEYWORD_PATTERN("...", "\\.\\.\\.", VARIADIC, NULL, "operator"), // 30
     KEYWORD_PATTERN(":", ISTYPEOF, NULL, "operator"),
 
+    KEYWORD_PATTERN("match", MATCH, NULL, "keyword"),
+    KEYWORD_PATTERN("with", WITH, NULL, "keyword"),
+    KEYWORD_PATTERN("new", NEW, NULL, "keyword"),
+    KEYWORD_PATTERN("del", DEL, NULL, "keyword"),
+
     /*reserved keywords*/
-    KEYWORD_PATTERN("do", DO, NULL, "keyword"),
-    KEYWORD_PATTERN("switch", SWITCH, NULL, "keyword"),
-    KEYWORD_PATTERN("case", CASE, NULL, "keyword"),
-    KEYWORD_PATTERN("return", RETURN, NULL, "keyword"),
     KEYWORD_PATTERN("yield", YIELD, NULL, "keyword"),
     KEYWORD_PATTERN("async", ASYNC, NULL, "keyword"),
     KEYWORD_PATTERN("await", AWAIT, NULL, "keyword"),
-    KEYWORD_PATTERN("match", MATCH, NULL, "keyword"),
-    KEYWORD_PATTERN("with", WITH, NULL, "keyword"),
     KEYWORD_PATTERN("when", WHEN, NULL, "keyword"),
 
     TOKEN_PATTERN("[_a-zA-Z][_a-zA-Z0-9]*", IDENT, NULL, 0), //
