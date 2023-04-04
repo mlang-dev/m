@@ -99,7 +99,6 @@ export function mw(wasi_env:any, module_name:string, print_func:CallableFunction
 			let c_str = m_exports.get_version();
 			version = to_js_str(c_str);
 			m_instance.version = version;
-			m_exports.free(c_str);
 		}
 	}
 

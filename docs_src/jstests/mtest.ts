@@ -3,7 +3,7 @@ import { wasi } from '../wasi'
 
 function get_mw(log:CallableFunction|null=null){
     let log_nothing = (t:any) => {};
-    return mw(wasi(), '../docs/mw.wasm', log || log_nothing, false, null);
+    return mw(wasi(), '../docs/m.wasm', log || log_nothing, false, null);
 }
 
 export function mtest(name:string, description:string, code:string, expect_value:any, is_tutorial=true, save_wasm=false)

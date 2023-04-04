@@ -9,11 +9,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+
 const char *version()
 {
-    void * p = malloc(32);
-    strcpy(p, "m - 0.0.43");
-    return p;
+    return engine_version();
 }
 
 u32 code_size = 0;

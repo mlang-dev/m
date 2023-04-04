@@ -110,7 +110,7 @@ npm install
 cmake -B build -S .
 cmake --build build
 ```
-The build system will build m and mw.wasm under ./apps and run all unit tests.
+The build system will build m and m.wasm under ./apps and run all unit tests.
 
 
 # useful clang commands to compile to wasm/wasi target
