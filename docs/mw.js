@@ -61,7 +61,6 @@ function mw(wasi_env, module_name, print_func, is_remote_file, set_image_data) {
             let c_str = m_exports.get_version();
             version = to_js_str(c_str);
             m_instance.version = version;
-            m_exports.free(c_str);
         }
     }
     function to_js_str(c_str) {

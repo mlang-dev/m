@@ -1,12 +1,13 @@
  cmake_minimum_required(VERSION 3.16)
 
-# generating mw.wasm
+# generating m.wasm
 add_executable(mw
   wasm/mw.c
   wasm/libc.c
 )
 
 set_target_properties(mw PROPERTIES LINKER_LANGUAGE C
+                                    OUTPUT_NAME m
                                     SUFFIX ".wasm")
 target_link_libraries(mw PRIVATE wasm_options mlrw clibw
   ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
@@ -26,7 +27,7 @@ target_link_libraries(mw PRIVATE wasm_options mlrw clibw
 
 message(STATUS "copy ${CMAKE_CURRENT_BINARY_DIR}/wm.wasm ${CMAKE_SOURCE_DIR}/docs")
 add_custom_command(TARGET mw POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mw.wasm ${CMAKE_SOURCE_DIR}/docs
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/m.wasm ${CMAKE_SOURCE_DIR}/docs
 )
 
 find_package(LLVM 14 REQUIRED CONFIG)

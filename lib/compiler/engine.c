@@ -5,6 +5,8 @@
  */
 #include "compiler/engine.h"
 
+const char *_engine_version = "m - 0.0.44";
+
 void engine_free(struct engine *engine)
 {
     backend_deinit(engine->be);
@@ -17,4 +19,9 @@ void engine_reset(struct engine *engine)
     frontend_deinit(engine->fe);
     engine->fe = frontend_init();
     backend_reset(engine->be, engine->fe->sema_context);
+}
+
+const char *engine_version()
+{
+    return _engine_version;
 }

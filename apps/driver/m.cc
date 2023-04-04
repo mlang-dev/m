@@ -9,6 +9,7 @@
 #include "clib/string.h"
 #include "compiler/compiler.h"
 #include "compiler/ld.h"
+#include "compiler/engine.h"
 #include "compiler/repl.h"
 #include "app/app.h"
 #include <string.h>
@@ -97,7 +98,7 @@ int main(int argc, char *argv[])
     }
     int result = 0;
     if (!array_size(&src_files)) {
-        printf("m - 0.0.43\n");
+        printf("%s\n", engine_version());
         print_usage();
         //result = run_repl();
     } else {
