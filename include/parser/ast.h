@@ -317,6 +317,7 @@ struct type_item *get_ret_type(struct ast_node *fun_node);
 struct ast_node *function_node_new(struct ast_node *func_type,
     struct ast_node *body, struct source_location loc);
 struct ast_node *ident_node_new(symbol name, struct source_location loc);
+struct ast_node *del_node_new(symbol name, struct source_location loc);
 struct ast_node *type_item_node_new_with_type_name(symbol type_name, enum Mut mut, struct source_location loc);
 struct ast_node *type_item_node_new_with_array_type(struct array_type_node *array_type_node, enum Mut mut, struct source_location loc);
 struct ast_node *type_item_node_new_with_tuple_type(struct ast_node *tuple_block, enum Mut mut, struct source_location loc);

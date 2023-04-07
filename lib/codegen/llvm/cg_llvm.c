@@ -539,6 +539,12 @@ LLVMValueRef _emit_literal_node(struct cg_llvm *cg, struct ast_node *node)
     return cg->ops[type].get_const(cg, cg->context, cg->builder, value);
 }
 
+LLVMValueRef _emit_del_node(struct cg_llvm *cg, struct ast_node *node)
+{
+    //TODO: free memory
+    return 0;
+}
+
 /*xy->TypeNode*/
 LLVMValueRef _emit_ident_node(struct cg_llvm *cg, struct ast_node *node)
 {
@@ -879,6 +885,9 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
             break;
         case IDENT_NODE:
             value = _emit_ident_node(cg, node);
+            break;
+        case DEL_NODE:
+            value = _emit_del_node(cg, node);
             break;
         case VAR_NODE:
             value = emit_var_node(cg, node);

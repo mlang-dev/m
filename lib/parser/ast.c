@@ -952,6 +952,29 @@ void _free_member_index_node(struct ast_node *node)
     ast_node_free(node);
 }
 
+struct ast_node *del_node_new(symbol name, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(DEL_NODE, loc);
+    MALLOC(node->ident, sizeof(*node->ident));
+    node->ident->name = name;
+    node->ident->var = 0;
+    node->ident->is_member_index_object = false;
+    return node;
+}
+
+struct ast_node *_copy_del_node(struct ast_node *orig_node)
+{
+    struct ast_node *node = del_node_new(
+        orig_node->ident->name, orig_node->loc);
+    node->ident->var = orig_node->ident->var;
+    return node;
+}
+
+void _free_del_node(struct ast_node *node)
+{
+    ast_node_free(node);
+}
+
 struct ast_node *for_node_new(struct ast_node *var, struct ast_node *range,
     struct ast_node *body, struct source_location loc)
 {
@@ -1148,6 +1171,9 @@ struct ast_node *node_copy(struct type_context *tc, struct ast_node *node)
     case WILDCARD_NODE:
         clone = ast_node_new(WILDCARD_NODE, node->loc);
         break;
+    case DEL_NODE:
+        clone = _copy_del_node(node);
+        break;
     case NULL_NODE:
     case MEMORY_NODE:
     case MEMBER_INDEX_NODE:
@@ -1259,6 +1285,9 @@ void node_free(struct ast_node *node)
         break;
     case MEMBER_INDEX_NODE:
         _free_member_index_node(node);
+        break;
+    case DEL_NODE:
+        _free_del_node(node);
         break;
     case TOTAL_NODE:
         ast_node_free(node);

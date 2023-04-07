@@ -1043,6 +1043,14 @@ void _emit_block(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *nod
     }
 }
 
+
+void _wasm_emit_del(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
+{   
+    symbol free = to_symbol("free");
+    u32 func_index = hashtable_get_int(&cg->func_name_2_idx, free);
+    wasm_emit_call_fun(ba, func_index);
+}
+
 void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *node)
 {
     if (node->transformed)
@@ -1053,6 +1061,9 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
             break;
         case BLOCK_NODE:
             _emit_block(cg, ba, node);
+            break;
+        case DEL_NODE:
+            _wasm_emit_del(cg, ba, node);
             break;
         case MEMBER_INDEX_NODE:
             if(node->index->object->type->type == TYPE_ARRAY){
