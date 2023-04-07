@@ -809,6 +809,7 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
         case TYPE_EXPR_ITEM_NODE:
         case WILDCARD_NODE:
         case RANGE_NODE:
+        case DEL_NODE:
             break;
         case VARIANT_TYPE_ITEM_NODE:
             type = _analyze_union_type_item_node(context, node);

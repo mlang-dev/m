@@ -159,6 +159,9 @@ stmt            = func_type
                 | block
                 | import_decl
                 | jump_stmt
+                | del_stmt
+
+del_stmt        = "del" IDENT                                                               { del_stmt 1 }
 
 jump_stmt       = "continue"                                                                { jump 0 }
                 | "break"                                                                   { jump 0 }

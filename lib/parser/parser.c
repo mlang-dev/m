@@ -575,6 +575,12 @@ struct ast_node *_build_nonterm_ast(struct type_context *tc, struct parse_rule *
             ast = type_node_new(ident->ident->name, node, ident->loc);
             break;
         }
+        case DEL_NODE:
+        {
+            struct ast_node *ident = nodes[rule->action.item_index[0]];
+            ast = del_node_new(ident->ident->name, ident->loc);
+            break;
+        }
         case BLOCK_NODE:
             if (rule->action.item_index_count == 0){
                 struct array nodes;
