@@ -23,6 +23,7 @@ struct app{
 struct app *app_get();
 void app_init();
 void app_deinit();
+void app_reset_error_reports();
 
 #ifdef __cplusplus
 }

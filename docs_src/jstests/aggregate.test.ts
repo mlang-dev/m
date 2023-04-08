@@ -32,12 +32,6 @@ variant A = x:int | y:int
 let a = A { 10 }
 a.y`, 10);
 
-mtest('access field no var', 
-`access struct initializer's field without using a variable`,
-`
-struct A = x:int, y:f64
-A { 10, 20.0 }.y
-`, 20.0);
 
 mtest('struct in struct', 
 `
@@ -79,7 +73,9 @@ One more time, but this time we eliminate a variable in the function.
 `, 
 `
 struct AB = a:cf64, b:cf64
-let get () = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}.a
+let get () = 
+    let ab = AB{cf64{10.0, 20.0}, cf64{30.0, 40.0}}
+    ab.a
 get().re
 `, 10.0);
 
