@@ -55,7 +55,7 @@ literal_expr    = LITERAL_INT
 primary_expr    = literal_expr                                             
                 | IDENT                                                               
                 | '(' expr ')'                                                              { 1 }
-                | adt_initializer
+                | '(' expr_list ')'                                                         { adt_init 1 1 } // first 1 indicating tuple type
 
 postfix_expr    = primary_expr
                 | postfix_expr '[' expr ']'                                                 { indexing 0 0 2 } //first zero indicates indexing with integer
@@ -118,6 +118,7 @@ const_expr      = cond_expr
 
 assignee_expr   = cond_expr
                 | array_init
+                | adt_init 
 
 assign_expr     = assignee_expr
                 | unary_expr assign_op  assign_expr                                         { assign 0 1 2 }
@@ -237,9 +238,8 @@ variant_item    = IDENT '(' type_list ')'                                       
 type_list       = type_list ',' type_expr_item                                              { block 0 2 }    
                 | type_expr_item
 
-adt_initializer = IDENT '{' expr_list '}'                                                   { adt_initializer 0 0 2 } // first 0 indicating struct type
-                | '{' expr_list '}'                                                         { adt_initializer 0 1 } // first 0 indicating struct type
-                | '(' expr_list ')'                                                         { adt_initializer 1 1 } // first 1 indicating tuple type
+adt_init        = IDENT '{' expr_list '}'                                                   { adt_init 0 0 2 } // first 0 indicating struct type
+                | '{' expr_list '}'                                                         { adt_init 0 1 } // first 0 indicating struct type
 
 func_type       = "func" IDENT param_decls "->" type_item                                   { func_type 1 4 2 }
 

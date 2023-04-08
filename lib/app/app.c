@@ -28,6 +28,12 @@ void app_deinit()
     symbols_deinit();
 }
 
+void app_reset_error_reports()
+{
+    error_deinit(&app.error_reports);
+    error_init(&app.error_reports);
+}
+
 struct app *app_get()
 {
     return &app;

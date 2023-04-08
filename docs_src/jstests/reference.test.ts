@@ -45,8 +45,8 @@ mtest('pass struct by ref', `pass struct data to function by reference`,
 struct Point = x:mut f64, y:f64
 let update xy:&Point =
     xy.x = 10.0
-let z = &Point{100.0, 200.0}
-update z
+let z = Point{100.0, 200.0}
+update (&z)
 z.x
 `, 10.0, true);
 

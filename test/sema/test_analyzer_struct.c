@@ -9,6 +9,8 @@
 #include "test.h"
 #include "sema/frontend.h"
 #include "sema/analyzer.h"
+#include "app/error.h"
+#include "app/app.h"
 #include "clib/string.h"
 #include <stdio.h>
 
@@ -188,6 +190,35 @@ getx()\n\
     node_free(block);
     frontend_deinit(fe);
 }
+TEST(test_analyzer_struct, pass_by_ref)
+{
+    char test_code[] = "\n\
+struct Point = x:mut f64, y:f64\n\
+let update xy:&Point =\n\
+    xy.x = 10.0\n\
+let z = Point{100.0, 200.0}\n\
+update (&z)\n\
+z.x\n\
+";
+    struct frontend *fe = frontend_init();
+    struct type_context *tc = fe->sema_context->tc;
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(5, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    string type_str = to_string(tc, node->type);
+    ASSERT_STREQ("Point", string_get(&type_str));
+    /*func definition*/
+    node = array_get_ptr(&block->block->nodes, 1);
+    type_str = to_string(tc, node->type);
+    ASSERT_STREQ("&Point -> ()", string_get(&type_str));
+    node = array_get_ptr(&block->block->nodes, 2);
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    type_str = to_string(tc, node->type);
+    ASSERT_STREQ("Point", string_get(&type_str));
+    node_free(block);
+    frontend_deinit(fe);
+}
 
 int test_analyzer_struct()
 {
@@ -198,6 +229,7 @@ int test_analyzer_struct()
     RUN_TEST(test_analyzer_struct_ret_struct_type);
     RUN_TEST(test_analyzer_struct_type_local_var);
     RUN_TEST(test_analyzer_struct_type_vars);
+    RUN_TEST(test_analyzer_struct_pass_by_ref);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();
