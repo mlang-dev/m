@@ -114,7 +114,8 @@ struct ast_node *_build_terminal_ast(struct type_context *tc, struct token *tok)
 
 enum ast_action {
     MarkMutVar = 0,
-    MarkMutType = 1
+    MarkMutType = 1,
+    MarkHeapAlloc = 2,
 };
 
 struct ast_node *_do_action(enum ast_action action, u8 param, struct ast_node *node)
@@ -136,6 +137,9 @@ struct ast_node *_do_action(enum ast_action action, u8 param, struct ast_node *n
     case MarkMutType:
         assert(node->node_type == TYPE_ITEM_NODE);
         node->type_item_node->mut = Mutable;
+        break;
+    case MarkHeapAlloc:
+        node->is_heap_alloc = param;
         break;
     }
     return node;

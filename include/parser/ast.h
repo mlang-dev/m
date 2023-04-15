@@ -268,6 +268,7 @@ struct ast_node {
     bool is_ret;        //this is expected to be removed from sema analysis
     bool is_lvalue;      //default is zero (read), for left side of assignment node, it will be set as 1
     bool is_addressable;     // is left value
+    bool is_heap_alloc; // is heap allocated
     union{
         void *data; //node data represents any of following pointer
         struct token_node *token;
