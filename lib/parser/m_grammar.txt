@@ -15,7 +15,7 @@ builtin_types   = unit_type | "bool" | "int"
                 | "i8" | "i16" | "i32" | "i64" 
                 | "f32" | "f64" | "char" | "string"
 
-type_item       = builtin_types                                                             { type_item_node 0 0 } // 1 is built types
+type_item       = builtin_types                                                             { type_item_node 0 0 } // 0 is built types
                 | array_type                                                                { type_item_node 2 0 } // 2 is array type
                 | tuple_type                                                                { type_item_node 3 0 } // 3 is tuple type
                 | '&' type_item                                                             { type_item_node 4 1 } // 4 is ref type
@@ -117,8 +117,13 @@ cond_expr       = logic_or_expr
 const_expr      = cond_expr
 
 assignee_expr   = cond_expr
-                | array_init
-                | adt_init 
+                | object_const
+
+object_init     = array_init
+                | adt_init
+
+object_const    = object_init
+                | "new" object_init                                                         { mark_heapalloc 2 1 1 } //2-MarkHeapAlloc, 1-True, 1-ast node
 
 assign_expr     = assignee_expr
                 | unary_expr assign_op  assign_expr                                         { assign 0 1 2 }
