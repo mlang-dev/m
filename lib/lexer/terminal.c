@@ -54,7 +54,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("use", USE, NULL, "keyword"), 
     KEYWORD_PATTERN("type", TYPE, NULL, "keyword"),
     KEYWORD_PATTERN("resource", RESOURCE, NULL, "keyword"), 
-    KEYWORD_PATTERN("func", FUNC, NULL, "keyword"),
+    KEYWORD_PATTERN("fun", FUN, NULL, "keyword"),
     KEYWORD_PATTERN("struct", STRUCT, NULL, "keyword"),
     KEYWORD_PATTERN("enum", ENUM, NULL, "keyword"),
     KEYWORD_PATTERN("flags", FLAGS, NULL, "keyword"),

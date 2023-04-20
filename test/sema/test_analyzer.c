@@ -16,7 +16,7 @@ TEST(test_analyzer, import_func_type_node)
 {
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
-    char test_code[] = "from sys import func printf __format:string ... -> ()";
+    char test_code[] = "from sys import fun printf __format:string ... -> ()";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
@@ -34,7 +34,7 @@ TEST(test_analyzer, call_node)
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     char test_code[] = "\n\
-func printf __format:string ... -> int\n\
+fun printf __format:string ... -> int\n\
 printf \"hello\"\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
