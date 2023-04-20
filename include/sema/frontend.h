@@ -20,7 +20,7 @@ struct frontend{
     struct sema_context *sema_context;
 };
 
-struct frontend *frontend_llvm_init(const char *stdio_filepath, const char *math_filepath, bool is_repl);
+struct frontend *frontend_llvm_init(const char *sys_path, bool is_repl);
 struct frontend *frontend_init();
 void frontend_deinit(struct frontend *fe);
 

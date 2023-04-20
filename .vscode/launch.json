@@ -59,6 +59,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/apps/m", 
             "args": [
+                "-s ${workspaceFolder}/src/sys",
                 "${workspaceFolder}/samples/sample_lib.m",
             ],
             "stopAtEntry": true,

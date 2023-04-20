@@ -106,8 +106,8 @@ endif(WIN32)
 add_custom_command(
   TARGET m
   POST_BUILD
-  COMMAND m ${CMAKE_SOURCE_DIR}/samples/sample_lib.m
-  COMMAND m ${CMAKE_SOURCE_DIR}/samples/sample.m
+  COMMAND m -s ${CMAKE_SOURCE_DIR}/src/sys ${CMAKE_SOURCE_DIR}/samples/sample_lib.m
+  COMMAND m -s ${CMAKE_SOURCE_DIR}/src/sys ${CMAKE_SOURCE_DIR}/samples/sample.m
   COMMAND cp m ${CMAKE_SOURCE_DIR}/dep/m
   # COMMAND m ${CMAKE_SOURCE_DIR}/samples/helloworld.m
   # MacOS COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/libc.dylib -o ${CMAKE_CURRENT_SOURCE_DIR}/sample

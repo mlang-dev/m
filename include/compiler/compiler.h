@@ -22,7 +22,7 @@ enum object_file_type {
     FT_OBJECT = 3
 };
 
-int compile(const char *fn, enum object_file_type file_type, const char *output_filepath);
+int compile(const char *sys_path, const char *fn, enum object_file_type file_type, const char *output_filepath);
 char *emit_ir_string(struct cg_llvm *cg, struct ast_node *ast_node);
 void free_ir_string(char *ir_string);
 
