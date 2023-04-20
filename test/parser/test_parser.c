@@ -486,7 +486,7 @@ TEST(test_parser, variadic_function)
 
 TEST(test_parser, func_type)
 {
-    char test_code[] = "func printf format:string ... -> ()";
+    char test_code[] = "fun printf format:string ... -> ()";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -501,7 +501,7 @@ TEST(test_parser, func_type)
 
 TEST(test_parser, func_type_no_param)
 {
-    char test_code[] = "func print () -> int";
+    char test_code[] = "fun print () -> int";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -518,7 +518,7 @@ TEST(test_parser, func_type_no_param)
 
 TEST(test_parser, func_type_no_param_no_return)
 {
-    char test_code[] = "func print ()->()";
+    char test_code[] = "fun print ()->()";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -535,7 +535,7 @@ TEST(test_parser, func_type_no_param_no_return)
 
 TEST(test_parser, import_fun_type)
 {
-    char test_code[] = "from sys import func print () -> ()";
+    char test_code[] = "from sys import fun print () -> ()";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
