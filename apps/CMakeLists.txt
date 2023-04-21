@@ -92,17 +92,6 @@ elseif(UNIX)
   )
 endif()
 
-message(STATUS "${CMAKE_BUILD_TYPE} COPY ${CMAKE_SOURCE_DIR}/mlib DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib")
-
-if(WIN32)
-add_custom_command(
-  TARGET m PRE_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/mlib" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/mlib"
-)
-else()
-file(COPY ${CMAKE_SOURCE_DIR}/mlib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib/)
-endif(WIN32)
-
 add_custom_command(
   TARGET m
   POST_BUILD

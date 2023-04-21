@@ -75,6 +75,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/test/mtest", 
             "args": [
+                "${workspaceFolder}/src/sys",
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",

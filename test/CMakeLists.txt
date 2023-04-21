@@ -111,14 +111,6 @@ TARGET_LINK_LIBRARIES(mtest gtest mlrl clib
 enable_testing()
 include(GoogleTest)
 gtest_discover_tests(mtest)
-if(WIN32)
-add_custom_command(
-  TARGET mtest PRE_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/mlib" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/mlib"
-)
-else()
-file(COPY ${CMAKE_SOURCE_DIR}/mlib/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mlib/)
-endif(WIN32)
 
 add_executable(mctest
 test.c
@@ -180,5 +172,5 @@ add_custom_command(
 add_custom_command(
   TARGET mtest
   POST_BUILD
-  COMMAND mtest
+  COMMAND mtest ${CMAKE_SOURCE_DIR}/src/sys
 )
