@@ -20,7 +20,7 @@ struct engine{
     struct backend *be;
 };
 
-struct engine *engine_llvm_new(bool is_repl);
+struct engine *engine_llvm_new(const char *sys_path, bool is_repl);
 struct engine *engine_wasm_new();
 void engine_reset(struct engine *engine);
 u8* compile_to_wasm(struct engine *cg, const char *expr);

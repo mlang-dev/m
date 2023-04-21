@@ -36,7 +36,7 @@ void _free_nested_levels(void *arr)
     array_deinit(array);
 }
 
-struct sema_context *sema_context_new(struct type_context *tc, struct ast_node *stdio, struct ast_node *math, bool is_repl)
+struct sema_context *sema_context_new(struct type_context *tc, struct ast_node *sys_block, bool is_repl)
 {
     struct sema_context *context;
     CALLOC(context, 1, sizeof(*context));
@@ -77,14 +77,11 @@ struct sema_context *sema_context_new(struct type_context *tc, struct ast_node *
 
     struct array builtins;
     array_init(&builtins, sizeof(struct ast_node *));
-    if (stdio){
-        for (size_t i = 0; i < array_size(&stdio->block->nodes); i++) {
-            struct ast_node *node = array_get_ptr(&stdio->block->nodes, i);
+    if (sys_block){
+        for (size_t i = 0; i < array_size(&sys_block->block->nodes); i++) {
+            struct ast_node *node = array_get_ptr(&sys_block->block->nodes, i);
             array_push(&builtins, &node);
         }
-    }
-    if (math){
-        array_add(&builtins, &math->block->nodes);
     }
     for (size_t i = 0; i < array_size(&builtins); i++) {
         struct ast_node *node = array_get_ptr(&builtins, i);

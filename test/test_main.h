@@ -7,11 +7,13 @@
 class Environment : public testing::Environment {
     struct engine *m_engine = 0;
     JIT *m_jit = 0;
-
+    const char *sys_path = 0;
  public:
+  Environment(const char *sys_path) : sys_path(sys_path) {}
+  
   virtual void SetUp() {
     app_init();
-    m_engine = engine_llvm_new(false);
+    m_engine = engine_llvm_new(sys_path, false);
     m_jit = jit_new(m_engine);
     printf("Global SetUp\n");
   }

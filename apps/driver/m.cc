@@ -40,6 +40,8 @@ int main(int argc, char *argv[])
     string link_cmd;
     string_init_chars(&link_cmd, ld_exe_cmd);
     char *output_filepath = 0;
+    string sys_path;
+    string_init(&sys_path);
 #ifdef __APPLE__
     const char *ld_cmd = "ld64.lld.darwinnew";
     const char *finalization = "-lSystem";
@@ -58,7 +60,7 @@ int main(int argc, char *argv[])
      * ':' indicating this option has argument value: optarg
      * 
      */
-    while ((c = getopt(argc, argv, "cf:o:")) != -1) {
+    while ((c = getopt(argc, argv, "cf:o:s:")) != -1) {
         switch (c) {
         case 'f': {
             if (strcmp(optarg, "bc") == 0)
@@ -88,9 +90,15 @@ int main(int argc, char *argv[])
             is_compiler_front_end = true;
             break;
         }
+        case 's':{
+            while (*optarg == ' ')
+                optarg++;
+            string_add_chars(&sys_path, optarg);
+            break;
+        }
         case '?':
         default:
-            break;
+            abort();
         }
     }
     for(; optind < argc; optind++){     
@@ -112,7 +120,7 @@ int main(int argc, char *argv[])
                 exit(1);
             }
             printf("compiling %s -> %s\n", fn, output_filepath);
-            result = compile(fn, file_type, output_filepath);
+            result = compile(string_get(&sys_path), fn, file_type, output_filepath);
             char *basename = get_basename((char *)fn);
             char *obj_name = strcat(basename, ".o");
             string_add_chars(&link_cmd, " ");
@@ -127,5 +135,6 @@ int main(int argc, char *argv[])
     }
     array_deinit(&src_files);
     string_deinit(&link_cmd);
+    string_deinit(&sys_path);
     return result;
 }

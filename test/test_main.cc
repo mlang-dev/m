@@ -61,9 +61,13 @@ GTEST_API_ int main() {
 // Normal platforms: program entry point is main, argc/argv are initialized.
 
 GTEST_API_ int main(int argc, char **argv) {
+  if(argc < 2){
+    printf("Usage: %s <sys_path>", argv[0]);
+    return 1;
+  }
   printf("Running main() from %s\n", __FILE__);
   testing::InitGoogleTest(&argc, argv);
-  env = new Environment;
+  env = new Environment(argv[1]);
   testing::AddGlobalTestEnvironment(env);
   return RUN_ALL_TESTS();
 }

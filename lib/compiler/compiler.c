@@ -65,12 +65,12 @@ int generate_ir_file(LLVMModuleRef module, const char *filename)
     return 0;
 }
 
-int compile(const char *source_file, enum object_file_type file_type, const char *output_filepath)
+int compile(const char *sys_path, const char *source_file, enum object_file_type file_type, const char *output_filepath)
 {
     string filename;
     string_init_chars(&filename, source_file);
     string_substr(&filename, '.');
-    struct engine *engine = engine_llvm_new(false);
+    struct engine *engine = engine_llvm_new(sys_path, false);
     struct cg_llvm *cg = (struct cg_llvm*)engine->be->cg;
     create_ir_module(cg, string_get(&filename));
     struct ast_node *block = parse_file(engine->fe->parser, source_file);

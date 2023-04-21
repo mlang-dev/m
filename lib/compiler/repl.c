@@ -186,7 +186,7 @@ exit:
 
 int run_repl()
 {
-    struct engine *engine = engine_llvm_new(true);
+    struct engine *engine = engine_llvm_new(0, true);
     struct JIT *jit = jit_new(engine);
     printf("m> ");
     parse_repl_code(engine->fe->parser, &eval_node, jit);

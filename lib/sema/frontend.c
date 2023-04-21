@@ -15,7 +15,7 @@ struct frontend *frontend_init()
     struct frontend*fe;
     MALLOC(fe, sizeof(*fe));
     fe->parser = parser_new();
-    fe->sema_context = sema_context_new(fe->parser->tc, 0, 0, false);
+    fe->sema_context = sema_context_new(fe->parser->tc, 0, false);
     return fe;
 }
 

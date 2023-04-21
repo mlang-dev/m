@@ -9,22 +9,51 @@
 #include "sema/frontend.h"
 #include "clib/util.h"
 #include "app/error.h"
+#include <dirent.h>
 
-struct frontend *frontend_llvm_init(const char *stdio_filepath, const char *math_filepath, bool is_repl)
+
+struct array _get_file_paths(const char *sys_path)
+{
+    ARRAY_STRING(file_paths);
+    struct dirent *dp;
+    DIR *dfd;
+    if ((dfd = opendir(sys_path)) == NULL)
+    {
+        fprintf(stderr, "Can't open %s\n", sys_path);
+        return file_paths;
+    }
+    string file_path;
+    string_init(&file_path);
+    while ((dp = readdir(dfd)) != NULL)    
+    {
+        if (dp->d_name[0] == '.')
+            continue;
+        string_copy_chars(&file_path, sys_path);
+        string_add_chars(&file_path, "/");
+        string_add_chars(&file_path, dp->d_name);
+        array_push(&file_paths, &file_path);
+        string_init(&file_path);
+    }
+    closedir(dfd);
+    return file_paths;
+}
+
+struct frontend *frontend_llvm_init(const char *sys_path, bool is_repl)
 {
     struct frontend*fe;
     MALLOC(fe, sizeof(*fe));
     fe->parser = parser_new();
-    struct ast_node *stdio = 0;
-    struct ast_node *math = 0;
-    char libpath[4096];
-    char *mpath = get_exec_path();
-    join_path(libpath, sizeof(libpath), mpath, stdio_filepath);
-    stdio = parse_file(fe->parser, libpath);
-    join_path(libpath, sizeof(libpath), mpath, math_filepath);
-    math = parse_file(fe->parser, libpath);
-    fe->sema_context = sema_context_new(fe->parser->tc, stdio, math, is_repl);
-    free_block_node(stdio, false);
-    free_block_node(math, false);
+    struct ast_node *sys_block = block_node_new_empty();
+    struct array file_paths = _get_file_paths(sys_path);
+    for (size_t i = 0; i < array_size(&file_paths); i++)
+    {
+        string *file_path = array_get(&file_paths, i);
+        struct ast_node *sys = parse_file(fe->parser, string_get(file_path));
+        block_node_add_block(sys_block, sys);
+        free_block_node(sys, false);
+    }
+    fe->sema_context = sema_context_new(fe->parser->tc, sys_block, is_repl);
+    free_block_node(sys_block, false);
+    array_deinit(&file_paths);
     return fe;
 }
