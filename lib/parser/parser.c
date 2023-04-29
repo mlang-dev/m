@@ -579,10 +579,16 @@ struct ast_node *_build_nonterm_ast(struct type_context *tc, struct parse_rule *
             ast = type_node_new(ident->ident->name, node, ident->loc);
             break;
         }
+        case NEW_NODE:
+        {
+            struct ast_node *node = _take(nodes, rule->action.item_index[0]);
+            ast = new_node_new(node, node->loc);
+            break;
+        }
         case DEL_NODE:
         {
-            struct ast_node *ident = nodes[rule->action.item_index[0]];
-            ast = del_node_new(ident->ident->name, ident->loc);
+            struct ast_node *ident = _take(nodes, rule->action.item_index[0]);
+            ast = del_node_new(ident, ident->loc);
             break;
         }
         case BLOCK_NODE:

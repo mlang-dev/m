@@ -886,6 +886,7 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
         case IDENT_NODE:
             value = _emit_ident_node(cg, node);
             break;
+        case NEW_NODE:
         case DEL_NODE:
             value = _emit_del_node(cg, node);
             break;

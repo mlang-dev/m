@@ -54,6 +54,7 @@ extern "C" {
     ENUM_ITEM(CALL_NODE)            \
     ENUM_ITEM(FUNC_TYPE_NODE)       \
     ENUM_ITEM(FUNC_NODE)            \
+    ENUM_ITEM(NEW_NODE)             \
     ENUM_ITEM(DEL_NODE)             \
     ENUM_ITEM(BLOCK_NODE)           \
     ENUM_ITEM(TOTAL_NODE)

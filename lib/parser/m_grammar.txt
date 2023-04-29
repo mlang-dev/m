@@ -126,7 +126,10 @@ assignee_expr   = cond_expr
 initializer     = array_init
                 | adt_init
 
-new_expr        = "new" initializer                                                         { mark_heapalloc 2 1 1 } //2-MarkHeapAlloc, 1-True, 1-ast node
+new_expr        = "new" new_expr_item                                                       { new_expr 1 } 
+
+new_expr_item   = initializer
+                | type_item
 
 assign_expr     = assignee_expr
                 | unary_expr assign_op  assign_expr                                         { assign 0 1 2 }
