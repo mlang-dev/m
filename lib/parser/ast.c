@@ -953,25 +953,43 @@ void _free_member_index_node(struct ast_node *node)
     ast_node_free(node);
 }
 
-struct ast_node *del_node_new(symbol name, struct source_location loc)
+struct ast_node *del_node_new(struct ast_node *del, struct source_location loc)
 {
     struct ast_node *node = ast_node_new(DEL_NODE, loc);
-    MALLOC(node->ident, sizeof(*node->ident));
-    node->ident->name = name;
-    node->ident->var = 0;
-    node->ident->is_member_index_object = false;
+    node->del_node = del;
     return node;
 }
 
-struct ast_node *_copy_del_node(struct ast_node *orig_node)
+struct ast_node *_copy_del_node(struct type_context *tc, struct ast_node *orig_node)
 {
     struct ast_node *node = del_node_new(
-        orig_node->ident->name, orig_node->loc);
-    node->ident->var = orig_node->ident->var;
+        node_copy(tc, orig_node->del_node), orig_node->loc);
+    //node->ident->var = orig_node->ident->var;
     return node;
 }
 
 void _free_del_node(struct ast_node *node)
+{
+    ast_node_free(node);
+}
+
+
+struct ast_node *new_node_new(struct ast_node *new_node, struct source_location loc)
+{
+    struct ast_node *node = ast_node_new(NEW_NODE, loc);
+    node->new_node = new_node;
+    return node;
+}
+
+struct ast_node *_copy_new_node(struct type_context *tc, struct ast_node *orig_node)
+{
+    struct ast_node *node = new_node_new(
+        node_copy(tc, orig_node->new_node), orig_node->loc);
+    //node->ident->var = orig_node->ident->var;
+    return node;
+}
+
+void _free_new_node(struct ast_node *node)
 {
     ast_node_free(node);
 }
@@ -1173,7 +1191,10 @@ struct ast_node *node_copy(struct type_context *tc, struct ast_node *node)
         clone = ast_node_new(WILDCARD_NODE, node->loc);
         break;
     case DEL_NODE:
-        clone = _copy_del_node(node);
+        clone = _copy_del_node(tc, node);
+        break;
+    case NEW_NODE:
+        clone = _copy_new_node(tc, node);
         break;
     case NULL_NODE:
     case MEMORY_NODE:
@@ -1289,6 +1310,9 @@ void node_free(struct ast_node *node)
         break;
     case DEL_NODE:
         _free_del_node(node);
+        break;
+    case NEW_NODE:
+        _free_new_node(node);
         break;
     case TOTAL_NODE:
         ast_node_free(node);

@@ -1062,6 +1062,7 @@ void wasm_emit_code(struct cg_wasm *cg, struct byte_array *ba, struct ast_node *
         case BLOCK_NODE:
             _emit_block(cg, ba, node);
             break;
+        case NEW_NODE:
         case DEL_NODE:
             _wasm_emit_del(cg, ba, node);
             break;
