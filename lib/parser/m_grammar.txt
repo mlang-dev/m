@@ -72,6 +72,10 @@ unary_expr      = power_expr
                 | "--" unary_expr                                                           { unop 0 1 }
                 | "|/" unary_expr                                                           { unop 0 1 }
                 | [*&+-~!] unary_expr                                                       { unop 0 1 }
+                | new_expr
+                | del_expr
+
+del_expr        = "del" IDENT                                                               { del_expr 1 }
 
 cast_expr       = unary_expr
                 | '(' type_item ')' cast_expr                                               { cast 1 3 }
@@ -117,13 +121,12 @@ cond_expr       = logic_or_expr
 const_expr      = cond_expr
 
 assignee_expr   = cond_expr
-                | object_const
+                | initializer
 
-object_init     = array_init
+initializer     = array_init
                 | adt_init
 
-object_const    = object_init
-                | "new" object_init                                                         { mark_heapalloc 2 1 1 } //2-MarkHeapAlloc, 1-True, 1-ast node
+new_expr        = "new" initializer                                                         { mark_heapalloc 2 1 1 } //2-MarkHeapAlloc, 1-True, 1-ast node
 
 assign_expr     = assignee_expr
                 | unary_expr assign_op  assign_expr                                         { assign 0 1 2 }
@@ -165,9 +168,6 @@ stmt            = func_type
                 | block
                 | import_decl
                 | jump_stmt
-                | del_stmt
-
-del_stmt        = "del" IDENT                                                               { del_stmt 1 }
 
 jump_stmt       = "continue"                                                                { jump 0 }
                 | "break"                                                                   { jump 0 }
