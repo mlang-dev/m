@@ -77,6 +77,23 @@ getx()
     node_free(block);
 }
 
+// TEST(testJITAdt, testStructEmbedStruct)
+// {
+//     char test_code[] = R"(
+// struct xy = x:f64, y:f64
+// struct wz = w:f64, z:mut xy
+// let ab = wz{10.0, xy{20.0, 30.0}}
+// ab.z = xy{200.0, 300.0}
+// ab.z.y
+// )";
+//     Environment *env = get_env();
+//     engine_reset(env->engine());
+//     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+//     block = split_ast_nodes_with_start_func(0, block);
+//     ASSERT_EQ(300.0, eval_module(env->jit(), block).d_value);
+//     node_free(block);
+// }
+
 TEST(testJITAdt, tuple_type)
 {
     char test_code[] = R"(
