@@ -186,6 +186,31 @@ xy.x = 10.0";
     frontend_deinit(fe);
 }
 
+TEST(test_parser_struct, new_delete_struct)
+{
+    char test_code[] = "\n\
+struct Point2D = x:f64, y:f64 \n\
+let xy = new Point2D{0.0, 0.0} \n\
+del xy";
+    struct frontend *fe = frontend_init();
+    
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    ASSERT_EQ(3, array_size(&block->block->nodes));
+    ASSERT_EQ(STRUCT_NODE, node->node_type);
+    node = array_get_ptr(&block->block->nodes, 1);
+    ASSERT_EQ(VAR_NODE, node->node_type);
+    struct ast_node *var = node;
+    ASSERT_STREQ("xy", string_get(var->var->var->ident->name));
+    node = array_get_ptr(&block->block->nodes, 2);
+    ASSERT_EQ(DEL_NODE, node->node_type);
+    ASSERT_EQ(IDENT_NODE, node->del_node->node_type);
+    ASSERT_STREQ("xy", string_get(node->del_node->ident->name));
+    node_free(block);
+    
+    frontend_deinit(fe);
+}
+
 int test_parser_struct()
 {
     UNITY_BEGIN();
@@ -195,6 +220,7 @@ int test_parser_struct()
     RUN_TEST(test_parser_struct_func_returns_struct_init);
     RUN_TEST(test_parser_struct_use_type_field);
     RUN_TEST(test_parser_struct_member_field_assignment);
+    RUN_TEST(test_parser_struct_new_delete_struct);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

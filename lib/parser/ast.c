@@ -970,6 +970,8 @@ struct ast_node *_copy_del_node(struct type_context *tc, struct ast_node *orig_n
 
 void _free_del_node(struct ast_node *node)
 {
+    node_free(node->del_node);
+    node->del_node = 0;
     ast_node_free(node);
 }
 
@@ -991,6 +993,8 @@ struct ast_node *_copy_new_node(struct type_context *tc, struct ast_node *orig_n
 
 void _free_new_node(struct ast_node *node)
 {
+    node_free(node->new_node);
+    node->new_node = 0;
     ast_node_free(node);
 }
 
