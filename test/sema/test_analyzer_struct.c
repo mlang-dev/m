@@ -190,6 +190,7 @@ getx()\n\
     node_free(block);
     frontend_deinit(fe);
 }
+
 TEST(test_analyzer_struct, pass_by_ref)
 {
     char test_code[] = "\n\
@@ -220,6 +221,31 @@ z.x\n\
     frontend_deinit(fe);
 }
 
+TEST(test_analyzer_struct, new_del)
+{
+    char test_code[] = "\n\
+struct Point = x:mut f64, y:f64\n\
+let xy = new Point{100.0, 200.0}\n\
+del xy";
+    struct frontend *fe = frontend_init();
+    struct type_context *tc = fe->sema_context->tc;
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    ASSERT_EQ(3, array_size(&block->block->nodes));
+    analyze(fe->sema_context, block);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    string type_str = to_string(tc, node->type);
+    ASSERT_STREQ("Point", string_get(&type_str));
+    /*func definition*/
+    node = array_get_ptr(&block->block->nodes, 1);
+    type_str = to_string(tc, node->type);
+    ASSERT_STREQ("&Point", string_get(&type_str));
+    node = array_get_ptr(&block->block->nodes, 2);
+    type_str = to_string(tc, node->type);
+    ASSERT_STREQ("()", string_get(&type_str));
+    node_free(block);
+    frontend_deinit(fe);
+}
+
 int test_analyzer_struct()
 {
     UNITY_BEGIN();
@@ -230,6 +256,7 @@ int test_analyzer_struct()
     RUN_TEST(test_analyzer_struct_type_local_var);
     RUN_TEST(test_analyzer_struct_type_vars);
     RUN_TEST(test_analyzer_struct_pass_by_ref);
+    RUN_TEST(test_analyzer_struct_new_del);
     test_stats.total_failures += Unity.TestFailures;
     test_stats.total_tests += Unity.NumberOfTests;
     return UNITY_END();

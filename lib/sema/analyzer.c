@@ -655,6 +655,17 @@ struct type_item *_analyze_if(struct sema_context *context, struct ast_node *nod
     return then_type;
 }
 
+struct type_item *_analyze_del(struct sema_context *context, struct ast_node *node)
+{
+    return create_unit_type(context->tc);
+}
+
+struct type_item *_analyze_new(struct sema_context *context, struct ast_node *node)
+{
+    struct type_item *type = analyze(context, node->new_node);
+    return create_ref_type(context->tc, type, Immutable);
+}
+
 struct type_item *_analyze_match(struct sema_context *context, struct ast_node *node)
 {
     struct type_item *test_type = analyze(context, node->match->test_expr);
@@ -809,8 +820,12 @@ struct type_item *analyze(struct sema_context *context, struct ast_node *node)
         case TYPE_EXPR_ITEM_NODE:
         case WILDCARD_NODE:
         case RANGE_NODE:
+            break;
         case NEW_NODE:
+            type = _analyze_new(context, node);
+            break;
         case DEL_NODE:
+            type = _analyze_del(context, node);
             break;
         case VARIANT_TYPE_ITEM_NODE:
             type = _analyze_union_type_item_node(context, node);
