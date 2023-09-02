@@ -96,3 +96,15 @@ let a = [10]
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
+
+// TEST(testCGVar, new_del)
+// {
+//     char test_code[] = "\n\
+// struct Point = x:f64, y:f64\n\
+// let xy = new Point{100.0, 200.0}\n\
+// del xy";
+//     const char *expected_ir = R"(
+// @a = global [1 x i32] [i32 10]
+// )";
+//     validate_m_code_with_ir_code(test_code, expected_ir);
+// }

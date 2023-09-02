@@ -106,6 +106,14 @@ struct cg_llvm {
      */
     struct block_context loop_blocks[BLOCK_LEVELS];
     int current_loop_block;
+
+    /* 
+     *  embeded system functions
+     */
+    LLVMValueRef malloc_fun;
+    LLVMValueRef free_fun;
+    LLVMValueRef calloc_fun;
+    LLVMValueRef realloc_fun;
 };
 
 struct cg_llvm *cg_llvm_new(struct sema_context *sema_context);

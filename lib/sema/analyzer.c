@@ -663,7 +663,9 @@ struct type_item *_analyze_del(struct sema_context *context, struct ast_node *no
 struct type_item *_analyze_new(struct sema_context *context, struct ast_node *node)
 {
     struct type_item *type = analyze(context, node->new_node);
-    return create_ref_type(context->tc, type, Immutable);
+    type = create_ref_type(context->tc, type, Immutable);
+    
+    return type;
 }
 
 struct type_item *_analyze_match(struct sema_context *context, struct ast_node *node)

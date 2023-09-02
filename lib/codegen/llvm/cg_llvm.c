@@ -438,6 +438,10 @@ struct cg_llvm *cg_llvm_new(struct sema_context *sema_context)
     }else{
         cg->base.compute_fun_info = x86_64_compute_fun_info;
     }
+    cg->malloc_fun = 0;
+    cg->free_fun = 0;
+    cg->calloc_fun = 0;
+    cg->realloc_fun = 0;
     return cg;
 }
 
@@ -537,6 +541,15 @@ LLVMValueRef _emit_literal_node(struct cg_llvm *cg, struct ast_node *node)
         value = (void *)node->liter->str_val;
     }
     return cg->ops[type].get_const(cg, cg->context, cg->builder, value);
+}
+
+LLVMValueRef _emit_new_node(struct cg_llvm *cg, struct ast_node *node)
+{
+    LLVMTypeRef type = get_backend_type(cg, node->type);
+    LLVMValueRef size = LLVMConstInt(LLVMInt64Type(), LLVMABISizeOfType(cg->target_data, type), 0);
+    LLVMValueRef ptr = LLVMBuildCall2(cg->builder, LLVMGlobalGetValueType(cg->malloc_fun), cg->malloc_fun, &size, 1, "malloc");
+    LLVMValueRef casted_ptr = LLVMBuildBitCast(cg->builder, ptr, LLVMPointerType(type, 0), "casted_ptr");
+    return casted_ptr;
 }
 
 LLVMValueRef _emit_del_node(struct cg_llvm *cg, struct ast_node *node)
@@ -887,6 +900,8 @@ LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
             value = _emit_ident_node(cg, node);
             break;
         case NEW_NODE:
+            value = _emit_new_node(cg, node);
+            break;
         case DEL_NODE:
             value = _emit_del_node(cg, node);
             break;
