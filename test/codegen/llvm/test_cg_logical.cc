@@ -13,7 +13,7 @@
 
 TEST(testCGLogical, testNot)
 {
-    const char test_code[] = "let f m:bool = !m";
+    const char test_code[] = "def f m:bool = !m";
     const char *expected_ir = R"(
 define i8 @f(i8 %m) {
 entry:

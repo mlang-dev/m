@@ -75,7 +75,7 @@ TEST(test_analyzer, ref_type_func)
     struct frontend *fe = frontend_init();
     char test_code[] = "\n\
 struct AB = re:mut f64, im:f64\n\
-let update z:&AB =\n\
+def update z:&AB =\n\
     z.re = 10.0\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -247,7 +247,7 @@ TEST(test_analyzer, greater_than)
 TEST(test_analyzer, identity_function)
 {
     reset_id_name("a");
-    char test_code[] = "let id x = x";
+    char test_code[] = "def id x = x";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -268,7 +268,7 @@ TEST(test_analyzer, identity_function)
 
 TEST(test_analyzer, int_int_fun)
 {
-    char test_code[] = "let f x = x + 10";
+    char test_code[] = "def f x = x + 10";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -289,7 +289,7 @@ TEST(test_analyzer, int_int_fun)
 
 TEST(test_analyzer, double_double_fun)
 {
-    char test_code[] = "let f x = x + 10.0";
+    char test_code[] = "def f x = x + 10.0";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -310,7 +310,7 @@ TEST(test_analyzer, double_double_fun)
 
 TEST(test_analyzer, bool_fun)
 {
-    char test_code[] = "let f x = !x";
+    char test_code[] = "def f x = !x";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -331,7 +331,7 @@ TEST(test_analyzer, bool_fun)
 
 TEST(test_analyzer, multi_param_fun)
 {
-    char test_code[] = "let avg x y = (x + y) / 2.0";
+    char test_code[] = "def avg x y = (x + y) / 2.0";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -353,7 +353,7 @@ TEST(test_analyzer, multi_param_fun)
 TEST(test_analyzer, recur_fun)
 {
     char test_code[] = "\n\
-let factorial n = \n\
+def factorial n = \n\
   if n < 2 then n\n\
   else n * factorial (n-1)\n\
 ";
@@ -379,7 +379,7 @@ TEST(test_analyzer, for_loop_fun)
 {
     char test_code[] = "\n\
 // using for loop\n\
-let loopprint n = \n\
+def loopprint n = \n\
   let mut sum = 0\n\
   for i in 0..n\n\
     sum += i\n\
@@ -412,7 +412,7 @@ TEST(test_analyzer, float_var_loop)
 {
     char test_code[] = "\n\
 // using for loop\n\
-let loopprint n:f64 =\n\
+def loopprint n:f64 =\n\
   let mut sum = 0.0\n\
   for i in 0.0..1.0..n\n\
     sum += i\n\
@@ -446,7 +446,7 @@ TEST(test_analyzer, local_var_fun)
 {
     char test_code[] = "\n\
 // using for loop\n\
-let distance x1:f64 y1:f64 x2 y2 = \n\
+def distance x1:f64 y1:f64 x2 y2 = \n\
   let xx = (x1-x2) * (x1-x2)\n\
   let yy = (y1-y2) * (y1-y2)\n\
   |/ (xx + yy)\n\
@@ -474,7 +474,7 @@ let distance x1:f64 y1:f64 x2 y2 = \n\
 TEST(test_analyzer, local_string_fun)
 {
     char test_code[] = "\n\
-let to_string () = \n\
+def to_string () = \n\
   let x = \"hello\"\n\
   let y = x\n\
   y\n\
@@ -500,7 +500,7 @@ let to_string () = \n\
 TEST(test_analyzer, varadic_fun)
 {
     char test_code[] = "\n\
-let var_func ... = 0\n\
+def var_func ... = 0\n\
 ";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
@@ -540,7 +540,7 @@ TEST(test_analyzer, printf_fun)
 TEST(test_analyzer, fun_type_annotation)
 {
     char test_code[] = "\n\
-let inc x:int = x + 1\n\
+def inc x:int = x + 1\n\
 ";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
@@ -563,7 +563,7 @@ let inc x:int = x + 1\n\
 TEST(test_analyzer, fun_type_with_ret_type)
 {
     char test_code[] = "\n\
-let inc x:int -> int = x + 1\n\
+def inc x:int -> int = x + 1\n\
 ";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
@@ -587,7 +587,7 @@ TEST(test_analyzer, var_in_scope)
 {
     char test_code[] = "\n\
 let x = 10\n\
-let getx()=\n\
+def getx()=\n\
     let y = 1.3\n\
     y\n\
 getx()\n\
@@ -657,7 +657,7 @@ let a:u8[size]\n\
 TEST(test_analyzer, ret_value_flag)
 {
     char test_code[] = "\n\
-let getx()=\n\
+def getx()=\n\
     let x = 10\n\
     let y = x + 1\n\
     y\n\
@@ -685,7 +685,7 @@ let getx()=\n\
 TEST(test_analyzer, ret_expr)
 {
     char test_code[] = "\n\
-let getx()=\n\
+def getx()=\n\
     let x = 10\n\
     x + 1\n\
 ";

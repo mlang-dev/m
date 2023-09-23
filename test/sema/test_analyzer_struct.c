@@ -65,8 +65,8 @@ TEST(test_analyzer_struct, ret_struct_type_direct)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
-let get_point() = Point2D { 10.0, 0.0 }\n\
-let z() = get_point()\n\
+def get_point() = Point2D { 10.0, 0.0 }\n\
+def z() = get_point()\n\
 ";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
@@ -96,7 +96,7 @@ TEST(test_analyzer_struct, ret_struct_type)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
-let getx()=\n\
+def getx()=\n\
     let xy:Point2D = Point2D { 10.0, 0.0 }\n\
     xy\n\
 let z = getx()\n\
@@ -165,7 +165,7 @@ TEST(test_analyzer_struct, type_local_var)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64\n\
-let getx()=\n\
+def getx()=\n\
     let xy:Point2D = Point2D { 10.0, 0.0 }\n\
     xy.x\n\
 getx()\n\
@@ -195,7 +195,7 @@ TEST(test_analyzer_struct, pass_by_ref)
 {
     char test_code[] = "\n\
 struct Point = x:mut f64, y:f64\n\
-let update xy:&Point =\n\
+def update xy:&Point =\n\
     xy.x = 10.0\n\
 let z = Point{100.0, 200.0}\n\
 update (&z)\n\

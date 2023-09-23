@@ -24,7 +24,7 @@ u8 *_compile_code(const char *text)
 TEST(test_wasm_codegen, sample_code)
 {
     char test_code[] = "\n\
-let color_func iter_count iter_max sq_dist =\n\
+def color_func iter_count iter_max sq_dist =\n\
     let mut v = 0.0, r = 0.0, g = 0.0, b = 0.0\n\
     if iter_count < iter_max then\n\
         v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4\n\
@@ -35,7 +35,7 @@ let color_func iter_count iter_max sq_dist =\n\
             r = v;g = v ** 1.5;b = v ** 3.0\n\
     ((u8)(r * 255), (u8)(g * 255), (u8)(b * 255))\n\
 \n\
-let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =\n\
+def plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =\n\
     let width = 400, height = 300\n\
     let mut a:u8[height][width * 4]\n\
     let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510\n\
@@ -82,7 +82,7 @@ i\n\
 TEST(test_wasm_codegen, emit_generic_fun)
 {
     char test_code[] = "\n\
-let sq x = x * x //comments \n\
+def sq x = x * x //comments \n\
 sq 10.0\n\
 ";
     u8 *wasm = _compile_code(test_code);
@@ -107,7 +107,7 @@ TEST(test_wasm_codegen, mutable_struct_member)
 {
     char test_code[] = "\n\
 struct Point2D = x:mut f64, y:f64\n\
-let change z:Point2D = \n\
+def change z:Point2D = \n\
     z.x = z.x * 10.0\n\
     z\n\
 let mut old_z = Point2D{10.0, 20.0}\n\
@@ -133,7 +133,7 @@ a.y\n\
 TEST(test_wasm_codegen, pattern_match)
 {
     char test_code[] = "\n\
-let pm x = \n\
+def pm x = \n\
     match x with\n\
     | 0 -> 100\n\
     | 1 -> 200\n\
@@ -169,7 +169,7 @@ x ? 1 : 0\n\
 TEST(test_wasm_codegen, pattern_match_negative)
 {
     char test_code[] = "\n\
-let pm x =\n\
+def pm x =\n\
     match x with\n\
     | -1 -> 100\n\
     | 3 -> 200\n\
@@ -184,7 +184,7 @@ pm (-1)\n\
 TEST(test_wasm_codegen, pattern_match_variable)
 {
     char test_code[] = "\n\
-let pm x =\n\
+def pm x =\n\
     match x with\n\
     | -1 -> 100\n\
     | 3 -> 200\n\
@@ -210,7 +210,7 @@ t[0]\n\
 TEST(test_wasm_codegen, return_tuple)
 {
     char test_code[] = "\n\
-let t() = (100, 200)\n\
+def t() = (100, 200)\n\
 let x, y = t()\n\
 x + y\n\
 ";
@@ -223,7 +223,7 @@ x + y\n\
 TEST(test_wasm_codegen, tuple_param)
 {
     char test_code[] = "\n\
-let a t:(int, int) = (100+t[0], 200+t[1])\n\
+def a t:(int, int) = (100+t[0], 200+t[1])\n\
 let x, y = a (100, 200)\n\
 x + y\n\
 ";
