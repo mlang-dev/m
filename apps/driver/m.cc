@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
         if (!file_type)
             file_type = FT_OBJECT;
         app_init();
+        printf("sys_path: %s\n", string_get(&sys_path));
         for (size_t i = 0; i < array_size(&src_files); i++) {
             const char *fn = (const char *)array_get_ptr(&src_files, i);
             if (access(fn, F_OK) == -1) {
