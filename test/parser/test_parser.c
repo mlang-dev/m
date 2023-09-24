@@ -177,7 +177,7 @@ TEST(test_parser, id_func)
 {
     char test_code[] = "\n\
 def f(x): x\n\
-f 10 ";
+f(10) ";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -230,7 +230,7 @@ def f(x): \n\
 TEST(test_parser, distance_function)
 {
     char test_code[] = "\n\
-def distance(x1 y1 x2 y2): \n\
+def distance(x1, y1, x2, y2): \n\
   let xx = (x1-x2) * (x1-x2) \n\
   let yy = (y1-y2) * (y1-y2) \n\
   |/ (xx + yy)";
@@ -294,7 +294,7 @@ def loopprint(n): \n\
 
 TEST(test_parser, avg_function)
 {
-    char test_code[] = "def avg(x y): (x + y) / 2";
+    char test_code[] = "def avg(x, y): (x + y) / 2";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -412,7 +412,7 @@ def pm(n): \n\
     | 0 -> 100\n\
     | 1 -> 300\n\
     | _ -> 400\n\
-pm 1";
+pm(1)";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -472,7 +472,7 @@ def to_string (): \n\
 
 TEST(test_parser, variadic_function)
 {
-    char test_code[] = "def f(x ...): 10";
+    char test_code[] = "def f(x, ...): 10";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -486,7 +486,7 @@ TEST(test_parser, variadic_function)
 
 TEST(test_parser, func_type)
 {
-    char test_code[] = "fun printf(format:string ...) -> None";
+    char test_code[] = "fun printf(format:string, ...) -> None";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);

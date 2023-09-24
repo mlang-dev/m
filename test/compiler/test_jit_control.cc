@@ -26,8 +26,8 @@ TEST(testJITControl, testIfFunc)
 def if_f(x):
     if x < 10 then x
     else 0
-if_f 5
-if_f 10
+if_f(5)
+if_f(10)
 )";
     Environment *env = get_env();
     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
@@ -45,7 +45,7 @@ def forloop(n):
     for i in 1..n
         j += i
     j
-forloop 5
+forloop(5)
   )";
     Environment *env = get_env();
     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
@@ -58,14 +58,14 @@ forloop 5
 TEST(testJITControl, breakForLoop)
 {
     char test_code[] = R"(
-def forloop(n m):
+def forloop(n, m):
     let mut j = 0
     for i in 1..n
         j += i
         if i == m then
             break
     j
-forloop 5 3
+forloop(5, 3)
   )";
     Environment *env = get_env();
     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
@@ -78,7 +78,7 @@ forloop 5 3
 TEST(testJITControl, continueForLoop)
 {
     char test_code[] = R"(
-def forloop(n m): 
+def forloop(n, m): 
     let mut j = 0
     for i in 0..n
         if i%2 == 0 then
@@ -87,7 +87,7 @@ def forloop(n m):
         if i == m then
             break
     j
-forloop 5 3
+forloop(5, 3)
   )";
     Environment *env = get_env();
     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
@@ -100,14 +100,14 @@ forloop 5 3
 TEST(testJITControl, returnForLoop)
 {
     char test_code[] = R"(
-def forloop(n m): 
+def forloop(n, m): 
     let mut j = 0
     for i in 0..n
         j += i
         if i == m then
             return 100
     j
-forloop 5 3
+forloop(5, 3)
   )";
     Environment *env = get_env();
     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
@@ -130,7 +130,7 @@ def loopfunc(m):
         j += i
         i++
     j
-loopfunc 5
+loopfunc(5)
   )";
     Environment *env = get_env();
     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
@@ -155,7 +155,7 @@ def loopfunc(m):
         j += i
         i++
     j
-loopfunc 5
+loopfunc(5)
   )";
     Environment *env = get_env();
     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);

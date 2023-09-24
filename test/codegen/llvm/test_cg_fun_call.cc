@@ -14,7 +14,7 @@ TEST(testCGFunCall, testIntIdFunc)
 {
     const char test_code[] = R"(
 def f(x:int): x
-def main(): f 10
+def main(): f(10)
 )";
     const char *expected_ir = R"(
 define i32 @f(i32 %x) {
@@ -38,8 +38,8 @@ entry:
 TEST(testCGFunCall, testTwoParamsFunc)
 {
     const char test_code[] = R"(
-def f (x y): (x + y) / 2
-def main (): f 10 20
+def f(x, y): (x + y) / 2
+def main (): f(10, 20)
 )";
     const char *expected_ir = R"(
 define i32 @f(i32 %x, i32 %y) {

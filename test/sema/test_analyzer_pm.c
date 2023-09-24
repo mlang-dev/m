@@ -21,7 +21,7 @@ def pm(x): \n\
     | 0 -> 100\n\
     | 1 -> 200\n\
     | _ -> 300\n\
-pm 0\n\
+pm(0)\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -44,7 +44,7 @@ def pm(x): \n\
     | 0 -> 100\n\
     | 1 -> 200\n\
     | y -> y + 3\n\
-pm 0\n\
+pm(0)\n\
 ";
     struct frontend *fe = frontend_init();
     struct ast_node *block = parse_code(fe->parser, test_code);

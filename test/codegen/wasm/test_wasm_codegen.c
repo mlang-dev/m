@@ -24,7 +24,7 @@ u8 *_compile_code(const char *text)
 TEST(test_wasm_codegen, sample_code)
 {
     char test_code[] = "\n\
-def color_func(iter_count iter_max sq_dist):\n\
+def color_func(iter_count, iter_max, sq_dist):\n\
     let mut v = 0.0, r = 0.0, g = 0.0, b = 0.0\n\
     if iter_count < iter_max then\n\
         v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4\n\
@@ -35,7 +35,7 @@ def color_func(iter_count iter_max sq_dist):\n\
             r = v;g = v ** 1.5;b = v ** 3.0\n\
     ((u8)(r * 255), (u8)(g * 255), (u8)(b * 255))\n\
 \n\
-def plot_mandelbrot_set(x0:f64 y0:f64 x1:f64 y1:f64):\n\
+def plot_mandelbrot_set(x0:f64, y0:f64, x1:f64, y1:f64):\n\
     let width = 400, height = 300\n\
     let mut a:u8[height][width * 4]\n\
     let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510\n\
@@ -52,15 +52,15 @@ def plot_mandelbrot_set(x0:f64 y0:f64 x1:f64 y1:f64):\n\
                 zx2 = zx * zx\n\
                 zy2 = zy * zy\n\
                 n++\n\
-            let r, g, b = color_func n max_iter (zx2 + zy2)\n\
+            let r, g, b = color_func(n, max_iter, zx2 + zy2)\n\
             a[y][4*x] = r\n\
             a[y][4*x+1] = g\n\
             a[y][4*x+2] = b\n\
             a[y][4*x+3] = 255\n\
 \n\
-    setImageData a width height\n\
+    setImageData(a, width, height)\n\
 \n\
-plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2\n\
+plot_mandelbrot_set(-2.0, -1.2, 1.0, 1.2)\n\
     ";
     u8 *wasm = _compile_code(test_code);
     ASSERT_TRUE(wasm);
@@ -83,7 +83,7 @@ TEST(test_wasm_codegen, emit_generic_fun)
 {
     char test_code[] = "\n\
 def sq(x): x * x //comments \n\
-sq 10.0\n\
+sq(10.0)\n\
 ";
     u8 *wasm = _compile_code(test_code);
     ASSERT_TRUE(wasm);
@@ -111,7 +111,7 @@ def change(z:Point2D): \n\
     z.x = z.x * 10.0\n\
     z\n\
 let mut old_z = Point2D{10.0, 20.0}\n\
-let new_z = change old_z\n\
+let new_z = change(old_z)\n\
 ";
     u8 *wasm = _compile_code(test_code);
     ASSERT_TRUE(wasm);
@@ -138,7 +138,7 @@ def pm(x): \n\
     | 0 -> 100\n\
     | 1 -> 200\n\
     | _ -> 300\n\
-pm 0\n\
+pm(0)\n\
 ";
     u8 *wasm = _compile_code(test_code);
     ASSERT_TRUE(wasm);
@@ -148,7 +148,7 @@ pm 0\n\
 TEST(test_wasm_codegen, print)
 {
     char test_code[] = "\n\
-print \"hello world\"\n\
+print(\"hello world\")\n\
 ";
     u8 *wasm = _compile_code(test_code);
     ASSERT_TRUE(wasm);
@@ -174,7 +174,7 @@ def pm(x):\n\
     | -1 -> 100\n\
     | 3 -> 200\n\
     | _ -> 300\n\
-pm (-1)\n\
+pm(-1)\n\
 ";
     u8 *wasm = _compile_code(test_code);
     ASSERT_TRUE(wasm);
@@ -189,7 +189,7 @@ def pm(x):\n\
     | -1 -> 100\n\
     | 3 -> 200\n\
     | y -> y + 300\n\
-pm (-1)\n\
+pm(-1)\n\
 ";
     u8 *wasm = _compile_code(test_code);
     ASSERT_TRUE(wasm);
@@ -224,7 +224,7 @@ TEST(test_wasm_codegen, tuple_param)
 {
     char test_code[] = "\n\
 def a(t:(int, int)): (100+t[0], 200+t[1])\n\
-let x, y = a (100, 200)\n\
+let x, y = a((100, 200))\n\
 x + y\n\
 ";
     u8 *wasm = _compile_code(test_code);
