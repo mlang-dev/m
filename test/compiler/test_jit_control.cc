@@ -58,7 +58,7 @@ forloop 5
 TEST(testJITControl, breakForLoop)
 {
     char test_code[] = R"(
-def forloop(n m):
+def forloop(n, m):
     let mut j = 0
     for i in 1..n
         j += i
@@ -78,7 +78,7 @@ forloop 5 3
 TEST(testJITControl, continueForLoop)
 {
     char test_code[] = R"(
-def forloop(n m): 
+def forloop(n, m): 
     let mut j = 0
     for i in 0..n
         if i%2 == 0 then
@@ -100,7 +100,7 @@ forloop 5 3
 TEST(testJITControl, returnForLoop)
 {
     char test_code[] = R"(
-def forloop(n m): 
+def forloop(n, m): 
     let mut j = 0
     for i in 0..n
         j += i

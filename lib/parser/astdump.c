@@ -52,7 +52,7 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
         if (var->var->is_of_type && (var->var->is_of_type->type_item_node->kind == TypeName || var->var->is_of_type->type_item_node->kind == BuiltinType
             ||var->var->is_of_type->type_item_node->kind == RefType) 
             &&var->var->is_of_type->type_item_node->type_name) {
-            if(strcmp(string_get(var->var->is_of_type->type_item_node->type_name), "...")){
+            if(var->var->is_of_type->type_item_node->kind == RefType || strcmp(string_get(var->var->is_of_type->type_item_node->type_name), "...")){
                 string_add_chars(&var_str, ":");
                 string var_type = _get_type_name(var->var->is_of_type->type_item_node);
                 string_add(&var_str, &var_type);
@@ -60,7 +60,7 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
         }
         array_push(&args, &var_str);
     }
-    string joined = string_join(&args, " ");
+    string joined = string_join(&args, ", ");
     string_add(&result, &joined);
 
     string_add_chars(&result, ")"); //end of parameters

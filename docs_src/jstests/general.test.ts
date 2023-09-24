@@ -56,7 +56,7 @@ id 10`, 10, false);
 
 mtest('call func sub', 'call func sub', 
 `
-def sub(x y): x - y
+def sub(x, y): x - y
 sub 10 30`, -20, false);
 
 mtest('use variable', 'use variable', 

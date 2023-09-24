@@ -16,7 +16,7 @@ TEST(test_analyzer, import_func_type_node)
 {
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
-    char test_code[] = "from sys import fun printf(__format:string ...) -> None";
+    char test_code[] = "from sys import fun printf(__format:string, ...) -> None";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(1, array_size(&block->block->nodes));
     analyze(fe->sema_context, block);
@@ -35,7 +35,7 @@ TEST(test_analyzer, call_node)
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     char test_code[] = "\n\
-fun printf(__format:string ...) -> int\n\
+fun printf(__format:string, ...) -> int\n\
 printf \"hello\"\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -332,7 +332,7 @@ TEST(test_analyzer, bool_fun)
 
 TEST(test_analyzer, multi_param_fun)
 {
-    char test_code[] = "def avg(x y): (x + y) / 2.0";
+    char test_code[] = "def avg(x, y): (x + y) / 2.0";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -447,7 +447,7 @@ TEST(test_analyzer, local_var_fun)
 {
     char test_code[] = "\n\
 // using for loop\n\
-def distance(x1:f64 y1:f64 x2 y2): \n\
+def distance(x1:f64, y1:f64, x2, y2): \n\
   let xx = (x1-x2) * (x1-x2)\n\
   let yy = (y1-y2) * (y1-y2)\n\
   |/ (xx + yy)\n\

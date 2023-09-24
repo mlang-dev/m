@@ -38,7 +38,7 @@ entry:
 TEST(testCGFunCall, testTwoParamsFunc)
 {
     const char test_code[] = R"(
-def f (x y): (x + y) / 2
+def f(x, y): (x + y) / 2
 def main (): f 10 20
 )";
     const char *expected_ir = R"(

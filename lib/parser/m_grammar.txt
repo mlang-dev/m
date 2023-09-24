@@ -282,7 +282,7 @@ range_expr      =  expr ".." expr ".." expr                                     
 func_param_decls = '(' param_decls ')'                                                      { 1 }
                  | '(' ')'                                                                  { block } // empty block
 
-param_decls     = param_decls param_decl                                                    { block 0 1 }
+param_decls     = param_decls ',' param_decl                                                { block 0 2 }
                 | param_decl                                                                { block 0 }
 
 param_decl      = var_decl

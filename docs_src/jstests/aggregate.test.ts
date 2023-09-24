@@ -82,7 +82,7 @@ get().re
 mtest('pass return struct', 
 `pass a struct and return a new struct to the caller then print the field of returned struct`,
 `
-def add(z:cf64 op:f64): cf64{z.re + op, z.im + op}
+def add(z:cf64, op:f64): cf64{z.re + op, z.im + op}
 let x = cf64{10.0, 20.0}
 (add x 10.0).im
 `, 30.0);
@@ -90,7 +90,7 @@ let x = cf64{10.0, 20.0}
 mtest('pass return struct no variable',
 `pass a struct and return a new struct the caller without any temp variable`,
 `
-def add(z:cf64 op:f64): cf64 { z.re + op, z.im + op }
+def add(z:cf64, op:f64): cf64 { z.re + op, z.im + op }
 (add (cf64 { 10.0, 20.0 }) 10.0).re
 `, 20.0);
 
@@ -176,7 +176,7 @@ res.re + res.im
 
 mtest('complex addition', 'complex addition', 
 `
-def add_c(a:cf64 b:cf64): cf64 { a.re + b.re, a.im + b.im }
+def add_c(a:cf64, b:cf64): cf64 { a.re + b.re, a.im + b.im }
 (add_c (cf64 { 10.0, 20.0 }) (cf64 { 30.0, 40.0 })).im
 `, 60.0, false);
 
@@ -314,7 +314,7 @@ let mut a:u8[10][10]
 for i in 0..10
     for j in 0..10
         a[i][j] = i + j
-def pick(arr:u8[10][10] x:int y:int): arr[x][y]
+def pick(arr:u8[10][10], x:int, y:int): arr[x][y]
 pick a 9 8
 `, 17);
 

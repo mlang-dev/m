@@ -24,7 +24,7 @@ u8 *_compile_code(const char *text)
 TEST(test_wasm_codegen, sample_code)
 {
     char test_code[] = "\n\
-def color_func(iter_count iter_max sq_dist):\n\
+def color_func(iter_count, iter_max, sq_dist):\n\
     let mut v = 0.0, r = 0.0, g = 0.0, b = 0.0\n\
     if iter_count < iter_max then\n\
         v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4\n\
@@ -35,7 +35,7 @@ def color_func(iter_count iter_max sq_dist):\n\
             r = v;g = v ** 1.5;b = v ** 3.0\n\
     ((u8)(r * 255), (u8)(g * 255), (u8)(b * 255))\n\
 \n\
-def plot_mandelbrot_set(x0:f64 y0:f64 x1:f64 y1:f64):\n\
+def plot_mandelbrot_set(x0:f64, y0:f64, x1:f64, y1:f64):\n\
     let width = 400, height = 300\n\
     let mut a:u8[height][width * 4]\n\
     let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510\n\

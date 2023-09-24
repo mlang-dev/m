@@ -32,14 +32,14 @@ def print_density(d:int) -> None:
     putchar '*'
       
 def sum_sq(z:cf64): z.re ** 2.0 + z.im ** 2.0
-def ms(z:cf64 c:cf64): cf64{z.re ** 2.0 - z.im ** 2.0 + c.re, 2.0 * z.re * z.im + c.im}
-def converger(z:cf64 iters:int c:cf64):
+def ms(z:cf64, c:cf64): cf64{z.re ** 2.0 - z.im ** 2.0 + c.re, 2.0 * z.re * z.im + c.im}
+def converger(z:cf64, iters:int, c:cf64):
   if iters > 255 || (sum_sq z) > 4.0 then
     iters
   else
     converger (ms z c) (iters + 1) c
 def converge(z:cf64): converger z 0 z
-def print_ms(start:cf64 step:cf64):
+def print_ms(start:cf64, step:cf64):
   for y in start.im..step.im..start.im + step.im * 80.0
     for x in start.re..step.re..start.re + step.re * 78.0
        print_density (converge (cf64{x, y}))
@@ -52,7 +52,7 @@ mtest('mandelbrot set function2', 'mandelbrot set plot function 2',
 `
 print "plot a mandelbrot set"
 
-def color(iter_count iter_max:int sq_dist):
+def color(iter_count, iter_max:int, sq_dist):
     let mut v = 0.0, r = 0.0, g = 0.0, b = 0.0
     if iter_count < iter_max then
         v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4
@@ -63,7 +63,7 @@ def color(iter_count iter_max:int sq_dist):
             r = v;g = v ** 1.5;b = v ** 3.0
     ((u8)(r * 255), (u8)(g * 255), (u8)(b * 255))
 
-def plot_mandelbrot_set(x0:f64 y0:f64 x1:f64 y1:f64):
+def plot_mandelbrot_set(x0:f64, y0:f64, x1:f64, y1:f64):
     let width = 400, height = 300
     let mut a:u8[height][width * 4]
     let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510

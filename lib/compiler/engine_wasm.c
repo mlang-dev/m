@@ -13,10 +13,10 @@ const char *g_imports = "\n\
 from sys import memory 10\n\
 from sys import __stack_pointer:int\n\
 from sys import __memory_base:int\n\
-from sys import fun print(fmt:string ...) -> None\n\
+from sys import fun print(fmt:string, ...) -> None\n\
 from sys import fun putchar(ch:int) -> None\n\
-from sys import fun setImageData(data:u32 width:u32 height:u32) -> None\n\
-from math import fun pow(x:f64 y:f64) -> f64\n\
+from sys import fun setImageData(data:u32, width:u32, height:u32) -> None\n\
+from math import fun pow(x:f64, y:f64) -> f64\n\
 from math import fun log(x:f64) -> f64\n\
 from math import fun log2(x:f64) -> f64\n\
 ";
