@@ -23,7 +23,7 @@
 TEST(testJITControl, testIfFunc)
 {
     char test_code[] = R"(
-let if_f x = 
+def if_f(x):
     if x < 10 then x
     else 0
 if_f 5
@@ -40,7 +40,7 @@ if_f 10
 TEST(testJITControl, testForLoopFunc)
 {
     char test_code[] = R"(
-let forloop n = 
+def forloop(n):
     let mut j = 0
     for i in 1..n
         j += i
@@ -58,7 +58,7 @@ forloop 5
 TEST(testJITControl, breakForLoop)
 {
     char test_code[] = R"(
-let forloop n m = 
+def forloop(n m):
     let mut j = 0
     for i in 1..n
         j += i
@@ -78,7 +78,7 @@ forloop 5 3
 TEST(testJITControl, continueForLoop)
 {
     char test_code[] = R"(
-let forloop n m = 
+def forloop(n m): 
     let mut j = 0
     for i in 0..n
         if i%2 == 0 then
@@ -100,7 +100,7 @@ forloop 5 3
 TEST(testJITControl, returnForLoop)
 {
     char test_code[] = R"(
-let forloop n m = 
+def forloop(n m): 
     let mut j = 0
     for i in 0..n
         j += i
@@ -120,7 +120,7 @@ forloop 5 3
 TEST(testJITControl, whileLoop)
 {
     char test_code[] = R"(
-let loopfunc m = 
+def loopfunc(m): 
     let mut i = 0
     let mut j = 0
     while i < m
@@ -143,7 +143,7 @@ loopfunc 5
 TEST(testJITControl, while_break_Loop)
 {
     char test_code[] = R"(
-let loopfunc m = 
+def loopfunc(m): 
     let mut i = 0
     let mut j = 0
     while true

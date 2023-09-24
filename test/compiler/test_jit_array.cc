@@ -29,7 +29,7 @@ a[0]
 TEST(testJITArray, array_local_array_access)
 {
     char test_code[] = R"(
-let f() =
+def f():
     let a = [10]
     a[0]
 f()
@@ -45,7 +45,7 @@ f()
 TEST(testJITArray, array_local_array_write_read)
 {
     char test_code[] = R"(
-let f() =
+def f():
     let mut a = [10]
     a[0] = 20
     a[0]

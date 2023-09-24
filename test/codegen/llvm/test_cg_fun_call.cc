@@ -13,8 +13,8 @@
 TEST(testCGFunCall, testIntIdFunc)
 {
     const char test_code[] = R"(
-let f x:int = x
-let main() = f 10
+def f(x:int): x
+def main(): f 10
 )";
     const char *expected_ir = R"(
 define i32 @f(i32 %x) {
@@ -38,8 +38,8 @@ entry:
 TEST(testCGFunCall, testTwoParamsFunc)
 {
     const char test_code[] = R"(
-let f x y = (x + y) / 2
-let main () = f 10 20
+def f (x y): (x + y) / 2
+def main (): f 10 20
 )";
     const char *expected_ir = R"(
 define i32 @f(i32 %x, i32 %y) {
@@ -68,10 +68,10 @@ TEST(testCGFunCall, testReturnStructDirect)
 {
     const char test_code[] = R"(
 struct Point2D = x:int, y:int
-let f () = 
+def f(): 
    let xy:Point2D = Point2D { 10, 20 }
    xy
-let main() = 
+def main():
    let xy = f()
    xy.x
  )";
@@ -108,9 +108,9 @@ TEST(testCGFunCall, testReturnStructDirectWithoutName)
 {
     const char test_code[] = R"(
 struct Point2D = x:int, y:int
-let f() = Point2D { 10, 20 }
+def f(): Point2D { 10, 20 }
    
-let main() = 
+def main():
    let xy = f()
    xy.x
  )";
@@ -371,10 +371,10 @@ entry:
 TEST(testCGFunCall, testReturnExpressionScalar)
 {
     char test_code[] = R"(
-let getx()=
+def getx():
     let x = 10
     x + 1
-let main() = getx()
+def main(): getx()
 )";
     const char *expected_ir = R"(
 define i32 @getx() {

@@ -42,7 +42,7 @@ enum token_type{
     TOKEN_EXTERN,
 
     //WIT items    
-    TOKEN_TYPE_UNIT,
+    TOKEN_NONE,
     TOKEN_TYPE_BOOL,
     TOKEN_TYPE_INT,
     TOKEN_TYPE_U8,
@@ -81,6 +81,7 @@ enum token_type{
     TOKEN_EXPORT,
     TOKEN_DEFAULT,
 
+    TOKEN_DEF,
     TOKEN_LET,
     TOKEN_MUT,
     TOKEN_MAPTO,

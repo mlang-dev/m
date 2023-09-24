@@ -39,7 +39,7 @@ mtest('if false statement', 'use false literal', 'if false then 100 else 10', 10
 
 mtest('else if statement first', 'else if statement - choose first branch', 
 `
-let choice n = 
+def choice(n): 
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
@@ -49,7 +49,7 @@ choice 10
 
 mtest('else if statement second', 'else if statement - choose second branch', 
 `
-let choice n = 
+def choice(n):
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
@@ -60,7 +60,7 @@ choice 20
 
 mtest('else if statement third', 'else if statement - choose third branch', 
 `
-let choice n = 
+def choice(n):
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
@@ -70,7 +70,7 @@ choice 30
 
 mtest('else if statement else', 'else if statement - choose else branch', 
 `
-let choice n = 
+def choice(n):
     if n <= 10 then 100 
     else if n <= 20 then 200
     else if n <= 30 then 300
@@ -80,7 +80,7 @@ choice 40
 
 mtest_strings('if - else if print statement', 'if - else if print statement',
 `
-let choice n = 
+def choice(n):
     if n <= 10 then 
         putchar '#' 
     else if n <= 20 then
@@ -127,13 +127,13 @@ sum`, 9);
 
 mtest('recursive factorial', 'implement factorial using recursive', 
 `
-let factorial n = if n == 1 then n else n * factorial (n-1)
+def factorial(n): if n == 1 then n else n * factorial (n-1)
 factorial 5
 `, 120); 
 
 mtest('for loop factorial', 'implement factorial using for loop', 
 `
-let factorial n = 
+def factorial(n):
     let mut p = 1
     for i in 2..n+1
         p = p * i

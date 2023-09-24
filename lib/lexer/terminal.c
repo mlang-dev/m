@@ -35,7 +35,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("extern", EXTERN, NULL, "keyword"), 
 
     //WIT items
-    NAME_KEYWORD_PATTERN("()", "\\(\\)", TYPE_UNIT, NULL, "keyword"),
+    KEYWORD_PATTERN("None", NONE, NULL, "keyword"), 
     KEYWORD_PATTERN("bool", TYPE_BOOL, NULL, "keyword"), 
     KEYWORD_PATTERN("int", TYPE_INT, NULL, "keyword"), 
     KEYWORD_PATTERN("u8", TYPE_U8, NULL, "keyword"), 
@@ -74,6 +74,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("export", EXPORT, NULL, "keyword"),
     KEYWORD_PATTERN("default", DEFAULT, NULL, "keyword"),
 
+    KEYWORD_PATTERN("def", DEF, NULL, "keyword"),
     KEYWORD_PATTERN("let", LET, NULL, "keyword"),
     KEYWORD_PATTERN("mut", MUT, NULL, "keyword"),
     KEYWORD_PATTERN("->", MAPTO, NULL, "keyword"),

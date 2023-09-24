@@ -20,7 +20,7 @@ const char *kind_strings[] = {
 const char *const _type_strings[TYPE_TYPES] = {
     "",
     "...",
-    "()",
+    "None",
     "bool",
     "char",
     "i8",

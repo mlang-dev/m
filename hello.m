@@ -1,3 +1,3 @@
-fun printf __format:string ... -> int
+fun printf(__format:string ...) -> int
 
 let main () = printf "hello world !\n"

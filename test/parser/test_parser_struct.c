@@ -93,7 +93,7 @@ TEST(test_parser_struct, func_returns_struct_init)
 {
     char test_code[] = "\n\
 struct Point2D = x:f64, y:f64 \n\
-let get_point() = Point2D{10.0, 20.0}";
+def get_point(): Point2D{10.0, 20.0}";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);

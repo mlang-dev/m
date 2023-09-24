@@ -1,10 +1,10 @@
 // using for loop
-let loopprint n = 
+def loopprint(n):
   for i in 0..n
     printf "%d\n" i
 
 // executable entry function
-let main() = 
+def main():
   loopprint 10
   0
 
