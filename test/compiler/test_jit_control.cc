@@ -24,8 +24,8 @@ TEST(testJITControl, testIfFunc)
 {
     char test_code[] = R"(
 def if_f(x):
-    if x < 10 then x
-    else 0
+    if x < 10: x
+    else: 0
 if_f(5)
 if_f(10)
 )";
@@ -42,7 +42,7 @@ TEST(testJITControl, testForLoopFunc)
     char test_code[] = R"(
 def forloop(n):
     let mut j = 0
-    for i in 1..n
+    for i in 1..n:
         j += i
     j
 forloop(5)
@@ -60,9 +60,9 @@ TEST(testJITControl, breakForLoop)
     char test_code[] = R"(
 def forloop(n, m):
     let mut j = 0
-    for i in 1..n
+    for i in 1..n:
         j += i
-        if i == m then
+        if i == m:
             break
     j
 forloop(5, 3)
@@ -80,11 +80,11 @@ TEST(testJITControl, continueForLoop)
     char test_code[] = R"(
 def forloop(n, m): 
     let mut j = 0
-    for i in 0..n
-        if i%2 == 0 then
+    for i in 0..n:
+        if i%2 == 0:
             continue
         j += i
-        if i == m then
+        if i == m:
             break
     j
 forloop(5, 3)
@@ -102,9 +102,9 @@ TEST(testJITControl, returnForLoop)
     char test_code[] = R"(
 def forloop(n, m): 
     let mut j = 0
-    for i in 0..n
+    for i in 0..n:
         j += i
-        if i == m then
+        if i == m:
             return 100
     j
 forloop(5, 3)
@@ -123,8 +123,8 @@ TEST(testJITControl, whileLoop)
 def loopfunc(m): 
     let mut i = 0
     let mut j = 0
-    while i < m
-        if i%2 == 0 then
+    while i < m:
+        if i%2 == 0:
             i++
             continue
         j += i
@@ -146,11 +146,11 @@ TEST(testJITControl, while_break_Loop)
 def loopfunc(m): 
     let mut i = 0
     let mut j = 0
-    while true
-        if i%2 == 0 then
+    while true:
+        if i%2 == 0:
             i++
             continue
-        if i >= m then
+        if i >= m:
             break
         j += i
         i++

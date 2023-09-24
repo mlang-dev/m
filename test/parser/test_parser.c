@@ -252,8 +252,8 @@ TEST(test_parser, for_loop)
 {
     char test_code[] = "\n\
 def loopprint(n): \n\
-  for i in 3..n \n\
-    print i";
+  for i in 3..n: \n\
+    print(i)";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -274,8 +274,8 @@ TEST(test_parser, for_loop_with_step)
 {
     char test_code[] = "\n\
 def loopprint(n): \n\
-  for i in 3..2..n \n\
-    print i";
+  for i in 3..2..n: \n\
+    print(i)";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -311,8 +311,8 @@ TEST(test_parser, if_condition)
 {
     char test_code[] = "\n\
 def fac(n): \n\
-    if n< 2 then n \n\
-    else n * fac (n-1)";
+    if n< 2: n \n\
+    else: n * fac (n-1)";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -330,7 +330,7 @@ TEST(test_parser, if_condition_one_line)
 {
     char test_code[] = "\n\
 def fac(n): \n\
-    if n< 2 then n else n * fac (n-1)";
+    if n< 2: n else: n * fac (n-1)";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -348,9 +348,9 @@ TEST(test_parser, if_condition_one_block)
 {
     char test_code[] = "\n\
 def fac(n): \n\
-    if n< 2 then \n\
+    if n< 2: \n\
         n \n\
-    else n * fac (n-1)";
+    else: n * fac (n-1)";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -368,9 +368,9 @@ TEST(test_parser, if_condition_two_blocks)
 {
     char test_code[] = "\n\
 def fac(n): \n\
-    if n< 2 then \n\
+    if n< 2: \n\
         n \n\
-    else \n\
+    else: \n\
         n * fac (n-1)";
     struct frontend *fe = frontend_init();
     
@@ -389,7 +389,7 @@ TEST(test_parser, if_condition_no_else)
 {
     char test_code[] = "\n\
 def fac(n): \n\
-    if n< 2 then n \n\
+    if n< 2: n \n\
     n * fac (n-1)";
     struct frontend *fe = frontend_init();
     
