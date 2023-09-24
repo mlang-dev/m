@@ -102,7 +102,7 @@ TEST(test_lexer, token_bool_litteral_true)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = 
-"true";
+"True";
     struct token *tok;
     struct lexer *lexer;
     lexer = lexer_new_with_string(test_code);
@@ -120,7 +120,7 @@ TEST(test_lexer, token_bool_litteral_false)
 {
     struct frontend *fe = frontend_init();
     char test_code[] = 
-"false";
+"False";
     struct token *tok;
     struct lexer *lexer;
     lexer = lexer_new_with_string(test_code);
@@ -410,7 +410,7 @@ TEST(test_lexer, expr)
 TEST(test_lexer, other_symbols)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "->( )None[]{} .. ... .< <= == != >= > || && ! |&/+-*^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ? ///**/";
+    char test_code[] = "->( )None[]{} .. ... .< <= == != >= > or and not |&/+-*^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ? ///**/";
 
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);

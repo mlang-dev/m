@@ -131,9 +131,9 @@ enum token_type{
 enum op_code {
     OP_NULL,
     OP_DOT, 
-    OP_OR, //'||'
-    OP_AND, //'&&'
-    OP_NOT, // !
+    OP_OR, //'or'
+    OP_AND, //'and'
+    OP_NOT, // not
 
     OP_BITNOT, // '~'
     OP_BITOR, //'|'

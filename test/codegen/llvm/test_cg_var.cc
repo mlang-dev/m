@@ -31,7 +31,7 @@ TEST(testCGVar, testGlobalVarChar)
 
 TEST(testCGVar, testGlobalVarBool)
 {
-    const char test_code[] = "let m = true";
+    const char test_code[] = "let m = True";
     const char *expected_ir = R"(
 @m = global i8 1
 )";

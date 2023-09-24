@@ -98,13 +98,13 @@ TEST(test_parser_expr, arithmetic_exp_parentheses)
 
 TEST(test_parser_expr, logical_or)
 {
-    char test_code[] = "true || false";
+    char test_code[] = "true or false";
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
-    ASSERT_STREQ("||", get_opcode(node->binop->opcode));
+    ASSERT_STREQ("or", get_opcode(node->binop->opcode));
     node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
@@ -112,13 +112,13 @@ TEST(test_parser_expr, logical_or)
 
 TEST(test_parser_expr, logical_and)
 {
-    char test_code[] = "true && false";
+    char test_code[] = "true and false";
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(BINARY_NODE, node->node_type);
-    ASSERT_STREQ("&&", get_opcode(node->binop->opcode));
+    ASSERT_STREQ("and", get_opcode(node->binop->opcode));
     node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
@@ -126,13 +126,13 @@ TEST(test_parser_expr, logical_and)
 
 TEST(test_parser_expr, logical_not)
 {
-    char test_code[] = "! true";
+    char test_code[] = "not true";
     struct frontend *fe = frontend_init();
     struct parser *parser = parser_new();
     struct ast_node *block = parse_code(parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);
     ASSERT_EQ(UNARY_NODE, node->node_type);
-    ASSERT_STREQ("!", get_opcode(node->unop->opcode));
+    ASSERT_STREQ("not", get_opcode(node->unop->opcode));
     node_free(block);
     parser_free(parser);
     frontend_deinit(fe);
