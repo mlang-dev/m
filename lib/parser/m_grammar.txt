@@ -273,7 +273,14 @@ arg_exprs       = arg_exprs ',' expr                                            
                 | expr                                                                      { block 0 }
 
 cond_stmt       = "if" expr block_def                                                       { if_cond 1 2 }              
-                | "if" expr block_def "else" block_def                                      { if_cond 1 2 4 }
+                | "if" expr block_def elif_stmt                                             { if_cond 1 2 3 }
+                | "if" expr block_def else_stmt                                             { if_cond 1 2 3 }
+
+elif_stmt       = "elif" expr block_def                                                     { if_cond 1 2 }
+                | "elif" expr block_def elif_stmt                                           { if_cond 1 2 3 }
+                | "elif" expr block_def else_stmt                                           { if_cond 1 2 3 }
+
+else_stmt       = "else" block_def                                                          { 1 }
 
 for_stmt        = "for" param_decl "in" range_expr block_def                                { for_loop 1 3 4 }
 

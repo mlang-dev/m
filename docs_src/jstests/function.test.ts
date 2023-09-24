@@ -24,9 +24,9 @@ mtest('mandelbrot set function', 'mandelbrot set function',
 def print_density(d:int) -> None:
   if d > 8:
     putchar(' ')
-  else: if d > 4:
+  elif d > 4:
     putchar('.')
-  else: if d > 2:
+  elif d > 2:
     putchar('+')
   else:
     putchar('*')

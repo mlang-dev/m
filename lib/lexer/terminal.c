@@ -79,7 +79,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("mut", MUT, NULL, "keyword"),
     KEYWORD_PATTERN("->", MAPTO, NULL, "keyword"),
     KEYWORD_PATTERN("if", IF, NULL, "keyword"),
-    KEYWORD_PATTERN("then", THEN, NULL, "keyword"),
+    KEYWORD_PATTERN("elif", ELIF, NULL, "keyword"),
     KEYWORD_PATTERN("else", ELSE, NULL, "keyword"), // 15
 
     KEYWORD_PATTERN("true", TRUE, NULL, "keyword"),
