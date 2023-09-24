@@ -287,8 +287,8 @@ update two dimensions array using variable
 `, 
 `
 let mut a:u8[10][10]
-for i in 0..10
-    for j in 0..10
+for i in 0..10:
+    for j in 0..10:
         a[i][j] = i + j
 a[7][8]
 `, 15);
@@ -299,8 +299,8 @@ update two dimensions int array using variable
 `, 
 `
 let mut a:u32[10][10]
-for i in 0..10
-    for j in 0..10
+for i in 0..10:
+    for j in 0..10:
         a[i][j] = i + j
 a[7][8]
 `, 15);
@@ -311,8 +311,8 @@ pass array variable to a function.
 `, 
 `
 let mut a:u8[10][10]
-for i in 0..10
-    for j in 0..10
+for i in 0..10:
+    for j in 0..10:
         a[i][j] = i + j
 def pick(arr:u8[10][10], x:int, y:int): arr[x][y]
 pick(a, 9, 8)

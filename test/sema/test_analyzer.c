@@ -355,8 +355,8 @@ TEST(test_analyzer, recur_fun)
 {
     char test_code[] = "\n\
 def factorial(n): \n\
-  if n < 2 then n\n\
-  else n * factorial (n-1)\n\
+  if n < 2: n\n\
+  else: n * factorial (n-1)\n\
 ";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
@@ -382,7 +382,7 @@ TEST(test_analyzer, for_loop_fun)
 // using for loop\n\
 def loopprint(n): \n\
   let mut sum = 0\n\
-  for i in 0..n\n\
+  for i in 0..n:\n\
     sum += i\n\
   sum\n\
 ";
@@ -415,7 +415,7 @@ TEST(test_analyzer, float_var_loop)
 // using for loop\n\
 def loopprint(n:f64):\n\
   let mut sum = 0.0\n\
-  for i in 0.0..1.0..n\n\
+  for i in 0.0..1.0..n:\n\
     sum += i\n\
   sum\n\
 ";
@@ -446,7 +446,6 @@ def loopprint(n:f64):\n\
 TEST(test_analyzer, local_var_fun)
 {
     char test_code[] = "\n\
-// using for loop\n\
 def distance(x1:f64, y1:f64, x2, y2): \n\
   let xx = (x1-x2) * (x1-x2)\n\
   let yy = (y1-y2) * (y1-y2)\n\

@@ -26,11 +26,11 @@ TEST(test_wasm_codegen, sample_code)
     char test_code[] = "\n\
 def color_func(iter_count, iter_max, sq_dist):\n\
     let mut v = 0.0, r = 0.0, g = 0.0, b = 0.0\n\
-    if iter_count < iter_max then\n\
+    if iter_count < iter_max:\n\
         v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4\n\
-        if v < 1.0 then \n\
+        if v < 1.0: \n\
             r = v ** 4;g = v ** 2.5;b = v\n\
-        else\n\
+        else:\n\
             v = v < 2.0 ? 2.0 - v : 0.0\n\
             r = v;g = v ** 1.5;b = v ** 3.0\n\
     ((u8)(r * 255), (u8)(g * 255), (u8)(b * 255))\n\
@@ -39,14 +39,14 @@ def plot_mandelbrot_set(x0:f64, y0:f64, x1:f64, y1:f64):\n\
     let width = 400, height = 300\n\
     let mut a:u8[height][width * 4]\n\
     let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510\n\
-    for x in 0..width\n\
-        for y in 0..height\n\
+    for x in 0..width:\n\
+        for y in 0..height:\n\
             let cx = x0 + scalex*x\n\
             let cy = y0 + scaley*y\n\
             let mut zx = 0.0, zy = 0.0\n\
             let mut zx2 = 0.0, zy2 = 0.0\n\
             let mut n = 0\n\
-            while n<max_iter && (zx2 + zy2) < 4.0\n\
+            while n<max_iter && (zx2 + zy2) < 4.0:\n\
                 zy = 2.0 * zx * zy + cy\n\
                 zx = zx2  - zy2 + cx\n\
                 zx2 = zx * zx\n\
@@ -94,8 +94,8 @@ TEST(test_wasm_codegen, emit_nested_for_loop)
 {
     char test_code[] = "\n\
 let mut sum = 0\n\
-for i in 1..3\n\
-    for j in 1..3\n\
+for i in 1..3:\n\
+    for j in 1..3:\n\
         sum = sum + i * j\n\
 sum";
     u8 *wasm = _compile_code(test_code);

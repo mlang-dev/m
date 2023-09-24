@@ -10,10 +10,10 @@ def distance(x1, y1, x2, y2):
 
 // factorial function
 def factorial(n):
-  if n < 2 then n
-  else n * factorial(n-1)
+  if n < 2: n
+  else: n * factorial(n-1)
 
 // using for loop
 def loopprint(n):
-  for i in 0..n
+  for i in 0..n:
     printf("%d\n", i)
