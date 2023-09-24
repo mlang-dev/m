@@ -64,7 +64,7 @@ TEST(testJITAdt, testStructTypeMixedTypeLocalVariable)
 {
     char test_code[] = R"(
 struct Point2D = x:f64, y:int
-def getx()=
+def getx():
     let xy:Point2D = Point2D { 10.0, 20 }
     xy.x
 getx()

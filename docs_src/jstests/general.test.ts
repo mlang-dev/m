@@ -45,18 +45,18 @@ print "hello %s %.2f %d" s f i
 
 mtest('call func', 'call func', 
 `
-def run() = 10 + 20
+def run(): 10 + 20
 run()
 `, 30, false);
 
 mtest('call func with params', 'call func with params', 
 `
-def id(x) = x
+def id(x): x
 id 10`, 10, false);
 
 mtest('call func sub', 'call func sub', 
 `
-def sub(x y) = x - y
+def sub(x y): x - y
 sub 10 30`, -20, false);
 
 mtest('use variable', 'use variable', 
@@ -71,7 +71,7 @@ mtest('function definition',
 The grammar is: "let" IDENT param_decls '=' statement. The following code is to define a square function takes
 a f64 value and outputs its squared f64 value.`, 
 `
-def sq(x:f64) = x ** 2.0
+def sq(x:f64): x ** 2.0
 sq 10.0
 `, 100.0);
 
@@ -80,7 +80,7 @@ mtest('generic function',
 `If type annotation is omitted from the function, then we are defining a generic function. The type of the function is to be infered 
 by how it is being used. Character '#' starts comments until the end of the line.`, 
 `
-def sq(x) = x * x  // generic function
+def sq(x): x * x  // generic function
 sq 10.0
 `, 100.0);
 

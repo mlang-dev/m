@@ -13,7 +13,7 @@
 
 TEST(testCGRelational, testLessThan)
 {
-    const char test_code[] = "def f(m:int n:int) = m < n";
+    const char test_code[] = "def f(m:int n:int): m < n";
     const char *expected_ir = R"(
 define i8 @f(i32 %m, i32 %n) {
 entry:

@@ -43,7 +43,7 @@ j.im
 mtest('pass struct by ref', `pass struct data to function by reference`, 
 `
 struct Point = x:mut f64, y:f64
-def update(xy:&Point) =
+def update(xy:&Point):
     xy.x = 10.0
 let z = Point{100.0, 200.0}
 update (&z)

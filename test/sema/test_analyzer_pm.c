@@ -16,7 +16,7 @@
 TEST(test_analyzer_pm, pattern_match)
 {
     char test_code[] = "\n\
-def pm(x) = \n\
+def pm(x): \n\
     match x with\n\
     | 0 -> 100\n\
     | 1 -> 200\n\
@@ -39,7 +39,7 @@ pm 0\n\
 TEST(test_analyzer_pm, pattern_match_variable)
 {
     char test_code[] = "\n\
-def pm(x) = \n\
+def pm(x): \n\
     match x with\n\
     | 0 -> 100\n\
     | 1 -> 200\n\
