@@ -10,7 +10,7 @@ mtest('if 1 statement', 'if 1 statement', "if 1: 100 else: 10", 100, false);
 
 mtest('if 3 statement', 'if any non-zero statement is true', "if 3: 100 else: 10", 100, false);
 
-mtest('if true statement', 'use true literal', "if true: 100 else: 10", 100, false);
+mtest('if true statement', 'use true literal', "if True: 100 else: 10", 100, false);
 
 mtest('use bool variable', 'use bool variable', 
 `
@@ -35,7 +35,7 @@ x ? 1 : 0
 
 mtest('if 0 statement', 'if 0 statement', 'if 0: 100 else: 10', 10); 
 
-mtest('if false statement', 'use false literal', 'if false: 100 else: 10', 10); 
+mtest('if false statement', 'use false literal', 'if False: 100 else: 10', 10); 
 
 mtest('else if statement first', 'else if statement - choose first branch', 
 `

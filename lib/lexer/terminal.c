@@ -82,8 +82,8 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("elif", ELIF, NULL, "keyword"),
     KEYWORD_PATTERN("else", ELSE, NULL, "keyword"), // 15
 
-    KEYWORD_PATTERN("true", TRUE, NULL, "keyword"),
-    KEYWORD_PATTERN("false", FALSE, NULL, "keyword"),
+    KEYWORD_PATTERN("True", TRUE, NULL, "keyword"),
+    KEYWORD_PATTERN("False", FALSE, NULL, "keyword"),
     KEYWORD_PATTERN("in", IN, NULL, "keyword"),
     KEYWORD_PATTERN("for", FOR, NULL, "keyword"),
     KEYWORD_PATTERN("while", WHILE, NULL, "keyword"),

@@ -122,7 +122,7 @@ TEST(test_parser, int_init)
 TEST(test_parser, bool_init)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "let x = true";
+    char test_code[] = "let x = True";
     
     struct ast_node *block = parse_code(fe->parser, test_code);
     struct ast_node *node = array_front_ptr(&block->block->nodes);

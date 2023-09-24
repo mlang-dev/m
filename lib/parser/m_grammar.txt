@@ -53,8 +53,8 @@ literal_expr    = LITERAL_INT
                 | LITERAL_FLOAT                                                               
                 | LITERAL_CHAR                                                                
                 | LITERAL_STRING                                                              
-                | "true"                                                              
-                | "false"                                                             
+                | "True"                                                              
+                | "False"                                                             
 
 primary_expr    = literal_expr                                             
                 | IDENT                                                               

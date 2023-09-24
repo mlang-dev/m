@@ -150,7 +150,7 @@ TEST(test_m_lexer, range)
 TEST(test_m_lexer, true_literal)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "true";
+    char test_code[] = "True";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_TRUE, token->token_type);
@@ -161,7 +161,7 @@ TEST(test_m_lexer, true_literal)
 TEST(test_m_lexer, false_literal)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "false";
+    char test_code[] = "False";
     struct lexer *lexer = lexer_new_for_string(test_code);;
     struct token *token = get_tok(lexer);
     ASSERT_EQ(TOKEN_FALSE, token->token_type);

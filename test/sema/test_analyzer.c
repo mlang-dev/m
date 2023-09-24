@@ -160,7 +160,7 @@ TEST(test_analyzer, double_variable)
 
 TEST(test_analyzer, bool_variable)
 {
-    char test_code[] = "let x = true";
+    char test_code[] = "let x = True";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);

@@ -146,7 +146,7 @@ TEST(testJITControl, while_break_Loop)
 def loopfunc(m): 
     let mut i = 0
     let mut j = 0
-    while true:
+    while True:
         if i%2 == 0:
             i++
             continue
