@@ -6,7 +6,7 @@ import { mtest } from './mtest';
 
 mtest('pattern match int', 'Apply pattern match to integer', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 0 -> 100
     | 1 -> 200
@@ -15,7 +15,7 @@ pm 0
 
 mtest('pattern match int second', 'Apply pattern match to integer, matching the second case', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 0 -> 100
     | 1 -> 200
@@ -24,7 +24,7 @@ pm 1
 
 mtest('pattern match wildcard', 'Apply pattern match to integer, matching wildcard case', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 0 -> 100
     | 1 -> 200
@@ -45,7 +45,7 @@ y
 
 mtest('pattern match out of order', 'Apply pattern match to integer, matching int out of order', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 1 -> 100
     | 0 -> 200
@@ -55,7 +55,7 @@ pm 0
 
 mtest('pattern match not zero base', 'Apply pattern match to integer starting non-zero, matching the first', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 1 -> 100
     | 2 -> 200
@@ -65,7 +65,7 @@ pm 1
 
 mtest('pattern match not zero second', 'Apply pattern match to integer starting non-zero, matching second', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 1 -> 100
     | 2 -> 200
@@ -75,7 +75,7 @@ pm 2
 
 mtest('pattern match not zero wildcard', 'Apply pattern match to integer starting non-zero, matching wildcard', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 1 -> 100
     | 2 -> 200
@@ -85,7 +85,7 @@ pm 0
 
 mtest('pattern match gap pattern', 'Apply pattern match to integer case with gap, matching first', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 1 -> 100
     | 3 -> 200
@@ -95,7 +95,7 @@ pm 1
 
 mtest('pattern match gap pattern second', 'Apply pattern match to integer case with gap, matching second', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 1 -> 100
     | 3 -> 200
@@ -105,7 +105,7 @@ pm 3
 
 mtest('pattern match gap pattern wildcard', 'Apply pattern match to integer case with gap, matching wildcard', 
 `
-def pm x =
+def pm(x) =
     match x with
     | 1 -> 100
     | 3 -> 200
@@ -115,7 +115,7 @@ pm 2
 
 mtest('pattern match negative', 'Apply pattern match to negative integer case', 
 `
-def pm x =
+def pm(x) =
     match x with
     | -1 -> 100
     | 3 -> 200
@@ -125,7 +125,7 @@ pm (-1)
 
 mtest('pattern match negative second match', 'Apply pattern match to negative integer case, matching the second', 
 `
-def pm x =
+def pm(x) =
     match x with
     | -1 -> 100
     | 3 -> 200
@@ -135,7 +135,7 @@ pm 3
 
 mtest('pattern match negative wildcard', 'Apply pattern match to negative integer case, matching the wildcard', 
 `
-def pm x =
+def pm(x) =
     match x with
     | -1 -> 100
     | 3 -> 200
@@ -145,7 +145,7 @@ pm 0
 
 mtest('pattern match variable', 'Apply pattern match to variable case, matching the variable expr', 
 `
-def pm x =
+def pm(x) =
     match x with
     | -1 -> 100
     | 3 -> 200

@@ -176,7 +176,7 @@ TEST(test_parser, string_init)
 TEST(test_parser, id_func)
 {
     char test_code[] = "\n\
-def f x = x\n\
+def f(x) = x\n\
 f 10 ";
     struct frontend *fe = frontend_init();
     
@@ -195,7 +195,7 @@ f 10 ";
 
 TEST(test_parser, binary_exp_func)
 {
-    char test_code[] = "def f x = x * x";
+    char test_code[] = "def f(x) = x * x";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -212,7 +212,7 @@ TEST(test_parser, binary_exp_func)
 TEST(test_parser, func_with_new_line)
 {
     char test_code[] = "\n\
-def f x = \n\
+def f(x) = \n\
     x * x";
     struct frontend *fe = frontend_init();
     
@@ -230,7 +230,7 @@ def f x = \n\
 TEST(test_parser, distance_function)
 {
     char test_code[] = "\n\
-def distance x1 y1 x2 y2 = \n\
+def distance(x1 y1 x2 y2) = \n\
   let xx = (x1-x2) * (x1-x2) \n\
   let yy = (y1-y2) * (y1-y2) \n\
   |/ (xx + yy)";
@@ -251,7 +251,7 @@ def distance x1 y1 x2 y2 = \n\
 TEST(test_parser, for_loop)
 {
     char test_code[] = "\n\
-def loopprint n = \n\
+def loopprint(n) = \n\
   for i in 3..n \n\
     print i";
     struct frontend *fe = frontend_init();
@@ -273,7 +273,7 @@ def loopprint n = \n\
 TEST(test_parser, for_loop_with_step)
 {
     char test_code[] = "\n\
-def loopprint n = \n\
+def loopprint(n) = \n\
   for i in 3..2..n \n\
     print i";
     struct frontend *fe = frontend_init();
@@ -294,7 +294,7 @@ def loopprint n = \n\
 
 TEST(test_parser, avg_function)
 {
-    char test_code[] = "def avg x y = (x + y) / 2";
+    char test_code[] = "def avg(x y) = (x + y) / 2";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -310,7 +310,7 @@ TEST(test_parser, avg_function)
 TEST(test_parser, if_condition)
 {
     char test_code[] = "\n\
-def fac n = \n\
+def fac(n) = \n\
     if n< 2 then n \n\
     else n * fac (n-1)";
     struct frontend *fe = frontend_init();
@@ -329,7 +329,7 @@ def fac n = \n\
 TEST(test_parser, if_condition_one_line)
 {
     char test_code[] = "\n\
-def fac n = \n\
+def fac(n) = \n\
     if n< 2 then n else n * fac (n-1)";
     struct frontend *fe = frontend_init();
     
@@ -347,7 +347,7 @@ def fac n = \n\
 TEST(test_parser, if_condition_one_block)
 {
     char test_code[] = "\n\
-def fac n = \n\
+def fac(n) = \n\
     if n< 2 then \n\
         n \n\
     else n * fac (n-1)";
@@ -367,7 +367,7 @@ def fac n = \n\
 TEST(test_parser, if_condition_two_blocks)
 {
     char test_code[] = "\n\
-def fac n = \n\
+def fac(n) = \n\
     if n< 2 then \n\
         n \n\
     else \n\
@@ -388,7 +388,7 @@ def fac n = \n\
 TEST(test_parser, if_condition_no_else)
 {
     char test_code[] = "\n\
-def fac n = \n\
+def fac(n) = \n\
     if n< 2 then n \n\
     n * fac (n-1)";
     struct frontend *fe = frontend_init();
@@ -407,7 +407,7 @@ def fac n = \n\
 TEST(test_parser, pattern_match)
 {
     char test_code[] = "\n\
-def pm n = \n\
+def pm(n) = \n\
     match n with\n\
     | 0 -> 100\n\
     | 1 -> 300\n\
@@ -472,7 +472,7 @@ def to_string () = \n\
 
 TEST(test_parser, variadic_function)
 {
-    char test_code[] = "def f x ... = 10";
+    char test_code[] = "def f(x ...) = 10";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -486,7 +486,7 @@ TEST(test_parser, variadic_function)
 
 TEST(test_parser, func_type)
 {
-    char test_code[] = "fun printf format:string ... -> ()";
+    char test_code[] = "fun printf(format:string ...) -> None";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -518,7 +518,7 @@ TEST(test_parser, func_type_no_param)
 
 TEST(test_parser, func_type_no_param_no_return)
 {
-    char test_code[] = "fun print ()->()";
+    char test_code[] = "fun print ()->None";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -535,7 +535,7 @@ TEST(test_parser, func_type_no_param_no_return)
 
 TEST(test_parser, import_fun_type)
 {
-    char test_code[] = "from sys import fun print () -> ()";
+    char test_code[] = "from sys import fun print () -> None";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);

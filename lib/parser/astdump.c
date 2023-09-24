@@ -21,6 +21,20 @@ string _dump_block(struct sema_context *context, struct ast_node *node)
     return block;
 }
 
+string _get_type_name(struct type_item_node *ti)
+{
+    string type_name;
+    string_init_chars(&type_name, "");
+    if(ti->kind == TypeName || ti->kind == BuiltinType)
+        string_add_chars(&type_name, string_get(ti->type_name));
+    else if(ti->kind == RefType){
+        string_add_chars(&type_name, "&");
+        string value_type = _get_type_name(ti->val_node);
+        string_add(&type_name, &value_type);
+    }
+    return type_name;
+}
+
 string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
 {
     string result;
@@ -30,28 +44,26 @@ string _dump_func_type(struct sema_context *context, struct ast_node *func_type)
     if (func_type->ft->is_extern)
         string_add_chars(&result, "fun ");
     string_add_chars(&result, string_get(func_type->ft->name));
+    string_add_chars(&result, "("); //start of parameters
     ARRAY_STRING(args);
     for (size_t i = 0; i < array_size(&func_type->ft->params->block->nodes); i++) {
         struct ast_node *var = array_get_ptr(&func_type->ft->params->block->nodes, i);
         string_copy(&var_str, var->var->var->ident->name);
-        if (var->var->is_of_type && (var->var->is_of_type->type_item_node->kind == TypeName || var->var->is_of_type->type_item_node->kind == BuiltinType) 
+        if (var->var->is_of_type && (var->var->is_of_type->type_item_node->kind == TypeName || var->var->is_of_type->type_item_node->kind == BuiltinType
+            ||var->var->is_of_type->type_item_node->kind == RefType) 
             &&var->var->is_of_type->type_item_node->type_name) {
-            enum type type_enum = get_type_enum_from_symbol(context->tc, var->var->is_of_type->type_item_node->type_name);
-            if(type_enum != TYPE_GENERIC){
-                string var_type;
-                string_init_chars(&var_type, string_get(var->var->is_of_type->type_item_node->type_name));
+            if(strcmp(string_get(var->var->is_of_type->type_item_node->type_name), "...")){
                 string_add_chars(&var_str, ":");
+                string var_type = _get_type_name(var->var->is_of_type->type_item_node);
                 string_add(&var_str, &var_type);
             }
         }
         array_push(&args, &var_str);
     }
     string joined = string_join(&args, " ");
-    string_add_chars(&result, " ");
     string_add(&result, &joined);
-    if (array_size(&func_type->ft->params->block->nodes) == 0){
-        string_add_chars(&result, "()");
-    }
+
+    string_add_chars(&result, ")"); //end of parameters
 
     // function type
     if (func_type->ft->ret_type_item_node) {

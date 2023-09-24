@@ -206,9 +206,9 @@ struct type_item_node {
     enum Mut mut;
     enum TypeNodeKind kind;
     union{
-        symbol type_name;
-        struct array_type_node *array_type_node;
-        struct ast_node *tuple_block;
+        symbol type_name;   //used in BuiltinType/TypeName
+        struct array_type_node *array_type_node; //array
+        struct ast_node *tuple_block; //tuple
         struct type_item_node *val_node; //used in ref node;
     };
 };

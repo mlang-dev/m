@@ -13,7 +13,7 @@
 TEST(testCGFunCall, testIntIdFunc)
 {
     const char test_code[] = R"(
-def f x:int = x
+def f(x:int) = x
 def main() = f 10
 )";
     const char *expected_ir = R"(
@@ -38,7 +38,7 @@ entry:
 TEST(testCGFunCall, testTwoParamsFunc)
 {
     const char test_code[] = R"(
-def f x y = (x + y) / 2
+def f (x y) = (x + y) / 2
 def main () = f 10 20
 )";
     const char *expected_ir = R"(
@@ -68,7 +68,7 @@ TEST(testCGFunCall, testReturnStructDirect)
 {
     const char test_code[] = R"(
 struct Point2D = x:int, y:int
-def f () = 
+def f() = 
    let xy:Point2D = Point2D { 10, 20 }
    xy
 def main() = 

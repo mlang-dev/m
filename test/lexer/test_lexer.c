@@ -410,7 +410,7 @@ TEST(test_lexer, expr)
 TEST(test_lexer, other_symbols)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "->( )()[]{} .. ... .< <= == != >= > || && ! |&/+-*^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ? ///**/";
+    char test_code[] = "->( )None[]{} .. ... .< <= == != >= > || && ! |&/+-*^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ? ///**/";
 
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
@@ -419,7 +419,7 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(TOKEN_MAPTO, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_LPAREN, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_RPAREN, get_tok(lexer)->token_type);
-    ASSERT_EQ(TOKEN_TYPE_UNIT, get_tok(lexer)->token_type);
+    ASSERT_EQ(TOKEN_NONE, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_LBRACKET, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_RBRACKET, get_tok(lexer)->token_type);
     ASSERT_EQ(TOKEN_LCBRACKET, get_tok(lexer)->token_type);
