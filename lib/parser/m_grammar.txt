@@ -262,8 +262,8 @@ import_decl     = "from" IDENT "import" memory_decl                             
 memory_decl     = "memory" LITERAL_INT                                                      { memory_decl 1 }
                 | "memory" LITERAL_INT ',' LITERAL_INT                                      { memory_decl 1 3 }
 
-func_def        = "def" IDENT func_param_decls '=' statement                                { function 1 2 4 }
-                | "def" IDENT func_param_decls "->" type_item '=' statement                 { function 1 2 6 4 }
+func_def        = "def" IDENT func_param_decls ':' statement                                { function 1 2 4 }
+                | "def" IDENT func_param_decls "->" type_item ':' statement                 { function 1 2 6 4 }
 
 func_call       = IDENT arg_exprs                                                           { call 0 1 }
 
