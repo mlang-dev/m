@@ -36,7 +36,7 @@ TEST(test_analyzer, call_node)
     struct type_context *tc = fe->sema_context->tc;
     char test_code[] = "\n\
 fun printf(__format:string, ...) -> int\n\
-printf \"hello\"\n\
+printf(\"hello\")\n\
 ";
     struct ast_node *block = parse_code(fe->parser, test_code);
     ASSERT_EQ(2, array_size(&block->block->nodes));
@@ -524,7 +524,7 @@ def var_func(...): 0\n\
 
 TEST(test_analyzer, printf_fun)
 {
-    char test_code[] = "printf \"%d\" 100";
+    char test_code[] = "printf(\"%d\", 100)";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);

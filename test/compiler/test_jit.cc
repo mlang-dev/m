@@ -221,7 +221,7 @@ TEST(testJIT, testIdFunc)
 {
     char test_code[] = R"(
 def id(x): x
-id 10.0
+id(10.0)
 )";
     Environment *env = get_env();
     engine_reset(env->engine());
@@ -235,8 +235,8 @@ TEST(testJIT, testIdGenericFunc)
 {
     char test_code[] = R"(
 def id_g(x): x
-id_g 10.0
-id_g 20
+id_g(10.0)
+id_g(20)
 )";
     Environment *env = get_env();
     engine_reset(env->engine());
@@ -250,7 +250,7 @@ TEST(testJIT, testSquareFunc)
 {
     char test_code[] = R"(
 def sq(x): x * x
-sq 10.0
+sq(10.0)
   )";
     Environment *env = get_env();
     engine_reset(env->engine());

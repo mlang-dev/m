@@ -84,14 +84,14 @@ mtest('pass return struct',
 `
 def add(z:cf64, op:f64): cf64{z.re + op, z.im + op}
 let x = cf64{10.0, 20.0}
-(add x 10.0).im
+add(x, 10.0).im
 `, 30.0);
 
 mtest('pass return struct no variable',
 `pass a struct and return a new struct the caller without any temp variable`,
 `
 def add(z:cf64, op:f64): cf64 { z.re + op, z.im + op }
-(add (cf64 { 10.0, 20.0 }) 10.0).re
+add(cf64 { 10.0, 20.0 }, 10.0).re
 `, 20.0);
 
 mtest('struct member assign struct', 'struct member assign struct',
@@ -143,7 +143,7 @@ We can pass struct argument to a function.
 `
 def im(z:cf64): z.im
 let x = cf64 { 10.0, 20.0 }
-im x
+im(x)
 `, 20.0);
 
 mtest('pass struct no var', `
@@ -151,7 +151,7 @@ We can pass struct argument directly without a variable to a function.
 `, 
 `
 def im(z:cf64): z.im
-im (cf64 { 10.0, 20.0 })
+im(cf64 { 10.0, 20.0 })
 `, 20.0);
 
 mtest('pass struct add one value', `
@@ -160,7 +160,7 @@ Pass the struct data, and return with expression using one field
 `
 def im(z:cf64): 
     z.im + 200.0
-im (cf64 { 10.0, 20.0 })
+im(cf64 { 10.0, 20.0 })
 `, 220.0);
 
 mtest('pass struct add value', `
@@ -169,7 +169,7 @@ Pass the struct data, and return with a struct with new value
 `
 def shift(z:cf64):
     cf64{z.re + 100.0, z.im + 200.0}
-let res = shift (cf64 { 10.0, 20.0 })
+let res = shift(cf64 { 10.0, 20.0 })
 res.re + res.im
 `, 110.0 + 220.0);
 
@@ -177,13 +177,13 @@ res.re + res.im
 mtest('complex addition', 'complex addition', 
 `
 def add_c(a:cf64, b:cf64): cf64 { a.re + b.re, a.im + b.im }
-(add_c (cf64 { 10.0, 20.0 }) (cf64 { 30.0, 40.0 })).im
+add_c(cf64 { 10.0, 20.0 }, cf64{ 30.0, 40.0 }).im
 `, 60.0, false);
 
 mtest('complex exponent', 'complex exponent',
 `
 def sq(z:cf64): cf64 { z.re ** 2.0 - z.im ** 2.0, 2.0 * z.re * z.im }
-(sq (cf64 { 10.0, 20.0 })).im
+sq(cf64 { 10.0, 20.0 }).im
 `, 400.0, false);
 
 mtest('struct member assign', 'struct member assign',
@@ -315,7 +315,7 @@ for i in 0..10
     for j in 0..10
         a[i][j] = i + j
 def pick(arr:u8[10][10], x:int, y:int): arr[x][y]
-pick a 9 8
+pick(a, 9, 8)
 `, 17);
 
 mtest('use tuple', 
@@ -363,6 +363,6 @@ pass a tuple to a function, and return a new tuple from the function
 `, 
 `
 def t(a:(int,int)): (10 + a[0], 20 + a[1])
-let x, y = t (100, 200)
+let x, y = t((100, 200))
 x + y
 `, 110 + 220);

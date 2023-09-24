@@ -44,7 +44,7 @@ def choice(n):
     else if n <= 20 then 200
     else if n <= 30 then 300
     else 400
-choice 10
+choice(10)
 `, 100); 
 
 mtest('else if statement second', 'else if statement - choose second branch', 
@@ -54,7 +54,7 @@ def choice(n):
     else if n <= 20 then 200
     else if n <= 30 then 300
     else 400
-choice 20
+choice(20)
 `, 200); 
 
 
@@ -65,7 +65,7 @@ def choice(n):
     else if n <= 20 then 200
     else if n <= 30 then 300
     else 400
-choice 30
+choice(30)
 `, 300); 
 
 mtest('else if statement else', 'else if statement - choose else branch', 
@@ -75,21 +75,21 @@ def choice(n):
     else if n <= 20 then 200
     else if n <= 30 then 300
     else 400
-choice 40
+choice(40)
 `, 400); 
 
 mtest_strings('if - else if print statement', 'if - else if print statement',
 `
 def choice(n):
     if n <= 10 then 
-        putchar '#' 
+        putchar('#')
     else if n <= 20 then
-        putchar '?'
+        putchar('?')
     else
-        putchar '*' 
-choice 4
-choice 14
-choice 24
+        putchar('*')
+choice(4)
+choice(14)
+choice(24)
 `, ['#', '?', '*'], false);
 
 mtest('for loop statement', 'for loop statement', 
@@ -128,7 +128,7 @@ sum`, 9);
 mtest('recursive factorial', 'implement factorial using recursive', 
 `
 def factorial(n): if n == 1 then n else n * factorial (n-1)
-factorial 5
+factorial(5)
 `, 120); 
 
 mtest('for loop factorial', 'implement factorial using for loop', 
@@ -138,7 +138,7 @@ def factorial(n):
     for i in 2..n+1
         p = p * i
     p
-factorial 5
+factorial(5)
 `, 120); 
 
 mtest('for loop break if', 'use break statement in for loop', 
@@ -225,7 +225,7 @@ for x in 0..300
         a[y][4*x+1] = n
         a[y][4*x+2] = n
         a[y][4*x+3] = 255
-setImageData a 300 200
+setImageData(a, 300, 200)
 `, null, false)
 
 mtest("mandelbrot set function using while loop", "inner loop using while block to show program structure",
@@ -250,5 +250,5 @@ for x in 0..300
         a[y][4*x+1] = n
         a[y][4*x+2] = n
         a[y][4*x+3] = 255
-setImageData a 300 200
+setImageData(a, 300, 200)
 `, null, false)

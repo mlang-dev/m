@@ -177,7 +177,7 @@ TEST(test_parser, id_func)
 {
     char test_code[] = "\n\
 def f(x): x\n\
-f 10 ";
+f(10) ";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
@@ -412,7 +412,7 @@ def pm(n): \n\
     | 0 -> 100\n\
     | 1 -> 300\n\
     | _ -> 400\n\
-pm 1";
+pm(1)";
     struct frontend *fe = frontend_init();
     
     struct ast_node *block = parse_code(fe->parser, test_code);
