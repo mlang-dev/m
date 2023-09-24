@@ -41,8 +41,8 @@ mtest('else if statement first', 'else if statement - choose first branch',
 `
 def choice(n): 
     if n <= 10: 100 
-    else: if n <= 20: 200
-    else: if n <= 30: 300
+    elif n <= 20: 200
+    elif n <= 30: 300
     else: 400
 choice(10)
 `, 100); 
@@ -51,8 +51,8 @@ mtest('else if statement second', 'else if statement - choose second branch',
 `
 def choice(n):
     if n <= 10: 100 
-    else: if n <= 20: 200
-    else: if n <= 30: 300
+    elif n <= 20: 200
+    elif n <= 30: 300
     else: 400
 choice(20)
 `, 200); 
@@ -62,8 +62,8 @@ mtest('else if statement third', 'else if statement - choose third branch',
 `
 def choice(n):
     if n <= 10: 100 
-    else: if n <= 20: 200
-    else: if n <= 30: 300
+    elif n <= 20: 200
+    elif n <= 30: 300
     else: 400
 choice(30)
 `, 300); 
@@ -72,8 +72,8 @@ mtest('else if statement else', 'else if statement - choose else branch',
 `
 def choice(n):
     if n <= 10: 100 
-    else: if n <= 20: 200
-    else: if n <= 30: 300
+    elif n <= 20: 200
+    elif n <= 30: 300
     else: 400
 choice(40)
 `, 400); 
@@ -83,7 +83,7 @@ mtest_strings('if - else if print statement', 'if - else if print statement',
 def choice(n):
     if n <= 10:
         putchar('#')
-    else: if n <= 20:
+    elif n <= 20:
         putchar('?')
     else:
         putchar('*')

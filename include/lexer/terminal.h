@@ -86,8 +86,7 @@ enum token_type{
     TOKEN_MUT,
     TOKEN_MAPTO,
     TOKEN_IF,
-    TOKEN_THEN,
-
+    TOKEN_ELIF,
     TOKEN_ELSE,
     TOKEN_TRUE,
     TOKEN_FALSE,

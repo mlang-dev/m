@@ -385,6 +385,29 @@ def fac(n): \n\
     frontend_deinit(fe);
 }
 
+TEST(test_parser, if_condition_three_blocks)
+{
+    char test_code[] = "\n\
+def fac(n): \n\
+    if n< 2: \n\
+        n \n\
+    elif n == 2:\n\
+        n + 1\n\
+    else: \n\
+        n * fac (n-1)";
+    struct frontend *fe = frontend_init();
+    
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    struct ast_node *node = array_front_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&node->func->body->block->nodes);
+    ASSERT_EQ(1, array_size(&block->block->nodes));
+    ASSERT_STREQ("fac", string_get(node->func->func_type->ft->name));
+    ASSERT_EQ(IF_NODE, body_node->node_type);
+    node_free(block);
+    
+    frontend_deinit(fe);
+}
+
 TEST(test_parser, if_condition_no_else)
 {
     char test_code[] = "\n\
@@ -765,6 +788,7 @@ int test_parser()
     RUN_TEST(test_parser_if_condition_one_line);
     RUN_TEST(test_parser_if_condition_one_block);
     RUN_TEST(test_parser_if_condition_two_blocks);
+    RUN_TEST(test_parser_if_condition_three_blocks);
     RUN_TEST(test_parser_if_condition_no_else);
     RUN_TEST(test_parser_pattern_match);
     RUN_TEST(test_parser_pattern_match_variable);
