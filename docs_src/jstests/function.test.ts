@@ -34,7 +34,7 @@ def print_density(d:int) -> None:
 def sum_sq(z:cf64): z.re ** 2.0 + z.im ** 2.0
 def ms(z:cf64, c:cf64): cf64{z.re ** 2.0 - z.im ** 2.0 + c.re, 2.0 * z.re * z.im + c.im}
 def converger(z:cf64, iters:int, c:cf64):
-  if iters > 255 || sum_sq(z) > 4.0:
+  if iters > 255 or sum_sq(z) > 4.0:
     iters
   else:
     converger(ms(z, c), iters + 1, c)
@@ -74,7 +74,7 @@ def plot_mandelbrot_set(x0:f64, y0:f64, x1:f64, y1:f64):
             let mut zx = 0.0, zy = 0.0
             let mut zx2 = 0.0, zy2 = 0.0
             let mut n = 0
-            while n<max_iter && (zx2 + zy2) < 4.0:
+            while n<max_iter and (zx2 + zy2) < 4.0:
                 zy = 2.0 * zx * zy + cy
                 zx = zx2  - zy2 + cx
                 zx2 = zx * zx

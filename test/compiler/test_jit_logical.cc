@@ -15,7 +15,7 @@
 TEST(testJITLogical, testOrTrueTrue)
 {
     const char test_code[] = R"(
-true || true
+true or true
   )";
     Environment *env = get_env();
     engine_reset(env->engine());
@@ -28,7 +28,7 @@ true || true
 TEST(testJITLogical, testOrTrueFalse)
 {
     const char test_code[] = R"(
-true || false
+true or false
   )";
     Environment *env = get_env();
     engine_reset(env->engine());
@@ -41,7 +41,7 @@ true || false
 TEST(testJITLogical, testOrFalseFalse)
 {
     const char test_code[] = R"(
-false || false
+false or false
   )";
     Environment *env = get_env();
     engine_reset(env->engine());
@@ -54,7 +54,7 @@ false || false
 TEST(testJITLogical, testAndTrueTrue)
 {
     const char test_code[] = R"(
-true && true
+true or true
   )";
     Environment *env = get_env();
     engine_reset(env->engine());
@@ -67,7 +67,7 @@ true && true
 TEST(testJITLogical, testAndTrueFalse)
 {
     const char test_code[] = R"(
-true && false
+true and false
   )";
     Environment *env = get_env();
     engine_reset(env->engine());
@@ -80,7 +80,7 @@ true && false
 TEST(testJITLogical, testAndFalseFalse)
 {
     const char test_code[] = R"(
-false && false
+false and false
   )";
     Environment *env = get_env();
     engine_reset(env->engine());
@@ -93,7 +93,7 @@ false && false
 TEST(testJITLogical, testNotFalse)
 {
     const char test_code[] = R"(
-! false
+not false
   )";
     Environment *env = get_env();
     engine_reset(env->engine());
@@ -106,7 +106,7 @@ TEST(testJITLogical, testNotFalse)
 TEST(testJITLogical, testNotTrue)
 {
     const char test_code[] = R"(
-! true
+not true
   )";
     Environment *env = get_env();
     engine_reset(env->engine());

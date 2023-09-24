@@ -75,7 +75,8 @@ unary_expr      = power_expr
                 | "++" unary_expr                                                           { unop 0 1 }
                 | "--" unary_expr                                                           { unop 0 1 }
                 | "|/" unary_expr                                                           { unop 0 1 }
-                | [*&+-~!] unary_expr                                                       { unop 0 1 }
+                | "not" unary_expr                                                          { unop 0 1 }
+                | [*&+-~] unary_expr                                                        { unop 0 1 }
                 | new_expr
                 | del_expr
 
@@ -114,10 +115,10 @@ bit_or_expr     = bit_xor_expr
                 | bit_or_expr '|' bit_xor_expr                                              { binop 0 1 2 }
 
 logic_and_expr  = bit_or_expr
-                | logic_and_expr "&&" bit_or_expr                                           { binop 0 1 2 }
+                | logic_and_expr "and" bit_or_expr                                           { binop 0 1 2 }
 
 logic_or_expr   = logic_and_expr
-                | logic_or_expr "||" logic_and_expr                                         { binop 0 1 2 }
+                | logic_or_expr "or" logic_and_expr                                         { binop 0 1 2 }
 
 cond_expr       = logic_or_expr
                 | logic_or_expr '?' expr ':' cond_expr                                      { if_cond 0 2 4 }

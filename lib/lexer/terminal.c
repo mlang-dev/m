@@ -124,9 +124,9 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     /*operators*/
     TOKEN_PATTERN(0, OP, NULL, "operator"),
     NAME_KEYWORD_PATTERN(".", "\\.", OP, DOT, "operator"), // literal dot
-    NAME_KEYWORD_PATTERN("||", "\\|\\|", OP, OR, "operator"),
-    KEYWORD_PATTERN("&&", OP, AND, "operator"), // 35
-    KEYWORD_PATTERN("!", OP, NOT, "operator"),
+    KEYWORD_PATTERN("or", OP, OR, "operator"),
+    KEYWORD_PATTERN("and", OP, AND, "operator"), // 35
+    KEYWORD_PATTERN("not", OP, NOT, "operator"),
 
     KEYWORD_PATTERN("~", OP, BITNOT, "operator"),
     NAME_KEYWORD_PATTERN("|", "\\|", OP, BITOR, "operator"),

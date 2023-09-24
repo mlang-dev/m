@@ -100,14 +100,24 @@ struct lexer *lexer_new(FILE *file, const char *filename, const char *code, size
     struct token_patterns tps = get_token_patterns();
     for(int i=0; i < 128; i++){
         test[0] = (char)i;
-        lexer->char_matches[i].pattern_match_count = 0;
+        struct pattern_matches *pm = &lexer->char_matches[i];
+        pm->pattern_match_count = 0;
         for(size_t j = 0; j < tps.pattern_count; j++){
             size_t matched_len;
             if(tps.patterns[j].re){
                 regex_match(tps.patterns[j].re, test, &matched_len);
                 if(!matched_len) continue;
-                assert(lexer->char_matches[i].pattern_match_count < MAX_PATTERNS_PER_CHAR);
-                lexer->char_matches[i].patterns[lexer->char_matches[i].pattern_match_count++] = &tps.patterns[j];
+                assert(pm->pattern_match_count < MAX_PATTERNS_PER_CHAR);
+                pm->patterns[pm->pattern_match_count++] = &tps.patterns[j];
+
+                //switch ident token to be the last one
+                if (pm->pattern_match_count > 1){
+                    struct token_pattern *ident_tp = pm->patterns[pm->pattern_match_count-2];
+                    if(ident_tp->token_type == TOKEN_IDENT){
+                        pm->patterns[pm->pattern_match_count-2] = pm->patterns[pm->pattern_match_count-1];
+                        pm->patterns[pm->pattern_match_count-1] = ident_tp;
+                    }
+                }
             }
         }
     }

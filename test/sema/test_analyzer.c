@@ -311,7 +311,7 @@ TEST(test_analyzer, double_double_fun)
 
 TEST(test_analyzer, bool_fun)
 {
-    char test_code[] = "def f(x): !x";
+    char test_code[] = "def f(x): not x";
     struct frontend *fe = frontend_init();
     struct type_context *tc = fe->sema_context->tc;
     struct ast_node *block = parse_code(fe->parser, test_code);
