@@ -25,6 +25,7 @@ enum token_type{
     TOKEN_EPSILON,
     TOKEN_INDENT,
     TOKEN_DEDENT,
+    TOKEN_PYCOMMENT,
     TOKEN_LINECOMMENT,
     TOKEN_BLOCKCOMMENT,
     
@@ -235,6 +236,9 @@ bool is_relational_op(enum op_code opcode);
 #define is_close_group(tp) (tp == TOKEN_RPAREN || tp == TOKEN_RBRACKET || tp == TOKEN_RCBRACKET)
 #define is_match_open(open, close) ((open == TOKEN_LPAREN && close == TOKEN_RPAREN) || (open == TOKEN_LBRACKET && close == TOKEN_RBRACKET) || (open == TOKEN_LCBRACKET && close == TOKEN_RCBRACKET))
 #define is_assign_op_sugar(tp) (tp >= OP_MUL_ASSN && tp <= OP_OR_ASSN)
+
+#define is_comment_token(tp) (tp == TOKEN_PYCOMMENT || tp == TOKEN_LINECOMMENT || tp == TOKEN_BLOCKCOMMENT)
+#define is_linecomment_token(tp) (tp == TOKEN_PYCOMMENT || tp == TOKEN_LINECOMMENT)
 
 enum op_code get_op_code_from_assign_op(enum op_code assign_op);
 

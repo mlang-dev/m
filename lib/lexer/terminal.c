@@ -18,6 +18,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(0, EPSILON, NULL, 0),
     TOKEN_PATTERN(0, INDENT, NULL, 0),
     TOKEN_PATTERN(0, DEDENT, NULL, 0),
+    KEYWORD_PATTERN("#", PYCOMMENT, NULL, "pycomment"),
     KEYWORD_PATTERN("//", LINECOMMENT, NULL, "comment"),
     NAME_KEYWORD_PATTERN("/*", "/\\*", BLOCKCOMMENT, NULL, "block-comment"),
 

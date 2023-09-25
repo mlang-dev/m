@@ -11,7 +11,7 @@
 #include <ctype.h>
 
 #define RE_MAX_PAREN 100
-#define RE_CONCAT '#'
+#define RE_CONCAT '$'
 
 
 const char* to_postfix(const char *re)
