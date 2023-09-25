@@ -5,7 +5,7 @@
  */
 #include "compiler/engine.h"
 
-const char *_engine_version = "m - 0.0.44";
+const char *_engine_version = "m - 0.0.45";
 
 void engine_free(struct engine *engine)
 {
