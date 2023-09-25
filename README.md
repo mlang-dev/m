@@ -1,7 +1,7 @@
 [![CMake m](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml) 
 
 # m (mlang)
-A general purpose static-typed programming language with type inference written in C and can be compiled as a WebAssembly module.
+A general purpose static-typed programming language with type inference and can be compiled as a WebAssembly module. Its syntax is like Python for ease of usability.
 
 ## m code plotting mandelbrot set 
 You can try [mlang](https://mlang.dev) to run the following m code in the browser.
@@ -15,13 +15,13 @@ You can zoom in to see more details at [https://mlang.dev](https://mlang.dev).
 
 ```
 //color function returns (r, g, b) tuple based on iteration count and distance
-let color iter_count:int iter_max:int sq_dist:f64 =
+def color(iter_count:int, iter_max:int, sq_dist:f64):
     let mut v = 0.0, r = 0.0, g = 0.0, b = 0.0
-    if iter_count < iter_max then
+    if iter_count < iter_max:
         v = (log(iter_count+1.5-(log2((log(sq_dist))/2.0))))/3.4
-        if v < 1.0 then 
+        if v < 1.0:
             r = v ** 4;g = v ** 2.5;b = v
-        else
+        else:
             v = v < 2.0 ? 2.0 - v : 0.0
             r = v;g = v ** 1.5;b = v ** 3.0
     ((u8)(r * 255), (u8)(g * 255), (u8)(b * 255))
@@ -30,33 +30,33 @@ let color iter_count:int iter_max:int sq_dist:f64 =
 x0, y0: coordinate value of top left
 x1, y1: coordinate value of bottom right
 */
-let plot_mandelbrot_set x0:f64 y0:f64 x1:f64 y1:f64 =
-    print "plot area: x0:%f y0:%f x1:%f y1:%f\n" x0 y0 x1 y1
+def plot_mandelbrot_set(x0:f64, y0:f64, x1:f64, y1:f64):
+    print("plot area: x0:%f y0:%f x1:%f y1:%f\n", x0, y0, x1, y1)
     let width = 400, height = 300
     let mut img:u8[height][width * 4]
     let scalex = (x1-x0)/width, scaley = (y1-y0)/height, max_iter = 510
-    for x in 0..width
-        for y in 0..height
+    for x in 0..width:
+        for y in 0..height:
             let cx = x0 + scalex*x
             let cy = y0 + scaley*y
             let mut zx = 0.0, zy = 0.0
             let mut zx2 = 0.0, zy2 = 0.0
             let mut n = 0
-            while n<max_iter && (zx2 + zy2) < 4.0
+            while n<max_iter and (zx2 + zy2) < 4.0:
                 zy = 2.0 * zx * zy + cy
                 zx = zx2  - zy2 + cx
                 zx2 = zx * zx
                 zy2 = zy * zy
                 n++
-            let cr, cg, cb = color n max_iter (zx2 + zy2)
+            let cr, cg, cb = color(n, max_iter, zx2 + zy2)
             img[y][4*x] = cr
             img[y][4*x+1] = cg
             img[y][4*x+2] = cb
             img[y][4*x+3] = 255
 
-    setImageData img width height /*call js to set img data on canvas*/
+    setImageData(img, width, height) /*call js to set img data on canvas*/
 // call main plot function
-plot_mandelbrot_set (-2.0) (-1.2) 1.0 1.2
+plot_mandelbrot_set(-2.0, -1.2, 1.0, 1.2)
 ```
 
 # Development: vscode dev container (no manual installation)
