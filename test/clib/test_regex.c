@@ -9,15 +9,15 @@
 
 TEST(test_regex, to_postfix)
 {
-    ASSERT_STREQ("ab#", to_postfix("ab"));
-    ASSERT_STREQ("ab#c#", to_postfix("abc"));
-    ASSERT_STREQ("ab*#", to_postfix("ab*"));
-    ASSERT_STREQ("ab#*", to_postfix("(ab)*"));
-    ASSERT_STREQ("ab+#", to_postfix("ab+"));
-    ASSERT_STREQ("ab?#", to_postfix("ab?"));
-    ASSERT_STREQ("ab#c|", to_postfix("ab|c"));
+    ASSERT_STREQ("ab$", to_postfix("ab"));
+    ASSERT_STREQ("ab$c$", to_postfix("abc"));
+    ASSERT_STREQ("ab*$", to_postfix("ab*"));
+    ASSERT_STREQ("ab$*", to_postfix("(ab)*"));
+    ASSERT_STREQ("ab+$", to_postfix("ab+"));
+    ASSERT_STREQ("ab?$", to_postfix("ab?"));
+    ASSERT_STREQ("ab$c|", to_postfix("ab|c"));
     ASSERT_STREQ("abcd|||", to_postfix("a|b|c|d"));
-    ASSERT_STREQ("ab#cd#|", to_postfix("ab|cd"));
+    ASSERT_STREQ("ab$cd$|", to_postfix("ab|cd"));
     ASSERT_STREQ("\\+-|?", to_postfix("[\\+-]?"));
 }
 
@@ -29,14 +29,14 @@ TEST(test_regex, to_postfix_charset)
     ASSERT_STREQ("ab|", to_postfix("[a-b]"));
     ASSERT_STREQ("abc||", to_postfix("[a-c]"));
     ASSERT_STREQ("_abcABC||||||", to_postfix("[_a-cA-C]"));
-    ASSERT_STREQ("_abcABC||||||_abcABC012|||||||||*#", to_postfix("[_a-cA-C][_a-cA-C0-2]*"));
+    ASSERT_STREQ("_abcABC||||||_abcABC012|||||||||*$", to_postfix("[_a-cA-C][_a-cA-C0-2]*"));
 }
 
 TEST(test_regex, to_postfix_escaping_char)
 {
-    ASSERT_STREQ("\\[\\]#", to_postfix("\\[\\]"));
+    ASSERT_STREQ("\\[\\]$", to_postfix("\\[\\]"));
     ASSERT_STREQ("\\[\\]|", to_postfix("\\[|\\]"));
-    ASSERT_STREQ("0\\.#3#", to_postfix("0\\.3"));
+    ASSERT_STREQ("0\\.$3$", to_postfix("0\\.3"));
 }
 
 TEST(test_regex, exact_match)

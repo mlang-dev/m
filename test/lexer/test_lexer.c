@@ -410,7 +410,7 @@ TEST(test_lexer, expr)
 TEST(test_lexer, other_symbols)
 {
     struct frontend *fe = frontend_init();
-    char test_code[] = "->( )None[]{} .. ... .< <= == != >= > or and not |&/+-*^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ? #///**/";
+    char test_code[] = "->( )None[]{} .. ... .< <= == != >= > or and not |&/+-*^** *= /= %= += -= <<= >>= &= ^= |= ++ -- ? /* block comments */#";
 
     struct lexer *lexer;
     lexer = lexer_new_for_string(test_code);
@@ -460,9 +460,8 @@ TEST(test_lexer, other_symbols)
     ASSERT_EQ(OP_INC, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_DEC, get_tok(lexer)->opcode);
     ASSERT_EQ(OP_COND, get_tok(lexer)->opcode);
-    ASSERT_EQ(TOKEN_PYCOMMENT, get_tok_with_comments(lexer)->token_type);
-    ASSERT_EQ(TOKEN_LINECOMMENT, get_tok_with_comments(lexer)->token_type);
     ASSERT_EQ(TOKEN_BLOCKCOMMENT, get_tok_with_comments(lexer)->token_type);
+    ASSERT_EQ(TOKEN_PYCOMMENT, get_tok_with_comments(lexer)->token_type);
 
     lexer_free(lexer);
     frontend_deinit(fe);

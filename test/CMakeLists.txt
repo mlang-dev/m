@@ -150,24 +150,24 @@ codegen/wasm/test_wasm_codegen.c
 unity/unity.c
 )
 
-# target_compile_options(mctest PRIVATE
-# -fsanitize=address
-# -g
-# )
+target_compile_options(mctest PRIVATE
+-fsanitize=address
+-g
+)
 
-# target_link_options(mctest PRIVATE
-# -fsanitize=address
-# )
+target_link_options(mctest PRIVATE
+-fsanitize=address
+)
 
 TARGET_LINK_LIBRARIES(mctest mlr clib
   -g
 )
 
-# add_custom_command(
-#   TARGET mctest
-#   POST_BUILD
-#   COMMAND mctest
-# )
+add_custom_command(
+  TARGET mctest
+  POST_BUILD
+  COMMAND mctest
+)
 
 add_custom_command(
   TARGET mtest
