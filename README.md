@@ -14,7 +14,7 @@ You can zoom in to see more details at [https://mlang.dev](https://mlang.dev).
 <img src="./docs_src/mandelbrotset_demo.gif" width="400" height="320"/>
 
 ```
-//color function returns (r, g, b) tuple based on iteration count and distance
+# color function returns (r, g, b) tuple based on iteration count and distance
 def color(iter_count:int, iter_max:int, sq_dist:f64):
     let mut v = 0.0, r = 0.0, g = 0.0, b = 0.0
     if iter_count < iter_max:

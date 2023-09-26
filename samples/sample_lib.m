@@ -14,6 +14,7 @@ def factorial(n):
   else: n * factorial(n-1)
 
 // using for loop
+# another comment
 def loopprint(n):
   for i in 0..n:
     printf("%d\n", i)

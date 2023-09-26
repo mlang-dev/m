@@ -330,7 +330,7 @@ struct token *get_tok(struct lexer *lexer)
     struct token *tok = 0;
     do{
         tok = get_tok_with_comments(lexer);
-    }while(tok->token_type == TOKEN_LINECOMMENT || tok->token_type == TOKEN_BLOCKCOMMENT);
+    }while(is_comment_token(tok->token_type));
     return tok;
 }
 
@@ -421,7 +421,7 @@ struct token *get_tok_with_comments(struct lexer *lexer)
         break;
     }
     //
-    if(tok->token_type == TOKEN_LINECOMMENT){
+    if(is_linecomment_token(tok->token_type)){
         _scan_until(lexer, '\n');
     } else if (tok->token_type == TOKEN_BLOCKCOMMENT){
         _scan_untils(lexer, '*', '/');
@@ -451,7 +451,7 @@ mark_end:
         }
         array_pop(&lexer->open_closes);
     }
-    if(tok->token_type != TOKEN_LINECOMMENT && tok->token_type != TOKEN_BLOCKCOMMENT)
+    if(!is_comment_token(tok->token_type))
         lexer->last_token_type = tok->token_type;
     return tok;
 }
@@ -479,7 +479,7 @@ const char *highlight(struct lexer *lexer, const char *text)
             sprintf(span_class, "<span class=\"token %s\">", tp->class_name);
             string_init_chars(&tok_str, span_class);
             
-            if(tp->token_type == TOKEN_LINECOMMENT || tp->token_type == TOKEN_BLOCKCOMMENT){
+            if(is_comment_token(tp->token_type)){
                 //encode 
                 string *dst = string_replace(token_content, token_content_len, '&', "&amp;");
                 string *dst1 = string_replace(string_get(dst), string_size(dst), '<', "&lt;");
