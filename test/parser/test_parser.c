@@ -193,6 +193,26 @@ f(10) ";
     frontend_deinit(fe);
 }
 
+TEST(test_parser, id_func_with_return)
+{
+    char test_code[] = "\n\
+def f(x): return x\n\
+f(10) ";
+    struct frontend *fe = frontend_init();
+    
+    struct ast_node *block = parse_code(fe->parser, test_code);
+    struct ast_node *func = array_front_ptr(&block->block->nodes);
+    struct ast_node *call = array_back_ptr(&block->block->nodes);
+    struct ast_node *body_node = array_front_ptr(&func->func->body->block->nodes);
+    ASSERT_EQ(2, array_size(&block->block->nodes));
+    ASSERT_STREQ("f", string_get(func->func->func_type->ft->name));
+    ASSERT_EQ(JUMP_NODE, body_node->node_type);
+    ASSERT_EQ(CALL_NODE, call->node_type);
+    node_free(block);
+    
+    frontend_deinit(fe);
+}
+
 TEST(test_parser, binary_exp_func)
 {
     char test_code[] = "def f(x): x * x";
@@ -778,6 +798,7 @@ int test_parser()
     RUN_TEST(test_parser_char_init);
     RUN_TEST(test_parser_string_init);
     RUN_TEST(test_parser_id_func);
+    RUN_TEST(test_parser_id_func_with_return);
     RUN_TEST(test_parser_binary_exp_func);
     RUN_TEST(test_parser_func_with_new_line);
     RUN_TEST(test_parser_distance_function);
