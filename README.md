@@ -1,7 +1,23 @@
 [![CMake m](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml/badge.svg)](https://github.com/ligangwang/m/actions/workflows/cmake-m.yml) 
 
 # m (mlang)
-A general purpose static-typed programming language with type inference and can be compiled as a WebAssembly module. Its syntax is like Python for ease of usability.
+
+Mlang, also known as M, is a versatile, statically-typed programming language enhanced with type inference, 
+specifically crafted for compiling to WebAssembly. 
+It natively supports the [WebAssembly Component Model](https://github.com/WebAssembly/component-model) and 
+[Canonical ABI](https://github.com/WebAssembly/component-model/blob/main/design/mvp/CanonicalABI.md), 
+aiming to streamline development for this platform. 
+While Mlang's syntax shares similarities with Python, offering a familiar and user-friendly experience, 
+it is not entirely aligned with Python's syntax. 
+The design philosophy of Mlang centers around merging C-level performance with Python's simplicity, 
+striking a balance between efficiency and ease of use. 
+This approach positions Mlang as a compelling option for developers seeking high-performance capabilities coupled with a straightforward, 
+Python-esque coding experience for WebAssembly applications.
+
+Mlang is designed to manage memory ownership and borrow lifetimes at compile time, similar to Rust. 
+This approach eliminates the need for a garbage collector, leading to more predictable and stable performance. 
+By doing so, Mlang achieves zero-cost abstraction, where its safety and efficiency features do not impose any runtime overhead, 
+ensuring both performance optimization and memory safety.
 
 ## m code plotting mandelbrot set 
 You can try [mlang](https://mlang.dev) to run the following m code in the browser.
