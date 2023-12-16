@@ -60,24 +60,6 @@ letter      = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
             | 'y' | 'z'
 //end of semaver
 
-token = whitespace | operator | keyword | integer | identifier
-operator = '=' | ',' | ':' | ';' | '(' | ')' | '{' | '}' | '<' | '>' | '*' | "->" | '/' | '.' | '@'
-keyword   = "use"
-          | "type"
-          | "resource"
-          | "func"
-          | "record"
-          | "enum"
-          | "flags"
-          | "variant"
-          | "static"
-          | "interface"
-          | "world"
-          | "import"
-          | "export"
-          | "package"
-          | "include"
-
 wit_file_item     = toplevel_use_item | interface_item | world_item
 wit_file_items    = wit_file_items wit_file_item
                   | wit_file_item
@@ -100,8 +82,8 @@ use_path = full_package_name
 toplevel_use_item = top_use_item ';'
                   | top_use_item "as" IDENT ';'
 
-world_item   = "world" ID '{' '}'
-                  | "world" ID '{' _world_items '}'
+world_item  = "world" IDENT '{' '}'
+            | "world" IDENT '{' _world_items '}'
 
 _world_item = export_item | import_item | use_item | typedef_item | include_item
 
