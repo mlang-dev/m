@@ -3,7 +3,7 @@
  * 
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
- * header file defining interface mapping from fun infos lowing to args of specific target i.e. LLVM or Wasm
+ * header file defining interface mapping from func infos lowing to args of specific target i.e. LLVM or Wasm
  */
 #ifndef __MLANG_TARGET_ARG_INFO_H__
 #define __MLANG_TARGET_ARG_INFO_H__

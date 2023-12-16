@@ -13,12 +13,12 @@ const char *g_imports = "\n\
 from sys import memory 10\n\
 from sys import __stack_pointer:int\n\
 from sys import __memory_base:int\n\
-from sys import fun print(fmt:string, ...) -> None\n\
-from sys import fun putchar(ch:int) -> None\n\
-from sys import fun setImageData(data:u32, width:u32, height:u32) -> None\n\
-from math import fun pow(x:f64, y:f64) -> f64\n\
-from math import fun log(x:f64) -> f64\n\
-from math import fun log2(x:f64) -> f64\n\
+from sys import func print(fmt:string, ...) -> None\n\
+from sys import func putchar(ch:int) -> None\n\
+from sys import func setImageData(data:u32, width:u32, height:u32) -> None\n\
+from math import func pow(x:f64, y:f64) -> f64\n\
+from math import func log(x:f64) -> f64\n\
+from math import func log2(x:f64) -> f64\n\
 ";
 
 const char *g_sys = "\n\
@@ -43,7 +43,7 @@ void _categorize_imports(struct imports *imports)
         assert(node->node_type == IMPORT_NODE);
         node = node->import->import;
         if (node->node_type == FUNC_TYPE_NODE) {
-            imports->num_fun ++;
+            imports->num_func ++;
         }
         else if(node->node_type == MEMORY_NODE){
             imports->num_memory ++;

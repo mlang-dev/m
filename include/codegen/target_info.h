@@ -146,7 +146,7 @@ struct target_info {
 
     /* 
      *  symboltable of <symbol, struct fun_info>
-     *  binding fun name to struct fun_info
+     *  binding func name to struct fun_info
      */
     struct hashtable fun_infos;
 };
