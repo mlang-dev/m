@@ -31,7 +31,7 @@ extern "C" {
 struct imports{
     struct ast_node *import_block;
     u32 num_global;
-    u32 num_fun;
+    u32 num_func;
     u32 num_memory;
 };
 

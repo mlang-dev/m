@@ -276,7 +276,7 @@ symbol POW_FUN_NAME = 0;
 void _imports_init(struct imports *imports)
 {
     imports->import_block = 0;
-    imports->num_fun = 0;
+    imports->num_func = 0;
     imports->num_global = 0;
     imports->num_memory = 0;
 }
@@ -285,7 +285,7 @@ void _imports_deinit(struct imports *imports)
 {
     node_free(imports->import_block);
     imports->import_block = 0;
-    imports->num_fun = 0;
+    imports->num_func = 0;
     imports->num_global = 0;
     imports->num_memory = 0;
 }
@@ -1236,7 +1236,7 @@ void _emit_function_section(struct cg_wasm *cg, struct byte_array *ba, struct as
     u32 num_func = array_size(&block->block->nodes);
     ba_add(ba, num_func); // num functions
     for (u32 i = 0; i < num_func; i++) {
-        wasm_emit_uint(ba, i + cg->imports.num_fun); // function index
+        wasm_emit_uint(ba, i + cg->imports.num_func); // function index
     }
 }
 
@@ -1267,7 +1267,7 @@ void _emit_export_section(struct cg_wasm *cg, struct byte_array *ba, struct ast_
         func = array_get_ptr(&block->block->nodes, i);
         wasm_emit_string(ba, func->func->func_type->ft->name);
         ba_add(ba, WasmExportTypeFunc);
-        wasm_emit_uint(ba, i + cg->imports.num_fun); // func index
+        wasm_emit_uint(ba, i + cg->imports.num_func); // func index
     }
     wasm_emit_string(ba, MEMORY);
     ba_add(ba, WasmExportTypeMemory);

@@ -521,8 +521,8 @@ bool _all_is_oper(struct array *arr)
     for any generic type in the type, create a type variable thunk for it
     we must share non-generic types.
     A type variable occurring in the type of an expression e is generic WRT e iff it does not occur in 
-    the type of the binder of any fun expression enclosing e.
-    A (type) variable is generic if it does not appear in the type of the variables of any enclosing fun binder. 
+    the type of the binder of any func expression enclosing e.
+    A (type) variable is generic if it does not appear in the type of the variables of any enclosing func binder. 
 */
 struct type_item *_freshrec(struct type_context *tc, struct type_item *type, struct array *nongens, struct hashtable *type_vars)
 {
