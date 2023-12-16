@@ -64,6 +64,7 @@ enum token_type{
     TOKEN_RESOURCE,
     TOKEN_FUN,
     TOKEN_STRUCT,
+    TOKEN_RECORD,
     TOKEN_ENUM,
     TOKEN_FLAGS,
     TOKEN_VARIANT,
@@ -80,6 +81,9 @@ enum token_type{
     TOKEN_STREAM,
     TOKEN_IMPORT,
     TOKEN_EXPORT,
+    TOKEN_PACKAGE,
+    TOKEN_INCLUDE,
+    TOKEN_CLASS,
     TOKEN_DEFAULT,
 
     TOKEN_DEF,
