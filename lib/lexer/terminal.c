@@ -57,6 +57,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("resource", RESOURCE, NULL, "keyword"), 
     KEYWORD_PATTERN("func", FUN, NULL, "keyword"),
     KEYWORD_PATTERN("struct", STRUCT, NULL, "keyword"),
+    KEYWORD_PATTERN("record", RECORD, NULL, "keyword"),
     KEYWORD_PATTERN("enum", ENUM, NULL, "keyword"),
     KEYWORD_PATTERN("flags", FLAGS, NULL, "keyword"),
     KEYWORD_PATTERN("variant", VARIANT, NULL, "keyword"),
@@ -73,6 +74,9 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("stream", STREAM, NULL, "keyword"),
     KEYWORD_PATTERN("import", IMPORT, NULL, "keyword"),
     KEYWORD_PATTERN("export", EXPORT, NULL, "keyword"),
+    KEYWORD_PATTERN("package", PACKAGE, NULL, "keyword"),
+    KEYWORD_PATTERN("include", INCLUDE, NULL, "keyword"),
+    KEYWORD_PATTERN("class", CLASS, NULL, "keyword"),
     KEYWORD_PATTERN("default", DEFAULT, NULL, "keyword"),
 
     KEYWORD_PATTERN("def", DEF, NULL, "keyword"),
