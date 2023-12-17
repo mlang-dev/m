@@ -7,10 +7,10 @@
  * for parser to consume
  */
 #include "lexer/pgen_token.h"
-#include "parser/lalr_parser_generator.h"
+#include "pgen/lalr_parser_generator.h"
 #include "clib/stack.h"
 #include "clib/util.h"
-#include "parser/grammar.h"
+#include "pgen/grammar.h"
 #include <assert.h>
 
 #define END_OF_RULE 0xff
@@ -423,7 +423,7 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser
             for (k = 0; k < array_size(&exprs); k++) {
                 expr = array_get(&exprs, k);
                 assert(pg->rule_count < MAX_RULES);
-                gr = &pg->parsing_rules[pg->rule_count++];
+                gr = &pg->parse_rules[pg->rule_count++];
                 gr->lhs = nonterm;
                 _expr_2_gr(rule->nonterm, expr, gr);
             }
@@ -511,7 +511,7 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
     struct parse_state *state;
     struct parse_item_list_entry *entry;
     struct parse_item *item;
-    struct parse_rule *rules = pg->parsing_rules;
+    struct parse_rule *rules = pg->parse_rules;
     struct parse_rule *rule;
     struct parser_action *pa;
     struct parse_rule *new_rule;
@@ -576,7 +576,7 @@ void _propagate_lookahead(struct lalr_parser_generator *pg)
     struct parse_state *state;
     struct parse_item_list_entry *entry;
     struct parse_item *item;
-    struct parse_rule *rules = pg->parsing_rules;
+    struct parse_rule *rules = pg->parse_rules;
     struct parse_rule *rule;
     struct parser_action *pa;
     struct parse_item complete_item;
@@ -662,10 +662,10 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     _convert_grammar_rules_to_parse_rules(g, pg);
 
     //4. calculate production rule's nonterm's first set, follow set
-    _fill_rule_symbol_data(pg->parsing_rules, pg->rule_count, pg->symbol_data);
+    _fill_rule_symbol_data(pg->parse_rules, pg->rule_count, pg->symbol_data);
 
     //5. build states
-    pg->parse_state_count = _build_states(pg->symbol_data, pg->parsing_rules, pg->rule_count, pg->parse_states, pg->parsing_table);
+    pg->parse_state_count = _build_states(pg->symbol_data, pg->parse_rules, pg->rule_count, pg->parse_states, pg->parsing_table);
 
     // 6. compute augmented grammar rules
     _compute_augmented_rule(pg);
@@ -677,7 +677,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     _propagate_lookahead(pg);
     // 9. construct parsing table
     //  action: state, terminal and goto: state, nonterm
-    _complete_parsing_table(pg->symbol_data, pg->parsing_table, pg->parse_state_count, pg->parse_states, pg->parsing_rules);
+    _complete_parsing_table(pg->symbol_data, pg->parsing_table, pg->parse_state_count, pg->parse_states, pg->parse_rules);
 
     return pg;
 }

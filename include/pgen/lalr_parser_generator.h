@@ -9,9 +9,8 @@
 #ifndef __MLANG_LALR_PARSER_GENERATOR_H__
 #define __MLANG_LALR_PARSER_GENERATOR_H__
 
-#include "parser/grammar.h"
-#include "parser/m_parsing_table.h"
-#include "parser/parser_def.h"
+#include "pgen/grammar.h"
+#include "parser/node_type.h"
 #include "lexer/pgen_token.h"
 #include "clib/symbol.h"
 #include "clib/hashtable.h"
@@ -21,6 +20,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define MAX_KERNEL_ITEMS   11
 
 link_list2(index_list, index_list_entry, u16)
 
@@ -44,6 +45,43 @@ struct rule_symbol_data{
     struct index_list rule_list; //rules indexed by symbol
 };
 
+#define MAX_SYMBOLS_RULE 16
+
+struct rule_action {
+    enum node_type node_type;
+    u8 item_index[MAX_SYMBOLS_RULE]; // 0: is the first exp item value parsed at right side of grammar rule
+    u8 item_index_count;
+};
+
+// converted grammer rule with integer
+struct parse_rule {
+    const char *rule_string;
+    u16 lhs; // non terminal symbol index
+    u16 rhs[MAX_SYMBOLS_RULE]; // right hand side of production rule
+    u8 symbol_count; // right side of
+    struct rule_action action;
+};
+
+enum action_code {
+    E, // indicator to do error recoverage
+    S, // shift the state
+    R, // reduce with production rule
+    A, // complete the parsing successfully
+    G, // goto for state i, and X nonterm
+};
+
+struct parser_action {
+    enum action_code code;
+    union {
+        u16 state_index; // next state index if action is shift
+        u16 rule_index; // index of production rule if action is reduce
+    };
+};
+
+#define MAX_STATES 512
+#define MAX_RULES 256
+#define MAX_AUGMENTED_RULES 8192
+
 struct lalr_parser_generator{
     /*input for generator*/
     //parser generator states
@@ -58,7 +96,7 @@ struct lalr_parser_generator{
     // action table for terminal symbols, tokens
     struct parser_action parsing_table[MAX_STATES][MAX_GRAMMAR_SYMBOLS];
     // grammar rules converted to int index
-    struct parse_rule parsing_rules[MAX_RULES];
+    struct parse_rule parse_rules[MAX_RULES];
     u16 rule_count;
 
     // grammar augmented rules

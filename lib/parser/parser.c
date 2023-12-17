@@ -8,15 +8,12 @@
  */
 #include "lexer/lexer.h"
 #include "parser/parser.h"
-#include "parser/m_parsing_table.h"
 #include "clib/stack.h"
 #include "clib/util.h"
-#include "parser/grammar.h"
 #include "app/error.h"
 #include "parser/ast.h"
 #include "sema/type.h"
 #include <assert.h>
-
 
 struct parser *_parser_new(parsing_table *pt, parsing_rules *pr, parsing_symbols *psd, parsing_states *pstd)
 {
@@ -70,8 +67,6 @@ void _pop_states(struct parser *parser, u8 symbol_count)
     assert(parser->stack_top >= symbol_count);
     parser->stack_top -= symbol_count;
 }
-
-
 
 struct ast_node *_build_terminal_ast(struct type_context *tc, struct token *tok)
 {

@@ -3,7 +3,6 @@
  *
  * Unit tests for lr parser for alexpression
  */
-#include "parser/grammar.h"
 #include "parser/parser.h"
 #include "parser/astdump.h"
 #include "sema/frontend.h"

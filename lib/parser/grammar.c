@@ -5,7 +5,7 @@
  *
  */
 
-#include "parser/grammar.h"
+#include "pgen/grammar.h"
 #include "lexer/lexer.h"
 #include "clib/util.h"
 #include <assert.h>

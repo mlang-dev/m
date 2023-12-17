@@ -6,7 +6,7 @@
  *     
  */    
 #define M_PARSING_INITIALIZER 1
-#include "parser/m_parsing_table.h"
+#include "parser/parsing_table.h"
 
 const char *m_parsing_symbols[PARSING_SYMBOL_COUNT] = {
   /*symbol   0*/ "NULL",

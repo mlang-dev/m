@@ -8,7 +8,6 @@
 #include "codegen/llvm/cg_llvm.h"
 #include "compiler/engine.h"
 #include "compiler/compiler.h"
-#include "parser/grammar.h"
 #include "sema/sema_context.h"
 #include "gtest/gtest.h"
 #include "test_main.h"

@@ -12,7 +12,6 @@
 #include "clib/symbol.h"
 #include "clib/util.h"
 #include "lexer/lexer.h"
-#include "parser/amodule.h"
 #include "parser/parser.h"
 #include "sema/analyzer.h"
 #include "sema/type.h"

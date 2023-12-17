@@ -97,8 +97,8 @@ add_executable(pgen
   parser/node_type.c
   parser/grammar.c
   parser/m_parsing_table.c
-  parser/lalr_parser_generator.c
   sema/type_size_info.c
+  pgen/lalr_parser_generator.c
   pgen/pgen.c
 )
 
@@ -114,8 +114,8 @@ if(REGEN_PARSER)
   add_custom_command(
     TARGET pgen
     POST_BUILD
-    COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/m_grammar.txt ${CMAKE_SOURCE_DIR}/include/parser/m_parsing_table_def.h ${CMAKE_SOURCE_DIR}/lib/parser/m_parsing_table.c
-    COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/wit/wit_grammar.txt ${CMAKE_SOURCE_DIR}/include/parser/wit/wit_parsing_table_def.h ${CMAKE_SOURCE_DIR}/lib/parser/wit/wit_parsing_table.c
+    COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/m_grammar.txt ${CMAKE_SOURCE_DIR}/include/parser/m_parsing_table.h ${CMAKE_SOURCE_DIR}/lib/parser/m_parsing_table.c
+    COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/wit/wit_grammar.txt ${CMAKE_SOURCE_DIR}/include/parser/wit/wit_parsing_table.h ${CMAKE_SOURCE_DIR}/lib/parser/wit/wit_parsing_table.c
   )
 endif()
 

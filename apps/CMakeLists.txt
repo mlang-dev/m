@@ -50,6 +50,7 @@ link_directories(
   ${LLVM_INCLUDE_DIRS}/../lib
 )
 
+# executable m
 add_executable(m
 wasm/mw.c
 driver/m.cc
@@ -101,4 +102,21 @@ add_custom_command(
   # COMMAND m ${CMAKE_SOURCE_DIR}/samples/helloworld.m
   # MacOS COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/libc.dylib -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
   # COMMAND ld ${CMAKE_CURRENT_SOURCE_DIR}/sample.o ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/libmlr.a /usr/lib/x86_64-linux-gnu/libc.so -o ${CMAKE_CURRENT_SOURCE_DIR}/sample
+)
+
+# executable wit
+add_executable(wit
+ wit/wit.c
+)
+
+target_compile_definitions(wit PUBLIC NATIVE_APP=1)
+
+target_include_directories(wit PUBLIC
+)
+
+set_target_properties(wit PROPERTIES LINKER_LANGUAGE C)
+
+target_link_libraries(wit PRIVATE 
+  mlrl
+  clib
 )

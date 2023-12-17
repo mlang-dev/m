@@ -7,7 +7,6 @@
 #include "parser/ast.h"
 #include "parser/node_type.h"
 #include "clib/array.h"
-#include "parser/grammar.h"
 #include "clib/string.h"
 #include "sema/eval.h"
 

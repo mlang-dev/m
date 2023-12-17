@@ -7,7 +7,6 @@
 #include "parser/node_type.h"
 #include "lexer/terminal.h"
 #include "clib/array.h"
-#include "parser/grammar.h"
 #include "clib/string.h"
 #include <assert.h>
 
