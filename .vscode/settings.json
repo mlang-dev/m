@@ -173,7 +173,8 @@
         "symbol.h": "c",
         "engine.h": "c",
         "mw.h": "c",
-        "app.h": "c"
+        "app.h": "c",
+        "parser_def.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
