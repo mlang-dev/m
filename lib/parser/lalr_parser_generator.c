@@ -63,16 +63,19 @@ void _semantic_action_2_rule_action(struct semantic_action *sa, struct rule_acti
 }
 
 /*expand bracket in grammar*/
-void _expr_2_gr(struct expr *expr, struct parse_rule *gr)
+void _expr_2_gr(symbol nonterm, struct expr *expr, struct parse_rule *pr)
 {
     struct expr_item *ei;
-    gr->symbol_count = 0;
+    pr->symbol_count = 0;
     for(size_t i=0; i < array_size(&expr->items); i++){
-        assert(i < MAX_SYMBOLS_RULE);
+        if(i >= MAX_SYMBOLS_RULE){
+            printf("warning: too many symbols in a rule: %zu for %s, only %d symbols are allowed.\n", array_size(&expr->items), string_get(nonterm), MAX_SYMBOLS_RULE);
+            exit(1);
+        }
         ei = array_get(&expr->items, i);
-        gr->rhs[gr->symbol_count++] = get_symbol_index(ei->sym);
+        pr->rhs[pr->symbol_count++] = get_symbol_index(ei->sym);
     }
-    _semantic_action_2_rule_action(&expr->action, &gr->action);
+    _semantic_action_2_rule_action(&expr->action, &pr->action);
 }
 
 void _expand_expr(struct expr *rule_expr, struct array *a)
@@ -137,8 +140,11 @@ void _init_parse_item(struct parse_item *item, u8 rule, u8 dot)
 
 bool _is_nullable(u16 *symbols, u8 symbol_count, struct rule_symbol_data *symbol_data)
 {
+    //all symbol are nullable
     for(u8 i = 0; i < symbol_count; i ++){
-        if(!symbol_data[symbols[i]].is_nullable) return false;
+        if(!symbol_data[symbols[i]].is_nullable) {
+            return false;
+        }
     }
     return true;
 }
@@ -151,7 +157,8 @@ void _compute_is_nullable(struct parse_rule *rules, u16 rule_count, struct rule_
         change_count = 0;
         for (u16 i = 0; i < rule_count; i++) {
             rule = &rules[i];
-            if ((rule->symbol_count == 1 && rule->rhs[0] == TOKEN_EPSILON) || _is_nullable(rule->rhs, rule->symbol_count, symbol_data)) {
+            if ((rule->symbol_count == 1 && rule->rhs[0] == TOKEN_EPSILON) || 
+                (!symbol_data[rule->lhs].is_nullable && _is_nullable(rule->rhs, rule->symbol_count, symbol_data))) {
                 symbol_data[rule->lhs].is_nullable = true;
                 change_count ++;
             } 
@@ -418,7 +425,7 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser
                 assert(pg->rule_count < MAX_RULES);
                 gr = &pg->parsing_rules[pg->rule_count++];
                 gr->lhs = nonterm;
-                _expr_2_gr(expr, gr);
+                _expr_2_gr(rule->nonterm, expr, gr);
             }
             array_deinit(&exprs);
         }
@@ -646,7 +653,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     for(i = 0; i < array_size(&g->rules); i++){
         rule = array_get_ptr(&g->rules, i);
         u16 index = register_grammar_nonterm(rule->nonterm); //register new non-term symbol
-        assert((u8)i + TERMINAL_COUNT == index);
+        assert(i + TERMINAL_COUNT == index);
     }
     pg->total_symbol_count = get_symbol_count();
     //3. convert grammar to replace symbol with index:

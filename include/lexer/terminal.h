@@ -84,6 +84,7 @@ enum token_type{
     TOKEN_PACKAGE,
     TOKEN_INCLUDE,
     TOKEN_CLASS,
+    TOKEN_BORROW,
     TOKEN_DEFAULT,
 
     TOKEN_DEF,
@@ -102,6 +103,8 @@ enum token_type{
     TOKEN_BREAK,
     TOKEN_CONTINUE,
     TOKEN_RETURN,
+    TOKEN_CONSTRUCTOR,
+
     TOKEN_LPAREN,
     TOKEN_RPAREN,
 
@@ -179,6 +182,8 @@ enum op_code {
     OP_INC, // ++
     OP_DEC, // --
 
+    OP_AT, // @
+    
     OP_TOTAL // mark end of all tokens
 };
 

@@ -77,6 +77,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("package", PACKAGE, NULL, "keyword"),
     KEYWORD_PATTERN("include", INCLUDE, NULL, "keyword"),
     KEYWORD_PATTERN("class", CLASS, NULL, "keyword"),
+    KEYWORD_PATTERN("borrow", BORROW, NULL, "keyword"),
     KEYWORD_PATTERN("default", DEFAULT, NULL, "keyword"),
 
     KEYWORD_PATTERN("def", DEF, NULL, "keyword"),
@@ -95,7 +96,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
     KEYWORD_PATTERN("break", BREAK, NULL, "keyword"),
     KEYWORD_PATTERN("continue", CONTINUE, NULL, "keyword"),
     KEYWORD_PATTERN("return", RETURN, NULL, "keyword"),
-
+    KEYWORD_PATTERN("constructor", CONSTRUCTOR, NULL, "keyword"),
 
     NAME_KEYWORD_PATTERN("(", "\\(", LPAREN, NULL, "operator"),
     NAME_KEYWORD_PATTERN(")", "\\)", RPAREN, NULL, "operator"),
@@ -171,6 +172,7 @@ struct token_pattern g_token_patterns[TERMINAL_COUNT] = {
 
     NAME_KEYWORD_PATTERN("++", "\\+\\+", OP, INC, "operator"),
     KEYWORD_PATTERN("--", OP, DEC, "operator"),
+    KEYWORD_PATTERN("@", OP, AT, "operator"),
 };
 
 

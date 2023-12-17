@@ -10,9 +10,9 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/lib/pgen",//;"${workspaceFolder}/build/test/mctest",
             "args": [
-                "${workspaceFolder}/lib/parser/m_grammar.txt",
-                "${workspaceFolder}/include/parser/m_parsing_table_def.h",
-                "${workspaceFolder}/lib/parser/m_parsing_table.c"      
+                "${workspaceFolder}/lib/parser/wit/wit_grammar.txt",
+                "${workspaceFolder}/include/parser/wit/wit_parsing_table_def.h",
+                "${workspaceFolder}/lib/parser/wit/wit_parsing_table.c"      
             ],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",

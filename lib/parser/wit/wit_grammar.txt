@@ -3,66 +3,35 @@
  * 
 */
 
-//sema versioin
-valid_semver = version_core
-             | version_core '-' pre_release
-             | version_core '+' build
-             | version_core '-' pre_release '+' build
+/*semantic versioin*/
+valid_semver    = version_core
+                | version_core '-' pre_release
+                | version_core '+' build
+                | version_core '-' pre_release '+' build
 
 version_core = major '.' minor '.' patch
-major = numeric_identifier
-minor = numeric_identifier
-patch = numeric_identifier
+major = LITERAL_INT
+minor = LITERAL_INT
+patch = LITERAL_INT
 
 pre_release = pre_release_identifier
             | pre_release '.' pre_release_identifier
 
-build = build_identifier
-      | build '.' build_identifier
+build   = build_identifier
+        | build '.' build_identifier
 
-pre_release_identifier = alphanumeric_identifier
-                       | numeric_identifier
+pre_release_identifier  = IDENT
+                        | LITERAL_INT
+/*
+ *  FIXME: should also support alphanumeric_identifier starting with digits
+*/
+build_identifier    = IDENT
+                    | LITERAL_INT
+/*end of semantic versioin*/
 
-build_identifier     = alphanumeric_identifier
-                     | digits
-
-alphanumeric_identifier = non_digit
-                        | non_digit identifier_characters
-                        | identifier_characters non_digit
-                        | identifier_characters non_digit identifier_characters
-
-numeric_identifier      = '0'
-                        | positive_digit
-                        | positive_digit digits
-
-identifier_characters   = identifier_character
-                        | identifier_characters identifier_character
-
-identifier_character    = digit
-                        | non_digit
-
-non_digit   = letter
-            | '_'
-
-digits      = digit
-            | digits digit
-
-digit = '0'
-      | positive_digit
-
-positive_digit = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
-
-letter      = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
-            | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T'
-            | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | 'a' | 'b' | 'c' | 'd'
-            | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n'
-            | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x'
-            | 'y' | 'z'
-//end of semaver
-
-wit_file_item     = toplevel_use_item | interface_item | world_item
-wit_file_items    = wit_file_items wit_file_item
-                  | wit_file_item
+wit_file_item   = toplevel_use_item | interface_item | world_item
+wit_file_items  = wit_file_items wit_file_item
+                | wit_file_item
 
 wit_file    = package_decl wit_file_items
             | wit_file_items
@@ -70,25 +39,26 @@ wit_file    = package_decl wit_file_items
 namespace   = IDENT ':'
 namespaces  = namespaces namespace
             | namespace
-package_name      = IDENT 
-                  | package_name '/' IDENT
-full_package_name = namespaces package_name
-                  | namespaces package_name '@' valid_semver
 
-package_decl = "package" full_package_name ';'
+package_name    = IDENT 
+                | package_name '/' IDENT
+full_package_name   = namespaces package_name
+                    | namespaces package_name '@' valid_semver
 
-top_use_item = "use" use_path
-use_path = full_package_name
-toplevel_use_item = top_use_item ';'
-                  | top_use_item "as" IDENT ';'
+package_decl    = "package" full_package_name ';'
+
+top_use_item    = "use" use_path
+use_path    = full_package_name
+toplevel_use_item   = top_use_item ';'
+                    | top_use_item "as" IDENT ';'
 
 world_item  = "world" IDENT '{' '}'
-            | "world" IDENT '{' _world_items '}'
+            | "world" IDENT '{' world_item_list '}'
 
 _world_item = export_item | import_item | use_item | typedef_item | include_item
 
-_world_items = _world_item
-            | _world_items _world_item
+world_item_list = _world_item
+                | world_item_list _world_item
 
 export_item = "export" IDENT ':' extern_type
             | "export" use_path ';'
@@ -98,30 +68,31 @@ import_item = "import" IDENT ':' extern_type
 
 extern_type = func_type ';' 
             | "interface" '{' '}'
-            | "interface" '{' interface_items '}'
+            | "interface" '{' interface_item_list '}'
 
-/* include items */
-//include wasi:io/my-world-1 with { a as a1, b as b1 };
-//include my-world-2;
-include_item      = "include" use_path ';'
-                  | "include" use_path "with" '{' include_names_list '}'
+/* include items 
+include wasi:io/my-world-1 with { a as a1, b as b1 };
+include my-world-2;
+*/
 
-include_names_list      = include_names_item
-                        | include_names_list ',' include_names_item
+include_item    = "include" use_path ';'
+                | "include" use_path "with" '{' include_names_list '}'
 
-include_names_item      = IDENT "as" IDENT
-//end of include items
+include_names_item  = IDENT "as" IDENT
+
+include_names_list  = include_names_item
+                    | include_names_list ',' include_names_item
 
 /*interface items*/
 interface_item    = "interface" IDENT '{' '}'
-                  | "interface" IDENT '{' _interface_items '}'
+                  | "interface" IDENT '{' interface_item_list '}'
 
 _interface_item   = typedef_item
                   | use_item
                   | func_item
 
-_interface_items  = _interface_item
-                  | _interface_items _interface_item
+interface_item_list = _interface_item
+                    | interface_item_list _interface_item
 
 typedef_item   = resource_item
                | variant_items
@@ -141,17 +112,17 @@ result_list = "->" ty
             | "->" '(' ')'
             | "->" '(' named_type_list ')'
 
-named_type_list   = named_type
-                  | named_type_list ',' named_type
+named_type_list = named_type
+                | named_type_list ',' named_type
 
-named_type = IDENT ':' ty
+named_type  = IDENT ':' ty
 
 /*
 use item
 use an-interface.{a, list, of, names}
 use my:dependency/the-interface.{more, names as foo}
 */
-use_item = "use' use_path '.' '{' use_names_list '}' ';'
+use_item = "use" use_path '.' '{' use_names_list '}' ';'
 
 use_names_list    = use_names_item
                   | use_names_list ',' use_names_item
@@ -164,7 +135,6 @@ use_names_item    = IDENT
 type item
 
 type my-awesome-u32 = u32;
-type my-complicated-tuple = tuple<u32, s32, string>;type my-awesome-u32 = u32;
 type my-complicated-tuple = tuple<u32, s32, string>;
 */
 type_item   = "type" IDENT '=' ty ';'
@@ -239,13 +209,14 @@ transform: func(blob) -> blob;
 resource_item     = "resource" IDENT ';'
                   | "resource" IDENT '{' '}'
                   | "resource" IDENT '{' resource_method '}'
+
 resource_method   = func_item
                   | IDENT ':' "static" func_type ';'
                   | "constructor" param_list ';'
 
 ty    = "u8" | "u16" | "u32" | "u64"
-      | "s8" | "s16" | "s32" | "s64"
-      | "float32" | "float64"
+      | "i8" | "i16" | "i32" | "i64"
+      | "f32" | "f64"
       | "char"
       | "bool"
       | "string"
