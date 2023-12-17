@@ -24,7 +24,7 @@
                                 "#define PARSING_SYMBOL_COUNT %d\n"
 
 #define source_header_template   "#define M_PARSING_INITIALIZER 1\n"\
-                                 "#include \"parser/m_parsing_table.h\"\n\n"
+                                 "#include \"parser/parsing_table.h\"\n\n"
 
 #define source_parsing_symbols_initializer "const char *m_parsing_symbols[PARSING_SYMBOL_COUNT] = {\n"
 #define source_parsing_rules_initializer "const struct parse_rule m_parsing_rules[PARSING_RULE_COUNT] = {\n"

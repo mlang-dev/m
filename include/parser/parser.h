@@ -9,7 +9,7 @@
 #define __MLANG_PARSER_H__
 
 #include "clib/hashtable.h"
-#include "parser/m_parsing_table.h"
+#include "parser/parsing_table.h"
 #include "sema/type.h"
 #include <stdint.h>
 

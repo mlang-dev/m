@@ -8,7 +8,6 @@
  */
 #include "lexer/lexer.h"
 #include "parser/parser.h"
-#include "parser/m_parsing_table.h"
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "app/error.h"
