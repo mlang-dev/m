@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+
 #include "pgen/lalr_parser_generator.h"
-//#include "parser/m_parsing_table.h"
 #include <assert.h>
 #include "clib/symbol.h"
 #include "lexer/pgen_token.h"
@@ -204,17 +205,35 @@ void pgen_deinit()
     app_deinit();
 }
 
-int generate_files(const char *grammar_path, const char *header_path, const char *source_path)
+
+void copy_directory(const char *source_folder, const char *dest_folder) {
+    char command[1024];
+    snprintf(command, sizeof(command), "cp -r %s %s", source_folder, dest_folder);
+    system(command);
+}
+
+int generate_files(const char *grammar_path, const char *prefix, 
+    const char *pgen_header_folder, 
+    const char *header_path, const char *source_path)
 {
     pgen_init();
     printf("parsing grammar file %s ...\n", grammar_path);
+    char header_filepath[1024];
+    sprintf(header_filepath, "%s%s_parsing_table.h", header_path, prefix);
+    char source_filepath[1024];
+    sprintf(source_filepath, "%s%s_parsing_table.c", source_path, prefix);
     const char *grammar = read_text_file(grammar_path);
     struct lalr_parser_generator *pg = lalr_parser_generator_new(grammar);
-    printf("generating %s ...\n", header_path);
-    write_to_header_file(pg, header_path);
-    printf("generating %s ...\n", source_path);
-    write_to_source_file(pg, source_path);
+    
+    printf("generating %s ...\n", header_filepath);
+    write_to_header_file(pg, header_filepath);
+    printf("generating %s ...\n", source_filepath);
+    write_to_source_file(pg, source_filepath);
     lalr_parser_generator_free(pg);
+
+    sprintf(header_filepath, "%sdef", pgen_header_folder);
+    copy_directory(header_filepath, header_path);
+
     free((void *)grammar);
     pgen_deinit();
     return 0;
@@ -222,9 +241,9 @@ int generate_files(const char *grammar_path, const char *header_path, const char
 
 int main(int argc, char *argv[])
 {
-    if (argc != 4) {
-        printf("pgen usage is: pgen grammar path path1(.h) path2(.c)\n");
+    if (argc != 6) {
+        printf("pgen usage is: pgen grammar_path prefix pgen_header_folder header_path(.h) source_path(.c)\n");
     }
     printf("welcome to pgen!\n");
-    return generate_files(argv[1], argv[2], argv[3]);
+    return generate_files(argv[1], argv[2], argv[3], argv[4], argv[5]);
 }
