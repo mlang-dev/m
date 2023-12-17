@@ -26,7 +26,8 @@ target_link_libraries(clibw PRIVATE wasm_options)
 add_library(mlrw
 app/app.c
 app/error.c
-lexer/terminal.c
+lexer/m/m_token.c
+lexer/token.c
 lexer/lexer.c
 parser/node_type.c
 parser/ast.c
@@ -92,7 +93,8 @@ add_executable(pgen
   app/app.c
   app/error.c
   lexer/lexer.c
-  lexer/terminal.c
+  lexer/m/m_token.c
+  lexer/token.c
   lexer/pgen_token.c
   parser/node_type.c
   parser/grammar.c
@@ -122,7 +124,8 @@ endif()
 add_library(mlr
   app/app.c
   app/error.c
-  lexer/terminal.c
+  lexer/m/m_token.c
+  lexer/token.c
   lexer/lexer.c
   parser/node_type.c
   parser/ast.c
@@ -161,7 +164,8 @@ target_include_directories(mlr PUBLIC
 add_library(mlrl
   app/app.c
   app/error.c
-  lexer/terminal.c
+  lexer/m/m_token.c
+  lexer/token.c
   lexer/lexer.c
   parser/node_type.c
   parser/ast.c
