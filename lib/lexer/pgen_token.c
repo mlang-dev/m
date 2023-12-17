@@ -6,7 +6,7 @@
  */
 #include "lexer/pgen_token.h"
 #include "clib/hashtable.h"
-#include "lexer/terminal.h"
+#include "lexer/token.h"
 #include <assert.h>
 
 struct token_pattern g_nonterms[MAX_NONTERMS];
@@ -17,8 +17,9 @@ struct hashtable token_patterns_by_symbol;
 void pgen_token_init()
 {
     hashtable_init(&token_patterns_by_symbol);
+    struct token_patterns tps = get_token_patterns();
     for (int i = 0; i < TERMINAL_COUNT; i++) {
-        struct token_pattern *tp = &g_token_patterns[i];
+        struct token_pattern *tp = &tps.patterns[i];
         if(tp->name&&tp->pattern&&!tp->re){
             tp->re = regex_new(tp->pattern);
             assert(tp->re);
@@ -33,8 +34,9 @@ void pgen_token_init()
 
 void pgen_token_deinit()
 {
+    struct token_patterns tps = get_token_patterns();
     for (int i = 0; i < TERMINAL_COUNT; i++) {
-        struct token_pattern *tp = &g_token_patterns[i];
+        struct token_pattern *tp = &tps.patterns[i];
         if(tp->re){
             regex_free(tp->re);
             tp->re = 0;
@@ -93,8 +95,9 @@ u16 get_symbol_count()
 symbol get_symbol_by_index(u16 symbol_index)
 {
     struct token_pattern *tp;
+    struct token_patterns tps = get_token_patterns();
     if (symbol_index < TERMINAL_COUNT){
-        tp = &g_token_patterns[symbol_index];
+        tp = &tps.patterns[symbol_index];
     }else{
         symbol_index -= TERMINAL_COUNT;
         tp = &g_nonterms[symbol_index];

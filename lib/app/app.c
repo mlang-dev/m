@@ -8,7 +8,7 @@
 
 #include "app/error.h"
 #include "app/app.h"
-#include "lexer/terminal.h"
+#include "lexer/token.h"
 #include "clib/util.h"
 #include "clib/symbol.h"
 
@@ -17,14 +17,14 @@ struct app app;
 void app_init()
 {
     symbols_init();
-    terminal_init();
+    token_init();
     error_init(&app.error_reports);
 }
 
 void app_deinit()
 {
     error_deinit(&app.error_reports);
-    terminal_deinit();
+    token_deinit();
     symbols_deinit();
 }
 

@@ -169,7 +169,7 @@
         "token.h": "c",
         "node_type.h": "c",
         "pgen_token.h": "c",
-        "terminal.h": "c",
+        "token.h": "c",
         "symbol.h": "c",
         "engine.h": "c",
         "mw.h": "c",

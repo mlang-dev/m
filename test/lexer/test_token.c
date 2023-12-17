@@ -3,7 +3,7 @@
  *
  * Unit tests for grammar parser
  */
-#include "lexer/terminal.h"
+#include "lexer/token.h"
 #include "test.h"
 #include <stdio.h>
 
