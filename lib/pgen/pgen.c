@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "parser/lalr_parser_generator.h"
+#include "pgen/lalr_parser_generator.h"
+//#include "parser/m_parsing_table.h"
 #include <assert.h>
 #include "clib/symbol.h"
 #include "lexer/pgen_token.h"
@@ -161,7 +162,7 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
     for (i = 0; i < pg->rule_count; i++) {
         //    /*rule 0*/ { 0, { 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, { 0, 0, 0, 0, 0 }, 0 } }
         fprintf(f, "  /*rule %3d*/ ", i); // comments
-        rule = &pg->parsing_rules[i];
+        rule = &pg->parse_rules[i];
         print_rule(f, rule);
         fprintf(f, "\n");
     }
@@ -171,7 +172,7 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
     fprintf(f, source_parsing_states_initializer);
     for (i = 0; i < pg->parse_state_count; i++) {
         fprintf(f, "  /*state %3d*/ ", i); // comments
-        print_state_string(f, pg->parsing_rules, &pg->parse_states[i]);
+        print_state_string(f, pg->parse_rules, &pg->parse_states[i]);
     }
     fprintf(f, source_data_initializer_end);
     fprintf(f, "\n");

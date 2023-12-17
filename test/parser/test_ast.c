@@ -3,7 +3,6 @@
  *
  * Unit tests for grammar parser
  */
-#include "parser/grammar.h"
 #include "parser/ast.h"
 #include "parser/astdump.h"
 #include "parser/parser.h"

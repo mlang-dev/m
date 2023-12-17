@@ -3,7 +3,7 @@
  *
  * Unit tests for grammar parser
  */
-#include "parser/grammar.h"
+#include "pgen/grammar.h"
 #include "test.h"
 #include <stdio.h>
 #include "clib/hashtable.h"

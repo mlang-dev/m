@@ -3,7 +3,6 @@
  *
  * Unit tests for grammar parser
  */
-#include "parser/grammar.h"
 #include "lexer/lexer.h"
 #include "sema/frontend.h"
 #include "test.h"

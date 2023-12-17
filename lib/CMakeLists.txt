@@ -97,8 +97,8 @@ add_executable(pgen
   parser/node_type.c
   parser/grammar.c
   parser/m_parsing_table.c
-  parser/lalr_parser_generator.c
   sema/type_size_info.c
+  pgen/lalr_parser_generator.c
   pgen/pgen.c
 )
 
