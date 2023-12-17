@@ -115,6 +115,7 @@ if(REGEN_PARSER)
     TARGET pgen
     POST_BUILD
     COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/m_grammar.txt ${CMAKE_SOURCE_DIR}/include/parser/m_parsing_table_def.h ${CMAKE_SOURCE_DIR}/lib/parser/m_parsing_table.c
+    COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/wit/wit_grammar.txt ${CMAKE_SOURCE_DIR}/include/parser/wit/wit_parsing_table_def.h ${CMAKE_SOURCE_DIR}/lib/parser/wit/wit_parsing_table.c
   )
 endif()
 
