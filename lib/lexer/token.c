@@ -7,26 +7,43 @@
 #include "clib/hashtable.h"
 #include <assert.h>
 
+#define TOKEN_PATTERN(pattern, tok_name, class_name) {#tok_name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
+#define KEYWORD_PATTERN(keyword, tok_name) {keyword, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
+#define NAME_KEYWORD_PATTERN(name, keyword, tok_name) {name, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
+#define KEYWORD_PATTERN_STYLE(name, pattern, tok_name, class_name) {name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
+#define OP_PATTERN(name, pattern, op_name) {name, pattern, TOKEN_OP, OP_##op_name, "operator", 0, 0}
+
+struct token_pattern _token_patterns[TERMINAL_COUNT] = {
+    TOKEN_PATTERN(0, NULL, 0),    // 1
+    TOKEN_PATTERN(0, EOF, 0),     // 1
+    TOKEN_PATTERN(0, EPSILON, 0),
+
+    #include "./m/m_token.keyword.def"
+    
+    /*operator separator*/
+    TOKEN_PATTERN(0, OP, "operator"),
+
+    #include "./m/m_token.operator.def"
+};
+
 void token_init()
 {
-    struct token_pattern* tps = get_token_pattern_array();
     for (int i = 0; i < TERMINAL_COUNT; i++) {
-        struct token_pattern *tp = &tps[i];
-        if(tp->name&&tp->pattern&&!tp->re){
+        struct token_pattern *tp = &_token_patterns[i];
+        if(tp->token_name&&tp->pattern&&!tp->re){
             tp->re = regex_new(tp->pattern);
             assert(tp->re);
         }
-        if(tp->name){
-            tp->symbol_name = to_symbol(tp->name);
+        if(tp->token_name){
+            tp->symbol_name = to_symbol(tp->token_name);
         }
     }
 }
 
 void token_deinit()
 {
-    struct token_pattern* tps = get_token_pattern_array();
     for (int i = 0; i < TERMINAL_COUNT; i++) {
-        struct token_pattern *tp = &tps[i];
+        struct token_pattern *tp = &_token_patterns[i];
         if(tp->re){
             regex_free(tp->re);
             tp->re = 0;
@@ -44,15 +61,14 @@ void tok_clean(struct token *tok)
 
 struct token_patterns get_token_patterns()
 {
-    struct token_pattern* tps = get_token_pattern_array();
-    struct token_patterns tpss = { tps, TERMINAL_COUNT };
-    return tpss;
+    struct token_patterns tps = { _token_patterns, TERMINAL_COUNT };
+    return tps;
 }
 
 const char *get_opcode(enum op_code opcode)
 {
     assert(opcode > 0 && opcode < OP_TOTAL);
-    return get_token_pattern_by_opcode(opcode)->name;
+    return get_token_pattern_by_opcode(opcode)->token_name;
 }
 
 symbol get_terminal_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode)
@@ -67,16 +83,14 @@ symbol get_terminal_symbol_by_token_opcode(enum token_type token_type, enum op_c
 
 struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode)
 {
-    struct token_pattern* tps = get_token_pattern_array();
     assert(opcode > 0 && opcode < TERMINAL_COUNT);
-    return &tps[(int)TOKEN_OP + (int)opcode];
+    return &_token_patterns[(int)TOKEN_OP + (int)opcode];
 }
 
 struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type)
 {
-    struct token_pattern* tps = get_token_pattern_array();
     assert(token_type >= 0 && token_type <= TOKEN_OP);
-    return &tps[(int)token_type];
+    return &_token_patterns[(int)token_type];
 }
 
 u16 get_terminal_token_index(enum token_type token_type, enum op_code opcode)

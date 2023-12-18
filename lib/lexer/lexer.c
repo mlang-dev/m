@@ -473,10 +473,10 @@ const char *highlight(struct lexer *lexer, const char *text)
         struct token_pattern *tp = get_token_pattern_by_token_type(tok->token_type);
         const char *token_content = &text[tok->loc.start];
         size_t token_content_len = tok->loc.end-tok->loc.start;
-        if(tp->class_name){
+        if(tp->style_class_name){
             string tok_str;
             char span_class[128];
-            sprintf(span_class, "<span class=\"token %s\">", tp->class_name);
+            sprintf(span_class, "<span class=\"token %s\">", tp->style_class_name);
             string_init_chars(&tok_str, span_class);
             
             if(is_comment_token(tp->token_type)){
