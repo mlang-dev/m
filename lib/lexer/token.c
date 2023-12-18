@@ -7,21 +7,23 @@
 #include "clib/hashtable.h"
 #include <assert.h>
 
-#define TOKEN_PATTERN(pattern, tok_name, class_name) {#tok_name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
-#define KEYWORD_PATTERN(keyword, tok_name) {keyword, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
-#define NAME_KEYWORD_PATTERN(name, keyword, tok_name) {name, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
-#define KEYWORD_PATTERN_STYLE(name, pattern, tok_name, class_name) {name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
-#define OP_PATTERN(name, pattern, op_name) {name, pattern, TOKEN_OP, OP_##op_name, "operator", 0, 0}
+#define TOKEN_PATTERN(tok_name, pattern, class_name) {#tok_name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
+#define CTRL_TOKEN_PATTERN(tok_name) {#tok_name, 0, TOKEN_##tok_name, 0, 0, 0, 0}
+
+#define KEYWORD_PATTERN(tok_name, keyword) {keyword, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
+#define NAME_KEYWORD_PATTERN(tok_name, name, keyword) {name, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
+#define KEYWORD_PATTERN_STYLE(tok_name, name, pattern, class_name) {name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
+#define OP_PATTERN(op_name, name, pattern) {name, pattern, TOKEN_OP, OP_##op_name, "operator", 0, 0}
 
 struct token_pattern _token_patterns[TERMINAL_COUNT] = {
-    TOKEN_PATTERN(0, NULL, 0),    // 1
-    TOKEN_PATTERN(0, EOF, 0),     // 1
-    TOKEN_PATTERN(0, EPSILON, 0),
+    CTRL_TOKEN_PATTERN(NULL),    // 1
+    CTRL_TOKEN_PATTERN(EOF),     // 1
+    CTRL_TOKEN_PATTERN(EPSILON),
 
     #include "./m/m_token.keyword.def"
     
     /*operator separator*/
-    TOKEN_PATTERN(0, OP, "operator"),
+    TOKEN_PATTERN(OP, 0, "operator"),
 
     #include "./m/m_token.operator.def"
 };
