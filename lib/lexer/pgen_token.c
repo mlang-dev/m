@@ -20,12 +20,12 @@ void pgen_token_init()
     struct token_patterns tps = get_token_patterns();
     for (int i = 0; i < TERMINAL_COUNT; i++) {
         struct token_pattern *tp = &tps.patterns[i];
-        if(tp->name&&tp->pattern&&!tp->re){
+        if(tp->token_name&&tp->pattern&&!tp->re){
             tp->re = regex_new(tp->pattern);
             assert(tp->re);
         }
-        if(tp->name){
-            tp->symbol_name = to_symbol(tp->name);
+        if(tp->token_name){
+            tp->symbol_name = to_symbol(tp->token_name);
             hashtable_set_p(&token_patterns_by_symbol, tp->symbol_name, tp);
         }
     }
@@ -77,7 +77,7 @@ u16 register_grammar_nonterm(symbol symbol)
     u16 nonterm = (u16)g_nonterm_count + (u16)TERMINAL_COUNT;
     tpn.token_type = nonterm;
     tpn.symbol_name = symbol;
-    tpn.name = string_get(tpn.symbol_name);
+    tpn.token_name = string_get(tpn.symbol_name);
     tpn.opcode = 0;
     tpn.pattern = 0;
     tpn.re = 0; 

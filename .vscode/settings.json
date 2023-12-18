@@ -169,12 +169,12 @@
         "token.h": "c",
         "node_type.h": "c",
         "pgen_token.h": "c",
-        "token.h": "c",
         "symbol.h": "c",
         "engine.h": "c",
         "mw.h": "c",
         "app.h": "c",
-        "parser_def.h": "c"
+        "parser_def.h": "c",
+        "*.operator": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

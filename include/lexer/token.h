@@ -9,7 +9,6 @@
 #define __TOKEN_H__
 
 #include "lexer/source_location.h"
-#include "lexer/m/m_token.h"
 
 #include "clib/string.h"
 #include "clib/symbol.h"
@@ -21,6 +20,39 @@
 extern "C" {
 #endif
 
+
+enum token_type{
+    TOKEN_NULL,
+    TOKEN_EOF,
+    TOKEN_EPSILON,
+
+    #include "lexer/m/m_token.keyword"   
+
+    TOKEN_OP,
+};
+
+enum op_code {
+    OP_NULL,
+ 
+    #include "lexer/m/m_token.operator"
+    
+    OP_TOTAL // mark end of all tokens
+};
+
+struct token_pattern{
+    const char *token_name;       //c string name
+    const char *pattern;    //pattern
+    enum token_type token_type;
+    enum op_code opcode; 
+
+    const char *style_class_name; //ui style class name, used for syntax highlight
+    symbol symbol_name;     //symbol name
+    struct re *re;          //regex for the pattern
+};
+
+#define TERMINAL_COUNT TOKEN_OP + OP_TOTAL
+#define MAX_NONTERMS 2048
+#define MAX_GRAMMAR_SYMBOLS TERMINAL_COUNT + MAX_NONTERMS
 
 struct token_patterns{
     struct token_pattern *patterns;
