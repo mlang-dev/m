@@ -1,44 +1,44 @@
-    OP_PATTERN(".", "\\.", DOT), // literal dot
-    OP_PATTERN("or", "or", OR),
-    OP_PATTERN("and", "and", AND), // 35
-    OP_PATTERN("not", "not", NOT),
+    OP_PATTERN( DOT, ".", "\\."), // literal dot
+    OP_PATTERN(OR, "or", "or"),
+    OP_PATTERN(AND, "and", "and"), // 35
+    OP_PATTERN(NOT, "not", "not"),
 
-    OP_PATTERN("~", "~", BITNOT),
-    OP_PATTERN("|", "\\|", BITOR),
-    OP_PATTERN("^", "^", BITEXOR),
-    OP_PATTERN("&", "&", BAND), //or reference
-    OP_PATTERN("<<", "<<", BSL),
-    OP_PATTERN(">>", ">>", BSR),
+    OP_PATTERN(BITNOT, "~", "~"),
+    OP_PATTERN(BITOR, "|", "\\|"),
+    OP_PATTERN(BITEXOR, "^", "^"),
+    OP_PATTERN(BAND, "&", "&"), //or reference
+    OP_PATTERN(BSL, "<<", "<<"),
+    OP_PATTERN(BSR, ">>", ">>"),
 
     // KEYWORD_PATTERN("^", EXPO),
-    OP_PATTERN("|/", "\\|/", SQRT),
-    OP_PATTERN("**", "\\*\\*", POW), // 40
-    OP_PATTERN("*", "\\*", STAR), // 40
-    OP_PATTERN("/", "/", DIVISION),
-    OP_PATTERN("%", "%", MODULUS),
-    OP_PATTERN("+", "\\+", PLUS),
-    OP_PATTERN("-", "-", MINUS),
+    OP_PATTERN(SQRT, "|/", "\\|/"),
+    OP_PATTERN(POW, "**", "\\*\\*"), // 40
+    OP_PATTERN(STAR, "*", "\\*"), // 40
+    OP_PATTERN(DIVISION, "/", "/"),
+    OP_PATTERN(MODULUS, "%", "%"),
+    OP_PATTERN(PLUS, "+", "\\+"),
+    OP_PATTERN(MINUS, "-", "-"),
 
-    OP_PATTERN("<", "<", LT), // 45
-    OP_PATTERN("<=", "<=", LE),
-    OP_PATTERN("==", "==", EQ),
-    OP_PATTERN(">", ">", GT),
-    OP_PATTERN(">=", ">=", GE),
-    OP_PATTERN("!=", "!=", NE),
-    OP_PATTERN("?", "\\?", COND), // 40
+    OP_PATTERN(LT, "<", "<"), // 45
+    OP_PATTERN(LE, "<=", "<="),
+    OP_PATTERN(EQ, "==", "=="),
+    OP_PATTERN(GT, ">", ">"),
+    OP_PATTERN(GE, ">=", ">="),
+    OP_PATTERN(NE, "!=", "!="),
+    OP_PATTERN(COND, "?", "\\?"), // 40
 
-    OP_PATTERN("=", "=", ASSIGN),
-    OP_PATTERN("*=", "\\*=", MUL_ASSN),
-    OP_PATTERN("/=", "/=", DIV_ASSN),
-    OP_PATTERN("%=", "%=", MOD_ASSN),
-    OP_PATTERN("+=", "\\+=", ADD_ASSN),
-    OP_PATTERN("-=", "-=", SUB_ASSN),
-    OP_PATTERN("<<=", "<<=", LEFT_ASSN),
-    OP_PATTERN(">>=", ">>=", RIGHT_ASSN),
-    OP_PATTERN("&=", "&=", AND_ASSN),
-    OP_PATTERN("^=", "^=", XOR_ASSN),
-    OP_PATTERN("|=", "\\|=", OR_ASSN),
+    OP_PATTERN(ASSIGN, "=", "="),
+    OP_PATTERN(MUL_ASSN, "*=", "\\*="),
+    OP_PATTERN(DIV_ASSN, "/=", "/="),
+    OP_PATTERN(MOD_ASSN, "%=", "%="),
+    OP_PATTERN(ADD_ASSN, "+=", "\\+="),
+    OP_PATTERN(SUB_ASSN, "-=", "-="),
+    OP_PATTERN(LEFT_ASSN, "<<=", "<<="),
+    OP_PATTERN(RIGHT_ASSN, ">>=", ">>="),
+    OP_PATTERN(AND_ASSN, "&=", "&="),
+    OP_PATTERN(XOR_ASSN, "^=", "^="),
+    OP_PATTERN(OR_ASSN, "|=", "\\|="),
 
-    OP_PATTERN("++", "\\+\\+", INC),
-    OP_PATTERN("--", "--", DEC),
-    OP_PATTERN("@", "@", AT),
+    OP_PATTERN(INC, "++", "\\+\\+"),
+    OP_PATTERN(DEC, "--", "--"),
+    OP_PATTERN(AT, "@", "@"),
