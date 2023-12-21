@@ -114,8 +114,8 @@ if(REGEN_PARSER)
   add_custom_command(
     TARGET pgen
     POST_BUILD
-    COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/m_grammar.txt m ${CMAKE_SOURCE_DIR}/include/pgen/ ${CMAKE_SOURCE_DIR}/include/parser/ ${CMAKE_SOURCE_DIR}/lib/parser/
-    COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/wit/wit_grammar.txt wit ${CMAKE_SOURCE_DIR}/include/pgen/ ${CMAKE_SOURCE_DIR}/include/parser/wit/ ${CMAKE_SOURCE_DIR}/lib/parser/wit/
+    COMMAND pgen m ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
+    #COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/wit/wit_grammar.txt wit ${CMAKE_SOURCE_DIR}/include/pgen/ ${CMAKE_SOURCE_DIR}/include/parser/wit/ ${CMAKE_SOURCE_DIR}/lib/parser/wit/
   )
 endif()
 
