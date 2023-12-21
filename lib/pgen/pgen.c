@@ -224,7 +224,7 @@ void write_to_file(const char *content, const char *filepath)
     fclose(f);
 }
 
-void process_token_file(const char *keyword_or_operator, const char *lang_name, const char *source_folder, const char *header_folder)
+void process_token_file(const char *token_name, const char *keyword_or_operator, const char *lang_name, const char *source_folder, const char *header_folder)
 {
     char token_filepath[1024];
     sprintf(token_filepath, "%spgen/%s/%s_%s.pgn", source_folder, lang_name, lang_name, keyword_or_operator);
@@ -254,7 +254,7 @@ void process_token_file(const char *keyword_or_operator, const char *lang_name, 
             assert(tok->token_type == TOKEN_LPAREN);
             tok = get_tok(lexer);
             assert(tok->token_type == TOKEN_IDENT);
-            fprintf(f, "\tTOKEN_%s,\n", tok->str_val);
+            fprintf(f, "\t%s_%s,", token_name, string_get(tok->symbol_val));
             while(tok->token_type != TOKEN_NEWLINE && tok->token_type != TOKEN_EOF){
                 //skip to the end of line
                 tok = get_tok(lexer);
@@ -297,9 +297,9 @@ int generate_files(const char *lang_name,
     copy_directory(header_filepath, pgen_header_folder);
 
     //process /lib/pgen/m_token.keyword.pgn
-    process_token_file("keyword", lang_name, source_folder, header_folder);
+    process_token_file("TOKEN", "keyword", lang_name, source_folder, header_folder);
     //process /lib/pgen/m_token.operator.pgn
-    process_token_file("operator", lang_name, source_folder, header_folder);
+    process_token_file("OP", "operator", lang_name, source_folder, header_folder);
     
     free((void *)grammar);
     pgen_deinit();
