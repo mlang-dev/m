@@ -1,0 +1,246 @@
+/*
+ * grammar for wit (Wasm Interface Type)
+ * 
+*/
+
+/*semantic versioin*/
+valid_semver    = version_core
+                | version_core '-' pre_release
+                | version_core '+' build
+                | version_core '-' pre_release '+' build
+
+version_core = major '.' minor '.' patch
+major = LITERAL_INT
+minor = LITERAL_INT
+patch = LITERAL_INT
+
+pre_release = pre_release_identifier
+            | pre_release '.' pre_release_identifier
+
+build   = build_identifier
+        | build '.' build_identifier
+
+pre_release_identifier  = IDENT
+                        | LITERAL_INT
+/*
+ *  FIXME: should also support alphanumeric_identifier starting with digits
+*/
+build_identifier    = IDENT
+                    | LITERAL_INT
+/*end of semantic versioin*/
+
+wit_file_item   = toplevel_use_item | interface_item | world_item
+wit_file_items  = wit_file_items wit_file_item
+                | wit_file_item
+
+wit_file    = package_decl wit_file_items
+            | wit_file_items
+
+namespace   = IDENT ':'
+namespaces  = namespaces namespace
+            | namespace
+
+package_name    = IDENT 
+                | package_name '/' IDENT
+full_package_name   = namespaces package_name
+                    | namespaces package_name '@' valid_semver
+
+package_decl    = "package" full_package_name ';'
+
+top_use_item    = "use" use_path
+use_path    = full_package_name
+toplevel_use_item   = top_use_item ';'
+                    | top_use_item "as" IDENT ';'
+
+world_item  = "world" IDENT '{' '}'
+            | "world" IDENT '{' world_item_list '}'
+
+_world_item = export_item | import_item | use_item | typedef_item | include_item
+
+world_item_list = _world_item
+                | world_item_list _world_item
+
+export_item = "export" IDENT ':' extern_type
+            | "export" use_path ';'
+
+import_item = "import" IDENT ':' extern_type
+            | "import" use_path ';'
+
+extern_type = func_type ';' 
+            | "interface" '{' '}'
+            | "interface" '{' interface_item_list '}'
+
+/* include items 
+include wasi:io/my-world-1 with { a as a1, b as b1 };
+include my-world-2;
+*/
+
+include_item    = "include" use_path ';'
+                | "include" use_path "with" '{' include_names_list '}'
+
+include_names_item  = IDENT "as" IDENT
+
+include_names_list  = include_names_item
+                    | include_names_list ',' include_names_item
+
+/*interface items*/
+interface_item    = "interface" IDENT '{' '}'
+                  | "interface" IDENT '{' interface_item_list '}'
+
+_interface_item   = typedef_item
+                  | use_item
+                  | func_item
+
+interface_item_list = _interface_item
+                    | interface_item_list _interface_item
+
+typedef_item   = resource_item
+               | variant_items
+               | record_item
+               | flags_items
+               | enum_items
+               | type_item
+
+func_item   = IDENT ':' func_type ';'
+
+func_type   = "func" param_list
+            | "func" param_list result_list
+
+param_list  = '(' named_type_list ')'
+
+result_list = "->" ty
+            | "->" '(' ')'
+            | "->" '(' named_type_list ')'
+
+named_type_list = named_type
+                | named_type_list ',' named_type
+
+named_type  = IDENT ':' ty
+
+/*
+use item
+use an-interface.{a, list, of, names}
+use my:dependency/the-interface.{more, names as foo}
+*/
+use_item = "use" use_path '.' '{' use_names_list '}' ';'
+
+use_names_list    = use_names_item
+                  | use_names_list ',' use_names_item
+                  | use_names_list ','
+
+use_names_item    = IDENT
+                  | IDENT "as" IDENT
+
+/*
+type item
+
+type my-awesome-u32 = u32;
+type my-complicated-tuple = tuple<u32, s32, string>;
+*/
+type_item   = "type" IDENT '=' ty ';'
+
+/*
+record pair {
+    x: u32,
+    y: u32,
+}
+
+record person {
+    name: string,
+    age: u32,
+    has-lego-action-figure: bool,
+}
+*/
+record_item = "record" IDENT '{' record_fields '}'
+
+record_fields   = record_field
+                | record_fields ',' record_field
+                | record_fields ','
+
+record_field      = IDENT ':' ty
+
+/*
+flags properties {
+    lego,
+    marvel-superhero,
+    supervillan,
+}
+*/
+flags_items = "flags" IDENT '{' flags_fields '}'
+
+flags_fields      = IDENT
+                  | flags_fields ',' IDENT
+                  | flags_fields ','
+
+/*
+variant filter {
+    all,
+    none,
+    some(list<string>),
+}
+*/
+variant_items     = "variant" IDENT '{' variant_cases '}'
+
+variant_cases     = variant_case
+                  | variant_cases ',' variant_case
+                  | variant_cases ','
+
+variant_case      = IDENT
+                  | IDENT '(' ty ')'
+
+/*
+enum color {
+    red,
+    green,
+    blue,
+    other,
+}
+*/
+enum_items  = "enum" IDENT '{' enum_cases '}'
+
+enum_cases  = IDENT
+            | enum_cases ',' IDENT
+            | enum_cases ','
+
+/*
+resource blob;
+transform: func(blob) -> blob;
+*/
+resource_item     = "resource" IDENT ';'
+                  | "resource" IDENT '{' '}'
+                  | "resource" IDENT '{' resource_method '}'
+
+resource_method   = func_item
+                  | IDENT ':' "static" func_type ';'
+                  | "constructor" param_list ';'
+
+ty    = "u8" | "u16" | "u32" | "u64"
+      | "i8" | "i16" | "i32" | "i64"
+      | "f32" | "f64"
+      | "char"
+      | "bool"
+      | "string"
+      | tuple
+      | list
+      | option
+      | result
+      | handle
+      | IDENT
+
+tuple = "tuple" '<' tuple_list '>'
+
+tuple_list  = ty
+            | tuple_list ',' ty
+            | tuple_list ','
+
+list  = "list" '<' ty '>'
+
+option      = "option" '<' ty '>'
+
+result      = "result" '<' ty ',' ty '>'
+            | "result" '<' '_' ',' ty '>'
+            | "result" '<' ty '>'
+            | "result"
+
+handle      = IDENT
+            | "borrow" '<' IDENT '>'
