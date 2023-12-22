@@ -9,6 +9,8 @@
 #ifndef __MLANG_PGEN_PARSER_DEF_H__
 #define __MLANG_PGEN_PARSER_DEF_H__
 
+#include "clib/typedef.h"
+
 #define MAX_KERNEL_ITEMS   11
 
 enum action_code {

@@ -31,7 +31,7 @@ lexer/lexer.c
 parser/node_type.c
 parser/ast.c
 parser/astdump.c
-parser/m_parsing_table.c
+parser/m/m_parsing_table.c
 parser/parser.c
 parser/grammar.c
 sema/type.c
@@ -96,7 +96,7 @@ add_executable(pgen
   lexer/pgen_token.c
   parser/node_type.c
   parser/grammar.c
-  parser/m_parsing_table.c
+  parser/m/m_parsing_table.c
   sema/type_size_info.c
   pgen/lalr_parser_generator.c
   pgen/pgen.c
@@ -115,7 +115,7 @@ if(REGEN_PARSER)
     TARGET pgen
     POST_BUILD
     COMMAND pgen m ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
-    #COMMAND pgen ${CMAKE_SOURCE_DIR}/lib/parser/wit/wit_grammar.txt wit ${CMAKE_SOURCE_DIR}/include/pgen/ ${CMAKE_SOURCE_DIR}/include/parser/wit/ ${CMAKE_SOURCE_DIR}/lib/parser/wit/
+    COMMAND pgen wit ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
   )
 endif()
 
@@ -128,7 +128,7 @@ add_library(mlr
   parser/ast.c
   parser/astdump.c
   parser/grammar.c
-  parser/m_parsing_table.c
+  parser/m/m_parsing_table.c
   parser/parser.c
   sema/type.c
   sema/analyzer.c
@@ -167,7 +167,7 @@ add_library(mlrl
   parser/ast.c
   parser/astdump.c
   parser/grammar.c
-  parser/m_parsing_table.c
+  parser/m/m_parsing_table.c
   parser/parser.c
   sema/type.c
   sema/analyzer.c

@@ -9,8 +9,8 @@
 
 #include "clib/typedef.h"
 #include "parser/node_type.h"
-#include "parser/m_parsing_table.h"
-#include "parser/def/parser_def.h"
+#include "parser/m/m_parsing_table.h"
+#include "parser/parser_def.h"
 
 #ifdef __cplusplus
 extern "C" {
