@@ -115,7 +115,7 @@ if(REGEN_PARSER)
     TARGET pgen
     POST_BUILD
     COMMAND pgen m ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
-#    COMMAND pgen wit ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
+    COMMAND pgen wit ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
   )
 endif()
 
