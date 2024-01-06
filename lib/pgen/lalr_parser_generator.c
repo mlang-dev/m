@@ -11,6 +11,7 @@
 #include "clib/stack.h"
 #include "clib/util.h"
 #include "pgen/grammar.h"
+#include "parser/node_type.h"
 #include <assert.h>
 
 #define END_OF_RULE 0xff
@@ -55,7 +56,7 @@ int _append_data(struct index_list *dst, u16 data)
 
 void _semantic_action_2_rule_action(struct semantic_action *sa, struct rule_action *ra)
 {
-    ra->node_type = symbol_to_node_type(sa->action);
+    ra->node_type = (u8)symbol_to_node_type(sa->action);
     for(u8 i = 0; i < sa->exp_item_index_count; i++){
         ra->item_index[i] = sa->exp_item_index[i];
     }

@@ -10,7 +10,6 @@
 #define __MLANG_LALR_PARSER_GENERATOR_H__
 
 #include "pgen/grammar.h"
-#include "parser/node_type.h"
 #include "pgen/parser_def.h"
 #include "lexer/pgen_token.h"
 #include "clib/symbol.h"

@@ -10,7 +10,6 @@
 #define __MLANG_PGEN_PARSER_DEF_H__
 
 #include "clib/typedef.h"
-
 #define MAX_KERNEL_ITEMS   11
 
 enum action_code {
@@ -32,7 +31,7 @@ struct parser_action {
 #define MAX_SYMBOLS_RULE 16 
 
 struct rule_action {
-    enum node_type node_type;
+    u8 node_type;
     u8 item_index[MAX_SYMBOLS_RULE]; // 0: is the first exp item value parsed at right side of grammar rule
     u8 item_index_count;
 };
