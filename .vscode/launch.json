@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/lib/pgen",//;"${workspaceFolder}/build/test/mctest",
             "args": [
-                "m",
+                "wit",
                 "${workspaceFolder}/include/",
                 "${workspaceFolder}/lib/"
             ],

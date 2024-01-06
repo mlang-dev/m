@@ -12,10 +12,6 @@
     KEYWORD_PATTERN_STYLE(BLOCKCOMMENT, "/*", "/\\*", "block-comment"),
     KEYWORD_PATTERN_STYLE(WILDCARD, "_", "_", "variable"), 
 
-    KEYWORD_PATTERN(FROM, "from"), 
-    KEYWORD_PATTERN(MEMORY, "memory"),
-    KEYWORD_PATTERN(EXTERN, "extern"), 
-
     //WIT items
     KEYWORD_PATTERN(NONE, "None"), 
     KEYWORD_PATTERN(TYPE_BOOL, "bool"), 
@@ -51,40 +47,18 @@
     KEYWORD_PATTERN(INTERFACE, "interface"),
     KEYWORD_PATTERN(WORLD, "world"),
     KEYWORD_PATTERN(TUPLE, "tuple"),
+
     KEYWORD_PATTERN(FUTURE, "future"),
     KEYWORD_PATTERN(STREAM, "stream"),
     KEYWORD_PATTERN(IMPORT, "import"),
     KEYWORD_PATTERN(EXPORT, "export"),
     KEYWORD_PATTERN(PACKAGE, "package"),
     KEYWORD_PATTERN(INCLUDE, "include"),
-    KEYWORD_PATTERN(CLASS, "class"),
     KEYWORD_PATTERN(BORROW, "borrow"),
-    KEYWORD_PATTERN(DEFAULT, "default"),
 
-    KEYWORD_PATTERN(DEF, "def"),
-    KEYWORD_PATTERN(LET, "let"),
-    KEYWORD_PATTERN(MUT, "mut"),
     KEYWORD_PATTERN(MAPTO, "->"),
-    KEYWORD_PATTERN(IF, "if"),
-    KEYWORD_PATTERN(ELIF, "elif"),
-    KEYWORD_PATTERN(ELSE, "else"), 
 
-    KEYWORD_PATTERN(TRUE, "True"),
-    KEYWORD_PATTERN(FALSE, "False"),
-    KEYWORD_PATTERN(IN, "in"),
-    KEYWORD_PATTERN(FOR, "for"),
-    KEYWORD_PATTERN(WHILE, "while"),
-    KEYWORD_PATTERN(BREAK, "break"),
-    KEYWORD_PATTERN(CONTINUE, "continue"),
-    KEYWORD_PATTERN(RETURN, "return"),
     KEYWORD_PATTERN(CONSTRUCTOR, "constructor"),
-
-    KEYWORD_PATTERN(MATCH, "match"),
-    KEYWORD_PATTERN(WITH, "with"),
-    KEYWORD_PATTERN(WHEN, "when"),
-    
-    KEYWORD_PATTERN(NEW, "new"),
-    KEYWORD_PATTERN(DEL, "del"),
 
     /*reserved keywords*/
     KEYWORD_PATTERN(YIELD, "yield"),
