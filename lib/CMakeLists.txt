@@ -96,7 +96,6 @@ add_executable(pgen
   lexer/pgen_token.c
   parser/node_type.c
   parser/grammar.c
-  parser/m/m_parsing_table.c
   sema/type_size_info.c
   pgen/lalr_parser_generator.c
   pgen/pgen.c
