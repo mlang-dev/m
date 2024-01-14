@@ -28,7 +28,7 @@ enum token_type{
 
     #include "lexer/m/m_token.keyword"   
 
-    TOKEN_OP,
+    TOKEN_OP,  //EQUALS to THE NUMBER OF LANGUAGE KEYWORDS + 3
 };
 
 enum op_code {
@@ -36,7 +36,7 @@ enum op_code {
  
     #include "lexer/m/m_token.operator"
     
-    OP_TOTAL // mark end of all tokens
+    OP_TOTAL // EQUALS to THE NUMBER OF LANGUAGE TOKENS + 1
 };
 
 struct token_pattern{
