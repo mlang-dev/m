@@ -143,6 +143,7 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
 {
     u16 i;
     struct parse_rule *rule;
+    struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS] = (struct parser_action (*)[MAX_STATES][MAX_GRAMMAR_SYMBOLS])pg->parsing_table;
     FILE *f = fopen(source_path, "w");
     if (f == NULL) {
         printf("Error opening source file: %s\n", source_path);
@@ -185,7 +186,7 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
         // print one state
         fprintf(f, "  /*state %3d*/ ", i);
         // print row
-        print_parsing_table_row(f, pg->parsing_table[i], get_symbol_count());
+        print_parsing_table_row(f, (*parsing_table)[i], get_symbol_count());
         fprintf(f, "\n");
     }
     fprintf(f, source_data_initializer_end);

@@ -54,11 +54,12 @@ struct lalr_parser_generator{
     u16 parse_state_count;
 
     //grammar rule symbol data: store isnullable, first set and follow set per symbol
-    struct rule_symbol_data symbol_data[MAX_GRAMMAR_SYMBOLS];
-
+    //dynamic array of struct rule_symbol_data
+    struct rule_symbol_data* symbol_data;  //symbol_data[MAX_GRAMMAR_SYMBOLS];
     /*generator output*/
     // action table for terminal symbols, tokens
-    struct parser_action parsing_table[MAX_STATES][MAX_GRAMMAR_SYMBOLS];
+    struct parser_action *parsing_table;//[MAX_STATES][MAX_GRAMMAR_SYMBOLS];
+
     // grammar rules converted to int index
     struct parse_rule parse_rules[MAX_RULES];
     u16 rule_count;
