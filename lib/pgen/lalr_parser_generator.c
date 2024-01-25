@@ -356,7 +356,7 @@ bool _exists_in_array(u16 *array, u8 size, u16 match)
     return false;
 }
 
-u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules, u16 rule_count, struct parse_state *states, struct parser_action parsing_table[][MAX_GRAMMAR_SYMBOLS])
+u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules, u16 rule_count, struct parse_state *states, struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS])
 {
     u16 i, state_count = 0;
     struct parse_item item;
@@ -399,7 +399,7 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
             } else {
                 pa.state_index = existing_state_index;
             }
-            parsing_table[i][x] = pa;
+            (*parsing_table)[i][x] = pa;
         }
     }
     return state_count;
@@ -434,7 +434,7 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser
     printf("rules count: %d\n", pg->rule_count);
 }
 
-void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser_action parsing_table[][MAX_GRAMMAR_SYMBOLS], u16 state_count, struct parse_state *states, struct parse_rule *rules)
+void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS], u16 state_count, struct parse_state *states, struct parse_rule *rules)
 {
     struct parse_state *state;
     struct parser_action *action;
@@ -460,7 +460,7 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                 lookahead_list = &item->lookaheads;
                 list_foreach(la_entry, lookahead_list)
                 {
-                    action = &parsing_table[i][la_entry->data];
+                    action = &(*parsing_table)[i][la_entry->data];
                     /**/
                     if (action->code == S){
                         printf("warning: There is a shift/reduce conflict in the grammar. ");
@@ -480,7 +480,7 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                 }
             }
             else if(item->dot == rule->symbol_count && item->rule == 0){/*the augumented one*/
-                action = &parsing_table[i][TOKEN_EOF];
+                action = &(*parsing_table)[i][TOKEN_EOF];
                 action->code = A;                
             }
         }
@@ -516,6 +516,7 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
     struct parse_rule *rule;
     struct parser_action *pa;
     struct parse_rule *new_rule;
+    struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS] = (struct parser_action (*)[MAX_STATES][MAX_GRAMMAR_SYMBOLS])pg->parsing_table;
     u16 state_index;
     pg->augmented_rule_count = 0;
     int x = 0;
@@ -537,7 +538,7 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
             new_rule = &pg->augmented_rules[pg->augmented_rule_count-1];
             for (u8 j = 0; j < rule->symbol_count; j++){
                 u16 symbol = rule->rhs[j];
-                pa = &pg->parsing_table[state_index][symbol];
+                pa = &(*parsing_table)[state_index][symbol];
                 if (is_terminal(symbol)) {
                     assert(pa->code == S);
                 } else {
@@ -548,7 +549,7 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
                 state_index = pa->state_index;
             }
             if(item->rule > 0){
-                pa = &pg->parsing_table[i][rule->lhs];
+                pa = &(*parsing_table)[i][rule->lhs];
                 assert(pa->code == G);
                 //annotate new left hand's nonterminal: (rule->lhs, i, pa->state_index)
                 new_rule->lhs = _get_augmented_symbol_index(pg, rule->lhs, i, pa->state_index);
@@ -581,6 +582,7 @@ void _propagate_lookahead(struct lalr_parser_generator *pg)
     struct parse_rule *rule;
     struct parser_action *pa;
     struct parse_item complete_item;
+    struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS] = (struct parser_action (*)[MAX_STATES][MAX_GRAMMAR_SYMBOLS])pg->parsing_table;
     u16 lhs_nonterm;
     u16 state_index;
     for (u16 i = 0; i < pg->parse_state_count; i++) {
@@ -599,12 +601,12 @@ void _propagate_lookahead(struct lalr_parser_generator *pg)
             // for any item with A->.w
             // get the final state for this parsing item
             for (u8 j = 0; j < rule->symbol_count; j++){
-                pa = &pg->parsing_table[state_index][rule->rhs[j]];
+                pa = &(*parsing_table)[state_index][rule->rhs[j]];
                 assert(pa->code == S || pa->code == G);
                 state_index = pa->state_index;
             }
             if(item->rule > 0){
-                pa = &pg->parsing_table[i][rule->lhs];
+                pa = &(*parsing_table)[i][rule->lhs];
                 assert(pa->code == G);
                 //augmenting current nonterm @ left as current state and next state on the nonterm
                 lhs_nonterm = _get_augmented_symbol_index(pg, rule->lhs, i, pa->state_index);
@@ -631,12 +633,15 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     size_t i,j;
     struct lalr_parser_generator *pg;
     MALLOC(pg, sizeof(*pg));
+    CALLOC(pg->symbol_data, MAX_GRAMMAR_SYMBOLS, sizeof(*pg->symbol_data));
+    CALLOC(pg->parsing_table, MAX_STATES * (MAX_GRAMMAR_SYMBOLS), sizeof(*pg->parsing_table));
     //1. initialize parsing table and symbol data
     //row: state index, col: symbol index
+    struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS] = (struct parser_action (*)[MAX_STATES][MAX_GRAMMAR_SYMBOLS])pg->parsing_table;
     for(i=0; i < MAX_STATES; i++){
         for(j=0; j < MAX_GRAMMAR_SYMBOLS; j++){
-            pg->parsing_table[i][j].code = E;
-            pg->parsing_table[i][j].state_index = 0;
+            (*parsing_table)[i][j].code = E;
+            (*parsing_table)[i][j].state_index = 0;
         }
     }
     for (i = 0; i < get_symbol_count(); i++) {
@@ -666,7 +671,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     _fill_rule_symbol_data(pg->parse_rules, pg->rule_count, pg->symbol_data);
 
     //5. build states
-    pg->parse_state_count = _build_states(pg->symbol_data, pg->parse_rules, pg->rule_count, pg->parse_states, pg->parsing_table);
+    pg->parse_state_count = _build_states(pg->symbol_data, pg->parse_rules, pg->rule_count, pg->parse_states, parsing_table);
 
     // 6. compute augmented grammar rules
     _compute_augmented_rule(pg);
@@ -678,7 +683,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     _propagate_lookahead(pg);
     // 9. construct parsing table
     //  action: state, terminal and goto: state, nonterm
-    _complete_parsing_table(pg->symbol_data, pg->parsing_table, pg->parse_state_count, pg->parse_states, pg->parse_rules);
+    _complete_parsing_table(pg->symbol_data, parsing_table, pg->parse_state_count, pg->parse_states, pg->parse_rules);
 
     return pg;
 }
@@ -687,5 +692,7 @@ void lalr_parser_generator_free(struct lalr_parser_generator *pg)
 {
     grammar_free(pg->g);
     hashtable_deinit(&pg->augmented_symbol_map);
+    FREE(pg->symbol_data);
+    FREE(pg->parsing_table);
     FREE(pg);
 }
