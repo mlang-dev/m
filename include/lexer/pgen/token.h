@@ -165,7 +165,7 @@ enum op_code {
 	OP_DEC,
 	OP_AT,
 
-    OP_TOTAL // 
+    OP_TOTAL // EQUALS to THE NUMBER OF LANGUAGE TOKENS + 1
 };
 
 struct token_pattern{
@@ -181,7 +181,7 @@ struct token_pattern{
 
 #define TERMINAL_COUNT (TOKEN_OP + OP_TOTAL)
 #define MAX_NONTERMS 2048
-#define MAX_GRAMMAR_SYMBOLS (TERMINAL_COUNT + MAX_NONTERMS)
+#define MAX_GRAMMAR_SYMBOLS 2048//(TERMINAL_COUNT + MAX_NONTERMS)
 
 struct token_patterns{
     struct token_pattern *patterns;

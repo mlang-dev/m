@@ -10,7 +10,7 @@
 #define __MLANG_PGEN_TOKEN_H__
 
 #include "lexer/source_location.h"
-#include "lexer/token.h"
+#include "lexer/pgen/token.h"
 #include "clib/string.h"
 #include "clib/symbol.h"
 #include "clib/util.h"
