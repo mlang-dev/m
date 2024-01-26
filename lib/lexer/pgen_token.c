@@ -6,7 +6,7 @@
  */
 #include "lexer/pgen_token.h"
 #include "clib/hashtable.h"
-#include "lexer/token.h"
+#include "lexer/pgen/token.h"
 #include <assert.h>
 
 struct token_pattern g_nonterms[MAX_NONTERMS];

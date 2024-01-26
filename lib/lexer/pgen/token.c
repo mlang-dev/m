@@ -116,18 +116,18 @@ struct token_pattern _token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(IDENT, "[_a-zA-Z][_a-zA-Z0-9]*", 0), 
 
     //operators
-    NAME_KEYWORD_PATTERN(LPAREN, "(", "\\("),
-    NAME_KEYWORD_PATTERN(RPAREN, ")", "\\)"),
-    NAME_KEYWORD_PATTERN(LBRACKET, "[", "\\["),
-    NAME_KEYWORD_PATTERN(RBRACKET, "]", "\\]"),
+    KEYWORD_PATTERN_STYLE(LPAREN, "(", "\\(", "keyword"),
+    KEYWORD_PATTERN_STYLE(RPAREN, ")", "\\)", "keyword"),
+    KEYWORD_PATTERN_STYLE(LBRACKET, "[", "\\[", "keyword"),
+    KEYWORD_PATTERN_STYLE(RBRACKET, "]", "\\]", "keyword"),
     KEYWORD_PATTERN(LCBRACKET, "{"), // 25
     KEYWORD_PATTERN(RCBRACKET, "}"),
 
     KEYWORD_PATTERN(COMMA, ","),
     KEYWORD_PATTERN(SEMICOLON, ";"),
 
-    NAME_KEYWORD_PATTERN(RANGE, "..", "\\.\\."),
-    NAME_KEYWORD_PATTERN(VARIADIC, "...", "\\.\\.\\."),
+    KEYWORD_PATTERN_STYLE(RANGE, "..", "\\.\\.", "keyword"),
+    KEYWORD_PATTERN_STYLE(VARIADIC, "...", "\\.\\.\\.", "keyword"),
     KEYWORD_PATTERN(ISTYPEOF, ":"),
     
     /*operator separator*/

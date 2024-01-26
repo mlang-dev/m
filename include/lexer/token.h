@@ -50,9 +50,7 @@ struct token_pattern{
     struct re *re;          //regex for the pattern
 };
 
-#define TERMINAL_COUNT TOKEN_OP + OP_TOTAL
-#define MAX_NONTERMS 2048
-#define MAX_GRAMMAR_SYMBOLS TERMINAL_COUNT + MAX_NONTERMS
+#define TERMINAL_COUNT (TOKEN_OP + OP_TOTAL)
 
 struct token_patterns{
     struct token_pattern *patterns;

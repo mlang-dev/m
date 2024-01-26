@@ -7,23 +7,19 @@
 #include "clib/hashtable.h"
 #include <assert.h>
 
-#define TOKEN_PATTERN(tok_name, pattern, class_name) {#tok_name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
-
-#define KEYWORD_PATTERN(tok_name, keyword) {keyword, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
-#define NAME_KEYWORD_PATTERN(tok_name, name, keyword) {name, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
 #define KEYWORD_PATTERN_STYLE(tok_name, name, pattern, class_name) {name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
 
 #define OP_PATTERN(op_name, name, pattern) {name, pattern, TOKEN_OP, OP_##op_name, "operator", 0, 0}
 
 struct token_pattern _token_patterns[TERMINAL_COUNT] = {
-    TOKEN_PATTERN(NULL, 0, 0),    // 1
-    TOKEN_PATTERN(EOF, 0, 0),     // 1
-    TOKEN_PATTERN(EPSILON, 0, 0),
+    KEYWORD_PATTERN_STYLE(NULL, "NULL",  0, 0),    // 1
+    KEYWORD_PATTERN_STYLE(EOF, "EOF",  0, 0),     // 1
+    KEYWORD_PATTERN_STYLE(EPSILON, "EPSILON", 0, 0),
 
     #include "./m/m_token.keyword.def"
     
     /*operator separator*/
-    TOKEN_PATTERN(OP, 0, "operator"),
+    KEYWORD_PATTERN_STYLE(OP, "OP", 0, "operator"),
 
     #include "./m/m_token.operator.def"
 };
