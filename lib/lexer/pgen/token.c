@@ -10,10 +10,9 @@
 #define TOKEN_PATTERN(tok_name, pattern, class_name) {#tok_name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
 
 #define KEYWORD_PATTERN(tok_name, keyword) {keyword, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
-#define NAME_KEYWORD_PATTERN(tok_name, name, keyword) {name, keyword, TOKEN_##tok_name, 0, "keyword", 0, 0}
-#define KEYWORD_PATTERN_STYLE(tok_name, name, pattern, class_name) {name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
+#define TOKEN(tok_name, name, pattern, class_name) {name, pattern, TOKEN_##tok_name, 0, class_name, 0, 0}
 
-#define OP_PATTERN(op_name, name, pattern) {name, pattern, TOKEN_OP, OP_##op_name, "operator", 0, 0}
+#define OP(op_name, name, pattern) {name, pattern, TOKEN_OP, OP_##op_name, "operator", 0, 0}
 
 struct token_pattern _token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(NULL, 0, 0),    // 1
@@ -29,10 +28,10 @@ struct token_pattern _token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(LITERAL_FLOAT, "([0-9]*.)?[0-9]+", "number"),
     TOKEN_PATTERN(LITERAL_COMPLEX, "([0-9]*.)?[0-9]+ \\+ ([0-9]*.)?[0-9]*i", "number"),
 
-    KEYWORD_PATTERN_STYLE(PYCOMMENT, "#", "#", "pycomment"),
-    KEYWORD_PATTERN_STYLE(LINECOMMENT, "//", "//", "comment"),
-    KEYWORD_PATTERN_STYLE(BLOCKCOMMENT, "/*", "/\\*", "block-comment"),
-    KEYWORD_PATTERN_STYLE(WILDCARD, "_", "_", "variable"), 
+    TOKEN(PYCOMMENT, "#", "#", "pycomment"),
+    TOKEN(LINECOMMENT, "//", "//", "comment"),
+    TOKEN(BLOCKCOMMENT, "/*", "/\\*", "block-comment"),
+    TOKEN(WILDCARD, "_", "_", "variable"), 
 
     KEYWORD_PATTERN(FROM, "from"), 
     KEYWORD_PATTERN(MEMORY, "memory"),
@@ -116,67 +115,67 @@ struct token_pattern _token_patterns[TERMINAL_COUNT] = {
     TOKEN_PATTERN(IDENT, "[_a-zA-Z][_a-zA-Z0-9]*", 0), 
 
     //operators
-    KEYWORD_PATTERN_STYLE(LPAREN, "(", "\\(", "keyword"),
-    KEYWORD_PATTERN_STYLE(RPAREN, ")", "\\)", "keyword"),
-    KEYWORD_PATTERN_STYLE(LBRACKET, "[", "\\[", "keyword"),
-    KEYWORD_PATTERN_STYLE(RBRACKET, "]", "\\]", "keyword"),
+    TOKEN(LPAREN, "(", "\\(", "keyword"),
+    TOKEN(RPAREN, ")", "\\)", "keyword"),
+    TOKEN(LBRACKET, "[", "\\[", "keyword"),
+    TOKEN(RBRACKET, "]", "\\]", "keyword"),
     KEYWORD_PATTERN(LCBRACKET, "{"), // 25
     KEYWORD_PATTERN(RCBRACKET, "}"),
 
     KEYWORD_PATTERN(COMMA, ","),
     KEYWORD_PATTERN(SEMICOLON, ";"),
 
-    KEYWORD_PATTERN_STYLE(RANGE, "..", "\\.\\.", "keyword"),
-    KEYWORD_PATTERN_STYLE(VARIADIC, "...", "\\.\\.\\.", "keyword"),
+    TOKEN(RANGE, "..", "\\.\\.", "keyword"),
+    TOKEN(VARIADIC, "...", "\\.\\.\\.", "keyword"),
     KEYWORD_PATTERN(ISTYPEOF, ":"),
     
     /*operator separator*/
     TOKEN_PATTERN(OP, 0, "operator"),
 
-    OP_PATTERN( DOT, ".", "\\."), // literal dot
-    OP_PATTERN(OR, "or", "or"),
-    OP_PATTERN(AND, "and", "and"), // 35
-    OP_PATTERN(NOT, "not", "not"),
+    OP( DOT, ".", "\\."), // literal dot
+    OP(OR, "or", "or"),
+    OP(AND, "and", "and"), // 35
+    OP(NOT, "not", "not"),
 
-    OP_PATTERN(BITNOT, "~", "~"),
-    OP_PATTERN(BITOR, "|", "\\|"),
-    OP_PATTERN(BITEXOR, "^", "^"),
-    OP_PATTERN(BAND, "&", "&"), //or reference
-    OP_PATTERN(BSL, "<<", "<<"),
-    OP_PATTERN(BSR, ">>", ">>"),
+    OP(BITNOT, "~", "~"),
+    OP(BITOR, "|", "\\|"),
+    OP(BITEXOR, "^", "^"),
+    OP(BAND, "&", "&"), //or reference
+    OP(BSL, "<<", "<<"),
+    OP(BSR, ">>", ">>"),
 
     // KEYWORD_PATTERN("^", EXPO),
-    OP_PATTERN(SQRT, "|/", "\\|/"),
-    OP_PATTERN(POW, "**", "\\*\\*"), // 40
-    OP_PATTERN(STAR, "*", "\\*"), // 40
-    OP_PATTERN(DIVISION, "/", "/"),
-    OP_PATTERN(MODULUS, "%", "%"),
-    OP_PATTERN(PLUS, "+", "\\+"),
-    OP_PATTERN(MINUS, "-", "-"),
+    OP(SQRT, "|/", "\\|/"),
+    OP(POW, "**", "\\*\\*"), // 40
+    OP(STAR, "*", "\\*"), // 40
+    OP(DIVISION, "/", "/"),
+    OP(MODULUS, "%", "%"),
+    OP(PLUS, "+", "\\+"),
+    OP(MINUS, "-", "-"),
 
-    OP_PATTERN(LT, "<", "<"), // 45
-    OP_PATTERN(LE, "<=", "<="),
-    OP_PATTERN(EQ, "==", "=="),
-    OP_PATTERN(GT, ">", ">"),
-    OP_PATTERN(GE, ">=", ">="),
-    OP_PATTERN(NE, "!=", "!="),
-    OP_PATTERN(COND, "?", "\\?"), // 40
+    OP(LT, "<", "<"), // 45
+    OP(LE, "<=", "<="),
+    OP(EQ, "==", "=="),
+    OP(GT, ">", ">"),
+    OP(GE, ">=", ">="),
+    OP(NE, "!=", "!="),
+    OP(COND, "?", "\\?"), // 40
 
-    OP_PATTERN(ASSIGN, "=", "="),
-    OP_PATTERN(MUL_ASSN, "*=", "\\*="),
-    OP_PATTERN(DIV_ASSN, "/=", "/="),
-    OP_PATTERN(MOD_ASSN, "%=", "%="),
-    OP_PATTERN(ADD_ASSN, "+=", "\\+="),
-    OP_PATTERN(SUB_ASSN, "-=", "-="),
-    OP_PATTERN(LEFT_ASSN, "<<=", "<<="),
-    OP_PATTERN(RIGHT_ASSN, ">>=", ">>="),
-    OP_PATTERN(AND_ASSN, "&=", "&="),
-    OP_PATTERN(XOR_ASSN, "^=", "^="),
-    OP_PATTERN(OR_ASSN, "|=", "\\|="),
+    OP(ASSIGN, "=", "="),
+    OP(MUL_ASSN, "*=", "\\*="),
+    OP(DIV_ASSN, "/=", "/="),
+    OP(MOD_ASSN, "%=", "%="),
+    OP(ADD_ASSN, "+=", "\\+="),
+    OP(SUB_ASSN, "-=", "-="),
+    OP(LEFT_ASSN, "<<=", "<<="),
+    OP(RIGHT_ASSN, ">>=", ">>="),
+    OP(AND_ASSN, "&=", "&="),
+    OP(XOR_ASSN, "^=", "^="),
+    OP(OR_ASSN, "|=", "\\|="),
 
-    OP_PATTERN(INC, "++", "\\+\\+"),
-    OP_PATTERN(DEC, "--", "--"),
-    OP_PATTERN(AT, "@", "@"),
+    OP(INC, "++", "\\+\\+"),
+    OP(DEC, "--", "--"),
+    OP(AT, "@", "@"),
 };
 
 void token_init()
