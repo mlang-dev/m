@@ -12,7 +12,11 @@
 #include "clib/symbol.h"
 #include "clib/array.h"
 #include "clib/util.h"
+#ifdef GRAMMAR_PARSER
+#include "lexer/pgen/grammar_token.h"
+#else
 #include "lexer/token.h"
+#endif
 #include "lexer/source_location.h"
 #include <stdio.h>
 

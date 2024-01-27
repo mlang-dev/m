@@ -19,6 +19,11 @@
 link_list_append_data_fn(index_list, index_list_entry, u16)
 link_list_append_data_fn(parse_item_list, parse_item_list_entry, struct parse_item)
 
+bool is_terminal(u16 symbol_index)
+{
+    return symbol_index < TERMINAL_COUNT;
+}
+
 bool _exists(struct index_list *dst, u16 data)
 {
     struct index_list_entry *entry;
