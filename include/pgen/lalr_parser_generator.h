@@ -78,7 +78,7 @@ struct lalr_parser_generator{
     struct hashtable augmented_symbol_map;
 };
 
-struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar);
+struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text, const char *token_text, const char *op_text);
 void lalr_parser_generator_free(struct lalr_parser_generator *parser);
 
 #ifdef __cplusplus

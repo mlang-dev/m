@@ -75,6 +75,8 @@ struct grammar *_grammar_new()
     hashtable_init_with_value_size(&grammar->rule_map, sizeof(struct rule), (free_fun)rule_deinit);
     array_init(&grammar->rules, sizeof(struct rule *));
     grammar->start_symbol = 0;
+    grammar->token_count = 0;
+    grammar->op_count = 0;
     return grammar;
 }
 
@@ -90,9 +92,33 @@ struct rule *grammar_add_rule(struct grammar *g, symbol nonterm, int rule_no)
     return r;
 }
 
-struct grammar *grammar_parse(const char *grammar_text)
+u32 _token_parse(const char *token_text)
+{
+    if (!token_text) return 0;
+    struct lexer *lexer= lexer_new_for_string(token_text);
+    struct token tok;
+    u32 token_count = 0;
+    tok = *get_tok(lexer);
+    bool token_open = false;
+    while (tok.token_type!=TOKEN_EOF) {
+        tok = *get_tok(lexer);
+        if(tok.token_type == TOKEN_IDENT && !token_open){
+            token_open = true;
+        }
+        if(tok.token_type == TOKEN_RPAREN && token_open){
+            token_open = false;
+            token_count ++;
+        }
+    }
+    lexer_free(lexer);
+    return token_count;
+}
+
+struct grammar *grammar_parse(const char *grammar_text, const char *token_text, const char *op_text)
 {
     struct grammar *g = _grammar_new();
+    g->token_count = _token_parse(token_text);
+    g->op_count = _token_parse(op_text);
     struct token tok, next_tok;
     struct lexer *lexer= lexer_new_for_string(grammar_text);
     tok = *get_tok(lexer);

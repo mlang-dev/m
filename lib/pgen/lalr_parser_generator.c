@@ -628,7 +628,7 @@ void _propagate_lookahead(struct lalr_parser_generator *pg)
 
 
 
-struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text)
+struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text, const char *token_text, const char *op_text)
 {
     size_t i,j;
     struct lalr_parser_generator *pg;
@@ -653,7 +653,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     hashtable_init_with_size(&pg->augmented_symbol_map, sizeof(u64), sizeof(u16));
 
     //2. registering non-term symbols with integer
-    struct grammar *g = grammar_parse(grammar_text);
+    struct grammar *g = grammar_parse(grammar_text, token_text, op_text);
     pg->g = g;
     struct rule *rule;
     for(i = 0; i < array_size(&g->rules); i++){
