@@ -19,9 +19,9 @@
 link_list_append_data_fn(index_list, index_list_entry, u16)
 link_list_append_data_fn(parse_item_list, parse_item_list_entry, struct parse_item)
 
-bool is_terminal(u16 symbol_index)
+bool _is_terminal(struct lalr_parser_generator* pg, u16 symbol_index)
 {
-    return symbol_index < TERMINAL_COUNT;
+    return symbol_index < pg->terminal_count;
 }
 
 bool _exists(struct index_list *dst, u16 data)
@@ -208,7 +208,7 @@ void _compute_first_set(struct parse_rule *rules, u16 rule_count, struct rule_sy
     } while (change_count > 0);
 }
 
-void _compute_follow_set(struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
+void _compute_follow_set(struct lalr_parser_generator *pg, struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
 {
     struct parse_rule *rule;
     int change_count = 0;
@@ -222,7 +222,7 @@ void _compute_follow_set(struct parse_rule *rules, u16 rule_count, struct rule_s
             rule = &rules[i];
             for (j = 0; j < rule->symbol_count; j++) {
                 symbol_index = rule->rhs[j];
-                if(is_terminal(symbol_index)) continue;
+                if(_is_terminal(pg, symbol_index)) continue;
                 sd = &symbol_data[symbol_index];
                 change_count += _append_first_set_to(&sd->follow_list, rule, j + 1, symbol_data);
                 //
@@ -234,11 +234,11 @@ void _compute_follow_set(struct parse_rule *rules, u16 rule_count, struct rule_s
     } while (change_count > 0);
 }
 
-void _fill_rule_symbol_data(struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
+void _fill_rule_symbol_data(struct lalr_parser_generator *pg, struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
 {
     _compute_is_nullable(rules, rule_count, symbol_data);
     _compute_first_set(rules, rule_count, symbol_data);
-    _compute_follow_set(rules, rule_count, symbol_data);
+    _compute_follow_set(pg, rules, rule_count, symbol_data);
     /*add rule index to each grammar symbol*/
     struct index_list *il;
     struct parse_rule *rule;
@@ -272,7 +272,7 @@ u8 _add_parse_item(struct parse_item_list *items, struct parse_item item)
     return 1;
 }
 
-struct parse_state _closure(struct rule_symbol_data *symbol_data, struct parse_rule *rules, struct parse_state state)
+struct parse_state _closure(struct lalr_parser_generator *pg, struct rule_symbol_data *symbol_data, struct parse_rule *rules, struct parse_state state)
 {
     struct parse_item item;
     struct index_list_entry *rule_entry;
@@ -284,7 +284,7 @@ struct parse_state _closure(struct rule_symbol_data *symbol_data, struct parse_r
         struct parse_rule *rule = &rules[entry->data.rule];
         if(entry->data.dot < rule->symbol_count){
             u16 symbol_index = rule->rhs[entry->data.dot];
-            if(!is_terminal(symbol_index)){//non terminal
+            if(!_is_terminal(pg, symbol_index)){//non terminal
                 struct index_list *nt_rules = &symbol_data[symbol_index].rule_list;
                 list_foreach(rule_entry, nt_rules){
                     _init_parse_item(&item, rule_entry->data, 0);
@@ -361,7 +361,7 @@ bool _exists_in_array(u16 *array, u8 size, u16 match)
     return false;
 }
 
-u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules, u16 rule_count, struct parse_state *states, struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS])
+u16 _build_states(struct lalr_parser_generator *pg, struct rule_symbol_data *symbol_data, struct parse_rule *rules, u16 rule_count, struct parse_state *states, struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS])
 {
     u16 i, state_count = 0;
     struct parse_item item;
@@ -370,7 +370,7 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
     _init_parse_item_list(&states[state_count].items);
     parse_item_list_append_data(&states[state_count].items, item);
     states[state_count].kernel_item_count = 1;
-    states[state_count] = _closure(symbol_data, rules, states[state_count]);
+    states[state_count] = _closure(pg, symbol_data, rules, states[state_count]);
     state_count++;
     struct parse_item_list_entry *entry;
     struct parse_rule *rule;
@@ -396,11 +396,11 @@ u16 _build_states(struct rule_symbol_data *symbol_data, struct parse_rule *rules
             int existing_state_index = _find_state(states, state_count, &next_state);
                 // if not in the states, then closure the state and add it to states
             struct parser_action pa;
-            pa.code = is_terminal(x) ? S : G;
+            pa.code = _is_terminal(pg, x) ? S : G;
             if (existing_state_index < 0) {
                 pa.state_index = state_count;
                 assert(state_count < MAX_STATES);
-                states[state_count++] = _closure(symbol_data, rules, next_state);
+                states[state_count++] = _closure(pg, symbol_data, rules, next_state);
             } else {
                 pa.state_index = existing_state_index;
             }
@@ -544,7 +544,7 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
             for (u8 j = 0; j < rule->symbol_count; j++){
                 u16 symbol = rule->rhs[j];
                 pa = &(*parsing_table)[state_index][symbol];
-                if (is_terminal(symbol)) {
+                if (_is_terminal(pg, symbol)) {
                     assert(pa->code == S);
                 } else {
                     assert(pa->code == G);
@@ -660,6 +660,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     //2. registering non-term symbols with integer
     struct grammar *g = grammar_parse(grammar_text, token_text, op_text);
     pg->g = g;
+    pg->terminal_count = g->token_count + 3 + g->op_count + 1;
     struct rule *rule;
     for(i = 0; i < array_size(&g->rules); i++){
         rule = array_get_ptr(&g->rules, i);
@@ -673,16 +674,16 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     _convert_grammar_rules_to_parse_rules(g, pg);
 
     //4. calculate production rule's nonterm's first set, follow set
-    _fill_rule_symbol_data(pg->parse_rules, pg->rule_count, pg->symbol_data);
+    _fill_rule_symbol_data(pg, pg->parse_rules, pg->rule_count, pg->symbol_data);
 
     //5. build states
-    pg->parse_state_count = _build_states(pg->symbol_data, pg->parse_rules, pg->rule_count, pg->parse_states, parsing_table);
+    pg->parse_state_count = _build_states(pg, pg->symbol_data, pg->parse_rules, pg->rule_count, pg->parse_states, parsing_table);
 
     // 6. compute augmented grammar rules
     _compute_augmented_rule(pg);
 
     // 7. compute augmented symbol's follow set
-    _fill_rule_symbol_data(pg->augmented_rules, pg->augmented_rule_count, pg->symbol_data);
+    _fill_rule_symbol_data(pg, pg->augmented_rules, pg->augmented_rule_count, pg->symbol_data);
 
     // 8. propagate the lookahead set
     _propagate_lookahead(pg);
