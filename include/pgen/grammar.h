@@ -74,9 +74,11 @@ struct grammar {
     hashset keywords; // keywords are from grammar production rule: 1. string literal, 2 char set 3. might extend to some regex
     struct hashtable rule_map; /* hashtable of <symbol, rule> */
     struct array rules;        /* array of rule pointer */
+    u32 token_count;
+    u32 op_count;
 };
 
-struct grammar *grammar_parse(const char *grammar_text);
+struct grammar *grammar_parse(const char *grammar_text, const char *token_text, const char *op_text);
 void grammar_free(struct grammar *grammar);
 
 bool expr_item_exists_symbol(struct expr_item *ei, char sym);

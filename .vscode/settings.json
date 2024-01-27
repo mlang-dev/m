@@ -174,7 +174,8 @@
         "mw.h": "c",
         "app.h": "c",
         "parser_def.h": "c",
-        "*.operator": "c"
+        "*.operator": "c",
+        "*.keyword": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

@@ -296,15 +296,20 @@ int generate_files(const char *lang_name,
     const char *header_folder, const char *source_folder)
 {
     pgen_init();
-    char grammar_path[1024];
-    sprintf(grammar_path, "%spgen/%s/%s_grammar.pgn", source_folder, lang_name, lang_name);
-    printf("parsing grammar file %s ...\n", grammar_path);
+    char file_path[1024];
+    sprintf(file_path, "%spgen/%s/%s_grammar.pgn", source_folder, lang_name, lang_name);
+    printf("parsing grammar file %s ...\n", file_path);
     char header_filepath[1024];
     sprintf(header_filepath, "%sparser/%s/%s_parsing_table.h", header_folder, lang_name, lang_name);
     char source_filepath[1024];
     sprintf(source_filepath, "%sparser/%s/%s_parsing_table.c", source_folder, lang_name, lang_name);
-    const char *grammar = read_text_file(grammar_path);
-    struct lalr_parser_generator *pg = lalr_parser_generator_new(grammar);
+    const char *grammar = read_text_file(file_path);
+    sprintf(file_path, "%spgen/%s/%s_keyword.pgn", source_folder, lang_name, lang_name);
+    const char *token_text = read_text_file(file_path);
+    sprintf(file_path, "%spgen/%s/%s_operator.pgn", source_folder, lang_name, lang_name);
+    const char *op_text = read_text_file(file_path);
+
+    struct lalr_parser_generator *pg = lalr_parser_generator_new(grammar, token_text, op_text);
     
     printf("generating %s ...\n", header_filepath);
     write_to_header_file(pg, header_filepath);
@@ -324,6 +329,8 @@ int generate_files(const char *lang_name,
     process_token_file("OP", "operator", lang_name, source_folder, header_folder);
     
     free((void *)grammar);
+    free((void *)token_text);
+    free((void *)op_text);
     pgen_deinit();
     return 0;
 }

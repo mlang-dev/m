@@ -13,7 +13,7 @@ TEST(test_grammar, num_token)
 {
     char test_grammar[] = "power       = INT";
     struct frontend *fe = frontend_init();
-    struct grammar *grammar = grammar_parse(test_grammar);
+    struct grammar *grammar = grammar_parse(test_grammar, 0, 0);
     symbol start = to_symbol2("power", 5);
     ASSERT_EQ(start, grammar->start_symbol);
     ASSERT_EQ(1, array_size(&grammar->rules));
@@ -56,7 +56,7 @@ TEST(test_grammar, arithmetic_exp)
 "            | INT               {}\n";
 
     struct frontend *fe = frontend_init();
-    struct grammar *grammar = grammar_parse(test_grammar);
+    struct grammar *grammar = grammar_parse(test_grammar, 0, 0);
     symbol start = to_symbol2("sum", 3);
     ASSERT_EQ(start, grammar->start_symbol);
     ASSERT_EQ(4, array_size(&grammar->rules));
@@ -94,7 +94,7 @@ TEST(test_grammar, arithmetic_exp_using_charset)
 "power       = INT '^' factor    { binop 0 1 2 }\n"
 "            | INT               { 0 }\n";
     struct frontend *fe = frontend_init();
-    struct grammar *grammar = grammar_parse(test_grammar);
+    struct grammar *grammar = grammar_parse(test_grammar, 0, 0);
     symbol start = to_symbol2("sum", 3);
     ASSERT_EQ(start, grammar->start_symbol);
     ASSERT_EQ(4, array_size(&grammar->rules));
