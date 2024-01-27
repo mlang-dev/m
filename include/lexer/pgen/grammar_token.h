@@ -217,8 +217,6 @@ u16 get_terminal_token_index(enum token_type token_type, enum op_code opcode);
 
 const char *get_opcode(enum op_code opcode);
 
-bool is_terminal(u16 symbol_index);
-
 bool is_relational_op(enum op_code opcode);
 
 #define is_open_group(tp) (tp == TOKEN_LPAREN || tp == TOKEN_LBRACKET || tp == TOKEN_LCBRACKET)

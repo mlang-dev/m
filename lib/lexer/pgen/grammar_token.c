@@ -3,7 +3,7 @@
  *
  * token.c implements common terminals required in m. we actually can generate the terminal list from grammar.
  */
-#include "lexer/pgen/token.h"
+#include "lexer/pgen/grammar_token.h"
 #include "clib/hashtable.h"
 #include <assert.h>
 
@@ -251,11 +251,6 @@ u16 get_terminal_token_index(enum token_type token_type, enum op_code opcode)
         return (u16)TOKEN_OP + (u16)opcode;
     else 
         return (u16)token_type;
-}
-
-bool is_terminal(u16 symbol_index)
-{
-    return symbol_index < TERMINAL_COUNT;
 }
 
 bool is_relational_op(enum op_code opcode)

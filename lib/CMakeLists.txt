@@ -92,7 +92,7 @@ add_executable(pgen
   app/app.c
   app/error.c
   lexer/lexer.c
-  lexer/pgen/token.c
+  lexer/pgen/grammar_token.c
   lexer/pgen_token.c
   parser/node_type.c
   parser/grammar.c
@@ -100,6 +100,8 @@ add_executable(pgen
   pgen/lalr_parser_generator.c
   pgen/pgen.c
 )
+
+target_compile_definitions(pgen PRIVATE GRAMMAR_PARSER=1)
 
 target_include_directories(pgen PUBLIC
   ${LLVM_INCLUDE_DIRS}
@@ -114,7 +116,7 @@ if(REGEN_PARSER)
     TARGET pgen
     POST_BUILD
     COMMAND pgen m ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
-    COMMAND pgen wit ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
+   # COMMAND pgen wit ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
   )
 endif()
 
