@@ -6,7 +6,8 @@
  * This is to implement an LALR parser generator, taking a EBNF grammar text and generate a parsing table
  * for parser to consume
  */
-#include "lexer/pgen_token.h"
+#include "lexer/lang_token.h"
+#include "lexer/pgen/grammar_token.h"
 #include "pgen/lalr_parser_generator.h"
 #include "clib/stack.h"
 #include "clib/util.h"
@@ -79,7 +80,7 @@ void _expr_2_gr(symbol nonterm, struct expr *expr, struct parse_rule *pr)
             exit(1);
         }
         ei = array_get(&expr->items, i);
-        pr->rhs[pr->symbol_count++] = get_symbol_index(ei->sym);
+        pr->rhs[pr->symbol_count++] = get_lang_symbol_index(ei->sym);
     }
     _semantic_action_2_rule_action(&expr->action, &pr->action);
 }
@@ -420,7 +421,7 @@ void _convert_grammar_rules_to_parse_rules(struct grammar *g, struct lalr_parser
     pg->rule_count = 0;
     for (i = 0; i < (u16)array_size(&g->rules); i++) {
         rule = array_get_ptr(&g->rules, i);
-        nonterm = get_symbol_index(rule->nonterm);
+        nonterm = get_lang_symbol_index(rule->nonterm);
         for (j = 0; j < array_size(&rule->exprs); j++) {
             rule_expr = array_get(&rule->exprs, j);
             struct array exprs;
@@ -469,11 +470,11 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                     /**/
                     if (action->code == S){
                         printf("warning: There is a shift/reduce conflict in the grammar. ");
-                        printf("state: %d terminal: %s, shift to: %d, overrided reduction rule: %d(%s) \n", i, string_get(get_symbol_by_index(la_entry->data)), action->state_index, item->rule, string_get(get_symbol_by_index(rules[item->rule].lhs)));
+                        printf("state: %d terminal: %s, shift to: %d, overrided reduction rule: %d(%s) \n", i, string_get(get_lang_symbol_by_index(la_entry->data)), action->state_index, item->rule, string_get(get_lang_symbol_by_index(rules[item->rule].lhs)));
                         shift_reduce_conflicts++;
                     } else if (action->code == R){
                         printf("warning: There is a reduce/reduce conflict in the grammar. ");
-                        printf("state: %d terminal: %s, reduction rule: %d(%s), new reduction rule: %d(%s), taken rule: %d \n", i, string_get(get_symbol_by_index(la_entry->data)), action->rule_index, string_get(get_symbol_by_index(rules[action->rule_index].lhs)), item->rule, string_get(get_symbol_by_index(rules[item->rule].lhs)), action->rule_index < item->rule ? action->rule_index : item->rule);
+                        printf("state: %d terminal: %s, reduction rule: %d(%s), new reduction rule: %d(%s), taken rule: %d \n", i, string_get(get_lang_symbol_by_index(la_entry->data)), action->rule_index, string_get(get_lang_symbol_by_index(rules[action->rule_index].lhs)), item->rule, string_get(get_lang_symbol_by_index(rules[item->rule].lhs)), action->rule_index < item->rule ? action->rule_index : item->rule);
                         if(item->rule < action->rule_index){
                             action->rule_index = item->rule;
                         }
@@ -572,7 +573,7 @@ void print_followlist(u16 symbol_index, u16 from_state, u16 to_state, struct ind
     struct index_list_entry *entry;
     list_foreach(entry, src)
     {
-        printf("%s,", string_get(get_symbol_by_index(entry->data)));
+        printf("%s,", string_get(get_lang_symbol_by_index(entry->data)));
     }
     printf("\n");
 }
@@ -649,7 +650,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
             (*parsing_table)[i][j].state_index = 0;
         }
     }
-    for (i = 0; i < get_symbol_count(); i++) {
+    for (i = 0; i < get_lang_symbol_count(); i++) {
         _init_index_list(&pg->symbol_data[i].first_list);
         _init_index_list(&pg->symbol_data[i].follow_list);
         _init_index_list(&pg->symbol_data[i].rule_list);
@@ -664,10 +665,10 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     struct rule *rule;
     for(i = 0; i < array_size(&g->rules); i++){
         rule = array_get_ptr(&g->rules, i);
-        u16 index = register_grammar_nonterm(rule->nonterm); //register new non-term symbol
+        u16 index = register_lang_grammar_nonterm(rule->nonterm); //register new non-term symbol
         assert(i + TERMINAL_COUNT == index);
     }
-    pg->total_symbol_count = get_symbol_count();
+    pg->total_symbol_count = get_lang_symbol_count();
     //3. convert grammar to replace symbol with index:
     //all grammar symbol: non-terminal or terminal (token) 
     //has an integer of index representing itself

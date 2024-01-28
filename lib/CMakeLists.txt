@@ -93,7 +93,7 @@ add_executable(pgen
   app/error.c
   lexer/lexer.c
   lexer/pgen/grammar_token.c
-  lexer/pgen_token.c
+  lexer/lang_token.c
   parser/node_type.c
   parser/grammar.c
   sema/type_size_info.c

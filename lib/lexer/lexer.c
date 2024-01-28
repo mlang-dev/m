@@ -470,9 +470,9 @@ const char *highlight(struct lexer *lexer, const char *text)
         if(tok->loc.start - last_end > 0){
             string_add_chars2(&str, &text[last_end], tok->loc.start - last_end);
         }
-        struct token_pattern *tp = get_token_pattern_by_token_type(tok->token_type);
         const char *token_content = &text[tok->loc.start];
         size_t token_content_len = tok->loc.end-tok->loc.start;
+        struct token_pattern *tp = get_token_pattern_by_token_type(tok->token_type);
         if(tp->style_class_name){
             string tok_str;
             char span_class[128];

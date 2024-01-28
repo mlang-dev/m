@@ -107,6 +107,7 @@ enum token_type{
 	TOKEN_YIELD,
 	TOKEN_ASYNC,
 	TOKEN_AWAIT,
+
 	TOKEN_IDENT,
 	TOKEN_LPAREN,
 	TOKEN_RPAREN,
@@ -204,30 +205,16 @@ void token_init();
 
 void token_deinit();
 
-struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode);
-
 struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type);
 
 struct token_patterns get_token_patterns();
 
-symbol get_terminal_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode);
-
-/*get index by token*/
-u16 get_terminal_token_index(enum token_type token_type, enum op_code opcode);
-
-const char *get_opcode(enum op_code opcode);
-
-bool is_relational_op(enum op_code opcode);
-
 #define is_open_group(tp) (tp == TOKEN_LPAREN || tp == TOKEN_LBRACKET || tp == TOKEN_LCBRACKET)
 #define is_close_group(tp) (tp == TOKEN_RPAREN || tp == TOKEN_RBRACKET || tp == TOKEN_RCBRACKET)
 #define is_match_open(open, close) ((open == TOKEN_LPAREN && close == TOKEN_RPAREN) || (open == TOKEN_LBRACKET && close == TOKEN_RBRACKET) || (open == TOKEN_LCBRACKET && close == TOKEN_RCBRACKET))
-#define is_assign_op_sugar(tp) (tp >= OP_MUL_ASSN && tp <= OP_OR_ASSN)
 
 #define is_comment_token(tp) (tp == TOKEN_PYCOMMENT || tp == TOKEN_LINECOMMENT || tp == TOKEN_BLOCKCOMMENT)
 #define is_linecomment_token(tp) (tp == TOKEN_PYCOMMENT || tp == TOKEN_LINECOMMENT)
-
-enum op_code get_op_code_from_assign_op(enum op_code assign_op);
 
 void tok_clean(struct token *tok);
 
