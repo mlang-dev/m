@@ -22,13 +22,7 @@ extern "C" {
 
 
 enum token_type{
-    TOKEN_NULL,
-    TOKEN_EOF,
-    TOKEN_EPSILON,
-
     #include "lexer/m/m_token.keyword"   
-
-    TOKEN_OP,  //EQUALS to THE NUMBER OF LANGUAGE KEYWORDS + 3
 };
 
 enum op_code {

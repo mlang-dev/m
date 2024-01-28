@@ -22,7 +22,7 @@ extern "C" {
 
 void lang_token_init();
 
-void pgen_token_deinit();
+void lang_token_deinit();
 
 /*get symbol index, token or nonterm*/
 u16 get_lang_symbol_index(symbol symbol);

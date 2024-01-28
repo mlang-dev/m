@@ -32,7 +32,7 @@ void lang_token_init()
     g_nonterm_count = 0;
 }
 
-void pgen_token_deinit()
+void lang_token_deinit()
 {
     struct token_patterns tps = get_token_patterns();
     for (int i = 0; i < TERMINAL_COUNT; i++) {
