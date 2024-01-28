@@ -203,7 +203,7 @@ void pgen_init()
 
 void pgen_deinit()
 {
-    pgen_token_deinit();
+    lang_token_deinit();
     node_type_deinit();
     app_deinit();
 }

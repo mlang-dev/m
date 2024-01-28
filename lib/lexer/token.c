@@ -12,15 +12,8 @@
 #define OP(op_name, name, pattern) {name, pattern, TOKEN_OP, OP_##op_name, "operator", 0, 0}
 
 struct token_pattern _token_patterns[TERMINAL_COUNT] = {
-    TOKEN(NULL, "NULL",  0, 0),    // 1
-    TOKEN(EOF, "EOF",  0, 0),     // 1
-    TOKEN(EPSILON, "EPSILON", 0, 0),
-
     #include "./m/m_token.keyword.def"
     
-    /*operator separator*/
-    TOKEN(OP, "OP", 0, "operator"),
-
     #include "./m/m_token.operator.def"
 };
 

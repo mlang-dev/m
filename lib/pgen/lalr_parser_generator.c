@@ -661,7 +661,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     //2. registering non-term symbols with integer
     struct grammar *g = grammar_parse(grammar_text, token_text, op_text);
     pg->g = g;
-    pg->terminal_count = g->token_count + 3 + g->op_count + 1;
+    pg->terminal_count = g->token_count + g->op_count + 1;
     struct rule *rule;
     for(i = 0; i < array_size(&g->rules); i++){
         rule = array_get_ptr(&g->rules, i);
