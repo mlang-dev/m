@@ -11,7 +11,7 @@
 
 #include "pgen/grammar.h"
 #include "pgen/parser_def.h"
-#include "lexer/pgen_token.h"
+#include "lexer/lang_token.h"
 #include "clib/symbol.h"
 #include "clib/hashtable.h"
 #include "clib/stack.h"

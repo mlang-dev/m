@@ -4,7 +4,8 @@
  * defines token functions used in pgen.
  *
  */
-#include "lexer/pgen_token.h"
+#include "lexer/lang_token.h"
+#include "lexer/pgen/grammar_token.h"
 #include "clib/hashtable.h"
 #include <assert.h>
 
@@ -13,7 +14,7 @@ u16 g_nonterm_count;
 
 struct hashtable token_patterns_by_symbol;
 
-void pgen_token_init()
+void lang_token_init()
 {
     hashtable_init(&token_patterns_by_symbol);
     struct token_patterns tps = get_token_patterns();
@@ -50,7 +51,7 @@ struct token_pattern *_get_token_pattern_by_symbol(symbol symbol)
 }
 
 //the symbol could be terminal or non-terminal symbol in grammar
-u16 get_symbol_index(symbol symbol)
+u16 get_lang_symbol_index(symbol symbol)
 {
     struct token_pattern *tp = _get_token_pattern_by_symbol(symbol);
     if(tp == 0){
@@ -64,7 +65,7 @@ u16 get_symbol_index(symbol symbol)
 }
 
 
-u16 register_grammar_nonterm(symbol symbol)
+u16 register_lang_grammar_nonterm(symbol symbol)
 {
     struct token_pattern *tp = _get_token_pattern_by_symbol(symbol);
     if(tp){
@@ -86,12 +87,12 @@ u16 register_grammar_nonterm(symbol symbol)
     return nonterm;
 }
 
-u16 get_symbol_count()
+u16 get_lang_symbol_count()
 {
     return g_nonterm_count + (u16)TERMINAL_COUNT;
 }
 
-symbol get_symbol_by_index(u16 symbol_index)
+symbol get_lang_symbol_by_index(u16 symbol_index)
 {
     struct token_pattern *tp;
     struct token_patterns tps = get_token_patterns();

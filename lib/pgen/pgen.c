@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "clib/symbol.h"
 #include "clib/util.h"
-#include "lexer/pgen_token.h"
+#include "lexer/lang_token.h"
 #include "lexer/lexer.h"
 #include "parser/node_type.h"
 #include "sema/type.h"
@@ -51,7 +51,7 @@ int write_to_header_file(struct lalr_parser_generator *pg, const char *header_pa
         exit(1);
     }
     fprintf(f, header_comment_template);
-    fprintf(f, header_file_template, pg->rule_count, pg->parse_state_count, get_symbol_count());
+    fprintf(f, header_file_template, pg->rule_count, pg->parse_state_count, get_lang_symbol_count());
     fclose(f);
     return 0;
 }
@@ -60,13 +60,13 @@ string to_rule_string(struct parse_rule *rule, int dot)
 {
     string str;
     string_init(&str);
-    string_add(&str, get_symbol_by_index(rule->lhs));
+    string_add(&str, get_lang_symbol_by_index(rule->lhs));
     string_add_chars(&str, " = ");
     for (int i = 0; i < rule->symbol_count; i++) { // rhs
         if (dot == i){
             string_add_chars(&str, ".");
         }
-        string_add(&str, get_symbol_by_index(rule->rhs[i]));
+        string_add(&str, get_lang_symbol_by_index(rule->rhs[i]));
         if(i < rule->symbol_count - 1){
             string_add_chars(&str, " ");
         }
@@ -153,8 +153,8 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
     fprintf(f, source_header_template);
     fprintf(f, source_parsing_symbols_initializer);
     symbol sym;
-    for (i = 0; i < get_symbol_count(); i++) {
-        sym = get_symbol_by_index(i);
+    for (i = 0; i < get_lang_symbol_count(); i++) {
+        sym = get_lang_symbol_by_index(i);
         fprintf(f, "  /*symbol %3d*/ ", i); // comments
         fprintf(f, "\"%s\",\n", string_cstr(sym));
     }
@@ -186,7 +186,7 @@ int write_to_source_file(struct lalr_parser_generator * pg, const char *source_p
         // print one state
         fprintf(f, "  /*state %3d*/ ", i);
         // print row
-        print_parsing_table_row(f, (*parsing_table)[i], get_symbol_count());
+        print_parsing_table_row(f, (*parsing_table)[i], get_lang_symbol_count());
         fprintf(f, "\n");
     }
     fprintf(f, source_data_initializer_end);
@@ -198,7 +198,7 @@ void pgen_init()
 {
     app_init();
     node_type_init();
-    pgen_token_init();
+    lang_token_init();
 }
 
 void pgen_deinit()
