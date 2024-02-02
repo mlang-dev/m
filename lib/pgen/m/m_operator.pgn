@@ -1,4 +1,4 @@
-    OP( DOT, ".", "\\."), // literal dot
+    OP(DOT, ".", "\\."), // literal dot
     OP(OR, "or", "or"),
     OP(AND, "and", "and"), // 35
     OP(NOT, "not", "not"),

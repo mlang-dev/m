@@ -22,7 +22,8 @@ extern "C" {
 
 
 enum token_type{
-    #include "lexer/m/m_token.keyword"   
+    #include "lexer/m/m_token.keyword"
+    
 };
 
 enum op_code {

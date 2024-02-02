@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-void lang_token_init();
+void lang_token_init(u32 terminal_count);
 
 void lang_token_deinit();
 
