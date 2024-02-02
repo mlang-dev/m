@@ -112,5 +112,4 @@
     TOKEN(VARIADIC, "...", "\\.\\.\\.", "keyword"),
     TOKEN(ISTYPEOF, ":", ":", "keyword"),
 
-    /*operator separator*/
     TOKEN(OP, "OP", 0, "operator"),

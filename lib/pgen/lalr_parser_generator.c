@@ -6,8 +6,8 @@
  * This is to implement an LALR parser generator, taking a EBNF grammar text and generate a parsing table
  * for parser to consume
  */
-#include "lexer/lang_token.h"
 #include "lexer/pgen/grammar_token.h"
+#include "pgen/lang_token.h"
 #include "pgen/lalr_parser_generator.h"
 #include "clib/stack.h"
 #include "clib/util.h"
@@ -661,12 +661,14 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     //2. registering non-term symbols with integer
     struct grammar *g = grammar_parse(grammar_text, token_text, op_text);
     pg->g = g;
-    pg->terminal_count = g->token_count + g->op_count + 1;
+    pg->terminal_count = g->token_count - 1 + g->op_count + 1;
+    lang_token_init(pg->terminal_count);
+    assert(TERMINAL_COUNT == pg->terminal_count);
     struct rule *rule;
     for(i = 0; i < array_size(&g->rules); i++){
         rule = array_get_ptr(&g->rules, i);
         u16 index = register_lang_grammar_nonterm(rule->nonterm); //register new non-term symbol
-        assert(i + TERMINAL_COUNT == index);
+        assert(i + pg->terminal_count == index);
     }
     pg->total_symbol_count = get_lang_symbol_count();
     //3. convert grammar to replace symbol with index:
@@ -697,6 +699,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
 
 void lalr_parser_generator_free(struct lalr_parser_generator *pg)
 {
+    lang_token_deinit();
     grammar_free(pg->g);
     hashtable_deinit(&pg->augmented_symbol_map);
     FREE(pg->symbol_data);

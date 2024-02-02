@@ -8,7 +8,11 @@
 
 #include "app/error.h"
 #include "app/app.h"
+#ifdef GRAMMAR_PARSER
+#include "lexer/pgen/grammar_token.h"
+#else
 #include "lexer/token.h"
+#endif
 #include "clib/util.h"
 #include "clib/symbol.h"
 

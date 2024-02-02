@@ -4,8 +4,8 @@
  * defines token functions used in pgen.
  *
  */
-#include "lexer/lang_token.h"
 #include "lexer/pgen/grammar_token.h"
+#include "pgen/lang_token.h"
 #include "clib/hashtable.h"
 #include <assert.h>
 
@@ -14,11 +14,11 @@ u16 g_nonterm_count;
 
 struct hashtable token_patterns_by_symbol;
 
-void lang_token_init()
+void lang_token_init(u32 terminal_count)
 {
     hashtable_init(&token_patterns_by_symbol);
     struct token_patterns tps = get_token_patterns();
-    for (int i = 0; i < TERMINAL_COUNT; i++) {
+    for (u32 i = 0; i < terminal_count; i++) {
         struct token_pattern *tp = &tps.patterns[i];
         if(tp->token_name&&tp->pattern&&!tp->re){
             tp->re = regex_new(tp->pattern);
@@ -63,7 +63,6 @@ u16 get_lang_symbol_index(symbol symbol)
         return (u16)TOKEN_OP + (u16)tp->opcode;
     return (u16)tp->token_type;
 }
-
 
 u16 register_lang_grammar_nonterm(symbol symbol)
 {

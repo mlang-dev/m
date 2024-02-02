@@ -175,7 +175,8 @@
         "app.h": "c",
         "parser_def.h": "c",
         "*.operator": "c",
-        "*.keyword": "c"
+        "*.keyword": "c",
+        "grammar_token.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
