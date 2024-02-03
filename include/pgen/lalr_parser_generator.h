@@ -50,7 +50,6 @@ struct lalr_parser_generator{
     /*input for generator*/
     //parser generator states
     struct grammar *g;
-    u32 terminal_count;
     struct parse_state parse_states[MAX_STATES];
     u16 parse_state_count;
 

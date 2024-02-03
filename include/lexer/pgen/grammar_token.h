@@ -180,9 +180,11 @@ struct token_pattern{
     struct re *re;          //regex for the pattern
 };
 
+
 #define TERMINAL_COUNT (TOKEN_OP + OP_TOTAL)
 #define MAX_NONTERMS 2048
 #define MAX_GRAMMAR_SYMBOLS 2048//(TERMINAL_COUNT + MAX_NONTERMS)
+
 
 struct token_patterns{
     struct token_pattern *patterns;
@@ -217,6 +219,7 @@ struct token_patterns get_token_patterns();
 #define is_linecomment_token(tp) (tp == TOKEN_PYCOMMENT || tp == TOKEN_LINECOMMENT)
 
 void tok_clean(struct token *tok);
+
 
 #ifdef __cplusplus
 }

@@ -15,13 +15,28 @@
 #include "clib/util.h"
 #include "clib/regex.h"
 #include "clib/typedef.h"
+#include "pgen/grammar.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void lang_token_init(u32 terminal_count);
 
+struct lang_token_pattern{
+    const char *token_name;       //c string name
+    const char *pattern;    //pattern
+    u16 token_type;
+    u16 opcode; 
+
+    const char *style_class_name; //ui style class name, used for syntax highlight
+    symbol symbol_name;     //symbol name
+    struct re *re;          //regex for the pattern
+};
+
+struct lang_token_pattern *create_lang_token_pattern(u16 token_type, const char *name, const char *pattern, const char *class_name);
+struct lang_token_pattern *create_lang_op_pattern(u16 token_op, u16 op_type, const char *name, const char *pattern);
+
+void lang_token_init();
 void lang_token_deinit();
 
 /*get symbol index, token or nonterm*/

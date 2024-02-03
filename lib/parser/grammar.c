@@ -7,6 +7,7 @@
 
 #include "pgen/grammar.h"
 #include "lexer/lexer.h"
+#include "pgen/lang_token.h"
 #include "clib/util.h"
 #include <assert.h>
 
@@ -77,6 +78,7 @@ struct grammar *_grammar_new()
     grammar->start_symbol = 0;
     grammar->token_count = 0;
     grammar->op_count = 0;
+    grammar->terminal_count = 0;
     return grammar;
 }
 
@@ -92,7 +94,7 @@ struct rule *grammar_add_rule(struct grammar *g, symbol nonterm, int rule_no)
     return r;
 }
 
-u32 _token_parse(const char *token_text)
+u32 _parse_token(const char *token_text)
 {
     if (!token_text) return 0;
     struct lexer *lexer= lexer_new_for_string(token_text);
@@ -104,6 +106,30 @@ u32 _token_parse(const char *token_text)
         tok = *get_tok(lexer);
         if(tok.token_type == TOKEN_IDENT && !token_open){
             token_open = true;
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_LPAREN);
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_IDENT);//op name
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_COMMA);
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_LITERAL_STRING);
+            const char *name = tok.str_val;
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_COMMA);
+            tok = *get_tok(lexer);
+            const char *pattern = 0;
+            if(tok.token_type == TOKEN_LITERAL_STRING){
+                pattern = tok.str_val;
+            }
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_COMMA);
+            tok = *get_tok(lexer);
+            const char *class_name = 0;
+            if(tok.token_type == TOKEN_LITERAL_STRING){
+                class_name = tok.str_val;
+            }
+            create_lang_token_pattern(token_count, name, pattern, class_name);
         }
         if(tok.token_type == TOKEN_RPAREN && token_open){
             token_open = false;
@@ -114,11 +140,48 @@ u32 _token_parse(const char *token_text)
     return token_count;
 }
 
+u32 _parse_op(const char *op_text, u16 token_op)
+{
+    if (!op_text) return 0;
+    struct lexer *lexer= lexer_new_for_string(op_text);
+    struct token tok;
+    u32 op_count = 1; //OP_NULL is default 0
+    tok = *get_tok(lexer);
+    bool token_open = false;
+    while (tok.token_type!=TOKEN_EOF) {
+        tok = *get_tok(lexer);
+        if(tok.token_type == TOKEN_IDENT && !token_open){
+            token_open = true;
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_LPAREN);
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_IDENT);//op name
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_COMMA);
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_LITERAL_STRING);
+            const char *name = tok.str_val;
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_COMMA);
+            tok = *get_tok(lexer);
+            assert(tok.token_type == TOKEN_LITERAL_STRING);
+            create_lang_op_pattern(token_op, op_count, name, tok.str_val);
+        }
+        if(tok.token_type == TOKEN_RPAREN && token_open){
+            token_open = false;
+            op_count ++;
+        }
+    }
+    lexer_free(lexer);
+    return op_count;
+}
+
 struct grammar *grammar_parse(const char *grammar_text, const char *token_text, const char *op_text)
 {
     struct grammar *g = _grammar_new();
-    g->token_count = _token_parse(token_text);
-    g->op_count = _token_parse(op_text);
+    g->token_count = _parse_token(token_text);
+    g->op_count = _parse_op(op_text, g->token_count - 1); //the last is TOKEN_OP
+    g->terminal_count = g->token_count - 1 + g->op_count;
     struct token tok, next_tok;
     struct lexer *lexer= lexer_new_for_string(grammar_text);
     tok = *get_tok(lexer);

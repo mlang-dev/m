@@ -22,7 +22,7 @@ link_list_append_data_fn(parse_item_list, parse_item_list_entry, struct parse_it
 
 bool _is_terminal(struct lalr_parser_generator* pg, u16 symbol_index)
 {
-    return symbol_index < pg->terminal_count;
+    return symbol_index < pg->g->terminal_count;
 }
 
 bool _exists(struct index_list *dst, u16 data)
@@ -186,12 +186,12 @@ int _append_first_set_to(struct index_list *dst, struct parse_rule *rule, u8 rhs
     return change_count;
 }
 
-void _compute_first_set(struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
+void _compute_first_set(struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data, u16 terminal_count)
 {
     struct parse_rule *rule;
     int change_count = 0;
     u16 i;
-    for (i = 0; i < TERMINAL_COUNT; i++) {
+    for (i = 0; i < terminal_count; i++) {
         // terminal symbol's first set is itself
         index_list_append_data(&symbol_data[i].first_list, i);
     }
@@ -238,7 +238,7 @@ void _compute_follow_set(struct lalr_parser_generator *pg, struct parse_rule *ru
 void _fill_rule_symbol_data(struct lalr_parser_generator *pg, struct parse_rule *rules, u16 rule_count, struct rule_symbol_data *symbol_data)
 {
     _compute_is_nullable(rules, rule_count, symbol_data);
-    _compute_first_set(rules, rule_count, symbol_data);
+    _compute_first_set(rules, rule_count, symbol_data, pg->g->terminal_count);
     _compute_follow_set(pg, rules, rule_count, symbol_data);
     /*add rule index to each grammar symbol*/
     struct index_list *il;
@@ -470,7 +470,9 @@ void _complete_parsing_table(struct rule_symbol_data *symbol_data, struct parser
                     /**/
                     if (action->code == S){
                         printf("warning: There is a shift/reduce conflict in the grammar. ");
-                        printf("state: %d terminal: %s, shift to: %d, overrided reduction rule: %d(%s) \n", i, string_get(get_lang_symbol_by_index(la_entry->data)), action->state_index, item->rule, string_get(get_lang_symbol_by_index(rules[item->rule].lhs)));
+                        symbol lang_term = get_lang_symbol_by_index(la_entry->data);
+                        symbol non_term = get_lang_symbol_by_index(rules[item->rule].lhs);
+                        printf("state: %d terminal: %s, shift to: %d, overrided reduction rule: %d(%s) \n", i, string_get(lang_term), action->state_index, item->rule, string_get(non_term));
                         shift_reduce_conflicts++;
                     } else if (action->code == R){
                         printf("warning: There is a reduce/reduce conflict in the grammar. ");
@@ -641,6 +643,11 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     MALLOC(pg, sizeof(*pg));
     CALLOC(pg->symbol_data, MAX_GRAMMAR_SYMBOLS, sizeof(*pg->symbol_data));
     CALLOC(pg->parsing_table, MAX_STATES * (MAX_GRAMMAR_SYMBOLS), sizeof(*pg->parsing_table));
+    lang_token_init();
+    struct grammar *g = grammar_parse(grammar_text, token_text, op_text);
+    pg->g = g;
+    assert(135 == pg->g->terminal_count);
+
     //1. initialize parsing table and symbol data
     //row: state index, col: symbol index
     struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS] = (struct parser_action (*)[MAX_STATES][MAX_GRAMMAR_SYMBOLS])pg->parsing_table;
@@ -650,7 +657,7 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
             (*parsing_table)[i][j].state_index = 0;
         }
     }
-    for (i = 0; i < get_lang_symbol_count(); i++) {
+    for (i = 0; i < pg->g->terminal_count; i++) {
         _init_index_list(&pg->symbol_data[i].first_list);
         _init_index_list(&pg->symbol_data[i].follow_list);
         _init_index_list(&pg->symbol_data[i].rule_list);
@@ -659,16 +666,11 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     hashtable_init_with_size(&pg->augmented_symbol_map, sizeof(u64), sizeof(u16));
 
     //2. registering non-term symbols with integer
-    struct grammar *g = grammar_parse(grammar_text, token_text, op_text);
-    pg->g = g;
-    pg->terminal_count = g->token_count - 1 + g->op_count + 1;
-    lang_token_init(pg->terminal_count);
-    assert(TERMINAL_COUNT == pg->terminal_count);
     struct rule *rule;
     for(i = 0; i < array_size(&g->rules); i++){
         rule = array_get_ptr(&g->rules, i);
         u16 index = register_lang_grammar_nonterm(rule->nonterm); //register new non-term symbol
-        assert(i + pg->terminal_count == index);
+        assert(i + pg->g->terminal_count == index);
     }
     pg->total_symbol_count = get_lang_symbol_count();
     //3. convert grammar to replace symbol with index:

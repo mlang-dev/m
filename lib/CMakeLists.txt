@@ -34,6 +34,7 @@ parser/astdump.c
 parser/m/m_parsing_table.c
 parser/parser.c
 parser/grammar.c
+pgen/lang_token.c
 sema/type.c
 sema/sema_context.c
 sema/analyzer.c
@@ -129,6 +130,8 @@ add_library(mlr
   parser/ast.c
   parser/astdump.c
   parser/grammar.c
+  pgen/lang_token.c
+  lexer/pgen/grammar_token.c
   parser/m/m_parsing_table.c
   parser/parser.c
   sema/type.c
@@ -168,6 +171,7 @@ add_library(mlrl
   parser/ast.c
   parser/astdump.c
   parser/grammar.c
+  pgen/lang_token.c
   parser/m/m_parsing_table.c
   parser/parser.c
   sema/type.c
