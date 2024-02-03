@@ -38,7 +38,6 @@ void array_push_##postfix(struct array *arr, type_name element)\
 
 array_t_impl(u32, u32)
 array_t_impl(void *, p)
-
 struct array *array_new(size_t element_size)
 {
     struct array *arr;

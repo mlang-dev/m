@@ -14,6 +14,7 @@
 #include "clib/hashset.h"
 #include "clib/typedef.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,6 +67,7 @@ struct rule {
     struct array exprs; // array of expr
 };
 
+
 /// A grammar is a set of Rules. A rule is the form of A ::= e where A is a nonterminal symbol
 /// and e is a expression consists of any terminal symbol, any nonterminal symbol or empty string
 /// e.g. product = product [*/] factor
@@ -74,8 +76,11 @@ struct grammar {
     hashset keywords; // keywords are from grammar production rule: 1. string literal, 2 char set 3. might extend to some regex
     struct hashtable rule_map; /* hashtable of <symbol, rule> */
     struct array rules;        /* array of rule pointer */
-    u32 token_count;
-    u32 op_count;
+
+
+    u16 token_count;
+    u16 op_count;
+    u16 terminal_count;
 };
 
 struct grammar *grammar_parse(const char *grammar_text, const char *token_text, const char *op_text);
