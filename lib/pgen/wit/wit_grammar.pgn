@@ -220,24 +220,24 @@ ty    = "u8" | "u16" | "u32" | "u64"
       | "char"
       | "bool"
       | "string"
-      | tuple
-      | list
-      | option
-      | result
+      | tuple_ty
+      | list_ty
+      | option_ty
+      | result_ty
       | handle
       | IDENT
 
-tuple = "tuple" '<' tuple_list '>'
+tuple_ty = "tuple" '<' tuple_list '>'
 
 tuple_list  = ty
             | tuple_list ',' ty
             | tuple_list ','
 
-list  = "list" '<' ty '>'
+list_ty  = "list" '<' ty '>'
 
-option      = "option" '<' ty '>'
+option_ty      = "option" '<' ty '>'
 
-result      = "result" '<' ty ',' ty '>'
+result_ty   = "result" '<' ty ',' ty '>'
             | "result" '<' '_' ',' ty '>'
             | "result" '<' ty '>'
             | "result"

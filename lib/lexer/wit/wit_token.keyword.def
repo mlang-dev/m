@@ -1,3 +1,7 @@
+    TOKEN(NULL, "NULL",  0, 0),
+    TOKEN(EOF, "EOF",  0, 0),
+    TOKEN(EPSILON, "EPSILON", 0, 0),
+
     TOKEN(INDENT, "INDENT", 0, 0),
     TOKEN(DEDENT, "DEDENT", 0, 0),
     TOKEN(LITERAL_CHAR, "LITERAL_CHAR", 0, "string"),

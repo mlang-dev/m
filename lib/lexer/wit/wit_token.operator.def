@@ -1,1 +1,44 @@
+    OP(DOT, ".", "\\."), // literal dot
+    OP(OR, "or", "or"),
+    OP(AND, "and", "and"), // 35
+    OP(NOT, "not", "not"),
+
+    OP(BITNOT, "~", "~"),
+    OP(BITOR, "|", "\\|"),
+    OP(BITEXOR, "^", "^"),
+    OP(BAND, "&", "&"), //or reference
+    OP(BSL, "<<", "<<"),
+    OP(BSR, ">>", ">>"),
+
+    // KEYWORD_PATTERN("^", EXPO),
+    OP(SQRT, "|/", "\\|/"),
+    OP(POW, "**", "\\*\\*"), // 40
+    OP(STAR, "*", "\\*"), // 40
+    OP(DIVISION, "/", "/"),
+    OP(MODULUS, "%", "%"),
+    OP(PLUS, "+", "\\+"),
+    OP(MINUS, "-", "-"),
+
+    OP(LT, "<", "<"), // 45
+    OP(LE, "<=", "<="),
+    OP(EQ, "==", "=="),
+    OP(GT, ">", ">"),
+    OP(GE, ">=", ">="),
+    OP(NE, "!=", "!="),
+    OP(COND, "?", "\\?"), // 40
+
+    OP(ASSIGN, "=", "="),
+    OP(MUL_ASSN, "*=", "\\*="),
+    OP(DIV_ASSN, "/=", "/="),
+    OP(MOD_ASSN, "%=", "%="),
+    OP(ADD_ASSN, "+=", "\\+="),
+    OP(SUB_ASSN, "-=", "-="),
+    OP(LEFT_ASSN, "<<=", "<<="),
+    OP(RIGHT_ASSN, ">>=", ">>="),
+    OP(AND_ASSN, "&=", "&="),
+    OP(XOR_ASSN, "^=", "^="),
+    OP(OR_ASSN, "|=", "\\|="),
+
+    OP(INC, "++", "\\+\\+"),
+    OP(DEC, "--", "--"),
     OP(AT, "@", "@"),
