@@ -117,7 +117,7 @@ if(REGEN_PARSER)
     TARGET pgen
     POST_BUILD
     COMMAND pgen m ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
-   # COMMAND pgen wit ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
+    COMMAND pgen wit ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/lib/
   )
 endif()
 
@@ -131,7 +131,6 @@ add_library(mlr
   parser/astdump.c
   parser/grammar.c
   pgen/lang_token.c
-  lexer/pgen/grammar_token.c
   parser/m/m_parsing_table.c
   parser/parser.c
   sema/type.c

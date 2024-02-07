@@ -634,8 +634,6 @@ void _propagate_lookahead(struct lalr_parser_generator *pg)
     }
 }
 
-
-
 struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text, const char *token_text, const char *op_text)
 {
     size_t i,j;
@@ -646,7 +644,6 @@ struct lalr_parser_generator *lalr_parser_generator_new(const char *grammar_text
     lang_token_init();
     struct grammar *g = grammar_parse(grammar_text, token_text, op_text);
     pg->g = g;
-    assert(135 == pg->g->terminal_count);
 
     //1. initialize parsing table and symbol data
     //row: state index, col: symbol index
