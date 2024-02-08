@@ -27,28 +27,6 @@ struct token_pattern _token_patterns[TERMINAL_COUNT] = {
     TOKEN(PYCOMMENT, "#", "#", "pycomment"),
     TOKEN(LINECOMMENT, "//", "//", "comment"),
     TOKEN(BLOCKCOMMENT, "/*", "/\\*", "block-comment"),
-    TOKEN(WILDCARD, "_", "_", "variable"), 
-
-    TOKEN(FROM, "from", "from", "keyword"), 
-    TOKEN(MEMORY, "memory", "memory", "keyword"),
-    TOKEN(EXTERN, "extern", "extern", "keyword"), 
-
-    //WIT items
-    TOKEN(NONE, "None", "None", "keyword"), 
-    TOKEN(TYPE_BOOL, "bool", "bool", "keyword"), 
-    TOKEN(TYPE_INT, "int", "int", "keyword"), 
-    TOKEN(TYPE_U8, "u8", "u8", "keyword"), 
-    TOKEN(TYPE_U16, "u16", "u16", "keyword"), 
-    TOKEN(TYPE_U32, "u32", "u32", "keyword"), 
-    TOKEN(TYPE_U64, "u64", "u64", "keyword"), 
-    TOKEN(TYPE_I8, "i8", "i8", "keyword"), 
-    TOKEN(TYPE_I16, "i16", "i16", "keyword"), 
-    TOKEN(TYPE_I32, "i32", "i32", "keyword"), 
-    TOKEN(TYPE_I64, "i64", "i64", "keyword"), 
-    TOKEN(TYPE_F32, "f32", "f32", "keyword"), 
-    TOKEN(TYPE_F64, "f64", "f64", "keyword"), 
-    TOKEN(TYPE_CHAR, "char", "char", "keyword"), 
-    TOKEN(TYPE_STRING, "string", "string", "keyword"), 
 
     TOKEN(IDENT, "IDENT", "[_a-zA-Z][_a-zA-Z0-9]*", 0), 
 
@@ -64,55 +42,31 @@ struct token_pattern _token_patterns[TERMINAL_COUNT] = {
     TOKEN(SEMICOLON, ";", ";", "keyword"),
 
     TOKEN(RANGE, "..", "\\.\\.", "keyword"),
-    TOKEN(VARIADIC, "...", "\\.\\.\\.", "keyword"),
     TOKEN(ISTYPEOF, ":", ":", "keyword"),
 
     /*operator separator*/
     TOKEN(OP, "OP", 0, "operator"),
     
     OP(DOT, ".", "\\."), // literal dot
-    OP(OR, "or", "or"),
-    OP(AND, "and", "and"), // 35
-    OP(NOT, "not", "not"),
 
     OP(BITNOT, "~", "~"),
     OP(BITOR, "|", "\\|"),
+
     OP(BITEXOR, "^", "^"),
     OP(BAND, "&", "&"), //or reference
     OP(BSL, "<<", "<<"),
     OP(BSR, ">>", ">>"),
 
-    // KEYWORD_PATTERN("^", EXPO),
-    OP(SQRT, "|/", "\\|/"),
-    OP(POW, "**", "\\*\\*"), // 40
     OP(STAR, "*", "\\*"), // 40
     OP(DIVISION, "/", "/"),
     OP(MODULUS, "%", "%"),
     OP(PLUS, "+", "\\+"),
     OP(MINUS, "-", "-"),
 
-    OP(LT, "<", "<"), // 45
-    OP(LE, "<=", "<="),
-    OP(EQ, "==", "=="),
-    OP(GT, ">", ">"),
-    OP(GE, ">=", ">="),
-    OP(NE, "!=", "!="),
-    OP(COND, "?", "\\?"), // 40
+    
 
     OP(ASSIGN, "=", "="),
-    OP(MUL_ASSN, "*=", "\\*="),
-    OP(DIV_ASSN, "/=", "/="),
-    OP(MOD_ASSN, "%=", "%="),
-    OP(ADD_ASSN, "+=", "\\+="),
-    OP(SUB_ASSN, "-=", "-="),
-    OP(LEFT_ASSN, "<<=", "<<="),
-    OP(RIGHT_ASSN, ">>=", ">>="),
-    OP(AND_ASSN, "&=", "&="),
-    OP(XOR_ASSN, "^=", "^="),
-    OP(OR_ASSN, "|=", "\\|="),
 
-    OP(INC, "++", "\\+\\+"),
-    OP(DEC, "--", "--"),
     OP(AT, "@", "@"),
 };
 
