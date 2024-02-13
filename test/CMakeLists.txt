@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(mtest, VERSION 0.0.9 LANGUAGES CXX)
 
 add_executable(mtestw
+  ../lib/parser/grammar.c
   test.c
   clib/test_array.c
   clib/test_byte_array.c
@@ -113,6 +114,7 @@ include(GoogleTest)
 gtest_discover_tests(mtest)
 
 add_executable(mctest
+../lib/parser/grammar.c
 test.c
 clib/test_hashset.c
 clib/test_array.c
