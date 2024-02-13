@@ -56,25 +56,8 @@ enum token_type{
 enum op_code {
     OP_NULL,
     
- 	OP_DOT,
-
-	OP_BITNOT,
 	OP_BITOR,
-
-	OP_BITEXOR,
-	OP_BAND,
-	OP_BSL,
-	OP_BSR,
-
-	OP_STAR,
-	OP_DIVISION,
-	OP_MODULUS,
-	OP_PLUS,
-	OP_MINUS,
-	
 	OP_ASSIGN,
-
-	OP_AT,
 
     OP_TOTAL // EQUALS to THE NUMBER OF LANGUAGE TOKENS + 1
 };

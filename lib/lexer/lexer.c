@@ -246,11 +246,11 @@ void _mark_regex_tok(struct lexer *lexer)
 {
     struct token *tok = &lexer->tok;
     char ch = lexer->buff[lexer->pos];
-    struct pattern_matches *pm = &lexer->char_matches[(int)ch];
-    if(!pm->pattern_match_count){
+    if(!ch){
         report_error(lexer, EC_UNRECOGNIZED_CHAR, tok->loc);
         return;
     }
+    struct pattern_matches *pm = &lexer->char_matches[(int)ch];
     int max_matched = 0;
     struct token_pattern *used_tp = 0;
     for(int i = 0; i < pm->pattern_match_count; i++){
@@ -278,7 +278,9 @@ void _mark_regex_tok(struct lexer *lexer)
         } else if (used_tp->token_type == TOKEN_LITERAL_FLOAT)
             tok->double_val = strtod(&lexer->buff[tok->loc.start - lexer->buff_base], 0);
     }else{
-        report_error(lexer, EC_UNRECOGNIZED_TOKEN, tok->loc);
+        _mark_token(lexer, TOKEN_LITERAL_CHAR, OP_NULL);
+        _move_ahead_n(lexer, 1);
+        tok->int_val = lexer->buff[tok->loc.start - lexer->buff_base + 1];
     }
 }
 
