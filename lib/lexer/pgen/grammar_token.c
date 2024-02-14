@@ -22,7 +22,6 @@ struct token_pattern _token_patterns[TERMINAL_COUNT] = {
     TOKEN(NEWLINE, "NEWLINE", "\n", 0),
     TOKEN(LITERAL_INT, "LITERAL_INT", "[0-9]+|0x[0-9a-fA-F]+", "number"),
     TOKEN(LITERAL_FLOAT, "LITERAL_FLOAT", "([0-9]*.)?[0-9]+", "number"),
-    TOKEN(LITERAL_COMPLEX, "LITERAL_COMPLEX", "([0-9]*.)?[0-9]+ \\+ ([0-9]*.)?[0-9]*i", "number"),
 
     TOKEN(PYCOMMENT, "#", "#", "pycomment"),
     TOKEN(LINECOMMENT, "//", "//", "comment"),
@@ -39,10 +38,6 @@ struct token_pattern _token_patterns[TERMINAL_COUNT] = {
     TOKEN(RCBRACKET, "}", "}", "keyword"),
 
     TOKEN(COMMA, ",", ",", "keyword"),
-    TOKEN(SEMICOLON, ";", ";", "keyword"),
-
-    TOKEN(RANGE, "..", "\\.\\.", "keyword"),
-    TOKEN(ISTYPEOF, ":", ":", "keyword"),
 
     /*operator separator*/
     TOKEN(OP, "OP", 0, "operator"),
