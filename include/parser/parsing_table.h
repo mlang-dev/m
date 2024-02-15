@@ -29,17 +29,17 @@ struct parse_state_items{
 
 #ifndef M_PARSING_INITIALIZER
 // grammar rules converted to int index
-extern struct parse_rule m_parsing_rules[PARSING_RULE_COUNT];
+extern struct parse_rule lang_parsing_rules[PARSING_RULE_COUNT];
 typedef struct parse_rule parsing_rules[PARSING_RULE_COUNT];
 
-extern struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT];
+extern struct parser_action lang_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT];
 typedef struct parser_action parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT];
 
 /*for debugger references*/
-extern const char *m_parsing_symbols[PARSING_SYMBOL_COUNT];
+extern const char *lang_parsing_symbols[PARSING_SYMBOL_COUNT];
 typedef const char *parsing_symbols[PARSING_SYMBOL_COUNT];
 
-extern struct parse_state_items m_parsing_states[PARSING_STATE_COUNT];
+extern struct parse_state_items lang_parsing_states[PARSING_STATE_COUNT];
 typedef struct parse_state_items parsing_states[PARSING_STATE_COUNT];
 
 #endif
