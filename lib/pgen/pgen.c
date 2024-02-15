@@ -29,10 +29,10 @@
 #define source_header_template   "#define M_PARSING_INITIALIZER 1\n"\
                                  "#include \"parser/parsing_table.h\"\n\n"
 
-#define source_parsing_symbols_initializer "const char *m_parsing_symbols[PARSING_SYMBOL_COUNT] = {\n"
-#define source_parsing_rules_initializer "const struct parse_rule m_parsing_rules[PARSING_RULE_COUNT] = {\n"
-#define source_parsing_states_initializer "struct parse_state_items m_parsing_states[PARSING_STATE_COUNT] = {\n"
-#define source_parsing_table_initializer "const struct parser_action m_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT] = {\n"
+#define source_parsing_symbols_initializer "const char *lang_parsing_symbols[PARSING_SYMBOL_COUNT] = {\n"
+#define source_parsing_rules_initializer "const struct parse_rule lang_parsing_rules[PARSING_RULE_COUNT] = {\n"
+#define source_parsing_states_initializer "struct parse_state_items lang_parsing_states[PARSING_STATE_COUNT] = {\n"
+#define source_parsing_table_initializer "const struct parser_action lang_parsing_table[PARSING_STATE_COUNT][PARSING_SYMBOL_COUNT] = {\n"
 #define source_data_initializer_end  "};\n"
 
 const char *parsing_actions[] = {

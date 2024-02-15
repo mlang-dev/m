@@ -30,7 +30,7 @@ struct parser *_parser_new(parsing_table *pt, parsing_rules *pr, parsing_symbols
 
 struct parser *parser_new()
 {
-    return _parser_new(&m_parsing_table, &m_parsing_rules, &m_parsing_symbols, &m_parsing_states);
+    return _parser_new(&lang_parsing_table, &lang_parsing_rules, &lang_parsing_symbols, &lang_parsing_states);
 }
 
 void parser_free(struct parser *parser)
