@@ -120,7 +120,7 @@ variant Color = Red | Green = 10 | Blue\n\
     frontend_deinit(fe);
 }
 
-int test_analyzer_variant()
+int test_analyzer_variant(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_variant_member_type_float);

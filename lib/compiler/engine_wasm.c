@@ -54,7 +54,7 @@ void _categorize_imports(struct imports *imports)
     }
 }
 
-struct engine *engine_wasm_new()
+struct engine *engine_wasm_new(void)
 {
     struct engine *engine;
     MALLOC(engine, sizeof(*engine));

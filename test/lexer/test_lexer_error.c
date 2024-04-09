@@ -92,7 +92,7 @@ TEST(test_lexer, indent_level_error)
     }
 }
 
-int test_lexer_error()
+int test_lexer_error(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_lexer_string_error_missing_end_quote);

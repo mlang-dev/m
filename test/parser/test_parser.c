@@ -785,7 +785,7 @@ TEST(test_parser, multiple_statements_on_one_line)
     frontend_deinit(fe);
 }
 
-int test_parser()
+int test_parser(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_parser_int_type);

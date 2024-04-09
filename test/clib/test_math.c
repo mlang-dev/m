@@ -16,7 +16,7 @@ TEST(test_math, pow)
     ASSERT_EQ(0, pow_int(2, -1));
 }
 
-int test_math()
+int test_math(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_math_pow);

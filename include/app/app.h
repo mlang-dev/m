@@ -20,10 +20,10 @@ struct app{
     struct hashtable error_reports;
 };
 
-struct app *app_get();
-void app_init();
-void app_deinit();
-void app_reset_error_reports();
+struct app *app_get(void);
+void app_init(void);
+void app_deinit(void);
+void app_reset_error_reports(void);
 
 #ifdef __cplusplus
 }

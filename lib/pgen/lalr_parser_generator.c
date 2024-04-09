@@ -527,14 +527,11 @@ void _compute_augmented_rule(struct lalr_parser_generator *pg)
     struct parser_action (*parsing_table)[MAX_STATES][MAX_GRAMMAR_SYMBOLS] = (struct parser_action (*)[MAX_STATES][MAX_GRAMMAR_SYMBOLS])pg->parsing_table;
     u16 state_index;
     pg->augmented_rule_count = 0;
-    int x = 0;
     for (u16 i = 0; i < pg->parse_state_count; i++)
     {
         state = &pg->parse_states[i];
         //for each parse item
-        x = -1;
         list_foreach(entry, &state->items){
-            x++;
             state_index = i;
             item = &entry->data;
             if (item->dot > 0)
@@ -595,7 +592,6 @@ void _propagate_lookahead(struct lalr_parser_generator *pg)
     u16 state_index;
     for (u16 i = 0; i < pg->parse_state_count; i++) {
         state = &pg->parse_states[i];
-        // for each parse item, lhs->x.yz
         list_foreach(entry, &state->items)
         {
             state_index = i;

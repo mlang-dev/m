@@ -36,15 +36,15 @@ struct lang_token_pattern{
 struct lang_token_pattern *create_lang_token_pattern(u16 token_type, const char *name, const char *pattern, const char *class_name);
 struct lang_token_pattern *create_lang_op_pattern(u16 token_op, u16 op_type, const char *name, const char *pattern);
 
-void lang_token_init();
-void lang_token_deinit();
+void lang_token_init(void);
+void lang_token_deinit(void);
 
 /*get symbol index, token or nonterm*/
 u16 get_lang_symbol_index(symbol symbol);
 symbol get_lang_symbol_by_index(u16 symbol_index);
 
 /*get total symbol count including terminal tokens and nonterm symbols*/
-u16 get_lang_symbol_count();
+u16 get_lang_symbol_count(void);
 
 /*register nonterm symbol for grammar*/
 u16 register_lang_grammar_nonterm(symbol symbol);

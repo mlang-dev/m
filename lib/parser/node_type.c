@@ -57,12 +57,12 @@ const char *node_type_strings[] = {
 
 struct hashtable node_type_names_by_symbol;
 
-struct node_type_name *get_node_type_names()
+struct node_type_name *get_node_type_names(void)
 {
     return node_type_names;
 }
 
-void node_type_init()
+void node_type_init(void)
 {
     hashtable_init(&node_type_names_by_symbol);
     for(int i = 0; i < TOTAL_NODE; i++){
@@ -72,7 +72,7 @@ void node_type_init()
     }
 }
 
-void node_type_deinit()
+void node_type_deinit(void)
 {
     hashtable_deinit(&node_type_names_by_symbol);
 }

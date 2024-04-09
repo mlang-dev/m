@@ -21,7 +21,7 @@ struct frontend{
 };
 
 struct frontend *frontend_llvm_init(const char *sys_path, bool is_repl);
-struct frontend *frontend_init();
+struct frontend *frontend_init(void);
 void frontend_deinit(struct frontend *fe);
 
 #ifdef __cplusplus

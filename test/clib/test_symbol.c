@@ -30,7 +30,7 @@ TEST(test_symbol, support_multiple_values_for_same_key)
     ASSERT_EQ(symbol1, to_symbol("hello"));
 }
 
-int test_symbol()
+int test_symbol(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_symbol_equals_to_same_string_key);

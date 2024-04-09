@@ -125,7 +125,7 @@ TEST(test_array, add_element_new_way)
     array_deinit(&arr);
 }
 
-int test_array()
+int test_array(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_array_init_int);

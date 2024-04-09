@@ -195,8 +195,8 @@ LLVMValueRef emit_function_node(struct cg_llvm *cg, struct ast_node *node)
     }
     struct ast_node *saved_node = stack_pop_ptr(&cg->base.sema_context->func_stack);
     assert(node == saved_node);
-    if(!LLVMVerifyFunction(fun, LLVMPrintMessageAction)){
-        
+    if(LLVMVerifyFunction(fun, LLVMPrintMessageAction)){
+       printf("something bad"); 
     }
     return fun;
 }

@@ -69,12 +69,12 @@ struct node_type_name{
 
 extern const char *node_type_strings[];
 
-struct node_type_name *get_node_type_names();
+struct node_type_name *get_node_type_names(void);
 
 enum node_type symbol_to_node_type(symbol action_name);
 
-void node_type_init();
-void node_type_deinit();
+void node_type_init(void);
+void node_type_deinit(void);
 
 #ifdef __cplusplus
 }

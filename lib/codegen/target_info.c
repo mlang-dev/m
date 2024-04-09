@@ -18,7 +18,7 @@ enum Arch _parse_arch(string *arch)
     return ARCH_NONE;
 }
 
-enum SubArch _parse_subarch()
+enum SubArch _parse_subarch(void)
 {
     return SUBARCH_NONE;
 }

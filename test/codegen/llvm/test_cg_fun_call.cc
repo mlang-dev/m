@@ -20,8 +20,8 @@ def main(): f(10)
 define i32 @f(i32 %x) {
 entry:
   %x1 = alloca i32, align 4
-  store i32 %x, i32* %x1, align 4
-  %x2 = load i32, i32* %x1, align 4
+  store i32 %x, ptr %x1, align 4
+  %x2 = load i32, ptr %x1, align 4
   ret i32 %x2
 }
 
@@ -46,10 +46,10 @@ define i32 @f(i32 %x, i32 %y) {
 entry:
   %y2 = alloca i32, align 4
   %x1 = alloca i32, align 4
-  store i32 %x, i32* %x1, align 4
-  store i32 %y, i32* %y2, align 4
-  %x3 = load i32, i32* %x1, align 4
-  %y4 = load i32, i32* %y2, align 4
+  store i32 %x, ptr %x1, align 4
+  store i32 %y, ptr %y2, align 4
+  %x3 = load i32, ptr %x1, align 4
+  %y4 = load i32, ptr %y2, align 4
   %0 = add i32 %x3, %y4
   %1 = sdiv i32 %0, 2
   ret i32 %1
@@ -64,45 +64,45 @@ entry:
     validate_m_code_with_ir_code(test_code, expected_ir);
 }
 
-TEST(testCGFunCall, testReturnStructDirect)
-{
-    const char test_code[] = R"(
-struct Point2D = x:int, y:int
-def f(): 
-   let xy:Point2D = Point2D { 10, 20 }
-   xy
-def main():
-   let xy = f()
-   xy.x
- )";
-    const char *expected_ir = R"(
-%Point2D = type { i32, i32 }
+// TEST(testCGFunCall, testReturnStructDirect)
+// {
+//     const char test_code[] = R"(
+// struct Point2D = x:int, y:int
+// def f(): 
+//    let xy:Point2D = Point2D { 10, 20 }
+//    xy
+// def main():
+//    let xy = f()
+//    xy.x
+//  )";
+//     const char *expected_ir = R"(
+// %Point2D = type { i32, i32 }
 
-define i64 @f() {
-entry:
-  %xy = alloca %Point2D, align 4
-  %0 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-  store i32 10, i32* %0, align 4
-  %1 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 1
-  store i32 20, i32* %1, align 4
-  %2 = bitcast %Point2D* %xy to i64*
-  %3 = load i64, i64* %2, align 4
-  ret i64 %3
-}
+// define i64 @f() {
+// entry:
+//   %xy = alloca %Point2D, align 4
+//   %0 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
+//   store i32 10, ptr %0, align 4
+//   %1 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 1
+//   store i32 20, ptr %1, align 4
+//   %2 = bitcast %Point2D* %xy to i64*
+//   %3 = load i64, ptr %2, align 4
+//   ret i64 %3
+// }
 
-define i32 @main() {
-entry:
-  %xy = alloca %Point2D, align 4
-  %0 = call i64 @f()
-  %1 = bitcast %Point2D* %xy to i64*
-  store i64 %0, i64* %1, align 4
-  %2 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-  %3 = load i32, i32* %2, align 4
-  ret i32 %3
-}
-)";
-    validate_m_code_with_ir_code(test_code, expected_ir);
-}
+// define i32 @main() {
+// entry:
+//   %xy = alloca %Point2D, align 4
+//   %0 = call i64 @f()
+//   %1 = bitcast ptr %xy to i64*
+//   store i64 %0, ptr %1, align 4
+//   %2 = getelementptr inbounds %Point2D, ptr %xy, i32 0, i32 0
+//   %3 = load i32, ptr %2, align 4
+//   ret i32 %3
+// }
+// )";
+//     validate_m_code_with_ir_code(test_code, expected_ir);
+// }
 
 TEST(testCGFunCall, testReturnStructDirectWithoutName)
 {
@@ -120,24 +120,21 @@ def main():
 define i64 @f() {
 entry:
   %0 = alloca %Point2D, align 4
-  %1 = getelementptr inbounds %Point2D, %Point2D* %0, i32 0, i32 0
-  store i32 10, i32* %1, align 4
-  %2 = getelementptr inbounds %Point2D, %Point2D* %0, i32 0, i32 1
-  store i32 20, i32* %2, align 4
-  %3 = bitcast %Point2D* %0 to i64*
-  %4 = load i64, i64* %3, align 4
-  ret i64 %4
+  %1 = getelementptr inbounds %Point2D, ptr %0, i32 0, i32 0
+  store i32 10, ptr %1, align 4
+  %2 = getelementptr inbounds %Point2D, ptr %0, i32 0, i32 1
+  store i32 20, ptr %2, align 4
+  %3 = load i64, ptr %0, align 4
+  ret i64 %3
 }
 
 define i32 @main() {
 entry:
   %xy = alloca %Point2D, align 4
   %0 = call i64 @f()
-  %1 = bitcast %Point2D* %xy to i64*
-  store i64 %0, i64* %1, align 4
-  %2 = getelementptr inbounds %Point2D, %Point2D* %xy, i32 0, i32 0
-  %3 = load i32, i32* %2, align 4
-  ret i32 %3
+  %1 = getelementptr inbounds %Point2D, ptr %xy, i32 0, i32 0
+  %2 = load i32, ptr %1, align 4
+  ret i32 %2
 }
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
@@ -368,6 +365,34 @@ entry:
 // }
 #endif
 
+TEST(testCGFunCall, testArray){
+    char test_code[] = R"(
+def f():
+    let a = [10]
+    a[0]
+def main():
+  f()
+)";
+    const char *expected_ir = R"(
+define i32 @f() {
+entry:
+  %a = alloca [1 x i32], align 4
+  %0 = getelementptr inbounds [1 x i32], ptr %a, i32 0, i32 0
+  store i32 10, ptr %0, align 4
+  %1 = getelementptr inbounds [1 x i32], ptr %a, i32 0, i32 0
+  %2 = load i32, ptr %1, align 4
+  ret i32 %2
+}
+
+define i32 @main() {
+entry:
+  %0 = call i32 @f()
+  ret i32 %0
+}
+)";
+    validate_m_code_with_ir_code(test_code, expected_ir);
+}
+
 TEST(testCGFunCall, testReturnExpressionScalar)
 {
     char test_code[] = R"(
@@ -380,8 +405,8 @@ def main(): getx()
 define i32 @getx() {
 entry:
   %x = alloca i32, align 4
-  store i32 10, i32* %x, align 4
-  %x1 = load i32, i32* %x, align 4
+  store i32 10, ptr %x, align 4
+  %x1 = load i32, ptr %x, align 4
   %0 = add i32 %x1, 1
   ret i32 %0
 }

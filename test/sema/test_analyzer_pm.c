@@ -59,7 +59,7 @@ pm(0)\n\
     frontend_deinit(fe);
 }
 
-int test_analyzer_pm()
+int test_analyzer_pm(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_pm_pattern_match);

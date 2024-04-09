@@ -21,7 +21,7 @@ void engine_reset(struct engine *engine)
     backend_reset(engine->be, engine->fe->sema_context);
 }
 
-const char *engine_version()
+const char *engine_version(void)
 {
     return _engine_version;
 }

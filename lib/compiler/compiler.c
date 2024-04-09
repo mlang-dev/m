@@ -24,9 +24,9 @@ int gof_emit_file(LLVMModuleRef module, LLVMTargetMachineRef target_machine, con
     return 0;
 }
 
-int gof_initialize()
+int gof_initialize(void)
 {
-    LLVMInitializeCore(LLVMGetGlobalPassRegistry());
+    //LLVMInitializeCore(LLVMGetGlobalPassRegistry());
 
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();

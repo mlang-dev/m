@@ -94,13 +94,13 @@ struct token {
     };
 };
 
-void token_init();
+void token_init(void);
 
-void token_deinit();
+void token_deinit(void);
 
 struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type);
 
-struct token_patterns get_token_patterns();
+struct token_patterns get_token_patterns(void);
 
 #define is_open_group(tp) (tp == TOKEN_LPAREN || tp == TOKEN_LBRACKET || tp == TOKEN_LCBRACKET)
 #define is_close_group(tp) (tp == TOKEN_RPAREN || tp == TOKEN_RBRACKET || tp == TOKEN_RCBRACKET)

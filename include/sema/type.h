@@ -124,7 +124,7 @@ struct type_context {
 
 };
 
-struct type_context* type_context_new();
+struct type_context* type_context_new(void);
 void type_context_free(struct type_context *tc);
 struct type_item *create_type_var(struct type_context *tc, enum Mut mut);
 struct type_item *create_type_oper_var(struct type_context*tc, enum kind kind, symbol type_name, enum type type, struct type_item *val_type, struct array *args);

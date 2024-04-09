@@ -149,7 +149,7 @@ void type_item_free(struct type_item *type)
     FREE(type);
 }
 
-struct type_context *type_context_new()
+struct type_context *type_context_new(void)
 {
     struct type_context *tc;
     MALLOC(tc, sizeof(*tc));

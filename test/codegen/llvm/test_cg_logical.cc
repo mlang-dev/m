@@ -18,8 +18,8 @@ TEST(testCGLogical, testNot)
 define i8 @f(i8 %m) {
 entry:
   %m1 = alloca i8, align 1
-  store i8 %m, i8* %m1, align 1
-  %m2 = load i8, i8* %m1, align 1
+  store i8 %m, ptr %m1, align 1
+  %m2 = load i8, ptr %m1, align 1
   %ret_val_bool = trunc i8 %m2 to i1
   %nottmp = xor i1 %ret_val_bool, true
   %ret_val_int = zext i1 %nottmp to i8

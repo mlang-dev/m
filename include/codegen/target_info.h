@@ -153,7 +153,7 @@ struct target_info {
 
 struct target_info *ti_new(const char *target_triple);
 void ti_free(struct target_info *ti);
-struct hashtable *get_fun_infos();
+struct hashtable *get_fun_infos(void);
 
 
 #ifdef __cplusplus

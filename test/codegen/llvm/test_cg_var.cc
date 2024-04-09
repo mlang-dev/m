@@ -52,7 +52,7 @@ TEST(testCGVar, testGlobalVarString)
     const char test_code[] = R"(let m = "10.0")";
     const char *expected_ir = R"(
 @0 = private unnamed_addr constant [5 x i8] c"10.0\00", align 1
-@m = global i8* getelementptr inbounds ([5 x i8], [5 x i8]* @0, i32 0, i32 0)
+@m = global ptr @0
 )";
     validate_m_code_with_ir_code(test_code, expected_ir);
 }

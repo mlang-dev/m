@@ -20,7 +20,7 @@ TEST(test_token, patterns)
     }
 }
 
-int test_token()
+int test_token(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_token_patterns);

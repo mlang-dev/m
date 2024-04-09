@@ -28,7 +28,7 @@ struct parser *_parser_new(parsing_table *pt, parsing_rules *pr, parsing_symbols
     return parser;
 }
 
-struct parser *parser_new()
+struct parser *parser_new(void)
 {
     return _parser_new(&lang_parsing_table, &lang_parsing_rules, &lang_parsing_symbols, &lang_parsing_states);
 }

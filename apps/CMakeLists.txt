@@ -30,11 +30,11 @@ add_custom_command(TARGET mw POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/m.wasm ${CMAKE_SOURCE_DIR}/docs
 )
 
-find_package(LLVM 14 REQUIRED CONFIG)
+find_package(LLVM 18.1.3 REQUIRED CONFIG)
 message(STATUS "Found LLVM BIN ${LLVM_TOOLS_BINARY_DIR}")
-execute_process(COMMAND llvm-config --libfiles
+execute_process(COMMAND llvm-config-18 --libfiles
                 OUTPUT_VARIABLE llvm_libfiles OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND llvm-config --system-libs
+execute_process(COMMAND llvm-config-18 --system-libs
                 OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(NOT ${sys_libraries} STREQUAL "")
   string(REPLACE " -llibxml2.tbd" "" sys_libraries ${sys_libraries})

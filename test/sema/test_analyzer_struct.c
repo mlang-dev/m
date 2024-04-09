@@ -246,7 +246,7 @@ del xy";
     frontend_deinit(fe);
 }
 
-int test_analyzer_struct()
+int test_analyzer_struct(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_struct_def_struct_type);

@@ -148,7 +148,7 @@ TEST(test_type_size_info, variant_int)
     engine_free(engine);
 }
 
-int test_type_size_info()
+int test_type_size_info(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_type_size_info_struct_double_double);

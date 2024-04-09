@@ -48,7 +48,7 @@ void parser_free(struct parser *parser);
 struct ast_node *parse_code(struct parser *parser, const char *text);
 struct ast_node *parse_file(struct parser *parser, const char *file_name);
 struct ast_node *parse_repl_code(struct parser *parser, void (*fun)(void *, struct ast_node *), void *jit);
-struct parser *parser_new();
+struct parser *parser_new(void);
 
 #ifdef __cplusplus
 }

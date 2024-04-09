@@ -14,7 +14,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-size_t get_mem_size();
+size_t get_mem_size(void);
 int grow_mem(size_t size);
 
 

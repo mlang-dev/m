@@ -63,7 +63,7 @@ TEST(test_ast_dump, func_type_no_parameter)
     frontend_deinit(fe);
 }
 
-int test_ast()
+int test_ast(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_ast_node_type_names);

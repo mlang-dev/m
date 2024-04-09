@@ -27,7 +27,7 @@ extern struct test_stats test_stats;
 #define ASSERT_TRUE(condition) TEST_ASSERT_TRUE(condition)
 #define ASSERT_FALSE(condition) TEST_ASSERT_FALSE(condition)
 
-#define TEST(MODULE,  FUNC) void MODULE ## _ ## FUNC()
+#define TEST(MODULE,  FUNC) void MODULE ## _ ## FUNC(void)
 
 #ifdef __cplusplus
 }

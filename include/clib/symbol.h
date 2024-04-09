@@ -25,10 +25,10 @@ typedef string *symbol;
 symbol to_symbol(const char *name);
 symbol to_symbol2(const char *name, size_t name_size);
 symbol string_2_symbol(string *name);
-symbol get_temp_symbol();
+symbol get_temp_symbol(void);
 extern symbol EmptySymbol;
-void symbols_init();
-void symbols_deinit();
+void symbols_init(void);
+void symbols_deinit(void);
 
 #ifdef __cplusplus
 }

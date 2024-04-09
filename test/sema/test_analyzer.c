@@ -709,7 +709,7 @@ def getx():\n\
     frontend_deinit(fe);
 }
 
-int test_analyzer()
+int test_analyzer(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_import_func_type_node);
