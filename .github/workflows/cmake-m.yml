@@ -30,7 +30,10 @@ jobs:
 
     - name: Install LLVM & LLD
       run: |
-        sudo apt install lld llvm
+        sudo echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" | sudo tee /etc/apt/sources.list.d/docker.list
+        wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
+        sudo apt-get update
+        sudo apt-get --assume-yes install clang-18 lld-18 llvm-18 libmlir-18-dev mlir-18-tools
         clang --version
         llvm-config --version
 
