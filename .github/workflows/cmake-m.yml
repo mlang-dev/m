@@ -34,9 +34,6 @@ jobs:
         wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
         sudo apt-get update
         sudo apt-get --assume-yes install clang-18 lld-18 llvm-18 libmlir-18-dev mlir-18-tools
-        sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
-        sudo ln -sf /usr/bin/llvm-ar-18 /usr/bin/llvm-ar
-        sudo ln -sf /usr/bin/llvm-nm-18 /usr/bin/llvm-nm
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
