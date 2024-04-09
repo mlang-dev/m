@@ -136,7 +136,7 @@ variant XY = \n\
     frontend_deinit(fe);
 }
 
-int test_parser_variant()
+int test_parser_variant(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_parser_variant_one_line_definition);

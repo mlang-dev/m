@@ -12,46 +12,46 @@
 
 struct test_stats test_stats = { 0, 0 };
 
-int test_array();
-int test_byte_array();
-int test_hashset();
-int test_hashtable();
-int test_math();
-int test_queue();
-int test_stack();
-int test_string();
-int test_symbol();
-int test_symboltable();
-int test_util();
-int test_regex();
+int test_array(void);
+int test_byte_array(void);
+int test_hashset(void);
+int test_hashtable(void);
+int test_math(void);
+int test_queue(void);
+int test_stack(void);
+int test_string(void);
+int test_symbol(void);
+int test_symboltable(void);
+int test_util(void);
+int test_regex(void);
 
-int test_token();
-int test_lexer();
-int test_lexer_error();
-int test_m_lexer();
-int test_ast();
-int test_parser_expr();
-int test_parser();
-int test_parser_type();
-int test_parser_struct();
-int test_parser_variant();
-int test_parser_error();
-int test_grammar();
-int test_analyzer();
-int test_analyzer_mut();
-int test_analyzer_errors();
-int test_analyzer_struct();
-int test_analyzer_type();
-int test_analyzer_variant();
-int test_analyzer_pm();
-int test_type_size_info();
-int test_wasm_codegen();
+int test_token(void);
+int test_lexer(void);
+int test_lexer_error(void);
+int test_m_lexer(void);
+int test_ast(void);
+int test_parser_expr(void);
+int test_parser(void);
+int test_parser_type(void);
+int test_parser_struct(void);
+int test_parser_variant(void);
+int test_parser_error(void);
+int test_grammar(void);
+int test_analyzer(void);
+int test_analyzer_mut(void);
+int test_analyzer_errors(void);
+int test_analyzer_struct(void);
+int test_analyzer_type(void);
+int test_analyzer_variant(void);
+int test_analyzer_pm(void);
+int test_type_size_info(void);
+int test_wasm_codegen(void);
 
-void setUp(){}
-void tearDown(){}
+void setUp(void){}
+void tearDown(void){}
 
 
-EXPORT int ENTRY()
+EXPORT int ENTRY(void)
 {
   int failures = 0;
   app_init();

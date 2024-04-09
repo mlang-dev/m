@@ -11,7 +11,7 @@
 
 
 
-const char *version()
+const char *version(void)
 {
     return engine_version();
 }
@@ -45,7 +45,7 @@ u8 *highlight_code(const char *text)
     return (u8*)highlighted;
 }
 
-u32 get_code_size()
+u32 get_code_size(void)
 {
     return code_size;
 }

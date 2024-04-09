@@ -10,7 +10,7 @@
 
 #define PAGE_SIZE (1<<16)
 
-size_t get_mem_size() 
+size_t get_mem_size(void) 
 {
   return __builtin_wasm_memory_size(0) * PAGE_SIZE;
 }

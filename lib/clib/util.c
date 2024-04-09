@@ -44,7 +44,7 @@ bool is_all(string *str, char match)
     return true;
 }
 
-string get_id_name()
+string get_id_name(void)
 {
     string str;
     string_init_chars(&str, id_name);

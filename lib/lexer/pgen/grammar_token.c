@@ -45,7 +45,7 @@ struct token_pattern _token_patterns[TERMINAL_COUNT] = {
     OP(ASSIGN, "=", "="),
 };
 
-void token_init()
+void token_init(void)
 {
     for (int i = 0; i < TERMINAL_COUNT; i++) {
         struct token_pattern *tp = &_token_patterns[i];
@@ -59,7 +59,7 @@ void token_init()
     }
 }
 
-void token_deinit()
+void token_deinit(void)
 {
     for (int i = 0; i < TERMINAL_COUNT; i++) {
         struct token_pattern *tp = &_token_patterns[i];
@@ -78,7 +78,7 @@ void tok_clean(struct token *tok)
     }
 }
 
-struct token_patterns get_token_patterns()
+struct token_patterns get_token_patterns(void)
 {
     struct token_patterns tps = { _token_patterns, TERMINAL_COUNT };
     return tps;

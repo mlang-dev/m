@@ -125,7 +125,7 @@ TEST(test_grammar, arithmetic_exp_using_charset)
     frontend_deinit(fe);
 }
 
-int test_grammar()
+int test_grammar(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_grammar_num_token);

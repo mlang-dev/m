@@ -91,7 +91,8 @@ LLVMValueRef emit_call_node(struct cg_llvm *cg, struct ast_node *node)
         }
         arg_values[i] = arg_value;
     }
-    LLVMValueRef call_inst = LLVMBuildCall2(cg->builder, LLVMGetElementType(LLVMTypeOf(callee)), callee, arg_values, (unsigned int)ir_arg_count, "");
+    LLVMTypeRef fun_type = (LLVMTypeRef)get_backend_type(cg, node->call->callee_func_type->type);
+    LLVMValueRef call_inst = LLVMBuildCall2(cg->builder, fun_type, callee, arg_values, (unsigned int)ir_arg_count, "");
     FREE(arg_values);
 
     if (has_sret) {

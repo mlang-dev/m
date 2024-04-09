@@ -21,7 +21,7 @@ TEST(test_parser_error, char_literal)
     frontend_deinit(fe);
 }
 
-int test_parser_error()
+int test_parser_error(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_parser_error_char_literal);

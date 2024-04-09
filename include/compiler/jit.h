@@ -26,9 +26,9 @@ struct fun_pointer
 {
     union{
         void* address;
-        int (*i_fp)();
-        char* (*s_fp)();
-        f64 (*d_fp)();
+        int (*i_fp)(void);
+        char* (*s_fp)(void);
+        f64 (*d_fp)(void);
     } fp;
 };
 
@@ -36,8 +36,8 @@ struct JIT *jit_new(struct engine *engine);
 void jit_free(struct JIT *jit);
 void *jit_add_module(struct JIT *jit, void *module);
 void jit_remove_module(void *resource_tracker);
-typedef f64 (*target_address_double)();
-typedef int (*target_address_int)();
+typedef f64 (*target_address_double)(void);
+typedef int (*target_address_int)(void);
 struct fun_pointer jit_find_symbol(struct JIT *jit, const char *symbol);
 
 #ifdef __cplusplus

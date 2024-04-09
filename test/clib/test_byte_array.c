@@ -18,7 +18,7 @@ TEST(test_byte_array, init)
     ba_deinit(&ba);
 }
 
-int test_byte_array()
+int test_byte_array(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_byte_array_init);

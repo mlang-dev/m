@@ -30,9 +30,13 @@ jobs:
 
     - name: Install LLVM & LLD
       run: |
-        sudo apt install lld llvm
-        clang --version
-        llvm-config --version
+        sudo echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" | sudo tee /etc/apt/sources.list.d/docker.list
+        wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
+        sudo apt-get update
+        sudo apt-get --assume-yes install clang-18 lld-18 llvm-18 libmlir-18-dev mlir-18-tools
+        sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
+        sudo ln -sf /usr/bin/llvm-ar-18 /usr/bin/llvm-ar
+        sudo ln -sf /usr/bin/llvm-nm-18 /usr/bin/llvm-nm
 
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
@@ -44,14 +48,15 @@ jobs:
         cd ${{github.workspace}}
         npm ci
 
-    - name: Build wasi-libc
-      run: (cd ${{github.workspace}}/extern/wasi-libc && make)
-    - name: download libclang_rt.builtins-wasm32-wasi
-      run: | 
-        wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-14/libclang_rt.builtins-wasm32-wasi-14.0.tar.gz
-        sudo tar xzvf libclang_rt.builtins-wasm32-wasi-14.0.tar.gz
-        rm -r -f libclang_rt.builtins-wasm32-wasi-14.0.tar.gz
-        
+    - name: Download wasi-sdk
+      run: (
+        cd ./extern && 
+        export WASI_VERSION=20 &&
+        export WASI_VERSION_FULL=${WASI_VERSION}.0 &&
+        wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_VERSION}/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz &&
+        tar xvf wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz &&
+        rm -r -f wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz)
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type

@@ -68,7 +68,7 @@ void rule_deinit(struct rule *rule)
     array_deinit(&rule->exprs);
 }
 
-struct grammar *_grammar_new()
+struct grammar *_grammar_new(void)
 {
     struct grammar *grammar = 0;
     MALLOC(grammar, sizeof(*grammar));

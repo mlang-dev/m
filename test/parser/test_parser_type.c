@@ -63,7 +63,7 @@ y + z\n\
     frontend_deinit(fe);
 }
 
-int test_parser_type()
+int test_parser_type(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_parser_type_tuple_type);

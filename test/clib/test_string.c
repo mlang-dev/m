@@ -280,7 +280,7 @@ TEST(test_string, replace_char)
     string_free(dst);
 }
 
-int test_string()
+int test_string(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_string_short_init);

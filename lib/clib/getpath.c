@@ -26,7 +26,7 @@ static void reduce(char *dir)
     dir[i] = '\0';
 }
 
-char *get_exec_path()
+char *get_exec_path(void)
 {
 #if defined(__APPLE__)
     int ret;

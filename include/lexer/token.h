@@ -64,15 +64,15 @@ struct token {
     };
 };
 
-void token_init();
+void token_init(void);
 
-void token_deinit();
+void token_deinit(void);
 
 struct token_pattern *get_token_pattern_by_opcode(enum op_code opcode);
 
 struct token_pattern *get_token_pattern_by_token_type(enum token_type token_type);
 
-struct token_patterns get_token_patterns();
+struct token_patterns get_token_patterns(void);
 
 symbol get_terminal_symbol_by_token_opcode(enum token_type token_type, enum op_code opcode);
 

@@ -25,5 +25,6 @@ i = 0
     eval_module(env->jit(), block);
     struct error_report *er = get_last_error_report(env->engine()->fe->sema_context);
     ASSERT_STREQ("variable i is not defined.", er->error_msg);
+    app_reset_error_reports();
     node_free(block);
 }

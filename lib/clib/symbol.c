@@ -50,7 +50,7 @@ void _free_symbol(void *string)
     FREE(symbol);
 }
 
-symbol get_temp_symbol()
+symbol get_temp_symbol(void)
 {
     static int temp_index = 0;
     char temp[128];
@@ -58,7 +58,7 @@ symbol get_temp_symbol()
     return to_symbol(temp);
 }
 
-void symbols_init()
+void symbols_init(void)
 {
     if (g_symbols)
         return;
@@ -67,7 +67,7 @@ void symbols_init()
     EmptySymbol = to_symbol("");
 }
 
-void symbols_deinit()
+void symbols_deinit(void)
 {
     if (!g_symbols)
         return;

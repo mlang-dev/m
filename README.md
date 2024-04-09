@@ -83,7 +83,7 @@ https://user-images.githubusercontent.com/6968989/226146999-12b037e6-45e1-48e3-8
 * Source code version control: git
 * Build system generator: cmake 
 * Build system: GNU make (Unix-like system)
-* Compiler: c/c++ compilers: clang/llvm 14, nodejs v18.15
+* Compiler: c/c++ compilers: clang/llvm 18, nodejs v18.15
 
 ## install cmake/clang/llvm/lld 
 ```
@@ -109,7 +109,7 @@ npm install -g typescript
 # build m from source code
 ## get m source code
 ```
-git clone https://github.com/ligangwang/m
+git clone https://github.com/mlang-dev/m
 cd m
 git submodule init
 git submodule update
@@ -143,7 +143,7 @@ or manually invoke clang front-end and back-end as two steps:
 
 use front-end clang to produce wasm object file
 ```
-clang -cc1 -triple wasm32-unknown-wasi -emit-obj -internal-isystem /usr/lib/llvm-14/lib/clang/14.0.0/include -internal-isystem ./extern/wasi-libc/sysroot/include -o hello.o -x c hello.c
+clang -cc1 -triple wasm32-unknown-wasi -emit-obj -internal-isystem /usr/lib/llvm-18/lib/clang/18.1.3/include -internal-isystem ./extern/wasi-libc/sysroot/include -o hello.o -x c hello.c
 ```
 
 then use back-end wasm-ld to produce wasm module

@@ -86,7 +86,7 @@ let a = y\n\
     frontend_deinit(fe);
 }
 
-int test_analyzer_type()
+int test_analyzer_type(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_type_tuple_type);

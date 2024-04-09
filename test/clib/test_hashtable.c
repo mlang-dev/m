@@ -207,7 +207,7 @@ TEST(testHashtable, TestHashtablePointerKeyWithCopyValue)
 }
 */
 
-int test_hashtable()
+int test_hashtable(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_hashtable_str_int);

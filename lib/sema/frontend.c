@@ -10,7 +10,7 @@
 #include "clib/util.h"
 #include "app/error.h"
 
-struct frontend *frontend_init()
+struct frontend *frontend_init(void)
 {
     struct frontend*fe;
     MALLOC(fe, sizeof(*fe));

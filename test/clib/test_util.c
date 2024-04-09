@@ -75,7 +75,7 @@ TEST(test_util, join_path_null2)
     ASSERT_STREQ("/usr/local/include/", path);
 }
 
-int test_util()
+int test_util(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_util_id_name_generator);

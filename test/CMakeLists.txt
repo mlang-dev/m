@@ -46,7 +46,7 @@ add_executable(mtestw
 set_target_properties(mtestw PROPERTIES LINKER_LANGUAGE C
                                     SUFFIX ".wasm")
 target_link_libraries(mtestw PRIVATE wasm_options mlrw clibw
-  ${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot/lib/wasm32-wasi/libc.a
+  ${CMAKE_SOURCE_DIR}/extern/wasi-sdk-20.0/share/wasi-sysroot/lib/wasm32-wasi/libc.a
   ${CMAKE_SOURCE_DIR}/lib/wasi/libclang_rt.builtins-wasm32.a
   --target=wasm32
   -nostdlib
@@ -60,10 +60,10 @@ add_custom_command(TARGET mtestw POST_BUILD
 )
 
 
-find_package(LLVM 14 REQUIRED CONFIG)
-execute_process(COMMAND llvm-config --libfiles
+find_package(LLVM 18.1.3 REQUIRED CONFIG)
+execute_process(COMMAND llvm-config-18 --libfiles
                 OUTPUT_VARIABLE llvm_libfiles OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND llvm-config --system-libs
+execute_process(COMMAND llvm-config-18 --system-libs
                 OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(NOT ${sys_libraries} STREQUAL "")
   string(REPLACE " -llibxml2.tbd" "" sys_libraries ${sys_libraries})

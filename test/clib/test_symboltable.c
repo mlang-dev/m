@@ -70,7 +70,7 @@ TEST(test_symboltable, multiple_keys)
 }
 */
 
-int test_symboltable()
+int test_symboltable(void)
 {
     UNITY_BEGIN();
     //RUN_TEST(test_symboltable_multiple_keys);

@@ -116,7 +116,7 @@ TEST(test_regex, int_num)
     regex_free(re);
 }
 
-int test_regex()
+int test_regex(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_regex_to_postfix);

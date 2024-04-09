@@ -7,7 +7,7 @@
 #include "clib/util.h"
 #include "compiler/jit.h"
 #include <llvm-c/Core.h>
-#include <llvm-c/Initialization.h>
+//#include <llvm-c/Initialization.h>
 #include <llvm-c/LLJIT.h>
 #include <llvm-c/Support.h>
 #include <llvm-c/Analysis.h>
@@ -15,7 +15,7 @@
 #include <llvm-c/Error.h>
 #include <assert.h>
 
-void *_create_jit_instance()
+void *_create_jit_instance(void)
 {
     // Create the JIT instance.
     LLVMOrcLLJITRef jit;

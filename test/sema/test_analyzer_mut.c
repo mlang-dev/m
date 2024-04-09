@@ -110,7 +110,7 @@ a[0]\n\
     frontend_deinit(fe);
 }
 
-int test_analyzer_mut()
+int test_analyzer_mut(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_type_immutable);

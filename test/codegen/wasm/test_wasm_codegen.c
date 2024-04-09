@@ -245,7 +245,7 @@ a[0] + a[1]\n\
     free(wasm);
 }
 
-int test_wasm_codegen()
+int test_wasm_codegen(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_wasm_codegen_sample_code);

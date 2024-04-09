@@ -623,7 +623,7 @@ TEST(test_lexer, mut_let_variable)
     frontend_deinit(fe);
 }
 
-int test_lexer()
+int test_lexer(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_lexer_empty_string);

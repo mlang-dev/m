@@ -44,7 +44,7 @@ string str_format(const char *string_format, ...);
 string make_unique_name(const char *root);
 //int random(int min, int max);
 bool is_new_line(int ch);
-string get_id_name();
+string get_id_name(void);
 void reset_id_name(const char *idname);
 void print_backtrace(void);
 void join_path(char *destination, size_t dst_size, const char *path1, const char *path2);
@@ -83,7 +83,7 @@ char *get_basename(char *filename);
 
 #define FREE(_ptr) MMEM_FREE(_ptr)
 
-char *get_exec_path();
+char *get_exec_path(void);
 
 bool is_power_of2_64(uint64_t Value);
 

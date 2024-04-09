@@ -18,27 +18,27 @@
 
 struct app app;
 
-void app_init()
+void app_init(void)
 {
     symbols_init();
     token_init();
     error_init(&app.error_reports);
 }
 
-void app_deinit()
+void app_deinit(void)
 {
     error_deinit(&app.error_reports);
     token_deinit();
     symbols_deinit();
 }
 
-void app_reset_error_reports()
+void app_reset_error_reports(void)
 {
     error_deinit(&app.error_reports);
     error_init(&app.error_reports);
 }
 
-struct app *app_get()
+struct app *app_get(void)
 {
     return &app;
 }

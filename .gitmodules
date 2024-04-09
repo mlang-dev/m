@@ -2,7 +2,3 @@
 	path = extern/googletest
 	url = https://github.com/google/googletest
 	branch = v1.12.x
-[submodule "extern/wasi-libc"]
-	path = extern/wasi-libc
-	url = https://github.com/WebAssembly/wasi-libc
-	branch = main

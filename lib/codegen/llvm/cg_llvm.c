@@ -418,7 +418,7 @@ void _llvm_cg_deinit_state(struct cg_llvm *cg)
 struct cg_llvm *cg_llvm_new(struct sema_context *sema_context)
 {
     LLVMContextRef context = LLVMContextCreate();
-    LLVMInitializeCore(LLVMGetGlobalPassRegistry());
+   // LLVMInitializeCore(LLVMGetGlobalPassRegistry());
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();

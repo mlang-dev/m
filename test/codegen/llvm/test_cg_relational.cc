@@ -19,10 +19,10 @@ define i8 @f(i32 %m, i32 %n) {
 entry:
   %n2 = alloca i32, align 4
   %m1 = alloca i32, align 4
-  store i32 %m, i32* %m1, align 4
-  store i32 %n, i32* %n2, align 4
-  %m3 = load i32, i32* %m1, align 4
-  %n4 = load i32, i32* %n2, align 4
+  store i32 %m, ptr %m1, align 4
+  store i32 %n, ptr %n2, align 4
+  %m3 = load i32, ptr %m1, align 4
+  %n4 = load i32, ptr %n2, align 4
   %cmplttmp = icmp slt i32 %m3, %n4
   %ret_val_int = zext i1 %cmplttmp to i8
   ret i8 %ret_val_int

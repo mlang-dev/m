@@ -200,7 +200,7 @@ p.x = (f32)10.0\n\
     frontend_deinit(fe);
 }
 
-int test_analyzer_errors()
+int test_analyzer_errors(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_analyzer_error_fun_no_found);

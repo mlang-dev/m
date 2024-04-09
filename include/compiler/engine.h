@@ -21,10 +21,10 @@ struct engine{
 };
 
 struct engine *engine_llvm_new(const char *sys_path, bool is_repl);
-struct engine *engine_wasm_new();
+struct engine *engine_wasm_new(void);
 void engine_reset(struct engine *engine);
 u8* compile_to_wasm(struct engine *cg, const char *expr);
-const char *engine_version();
+const char *engine_version(void);
 void engine_free(struct engine *engine);
 
 

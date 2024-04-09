@@ -59,7 +59,7 @@ TEST(test_queue, circle)
     queue_deinit(&q);
 }
 
-int test_queue()
+int test_queue(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_queue_push_and_pop);

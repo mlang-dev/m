@@ -373,7 +373,7 @@ struct ast_node *member_index_node_new(enum IndexType index_type, struct ast_nod
 struct ast_node *for_node_new(struct ast_node *var, struct ast_node *range, struct ast_node *body, struct source_location loc);
 struct ast_node *while_node_new(struct ast_node *expr, struct ast_node *body, struct source_location loc);
 struct ast_node *jump_node_new(enum token_type token_type, struct ast_node *expr, struct source_location loc);
-struct ast_node *block_node_new_empty();
+struct ast_node *block_node_new_empty(void);
 struct ast_node *block_node_new(struct array *nodes);
 struct ast_node *block_node_add(struct ast_node *block, struct ast_node *node);
 struct ast_node *block_node_add_block(struct ast_node *block, struct ast_node *node);

@@ -184,7 +184,7 @@ exit:
     fprintf(stderr, "m> ");
 }
 
-int run_repl()
+int run_repl(void)
 {
     struct engine *engine = engine_llvm_new(0, true);
     struct JIT *jit = jit_new(engine);

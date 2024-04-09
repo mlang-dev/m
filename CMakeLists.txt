@@ -6,8 +6,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(HAVE_FLAG_SEARCH_PATHS_FIRST 0)
 
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_C_COMPILER clang-18)
+set(CMAKE_CXX_COMPILER clang++-18)
 set(CMAKE_M_COMPILER ${CMAKE_SOURCE_DIR}/dep/m)
 
 project(m, VERSION 0.0.9 LANGUAGES CXX C)
@@ -18,8 +18,8 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/test
 )
 
-set(CMAKE_AR "llvm-ar")
-set(CMAKE_RANLIB "llvm-ranlib")
+set(CMAKE_AR "llvm-ar-18")
+set(CMAKE_RANLIB "llvm-ranlib-18")
 
 add_library(wasm_options INTERFACE)
 
@@ -30,9 +30,11 @@ WASM=1
 UNITY_EXCLUDE_SETJMP_H=1)
 
 target_compile_options(wasm_options INTERFACE
-                      --target=wasm32-wasi
-                      --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot
+                      --target=wasm32
+                      --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-sdk-20.0/share/wasi-sysroot
                       -nostdlib
+                      -msign-ext
+                      -mbulk-memory
                       # -o3  # aggressive optimization
                       # -flto # add meta data for link time optimization
                       -fvisibility=hidden

@@ -73,7 +73,7 @@ struct lang_token_pattern *create_lang_op_pattern(u16 token_op, u16 op_type, con
     return tp;
 }
 
-void lang_token_init()
+void lang_token_init(void)
 {
     hashtable_init(&token_patterns_by_symbol);
     array_init_free(&lang_token_patterns, sizeof(struct lang_token_pattern *), free_lang_token_pattern);
@@ -82,7 +82,7 @@ void lang_token_init()
     g_token_op = 0;
 }
 
-void lang_token_deinit()
+void lang_token_deinit(void)
 {
     array_deinit(&lang_token_patterns);
     hashtable_deinit(&token_patterns_by_symbol);
@@ -127,7 +127,7 @@ u16 register_lang_grammar_nonterm(symbol symbol)
     return nonterm;
 }
 
-u16 get_lang_symbol_count()
+u16 get_lang_symbol_count(void)
 {
     return g_nonterm_count + g_terminal_count;
 }

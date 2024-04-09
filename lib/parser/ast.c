@@ -1370,7 +1370,7 @@ int find_field_index(struct ast_node *type_item_node, struct ast_node *index)
     return index->node_type == IDENT_NODE ? find_member_index(type_item_node, index->ident->name) : eval(index);
 }  
 
-struct ast_node *block_node_new_empty()
+struct ast_node *block_node_new_empty(void)
 {
     struct array nodes;
     array_init(&nodes, sizeof(struct ast_node *));

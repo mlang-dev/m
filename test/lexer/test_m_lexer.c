@@ -343,7 +343,7 @@ TEST(test_m_lexer, string_with_id)
     frontend_deinit(fe);
 }
 
-int test_m_lexer()
+int test_m_lexer(void)
 {
     UNITY_BEGIN();
     RUN_TEST(test_m_lexer_underscore);
