@@ -30,10 +30,11 @@ WASM=1
 UNITY_EXCLUDE_SETJMP_H=1)
 
 target_compile_options(wasm_options INTERFACE
-                      --target=wasm32-wasi
-                      --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-libc/sysroot
+                      --target=wasm32
+                      --sysroot=${CMAKE_SOURCE_DIR}/extern/wasi-sdk-20.0/share/wasi-sysroot
                       -nostdlib
-                      -mno-sign-ext
+                      -msign-ext
+                      -mbulk-memory
                       # -o3  # aggressive optimization
                       # -flto # add meta data for link time optimization
                       -fvisibility=hidden

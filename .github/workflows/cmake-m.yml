@@ -48,14 +48,15 @@ jobs:
         cd ${{github.workspace}}
         npm ci
 
-    - name: Build wasi-libc
-      run: (cd ${{github.workspace}}/extern/wasi-libc && make)
-    - name: download libclang_rt.builtins-wasm32-wasi
-      run: | 
-        wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-14/libclang_rt.builtins-wasm32-wasi-14.0.tar.gz
-        sudo tar xzvf libclang_rt.builtins-wasm32-wasi-14.0.tar.gz
-        rm -r -f libclang_rt.builtins-wasm32-wasi-14.0.tar.gz
-        
+    - name: Download wasi-sdk
+      run: (
+        cd ./extern
+        export WASI_VERSION=20
+        export WASI_VERSION_FULL=${WASI_VERSION}.0
+        wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${WASI_VERSION}/wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz
+        tar xvf wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz
+        rm -r -f wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz)
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
