@@ -8,10 +8,11 @@
 #include "sema/sema_context.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
+#include "test_fixture.h"
 #include <stdio.h>
 
 
-TEST(testCGRelational, testLessThan)
+TEST_F(TestFixture, testCGRelationalLessThan)
 {
     const char test_code[] = "def f(m:int, n:int): m < n";
     const char *expected_ir = R"(
@@ -28,5 +29,5 @@ entry:
   ret i8 %ret_val_int
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }

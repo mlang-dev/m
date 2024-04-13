@@ -2,6 +2,8 @@
  * Copyright (C) 2021 Ligang Wang <ligangwangs@gmail.com>
  *
  * front-end initializer/deinitializer for create/destroy front-end configurations
+ * the frontend is initialized with system path and is_repl flag
+ * the system path is the path to the system files: /src/lib/math.m...
  */
 #include "clib/symbol.h"
 #include "parser/ast.h"
@@ -38,7 +40,7 @@ struct array _get_file_paths(const char *sys_path)
     return file_paths;
 }
 
-struct frontend *frontend_llvm_init(const char *sys_path, bool is_repl)
+struct frontend *frontend_sys_init(const char *sys_path, bool is_repl)
 {
     struct frontend*fe;
     MALLOC(fe, sizeof(*fe));

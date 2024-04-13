@@ -27,7 +27,6 @@ struct codegen{
 
 typedef struct codegen* (*cg_alloc_fun)(struct sema_context *context);
 typedef void (*cg_free_fun)(struct codegen*);
-typedef void (*cg_reset_fun)(struct codegen*, struct sema_context*);
 
 #ifdef __cplusplus
 }

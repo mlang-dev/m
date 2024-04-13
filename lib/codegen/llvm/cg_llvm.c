@@ -445,21 +445,6 @@ struct cg_llvm *cg_llvm_new(struct sema_context *sema_context)
     return cg;
 }
 
-void cg_llvm_reset(struct cg_llvm *cg, struct sema_context *sema_context)
-{
-    if(cg->module){
-        LLVMDisposeModule(cg->module);
-        cg->module = 0;
-    }
-    LLVMDisposeBuilder(cg->builder);
-    LLVMContextDispose(cg->context);
-    cg->context = LLVMContextCreate();
-    cg->builder = LLVMCreateBuilderInContext(cg->context);
-    cg->base.sema_context = sema_context;
-    _llvm_cg_deinit_state(cg);
-    _llvm_cg_init_state(cg);
-}
-
 void cg_llvm_free(struct cg_llvm *cg)
 {
     if (cg->module){

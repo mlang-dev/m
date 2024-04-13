@@ -8,10 +8,11 @@
 #include "sema/sema_context.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
+#include "test_fixture.h"
 #include <stdio.h>
 
 
-TEST(testCGLogical, testNot)
+TEST_F(TestFixture, testCGLogicalNot)
 {
     const char test_code[] = "def f(m:bool): not m";
     const char *expected_ir = R"(
@@ -26,5 +27,5 @@ entry:
   ret i8 %ret_val_int
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }

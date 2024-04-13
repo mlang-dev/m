@@ -30,9 +30,9 @@
 #include <cstdio>
 
 #include "gtest/gtest.h"
-#include "test_main.h"
+#include "test_env.h"
 
-static Environment *env = 0;
+static TestEnvironment *env = 0;
 
 #if defined(GTEST_OS_ESP8266) || defined(GTEST_OS_ESP32)
 // Arduino-like platforms: program entry points are setup/loop instead of main.
@@ -67,12 +67,12 @@ GTEST_API_ int main(int argc, char **argv) {
   }
   printf("Running main() from %s\n", __FILE__);
   testing::InitGoogleTest(&argc, argv);
-  env = new Environment(argv[1]);
+  env = new TestEnvironment(argv[1]);
   testing::AddGlobalTestEnvironment(env);
   return RUN_ALL_TESTS();
 }
 
-Environment * get_env() {
+TestEnvironment * get_test_env() {
     return env;
 }
 #endif
