@@ -8,110 +8,95 @@
 #include "codegen/llvm/cg_llvm.h"
 #include "sema/analyzer.h"
 #include "tutil.h"
-#include "test_main.h"
+#include "test_env.h"
 #include "gtest/gtest.h"
+#include "test_fixture.h"
 #include <stdio.h>
 
-TEST(testJITLogical, testOrTrueTrue)
+TEST_F(TestFixture, testJITLogicalOrTrueTrue)
 {
     const char test_code[] = R"(
 True or True
   )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(true, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(true, eval_module(jit, block).i_value);
     node_free(block);
 }
 
-TEST(testJITLogical, testOrTrueFalse)
+TEST_F(TestFixture, testJITLogicalOrTrueFalse)
 {
     const char test_code[] = R"(
 True or False
   )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(true, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(true, eval_module(jit, block).i_value);
     node_free(block);
 }
 
-TEST(testJITLogical, testOrFalseFalse)
+TEST_F(TestFixture, testJITLogicalOrFalseFalse)
 {
     const char test_code[] = R"(
 False or False
   )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(false, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(false, eval_module(jit, block).i_value);
     node_free(block);
 }
 
-TEST(testJITLogical, testAndTrueTrue)
+TEST_F(TestFixture, testJITLogicalAndTrueTrue)
 {
     const char test_code[] = R"(
 True or True
   )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(true, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(true, eval_module(jit, block).i_value);
     node_free(block);
 }
 
-TEST(testJITLogical, testAndTrueFalse)
+TEST_F(TestFixture, testJITLogicalAndTrueFalse)
 {
     const char test_code[] = R"(
 True and False
   )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(false, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(false, eval_module(jit, block).i_value);
     node_free(block);
 }
 
-TEST(testJITLogical, testAndFalseFalse)
+TEST_F(TestFixture, testJITLogicalAndFalseFalse)
 {
     const char test_code[] = R"(
 False and False
   )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(false, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(false, eval_module(jit, block).i_value);
     node_free(block);
 }
 
-TEST(testJITLogical, testNotFalse)
+TEST_F(TestFixture, testJITLogicalNotFalse)
 {
     const char test_code[] = R"(
 not False
   )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(true, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(true, eval_module(jit, block).i_value);
     node_free(block);
 }
 
-TEST(testJITLogical, testNotTrue)
+TEST_F(TestFixture, testJITLogicalNotTrue)
 {
     const char test_code[] = R"(
 not True
   )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(false, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(false, eval_module(jit, block).i_value);
     node_free(block);
 }

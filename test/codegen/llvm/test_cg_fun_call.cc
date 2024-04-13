@@ -8,9 +8,10 @@
 #include "sema/sema_context.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
+#include "test_fixture.h"
 #include <stdio.h>
 
-TEST(testCGFunCall, testIntIdFunc)
+TEST_F(TestFixture, testCGFunCallIntIdFunc)
 {
     const char test_code[] = R"(
 def f(x:int): x
@@ -31,11 +32,11 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }
 
 
-TEST(testCGFunCall, testTwoParamsFunc)
+TEST_F(TestFixture, testCGFunCallTwoParamsFunc)
 {
     const char test_code[] = R"(
 def f(x, y): (x + y) / 2
@@ -61,10 +62,10 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }
 
-// TEST(testCGFunCall, testReturnStructDirect)
+// TEST_F(TestFixture, testCGFunCallReturnStructDirect)
 // {
 //     const char test_code[] = R"(
 // struct Point2D = x:int, y:int
@@ -101,10 +102,10 @@ entry:
 //   ret i32 %3
 // }
 // )";
-//     validate_m_code_with_ir_code(test_code, expected_ir);
+//     validate_m_code_with_ir_code(engine, test_code, expected_ir);
 // }
 
-TEST(testCGFunCall, testReturnStructDirectWithoutName)
+TEST_F(TestFixture, testCGFunCallReturnStructDirectWithoutName)
 {
     const char test_code[] = R"(
 struct Point2D = x:int, y:int
@@ -137,12 +138,12 @@ entry:
   ret i32 %2
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }
 
 #ifdef WIN32_CC  //win32 calling convention
 
-TEST(testCGFunCall, testGenericIdFunc)
+TEST_F(TestFixture, testCGFunCallGenericIdFunc)
 {
     const char test_code[] = R"(
 let f x = x
@@ -163,10 +164,10 @@ entry:
   ret i8 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }
 
-TEST(testCGFunCall, testPassStructIndirect)
+TEST_F(TestFixture, testCGFunCallPassStructIndirect)
 {
     const char test_code[] = R"(
 struct Point2D = x:f64, y:f64
@@ -196,10 +197,10 @@ entry:
   ret f64 %2
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }
 
-TEST(testCGFunCall, testPassStructDirect)
+TEST_F(TestFixture, testCGFunCallPassStructDirect)
 {
     const char test_code[] = R"(
 struct Point2D = x:int, y:int
@@ -234,10 +235,10 @@ entry:
   ret i32 %4
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }
 
-TEST(testCGFunCall, testReturnStructInDirect)
+TEST_F(TestFixture, testCGFunCallReturnStructInDirect)
 { 
     const char test_code[] = R"(
 struct Point2D = x:f64, y:f64
@@ -269,10 +270,10 @@ entry:
   ret f64 %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }
 
-TEST(testCGFunCall, testReturnStructInDirectWithoutName)
+TEST_F(TestFixture, testCGFunCallReturnStructInDirectWithoutName)
 {
     const char test_code[] = R"(
  struct Point2D = x:f64 y:f64
@@ -302,10 +303,10 @@ entry:
   ret f64 %xy.x
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir, false);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir, false);
 }
 
-TEST(testCGFunCall, testReturnStructInDirectWithoutNameCalling)
+TEST_F(TestFixture, testCGFunCallReturnStructInDirectWithoutNameCalling)
 {
     const char test_code[] = R"(
 struct Point2D = x:f64, y:f64
@@ -330,10 +331,10 @@ entry:
   ret void
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }
 
-// TEST(testCGFunCall, testReturnStructInDirectWithoutNameElementAccess)
+// TEST_F(TestFixture, testCGFunCallReturnStructInDirectWithoutNameElementAccess)
 // {
 //     const char test_code[] = R"(
 //  type Point2D = x:f64 y:f64
@@ -361,11 +362,11 @@ entry:
 //   ret f64 %xy.x
 // }
 // )";
-//     validate_m_code_with_ir_code(test_code, expected_ir, false);
+//     validate_m_code_with_ir_code(engine, test_code, expected_ir, false);
 // }
 #endif
 
-TEST(testCGFunCall, testArray){
+TEST_F(TestFixture, testCGFunCallArray){
     char test_code[] = R"(
 def f():
     let a = [10]
@@ -390,10 +391,10 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }
 
-TEST(testCGFunCall, testReturnExpressionScalar)
+TEST_F(TestFixture, testCGFunCallReturnExpressionScalar)
 {
     char test_code[] = R"(
 def getx():
@@ -417,5 +418,5 @@ entry:
   ret i32 %0
 }
 )";
-    validate_m_code_with_ir_code(test_code, expected_ir);
+    validate_m_code_with_ir_code(engine, test_code, expected_ir);
 }

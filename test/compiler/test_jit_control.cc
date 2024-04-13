@@ -10,7 +10,7 @@
 #include "parser/ast.h"
 #include "tutil.h"
 #include "gtest/gtest.h"
-#include "test_main.h"
+#include "test_env.h"
 #include <stdio.h>
 
 #include "llvm-c/Core.h"
@@ -18,9 +18,9 @@
 #include "llvm-c/LLJIT.h"
 #include "llvm-c/Support.h"
 #include "llvm-c/Target.h"
+#include "test_fixture.h"
 
-
-TEST(testJITControl, testIfFunc)
+TEST_F(TestFixture, testJITControlIfFunc)
 {
     char test_code[] = R"(
 def if_f(x):
@@ -29,15 +29,14 @@ def if_f(x):
 if_f(5)
 if_f(10)
 )";
-    Environment *env = get_env();
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    eval_result result = eval_module(env->jit(), block);
+    eval_result result = eval_module(jit, block);
     ASSERT_EQ(0, result.i_value);
     node_free(block);
 }
 
-TEST(testJITControl, testForLoopFunc)
+TEST_F(TestFixture, testJITControlForLoopFunc)
 {
     char test_code[] = R"(
 def forloop(n):
@@ -47,15 +46,14 @@ def forloop(n):
     j
 forloop(5)
   )";
-    Environment *env = get_env();
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    eval_result result = eval_module(env->jit(), block);
+    eval_result result = eval_module(jit, block);
     ASSERT_EQ(10, result.i_value);
     node_free(block);
 }
 
-TEST(testJITControl, breakForLoop)
+TEST_F(TestFixture, testJITControlBreakForLoop)
 {
     char test_code[] = R"(
 def forloop(n, m):
@@ -67,15 +65,14 @@ def forloop(n, m):
     j
 forloop(5, 3)
   )";
-    Environment *env = get_env();
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    eval_result result = eval_module(env->jit(), block);
+    eval_result result = eval_module(jit, block);
     ASSERT_EQ(6, result.i_value);
     node_free(block);
 }
 
-TEST(testJITControl, continueForLoop)
+TEST_F(TestFixture, testJITControlContinueForLoop)
 {
     char test_code[] = R"(
 def forloop(n, m): 
@@ -89,15 +86,14 @@ def forloop(n, m):
     j
 forloop(5, 3)
   )";
-    Environment *env = get_env();
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    eval_result result = eval_module(env->jit(), block);
+    eval_result result = eval_module(jit, block);
     ASSERT_EQ(4, result.i_value);
     node_free(block);
 }
 
-TEST(testJITControl, returnForLoop)
+TEST_F(TestFixture, testJITControlReturnForLoop)
 {
     char test_code[] = R"(
 def forloop(n, m): 
@@ -109,15 +105,14 @@ def forloop(n, m):
     j
 forloop(5, 3)
   )";
-    Environment *env = get_env();
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    eval_result result = eval_module(env->jit(), block);
+    eval_result result = eval_module(jit, block);
     ASSERT_EQ(100, result.i_value);
     node_free(block);
 }
 
-TEST(testJITControl, whileLoop)
+TEST_F(TestFixture, testJITControlWhileLoop)
 {
     char test_code[] = R"(
 def loopfunc(m): 
@@ -132,15 +127,14 @@ def loopfunc(m):
     j
 loopfunc(5)
   )";
-    Environment *env = get_env();
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    eval_result result = eval_module(env->jit(), block);
+    eval_result result = eval_module(jit, block);
     ASSERT_EQ(4, result.i_value);
     node_free(block);
 }
 
-TEST(testJITControl, while_break_Loop)
+TEST_F(TestFixture, testJITControlWhile_break_Loop)
 {
     char test_code[] = R"(
 def loopfunc(m): 
@@ -157,10 +151,9 @@ def loopfunc(m):
     j
 loopfunc(5)
   )";
-    Environment *env = get_env();
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    eval_result result = eval_module(env->jit(), block);
+    eval_result result = eval_module(jit, block);
     ASSERT_EQ(4, result.i_value);
     node_free(block);
 }

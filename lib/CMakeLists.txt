@@ -136,7 +136,7 @@ add_library(mlr
   sema/eval.c
   sema/sema_context.c
   sema/frontend.c
-  sema/frontend_llvm.c
+  sema/frontend_sys.c
   sema/type_size_info.c
   codegen/backend.c
   codegen/abi_arg_info.c
@@ -175,7 +175,7 @@ add_library(mlrl
   sema/eval.c
   sema/sema_context.c
   sema/frontend.c
-  sema/frontend_llvm.c
+  sema/frontend_sys.c
   sema/type_size_info.c
   codegen/backend.c
   codegen/abi_arg_info.c
@@ -190,6 +190,7 @@ add_library(mlrl
   codegen/llvm/cg_var_llvm.c
   codegen/llvm/cg_call_llvm.c
   codegen/llvm/llvm_api.c
+  codegen/mlir/cg_mlir.c
   codegen/wasm/cg_wasm.c
   codegen/wasm/cg_var_wasm.c
   codegen/wasm/cg_fun_wasm.c

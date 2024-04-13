@@ -8,11 +8,12 @@
 #include "compiler/repl.h"
 #include "sema/analyzer.h"
 #include "tutil.h"
-#include "test_main.h"
+#include "test_env.h"
+#include "test_fixture.h"
 #include "gtest/gtest.h"
 #include <stdio.h>
 
-TEST(testJITAdt, testStructType)
+TEST_F(TestFixture, testJITAdtStructType)
 {
     char test_code[] = R"(
 struct Point2D = x:f64, y:f64
@@ -20,15 +21,13 @@ let xy:Point2D = Point2D { 10.0, 20.0 }
 xy.x
 xy.y
 )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(20.0, eval_module(env->jit(), block).d_value);
+    ASSERT_EQ(20.0, eval_module(jit, block).d_value);
     node_free(block);
 }
 
-TEST(testJITAdt, testProductTypeIntType)
+TEST_F(TestFixture, testJITAdtProductTypeIntType)
 {
     char test_code[] = R"(
 struct Point2D = x:int, y:int
@@ -36,15 +35,13 @@ let xy:Point2D = Point2D { 10, 20 }
 xy.x
 xy.y
 )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(20, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(20, eval_module(jit, block).i_value);
     node_free(block);
 }
 
-TEST(testJITAdt, testProductTypeMixedType)
+TEST_F(TestFixture, testJITAdtProductTypeMixedType)
 {
     char test_code[] = R"(
 struct Point2D = x:f64, y:int
@@ -52,15 +49,13 @@ let xy:Point2D = Point2D { 10.0, 20 }
 xy.x
 xy.y
 )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(20, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(20, eval_module(jit, block).i_value);
     node_free(block);
 }
 
-TEST(testJITAdt, testStructTypeMixedTypeLocalVariable)
+TEST_F(TestFixture, testJITAdtStructTypeMixedTypeLocalVariable)
 {
     char test_code[] = R"(
 struct Point2D = x:f64, y:int
@@ -69,15 +64,13 @@ def getx():
     xy.x
 getx()
 )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(10.0, eval_module(env->jit(), block).d_value);
+    ASSERT_EQ(10.0, eval_module(jit, block).d_value);
     node_free(block);
 }
 
-// TEST(testJITAdt, testStructEmbedStruct)
+// TEST_F(TestFixture, testJITAdtStructEmbedStruct)
 // {
 //     char test_code[] = R"(
 // struct xy = x:f64, y:f64
@@ -86,24 +79,22 @@ getx()
 // ab.z = xy{200.0, 300.0}
 // ab.z.y
 // )";
-//     Environment *env = get_env();
-//     engine_reset(env->engine());
-//     struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+//     TestEnvironment *env = get_env();
+//     engine_reset(engine);
+//     struct ast_node *block = parse_code(engine->fe->parser, test_code);
 //     block = split_ast_nodes_with_start_func(0, block);
-//     ASSERT_EQ(300.0, eval_module(env->jit(), block).d_value);
+//     ASSERT_EQ(300.0, eval_module(jit, block).d_value);
 //     node_free(block);
 // }
 
-TEST(testJITAdt, tuple_type)
+TEST_F(TestFixture, testJITAdtTuple_type)
 {
     char test_code[] = R"(
 let x = (10, 20)
 x[0]
 )";
-    Environment *env = get_env();
-    engine_reset(env->engine());
-    struct ast_node *block = parse_code(env->engine()->fe->parser, test_code);
+    struct ast_node *block = parse_code(engine->fe->parser, test_code);
     block = split_ast_nodes_with_start_func(0, block);
-    ASSERT_EQ(10, eval_module(env->jit(), block).i_value);
+    ASSERT_EQ(10, eval_module(jit, block).i_value);
     node_free(block);
 }

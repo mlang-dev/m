@@ -15,6 +15,7 @@ npm install
     tar xvf wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz
 )
 
+
 # build mlang
 cmake -B build -S .
 cmake --build build

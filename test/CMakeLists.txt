@@ -77,7 +77,8 @@ add_definitions(${LLVM_DEFINITIONS})
 
 add_executable(mtest
   tutil.cc
-  test_main.cc
+  test_env.cc
+  test_fixture.cc
   codegen/llvm/test_cg_relational.cc
   codegen/llvm/test_cg_logical.cc
   codegen/llvm/test_cg_var.cc
