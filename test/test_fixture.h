@@ -10,3 +10,13 @@ class TestFixture : public testing::Test {
     void SetUp() override;
     void TearDown() override;
 };
+
+
+class TestFixture2 : public testing::Test {
+  protected:
+    struct engine *engine = 0;
+    JIT *jit = 0;
+    const char *sys_path = 0;
+    void SetUp() override;
+    void TearDown() override;
+};

@@ -59,10 +59,11 @@ add_custom_command(TARGET mtestw POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/mtestw.wasm ${CMAKE_SOURCE_DIR}/docs
 )
 
-
 find_package(LLVM 18.1.3 REQUIRED CONFIG)
 execute_process(COMMAND llvm-config-18 --libfiles
                 OUTPUT_VARIABLE llvm_libfiles OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND llvm-config-18 --libdir
+                OUTPUT_VARIABLE llvm_libdir OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND llvm-config-18 --system-libs
                 OUTPUT_VARIABLE sys_libraries OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(NOT ${sys_libraries} STREQUAL "")
@@ -74,6 +75,14 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "LLVM shared libs ")
 message(STATUS "Found SYS libraries ${sys_libraries}")
 add_definitions(${LLVM_DEFINITIONS})
+
+list(APPEND CMAKE_PREFIX_PATH "/usr/lib/llvm-18/lib/cmake")
+
+find_package(MLIR REQUIRED CONFIG)
+get_property(all_mlir_libs GLOBAL PROPERTY MLIR_ALL_LIBS)
+
+# message(STATUS "FROM CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}, MLIR_DEFINITIONS : ${MLIR_DEFINITIONS}")
+# message(STATUS "Found MLIR_ALL_LIBS: ${all_mlir_libs}")
 
 add_executable(mtest
   tutil.cc
@@ -105,7 +114,14 @@ if(MSVC)
     set_property(TARGET mtest APPEND PROPERTY LINK_FLAGS /DEBUG)
 endif()
 
-TARGET_LINK_LIBRARIES(mtest gtest mlrl clib
+add_definitions(${MLIR_DEFINITIONS})
+
+TARGET_LINK_LIBRARIES(mtest gtest mlrl clib 
+  ${all_mlir_libs}
+  #MLIR MLIRIR
+  #MLIRDialect 
+  #MLIRParser MLIRPass MLIRTransforms MLIRAnalysis MLIRSupport
+  #MLIRLLVMDialect MLIRLLVMToLLVMIRTranslation 
   ${llvm_libfiles}
   ${sys_libraries}
 )

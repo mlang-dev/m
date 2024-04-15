@@ -19,3 +19,19 @@ void TestFixture::TearDown()
       engine_free(engine);
   app_deinit();
 }
+
+void TestFixture2::SetUp() 
+{
+  app_init();
+  engine = engine_mlir_new(get_test_env()->sys_path, false);
+  jit = jit_new(engine);
+}
+
+void TestFixture2::TearDown() 
+{
+  if (jit)
+      jit_free(jit);
+  if (engine)
+      engine_free(engine);
+  app_deinit();
+}

@@ -72,6 +72,18 @@ GTEST_API_ int main(int argc, char **argv) {
   return RUN_ALL_TESTS();
 }
 
+TestEnvironment::~TestEnvironment() {
+    // Implementation of virtual destructor
+}
+
+void TestEnvironment::setUp() {
+    // Implementation of setUp
+}
+
+void TestEnvironment::tearDown() {
+    // Implementation of tearDown
+}
+
 TestEnvironment * get_test_env() {
     return env;
 }
