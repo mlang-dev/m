@@ -17,11 +17,18 @@ void _cg_mlir_free(struct codegen *cg)
     cg_mlir_free((struct cg_mlir*)cg);
 }
 
+char *_cg_mlir_emit_ir_string(void *gcg, struct ast_node *ast_node)
+{
+    return 0;
+}
+
+
 struct engine *engine_mlir_new(const char *sys_path, bool is_repl)
 {
     struct engine *engine;
     MALLOC(engine, sizeof(*engine));
     engine->fe = frontend_sys_init(sys_path, is_repl);
     engine->be = backend_init(engine->fe->sema_context, _cg_mlir_new, _cg_mlir_free);
+    engine->emit_ir_string = _cg_mlir_emit_ir_string;
     return engine;
 }

@@ -102,16 +102,6 @@ int compile(const char *sys_path, const char *source_file, enum object_file_type
     return 0;
 }
 
-char *emit_ir_string(struct cg_llvm *cg, struct ast_node *ast_node)
-{
-    if (!ast_node)
-        return 0;
-    analyze(cg->base.sema_context, ast_node);
-    emit_sp_code(cg);
-    emit_ir_code(cg, ast_node);
-    return LLVMPrintModuleToString(cg->module);
-}
-
 void free_ir_string(char *ir_string)
 {
     LLVMDisposeMessage(ir_string);

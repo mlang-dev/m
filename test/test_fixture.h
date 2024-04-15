@@ -9,14 +9,11 @@ class TestFixture : public testing::Test {
     const char *sys_path = 0;
     void SetUp() override;
     void TearDown() override;
+
+    virtual struct engine* CreateEngine(void);
 };
 
 
-class TestFixture2 : public testing::Test {
-  protected:
-    struct engine *engine = 0;
-    JIT *jit = 0;
-    const char *sys_path = 0;
-    void SetUp() override;
-    void TearDown() override;
+class TestFixture2 : public TestFixture {
+    struct engine* CreateEngine() override;
 };

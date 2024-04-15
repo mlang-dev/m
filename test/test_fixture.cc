@@ -7,7 +7,7 @@
 void TestFixture::SetUp() 
 {
   app_init();
-  engine = engine_llvm_new(get_test_env()->sys_path, false);
+  engine = CreateEngine();
   jit = jit_new(engine);
 }
 
@@ -20,18 +20,12 @@ void TestFixture::TearDown()
   app_deinit();
 }
 
-void TestFixture2::SetUp() 
+struct engine* TestFixture::CreateEngine() 
 {
-  app_init();
-  engine = engine_mlir_new(get_test_env()->sys_path, false);
-  jit = jit_new(engine);
+  return engine_llvm_new(get_test_env()->sys_path, false);
 }
 
-void TestFixture2::TearDown() 
+struct engine* TestFixture2::CreateEngine() 
 {
-  if (jit)
-      jit_free(jit);
-  if (engine)
-      engine_free(engine);
-  app_deinit();
+  return engine_mlir_new(get_test_env()->sys_path, false);
 }

@@ -864,12 +864,14 @@ LLVMValueRef _emit_for_node(struct cg_llvm *cg, struct ast_node *node)
     return LLVMConstNull(cg->ops[TYPE_INT].get_type(cg, cg->context, 0));
 }
 
-void create_ir_module(struct cg_llvm *cg,
+void* create_ir_module(void* gcg,
     const char *module_name)
 {
+    struct cg_llvm *cg = (struct cg_llvm *)gcg;
     delete_current_module(cg);
     cg->module = LLVMModuleCreateWithNameInContext(module_name, cg->context);
     cg->target_machine = create_target_machine(cg->module, &cg->target_data);
+    return cg->module;
 }
 
 LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node)
