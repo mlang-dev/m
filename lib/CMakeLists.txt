@@ -203,6 +203,7 @@ add_library(mlrl
   compiler/compiler.c
   compiler/engine.c
   compiler/engine_llvm.c
+  compiler/engine_mlir.c
   compiler/engine_wasm.c
 )
 
