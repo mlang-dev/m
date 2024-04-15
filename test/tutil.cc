@@ -36,15 +36,14 @@ target triple = "%s"
     free((void*)target_triple);
 }
 
-void validate_m_code_with_ir_code(struct engine* engine, const char *m_code, const char *ir_code)
+void validate_m_code_with_ir_code(struct engine* engine, const char *m_code, const char *expected_ir_code)
 {
-    char module_ir[1024 * 4];
-    struct cg_llvm *cg = (struct cg_llvm *)engine->be->cg;
-    create_ir_module(cg, module_name);
-    make_module_ir(cg->module, module_name, ir_code, module_ir);
+    char expected_module_ir[1024 * 4];
+    void* module = create_ir_module(engine->be->cg, module_name);
+    make_module_ir(module, module_name, expected_ir_code, expected_module_ir);
     struct ast_node *block = parse_code(engine->fe->parser, m_code);
-    char *ir_string = emit_ir_string(cg, block);
-    ASSERT_STREQ(module_ir, ir_string);
+    char *ir_string = engine->emit_ir_string(engine->be->cg, block);
+    ASSERT_STREQ(expected_module_ir, ir_string);
     node_free(block);
     free_ir_string(ir_string);
 }

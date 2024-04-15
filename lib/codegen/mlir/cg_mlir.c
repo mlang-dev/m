@@ -7,6 +7,7 @@ struct cg_mlir *cg_mlir_new(struct sema_context *sema_context)
 {
     struct cg_mlir *cg;
     MALLOC(cg, sizeof(*cg));
+    cg->base.sema_context = sema_context;
     cg->context = mlirContextCreate();
     mlirDialectHandleRegisterDialect(mlirGetDialectHandle__llvm__(), cg->context);
     mlirContextGetOrLoadDialect(cg->context, mlirStringRefCreateFromCString("llvm"));    

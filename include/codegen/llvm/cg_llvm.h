@@ -121,7 +121,7 @@ void cg_llvm_free(struct cg_llvm *cg);
 
 void emit_code(struct cg_llvm *cg, struct ast_node *node);
 void emit_sp_code(struct cg_llvm *cg);
-void create_ir_module(struct cg_llvm *cg, const char *module_name);
+void* create_ir_module(void *cg, const char *module_name);
 LLVMValueRef emit_ir_code(struct cg_llvm *cg, struct ast_node *node);
 LLVMTargetMachineRef create_target_machine(LLVMModuleRef module, LLVMTargetDataRef* target_data_out);
 LLVMTypeRef get_backend_type(struct cg_llvm *cg, struct type_item *type);
