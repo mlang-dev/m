@@ -14,9 +14,11 @@
 struct cg_mlir{
     struct codegen base;
     MlirContext context;
+    MlirModule module;
 };
 
 struct cg_mlir *cg_mlir_new(struct sema_context *sema_context);
 void cg_mlir_free(struct cg_mlir *cg);
+MlirValue emit_ir_code(struct cg_mlir *cg, struct ast_node *node);
 
 #endif

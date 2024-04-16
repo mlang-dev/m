@@ -19,8 +19,15 @@ void _cg_mlir_free(struct codegen *cg)
 
 char *_cg_mlir_emit_ir_string(void *gcg, struct ast_node *ast_node)
 {
-    return 0;
+    struct cg_mlir *cg = (struct cg_mlir *)gcg;
+    if (!ast_node)
+        return 0;
+    analyze(cg->base.sema_context, ast_node);
+    emit_sp_code(cg);
+    emit_mlir_code(cg, ast_node);
+    return 0;//LLVMPrintModuleToString(cg->module);
 }
+
 
 
 struct engine *engine_mlir_new(const char *sys_path, bool is_repl)
