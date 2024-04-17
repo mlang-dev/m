@@ -19,6 +19,6 @@ struct cg_mlir{
 
 struct cg_mlir *cg_mlir_new(struct sema_context *sema_context);
 void cg_mlir_free(struct cg_mlir *cg);
-MlirValue emit_ir_code(struct cg_mlir *cg, struct ast_node *node);
+MlirValue emit_mlir_code(struct cg_mlir *cg, struct ast_node *node);
 
 #endif

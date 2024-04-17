@@ -1,6 +1,9 @@
 #include <assert.h>
 #include "mlir-c/IR.h"
+#include "mlir-c/RegisterEverything.h"
+#include "mlir-c/BuiltinAttributes.h"
 #include "mlir-c/Dialect/LLVM.h"
+#include "mlir-c/BuiltinTypes.h"
 #include "codegen/mlir/cg_mlir.h"
 
 struct cg_mlir *cg_mlir_new(struct sema_context *sema_context)
@@ -9,9 +12,13 @@ struct cg_mlir *cg_mlir_new(struct sema_context *sema_context)
     MALLOC(cg, sizeof(*cg));
     cg->base.sema_context = sema_context;
     cg->context = mlirContextCreate();
-    milrRegisterAllDialects(cg->context);
-    mlirREgisterAllPasses();
+    MlirDialectRegistry registry = mlirDialectRegistryCreate();
+    mlirRegisterAllDialects(registry);
+    mlirContextAppendDialectRegistry(cg->context, registry);
+    mlirDialectRegistryDestroy(registry);
+    mlirRegisterAllPasses();
     cg->module = mlirModuleCreateEmpty(mlirLocationUnknownGet(cg->context));
+
     return cg;
 }
 
@@ -22,16 +29,19 @@ void cg_mlir_free(struct cg_mlir *cg)
     free(cg);
 }
 
-MlirOperation _emit_mlir_operation(struct cg_mlir *cg, const char *op_name, MlirType type, int value)
+MlirValue _emit_mlir_operation(struct cg_mlir *cg, MlirStringRef op_name, MlirType type, int value)
 {
-    MlirOperationState opState = mlirOperationStateGet(op_name, mlirLocationUnknown(context));
+    MlirOperationState opState = mlirOperationStateGet(op_name, mlirLocationUnknownGet(cg->context));
     MlirAttribute valueAttr = mlirIntegerAttrGet(type, value);
-    mlirOperationStateAddAttributes(&opState, 1, &valueAttr); //inerting one attribute
+    const char *myString = "value";
+    MlirStringRef strRef = mlirStringRefCreate(myString, strlen(myString));
+    MlirNamedAttribute namedAttr = mlirNamedAttributeGet(mlirIdentifierGet(cg->context, strRef), valueAttr);
+    mlirOperationStateAddAttributes(&opState, 1, &namedAttr); //inerting one attribute
     mlirOperationStateAddResults(&opState, 1, &type);
     MlirOperation constOp = mlirOperationCreate(&opState);
     MlirBlock moduleBody = mlirModuleGetBody(cg->module); //get the body of the module
-    mlirBlockInsertOwnedOperation(moduleBody, constOp); //insert the operation into the module
-    return constOp;
+    mlirBlockInsertOwnedOperation(moduleBody, 0, constOp); //insert the operation into the module
+    return mlirOperationGetResult(constOp, 0);
 }
 
 MlirValue _emit_mlir_literal_node(struct cg_mlir *cg, struct ast_node *node)
@@ -40,17 +50,20 @@ MlirValue _emit_mlir_literal_node(struct cg_mlir *cg, struct ast_node *node)
     assert(node->node_type == LITERAL_NODE);
     struct type_context *tc = cg->base.sema_context->tc;
     enum type type = get_type(tc, node->type);
-    void *value = 0;
-    MlirType mlir_type = mlirIntegerTypeGet(tc->context, 32);
+    MlirType mlir_type = mlirIntegerTypeGet(cg->context, 32);
+    MlirValue value = {0};
     if (is_int_type(type)){
-        _emit_mlir_operation(cg, "llvm.mlir.constant", mlir_type, node->liter->int_val);
+        const char *myString = "llvm.mlir.constant";
+        MlirStringRef strRef = mlirStringRefCreate(myString, strlen(myString));
+        value = _emit_mlir_operation(cg, strRef, mlir_type, node->liter->int_val);
     }
-    else if (type == TYPE_F64)
+    else if (type == TYPE_F64){
         //value = &node->liter->double_val;
+    }
     else if (type == TYPE_STRING) {
         //value = (void *)node->liter->str_val;
     }
-    return cg->ops[type].get_const(cg, cg->context, cg->builder, value);
+    return value;
 }
 
 
@@ -58,7 +71,7 @@ MlirValue emit_mlir_code(struct cg_mlir *cg, struct ast_node *node)
 {
     if(node->transformed) 
         node = node->transformed;
-    MlirValue value = 0;
+    MlirValue value = {0};
     switch(node->node_type){
         case LITERAL_NODE:
             value = _emit_mlir_literal_node(cg, node);
@@ -139,6 +152,8 @@ MlirValue emit_mlir_code(struct cg_mlir *cg, struct ast_node *node)
         case RANGE_NODE:
         case TOTAL_NODE:
         case TOKEN_NODE:
+            break;
+        default:
             break;
     }
     return value;
