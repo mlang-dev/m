@@ -177,7 +177,9 @@
         "*.operator": "c",
         "*.keyword": "c",
         "grammar_token.h": "c",
-        "llvm_api.h": "c"
+        "llvm_api.h": "c",
+        "cg_mlir.h": "c",
+        "charconv": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
