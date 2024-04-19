@@ -36,5 +36,6 @@ struct engine *engine_llvm_new(const char *sys_path, bool is_repl)
     engine->fe = frontend_sys_init(sys_path, is_repl);
     engine->be = backend_init(engine->fe->sema_context, _cg_llvm_new, _cg_llvm_free);
     engine->emit_ir_string = _cg_llvm_emit_ir_string;
+    engine->create_ir_module = create_ir_module;
     return engine;
 }

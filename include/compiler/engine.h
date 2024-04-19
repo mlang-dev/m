@@ -18,7 +18,8 @@ extern "C" {
 struct engine{
     struct frontend *fe;
     struct backend *be;
-    char *(*emit_ir_string)(void *, struct ast_node *);
+    char *(*emit_ir_string)(void*, struct ast_node *);
+    void* (*create_ir_module)(void*, const char *module_name);
 };
 
 struct engine *engine_llvm_new(const char *sys_path, bool is_repl);
