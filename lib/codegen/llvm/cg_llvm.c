@@ -445,23 +445,6 @@ struct cg_llvm *cg_llvm_new(struct sema_context *sema_context)
     return cg;
 }
 
-void cg_llvm_free(struct cg_llvm *cg)
-{
-    if (cg->module){
-        LLVMDisposeModule(cg->module);
-    }
-    if (cg->target_machine){
-        LLVMDisposeTargetMachine(cg->target_machine);
-    }
-    if (cg->target_data){
-        LLVMDisposeTargetData(cg->target_data);
-    }
-    LLVMDisposeBuilder(cg->builder);
-    LLVMContextDispose(cg->context);
-    _llvm_cg_deinit_state(cg);
-    FREE(cg);
-    LLVMShutdown();
-}
 
 void delete_current_module(struct cg_llvm *cg)
 {
@@ -477,6 +460,16 @@ void delete_current_module(struct cg_llvm *cg)
         LLVMDisposeTargetData(cg->target_data);
         cg->target_data = 0;
     }
+}
+
+void cg_llvm_free(struct cg_llvm *cg)
+{
+    delete_current_module(cg);
+    LLVMDisposeBuilder(cg->builder);
+    LLVMContextDispose(cg->context);
+    _llvm_cg_deinit_state(cg);
+    FREE(cg);
+    LLVMShutdown();
 }
 
 LLVMTypeRef _get_llvm_type(struct cg_llvm *cg, struct type_item *type)
