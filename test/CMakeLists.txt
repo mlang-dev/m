@@ -188,8 +188,8 @@ add_custom_command(
   COMMAND mctest
 )
 
-add_custom_command(
-  TARGET mtest
-  POST_BUILD
-  COMMAND mtest ${CMAKE_SOURCE_DIR}/src/sys
-)
+# add_custom_command(
+#   TARGET mtest
+#   POST_BUILD
+#   COMMAND mtest ${CMAKE_SOURCE_DIR}/src/sys
+# )

@@ -9,10 +9,15 @@
 #include "tutil.h"
 #include "gtest/gtest.h"
 #include "test_fixture.h"
+#include "codegen/mlir/mlir_test.h"
 #include <stdio.h>
 
+TEST_F(TestFixture, testMLIRToLLVM)
+{
+    test_mlir_to_llvm();
+}
 
-TEST_F(TestFixture, testCGVarGlobalVarInt)
+TEST_F(TestFixture2, testCGVarGlobalVarInt)
 {
     const char test_code[] = "let m = 10";
     const char *expected_ir = R"(

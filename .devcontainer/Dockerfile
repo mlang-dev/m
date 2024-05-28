@@ -5,6 +5,7 @@ RUN sudo apt-get update
 RUN sudo apt-get --assume-yes install clang-18 lld-18 llvm-18 libmlir-18-dev mlir-18-tools
 RUN sudo apt-get --assume-yes install gdb
 RUN sudo apt-get --assume-yes install libzstd-dev #used in some MLIR libraries
+RUN sudo ln -s /usr/bin/llvm-symbolizer-18 /usr/bin/llvm-symbolizer
 
 RUN sudo apt-get --assume-yes install cmake
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash 

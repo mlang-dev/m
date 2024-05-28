@@ -179,7 +179,8 @@
         "grammar_token.h": "c",
         "llvm_api.h": "c",
         "cg_mlir.h": "c",
-        "charconv": "c"
+        "charconv": "c",
+        "mlir_api.h": "c"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

@@ -8,34 +8,15 @@
 #include "sema/analyzer.h"
 #include "codegen/mlir/cg_mlir.h"
 #include "llvm-c/Core.h"
+#include <llvm-c/Support.h>
+#include <llvm-c/TargetMachine.h>
 #include "mlir-c/IR.h"
 #include "mlir-c/Pass.h"
 #include "mlir-c/Conversion.h"
 #include "mlir-c/Target/LLVMIR.h"
+#include "codegen/llvm/cg_llvm.h"
+#include "codegen/mlir/mlir_api.h"
 
-// Function to convert an MLirModule to LLVMModuleRef
-LLVMModuleRef lower_to_llvm_module(MlirContext ctx, LLVMContextRef llvmCtx, MlirModule mlirModule) {
-    // Create a pass manager in the given MLIR context
-    MlirPassManager pm = mlirPassManagerCreate(ctx);
-
-    // Add the standard conversion passes that includes lowering to LLVM
-    MlirPass standardToLLVMPass = mlirCreateConversionConvertToLLVMPass();
-    mlirPassManagerAddOwnedPass(pm, standardToLLVMPass);
-
-    // Run the pass manager on the module
-    MlirOperation moduleOp = mlirModuleGetOperation(mlirModule);
-    mlirPassManagerRunOnOp(pm, moduleOp);
-
-    // Convert the MLIR LLVM dialect module to an LLVM IR module.
-    // This step typically involves C++ API, but here we assume there's a corresponding C function.
-    // Note: As of last checks, this step doesn't have a direct C API and would need to be handled in C++ or exposed via a custom C API.
-    LLVMModuleRef llvmModuleRef = mlirTranslateModuleToLLVMIR(moduleOp, llvmCtx);
-
-    // Clean up
-    mlirPassManagerDestroy(pm);
-
-    return llvmModuleRef;
-}
 
 void emit_mlir_sp_code(struct cg_mlir *cg)
 {
@@ -64,11 +45,16 @@ char *_cg_mlir_emit_ir_string(void *gcg, struct ast_node *ast_node)
     analyze(cg->base.sema_context, ast_node);
     emit_mlir_sp_code(cg);
     emit_mlir_code(cg, ast_node);
+    
     LLVMContextRef llvmCtx = LLVMContextCreate();
-    LLVMModuleRef llvm_module = lower_to_llvm_module(cg->context, llvmCtx,cg->module);
+    LLVMModuleRef llvm_module = lower_to_llvm_module(cg->context, cg->module, llvmCtx);
+    LLVMTargetDataRef target_data;
+    LLVMTargetMachineRef target_machine = create_target_machine(llvm_module, &target_data);
     char * llvm_ir = LLVMPrintModuleToString(llvm_module);
     LLVMDisposeModule(llvm_module);
     LLVMContextDispose(llvmCtx);
+    LLVMDisposeTargetData(target_data);
+    LLVMDisposeTargetMachine(target_machine);
     return llvm_ir;
 }
 

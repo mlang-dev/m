@@ -15,7 +15,7 @@
 #include <llvm-c/TargetMachine.h>
 #include <stdio.h>
 
-const char *module_name = "test_ir";
+const char *module_name = "LLVMDialectModule";
 
 FILE *open_file_from_string(const char *code)
 {

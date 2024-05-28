@@ -191,6 +191,8 @@ add_library(mlrl
   codegen/llvm/cg_call_llvm.c
   codegen/llvm/llvm_api.c
   codegen/mlir/cg_mlir.c
+  codegen/mlir/mlir_test.c
+  codegen/mlir/mlir_api.c
   codegen/wasm/cg_wasm.c
   codegen/wasm/cg_var_wasm.c
   codegen/wasm/cg_fun_wasm.c

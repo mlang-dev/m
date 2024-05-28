@@ -1,0 +1,1 @@
+"llvm.mlir.global"() ({}) {linkage="common", global_type = i32, sym_name = "m", value = 10 : i32} : () -> ()

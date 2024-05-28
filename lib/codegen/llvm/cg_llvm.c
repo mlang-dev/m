@@ -418,7 +418,6 @@ void _llvm_cg_deinit_state(struct cg_llvm *cg)
 struct cg_llvm *cg_llvm_new(struct sema_context *sema_context)
 {
     LLVMContextRef context = LLVMContextCreate();
-   // LLVMInitializeCore(LLVMGetGlobalPassRegistry());
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
     LLVMInitializeNativeAsmParser();
@@ -976,7 +975,8 @@ LLVMTargetMachineRef create_target_machine(LLVMModuleRef module, LLVMTargetDataR
     LLVMTargetMachineRef target_machine = LLVMCreateTargetMachine(target, target_triple, cpu, features, opt, rm, cm);
     LLVMTargetDataRef target_data = LLVMCreateTargetDataLayout(target_machine);
     LLVMSetModuleDataLayout(module, target_data);
-    *target_data_out = target_data;
+    if(target_data_out)
+        *target_data_out = target_data;
     free(target_triple);
     return target_machine;
 }
