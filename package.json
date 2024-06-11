@@ -20,7 +20,7 @@
     "3d-view-controls": "^2.2.2",
     "codejar": "^3.6.0",
     "css-loader": "^6.7.3",
-    "firebase": "^9.16.0",
+    "firebase": "^10.12.2",
     "firebaseui": "^6.0.2",
     "gl-matrix": "^3.4.3",
     "interpolate-arrays": "^1.0.4",
