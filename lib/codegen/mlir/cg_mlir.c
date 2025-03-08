@@ -123,6 +123,15 @@ MlirValue _emit_mlir_block_node(struct cg_mlir *cg, struct ast_node *node)
     return value;
 }
 
+void emit_mlir_sp_code(struct cg_mlir *cg)
+{
+    for(size_t i = 0; i < array_size(&cg->base.sema_context->new_specialized_asts); i++){
+        struct ast_node *new_sp = array_get_ptr(&cg->base.sema_context->new_specialized_asts, i);
+        emit_mlir_code(cg, new_sp);
+    }
+    array_reset(&cg->base.sema_context->new_specialized_asts);
+}
+
 MlirValue emit_mlir_code(struct cg_mlir *cg, struct ast_node *node)
 {
     if(node->transformed) 

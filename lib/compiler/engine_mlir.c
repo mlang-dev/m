@@ -17,16 +17,6 @@
 #include "codegen/llvm/cg_llvm.h"
 #include "codegen/mlir/mlir_api.h"
 
-
-void emit_mlir_sp_code(struct cg_mlir *cg)
-{
-    for(size_t i = 0; i < array_size(&cg->base.sema_context->new_specialized_asts); i++){
-        struct ast_node *new_sp = array_get_ptr(&cg->base.sema_context->new_specialized_asts, i);
-        emit_mlir_code(cg, new_sp);
-    }
-    array_reset(&cg->base.sema_context->new_specialized_asts);
-}
-
 struct codegen *_cg_mlir_new(struct sema_context *context)
 {
     return (struct codegen *)cg_mlir_new(context);
