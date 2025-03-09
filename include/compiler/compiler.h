@@ -25,6 +25,8 @@ enum object_file_type {
 int compile(const char *sys_path, const char *fn, enum object_file_type file_type, const char *output_filepath);
 void free_ir_string(char *ir_string);
 
+struct engine *engine_mlir_new(const char *sys_path, bool is_repl);
+
 #ifdef __cplusplus
 }
 #endif

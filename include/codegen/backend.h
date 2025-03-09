@@ -12,6 +12,7 @@
 #include "clib/hashtable.h"
 #include "codegen/fun_info.h"
 #include "codegen/codegen.h"
+#include "codegen/mlir/cg_mlir.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,6 +28,8 @@ struct backend{
 
 struct backend *backend_init(struct sema_context *sema_context, cg_alloc_fun cg_alloc, cg_free_fun cg_free);
 void backend_deinit(struct backend *be);
+
+struct engine *engine_mlir_new(const char *sys_path, bool is_repl);
 
 #ifdef __cplusplus
 }
